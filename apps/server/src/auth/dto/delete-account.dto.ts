@@ -1,6 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsString, Matches } from 'class-validator';
+import { IsOptional, IsString, Matches } from 'class-validator';
 
 export class DeleteAccountDto {
   @ApiProperty({
@@ -15,4 +15,11 @@ export class DeleteAccountDto {
     message: 'Для подтверждения введите слово «удалить»',
   })
   confirmation: string;
+
+  @ApiPropertyOptional({
+    description: 'Текущий пароль (обязателен, если он уже задан)',
+  })
+  @IsOptional()
+  @IsString()
+  currentPassword?: string;
 }

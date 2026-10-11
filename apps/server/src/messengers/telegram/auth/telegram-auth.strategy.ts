@@ -65,7 +65,7 @@ export class TelegramAuthStrategy {
     const telegramUser = this.verifyAndParse(initDataRaw);
     const telegramId = String(telegramUser.id);
     const user = await this.users.upsertByExternalId('TELEGRAM', telegramId, {
-      profile: telegramUser as unknown as Record<string, unknown>,
+      profile: telegramUser,
     });
 
     // allows_write_to_pm — пользователь уже разрешил боту писать (нажимал «Start» или дал доступ

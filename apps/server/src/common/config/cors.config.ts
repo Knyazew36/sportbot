@@ -1,6 +1,8 @@
 import type { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import { ConfigService } from '@nestjs/config';
 
+import { isDev } from '../utils/is-dev';
+
 function isOriginAllowed(origin: string, allowedOrigins: string[]): boolean {
   if (allowedOrigins.includes(origin)) return true;
 
@@ -35,7 +37,10 @@ export function getCorsConfig(configService: ConfigService): CorsOptions {
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean);
-  const allowedOrigins = [...LOCALHOST_ORIGINS, ...envOrigins];
+  // localhost — только в разработке: в проде страница с чужой машины не должна ходить в API с куками
+  const allowedOrigins = isDev(configService)
+    ? [...LOCALHOST_ORIGINS, ...envOrigins]
+    : envOrigins;
 
   return {
     origin: (origin, callback) => {
@@ -46,7 +51,8 @@ export function getCorsConfig(configService: ConfigService): CorsOptions {
       return callback(new Error('Not allowed by CORS'));
     },
     credentials: true,
-    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    // Мутации в API — только POST
+    methods: ['GET', 'HEAD', 'POST', 'OPTIONS'],
     allowedHeaders: [
       'Content-Type',
       'Authorization',

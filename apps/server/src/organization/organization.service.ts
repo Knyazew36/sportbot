@@ -65,8 +65,8 @@ export class OrganizationService {
   // ── CRUD ────────────────────────────────────────────────────────────────
 
   /**
-   * Список организаций. Обычный пользователь видит только свои (где есть членство);
-   * платформенный админ — все.
+   * Список организаций. Обычный пользователь видит только свои действующие (где есть членство);
+   * платформенный админ — все, включая мягко удалённые (ему их восстанавливать).
    */
   public async list(
     query: PaginationQueryDto,
@@ -76,7 +76,7 @@ export class OrganizationService {
     const where: Prisma.OrganizationWhereInput = {
       ...(viewer.isPlatformAdmin
         ? {}
-        : { memberships: { some: { userId: viewer.userId } } }),
+        : { active: true, memberships: { some: { userId: viewer.userId } } }),
       ...(search ? { name: { contains: search, mode: 'insensitive' } } : {}),
     };
 
@@ -84,6 +84,7 @@ export class OrganizationService {
       ...query,
       where,
       select: ORGANIZATION_SELECT,
+      sortable: ['id', 'createdAt', 'name'],
     });
     this.logger.log(`list viewer=${viewer.userId}: ${result.meta.total}`);
     return result;

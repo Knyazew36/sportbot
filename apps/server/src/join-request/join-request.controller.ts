@@ -11,12 +11,12 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
+import { OrganizationId } from '@/common/decorators/organization-id.decorator';
 import { ResourceScope } from '@/common/decorators/resource-scope.decorator';
 import { Swagger } from '@/common/decorators/swagger/swagger.decorator';
 import { MultiAuthGuard } from '@/common/guards/multi-auth.guard';
 import { OrgScopeGuard } from '@/common/guards/org-scope.guard';
 import { ResourceScopeGuard } from '@/common/guards/resource-scope.guard';
-import { OrgRole } from '@/generated/prisma/client';
 
 import { JoinRequestQueryDto } from './dto/join-request-query.dto';
 import { JoinRequestResponseDto } from './dto/join-request.response.dto';
@@ -53,8 +53,11 @@ export class JoinRequestController {
     isArray: true,
     bearerAuth: true,
   })
-  list(@Query() query: JoinRequestQueryDto) {
-    return this.joinRequestService.list(query);
+  list(
+    @OrganizationId() organizationId: number,
+    @Query() query: JoinRequestQueryDto,
+  ) {
+    return this.joinRequestService.list(organizationId, query);
   }
 
   @Post(':id/approve')

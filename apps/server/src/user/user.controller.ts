@@ -22,6 +22,7 @@ import { PaginationQueryDto } from '@/common/type';
 
 import { AuthService } from '../auth/auth.service';
 import { UploadService } from '../upload/upload.service';
+import { CleanupStagedUploadsInterceptor } from '../upload/cleanup-staged-uploads.interceptor';
 import { imageUploadInterceptorOptions } from '../upload/upload.utils';
 
 import { CreateUserDto } from './dto/create-user.dto';
@@ -67,7 +68,10 @@ export class UserController {
   }
 
   @Post('me/avatar')
-  @UseInterceptors(FileInterceptor('file', imageUploadInterceptorOptions()))
+  @UseInterceptors(
+    CleanupStagedUploadsInterceptor,
+    FileInterceptor('file', imageUploadInterceptorOptions()),
+  )
   @ApiConsumes('multipart/form-data')
   @Swagger({
     title: 'Загрузить/сменить свой аватар',

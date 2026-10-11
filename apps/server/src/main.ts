@@ -1,4 +1,8 @@
-import { ValidationPipe } from '@nestjs/common';
+// Первым импортом: часть настроек читается из process.env при загрузке модулей (лимит размера файла
+// в декораторах контроллеров) — раньше, чем ConfigModule успевает прочитать .env
+import 'dotenv/config';
+
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -9,36 +13,31 @@ import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { AppModule } from './app.module';
 import { getCorsConfig } from './common';
 import { getSwaggerConfig } from './common/config/swagger.config';
-import { AllExceptionsFilter } from './common/fitlers/exception.filter';
+import { AllExceptionsFilter } from './common/filters/exception.filter';
 import { UploadService } from './upload/upload.service';
-
-// Загружаем правильный .env файл в зависимости от NODE_ENV
-// const envFile =
-//   process.env.NODE_ENV === 'production'
-//     ? '.env.production'
-//     : '.env.development';
-// config({ path: path.resolve(process.cwd(), envFile) });
 
 // nestjs-telegraf вызывает bot.launch() без await/catch, поэтому таймаут getMe
 // к api.telegram.org (ETIMEDOUT) прилетает как unhandledRejection и роняет процесс.
 // Логируем такие ошибки, но не завершаем приложение — API должно работать даже без Telegram.
-process.on('unhandledRejection', (reason: any) => {
-  console.error(
-    '⚠️ Unhandled promise rejection (процесс не завершаем):',
-    reason,
+const processLogger = new Logger('⚙️ Process');
+process.on('unhandledRejection', (reason: unknown) => {
+  processLogger.error(
+    `Unhandled promise rejection (процесс не завершаем): ${reason instanceof Error ? reason.message : String(reason)}`,
+    reason instanceof Error ? reason.stack : undefined,
   );
 });
+
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   // За приложением ровно один reverse proxy (nginx) — доверяем один хоп, чтобы
   // req.ip брался из X-Forwarded-For, а не был всегда адресом самого nginx.
   // Без этого ThrottlerGuard (по умолчанию трекает по req.ip) считает лимит
-  // не per-client, а суммарно на всё приложение — см. guest-login DoS.
+  // не per-client, а суммарно на всё приложение.
   app.set('trust proxy', 1);
 
   const config = app.get(ConfigService);
-  const port = process.env.PORT || 4003;
+  const port = config.get<number>('PORT', 4003);
 
   app.use(
     helmet({
@@ -56,7 +55,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   // Боты долбят /favicon.ico и /robots.txt в корень API-домена — без этого
-  // каждый такой запрос падает в AllExceptionsFilter как NotFoundException и спамит error-логи.
+  // каждый такой запрос падает в AllExceptionsFilter как NotFoundException и спамит логи.
   app
     .getHttpAdapter()
     .getInstance()
@@ -68,16 +67,17 @@ async function bootstrap() {
       res.status(200).type('text/plain').send('User-agent: *\nDisallow: /\n'),
     );
 
-  // Раздача загруженных аватаров через уже существующий nginx location /api/ —
-  // без правок nginx.conf (деплой их не подхватывает без ручного SSH-шага)
+  // Раздача загруженных файлов через уже существующий nginx location /api/ — без правок nginx.conf.
+  // Отдаются только перечисленные категории: имена файлов — случайные uuid, списка каталога нет.
   const uploadService = app.get(UploadService);
-  app.useStaticAssets(uploadService.getCategoryDir('avatars'), {
-    prefix: '/api/uploads/avatars',
-  });
+  for (const category of UploadService.PUBLIC_CATEGORIES) {
+    app.useStaticAssets(uploadService.getCategoryDir(category), {
+      prefix: `/api/uploads/${category}`,
+    });
+  }
 
   const winstonLogger = app.get(WINSTON_MODULE_NEST_PROVIDER);
   app.useLogger(winstonLogger);
-  // app.use(cookieParser());
 
   // Swagger — источник OpenAPI-схемы для orval (генерация react-query хуков на фронте).
   // ignoreGlobalPrefix, т.к. фронт сам добавляет /api через apiDomain при вызове запросов.
@@ -93,7 +93,6 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true, // Удаляет неописанные в DTO поля
-      // forbidNonWhitelisted: true, // Ошибка при передаче неописанных полей — сломает существующих клиентов
       transform: true, // Автоматически преобразует входные данные к типу DTO
     }),
   );
@@ -102,7 +101,7 @@ async function bootstrap() {
     await app.listen(port);
 
     winstonLogger.log(`🚀 Server is running, http://localhost:${port}`);
-    winstonLogger.log(`⚙️ NODE_ENV=${process.env.NODE_ENV}`);
+    winstonLogger.log(`⚙️ NODE_ENV=${config.get<string>('NODE_ENV')}`);
   } catch (error) {
     winstonLogger.error(
       `🚨 Server is not running: http://localhost:${port} ${error}`,
@@ -110,4 +109,4 @@ async function bootstrap() {
     process.exit(1);
   }
 }
-bootstrap();
+void bootstrap();

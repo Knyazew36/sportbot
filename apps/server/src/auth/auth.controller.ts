@@ -1,12 +1,11 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
+import { Throttle } from '@nestjs/throttler';
 
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { Swagger } from '@/common/decorators/swagger/swagger.decorator';
 import { MultiAuthGuard } from '@/common/guards/multi-auth.guard';
 
-import { AuthService } from './auth.service';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { DeleteAccountDto } from './dto/delete-account.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
@@ -19,15 +18,14 @@ import { VerifyEmailDto } from './dto/verify-email.dto';
 import { EmailAuthService } from './email-auth.service';
 import { EmailVerificationService } from './email-verification.service';
 
-// Публичные эндпоинты (без MultiAuthGuard), защищены троттлингом от перебора
+// Публичные эндпоинты (без MultiAuthGuard). Троттлинг — глобальный ThrottlerGuard из AppModule,
+// @Throttle на ручках только ужесточает лимит против перебора
 @ApiTags('auth')
-@UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly emailAuthService: EmailAuthService,
     private readonly emailVerificationService: EmailVerificationService,
-    private readonly authService: AuthService,
   ) {}
 
   @Post('register')
@@ -97,21 +95,12 @@ export class AuthController {
 
   // --- Аутентифицированные ---
 
-  @Get('me')
-  @UseGuards(MultiAuthGuard)
-  @Swagger({
-    title: 'Профиль текущего пользователя + вычисленные capabilities',
-    bearerAuth: true,
-  })
-  me(@CurrentUser('id') userId: number) {
-    return this.authService.getMe(userId);
-  }
-
   @Post('change-password')
   @UseGuards(MultiAuthGuard)
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Swagger({
-    title: 'Смена пароля авторизованным пользователем',
+    title:
+      'Смена пароля авторизованным пользователем (прежние сессии завершаются, в ответе новый токен)',
     body: ChangePasswordDto,
     bearerAuth: true,
   })
@@ -126,7 +115,8 @@ export class AuthController {
   @UseGuards(MultiAuthGuard)
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Swagger({
-    title: 'Удалить аккаунт безвозвратно после ввода слова «удалить»',
+    title:
+      'Удалить аккаунт безвозвратно: слово «удалить» и текущий пароль, если он задан',
     body: DeleteAccountDto,
     bearerAuth: true,
   })

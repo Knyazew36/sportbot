@@ -68,7 +68,7 @@ export class MaxBotService implements OnApplicationBootstrap {
       const result = await this.bot.api.sendMessageToUser(
         Number(maxId),
         text,
-        extra as MaxSendExtra | undefined,
+        extra,
       );
       this.logger.debug(`Сообщение отправлено maxId=${maxId}`);
       return result;

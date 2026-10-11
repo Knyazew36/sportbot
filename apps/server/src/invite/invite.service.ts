@@ -53,7 +53,9 @@ function formatUserName(user: {
 
 @Injectable()
 export class InviteService {
-  private readonly logger = new Logger(`${InviteService.name}`);
+  private readonly logger = new Logger(
+    `${ENTITY_EMOJI.invite} ${InviteService.name}`,
+  );
 
   constructor(
     private readonly prisma: PrismaService,
@@ -63,17 +65,15 @@ export class InviteService {
 
   // ── CRUD ────────────────────────────────────────────────────────────────
 
-  /** Приглашения организации. Доступ проверяет OrgScopeGuard (по query.organizationId). */
-  public async list(query: InviteQueryDto) {
-    const where: Prisma.InviteWhereInput = {
-      organizationId: query.organizationId,
-    };
+  /** Приглашения организации. organizationId — тот, доступ к которому проверил OrgScopeGuard. */
+  public async list(organizationId: number, query: InviteQueryDto) {
+    const where: Prisma.InviteWhereInput = { organizationId };
     const result = await paginatePrisma(this.prisma.invite, {
       ...query,
       where,
       select: INVITE_SELECT,
     });
-    this.logger.log(`list org=${query.organizationId}: ${result.meta.total}`);
+    this.logger.log(`list org=${organizationId}: ${result.meta.total}`);
     return result;
   }
 
@@ -93,6 +93,7 @@ export class InviteService {
   /** Создаёт ссылку-приглашение. Организацию и права уже проверил OrgScopeGuard. */
   public async create(
     userId: number,
+    organizationId: number,
     dto: CreateInviteDto,
   ): Promise<InviteResponseDto> {
     const expiresAt = dto.expiresAt ? new Date(dto.expiresAt) : null;
@@ -101,7 +102,7 @@ export class InviteService {
       try {
         const invite = await this.prisma.invite.create({
           data: {
-            organizationId: dto.organizationId,
+            organizationId,
             createdByUserId: userId,
             token: generateInviteToken(),
             expiresAt,
@@ -109,7 +110,7 @@ export class InviteService {
           select: INVITE_SELECT,
         });
         this.logger.log(
-          `Создано приглашение id=${invite.id} org=${dto.organizationId} createdBy=${userId}`,
+          `Создано приглашение id=${invite.id} org=${organizationId} createdBy=${userId}`,
         );
         return invite;
       } catch (error) {

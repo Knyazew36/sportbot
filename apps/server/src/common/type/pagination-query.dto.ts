@@ -1,14 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import {
-  IsEnum,
-  IsInt,
-  IsObject,
-  IsOptional,
-  IsString,
-  Max,
-  Min,
-} from 'class-validator';
+import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export class PaginationQueryDto {
   @ApiPropertyOptional({
@@ -28,7 +20,7 @@ export class PaginationQueryDto {
     type: Number,
     example: 25,
     minimum: 1,
-    maximum: 300,
+    maximum: 1000,
     default: 25,
     description: 'Количество элементов на странице',
   })
@@ -43,7 +35,8 @@ export class PaginationQueryDto {
     type: String,
     example: 'createdAt',
     default: 'createdAt',
-    description: 'Поле для сортировки',
+    description:
+      'Поле для сортировки. Допустимые поля задаёт конкретный список (по умолчанию id, createdAt)',
   })
   @IsString()
   @IsOptional()
@@ -56,7 +49,7 @@ export class PaginationQueryDto {
   })
   @IsEnum(['asc', 'desc'])
   @IsOptional()
-  order?: 'asc' | 'desc' = 'asc';
+  order?: 'asc' | 'desc' = 'desc';
 
   @ApiPropertyOptional({
     example: 'timeout',
@@ -65,12 +58,4 @@ export class PaginationQueryDto {
   @IsString()
   @IsOptional()
   search?: string;
-
-  @ApiPropertyOptional({
-    example: 'include',
-    description: 'что включить в результат',
-  })
-  @IsObject()
-  @IsOptional()
-  include?: Record<string, unknown>;
 }

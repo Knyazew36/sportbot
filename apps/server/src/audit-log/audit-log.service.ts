@@ -45,14 +45,14 @@ export class AuditLogService {
         action: input.action,
         entity: input.entity,
         entityId: input.entityId ?? null,
-        payload: (input.payload ?? Prisma.JsonNull) as Prisma.InputJsonValue,
+        payload: input.payload ?? Prisma.JsonNull,
       },
     });
   }
 
-  public async list(query: QueryAuditLogDto) {
+  public async list(organizationId: number, query: QueryAuditLogDto) {
     const where: Prisma.AuditLogWhereInput = {
-      organizationId: query.organizationId,
+      organizationId,
       ...(query.entity ? { entity: query.entity } : {}),
       ...(query.action ? { action: query.action } : {}),
       ...(query.userId ? { userId: query.userId } : {}),
@@ -89,7 +89,7 @@ export class AuditLogService {
       createdAt: log.createdAt,
     }));
 
-    this.logger.debug(`list org=${query.organizationId}: ${meta.total}`);
+    this.logger.debug(`list org=${organizationId}: ${meta.total}`);
     return { items: mapped, meta };
   }
 }

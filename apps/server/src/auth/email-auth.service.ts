@@ -14,6 +14,8 @@ import { Prisma, User, VerificationCodeType } from '@/generated/prisma/client';
 import { MailService } from '@/mail/mail.service';
 import { PrismaService } from 'prisma/prisma.service';
 
+import { UploadService } from '../upload/upload.service';
+
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { DeleteAccountDto } from './dto/delete-account.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
@@ -33,7 +35,9 @@ const DUMMY_HASH = bcrypt.hashSync(
 
 @Injectable()
 export class EmailAuthService {
-  private readonly logger = new Logger(EmailAuthService.name);
+  private readonly logger = new Logger(
+    `${ENTITY_EMOJI.auth} ${EmailAuthService.name}`,
+  );
 
   constructor(
     private readonly prisma: PrismaService,
@@ -41,6 +45,7 @@ export class EmailAuthService {
     private readonly emailVerificationService: EmailVerificationService,
     private readonly verificationCodeService: VerificationCodeService,
     private readonly mailService: MailService,
+    private readonly uploadService: UploadService,
   ) {}
 
   public async register(dto: RegisterDto) {
@@ -80,9 +85,7 @@ export class EmailAuthService {
     const emailSent =
       await this.emailVerificationService.sendVerification(user);
 
-    this.logger.log(
-      `${ENTITY_EMOJI.auth} Регистрация userId=${user.id} emailSent=${emailSent}`,
-    );
+    this.logger.log(`Регистрация userId=${user.id} emailSent=${emailSent}`);
     // Токен не выдаём — доступ только после подтверждения email (см. EmailVerificationService.verify)
     return {
       email: user.email,
@@ -105,17 +108,13 @@ export class EmailAuthService {
     // Одинаковое сообщение и dummy-сравнение при любом исходе — не раскрываем, существует ли email
     if (!user || !user.passwordHash) {
       await bcrypt.compare(dto.password, DUMMY_HASH);
-      this.logger.warn(
-        `${ENTITY_EMOJI.auth} Неудачный вход: неизвестный email/пароль`,
-      );
+      this.logger.warn(`Неудачный вход: неизвестный email/пароль`);
       throw new UnauthorizedException('Неверный email или пароль');
     }
 
     const passwordValid = await bcrypt.compare(dto.password, user.passwordHash);
     if (!passwordValid) {
-      this.logger.warn(
-        `${ENTITY_EMOJI.auth} Неудачный вход userId=${user.id}: неверный пароль`,
-      );
+      this.logger.warn(`Неудачный вход userId=${user.id}: неверный пароль`);
       throw new UnauthorizedException('Неверный email или пароль');
     }
 
@@ -130,54 +129,24 @@ export class EmailAuthService {
       );
     }
 
-    this.logger.log(`${ENTITY_EMOJI.auth} Вход userId=${user.id}`);
+    this.logger.log(`Вход userId=${user.id}`);
     return this.buildAuthResponse(user);
-  }
-
-  // Timing/enumeration-safe проверка пароля произвольного email-аккаунта — переиспользуется
-  // вне логина (напр. UserService.mergeAccount, где нужно доказать владение "вторым" аккаунтом).
-  public async verifyCredentials(
-    email: string,
-    password: string,
-  ): Promise<User> {
-    const normalizedEmail = email.trim().toLowerCase();
-
-    const user = await this.prisma.user.findUnique({
-      where: { email: normalizedEmail },
-      omit: { passwordHash: false },
-    });
-
-    if (!user || !user.passwordHash) {
-      await bcrypt.compare(password, DUMMY_HASH);
-      throw new UnauthorizedException('Неверный email или пароль');
-    }
-
-    const passwordValid = await bcrypt.compare(password, user.passwordHash);
-    if (!passwordValid) {
-      throw new UnauthorizedException('Неверный email или пароль');
-    }
-
-    return user;
   }
 
   public async forgotPassword(dto: ForgotPasswordDto) {
     const email = dto.email.trim().toLowerCase();
 
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-      omit: { passwordHash: false },
-    });
+    const user = await this.prisma.user.findUnique({ where: { email } });
 
-    // Не раскрываем существование email — код шлём только реальным пользователям с паролем
-    if (user && user.passwordHash) {
+    // Не раскрываем существование email. Пароля может ещё не быть (аккаунт завёл админ) —
+    // сброс и есть способ задать его впервые
+    if (user) {
       const code = await this.verificationCodeService.createCode(
         user.id,
         VerificationCodeType.PASSWORD_RESET,
       );
       await this.mailService.sendPasswordResetEmail(email, code);
-      this.logger.log(
-        `${ENTITY_EMOJI.auth} Запрошен сброс пароля userId=${user.id}`,
-      );
+      this.logger.log(`Запрошен сброс пароля userId=${user.id}`);
     }
 
     return { message: 'Если email зарегистрирован, письмо с кодом отправлено' };
@@ -187,7 +156,7 @@ export class EmailAuthService {
     const email = dto.email.trim().toLowerCase();
 
     const user = await this.prisma.user.findUnique({ where: { email } });
-    if (!user || !user.passwordHash) {
+    if (!user) {
       throw new BadRequestException('Код недействителен или истёк');
     }
 
@@ -200,10 +169,15 @@ export class EmailAuthService {
     const passwordHash = await bcrypt.hash(dto.newPassword, BCRYPT_ROUNDS);
     await this.prisma.user.update({
       where: { id: user.id },
-      data: { passwordHash },
+      // Код пришёл на почту — владение ею доказано. Смена версии токена завершает прежние сессии
+      data: {
+        passwordHash,
+        emailVerified: true,
+        tokenVersion: { increment: 1 },
+      },
     });
 
-    this.logger.log(`${ENTITY_EMOJI.auth} Сброшен пароль userId=${user.id}`);
+    this.logger.log(`Сброшен пароль userId=${user.id}`);
     return { message: 'Пароль изменён' };
   }
 
@@ -226,18 +200,32 @@ export class EmailAuthService {
     }
 
     const passwordHash = await bcrypt.hash(dto.newPassword, BCRYPT_ROUNDS);
-    await this.prisma.user.update({
+    const updated = await this.prisma.user.update({
       where: { id: userId },
-      data: { passwordHash },
+      data: { passwordHash, tokenVersion: { increment: 1 } },
     });
 
-    this.logger.log(`${ENTITY_EMOJI.auth} Изменён пароль userId=${userId}`);
-    return { message: 'Пароль изменён' };
+    this.logger.log(`Изменён пароль userId=${userId}`);
+    // Прежние токены (включая текущий) больше не действуют — отдаём новый, чтобы не разлогинить самого пользователя
+    return {
+      message: 'Пароль изменён',
+      ...(await this.buildAuthResponse(updated)),
+    };
   }
 
   // Удаление безвозвратное: вместе с аккаунтом уходят организации, которыми он владеет.
-  // Подтверждение — введённое слово «удалить» (проверяется в DTO), почта не нужна
-  public async deleteAccount(userId: number, _dto: DeleteAccountDto) {
+  // Подтверждение — введённое слово «удалить» (проверяется в DTO) и текущий пароль, если он задан:
+  // одного украденного токена для удаления недостаточно
+  public async deleteAccount(userId: number, dto: DeleteAccountDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { passwordHash: true, avatarPath: true },
+    });
+    if (!user) {
+      throw new UnauthorizedException('Пользователь не найден');
+    }
+    await this.verifyCurrentPasswordOrNone(user, dto.currentPassword);
+
     await this.prisma.$transaction(async (tx) => {
       // Прямые FK без onDelete (владелец, членства) сносим явно, иначе удаление упрётся в ограничения БД
       const ownedOrgs = await tx.organization.deleteMany({
@@ -245,14 +233,15 @@ export class EmailAuthService {
       });
       if (ownedOrgs.count > 0) {
         this.logger.warn(
-          `${ENTITY_EMOJI.auth} Вместе с аккаунтом userId=${userId} удалены его организации: ${ownedOrgs.count}`,
+          `Вместе с аккаунтом userId=${userId} удалены его организации: ${ownedOrgs.count}`,
         );
       }
       await tx.organizationMembership.deleteMany({ where: { userId } });
       await tx.user.delete({ where: { id: userId } });
     });
 
-    this.logger.log(`${ENTITY_EMOJI.auth} Аккаунт удалён userId=${userId}`);
+    this.uploadService.deleteByRelativePath(user.avatarPath);
+    this.logger.log(`Аккаунт удалён userId=${userId}`);
     return { message: 'Аккаунт удалён' };
   }
 
@@ -278,6 +267,7 @@ export class EmailAuthService {
     const accessToken = await this.jwtService.signAsync({
       sub: user.id,
       provider: 'email',
+      ver: user.tokenVersion,
     });
 
     return {

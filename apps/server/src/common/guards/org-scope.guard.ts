@@ -17,8 +17,13 @@ import { assertOrgAccess } from './org-access';
 /**
  * Проверяет доступ пользователя к организации запроса и (опционально) минимальную роль.
  *
- * organizationId ищется по цепочке: params.organizationId → params.orgId →
- * body.organizationId → заголовок x-organization-id → query.organizationId.
+ * organizationId ищется по цепочке: params.organizationId → params.orgId → params.id →
+ * body.organizationId → query.organizationId → заголовок x-organization-id.
+ * Явный параметр запроса старше заголовка: заголовок фронт шлёт фоном на все запросы.
+ *
+ * Хендлеры и сервисы обязаны брать id организации из `@OrganizationId()` (то, что проверил гвард),
+ * а не из своего DTO: иначе проверяется одна организация, а данные читаются из другой.
+ * `params.id` считается id организации — для сущностей внутри организации нужен `ResourceScopeGuard`.
  *
  * `User.isPlatformAdmin` проходит всегда (сквозной доступ), роль в request — OWNER.
  * Требуемую роль задаёт `@RequireOrgRole(...)`.
@@ -63,8 +68,8 @@ export class OrgScopeGuard implements CanActivate {
       request.params?.orgId ??
       request.params?.id ??
       (request.body as Record<string, unknown> | undefined)?.organizationId ??
-      request.header('x-organization-id') ??
-      (request.query as Record<string, unknown> | undefined)?.organizationId;
+      (request.query as Record<string, unknown> | undefined)?.organizationId ??
+      request.header('x-organization-id');
 
     if (raw === undefined || raw === null || raw === '') {
       throw new BadRequestException('organizationId обязателен');

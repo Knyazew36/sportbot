@@ -27,6 +27,7 @@ model User {
   email         String? @unique
   passwordHash  String? /// bcrypt; в приложении глобально скрыт через omit, включается точечно
   emailVerified Boolean @default(false) /// без подтверждения почты токен не выдаём
+  tokenVersion  Int     @default(0) /// растёт при смене/сбросе пароля; JWT с другой версией отклоняется
 
   // --- vk-канал мессенджера ---
   vkId   String? @unique /// id пользователя ВКонтакте
@@ -65,7 +66,6 @@ model User {
 enum VerificationCodeType {
   EMAIL_VERIFY /// подтверждение почты при регистрации
   PASSWORD_RESET /// сброс пароля
-  ACCOUNT_DELETE /// подтверждение удаления аккаунта
 }
 
 /// 6-значный код, отправленный на email. Хранится хешем.

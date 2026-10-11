@@ -49,7 +49,7 @@ export class PrismaMessengerUserStore extends MessengerUserStore {
       create: {
         [COLUMNS[channel].id]: externalId,
         ...data,
-      } as Prisma.UserUncheckedCreateInput,
+      },
     });
   }
 

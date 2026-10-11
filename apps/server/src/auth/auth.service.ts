@@ -14,7 +14,9 @@ import { UserCapabilities, UserContext } from './types/user-context';
  */
 @Injectable()
 export class AuthService {
-  private readonly logger = new Logger(AuthService.name);
+  private readonly logger = new Logger(
+    `${ENTITY_EMOJI.auth} ${AuthService.name}`,
+  );
 
   constructor(
     private readonly prisma: PrismaService,
@@ -39,7 +41,7 @@ export class AuthService {
       throw new NotFoundException('Пользователь не найден');
     }
 
-    this.logger.log(`${ENTITY_EMOJI.auth} getUserContext userId=${userId}`);
+    this.logger.log(`getUserContext userId=${userId}`);
     return {
       userId: user.id,
       isPlatformAdmin: user.isPlatformAdmin,
@@ -115,7 +117,7 @@ export class AuthService {
       role: m.role,
     }));
 
-    this.logger.log(`${ENTITY_EMOJI.auth} getMe userId=${userId}`);
+    this.logger.log(`getMe userId=${userId}`);
     return {
       id: user.id,
       email: user.email,

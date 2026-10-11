@@ -46,17 +46,11 @@ export function isMaxDialogOpen(data: unknown): boolean {
 export function withMaxDialogStarted(data: unknown): Record<string, unknown> {
   const record = asRecord(data);
   delete record.maxDialogClosedAt;
-  return { ...record, maxDialogStartedAt: new Date().toISOString() } as Record<
-    string,
-    unknown
-  >;
+  return { ...record, maxDialogStartedAt: new Date().toISOString() };
 }
 
 export function withMaxDialogClosed(data: unknown): Record<string, unknown> {
   const record = asRecord(data);
   delete record.maxDialogStartedAt;
-  return { ...record, maxDialogClosedAt: new Date().toISOString() } as Record<
-    string,
-    unknown
-  >;
+  return { ...record, maxDialogClosedAt: new Date().toISOString() };
 }

@@ -11,9 +11,11 @@ const optionalString = z
 
 const envSchema = z
   .object({
+    // Безопасный дефолт: без явного development не включаются dev-послабления
+    // (стек ошибки в ответе, коды подтверждения в логах, localhost в CORS)
     NODE_ENV: z
       .enum(['development', 'production', 'test'])
-      .default('development'),
+      .default('production'),
     DATABASE_URL: z.string().min(1),
     // env всегда строка — coerce приводит к number.
     PORT: z.coerce.number().int().positive().default(4003),
@@ -35,6 +37,29 @@ const envSchema = z
     // --- бренд (тексты ботов, письма, уведомления) ---
     APP_NAME: z.string().trim().min(1).default('App'),
     SITE_URL: optionalString,
+    APP_TIMEZONE: z
+      .string()
+      .trim()
+      .min(1)
+      .default('Europe/Moscow')
+      .refine(
+        (tz) => {
+          try {
+            new Intl.DateTimeFormat('en-US', { timeZone: tz });
+            return true;
+          } catch {
+            return false;
+          }
+        },
+        {
+          message:
+            'APP_TIMEZONE — неизвестный часовой пояс (нужен IANA, напр. Europe/Moscow)',
+        },
+      ),
+
+    // --- загрузки ---
+    UPLOAD_DIR: z.string().trim().min(1).default('uploads'),
+    MAX_FILE_SIZE: z.coerce.number().int().positive().default(5242880),
 
     // --- платформенный админ (сид) ---
     PLATFORM_ADMIN_EMAIL: z

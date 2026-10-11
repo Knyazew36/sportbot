@@ -12,13 +12,14 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
+import { Throttle } from '@nestjs/throttler';
 
 import { Swagger } from '@/common/decorators/swagger/swagger.decorator';
 import { MultiAuthGuard } from '@/common/guards/multi-auth.guard';
 import { PlatformAdminGuard } from '@/common/guards/platform-admin.guard';
 import { PaginationQueryDto } from '@/common/type';
 
+import { CleanupStagedUploadsInterceptor } from '../upload/cleanup-staged-uploads.interceptor';
 import { imageUploadInterceptorOptions } from '../upload/upload.utils';
 
 import { ChatService } from './chat.service';
@@ -27,11 +28,11 @@ import { CreateChatSubmissionDto } from './dto/create-chat-submission.dto';
 
 const MAX_ATTACHMENTS = 5;
 
-// create — публичный эндпоинт (без MultiAuthGuard): форма обратной связи на сайте, защищена троттлингом.
+// create — публичный эндпоинт (без MultiAuthGuard): форма обратной связи на сайте, защищена троттлингом
+// (глобальный ThrottlerGuard + ужесточённый @Throttle).
 // Чтение и удаление сообщений — только платформенному админу. Правки сообщений нет намеренно:
 // это входящие обращения, их не редактируют.
 @ApiTags('chat-submission')
-@UseGuards(ThrottlerGuard)
 @Controller('chat-submission')
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
@@ -39,6 +40,7 @@ export class ChatController {
   @Post('create')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @UseInterceptors(
+    CleanupStagedUploadsInterceptor,
     FilesInterceptor('files', MAX_ATTACHMENTS, imageUploadInterceptorOptions()),
   )
   @ApiConsumes('multipart/form-data')

@@ -9,14 +9,14 @@ import {
 import { Response } from 'express';
 
 import { RequestWithOrganization } from '../types/request-with-organization';
-import { IS_DEV_ENV, resolveEntityEmoji } from '../utils';
+import { isDevEnv, resolveEntityEmoji } from '../utils';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
-  private readonly logger = new Logger(AllExceptionsFilter.name);
+  private readonly logger = new Logger(`🚨 ${AllExceptionsFilter.name}`);
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
-    const response = ctx.getResponse() as Response;
+    const response = ctx.getResponse<Response>();
     const status =
       exception instanceof HttpException
         ? exception.getStatus()
@@ -34,22 +34,24 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     const request = ctx.getRequest<RequestWithOrganization>();
     const emoji = resolveEntityEmoji(request.url);
-    // // request.user/organizationId проставляют MultiAuthGuard/OrganizationAccessGuard до хендлера —
-    // // если исключение прилетело не из самого гварда, к моменту фильтра они уже есть.
-    // const who = request.user
-    //   ? ` user=${request?.user?.id}${request.organizationId ? ` org=${request.organizationId}` : ''}`
-    //   : ''
-
-    this.logger.error(
-      `${emoji} ${request.method} ${request.url} → ${status}: ${exception instanceof Error ? exception.stack : JSON.stringify(exception)}`,
-      // `${emoji} ${request.method} ${request.url} → ${status}${who}: ${exception instanceof Error ? exception.stack : JSON.stringify(exception)}`,
-    );
+    const line = `${emoji} ${request.method} ${request.url} → ${status}`;
+    if (status >= 500) {
+      this.logger.error(
+        `${line}: ${exception instanceof Error ? exception.message : JSON.stringify(exception)}`,
+        exception instanceof Error ? exception.stack : undefined,
+      );
+    } else {
+      // 4xx — ошибка клиента, а не сбой: стек не нужен, error-лог не зашумляем
+      this.logger.warn(
+        `${line}: ${typeof message === 'string' ? message : JSON.stringify((message as any).message)}`,
+      );
+    }
 
     response.status(status).json({
       ...extraFields,
       message: typeof message === 'string' ? message : (message as any).message,
       exception:
-        IS_DEV_ENV && exception instanceof Error ? exception.stack : undefined,
+        isDevEnv() && exception instanceof Error ? exception.stack : undefined,
       timestamp: new Date().toISOString(),
       path: request.url,
       status,

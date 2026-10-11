@@ -51,7 +51,7 @@ export function withTelegramDialogStarted(
   return {
     ...record,
     telegramDialogStartedAt: new Date().toISOString(),
-  } as Record<string, unknown>;
+  };
 }
 
 export function withTelegramDialogClosed(
@@ -62,5 +62,5 @@ export function withTelegramDialogClosed(
   return {
     ...record,
     telegramDialogClosedAt: new Date().toISOString(),
-  } as Record<string, unknown>;
+  };
 }

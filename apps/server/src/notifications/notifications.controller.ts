@@ -12,6 +12,7 @@ import { ApiTags } from '@nestjs/swagger';
 
 import { SkipAudit } from '@/audit-log/decorators/skip-audit.decorator';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
+import { OrganizationId } from '@/common/decorators/organization-id.decorator';
 import { RequireOrgRole } from '@/common/decorators/require-org-role.decorator';
 import { Swagger } from '@/common/decorators/swagger/swagger.decorator';
 import { MultiAuthGuard } from '@/common/guards/multi-auth.guard';
@@ -99,10 +100,10 @@ export class NotificationsController {
     bearerAuth: true,
   })
   getSettings(
-    @Query() query: NotificationSettingsQueryDto,
+    @OrganizationId() organizationId: number,
     @CurrentUser('id') userId: number,
   ) {
-    return this.notificationsService.listSettings(query.organizationId, userId);
+    return this.notificationsService.listSettings(organizationId, userId);
   }
 
   @Post('settings/org')
@@ -114,12 +115,11 @@ export class NotificationsController {
     response: NotificationSettingDto,
     bearerAuth: true,
   })
-  upsertOrgSetting(@Body() dto: UpsertNotificationSettingDto) {
-    return this.notificationsService.upsertSetting(
-      dto.organizationId,
-      null,
-      dto,
-    );
+  upsertOrgSetting(
+    @OrganizationId() organizationId: number,
+    @Body() dto: UpsertNotificationSettingDto,
+  ) {
+    return this.notificationsService.upsertSetting(organizationId, null, dto);
   }
 
   @Post('settings/me')
@@ -131,14 +131,11 @@ export class NotificationsController {
     bearerAuth: true,
   })
   upsertMySetting(
+    @OrganizationId() organizationId: number,
     @CurrentUser('id') userId: number,
     @Body() dto: UpsertNotificationSettingDto,
   ) {
-    return this.notificationsService.upsertSetting(
-      dto.organizationId,
-      userId,
-      dto,
-    );
+    return this.notificationsService.upsertSetting(organizationId, userId, dto);
   }
 
   @Get(':id')

@@ -17,6 +17,8 @@ import { AuthProvider } from '../types/request-with-organization';
 interface AppJwtPayload {
   sub: number;
   provider: AuthProvider;
+  /** User.tokenVersion на момент выдачи; у токенов, выпущенных до появления поля, отсутствует */
+  ver?: number;
 }
 
 const ALLOWED_PROVIDERS: AuthProvider[] = ['email', 'vk', 'telegram', 'max'];
@@ -73,6 +75,11 @@ export class JwtAuthStrategy implements AuthStrategy, OnModuleInit {
 
     if (!user) {
       throw new UnauthorizedException('Пользователь не найден');
+    }
+
+    // Версия меняется при смене/сбросе пароля — токены, выданные до этого, перестают действовать
+    if ((payload.ver ?? 0) !== user.tokenVersion) {
+      throw new UnauthorizedException('Сессия завершена, войдите заново');
     }
 
     return user;

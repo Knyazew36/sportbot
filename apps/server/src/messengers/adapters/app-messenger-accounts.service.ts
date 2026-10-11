@@ -41,6 +41,8 @@ export class AppMessengerAccountsService {
     const accessToken = this.jwtService.sign({
       sub: user.id,
       provider: 'email',
+      // PrismaMessengerUserStore отдаёт полные строки User, поэтому версия токена здесь есть
+      ver: (user as unknown as User).tokenVersion ?? 0,
     });
     this.logger.log(
       `Выдана веб-сессия после входа через бота: userId=${user.id}`,
@@ -78,7 +80,7 @@ export class AppMessengerAccountsService {
         },
         data: {
           [column.id]: externalId,
-          [column.profile]: profile as Prisma.InputJsonValue,
+          [column.profile]: profile,
         },
       });
       this.logger.log(`Привязан ${channel}: userId=${targetUserId}`);

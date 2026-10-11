@@ -18,7 +18,7 @@ import {
   winstonConfig,
 } from './common';
 import { CaslModule } from './common/casl';
-import { ResponseInterceptor } from './common/interseptors/response.interceptor';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { InviteModule } from './invite/invite.module';
 import { JoinRequestModule } from './join-request/join-request.module';
 import { MailModule } from './mail/mail.module';

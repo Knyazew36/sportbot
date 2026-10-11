@@ -46,17 +46,11 @@ export function isVkDialogOpen(data: unknown): boolean {
 export function withVkDialogStarted(data: unknown): Record<string, unknown> {
   const record = asRecord(data);
   delete record.vkDialogClosedAt;
-  return { ...record, vkDialogStartedAt: new Date().toISOString() } as Record<
-    string,
-    unknown
-  >;
+  return { ...record, vkDialogStartedAt: new Date().toISOString() };
 }
 
 export function withVkDialogClosed(data: unknown): Record<string, unknown> {
   const record = asRecord(data);
   delete record.vkDialogStartedAt;
-  return { ...record, vkDialogClosedAt: new Date().toISOString() } as Record<
-    string,
-    unknown
-  >;
+  return { ...record, vkDialogClosedAt: new Date().toISOString() };
 }

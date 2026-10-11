@@ -1,6 +1,7 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
+import { OrganizationId } from '@/common/decorators/organization-id.decorator';
 import { RequireOrgRole } from '@/common/decorators/require-org-role.decorator';
 import { Swagger } from '@/common/decorators/swagger/swagger.decorator';
 import { MultiAuthGuard } from '@/common/guards/multi-auth.guard';
@@ -28,7 +29,10 @@ export class AuditLogController {
     query: QueryAuditLogDto,
     bearerAuth: true,
   })
-  list(@Query() query: QueryAuditLogDto) {
-    return this.auditLogService.list(query);
+  list(
+    @OrganizationId() organizationId: number,
+    @Query() query: QueryAuditLogDto,
+  ) {
+    return this.auditLogService.list(organizationId, query);
   }
 }

@@ -9,7 +9,12 @@ import { matchesImageSignature } from './upload.utils';
 
 @Injectable()
 export class UploadService {
-  private readonly logger = new Logger(UploadService.name);
+  private readonly logger = new Logger(
+    `${ENTITY_EMOJI.upload} ${UploadService.name}`,
+  );
+  /** Категории, раздаваемые статикой по /api/uploads/<категория>/ (см. main.ts). */
+  public static readonly PUBLIC_CATEGORIES = ['avatars', 'chat'] as const;
+
   readonly uploadRoot: string;
 
   constructor(private readonly config: ConfigService) {
@@ -54,7 +59,7 @@ export class UploadService {
       fs.unlinkSync(tmpPath);
     } catch (error) {
       this.logger.warn(
-        `${ENTITY_EMOJI.upload} Не удалось удалить временный файл ${tmpPath}: ${error}`,
+        `Не удалось удалить временный файл ${tmpPath}: ${error}`,
       );
     }
   }
@@ -75,9 +80,7 @@ export class UploadService {
         throw error;
       }
     }
-    this.logger.log(
-      `${ENTITY_EMOJI.upload} Файл сохранён ${category}/${filename}`,
-    );
+    this.logger.log(`Файл сохранён ${category}/${filename}`);
     return `${category}/${filename}`;
   }
 
@@ -85,19 +88,15 @@ export class UploadService {
     if (!relativePath) return;
     const resolved = this.resolveWithinRoot(relativePath);
     if (!resolved) {
-      this.logger.warn(
-        `${ENTITY_EMOJI.upload} Отказ удалить файл вне upload root: ${relativePath}`,
-      );
+      this.logger.warn(`Отказ удалить файл вне upload root: ${relativePath}`);
       return;
     }
     try {
       fs.unlinkSync(resolved);
-      this.logger.log(`${ENTITY_EMOJI.upload} Файл удалён ${relativePath}`);
+      this.logger.log(`Файл удалён ${relativePath}`);
     } catch (error: any) {
       if (error.code !== 'ENOENT') {
-        this.logger.warn(
-          `${ENTITY_EMOJI.upload} Не удалось удалить файл ${relativePath}: ${error}`,
-        );
+        this.logger.warn(`Не удалось удалить файл ${relativePath}: ${error}`);
       }
     }
   }

@@ -50,9 +50,9 @@ export class JoinRequestService {
   // ── Списки ──────────────────────────────────────────────────────────────
 
   /** Заявки организации. Доступ проверяет OrgScopeGuard + CASL (manage JoinRequest). */
-  public async list(query: JoinRequestQueryDto) {
+  public async list(organizationId: number, query: JoinRequestQueryDto) {
     const where: Prisma.JoinRequestWhereInput = {
-      organizationId: query.organizationId,
+      organizationId,
       ...(query.status ? { status: query.status } : {}),
     };
 
@@ -61,7 +61,7 @@ export class JoinRequestService {
       where,
       select: JOIN_REQUEST_SELECT,
     });
-    this.logger.log(`list org=${query.organizationId}: ${meta.total}`);
+    this.logger.log(`list org=${organizationId}: ${meta.total}`);
     return {
       items: (items as unknown as JoinRequestRow[]).map((row) =>
         this.toDto(row),

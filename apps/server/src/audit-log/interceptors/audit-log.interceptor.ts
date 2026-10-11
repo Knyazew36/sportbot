@@ -59,7 +59,7 @@ export class AuditLogInterceptor implements NestInterceptor {
     context: ExecutionContext,
     next: CallHandler,
   ): Observable<unknown> {
-    if ((context.getType() as string) !== 'http') {
+    if (context.getType<string>() !== 'http') {
       return next.handle();
     }
 

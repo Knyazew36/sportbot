@@ -10,7 +10,9 @@ import { VerificationCodeService } from './verification-code.service';
 
 @Injectable()
 export class EmailVerificationService {
-  private readonly logger = new Logger(EmailVerificationService.name);
+  private readonly logger = new Logger(
+    `${ENTITY_EMOJI.auth} ${EmailVerificationService.name}`,
+  );
 
   constructor(
     private readonly prisma: PrismaService,
@@ -38,9 +40,7 @@ export class EmailVerificationService {
     // Не раскрываем существование email — шлём только если юзер реально есть и ещё не подтверждён
     if (user && !user.emailVerified) {
       await this.sendVerification(user);
-      this.logger.log(
-        `${ENTITY_EMOJI.auth} Повторно отправлен код подтверждения userId=${user.id}`,
-      );
+      this.logger.log(`Повторно отправлен код подтверждения userId=${user.id}`);
     }
   }
 
@@ -68,16 +68,14 @@ export class EmailVerificationService {
       data: { emailVerified: true },
     });
 
-    // TODO: применить отложенные приглашения в организацию после подтверждения почты
-    // (механизм staff-invite вне скоупа — см. docs/superpowers/specs/2026-09-07-user-roles-org-membership-design.md).
-
     // Верификация — единственный момент выдачи токена для нового аккаунта (см. EmailAuthService.register/login)
     const accessToken = await this.jwtService.signAsync({
       sub: user.id,
       provider: 'email',
+      ver: user.tokenVersion,
     });
 
-    this.logger.log(`${ENTITY_EMOJI.auth} Email подтверждён userId=${user.id}`);
+    this.logger.log(`Email подтверждён userId=${user.id}`);
     return {
       message: 'Email подтверждён',
       accessToken,

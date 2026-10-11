@@ -27,7 +27,9 @@ type ChatSubmissionRow = {
 
 @Injectable()
 export class ChatService {
-  private readonly logger = new Logger(`${ChatService.name}`);
+  private readonly logger = new Logger(
+    `${ENTITY_EMOJI.chat} ${ChatService.name}`,
+  );
 
   constructor(
     private readonly prisma: PrismaService,
@@ -46,37 +48,33 @@ export class ChatService {
       this.uploadService.verifyImageSignatureOrThrow(file),
     );
 
-    try {
-      const submission = await this.prisma.chatSubmission.create({
-        data: {
-          message: dto.message,
-          phone: dto.phone || null,
-          email: dto.email || null,
-          filePaths: files.map(
-            (file) => `${CHAT_UPLOAD_CATEGORY}/${path.basename(file.path)}`,
-          ),
-        },
-      });
-
-      files.forEach((file) =>
-        this.uploadService.commitToCategory(file.path, CHAT_UPLOAD_CATEGORY),
-      );
-      this.logger.log(
-        `Новое сообщение из чата id=${submission.id}, файлов=${files.length}`,
-      );
-
-      this.notify(submission).catch((error) =>
-        this.logger.error(
-          `Не удалось уведомить админов о сообщении id=${submission.id}`,
-          error instanceof Error ? error.stack : error,
+    // При любой ошибке ниже файлы из стейджинга уберёт CleanupStagedUploadsInterceptor
+    const submission = await this.prisma.chatSubmission.create({
+      data: {
+        message: dto.message,
+        phone: dto.phone || null,
+        email: dto.email || null,
+        filePaths: files.map(
+          (file) => `${CHAT_UPLOAD_CATEGORY}/${path.basename(file.path)}`,
         ),
-      );
+      },
+    });
 
-      return this.toDto(submission);
-    } catch (error) {
-      files.forEach((file) => this.uploadService.discardTmpFile(file.path));
-      throw error;
-    }
+    files.forEach((file) =>
+      this.uploadService.commitToCategory(file.path, CHAT_UPLOAD_CATEGORY),
+    );
+    this.logger.log(
+      `Новое сообщение из чата id=${submission.id}, файлов=${files.length}`,
+    );
+
+    this.notify(submission).catch((error) =>
+      this.logger.error(
+        `Не удалось уведомить админов о сообщении id=${submission.id}`,
+        error instanceof Error ? error.stack : error,
+      ),
+    );
+
+    return this.toDto(submission);
   }
 
   public async list(query: PaginationQueryDto) {

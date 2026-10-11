@@ -6,11 +6,9 @@ cd "$ROOT"
 
 git pull
 yarn
-# yarn workspace @repo/emails build
-chmod +x apps/server/deploy.sh apps/frontend/deploy.sh apps/landing/deploy.sh
+chmod +x apps/server/deploy.sh
 
 (cd apps/server && ./deploy.sh)
-(cd apps/frontend && ./deploy.sh)
-# (cd apps/landing && ./deploy.sh)
+(cd apps/front && yarn build)
 
 pm2 restart all

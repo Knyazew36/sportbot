@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { ThrottlerModule } from '@nestjs/throttler';
-
 import { UploadModule } from '../upload/upload.module';
 
 import { AuthController } from './auth.controller';
@@ -10,7 +8,7 @@ import { EmailVerificationService } from './email-verification.service';
 import { VerificationCodeService } from './verification-code.service';
 
 @Module({
-  imports: [ThrottlerModule.forRoot([{ ttl: 60000, limit: 20 }]), UploadModule],
+  imports: [UploadModule],
   controllers: [AuthController],
   providers: [
     AuthService,

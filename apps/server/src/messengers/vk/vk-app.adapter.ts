@@ -64,7 +64,7 @@ export abstract class VkAppAdapter {
    * Callback-кнопки проекта в приветствии (по одной в ряд); нажатие придёт в onCallback с этим payload.
    * user — кому показываем (null — аккаунта ещё нет): кнопки могут зависеть от прав.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- сигнатура для наследников
+
   public welcomeCallbacks(
     _user: MessengerUser | null,
   ): { text: string; payload: string }[] {
@@ -75,7 +75,7 @@ export abstract class VkAppAdapter {
    * Нажатие callback-кнопки, которую модуль не распознал (кнопки проекта: опросы и т.п.).
    * @returns true — обработано; false — модуль ответит, что кнопка устарела.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- сигнатура для наследников
+
   public async onCallback(
     _ctx: VkCallbackContext,
     _user: MessengerUser | null,
@@ -87,7 +87,7 @@ export abstract class VkAppAdapter {
    * Текстовое сообщение пользователя сообществу (например, ждём комментарий к опросу).
    * @returns true — обработано; false — модуль ответит приветствием.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- сигнатура для наследников
+
   public async onMessage(
     _ctx: VkMessageContext,
     _user: MessengerUser | null,

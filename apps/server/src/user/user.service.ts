@@ -64,6 +64,7 @@ export class UserService {
       ...query,
       where,
       omit: PUBLIC_USER_OMIT,
+      sortable: ['id', 'createdAt', 'email', 'name', 'lastName'],
     });
     this.logger.log(`list: найдено ${meta.total}`);
     return {
@@ -86,14 +87,9 @@ export class UserService {
     return this.toPublicUser(user);
   }
 
-  /** Внутренний поиск по email (с passwordHash) — для auth-флоу. Без нормализации. */
-  public findRawByEmail(email: string): Promise<User | null> {
-    return this.prisma.user.findUnique({ where: { email } });
-  }
-
   /**
-   * Создаёт пользователя без пароля: пароль он задаёт сам через reset-password
-   * либо входит через мессенджер.
+   * Создаёт пользователя без пароля: пароль он задаёт сам через forgot-password → reset-password
+   * (заодно подтверждает почту) либо входит через мессенджер.
    */
   public async create(dto: CreateUserDto): Promise<PublicUser> {
     const email = dto.email?.trim().toLowerCase() || null;
@@ -248,6 +244,14 @@ export class UserService {
       throw new NotFoundException('Веб-аккаунт не найден');
     }
     if (target.id === current.id) return target;
+
+    // current при слиянии удаляется. Если это полноценный веб-аккаунт (есть email), а не строка,
+    // заведённая ботом, — пользователь потерял бы вход по почте, поэтому не сливаем
+    if (current.email) {
+      throw new ConflictException(
+        'Этот аккаунт мессенджера уже привязан к другому веб-аккаунту с почтой — объединить их нельзя',
+      );
+    }
 
     if (target.maxId && current.maxId && target.maxId !== current.maxId) {
       throw new ConflictException(

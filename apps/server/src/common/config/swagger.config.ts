@@ -8,8 +8,12 @@ export function getSwaggerConfig() {
     .setVersion(process.env.npm_package_version ?? '1.0.0')
     .addBearerAuth()
     .addTag('auth', 'Авторизация')
-    .addTag('organizations', 'Организации')
-    .addTag('categories', 'Категории продуктов')
-    .addTag('products', 'Продукты')
+    .addTag('user', 'Пользователи')
+    .addTag('organization', 'Организации')
+    .addTag('invite', 'Приглашения')
+    .addTag('join-request', 'Заявки на вступление')
+    .addTag('notifications', 'Уведомления')
+    .addTag('audit-log', 'Журнал действий')
+    .addTag('chat-submission', 'Обратная связь с сайта')
     .build();
 }

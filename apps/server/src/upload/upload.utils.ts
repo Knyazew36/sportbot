@@ -60,7 +60,7 @@ export function matchesImageSignature(
 
 // Стейджинг вне upload root (и вне globalPrefix статики) — файл никогда не отдаётся публично,
 // пока не подтверждён commitToCategory в UploadService после успешной записи в БД
-const stagingDir = path.join(os.tmpdir(), 'warehouse-turbo-uploads');
+const stagingDir = path.join(os.tmpdir(), 'app-staged-uploads');
 
 export function imageUploadInterceptorOptions(): MulterOptions {
   fs.mkdirSync(stagingDir, { recursive: true });

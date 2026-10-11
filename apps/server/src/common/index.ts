@@ -7,6 +7,4 @@ export * from './auth-strategy.registry';
 
 export * from './prisma';
 
-// export * from './casl'; // портированный каркас: @casl/ability-политики, вернуть при необходимости
-
 export * from './type';
