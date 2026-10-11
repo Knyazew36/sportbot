@@ -1,8 +1,11 @@
-import { ApiPropertyOptional } from '@nestjs/swagger'
-import { Type } from 'class-transformer'
-import { IsBoolean, IsOptional, IsString, MaxLength, MinLength, ValidateNested } from 'class-validator'
-
-import { OrganizationSettingsDto } from './organization-settings.dto'
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsObject,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class UpdateOrganizationDto {
   @ApiPropertyOptional({ description: 'Название организации' })
@@ -10,21 +13,14 @@ export class UpdateOrganizationDto {
   @IsString()
   @MinLength(2, { message: 'Название не короче 2 символов' })
   @MaxLength(200)
-  name?: string
+  name?: string;
 
   @ApiPropertyOptional({
-    description: 'true — открытая организация (вступить можно без приглашения), false — закрытая',
+    type: Object,
+    description:
+      'Произвольные настройки организации. При обновлении переданные ключи заменяют прежние, остальные сохраняются',
   })
   @IsOptional()
-  @IsBoolean()
-  isOpen?: boolean
-
-  @ApiPropertyOptional({
-    type: OrganizationSettingsDto,
-    description: 'Настройки кружка. При обновлении переданные ключи заменяют прежние, остальные сохраняются',
-  })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => OrganizationSettingsDto)
-  settings?: OrganizationSettingsDto
+  @IsObject()
+  settings?: Record<string, unknown>;
 }

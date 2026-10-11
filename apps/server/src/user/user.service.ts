@@ -1,67 +1,51 @@
 import {
   ConflictException,
-  GoneException,
   Injectable,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
 
+import { ROLE_RANK } from '@/common/guards/org-access';
 import { paginatePrisma } from '@/common/prisma/prisma-paginate';
 import { PaginationQueryDto } from '@/common/type';
 import { ENTITY_EMOJI } from '@/common/utils';
-import { resolveAvatarUrl, resolveVkName } from '@/common/vk/resolve-vk-profile';
 import { Prisma, User } from '@/generated/prisma/client';
 import { PrismaService } from 'prisma/prisma.service';
-import { generateInviteToken } from '../invite/model/invite-code.util';
 
-import { VkService } from '../vk/vk.service';
 import { UploadService } from '../upload/upload.service';
 
-import { CreateChildDto } from './dto/create-child.dto';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateChildDto } from './dto/update-child.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UserInclude } from '@/generated/prisma/models';
 
-/** Срок жизни ссылки на ребёнка (второй родитель). */
-const CHILD_LINK_TTL_MS = 7 * 24 * 60 * 60 * 1000;
-
-// passwordHash / vkUserId никогда не отдаём наружу; vkData тоже не отдаём — но выбираем
-// его на уровне Prisma (см. toPublicUser), чтобы вычислить фолбэк-аватар/имя для
-// VK-only пользователей без своих name/lastName/avatarPath (см. resolveVkProfile)
+// passwordHash и сырые профили мессенджеров наружу не отдаём
 const PUBLIC_USER_OMIT = {
   passwordHash: true,
-  vkUserId: true,
+  telegramData: true,
+  maxData: true,
+  vkData: true,
+  data: true,
 } satisfies Prisma.UserOmit;
 
 type RawPublicUser = Prisma.UserGetPayload<{
   omit: typeof PUBLIC_USER_OMIT;
 }>;
-export type PublicUser = Omit<RawPublicUser, 'avatarPath' | 'vkData'> & {
+export type PublicUser = Omit<RawPublicUser, 'avatarPath'> & {
   avatarUrl: string | null;
 };
 
 @Injectable()
 export class UserService {
-  private readonly logger = new Logger(UserService.name);
+  private readonly logger = new Logger(
+    `${ENTITY_EMOJI.user} ${UserService.name}`,
+  );
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly uploadService: UploadService,
-    private readonly vkService: VkService,
   ) {}
 
-  private toPublicUser(user: RawPublicUser): PublicUser {
-    const { avatarPath, vkData, name, lastName, ...rest } = user;
-    return {
-      ...rest,
-      ...resolveVkName(name, lastName, vkData),
-      avatarUrl: resolveAvatarUrl(avatarPath, vkData, this.uploadService),
-    };
-  }
-
-  // ---------- CRUD ----------
+  // ── CRUD (платформенный админ) ──────────────────────────────────────────
 
   /** Список пользователей с пагинацией. `search` — по email / имени / фамилии. */
   public async list(query: PaginationQueryDto) {
@@ -72,7 +56,6 @@ export class UserService {
             { email: { contains: search, mode: 'insensitive' } },
             { name: { contains: search, mode: 'insensitive' } },
             { lastName: { contains: search, mode: 'insensitive' } },
-            { displayName: { contains: search, mode: 'insensitive' } },
           ],
         }
       : {};
@@ -81,85 +64,26 @@ export class UserService {
       ...query,
       where,
       omit: PUBLIC_USER_OMIT,
-      include: {
-        parents: { orderBy: { id: 'asc' }, omit: PUBLIC_USER_OMIT },
-      },
     });
-    this.logger.log(`${ENTITY_EMOJI.user} list: найдено ${meta.total}`);
+    this.logger.log(`list: найдено ${meta.total}`);
     return {
-      items: items.map((u) => {
-        const { parents, ...rest } = u as unknown as RawPublicUser & { parents: RawPublicUser[] };
-        return {
-          ...this.toPublicUser(rest),
-          parents: parents?.map((p) => this.toPublicUser(p)),
-        };
-      }),
+      items: (items as RawPublicUser[]).map((u) => this.toPublicUser(u)),
       meta,
     };
   }
 
-  /**
-   * Пользователь по id. Бросает 404, если нет.
-   * options.addChildren — приложить список детей одним запросом (пример паттерна add_*).
-   */
-  public async findById(
-    id: number,
-    options?: { addChildren?: boolean },
-  ): Promise<PublicUser & { children?: PublicUser[] }> {
-    const userInclude: UserInclude = {
-      ...(options?.addChildren && {
-        children: {
-          orderBy: { createdAt: 'asc' },
-          omit: PUBLIC_USER_OMIT,
-        },
-      }),
-    };
-
+  /** Пользователь по id. Бросает 404, если нет. */
+  public async findById(id: number): Promise<PublicUser> {
     const user = await this.prisma.user.findUnique({
       where: { id },
       omit: PUBLIC_USER_OMIT,
-      include: userInclude,
-    });
-
-    if (!user) {
-      throw new NotFoundException('Пользователь не найден');
-    }
-    const { children, ...rest } = user;
-
-    this.logger.log(`${ENTITY_EMOJI.user} findById id=${id}`);
-    return {
-      ...this.toPublicUser(rest),
-      children: children?.map((c) => this.toPublicUser(c)),
-    };
-  }
-
-  /**
-   * Полная карточка пользователя для платформенной админки — без PUBLIC_USER_OMIT
-   * (включая vkUserId/vkData), скрыт только passwordHash. vkUserId переводим в string:
-   * BigInt не сериализуется в JSON напрямую.
-   */
-  public async findByIdAdmin(id: number) {
-    const user = await this.prisma.user.findUnique({
-      where: { id },
-      omit: { passwordHash: true },
-      include: {
-        children: { orderBy: { createdAt: 'asc' }, omit: PUBLIC_USER_OMIT },
-        parents: { orderBy: { id: 'asc' }, omit: PUBLIC_USER_OMIT },
-      },
     });
     if (!user) {
       throw new NotFoundException('Пользователь не найден');
     }
-    const { children, parents, avatarPath, vkUserId, ...rest } = user;
 
-    this.logger.log(`${ENTITY_EMOJI.user} findByIdAdmin id=${id}`);
-    return {
-      ...rest,
-      avatarUrl: this.uploadService.toPublicUrl(avatarPath),
-      vkUserId: vkUserId != null ? vkUserId.toString() : null,
-      children: children?.map((c) => this.toPublicUser(c)),
-      parents: parents?.map((p) => this.toPublicUser(p)),
-    };
+    this.logger.log(`findById id=${id}`);
+    return this.toPublicUser(user);
   }
 
   /** Внутренний поиск по email (с passwordHash) — для auth-флоу. Без нормализации. */
@@ -168,8 +92,8 @@ export class UserService {
   }
 
   /**
-   * Создаёт пользователя без пароля (пароль пользователь задаёт сам через reset-password,
-   * либо входит через VK). Педагог — обычный пользователь, отдельной сущности нет.
+   * Создаёт пользователя без пароля: пароль он задаёт сам через reset-password
+   * либо входит через мессенджер.
    */
   public async create(dto: CreateUserDto): Promise<PublicUser> {
     const email = dto.email?.trim().toLowerCase() || null;
@@ -180,13 +104,12 @@ export class UserService {
           email,
           name: dto.name?.trim() || null,
           lastName: dto.lastName?.trim() || null,
-          displayName: dto.displayName?.trim() || null,
           phone: dto.phone?.trim() || null,
           isPlatformAdmin: dto.isPlatformAdmin ?? false,
         },
         omit: PUBLIC_USER_OMIT,
       });
-      this.logger.log(`${ENTITY_EMOJI.user} Создан пользователь id=${user.id}`);
+      this.logger.log(`Создан пользователь id=${user.id}`);
       return this.toPublicUser(user);
     } catch (e) {
       if (
@@ -201,15 +124,12 @@ export class UserService {
     }
   }
 
-  /** Полное административное обновление: профиль + active + isPlatformAdmin. */
+  /** Административное обновление: профиль + isPlatformAdmin. */
   public async update(id: number, dto: UpdateUserDto): Promise<PublicUser> {
     const data: Prisma.UserUpdateInput = {};
     if (dto.name !== undefined) data.name = dto.name.trim() || null;
     if (dto.lastName !== undefined) data.lastName = dto.lastName.trim() || null;
-    if (dto.displayName !== undefined)
-      data.displayName = dto.displayName.trim() || null;
     if (dto.phone !== undefined) data.phone = dto.phone.trim() || null;
-    if (dto.active !== undefined) data.active = dto.active;
     if (dto.isPlatformAdmin !== undefined)
       data.isPlatformAdmin = dto.isPlatformAdmin;
 
@@ -222,28 +142,24 @@ export class UserService {
         }),
       'Пользователь не найден',
     );
-    this.logger.log(`${ENTITY_EMOJI.user} Обновлён пользователь id=${id}`);
+    this.logger.log(`Обновлён пользователь id=${id}`);
     return this.toPublicUser(user);
   }
 
   /**
-   * Жёсткое удаление с каскадом. Прямые FK без onDelete (владелец, членства, посещения,
-   * уведомления) сносим явно в одной транзакции, иначе удаление упрётся в ограничения БД.
-   * Дети (User.children) остаются: это самостоятельные пользователи, связь снимается сама.
+   * Жёсткое удаление с каскадом. Прямые FK без onDelete (владелец, членства) сносим явно
+   * в одной транзакции, иначе удаление упрётся в ограничения БД.
    */
   public async delete(id: number): Promise<PublicUser> {
     const removed = await this.prisma.$transaction(async (tx) => {
-      const ownedOrgs = await tx.organization.deleteMany({ where: { ownerUserId: id } });
+      const ownedOrgs = await tx.organization.deleteMany({
+        where: { ownerUserId: id },
+      });
       if (ownedOrgs.count > 0) {
         this.logger.warn(
-          `${ENTITY_EMOJI.user} Каскадно удалены кружки владельца userId=${id}: ${ownedOrgs.count}`,
+          `Каскадно удалены организации владельца userId=${id}: ${ownedOrgs.count}`,
         );
       }
-      await tx.lessonNotification.deleteMany({
-        where: { OR: [{ participantUserId: id }, { recipientUserId: id }] },
-      });
-      await tx.lessonAttendance.deleteMany({ where: { userId: id } });
-      await tx.groupMembership.deleteMany({ where: { userId: id } });
       await tx.organizationMembership.deleteMany({ where: { userId: id } });
 
       return this.updateOrNotFound(
@@ -253,74 +169,11 @@ export class UserService {
     });
 
     this.uploadService.deleteByRelativePath(removed.avatarPath);
-    this.logger.log(`${ENTITY_EMOJI.user} Удалён пользователь id=${id}`);
+    this.logger.log(`Удалён пользователь id=${id}`);
     return this.toPublicUser(removed);
   }
 
-  /** Восстановление после мягкого удаления. */
-  public async restore(id: number): Promise<PublicUser> {
-    const user = await this.updateOrNotFound(
-      () =>
-        this.prisma.user.update({
-          where: { id },
-          data: { active: true },
-          omit: PUBLIC_USER_OMIT,
-        }),
-      'Пользователь не найден',
-    );
-    this.logger.log(`${ENTITY_EMOJI.user} Восстановлен пользователь id=${id}`);
-    return this.toPublicUser(user);
-  }
-
-  // ---------- VK ----------
-
-  /** Тестовая отправка сообщения от единого сообщества платформы — для проверки VK-интеграции. */
-  public async sendVkMessage(
-    userId: number,
-    text: string,
-  ): Promise<{ vkMessageId: number }> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: { vkUserId: true },
-    });
-    if (!user?.vkUserId) {
-      throw new NotFoundException('У пользователя нет привязанного VK-аккаунта');
-    }
-    this.logger.log(`${ENTITY_EMOJI.user} Тестовое VK-сообщение userId=${userId}`);
-    return this.vkService.sendMessage(user.vkUserId, text);
-  }
-
-  /**
-   * Пользователи с привязанным VK-аккаунтом (для админ-раздела рассылки) — отдельный
-   * запрос, а не `list`/`PUBLIC_USER_OMIT`: тот контракт намеренно никогда не отдаёт
-   * даже факт наличия vkUserId, здесь — осознанное исключение только для админки.
-   */
-  public async listVkContacts(query: PaginationQueryDto) {
-    const { items, meta } = await paginatePrisma(this.prisma.user, {
-      ...query,
-      where: { vkUserId: { not: null } },
-      select: {
-        id: true,
-        name: true,
-        lastName: true,
-        email: true,
-        avatarPath: true,
-        vkMessagesAllowed: true,
-        createdAt: true,
-      },
-    });
-
-    this.logger.log(`${ENTITY_EMOJI.user} listVkContacts: найдено ${meta.total}`);
-    return {
-      items: items.map(({ avatarPath, ...rest }) => ({
-        ...rest,
-        avatarUrl: this.uploadService.toPublicUrl(avatarPath),
-      })),
-      meta,
-    };
-  }
-
-  // ---------- self-service ----------
+  // ── Свой профиль ────────────────────────────────────────────────────────
 
   /** Частичное обновление своего профиля. Пустая строка — «очистить поле». */
   public async updateProfile(
@@ -331,14 +184,12 @@ export class UserService {
 
     if (dto.name !== undefined) data.name = dto.name.trim() || null;
     if (dto.lastName !== undefined) data.lastName = dto.lastName.trim() || null;
-    if (dto.displayName !== undefined)
-      data.displayName = dto.displayName.trim() || null;
     if (dto.phone !== undefined) data.phone = dto.phone.trim() || null;
 
     if (Object.keys(data).length === 0) return;
 
     await this.prisma.user.update({ where: { id: userId }, data });
-    this.logger.log(`${ENTITY_EMOJI.user} Обновлён профиль userId=${userId}`);
+    this.logger.log(`Обновлён профиль userId=${userId}`);
   }
 
   /**
@@ -358,203 +209,6 @@ export class UserService {
       throw new NotFoundException('Пользователь не найден');
     }
 
-    await this.replaceAvatar(userId, user.avatarPath, file);
-    this.logger.log(`${ENTITY_EMOJI.user} Обновлён аватар userId=${userId}`);
-  }
-
-  /** Аватар ребёнка. Принадлежность родителю проверяется тем же запросом, что читает старый путь. */
-  public async setChildAvatar(
-    parentUserId: number,
-    childId: number,
-    file: Express.Multer.File,
-  ): Promise<PublicUser> {
-    const child = await this.prisma.user.findFirst({
-      where: { id: childId, parents: { some: { id: parentUserId } } },
-      select: { avatarPath: true },
-    });
-    if (!child) {
-      this.uploadService.discardTmpFile(file.path);
-      throw new NotFoundException('Ребёнок не найден');
-    }
-
-    await this.replaceAvatar(childId, child.avatarPath, file);
-    const updated = await this.prisma.user.findUniqueOrThrow({
-      where: { id: childId },
-      omit: PUBLIC_USER_OMIT,
-    });
-    this.logger.log(
-      `${ENTITY_EMOJI.user} Обновлён аватар ребёнка id=${childId} parent=${parentUserId}`,
-    );
-    return this.toPublicUser(updated);
-  }
-
-  // ---------- дети (родитель↔ребёнок) ----------
-
-  /** Дети текущего пользователя. */
-  public async listChildren(parentUserId: number): Promise<PublicUser[]> {
-    const children = await this.prisma.user.findMany({
-      where: { parents: { some: { id: parentUserId } } },
-      orderBy: { createdAt: 'asc' },
-      omit: PUBLIC_USER_OMIT,
-    });
-    this.logger.log(
-      `${ENTITY_EMOJI.user} listChildren parent=${parentUserId}: ${children.length}`,
-    );
-    return children.map((c) => this.toPublicUser(c));
-  }
-
-  /** Создаёт ребёнка (обычный User без email/vkUserId) и сразу привязывает к родителю. */
-  public async createChild(
-    parentUserId: number,
-    dto: CreateChildDto,
-  ): Promise<PublicUser> {
-    const child = await this.prisma.user.create({
-      data: {
-        name: dto.name.trim(),
-        lastName: dto.lastName?.trim() || null,
-        birthDate: dto.birthDate ? new Date(dto.birthDate) : null,
-        parents: { connect: { id: parentUserId } },
-      },
-      omit: PUBLIC_USER_OMIT,
-    });
-    this.logger.log(
-      `${ENTITY_EMOJI.user} Создан ребёнок id=${child.id} parent=${parentUserId}`,
-    );
-    return this.toPublicUser(child);
-  }
-
-  /** Частичное обновление своего ребёнка. */
-  public async updateChild(
-    parentUserId: number,
-    childId: number,
-    dto: UpdateChildDto,
-  ): Promise<PublicUser> {
-    const data: Prisma.UserUpdateInput = {};
-    if (dto.name !== undefined) data.name = dto.name.trim();
-    if (dto.lastName !== undefined) data.lastName = dto.lastName.trim() || null;
-    if (dto.birthDate !== undefined)
-      data.birthDate = dto.birthDate ? new Date(dto.birthDate) : null;
-
-    const child = await this.updateOrNotFound(
-      () =>
-        this.prisma.user.update({
-          // id + фильтр по родителю в одном where — Prisma сам вернёт P2025,
-          // если ребёнок не найден или принадлежит другому родителю
-          where: { id: childId, parents: { some: { id: parentUserId } } },
-          data,
-          omit: PUBLIC_USER_OMIT,
-        }),
-      'Ребёнок не найден',
-    );
-    this.logger.log(
-      `${ENTITY_EMOJI.user} Обновлён ребёнок id=${childId} parent=${parentUserId}`,
-    );
-    return this.toPublicUser(child);
-  }
-
-  /**
-   * Отвязывает ребёнка от родителя (не удаляет User — у ребёнка может быть
-   * второй родитель или уже есть история занятий).
-   */
-  public async removeChild(
-    parentUserId: number,
-    childId: number,
-  ): Promise<void> {
-    await this.updateOrNotFound(
-      () =>
-        this.prisma.user.update({
-          where: { id: childId, parents: { some: { id: parentUserId } } },
-          data: { parents: { disconnect: { id: parentUserId } } },
-        }),
-      'Ребёнок не найден',
-    );
-    this.logger.log(
-      `${ENTITY_EMOJI.user} Отвязан ребёнок id=${childId} parent=${parentUserId}`,
-    );
-  }
-
-  // ── Связь с ребёнком по ссылке (второй родитель) ─────────────────────────────
-
-  /**
-   * Ссылка, которой родитель приглашает второго родителя к уже созданному ребёнку.
-   * Одноразовая, живёт 7 дней. Дубль профиля ребёнка не создаётся.
-   */
-  public async createChildLink(
-    parentUserId: number,
-    childId: number,
-  ): Promise<{ token: string; expiresAt: Date }> {
-    const child = await this.prisma.user.findFirst({
-      where: { id: childId, parents: { some: { id: parentUserId } } },
-      select: { id: true },
-    });
-    if (!child) {
-      throw new NotFoundException('Ребёнок не найден');
-    }
-
-    const expiresAt = new Date(Date.now() + CHILD_LINK_TTL_MS);
-    const link = await this.prisma.childLinkInvite.create({
-      data: {
-        token: generateInviteToken(),
-        childUserId: childId,
-        createdByUserId: parentUserId,
-        expiresAt,
-      },
-      select: { token: true, expiresAt: true },
-    });
-    this.logger.log(
-      `${ENTITY_EMOJI.user} Создана ссылка на ребёнка childId=${childId} parent=${parentUserId}`,
-    );
-    return link;
-  }
-
-  /** Второй родитель принимает ссылку: ребёнок привязывается к нему, профиль не дублируется. */
-  public async redeemChildLink(
-    callerUserId: number,
-    token: string,
-  ): Promise<{ childUserId: number; name: string | null; lastName: string | null }> {
-    const link = await this.prisma.childLinkInvite.findUnique({
-      where: { token: token.trim() },
-      select: { id: true, childUserId: true, expiresAt: true, usedAt: true },
-    });
-    if (!link) {
-      throw new NotFoundException('Ссылка не найдена');
-    }
-    if (link.usedAt) {
-      throw new ConflictException('Ссылка уже использована');
-    }
-    if (link.expiresAt.getTime() < Date.now()) {
-      throw new GoneException('Срок ссылки истёк');
-    }
-
-    const child = await this.prisma.$transaction(async (tx) => {
-      // Гард на повторное использование в самой записи: два параллельных клика не привяжут дважды.
-      const claimed = await tx.childLinkInvite.updateMany({
-        where: { id: link.id, usedAt: null },
-        data: { usedAt: new Date(), usedByUserId: callerUserId },
-      });
-      if (claimed.count === 0) {
-        throw new ConflictException('Ссылка уже использована');
-      }
-      return tx.user.update({
-        where: { id: link.childUserId },
-        data: { parents: { connect: { id: callerUserId } } },
-        select: { id: true, name: true, lastName: true },
-      });
-    });
-
-    this.logger.log(
-      `${ENTITY_EMOJI.user} Ребёнок childId=${child.id} привязан к родителю userId=${callerUserId} по ссылке`,
-    );
-    return { childUserId: child.id, name: child.name, lastName: child.lastName };
-  }
-
-  // ---------- helpers ----------
-
-  private async replaceAvatar(
-    userId: number,
-    oldPath: string | null,
-    file: Express.Multer.File,
-  ): Promise<void> {
     const relativePath = this.uploadService.commitToCategory(
       file.path,
       'avatars',
@@ -563,10 +217,159 @@ export class UserService {
       where: { id: userId },
       data: { avatarPath: relativePath },
     });
-
-    if (oldPath) {
-      this.uploadService.deleteByRelativePath(oldPath);
+    if (user.avatarPath) {
+      this.uploadService.deleteByRelativePath(user.avatarPath);
     }
+    this.logger.log(`Обновлён аватар userId=${userId}`);
+  }
+
+  // ── Слияние аккаунтов ───────────────────────────────────────────────────
+
+  /**
+   * Слияние аккаунта мессенджера (current) в веб-аккаунт (target) при привязке через бота:
+   * у этого telegramId/maxId/vkId уже есть своя строка User (заходил в мини-приложение или
+   * писал боту). Владение обоими аккаунтами подтверждено до вызова: одноразовый токен
+   * веб-сессии плюс явное «Привязать» в чате (см. messengers/*/ deeplink; /*-link.service.ts).
+   */
+  public async mergeMessengerAccountInto(
+    currentUserId: number,
+    targetUserId: number,
+  ): Promise<User> {
+    const current = await this.prisma.user.findUnique({
+      where: { id: currentUserId },
+    });
+    if (!current) {
+      throw new NotFoundException('Пользователь не найден');
+    }
+    const target = await this.prisma.user.findUnique({
+      where: { id: targetUserId },
+    });
+    if (!target) {
+      throw new NotFoundException('Веб-аккаунт не найден');
+    }
+    if (target.id === current.id) return target;
+
+    if (target.maxId && current.maxId && target.maxId !== current.maxId) {
+      throw new ConflictException(
+        'К этому веб-аккаунту уже привязан другой MAX-аккаунт',
+      );
+    }
+    if (
+      target.telegramId &&
+      current.telegramId &&
+      target.telegramId !== current.telegramId
+    ) {
+      throw new ConflictException(
+        'К этому веб-аккаунту уже привязан другой Telegram-аккаунт',
+      );
+    }
+    if (target.vkId && current.vkId && target.vkId !== current.vkId) {
+      throw new ConflictException(
+        'К этому веб-аккаунту уже привязан другой VK-аккаунт',
+      );
+    }
+
+    return this.mergeUsers(current, target);
+  }
+
+  // ── Вспомогательное ─────────────────────────────────────────────────────
+
+  /**
+   * Транзакция слияния: target выживает, в него переезжают данные current, current удаляется.
+   * Проект дописывает сюда перенос своих сущностей, ссылающихся на User.
+   */
+  private async mergeUsers(current: User, target: User): Promise<User> {
+    const merged = await this.prisma.$transaction(async (tx) => {
+      // 1. Членства: перенести, при конфликте остаётся старшая роль
+      const memberships = await tx.organizationMembership.findMany({
+        where: { userId: current.id },
+      });
+      for (const membership of memberships) {
+        const existing = await tx.organizationMembership.findUnique({
+          where: {
+            organizationId_userId: {
+              organizationId: membership.organizationId,
+              userId: target.id,
+            },
+          },
+        });
+        if (!existing) {
+          await tx.organizationMembership.update({
+            where: { id: membership.id },
+            data: { userId: target.id },
+          });
+          continue;
+        }
+        if (ROLE_RANK[membership.role] > ROLE_RANK[existing.role]) {
+          await tx.organizationMembership.update({
+            where: { id: existing.id },
+            data: { role: membership.role },
+          });
+        }
+        await tx.organizationMembership.delete({
+          where: { id: membership.id },
+        });
+        this.logger.log(
+          `mergeUsers: organizationId=${membership.organizationId} — членство уже было, оставлена старшая роль`,
+        );
+      }
+
+      // 2. Владение организациями и история — переставляем на target
+      await tx.organization.updateMany({
+        where: { ownerUserId: current.id },
+        data: { ownerUserId: target.id },
+      });
+      await tx.notification.updateMany({
+        where: { userId: current.id },
+        data: { userId: target.id },
+      });
+      await tx.joinRequest.updateMany({
+        where: { userId: current.id },
+        data: { userId: target.id },
+      });
+      await tx.auditLog.updateMany({
+        where: { userId: current.id },
+        data: { userId: target.id },
+      });
+
+      // 3. Идентификаторы мессенджеров: сперва снять с current (уникальность), потом поставить на target
+      const identity: Prisma.UserUncheckedUpdateInput = {};
+      if (current.maxId) {
+        identity.maxId = current.maxId;
+        identity.maxData = current.maxData ?? Prisma.JsonNull;
+      }
+      if (current.telegramId) {
+        identity.telegramId = current.telegramId;
+        identity.telegramData = current.telegramData ?? Prisma.JsonNull;
+      }
+      if (current.vkId) {
+        identity.vkId = current.vkId;
+        identity.vkData = current.vkData ?? Prisma.JsonNull;
+      }
+      // Служебные маркеры диалогов с ботами (User.data) переезжают вместе с идентификаторами
+      identity.data = {
+        ...((current.data as Record<string, unknown> | null) ?? {}),
+        ...((target.data as Record<string, unknown> | null) ?? {}),
+      } as Prisma.InputJsonValue;
+
+      // Персональные настройки уведомлений current уходят каскадом вместе с ним
+      await tx.user.delete({ where: { id: current.id } });
+      return tx.user.update({ where: { id: target.id }, data: identity });
+    });
+
+    this.uploadService.deleteByRelativePath(current.avatarPath);
+    this.logger.log(
+      `Аккаунты объединены: userId=${current.id} → userId=${target.id}`,
+    );
+    return merged;
+  }
+
+  private toPublicUser(user: RawPublicUser): PublicUser {
+    const { avatarPath, ...rest } = user;
+    return {
+      ...rest,
+      avatarUrl: this.uploadService.toPublicUrl(avatarPath),
+    };
   }
 
   /** Оборачивает мутацию: Prisma P2025 (запись не найдена) → понятный 404. */

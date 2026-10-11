@@ -36,7 +36,7 @@ export class InviteController {
 
   // --- redeem; объявлено до ':id', чтобы 'preview'/'redeem' не парсились как id ---
 
-  // Публичный: страница /invite показывает "чей это кружок" ещё до входа/регистрации.
+  // Публичный: страница /invite показывает "чья это организация" ещё до входа/регистрации.
   @Get('preview')
   @Swagger({
     title: 'Превью приглашения по ?token= (какая организация ждёт)',
@@ -50,7 +50,8 @@ export class InviteController {
   @Post('redeem')
   @UseGuards(MultiAuthGuard)
   @Swagger({
-    title: 'Подать заявку на вступление в организацию по ссылке-приглашению (ждёт одобрения владельца)',
+    title:
+      'Подать заявку на вступление в организацию по ссылке-приглашению (ждёт одобрения владельца)',
     body: RedeemInviteDto,
     response: RedeemResultDto,
     bearerAuth: true,
@@ -62,9 +63,9 @@ export class InviteController {
   // --- CRUD ---
 
   // Ссылки-приглашения (токены) видит только владелец: участнику они не нужны и дают возможность их раздать.
-  @Get()
+  @Get('list')
   @UseGuards(MultiAuthGuard, OrgScopeGuard, PoliciesGuard)
-  @CheckPolicies(a => a.can('manage', 'Invite'))
+  @CheckPolicies((a) => a.can('manage', 'Invite'))
   @Swagger({
     title: 'Приглашения организации (фильтр ?organizationId=)',
     query: InviteQueryDto,
@@ -76,9 +77,9 @@ export class InviteController {
     return this.inviteService.list(query);
   }
 
-  @Post()
+  @Post('create')
   @UseGuards(MultiAuthGuard, OrgScopeGuard, PoliciesGuard)
-  @CheckPolicies(a => a.can('manage', 'Invite'))
+  @CheckPolicies((a) => a.can('manage', 'Invite'))
   @Swagger({
     title: 'Создать приглашение-ссылку организации',
     body: CreateInviteDto,
@@ -92,7 +93,7 @@ export class InviteController {
   @Get(':id')
   @UseGuards(MultiAuthGuard, ResourceScopeGuard, PoliciesGuard)
   @ResourceScope('invite')
-  @CheckPolicies(a => a.can('manage', 'Invite'))
+  @CheckPolicies((a) => a.can('manage', 'Invite'))
   @Swagger({
     title: 'Карточка приглашения',
     param: { name: 'id', type: Number },
@@ -103,10 +104,10 @@ export class InviteController {
     return this.inviteService.findById(id);
   }
 
-  @Post(':id/delete')
+  @Post('delete/:id')
   @UseGuards(MultiAuthGuard, ResourceScopeGuard, PoliciesGuard)
   @ResourceScope('invite')
-  @CheckPolicies(a => a.can('manage', 'Invite'))
+  @CheckPolicies((a) => a.can('manage', 'Invite'))
   @Swagger({
     title: 'Удалить приглашение',
     param: { name: 'id', type: Number },

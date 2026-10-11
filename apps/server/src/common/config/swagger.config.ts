@@ -1,4 +1,4 @@
-import { DocumentBuilder } from '@nestjs/swagger'
+import { DocumentBuilder } from '@nestjs/swagger';
 
 // Теги — латиницей (иначе orval генерит названия хуков/файлов кириллицей),
 // человекочитаемое описание — вторым аргументом addTag, его показывает Swagger UI.
@@ -11,5 +11,5 @@ export function getSwaggerConfig() {
     .addTag('organizations', 'Организации')
     .addTag('categories', 'Категории продуктов')
     .addTag('products', 'Продукты')
-    .build()
+    .build();
 }

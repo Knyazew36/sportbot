@@ -1,5 +1,5 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { IsInt, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator'
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
 /** Квери для GET /invite/preview — превью приглашения по ссылке. */
 export class RedeemQueryDto {
@@ -7,7 +7,7 @@ export class RedeemQueryDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(200)
-  token: string
+  token: string;
 }
 
 /** Тело POST /invite/redeem — вступить в организацию по ссылке-приглашению. */
@@ -16,12 +16,5 @@ export class RedeemInviteDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(200)
-  token: string
-
-  @ApiPropertyOptional({
-    description: 'Заявка от имени своего ребёнка (id из GET /user/me/children), а не от себя',
-  })
-  @IsOptional()
-  @IsInt()
-  childUserId?: number
+  token: string;
 }

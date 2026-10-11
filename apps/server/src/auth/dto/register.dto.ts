@@ -1,11 +1,18 @@
-import { ApiProperty } from '@nestjs/swagger'
-import { IsEmail, IsOptional, IsString, Matches, MaxLength, MinLength } from 'class-validator'
+import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsEmail,
+  IsOptional,
+  IsString,
+  Matches,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class RegisterDto {
   @ApiProperty()
   @IsEmail({}, { message: 'Некорректный email' })
   @MaxLength(254)
-  email: string
+  email: string;
 
   @ApiProperty()
   @IsString()
@@ -13,17 +20,17 @@ export class RegisterDto {
   // Предел bcrypt — 72 байта, всё сверх молча обрезается
   @MaxLength(72)
   @Matches(/\S/, { message: 'Пароль не может состоять только из пробелов' })
-  password: string
+  password: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
   @MaxLength(100)
-  name?: string
+  name?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
   @MaxLength(100)
-  lastName?: string
+  lastName?: string;
 }

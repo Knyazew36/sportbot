@@ -1,13 +1,12 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common'
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 
-import { ENTITY_EMOJI } from '@/common/utils'
-import { resolveAvatarUrl, resolveVkName } from '@/common/vk/resolve-vk-profile'
-import { OrgRole } from '@/generated/prisma/client'
-import { PrismaService } from 'prisma/prisma.service'
+import { ENTITY_EMOJI } from '@/common/utils';
+import { OrgRole } from '@/generated/prisma/client';
+import { PrismaService } from 'prisma/prisma.service';
 
-import { UploadService } from '../upload/upload.service'
+import { UploadService } from '../upload/upload.service';
 
-import { UserCapabilities, UserContext } from './types/user-context'
+import { UserCapabilities, UserContext } from './types/user-context';
 
 /**
  * Источник ролевого контекста пользователя. Доменной роли на аккаунте нет —
@@ -15,7 +14,7 @@ import { UserCapabilities, UserContext } from './types/user-context'
  */
 @Injectable()
 export class AuthService {
-  private readonly logger = new Logger(AuthService.name)
+  private readonly logger = new Logger(AuthService.name);
 
   constructor(
     private readonly prisma: PrismaService,
@@ -30,22 +29,22 @@ export class AuthService {
         id: true,
         isPlatformAdmin: true,
         orgMemberships: {
-          where: { organization: { active: true, owner: { active: true } } },
+          where: { organization: { active: true } },
           select: { organizationId: true, role: true },
         },
       },
-    })
+    });
 
     if (!user) {
-      throw new NotFoundException('Пользователь не найден')
+      throw new NotFoundException('Пользователь не найден');
     }
 
-    this.logger.log(`${ENTITY_EMOJI.auth} getUserContext userId=${userId}`)
+    this.logger.log(`${ENTITY_EMOJI.auth} getUserContext userId=${userId}`);
     return {
       userId: user.id,
       isPlatformAdmin: user.isPlatformAdmin,
       orgMemberships: user.orgMemberships,
-    }
+    };
   }
 
   /** Возможности для GET /me. Вычисляются на каждый запрос, в БД не хранятся. */
@@ -53,13 +52,16 @@ export class AuthService {
     return {
       isPlatformAdmin: context.isPlatformAdmin,
       isOrgOwner: context.orgMemberships.some((m) => m.role === OrgRole.OWNER),
+      isOrgAdmin: context.orgMemberships.some(
+        (m) => m.role === OrgRole.OWNER || m.role === OrgRole.ADMIN,
+      ),
       isOrgMember: context.orgMemberships.length > 0,
-    }
+    };
   }
 
   /** Шорткат: контекст + возможности за один проход. */
   public async getCapabilities(userId: number): Promise<UserCapabilities> {
-    return this.computeCapabilities(await this.getUserContext(userId))
+    return this.computeCapabilities(await this.getUserContext(userId));
   }
 
   /** Профиль + вычисленные capabilities для GET /auth/me и GET /me. */
@@ -72,14 +74,10 @@ export class AuthService {
         emailVerified: true,
         name: true,
         lastName: true,
-        displayName: true,
         avatarPath: true,
         phone: true,
-        active: true,
         isPlatformAdmin: true,
-        vkUserId: true,
-        vkData: true,
-        vkMessagesAllowed: true,
+        vkId: true,
         telegramId: true,
         maxId: true,
         createdAt: true,
@@ -87,17 +85,19 @@ export class AuthService {
           select: {
             organizationId: true,
             role: true,
-            organization: { select: { name: true, active: true, trialEndsAt: true } },
+            organization: { select: { name: true, active: true } },
           },
         },
       },
-    })
+    });
 
     if (!user) {
-      throw new NotFoundException('Пользователь не найден')
+      throw new NotFoundException('Пользователь не найден');
     }
 
-    const activeMemberships = user.orgMemberships.filter((m) => m.organization.active)
+    const activeMemberships = user.orgMemberships.filter(
+      (m) => m.organization.active,
+    );
 
     const context: UserContext = {
       userId: user.id,
@@ -106,36 +106,30 @@ export class AuthService {
         organizationId: m.organizationId,
         role: m.role,
       })),
-    }
+    };
 
     // Список организаций пользователя для переключателя на фронте.
-    const organizations = activeMemberships
-      .map((m) => ({
-        id: m.organizationId,
-        name: m.organization.name,
-        role: m.role,
-        trialEndsAt: m.organization.trialEndsAt,
-      }))
+    const organizations = activeMemberships.map((m) => ({
+      id: m.organizationId,
+      name: m.organization.name,
+      role: m.role,
+    }));
 
-    this.logger.log(`${ENTITY_EMOJI.auth} getMe userId=${userId}`)
+    this.logger.log(`${ENTITY_EMOJI.auth} getMe userId=${userId}`);
     return {
       id: user.id,
       email: user.email,
       emailVerified: user.emailVerified,
-      ...resolveVkName(user.name, user.lastName, user.vkData),
-      displayName: user.displayName,
-      avatarUrl: resolveAvatarUrl(user.avatarPath, user.vkData, this.uploadService),
+      name: user.name,
+      lastName: user.lastName,
+      avatarUrl: this.uploadService.toPublicUrl(user.avatarPath),
       phone: user.phone,
-      active: user.active,
-      // BigInt не сериализуется в JSON — отдаём строкой
-      vkUserId: user.vkUserId === null ? null : user.vkUserId.toString(),
-      vkMessagesAllowed: user.vkMessagesAllowed,
+      vkId: user.vkId,
       telegramId: user.telegramId,
       maxId: user.maxId,
       createdAt: user.createdAt,
       capabilities: this.computeCapabilities(context),
       organizations,
-    }
+    };
   }
 }
-

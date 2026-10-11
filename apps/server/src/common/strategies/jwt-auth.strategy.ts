@@ -1,30 +1,34 @@
-import { Injectable, OnModuleInit, UnauthorizedException } from '@nestjs/common'
-import { JwtService } from '@nestjs/jwt'
+import {
+  Injectable,
+  OnModuleInit,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 
-import { User } from '@/generated/prisma/client'
-import { PrismaService } from 'prisma/prisma.service'
+import { User } from '@/generated/prisma/client';
+import { PrismaService } from 'prisma/prisma.service';
 
-import { AuthStrategyRegistry } from '../auth-strategy.registry'
-import { RequestWithOrganization } from '../types/request-with-organization'
+import { AuthStrategyRegistry } from '../auth-strategy.registry';
+import { RequestWithOrganization } from '../types/request-with-organization';
 
-import { AuthStrategy } from './auth-strategies.type'
-import { AuthProvider } from '../types/request-with-organization'
+import { AuthStrategy } from './auth-strategies.type';
+import { AuthProvider } from '../types/request-with-organization';
 
 interface AppJwtPayload {
-  sub: number
-  provider: AuthProvider
+  sub: number;
+  provider: AuthProvider;
 }
 
-const ALLOWED_PROVIDERS: AuthProvider[] = ['email', 'vk', 'telegram', 'max']
+const ALLOWED_PROVIDERS: AuthProvider[] = ['email', 'vk', 'telegram', 'max'];
 
 /**
  * Единая стратегия per-request аутентификации: Bearer JWT, выданный любым способом
- * входа (email+пароль или VK Mini App). Способ входа сохранён в payload.provider,
+ * входа (email+пароль или подтверждение в боте мессенджера). Способ входа сохранён в payload.provider,
  * но на доступ не влияет — доменная роль выводится из связей (см. AuthService).
  */
 @Injectable()
 export class JwtAuthStrategy implements AuthStrategy, OnModuleInit {
-  provider: AuthProvider = 'email'
+  provider: AuthProvider = 'email';
 
   constructor(
     private readonly jwtService: JwtService,
@@ -33,41 +37,44 @@ export class JwtAuthStrategy implements AuthStrategy, OnModuleInit {
   ) {}
 
   onModuleInit(): void {
-    this.registry.register(this)
+    this.registry.register(this);
   }
 
   supports(req: RequestWithOrganization): boolean {
-    const authHeader = String(req.header('authorization') || '')
-    return authHeader.startsWith('Bearer ')
+    const authHeader = String(req.header('authorization') || '');
+    return authHeader.startsWith('Bearer ');
   }
 
   async authenticate(req: RequestWithOrganization): Promise<User> {
-    const authHeader = String(req.header('authorization') || '')
-    const token = authHeader.slice('Bearer '.length)
+    const authHeader = String(req.header('authorization') || '');
+    const token = authHeader.slice('Bearer '.length);
 
     if (!token) {
-      throw new UnauthorizedException('Invalid authorization header')
+      throw new UnauthorizedException('Invalid authorization header');
     }
 
-    let payload: AppJwtPayload
+    let payload: AppJwtPayload;
     try {
-      payload = await this.jwtService.verifyAsync<AppJwtPayload>(token)
+      payload = await this.jwtService.verifyAsync<AppJwtPayload>(token);
     } catch {
-      throw new UnauthorizedException('Невалидный или истёкший токен')
+      throw new UnauthorizedException('Невалидный или истёкший токен');
     }
 
-    if (typeof payload.sub !== 'number' || !ALLOWED_PROVIDERS.includes(payload.provider)) {
-      throw new UnauthorizedException('Невалидный токен')
+    if (
+      typeof payload.sub !== 'number' ||
+      !ALLOWED_PROVIDERS.includes(payload.provider)
+    ) {
+      throw new UnauthorizedException('Невалидный токен');
     }
 
     const user = await this.prisma.user.findUnique({
       where: { id: payload.sub },
-    })
+    });
 
-    if (!user || !user.active) {
-      throw new UnauthorizedException('Пользователь не найден или деактивирован')
+    if (!user) {
+      throw new UnauthorizedException('Пользователь не найден');
     }
 
-    return user
+    return user;
   }
 }

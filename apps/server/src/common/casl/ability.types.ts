@@ -1,12 +1,5 @@
-export type AppAction = 'manage' | 'read' | 'create' | 'update' | 'delete'
+export type AppAction = 'manage' | 'read' | 'create' | 'update' | 'delete';
 
+// Субъекты шаблона; проект дописывает сюда свои сущности.
 export type AppSubject =
-  | 'Organization'
-  | 'Member'
-  | 'Group'
-  | 'Lesson'
-  | 'LessonAttendance'
-  | 'ScheduleRule'
-  | 'Invite'
-  | 'JoinRequest'
-  | 'all'
+  'Organization' | 'Member' | 'Invite' | 'JoinRequest' | 'all';

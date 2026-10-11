@@ -1,14 +1,13 @@
-import { Module } from '@nestjs/common'
+import { Module } from '@nestjs/common';
 
-import { UploadModule } from '../upload/upload.module'
-import { VkModule } from '../vk/vk.module'
-import { NotificationsModule } from '@/notifications/notifications.module'
+import { UploadModule } from '../upload/upload.module';
+import { NotificationsModule } from '@/notifications/notifications.module';
 
-import { InviteController } from './invite.controller'
-import { InviteService } from './invite.service'
+import { InviteController } from './invite.controller';
+import { InviteService } from './invite.service';
 
 @Module({
-  imports: [UploadModule, VkModule, NotificationsModule],
+  imports: [UploadModule, NotificationsModule],
   controllers: [InviteController],
   providers: [InviteService],
   exports: [InviteService],

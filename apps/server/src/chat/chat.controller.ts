@@ -1,7 +1,11 @@
 import {
   Body,
   Controller,
+  Get,
+  Param,
+  ParseIntPipe,
   Post,
+  Query,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
@@ -11,6 +15,9 @@ import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 
 import { Swagger } from '@/common/decorators/swagger/swagger.decorator';
+import { MultiAuthGuard } from '@/common/guards/multi-auth.guard';
+import { PlatformAdminGuard } from '@/common/guards/platform-admin.guard';
+import { PaginationQueryDto } from '@/common/type';
 
 import { imageUploadInterceptorOptions } from '../upload/upload.utils';
 
@@ -20,15 +27,16 @@ import { CreateChatSubmissionDto } from './dto/create-chat-submission.dto';
 
 const MAX_ATTACHMENTS = 5;
 
-// Публичный эндпоинт (без MultiAuthGuard) — форма чата на сайте, защищена троттлингом.
-// Чтение/удаление сообщений — только платформенному админу, см. AdminChatSubmissionController.
+// create — публичный эндпоинт (без MultiAuthGuard): форма обратной связи на сайте, защищена троттлингом.
+// Чтение и удаление сообщений — только платформенному админу. Правки сообщений нет намеренно:
+// это входящие обращения, их не редактируют.
 @ApiTags('chat-submission')
 @UseGuards(ThrottlerGuard)
 @Controller('chat-submission')
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
-  @Post()
+  @Post('create')
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @UseInterceptors(
     FilesInterceptor('files', MAX_ATTACHMENTS, imageUploadInterceptorOptions()),
@@ -55,5 +63,43 @@ export class ChatController {
     @UploadedFiles() files: Express.Multer.File[] = [],
   ) {
     return this.chatService.create(dto, files);
+  }
+
+  @Get('list')
+  @UseGuards(MultiAuthGuard, PlatformAdminGuard)
+  @Swagger({
+    title: 'Сообщения с сайта (платформенный админ)',
+    query: PaginationQueryDto,
+    response: ChatSubmissionDto,
+    isArray: true,
+    bearerAuth: true,
+  })
+  list(@Query() query: PaginationQueryDto) {
+    return this.chatService.list(query);
+  }
+
+  @Get(':id')
+  @UseGuards(MultiAuthGuard, PlatformAdminGuard)
+  @Swagger({
+    title: 'Сообщение с сайта по id (платформенный админ)',
+    param: { name: 'id', type: Number },
+    response: ChatSubmissionDto,
+    bearerAuth: true,
+  })
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.chatService.findOne(id);
+  }
+
+  @Post('delete/:id')
+  @UseGuards(MultiAuthGuard, PlatformAdminGuard)
+  @Swagger({
+    title:
+      'Удалить сообщение с сайта вместе с вложениями (платформенный админ)',
+    param: { name: 'id', type: Number },
+    response: ChatSubmissionDto,
+    bearerAuth: true,
+  })
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.chatService.remove(id);
   }
 }

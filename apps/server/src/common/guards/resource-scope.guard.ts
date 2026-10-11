@@ -54,28 +54,6 @@ const RESOURCES: Record<ScopedResource, ResourceConfig> = {
       return row ? { organizationId: row.organizationId } : null;
     },
   },
-  scheduleRule: {
-    key: 'scheduleRuleId',
-    notFound: 'Правило расписания не найдено',
-    load: async (prisma, id) => {
-      const row = await prisma.scheduleRule.findUnique({
-        where: { id },
-        select: { organizationId: true },
-      });
-      return row ? { organizationId: row.organizationId } : null;
-    },
-  },
-  lesson: {
-    key: 'lessonId',
-    notFound: 'Занятие не найдено',
-    load: async (prisma, id) => {
-      const row = await prisma.lesson.findUnique({
-        where: { id },
-        select: { organizationId: true },
-      });
-      return row ? { organizationId: row.organizationId } : null;
-    },
-  },
 };
 
 function headerName(key: string): string {
@@ -83,7 +61,7 @@ function headerName(key: string): string {
 }
 
 /**
- * Единый скоуп-гвард для leaf-сущностей (`invite`, `joinRequest`, `scheduleRule`, `lesson`).
+ * Единый скоуп-гвард для leaf-сущностей (`invite`, `joinRequest`).
  * Сущность выбирается декоратором `@ResourceScope('...')`. Логика та же, что в `OrgScopeGuard`:
  * `:id` → organizationId → `assertOrgAccess` (+ `@RequireOrgRole`).
  * Кладёт в request `<entity>Id` и данные доступа.
@@ -96,10 +74,9 @@ export class ResourceScopeGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const resource = this.reflector.getAllAndOverride<ScopedResource | undefined>(
-      RESOURCE_SCOPE_KEY,
-      [context.getHandler(), context.getClass()],
-    );
+    const resource = this.reflector.getAllAndOverride<
+      ScopedResource | undefined
+    >(RESOURCE_SCOPE_KEY, [context.getHandler(), context.getClass()]);
     if (!resource || !RESOURCES[resource]) {
       throw new InternalServerErrorException(
         'ResourceScopeGuard без @ResourceScope(...)',
@@ -107,7 +84,9 @@ export class ResourceScopeGuard implements CanActivate {
     }
     const config = RESOURCES[resource];
 
-    const request = context.switchToHttp().getRequest<RequestWithOrganization>();
+    const request = context
+      .switchToHttp()
+      .getRequest<RequestWithOrganization>();
     const user = request.user;
     if (!user) {
       throw new UnauthorizedException('Пользователь не авторизован');

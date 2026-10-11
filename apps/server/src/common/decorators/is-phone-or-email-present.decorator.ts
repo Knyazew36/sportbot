@@ -1,4 +1,8 @@
-import { registerDecorator, ValidationArguments, ValidationOptions } from 'class-validator';
+import {
+  registerDecorator,
+  ValidationArguments,
+  ValidationOptions,
+} from 'class-validator';
 
 // Вешается на phone: без связки «хотя бы один контакт» @IsOptional на обоих полях пропустил бы пустую форму.
 export function IsPhoneOrEmailPresent(validationOptions?: ValidationOptions) {
@@ -10,7 +14,10 @@ export function IsPhoneOrEmailPresent(validationOptions?: ValidationOptions) {
       options: validationOptions,
       validator: {
         validate(_value: unknown, args: ValidationArguments) {
-          const { phone, email } = args.object as { phone?: string; email?: string };
+          const { phone, email } = args.object as {
+            phone?: string;
+            email?: string;
+          };
           return Boolean(phone?.trim() || email?.trim());
         },
       },

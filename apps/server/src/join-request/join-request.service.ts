@@ -1,42 +1,20 @@
-import {
-  ConflictException,
-  ForbiddenException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 
-import { JoinRequestStatus, OrgRole, Prisma } from '@/generated/prisma/client';
+import { paginatePrisma } from '@/common/prisma/prisma-paginate';
 import { ENTITY_EMOJI } from '@/common/utils';
-import {
-  resolveAvatarUrl,
-  resolveVkName,
-} from '@/common/vk/resolve-vk-profile';
+import { JoinRequestStatus, OrgRole, Prisma } from '@/generated/prisma/client';
+import { NotificationsService } from '@/notifications/notifications.service';
 import { PrismaService } from 'prisma/prisma.service';
 
-import { JoinRequestRelativeResponseDto } from './dto/join-request-relative.response.dto';
+import { UploadService } from '../upload/upload.service';
+
 import { JoinRequestQueryDto } from './dto/join-request-query.dto';
 import { JoinRequestResponseDto } from './dto/join-request.response.dto';
-import { isOrganizationAvailable, ORGANIZATION_AVAILABILITY_SELECT } from '../common/organization/organization-availability';
-import { UploadService } from '../upload/upload.service';
-import { VkService } from '../vk/vk.service';
-
-const RELATIVE_SELECT = {
-  id: true,
-  name: true,
-  lastName: true,
-  email: true,
-  phone: true,
-  avatarPath: true,
-  vkData: true,
-  birthDate: true,
-} satisfies Prisma.UserSelect;
 
 const JOIN_REQUEST_SELECT = {
   id: true,
   organizationId: true,
   userId: true,
-  requestedByUserId: true,
   inviteId: true,
   status: true,
   createdAt: true,
@@ -48,11 +26,7 @@ const JOIN_REQUEST_SELECT = {
       name: true,
       lastName: true,
       avatarPath: true,
-      vkData: true,
       phone: true,
-      birthDate: true,
-      parents: { select: RELATIVE_SELECT },
-      children: { select: RELATIVE_SELECT },
     },
   },
 } satisfies Prisma.JoinRequestSelect;
@@ -63,159 +37,110 @@ type JoinRequestRow = Prisma.JoinRequestGetPayload<{
 
 @Injectable()
 export class JoinRequestService {
-  private readonly logger = new Logger(JoinRequestService.name);
+  private readonly logger = new Logger(
+    `${ENTITY_EMOJI.joinRequest} ${JoinRequestService.name}`,
+  );
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly uploadService: UploadService,
-    private readonly vkService: VkService,
+    private readonly notifications: NotificationsService,
   ) {}
 
-  /**
-   * Заявки кружка (владелец). Доступ проверяет OrgScopeGuard + CASL (manage JoinRequest, только владелец).
-   * Пагинация вручную (как `paginatePrisma`), а не через хелпер: у `JoinRequestSelect`
-   * вложенные `organization`/`user`, дженерик хелпера с ними не типизируется корректно.
-   */
+  // ── Списки ──────────────────────────────────────────────────────────────
+
+  /** Заявки организации. Доступ проверяет OrgScopeGuard + CASL (manage JoinRequest). */
   public async list(query: JoinRequestQueryDto) {
     const where: Prisma.JoinRequestWhereInput = {
       organizationId: query.organizationId,
       ...(query.status ? { status: query.status } : {}),
     };
-    const page = Math.max(1, query.page || 1);
-    const limit = Math.min(1000, Math.max(1, query.limit || 20));
-    const orderBy = query.sortBy
-      ? { [query.sortBy]: query.order ?? 'desc' }
-      : { createdAt: 'desc' as const };
 
-    const [total, rows] = await Promise.all([
-      this.prisma.joinRequest.count({ where }),
-      this.prisma.joinRequest.findMany({
-        where,
-        orderBy,
-        select: JOIN_REQUEST_SELECT,
-        skip: (page - 1) * limit,
-        take: limit,
-      }),
-    ]);
-
-    const totalPages = Math.max(1, Math.ceil(total / limit));
-    this.logger.log(
-      `${ENTITY_EMOJI.joinRequest} list org=${query.organizationId}: ${total}`,
-    );
+    const { items, meta } = await paginatePrisma(this.prisma.joinRequest, {
+      ...query,
+      where,
+      select: JOIN_REQUEST_SELECT,
+    });
+    this.logger.log(`list org=${query.organizationId}: ${meta.total}`);
     return {
-      items: await this.toDtos(rows),
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages,
-        hasNextPage: page < totalPages,
-        hasPrevPage: page > 1,
-      },
+      items: (items as unknown as JoinRequestRow[]).map((row) =>
+        this.toDto(row),
+      ),
+      meta,
     };
   }
 
-  /**
-   * Заявки, которые подал сам пользователь (включая от имени своих детей),
-   * во всех кружках, свежие сверху. `requestedByUserId` пуст только у старых
-   * записей до появления родителя-заявителя — тогда заявитель = сам userId.
-   */
+  /** Свои заявки во всех организациях, свежие сверху. */
   public async listMine(userId: number): Promise<JoinRequestResponseDto[]> {
     const rows = await this.prisma.joinRequest.findMany({
-      where: {
-        OR: [
-          { requestedByUserId: userId },
-          { requestedByUserId: null, userId },
-        ],
-      },
+      where: { userId },
       orderBy: { createdAt: 'desc' },
       select: JOIN_REQUEST_SELECT,
     });
-    this.logger.log(
-      `${ENTITY_EMOJI.joinRequest} listMine userId=${userId}: ${rows.length}`,
-    );
-    return this.toDtos(rows);
+    this.logger.log(`listMine userId=${userId}: ${rows.length}`);
+    return rows.map((row) => this.toDto(row));
   }
 
-  /** Одобрить заявку: создаёт членство MEMBER (заявителю и родителю, если подал он), увеличивает Invite.usedCount. */
+  // ── Решения ─────────────────────────────────────────────────────────────
+
+  /** Одобрить заявку: создаёт членство MEMBER и увеличивает Invite.usedCount. */
   public async approve(
     id: number,
-    ownerUserId: number,
+    decidedByUserId: number,
   ): Promise<JoinRequestResponseDto> {
-    const joinRequest = await this.assertPending(id);
-
     const row = await this.prisma.$transaction(async (tx) => {
-      // Заявку за ребёнка подал родитель — он тоже становится участником, чтобы видеть кружок и расписание.
-      const memberIds = [joinRequest.userId];
-      if (
-        joinRequest.requestedByUserId &&
-        joinRequest.requestedByUserId !== joinRequest.userId
-      ) {
-        memberIds.push(joinRequest.requestedByUserId);
-      }
-      for (const memberId of memberIds) {
-        const existingMembership = await tx.organizationMembership.findUnique({
-          where: {
-            organizationId_userId: {
-              organizationId: joinRequest.organizationId,
-              userId: memberId,
-            },
+      const decided = await this.decide(
+        tx,
+        { id },
+        JoinRequestStatus.APPROVED,
+        decidedByUserId,
+      );
+      await tx.organizationMembership.upsert({
+        where: {
+          organizationId_userId: {
+            organizationId: decided.organizationId,
+            userId: decided.userId,
           },
-        });
-        if (!existingMembership) {
-          await tx.organizationMembership.create({
-            data: {
-              organizationId: joinRequest.organizationId,
-              userId: memberId,
-              role: OrgRole.MEMBER,
-            },
-          });
-        }
-      }
-      if (joinRequest.inviteId) {
+        },
+        create: {
+          organizationId: decided.organizationId,
+          userId: decided.userId,
+          role: OrgRole.MEMBER,
+        },
+        update: {},
+      });
+      if (decided.inviteId) {
         await tx.invite.update({
-          where: { id: joinRequest.inviteId },
+          where: { id: decided.inviteId },
           data: { usedCount: { increment: 1 } },
         });
       }
-      return tx.joinRequest.update({
-        where: { id },
-        data: {
-          status: JoinRequestStatus.APPROVED,
-          decidedAt: new Date(),
-          decidedByUserId: ownerUserId,
-        },
-        select: JOIN_REQUEST_SELECT,
-      });
+      return decided;
     });
 
     this.logger.log(
-      `${ENTITY_EMOJI.joinRequest} Заявка id=${id} org=${joinRequest.organizationId} одобрена decidedBy=${ownerUserId}`,
+      `Заявка id=${id} org=${row.organizationId} одобрена decidedBy=${decidedByUserId}`,
     );
     await this.notifyApplicant(row, true);
-    return (await this.toDtos([row]))[0];
+    return this.toDto(row);
   }
 
   /** Отклонить заявку — членство не создаётся. */
   public async reject(
     id: number,
-    ownerUserId: number,
+    decidedByUserId: number,
   ): Promise<JoinRequestResponseDto> {
-    const joinRequest = await this.assertPending(id);
-    const row = await this.prisma.joinRequest.update({
-      where: { id },
-      data: {
-        status: JoinRequestStatus.REJECTED,
-        decidedAt: new Date(),
-        decidedByUserId: ownerUserId,
-      },
-      select: JOIN_REQUEST_SELECT,
-    });
+    const row = await this.decide(
+      this.prisma,
+      { id },
+      JoinRequestStatus.REJECTED,
+      decidedByUserId,
+    );
     this.logger.log(
-      `${ENTITY_EMOJI.joinRequest} Заявка id=${id} org=${joinRequest.organizationId} отклонена decidedBy=${ownerUserId}`,
+      `Заявка id=${id} org=${row.organizationId} отклонена decidedBy=${decidedByUserId}`,
     );
     await this.notifyApplicant(row, false);
-    return (await this.toDtos([row]))[0];
+    return this.toDto(row);
   }
 
   /** Заявитель отменяет свою же заявку, пока она не рассмотрена. */
@@ -223,152 +148,81 @@ export class JoinRequestService {
     id: number,
     userId: number,
   ): Promise<JoinRequestResponseDto> {
-    const joinRequest = await this.assertPending(id);
-    const requestedBy = joinRequest.requestedByUserId ?? joinRequest.userId;
-    if (requestedBy !== userId) {
-      throw new ForbiddenException('Это не ваша заявка');
-    }
-    const row = await this.prisma.joinRequest.update({
-      where: { id },
-      data: {
-        status: JoinRequestStatus.CANCELLED,
-        decidedAt: new Date(),
-        decidedByUserId: userId,
-      },
-      select: JOIN_REQUEST_SELECT,
-    });
-    this.logger.log(
-      `${ENTITY_EMOJI.joinRequest} Заявка id=${id} org=${joinRequest.organizationId} отменена userId=${userId}`,
+    // userId в where — чужую заявку отменить нельзя, она просто «не найдётся»
+    const row = await this.decide(
+      this.prisma,
+      { id, userId },
+      JoinRequestStatus.CANCELLED,
+      userId,
     );
-    return (await this.toDtos([row]))[0];
+    this.logger.log(
+      `Заявка id=${id} org=${row.organizationId} отменена userId=${userId}`,
+    );
+    return this.toDto(row);
   }
 
-  // ---------- helpers ----------
+  // ── Вспомогательное ─────────────────────────────────────────────────────
 
-  /** Сообщает заявителю в VK решение по заявке. Ошибка отправки не должна ронять approve()/reject(). */
+  /** Перевод PENDING-заявки в итоговый статус. Статус в where — уже рассмотренная даст P2025. */
+  private async decide(
+    client: Prisma.TransactionClient,
+    where: { id: number; userId?: number },
+    status: JoinRequestStatus,
+    decidedByUserId: number,
+  ): Promise<JoinRequestRow> {
+    try {
+      return await client.joinRequest.update({
+        where: { ...where, status: JoinRequestStatus.PENDING },
+        data: { status, decidedAt: new Date(), decidedByUserId },
+        select: JOIN_REQUEST_SELECT,
+      });
+    } catch (e) {
+      if (
+        e instanceof Prisma.PrismaClientKnownRequestError &&
+        e.code === 'P2025'
+      ) {
+        throw new NotFoundException('Заявка не найдена или уже рассмотрена');
+      }
+      throw e;
+    }
+  }
+
+  /** Сообщает заявителю решение. Сбой доставки не должен ронять approve()/reject(). */
   private async notifyApplicant(
     row: JoinRequestRow,
     approved: boolean,
   ): Promise<void> {
-    const applicantId = row.requestedByUserId ?? row.userId;
-    const applicant = await this.prisma.user.findUnique({
-      where: { id: applicantId },
-      select: { vkUserId: true, vkMessagesAllowed: true },
-    });
-    if (!applicant?.vkUserId || !applicant.vkMessagesAllowed) {
-      this.logger.log(
-        `${ENTITY_EMOJI.joinRequest} Нет VK-адресата у заявителя userId=${applicantId}, уведомление о решении не отправлено`,
-      );
-      return;
-    }
-
-    const text = approved
-      ? `Заявка на вступление в «${row.organization.name}» одобрена ✅`
-      : `Заявка на вступление в «${row.organization.name}» отклонена`;
-
     try {
-      await this.vkService.sendMessage(applicant.vkUserId, text);
-      this.logger.log(
-        `${ENTITY_EMOJI.joinRequest} Уведомление о решении заявки id=${row.id} отправлено userId=${applicantId}`,
+      await this.notifications.notifyUser(
+        'JOIN_REQUEST_DECIDED',
+        row.organizationId,
+        row.userId,
+        {
+          title: approved ? 'Заявка одобрена' : 'Заявка отклонена',
+          body: approved
+            ? `Вас приняли в «${row.organization.name}» ✅`
+            : `Заявка на вступление в «${row.organization.name}» отклонена`,
+          payload: { joinRequestId: row.id },
+        },
       );
     } catch (error) {
       this.logger.warn(
-        `${ENTITY_EMOJI.joinRequest} Не удалось уведомить заявителя userId=${applicantId} о решении заявки id=${row.id}: ${error instanceof Error ? error.message : error}`,
+        `Не удалось уведомить заявителя userId=${row.userId} о решении заявки id=${row.id}: ${error instanceof Error ? error.message : error}`,
       );
     }
   }
 
-  private async assertPending(id: number) {
-    const joinRequest = await this.prisma.joinRequest.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        organizationId: true,
-        userId: true,
-        requestedByUserId: true,
-        inviteId: true,
-        status: true,
-        organization: { select: ORGANIZATION_AVAILABILITY_SELECT },
-      },
-    });
-    if (!joinRequest) {
-      throw new NotFoundException('Заявка не найдена');
-    }
-    if (joinRequest.status !== JoinRequestStatus.PENDING) {
-      throw new ConflictException('Заявка уже рассмотрена');
-    }
-    if (!isOrganizationAvailable(joinRequest.organization)) {
-      throw new ConflictException('Кружок недоступен — заявку нельзя рассмотреть');
-    }
-    return joinRequest;
-  }
-
-  private toRelativeDto(
-    user: JoinRequestRow['user']['parents'][number],
-  ): JoinRequestRelativeResponseDto {
-    return {
-      userId: user.id,
-      ...resolveVkName(user.name, user.lastName, user.vkData),
-      email: user.email,
-      phone: user.phone,
-      avatarUrl: resolveAvatarUrl(
-        user.avatarPath,
-        user.vkData,
-        this.uploadService,
-      ),
-      birthDate: user.birthDate,
-    };
-  }
-
-  /**
-   * Родитель-заявитель (requestedByUserId) без FK в схеме — читаем одним запросом на весь список.
-   * Заполняется, только когда заявку подали за ребёнка (requestedByUserId ≠ userId).
-   */
-  private async toDtos(
-    rows: JoinRequestRow[],
-  ): Promise<JoinRequestResponseDto[]> {
-    const requesterIds = [
-      ...new Set(
-        rows
-          .filter(
-            (r) => r.requestedByUserId && r.requestedByUserId !== r.userId,
-          )
-          .map((r) => r.requestedByUserId as number),
-      ),
-    ];
-    const requesters = requesterIds.length
-      ? await this.prisma.user.findMany({
-          where: { id: { in: requesterIds } },
-          select: RELATIVE_SELECT,
-        })
-      : [];
-    const byId = new Map(requesters.map((u) => [u.id, this.toRelativeDto(u)]));
-    return rows.map((row) =>
-      this.toDto(row, byId.get(row.requestedByUserId ?? -1) ?? null),
-    );
-  }
-
-  private toDto(
-    row: JoinRequestRow,
-    requestedBy: JoinRequestRelativeResponseDto | null,
-  ): JoinRequestResponseDto {
+  private toDto(row: JoinRequestRow): JoinRequestResponseDto {
     return {
       id: row.id,
       organizationId: row.organizationId,
       organizationName: row.organization.name,
       userId: row.userId,
       email: row.user.email,
-      ...resolveVkName(row.user.name, row.user.lastName, row.user.vkData),
-      avatarUrl: resolveAvatarUrl(
-        row.user.avatarPath,
-        row.user.vkData,
-        this.uploadService,
-      ),
+      name: row.user.name,
+      lastName: row.user.lastName,
+      avatarUrl: this.uploadService.toPublicUrl(row.user.avatarPath),
       phone: row.user.phone,
-      birthDate: row.user.birthDate,
-      parents: row.user.parents.map((p) => this.toRelativeDto(p)),
-      children: row.user.children.map((c) => this.toRelativeDto(c)),
-      requestedBy,
       inviteId: row.inviteId,
       status: row.status,
       createdAt: row.createdAt,

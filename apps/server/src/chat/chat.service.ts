@@ -7,8 +7,8 @@ import { Prisma } from '@/generated/prisma/client';
 import { paginatePrisma } from '@/common/prisma';
 import { PaginationQueryDto } from '@/common/type';
 import { ENTITY_EMOJI } from '@/common/utils';
+import { MessengerRegistry } from '@/messengers';
 
-import { BotMaxService } from '../bot-max/bot-max.service';
 import { UploadService } from '../upload/upload.service';
 
 import { ChatSubmissionDto } from './dto/chat-submission.dto';
@@ -27,13 +27,13 @@ type ChatSubmissionRow = {
 
 @Injectable()
 export class ChatService {
-  private readonly logger = new Logger(ChatService.name);
+  private readonly logger = new Logger(`${ChatService.name}`);
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly uploadService: UploadService,
-    private readonly botMaxService: BotMaxService,
+    private readonly messengers: MessengerRegistry,
   ) {}
 
   // ── CRUD ────────────────────────────────────────────────────────────────
@@ -62,12 +62,12 @@ export class ChatService {
         this.uploadService.commitToCategory(file.path, CHAT_UPLOAD_CATEGORY),
       );
       this.logger.log(
-        `${ENTITY_EMOJI.chat} Новое сообщение из чата id=${submission.id}, файлов=${files.length}`,
+        `Новое сообщение из чата id=${submission.id}, файлов=${files.length}`,
       );
 
       this.notify(submission).catch((error) =>
         this.logger.error(
-          `${ENTITY_EMOJI.chat} Не удалось отправить MAX-уведомление id=${submission.id}`,
+          `Не удалось уведомить админов о сообщении id=${submission.id}`,
           error instanceof Error ? error.stack : error,
         ),
       );
@@ -97,6 +97,7 @@ export class ChatService {
       where,
       orderBy: { createdAt: 'desc' },
     });
+    this.logger.log(`list: найдено ${result.meta.total}`);
     return { ...result, items: result.items.map((item) => this.toDto(item)) };
   }
 
@@ -118,7 +119,7 @@ export class ChatService {
       submission.filePaths.forEach((filePath) =>
         this.uploadService.deleteByRelativePath(filePath),
       );
-      this.logger.log(`${ENTITY_EMOJI.chat} Сообщение удалено id=${id}`);
+      this.logger.log(`Сообщение удалено id=${id}`);
       return this.toDto(submission);
     } catch (error) {
       if (
@@ -133,11 +134,25 @@ export class ChatService {
 
   // ── Уведомления ─────────────────────────────────────────────────────────
 
+  /**
+   * Сообщение с сайта получают платформенные админы во всех мессенджерах, где бот может им
+   * писать. Никого нет или ни один мессенджер не подключён — сообщение просто остаётся в БД.
+   */
   private async notify(submission: ChatSubmissionRow) {
-    const recipients = this.resolveRecipientMaxIds();
-    if (recipients.length === 0) {
+    const channels = this.messengers.list();
+    const admins = channels.length
+      ? await this.prisma.user.findMany({
+          where: { isPlatformAdmin: true },
+        })
+      : [];
+    const targets = admins.flatMap((admin) =>
+      channels
+        .filter((channel) => channel.canDeliver(admin))
+        .map((channel) => ({ admin, channel })),
+    );
+    if (targets.length === 0) {
       this.logger.warn(
-        `${ENTITY_EMOJI.chat} Нет получателей MAX-уведомления (MAX_NOTIFY_USER_ID не задан) id=${submission.id}`,
+        `Некому отправить уведомление о сообщении id=${submission.id}: нет админов с подключённым мессенджером`,
       );
       return;
     }
@@ -152,7 +167,7 @@ export class ChatService {
       submission.filePaths.length > 0 &&
       `Вложений: ${submission.filePaths.length}`;
     const text = [
-      '📩 Новое сообщение из чата «КРУЖОК»',
+      `📩 Новое сообщение с сайта «${this.config.get<string>('APP_NAME')}»`,
       contact,
       attachments,
       submission.message,
@@ -161,24 +176,17 @@ export class ChatService {
       .join('\n');
 
     await Promise.all(
-      recipients.map((maxId) =>
-        this.botMaxService.sendMessage(maxId, text).catch((error) =>
-          this.logger.error(
-            `${ENTITY_EMOJI.chat} Не удалось отправить MAX-уведомление maxId=${maxId} id=${submission.id}`,
-            error instanceof Error ? error.stack : error,
+      targets.map(({ admin, channel }) =>
+        channel
+          .send(admin, { text })
+          .catch((error) =>
+            this.logger.error(
+              `Не удалось отправить уведомление канал=${channel.channel} userId=${admin.id} id=${submission.id}`,
+              error instanceof Error ? error.stack : error,
+            ),
           ),
-        ),
       ),
     );
-  }
-
-  /**
-   * Кому слать уведомление о новом сообщении. Сейчас — один человек из env;
-   * если получателей станет больше (список, роли в БД), меняется только эта функция.
-   */
-  private resolveRecipientMaxIds(): string[] {
-    const maxId = this.config.get<string>('MAX_NOTIFY_USER_ID');
-    return maxId ? [maxId] : [];
   }
 
   // ── Маппинг ─────────────────────────────────────────────────────────────

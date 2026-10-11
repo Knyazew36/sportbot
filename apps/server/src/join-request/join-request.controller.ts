@@ -1,5 +1,13 @@
 import { CheckPolicies, PoliciesGuard } from '@/common/casl';
-import { Controller, Get, Param, ParseIntPipe, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
@@ -24,7 +32,8 @@ export class JoinRequestController {
   @Get('mine')
   @UseGuards(MultiAuthGuard)
   @Swagger({
-    title: 'Мои заявки на вступление во все кружки (для отображения статуса «ждёт одобрения»)',
+    title:
+      'Мои заявки на вступление во все организации (для отображения статуса «ждёт одобрения»)',
     response: JoinRequestResponseDto,
     plainArray: true,
     bearerAuth: true,
@@ -33,11 +42,12 @@ export class JoinRequestController {
     return this.joinRequestService.listMine(userId);
   }
 
-  @Get()
+  @Get('list')
   @UseGuards(MultiAuthGuard, OrgScopeGuard, PoliciesGuard)
-  @CheckPolicies(a => a.can('manage', 'JoinRequest'))
+  @CheckPolicies((a) => a.can('manage', 'JoinRequest'))
   @Swagger({
-    title: 'Заявки на вступление в кружок (владелец, фильтр ?organizationId=&status=)',
+    title:
+      'Заявки на вступление в организацию (OWNER/ADMIN, фильтр ?organizationId=&status=)',
     query: JoinRequestQueryDto,
     response: JoinRequestResponseDto,
     isArray: true,
@@ -50,28 +60,34 @@ export class JoinRequestController {
   @Post(':id/approve')
   @UseGuards(MultiAuthGuard, ResourceScopeGuard, PoliciesGuard)
   @ResourceScope('joinRequest')
-  @CheckPolicies(a => a.can('manage', 'JoinRequest'))
+  @CheckPolicies((a) => a.can('manage', 'JoinRequest'))
   @Swagger({
-    title: 'Одобрить заявку — заявитель становится участником кружка',
+    title: 'Одобрить заявку — заявитель становится участником организации',
     param: { name: 'id', type: Number },
     response: JoinRequestResponseDto,
     bearerAuth: true,
   })
-  approve(@Param('id', ParseIntPipe) id: number, @CurrentUser('id') ownerId: number) {
+  approve(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser('id') ownerId: number,
+  ) {
     return this.joinRequestService.approve(id, ownerId);
   }
 
   @Post(':id/reject')
   @UseGuards(MultiAuthGuard, ResourceScopeGuard, PoliciesGuard)
   @ResourceScope('joinRequest')
-  @CheckPolicies(a => a.can('manage', 'JoinRequest'))
+  @CheckPolicies((a) => a.can('manage', 'JoinRequest'))
   @Swagger({
     title: 'Отклонить заявку',
     param: { name: 'id', type: Number },
     response: JoinRequestResponseDto,
     bearerAuth: true,
   })
-  reject(@Param('id', ParseIntPipe) id: number, @CurrentUser('id') ownerId: number) {
+  reject(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser('id') ownerId: number,
+  ) {
     return this.joinRequestService.reject(id, ownerId);
   }
 
@@ -83,7 +99,10 @@ export class JoinRequestController {
     response: JoinRequestResponseDto,
     bearerAuth: true,
   })
-  cancel(@Param('id', ParseIntPipe) id: number, @CurrentUser('id') userId: number) {
+  cancel(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser('id') userId: number,
+  ) {
     return this.joinRequestService.cancel(id, userId);
   }
 }

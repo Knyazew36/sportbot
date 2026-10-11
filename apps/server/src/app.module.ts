@@ -1,8 +1,15 @@
 import { Module } from '@nestjs/common';
-import { CaslModule } from './common/casl';
+import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { ScheduleModule } from '@nestjs/schedule';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { WinstonModule } from 'nest-winston';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule } from '@nestjs/config';
+import { AuditLogModule } from './audit-log/audit-log.module';
+import { AuthModule } from './auth/auth.module';
+import { ChatModule } from './chat/chat.module';
 import {
   GuardsModule,
   MultiAuthModule,
@@ -10,31 +17,20 @@ import {
   validateEnv,
   winstonConfig,
 } from './common';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { WinstonModule } from 'nest-winston';
-import { ScheduleModule } from '@nestjs/schedule';
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { CaslModule } from './common/casl';
 import { ResponseInterceptor } from './common/interseptors/response.interceptor';
-import { OrganizationTrialInterceptor } from './common/interseptors/organization-trial.interceptor';
-import { AuthModule } from './auth/auth.module';
-import { MailModule } from './mail/mail.module';
 import { InviteModule } from './invite/invite.module';
 import { JoinRequestModule } from './join-request/join-request.module';
-import { OrganizationModule } from './organization/organization.module';
-import { LessonModule } from './lesson/lesson.module';
-import { GroupModule } from './group/group.module';
-
-import { ScheduleRuleModule } from './schedule-rule/schedule-rule.module';
-import { UploadModule } from './upload/upload.module';
-import { UserModule } from './user/user.module';
-import { AdminModule } from './admin/admin.module';
-import { VkModule } from './vk/vk.module';
-import { NotificationModule } from './notification/notification.module';
-import { ChatModule } from './chat/chat.module';
-import { MaxModule } from 'nestjs-max';
+import { MailModule } from './mail/mail.module';
 import { MessengersModule } from './messengers';
+import { AppMessengersSupportModule } from './messengers/adapters/app-messengers-support.module';
+import { PrismaMessengerUserStore } from './messengers/adapters/prisma-messenger-user.store';
 import { messengerIntegrations } from './messengers/app-messengers';
 import { NotificationsModule } from './notifications/notifications.module';
+import { OrganizationModule } from './organization/organization.module';
+import { UploadModule } from './upload/upload.module';
+import { UserModule } from './user/user.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -44,39 +40,32 @@ import { NotificationsModule } from './notifications/notifications.module';
       validate: validateEnv,
     }),
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
-
-    MaxModule.forRoot({
-      token: process.env.MAX_BOT_TOKEN!,
-      replyOptions: { markup: 'html' },
-      // Библиотека сама вызывает bot.start() без await/catch — падение (напр. невалидный
-      // токен) улетает в unhandledRejection и убивает polling молча, без ретрая. Запускаем
-      // и следим за этим сами — см. BotMaxService.onApplicationBootstrap.
-      launchOptions: false,
-    }),
-
     WinstonModule.forRoot(winstonConfig),
+    ScheduleModule.forRoot(),
+
     PrismaModule,
     GuardsModule,
     CaslModule,
     MultiAuthModule,
-    ScheduleModule.forRoot(),
+
+    // Общий слой мессенджеров: реестр каналов для уведомлений и хранилище пользователей (src/messengers)
+    MessengersModule.forRoot({ userStore: PrismaMessengerUserStore }),
+    AppMessengersSupportModule,
+    // MAX / Telegram / VK — только те, для которых заданы env-переменные (иначе лог и старт без них)
+    ...messengerIntegrations(),
+
     AuthModule,
     MailModule,
+    UploadModule,
     UserModule,
-    AdminModule,
     OrganizationModule,
     InviteModule,
     JoinRequestModule,
-    ScheduleRuleModule,
-    LessonModule,
-    GroupModule,
-    UploadModule,
-    VkModule,
-    NotificationModule,
-    ChatModule,
-    MessengersModule,
     NotificationsModule,
-    ...messengerIntegrations(),
+    AuditLogModule,
+    ChatModule,
+
+    // Модули проекта подключаются ниже
   ],
   controllers: [AppController],
   providers: [
@@ -84,10 +73,6 @@ import { NotificationsModule } from './notifications/notifications.module';
     {
       provide: APP_INTERCEPTOR,
       useClass: ResponseInterceptor,
-    },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: OrganizationTrialInterceptor,
     },
     {
       provide: APP_GUARD,

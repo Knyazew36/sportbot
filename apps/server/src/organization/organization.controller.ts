@@ -13,7 +13,6 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
-import { SkipReadonlyCheck } from '@/common/decorators/skip-readonly-check.decorator';
 import { Swagger } from '@/common/decorators/swagger/swagger.decorator';
 import { MultiAuthGuard } from '@/common/guards/multi-auth.guard';
 import { OrgScopeGuard } from '@/common/guards/org-scope.guard';
@@ -23,12 +22,10 @@ import { RequestWithOrganization } from '@/common/types/request-with-organizatio
 import { OrgRole, User } from '@/generated/prisma/client';
 
 import { CreateOrganizationDto } from './dto/create-organization.dto';
-import { JoinOrganizationDto } from './dto/join-organization.dto';
 import {
   OrganizationMemberDto,
   OrganizationResponseDto,
 } from './dto/organization.response.dto';
-import { DeleteMemberDto } from './dto/delete-member.dto';
 import { UpdateMemberDto } from './dto/update-member.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { OrganizationService } from './organization.service';
@@ -38,10 +35,10 @@ import { OrganizationService } from './organization.service';
 export class OrganizationController {
   constructor(private readonly organizationService: OrganizationService) {}
 
-  @Get()
+  @Get('list')
   @UseGuards(MultiAuthGuard)
   @Swagger({
-    title: 'Мои кружки (платформенный админ видит все)',
+    title: 'Мои организации (платформенный админ видит все)',
     query: PaginationQueryDto,
     response: OrganizationResponseDto,
     isArray: true,
@@ -54,51 +51,25 @@ export class OrganizationController {
     });
   }
 
-  @Post()
+  @Post('create')
   @UseGuards(MultiAuthGuard)
   @Swagger({
-    title: 'Создать кружок (создатель становится владельцем)',
+    title: 'Создать организацию (создатель становится владельцем)',
     body: CreateOrganizationDto,
     response: OrganizationResponseDto,
     bearerAuth: true,
   })
-  create(@CurrentUser('id') userId: number, @Body() dto: CreateOrganizationDto) {
-    return this.organizationService.create(userId, dto);
-  }
-
-  @Get(':id/preview')
-  @UseGuards(MultiAuthGuard)
-  @Swagger({
-    title: 'Превью открытой организации по прямой ссылке (без членства)',
-    param: { name: 'id', type: Number },
-    response: OrganizationResponseDto,
-    bearerAuth: true,
-  })
-  preview(@Param('id', ParseIntPipe) id: number) {
-    return this.organizationService.findById(id);
-  }
-
-  @Post(':id/join')
-  @UseGuards(MultiAuthGuard)
-  @Swagger({
-    title: 'Вступить в открытую организацию по прямой ссылке (без приглашения)',
-    param: { name: 'id', type: Number },
-    body: JoinOrganizationDto,
-    response: OrganizationMemberDto,
-    bearerAuth: true,
-  })
-  join(
-    @Param('id', ParseIntPipe) id: number,
+  create(
     @CurrentUser('id') userId: number,
-    @Body() dto: JoinOrganizationDto,
+    @Body() dto: CreateOrganizationDto,
   ) {
-    return this.organizationService.join(id, userId, dto);
+    return this.organizationService.create(userId, dto);
   }
 
   @Get(':id')
   @UseGuards(MultiAuthGuard, OrgScopeGuard)
   @Swagger({
-    title: 'Карточка учреждения',
+    title: 'Карточка организации',
     param: { name: 'id', type: Number },
     response: OrganizationResponseDto,
     bearerAuth: true,
@@ -107,11 +78,11 @@ export class OrganizationController {
     return this.organizationService.findById(id);
   }
 
-  @Post(':id/update')
+  @Post('update/:id')
   @UseGuards(MultiAuthGuard, OrgScopeGuard, PoliciesGuard)
-  @CheckPolicies(a => a.can('manage', 'Organization'))
+  @CheckPolicies((a) => a.can('manage', 'Organization'))
   @Swagger({
-    title: 'Изменить учреждение',
+    title: 'Изменить организацию (владелец)',
     param: { name: 'id', type: Number },
     body: UpdateOrganizationDto,
     response: OrganizationResponseDto,
@@ -124,13 +95,11 @@ export class OrganizationController {
     return this.organizationService.update(id, dto);
   }
 
-  @Post(':id/delete')
+  @Post('delete/:id')
   @UseGuards(MultiAuthGuard, OrgScopeGuard, PoliciesGuard)
-  @CheckPolicies(a => a.can('manage', 'Organization'))
-  // Удалить кружок можно и после окончания пробного периода — владелец должен иметь возможность выйти.
-  @SkipReadonlyCheck()
+  @CheckPolicies((a) => a.can('manage', 'Organization'))
   @Swagger({
-    title: 'Мягко удалить кружок (владелец)',
+    title: 'Мягко удалить организацию (владелец)',
     param: { name: 'id', type: Number },
     response: OrganizationResponseDto,
     bearerAuth: true,
@@ -139,13 +108,13 @@ export class OrganizationController {
     return this.organizationService.delete(id);
   }
 
-  // restore не через OrgScopeGuard: он блокирует доступ к неактивному кружку
-  // (assertOrgAccess → «Организация неактивна»). Восстановление — ops-операция
+  // restore не через OrgScopeGuard: он блокирует доступ к неактивной организации
+  // (assertOrgAccess → «Организация недоступна»). Восстановление — ops-операция
   // платформенного админа (обращение в поддержку).
-  @Post(':id/restore')
+  @Post('restore/:id')
   @UseGuards(MultiAuthGuard, PlatformAdminGuard)
   @Swagger({
-    title: 'Восстановить кружок (платформенный админ / поддержка)',
+    title: 'Восстановить организацию (платформенный админ / поддержка)',
     param: { name: 'id', type: Number },
     response: OrganizationResponseDto,
     bearerAuth: true,
@@ -154,42 +123,30 @@ export class OrganizationController {
     return this.organizationService.restore(id);
   }
 
-  @Post(':id/child/:childId/request')
-  @UseGuards(MultiAuthGuard, OrgScopeGuard, PoliciesGuard)
-  @CheckPolicies(a => a.can('read', 'Organization'))
-  @Swagger({
-    title: 'Пригласить своего ребёнка в кружок: открытый — вступит сразу, закрытый — заявка владельцу',
-    param: { name: 'id', type: Number },
-    bearerAuth: true,
-  })
-  requestForChild(
-    @Param('id', ParseIntPipe) id: number,
-    @Param('childId', ParseIntPipe) childId: number,
-    @CurrentUser('id') callerId: number,
-  ) {
-    return this.organizationService.requestForChild(id, childId, callerId);
-  }
+  // --- участники организации ---
 
-  // --- члены организации ---
-
-  @Get(':id/member')
+  @Get(':id/member/list')
   @UseGuards(MultiAuthGuard, OrgScopeGuard)
   @Swagger({
-    title: 'Состав организации: владелец и участники',
+    title: 'Состав организации',
     param: { name: 'id', type: Number },
     response: OrganizationMemberDto,
     plainArray: true,
     bearerAuth: true,
   })
-  listMembers(@Param('id', ParseIntPipe) id: number, @Req() request: RequestWithOrganization) {
+  listMembers(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() request: RequestWithOrganization,
+  ) {
     return this.organizationService.listMembers(id, request.orgRole ?? null);
   }
 
-  @Post(':id/member/:userId/update')
+  // Кого и до какой роли можно менять, решает сервис: владелец — любого, ADMIN — только MEMBER.
+  @Post(':id/member/update/:userId')
   @UseGuards(MultiAuthGuard, OrgScopeGuard, PoliciesGuard)
-  @CheckPolicies(a => a.can('update', 'Member'))
+  @CheckPolicies((a) => a.can('update', 'Member'))
   @Swagger({
-    title: 'Сменить роль / передать владение',
+    title: 'Сменить роль участника / передать владение',
     param: { name: 'id', type: Number },
     body: UpdateMemberDto,
     response: OrganizationMemberDto,
@@ -199,26 +156,34 @@ export class OrganizationController {
     @Param('id', ParseIntPipe) id: number,
     @Param('userId', ParseIntPipe) userId: number,
     @Body() dto: UpdateMemberDto,
+    @Req() request: RequestWithOrganization,
   ) {
-    return this.organizationService.updateMember(id, userId, dto);
+    return this.organizationService.updateMember(
+      id,
+      userId,
+      dto,
+      request.orgRole ?? OrgRole.MEMBER,
+    );
   }
 
-  // Кто именно может удалить, решает сервис: владелец — любого, участник — себя или своего ребёнка.
-  @Post(':id/member/:userId/delete')
+  // Кто именно может удалить, решает сервис: себя — любой, кроме владельца; другого — старший по роли.
+  @Post(':id/member/delete/:userId')
   @UseGuards(MultiAuthGuard, OrgScopeGuard, PoliciesGuard)
-  @CheckPolicies(a => a.can('delete', 'Member'))
+  @CheckPolicies((a) => a.can('delete', 'Member'))
   @Swagger({
-    title: 'Удалить участника (владелец — любого; участник — себя или своего ребёнка)',
+    title: 'Удалить участника или выйти из организации',
     param: { name: 'id', type: Number },
-    body: DeleteMemberDto,
     bearerAuth: true,
   })
   deleteMember(
     @Param('id', ParseIntPipe) id: number,
     @Param('userId', ParseIntPipe) userId: number,
-    @Body() dto: DeleteMemberDto,
     @CurrentUser('id') callerId: number,
+    @Req() request: RequestWithOrganization,
   ) {
-    return this.organizationService.deleteMember(id, userId, callerId, dto);
+    return this.organizationService.deleteMember(id, userId, {
+      userId: callerId,
+      role: request.orgRole ?? OrgRole.MEMBER,
+    });
   }
 }

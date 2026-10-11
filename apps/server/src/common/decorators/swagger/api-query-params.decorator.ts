@@ -1,21 +1,21 @@
-import { applyDecorators } from '@nestjs/common'
-import { ApiQuery } from '@nestjs/swagger'
+import { applyDecorators } from '@nestjs/common';
+import { ApiQuery } from '@nestjs/swagger';
 
 interface ApiQueryParamsOptions {
-  sort?: boolean | string[]
-  order?: boolean
-  limit?: boolean
-  filter?: boolean
+  sort?: boolean | string[];
+  order?: boolean;
+  limit?: boolean;
+  filter?: boolean;
   /**
    * Additional custom query parameters
    */
   custom?: Array<{
-    name: string
-    type?: any
-    required?: boolean
-    description?: string
-    enum?: any[]
-  }>
+    name: string;
+    type?: any;
+    required?: boolean;
+    description?: string;
+    enum?: any[];
+  }>;
 }
 
 /**
@@ -34,20 +34,24 @@ interface ApiQueryParamsOptions {
  * ```
  */
 export function ApiQueryParams(options: ApiQueryParamsOptions = {}) {
-  const decorators: Array<ClassDecorator | MethodDecorator | PropertyDecorator> = []
+  const decorators: Array<
+    ClassDecorator | MethodDecorator | PropertyDecorator
+  > = [];
 
   // Sort parameter
   if (options.sort) {
-    const sortEnum = Array.isArray(options.sort) ? options.sort : undefined
+    const sortEnum = Array.isArray(options.sort) ? options.sort : undefined;
     decorators.push(
       ApiQuery({
         name: 'sort',
         required: false,
         enum: sortEnum,
         type: sortEnum ? undefined : String,
-        description: sortEnum ? `Sort field (${sortEnum.join(', ')})` : 'Sort field'
-      })
-    )
+        description: sortEnum
+          ? `Sort field (${sortEnum.join(', ')})`
+          : 'Sort field',
+      }),
+    );
   }
 
   // Order parameter
@@ -57,9 +61,9 @@ export function ApiQueryParams(options: ApiQueryParamsOptions = {}) {
         name: 'order',
         required: false,
         enum: ['asc', 'desc'],
-        description: 'Sort order'
-      })
-    )
+        description: 'Sort order',
+      }),
+    );
   }
 
   // Limit parameter
@@ -69,9 +73,9 @@ export function ApiQueryParams(options: ApiQueryParamsOptions = {}) {
         name: 'limit',
         required: false,
         type: String,
-        description: 'Limit number of results'
-      })
-    )
+        description: 'Limit number of results',
+      }),
+    );
   }
 
   // Filter parameter
@@ -81,25 +85,25 @@ export function ApiQueryParams(options: ApiQueryParamsOptions = {}) {
         name: 'filter',
         required: false,
         type: String,
-        description: 'Filter string'
-      })
-    )
+        description: 'Filter string',
+      }),
+    );
   }
 
   // Custom parameters
   if (options.custom && options.custom.length > 0) {
-    options.custom.forEach(customParam => {
+    options.custom.forEach((customParam) => {
       decorators.push(
         ApiQuery({
           name: customParam.name,
           required: customParam.required ?? false,
           type: customParam.type ?? String,
           description: customParam.description,
-          enum: customParam.enum
-        })
-      )
-    })
+          enum: customParam.enum,
+        }),
+      );
+    });
   }
 
-  return applyDecorators(...decorators)
+  return applyDecorators(...decorators);
 }

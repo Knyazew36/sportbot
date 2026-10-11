@@ -1,13 +1,12 @@
-import { Module } from '@nestjs/common'
+import { Module } from '@nestjs/common';
 
-import { UploadModule } from '../upload/upload.module'
-import { VkModule } from '../vk/vk.module'
+import { UploadModule } from '../upload/upload.module';
 
-import { OrganizationController } from './organization.controller'
-import { OrganizationService } from './organization.service'
+import { OrganizationController } from './organization.controller';
+import { OrganizationService } from './organization.service';
 
 @Module({
-  imports: [UploadModule, VkModule],
+  imports: [UploadModule],
   controllers: [OrganizationController],
   providers: [OrganizationService],
   exports: [OrganizationService],

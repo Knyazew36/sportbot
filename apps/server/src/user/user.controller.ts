@@ -6,6 +6,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
   UseGuards,
   UseInterceptors,
   UploadedFile,
@@ -16,17 +17,18 @@ import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { Swagger } from '@/common/decorators/swagger/swagger.decorator';
 import { MultiAuthGuard } from '@/common/guards/multi-auth.guard';
+import { PlatformAdminGuard } from '@/common/guards/platform-admin.guard';
+import { PaginationQueryDto } from '@/common/type';
 
 import { AuthService } from '../auth/auth.service';
 import { UploadService } from '../upload/upload.service';
 import { imageUploadInterceptorOptions } from '../upload/upload.utils';
 
-import { ChildResponseDto } from './dto/child.response.dto';
-import { CreateChildDto } from './dto/create-child.dto';
-import { RedeemChildLinkDto } from './dto/redeem-child-link.dto';
-import { UpdateChildDto } from './dto/update-child.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { UploadAvatarDto } from './dto/upload-avatar.dto';
+import { UserResponseDto } from './dto/user.response.dto';
 import { UserService } from './user.service';
 
 @ApiTags('user')
@@ -39,6 +41,8 @@ export class UserController {
     private readonly uploadService: UploadService,
   ) {}
 
+  // --- свой профиль ---
+
   @Get('me')
   @Swagger({
     title: 'Профиль текущего пользователя + capabilities',
@@ -50,7 +54,7 @@ export class UserController {
 
   @Post('me/update')
   @Swagger({
-    title: 'Обновить свой профиль (имя, фамилия, отображаемое имя)',
+    title: 'Обновить свой профиль (имя, фамилия, телефон)',
     body: UpdateProfileDto,
     bearerAuth: true,
   })
@@ -82,102 +86,68 @@ export class UserController {
     return this.authService.getMe(userId);
   }
 
-  // --- дети (родитель↔ребёнок) ---
+  // --- CRUD: только платформенный администратор ---
 
-  @Get('me/children')
+  @Get('list')
+  @UseGuards(PlatformAdminGuard)
   @Swagger({
-    title: 'Список своих детей',
-    response: ChildResponseDto,
-    plainArray: true,
+    title: 'Список пользователей (платформенный админ)',
+    response: UserResponseDto,
+    isArray: true,
     bearerAuth: true,
   })
-  listChildren(@CurrentUser('id') userId: number) {
-    return this.userService.listChildren(userId);
+  list(@Query() query: PaginationQueryDto) {
+    return this.userService.list(query);
   }
 
-  @Post('me/children')
+  @Post('create')
+  @UseGuards(PlatformAdminGuard)
   @Swagger({
-    title: 'Добавить ребёнка (создаёт профиль без входа и привязывает к себе)',
-    body: CreateChildDto,
-    response: ChildResponseDto,
+    title: 'Создать пользователя без пароля (платформенный админ)',
+    body: CreateUserDto,
+    response: UserResponseDto,
     bearerAuth: true,
   })
-  createChild(@CurrentUser('id') userId: number, @Body() dto: CreateChildDto) {
-    return this.userService.createChild(userId, dto);
+  create(@Body() dto: CreateUserDto) {
+    return this.userService.create(dto);
   }
 
-  @Post('me/children/:id/update')
+  @Get(':id')
+  @UseGuards(PlatformAdminGuard)
   @Swagger({
-    title: 'Изменить данные своего ребёнка',
+    title: 'Пользователь по id (платформенный админ)',
     param: { name: 'id', type: Number },
-    body: UpdateChildDto,
-    response: ChildResponseDto,
+    response: UserResponseDto,
     bearerAuth: true,
   })
-  updateChild(
-    @CurrentUser('id') userId: number,
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateChildDto,
-  ) {
-    return this.userService.updateChild(userId, id, dto);
+  findById(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.findById(id);
   }
 
-  @Post('me/children/:id/avatar')
-  @UseInterceptors(FileInterceptor('file', imageUploadInterceptorOptions()))
-  @ApiConsumes('multipart/form-data')
+  @Post('update/:id')
+  @UseGuards(PlatformAdminGuard)
   @Swagger({
-    title: 'Загрузить/сменить аватар своего ребёнка',
+    title:
+      'Изменить пользователя: профиль и права админа (платформенный админ)',
     param: { name: 'id', type: Number },
-    body: UploadAvatarDto,
-    response: ChildResponseDto,
+    body: UpdateUserDto,
+    response: UserResponseDto,
     bearerAuth: true,
   })
-  uploadChildAvatar(
-    @CurrentUser('id') userId: number,
-    @Param('id', ParseIntPipe) id: number,
-    @UploadedFile() file?: Express.Multer.File,
-  ) {
-    if (!file) {
-      throw new BadRequestException('Файл не передан');
-    }
-    this.uploadService.verifyImageSignatureOrThrow(file);
-    return this.userService.setChildAvatar(userId, id, file);
+  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateUserDto) {
+    return this.userService.update(id, dto);
   }
 
-  @Post('me/children/:id/link')
+  @Post('delete/:id')
+  @UseGuards(PlatformAdminGuard)
   @Swagger({
-    title: 'Создать ссылку, чтобы второй родитель привязал этого ребёнка к себе (одноразовая, 7 дней)',
+    title:
+      'Удалить пользователя безвозвратно вместе с его организациями (платформенный админ)',
     param: { name: 'id', type: Number },
+    response: UserResponseDto,
     bearerAuth: true,
   })
-  createChildLink(
-    @CurrentUser('id') userId: number,
-    @Param('id', ParseIntPipe) id: number,
-  ) {
-    return this.userService.createChildLink(userId, id);
-  }
-
-  @Post('child-link/redeem')
-  @Swagger({
-    title: 'Принять ссылку на ребёнка: ребёнок привязывается к текущему родителю',
-    body: RedeemChildLinkDto,
-    bearerAuth: true,
-  })
-  redeemChildLink(@CurrentUser('id') userId: number, @Body() dto: RedeemChildLinkDto) {
-    return this.userService.redeemChildLink(userId, dto.token);
-  }
-
-  @Post('me/children/:id/delete')
-  @Swagger({
-    title: 'Отвязать ребёнка от себя',
-    param: { name: 'id', type: Number },
-    bearerAuth: true,
-  })
-  async removeChild(
-    @CurrentUser('id') userId: number,
-    @Param('id', ParseIntPipe) id: number,
-  ) {
-    await this.userService.removeChild(userId, id);
-    return { removed: true };
+  delete(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.delete(id);
   }
 }

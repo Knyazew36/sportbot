@@ -1,2 +1,2 @@
-export * from './prisma-paginate'
-export * from './prisma.module'
+export * from './prisma-paginate';
+export * from './prisma.module';

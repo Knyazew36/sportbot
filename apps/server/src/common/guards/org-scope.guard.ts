@@ -31,7 +31,9 @@ export class OrgScopeGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<RequestWithOrganization>();
+    const request = context
+      .switchToHttp()
+      .getRequest<RequestWithOrganization>();
     const user = request.user;
 
     if (!user) {

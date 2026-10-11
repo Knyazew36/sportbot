@@ -15,7 +15,9 @@ import { RequestWithOrganization } from '../types/request-with-organization';
 @Injectable()
 export class PlatformAdminGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
-    const request = context.switchToHttp().getRequest<RequestWithOrganization>();
+    const request = context
+      .switchToHttp()
+      .getRequest<RequestWithOrganization>();
     const user = request.user;
 
     if (!user) {
@@ -23,7 +25,9 @@ export class PlatformAdminGuard implements CanActivate {
     }
 
     if (!user.isPlatformAdmin) {
-      throw new ForbiddenException('Требуются права платформенного администратора');
+      throw new ForbiddenException(
+        'Требуются права платформенного администратора',
+      );
     }
 
     return true;

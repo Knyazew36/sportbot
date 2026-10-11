@@ -14,14 +14,16 @@ const INVISIBLE_CODE_POINTS = [
   0x202e, // RTL override
   0x2060, // word joiner
   0xfeff, // BOM / zero width no-break space
-  0x00ad // soft hyphen
-]
+  0x00ad, // soft hyphen
+];
 
 const INVISIBLE_CHARS_REGEX = new RegExp(
-  `[${INVISIBLE_CODE_POINTS.map(code => String.fromCharCode(code)).join('')}]`,
-  'g'
-)
+  `[${INVISIBLE_CODE_POINTS.map((code) => String.fromCharCode(code)).join('')}]`,
+  'g',
+);
 
-export const stripInvisibleChars = (value: string): string => value.replace(INVISIBLE_CHARS_REGEX, '')
+export const stripInvisibleChars = (value: string): string =>
+  value.replace(INVISIBLE_CHARS_REGEX, '');
 
-export const sanitizeText = (value: string): string => stripInvisibleChars(value).trim()
+export const sanitizeText = (value: string): string =>
+  stripInvisibleChars(value).trim();

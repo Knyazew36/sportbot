@@ -1,4 +1,4 @@
-import { applyDecorators, Type } from '@nestjs/common'
+import { applyDecorators, Type } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -9,56 +9,60 @@ import {
   ApiParamOptions,
   ApiProduces,
   ApiQuery,
-  getSchemaPath
-} from '@nestjs/swagger'
+  getSchemaPath,
+} from '@nestjs/swagger';
 
-import { PaginationMeta, PaginationResponse } from '@/common/type'
-import { BaseResponse } from '@/common/type/base-response'
-
-import { ApiPlanForbidden } from './plan-forbidden.decorator'
+import { PaginationMeta, PaginationResponse } from '@/common/type';
+import { BaseResponse } from '@/common/type/base-response';
 
 // @nestjs/swagger 12 (ESM) не экспортирует dist/constants — берём ключ метаданных напрямую.
-const API_MODEL_PROPERTIES = 'swagger/apiModelProperties'
+const API_MODEL_PROPERTIES = 'swagger/apiModelProperties';
 
-export type SwaggerConfig<TReturns extends Type<unknown>, TBody extends Type<unknown> | undefined = undefined> = {
-  response?: TReturns
-  body?: TBody
+export type SwaggerConfig<
+  TReturns extends Type<unknown>,
+  TBody extends Type<unknown> | undefined = undefined,
+> = {
+  response?: TReturns;
+  body?: TBody;
   /** data: {items: TReturns[], meta: PaginationMeta} — для реально пагинированных списков */
-  isArray?: boolean
+  isArray?: boolean;
   /** data: TReturns[] — для простых непагинированных списков (не путать с isArray) */
-  plainArray?: boolean
-  title?: string
+  plainArray?: boolean;
+  title?: string;
   /** Пометить эндпоинт как требующий Bearer-токен (@ApiBearerAuth) — ставить рядом с MultiAuthGuard */
-  bearerAuth?: boolean
-  param?: ApiParamOptions
-  query?: Type<unknown>
+  bearerAuth?: boolean;
+  param?: ApiParamOptions;
+  query?: Type<unknown>;
   /** MIME-тип ответа (@ApiProduces), например 'application/pdf' — для бинарных эндпоинтов */
-  produces?: string
+  produces?: string;
   /** Ответ — не BaseResponse-обёрнутый JSON, а сырой файл (buffer/stream): пропускает ApiOkResponse */
-  binary?: boolean
-  /** Документировать 403 от PlanLimitGuard/RequiresFeatureGuard — ставить рядом с @RequiresFeature/лимитами тарифа */
-  planForbidden?: boolean
-}
+  binary?: boolean;
+};
 
 /**
  * Извлекает метаданные полей из класса DTO для создания отдельных @ApiQuery декораторов
  */
 function getQueryDecoratorsFromClass(queryClass: Type<unknown>) {
   // Получаем метаданные из класса
-  const prototype = queryClass.prototype
-  const properties: string[] = Reflect.getMetadata(API_MODEL_PROPERTIES, prototype) || []
+  const prototype = queryClass.prototype;
+  const properties: string[] =
+    Reflect.getMetadata(API_MODEL_PROPERTIES, prototype) || [];
 
-  return properties.map(propertyKey => {
-    const metadata = Reflect.getMetadata(API_MODEL_PROPERTIES, prototype, propertyKey)
+  return properties.map((propertyKey) => {
+    const metadata = Reflect.getMetadata(
+      API_MODEL_PROPERTIES,
+      prototype,
+      propertyKey,
+    );
 
     // Преобразуем конструктор типа в строковое представление для OpenAPI
-    let type = metadata?.type
+    let type = metadata?.type;
     if (type === Number) {
-      type = 'number'
+      type = 'number';
     } else if (type === String) {
-      type = 'string'
+      type = 'string';
     } else if (type === Boolean) {
-      type = 'boolean'
+      type = 'boolean';
     }
 
     return ApiQuery({
@@ -70,17 +74,19 @@ function getQueryDecoratorsFromClass(queryClass: Type<unknown>) {
       description: metadata?.description,
       default: metadata?.default,
       minimum: metadata?.minimum,
-      maximum: metadata?.maximum
-    })
-  })
+      maximum: metadata?.maximum,
+    });
+  });
 }
 
-export function Swagger<TReturns extends Type<unknown>, TBody extends Type<unknown> | undefined = undefined>(
-  config: SwaggerConfig<TReturns, TBody>
-): MethodDecorator & ClassDecorator
-export function Swagger<TReturns extends Type<unknown>, TBody extends Type<unknown> | undefined = undefined>(
-  config: SwaggerConfig<TReturns, TBody>
-) {
+export function Swagger<
+  TReturns extends Type<unknown>,
+  TBody extends Type<unknown> | undefined = undefined,
+>(config: SwaggerConfig<TReturns, TBody>): MethodDecorator & ClassDecorator;
+export function Swagger<
+  TReturns extends Type<unknown>,
+  TBody extends Type<unknown> | undefined = undefined,
+>(config: SwaggerConfig<TReturns, TBody>) {
   const {
     response = BaseResponse,
     body,
@@ -92,10 +98,9 @@ export function Swagger<TReturns extends Type<unknown>, TBody extends Type<unkno
     query,
     produces,
     binary = false,
-    planForbidden = false
-  } = config
+  } = config;
 
-  const queryDecorators = query ? getQueryDecoratorsFromClass(query) : []
+  const queryDecorators = query ? getQueryDecoratorsFromClass(query) : [];
 
   return applyDecorators(
     ...(title ? [ApiOperation({ summary: title })] : []),
@@ -104,7 +109,6 @@ export function Swagger<TReturns extends Type<unknown>, TBody extends Type<unkno
     ...(param ? [ApiParam(param)] : []),
     ...queryDecorators,
     ...(produces ? [ApiProduces(produces)] : []),
-    ...(planForbidden ? [ApiPlanForbidden()] : []),
     ...(binary
       ? []
       : [
@@ -114,12 +118,16 @@ export function Swagger<TReturns extends Type<unknown>, TBody extends Type<unkno
             PaginationMeta,
             response,
             ...(body ? [body] : []),
-            ...(query ? [query] : [])
+            ...(query ? [query] : []),
           ),
           ApiOkResponse({
             schema: {
               allOf: [
-                { $ref: getSchemaPath(isArray ? PaginationResponse<TReturns> : BaseResponse) },
+                {
+                  $ref: getSchemaPath(
+                    isArray ? PaginationResponse<TReturns> : BaseResponse,
+                  ),
+                },
                 {
                   properties: {
                     data: isArray
@@ -128,21 +136,24 @@ export function Swagger<TReturns extends Type<unknown>, TBody extends Type<unkno
                           properties: {
                             items: {
                               type: 'array',
-                              items: { $ref: getSchemaPath(response) }
+                              items: { $ref: getSchemaPath(response) },
                             },
                             meta: {
-                              $ref: getSchemaPath(PaginationMeta)
-                            }
-                          }
+                              $ref: getSchemaPath(PaginationMeta),
+                            },
+                          },
                         }
                       : plainArray
-                        ? { type: 'array', items: { $ref: getSchemaPath(response) } }
-                        : { $ref: getSchemaPath(response) }
-                  }
-                }
-              ]
-            }
-          })
-        ])
-  )
+                        ? {
+                            type: 'array',
+                            items: { $ref: getSchemaPath(response) },
+                          }
+                        : { $ref: getSchemaPath(response) },
+                  },
+                },
+              ],
+            },
+          }),
+        ]),
+  );
 }
