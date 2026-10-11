@@ -1,0 +1,599 @@
+// Схема БД бэкенда «На сцену!».
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================================
+//  Пользователи и доступ
+// ============================================================
+
+/// Аккаунт. Один человек = одна строка. Вход по email+паролю и/или через VK ID —
+/// способы не взаимоисключающие.
+model User {
+  id              Int       @id @default(autoincrement())
+  name            String? /// имя
+  lastName        String? /// фамилия
+  displayName     String? /// отображаемое имя (напр. как в VK), если name/lastName не заданы
+  avatarPath      String? /// путь к файлу аватара относительно upload root (avatars/uuid.ext); null — аватар не задан
+  phone           String? /// телефон, опционально
+  birthDate       DateTime? @db.Date /// дата рождения; заполняется у ребёнка, которого добавляет родитель
+  active          Boolean   @default(true) /// мягкая блокировка аккаунта; неактивному не выдаём токен
+  isPlatformAdmin Boolean   @default(false) /// платформенный админ: ops-доступ
+
+  // --- email-вход ---
+  email         String? @unique
+  passwordHash  String? /// bcrypt; в приложении глобально скрыт через omit, включается точечно
+  emailVerified Boolean @default(false) /// без подтверждения почты токен не выдаём
+
+  // --- vk-вход / vk-канал мессенджера (одно и то же id переиспользуется) ---
+  vkUserId          BigInt? @unique /// id пользователя ВКонтакте из подписанных launch-параметров
+  vkData            Json? /// сырой профиль из VK на момент последнего входа или апдейта бота
+  vkMessagesAllowed Boolean @default(false) /// разрешил ли получать сообщения от сообщества (событие Callback API message_allow/deny)
+
+  // --- telegram-канал мессенджера ---
+  telegramId   String? @unique
+  telegramData Json?
+
+  // --- max-канал мессенджера ---
+  maxId   String? @unique
+  maxData Json?
+
+  /// Служебные флаги диалога с ботами мессенджеров (ключи с префиксом провайдера,
+  /// например vkDialogStartedAt/ClosedAt) и прочие некритичные пометки.
+  data Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  verificationCodes  VerificationCode[]
+  ownedOrganizations Organization[]           @relation("OrganizationOwner")
+  orgMemberships     OrganizationMembership[]
+  joinRequests       JoinRequest[]
+
+  /// Включения пользователя в группы.
+  /// Каждая запись гарантированно относится к организации,
+  /// в которой пользователь состоит.
+  groupMemberships GroupMembership[]
+
+  /// Отметки «иду/не иду» на конкретные занятия.
+  lessonAttendances LessonAttendance[]
+
+  /// Родитель↔ребёнок — неявная m-n самосвязь. Ребёнок — обычный User без email/vkUserId,
+  /// может позже привязать свой VK. У ребёнка может быть несколько родителей (оба).
+  parents  User[] @relation("ParentChild")
+  children User[] @relation("ParentChild")
+
+  /// Напоминания «идёшь на занятие?», где этот пользователь — участник (сам или ребёнок).
+  notificationsAsParticipant LessonNotification[] @relation("LessonNotificationParticipant")
+  /// Напоминания, реально доставленные этому пользователю в VK (сам либо родитель).
+  notificationsAsRecipient   LessonNotification[] @relation("LessonNotificationRecipient")
+
+  /// Ссылки, которыми родитель приглашает второго родителя к своему ребёнку.
+  childLinkInvites ChildLinkInvite[]
+
+  notifications        Notification[]
+  notificationSettings NotificationSetting[]
+
+  @@index([telegramId])
+  @@index([maxId])
+}
+
+/// Назначение одноразового кода из письма.
+enum VerificationCodeType {
+  EMAIL_VERIFY /// подтверждение почты при регистрации
+  PASSWORD_RESET /// сброс пароля
+  ACCOUNT_DELETE /// подтверждение удаления аккаунта
+}
+
+/// 6-значный код, отправленный на email. Хранится хешем.
+/// Активен только последний невыданный код типа.
+model VerificationCode {
+  id        Int                  @id @default(autoincrement())
+  type      VerificationCodeType
+  codeHash  String /// sha256(code) — открытый код в БД не лежит
+  attempts  Int                  @default(0) /// счётчик неверных попыток; при превышении код сгорает
+  expiresAt DateTime /// TTL ~15 минут
+  usedAt    DateTime? /// проставляется при успешной проверке или при выпуске нового кода того же типа
+  createdAt DateTime             @default(now())
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+}
+
+/// Ссылка от родителя: второй родитель привязывает уже существующего ребёнка к себе.
+/// Одноразовая, с TTL. Дубль профиля ребёнка не создаётся.
+model ChildLinkInvite {
+  id    Int    @id @default(autoincrement())
+  token String @unique
+
+  childUserId Int
+  child       User @relation(fields: [childUserId], references: [id], onDelete: Cascade)
+
+  /// Автор ссылки (родитель). FK не создаём, как в Invite.createdByUserId.
+  createdByUserId Int
+
+  expiresAt    DateTime
+  /// Проставляется при успешной привязке; повторно ссылка не работает.
+  usedAt       DateTime?
+  usedByUserId Int?
+
+  createdAt DateTime @default(now())
+
+  @@index([childUserId])
+}
+
+// ============================================================
+//  Организации
+// ============================================================
+
+model Organization {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  active    Boolean  @default(true)
+
+  name   String
+  isOpen Boolean @default(false) /// true — вступить может любой залогиненный пользователь по прямой ссылке
+
+  /// Конец пробного периода (выставляется при создании кружка). После него мутации кружка закрыты (TRIAL_EXPIRED), чтение работает.
+  /// null — ограничения нет (кружки, созданные до введения пробного периода).
+  trialEndsAt DateTime?
+
+  /// Настройки кружка (форма — OrganizationSettingsDto): workHours { start, end } — рабочее время, часы 0..24.
+  settings Json @default("{}")
+
+  /// Текущий владелец организации.
+  /// При создании организации необходимо также создать
+  /// OrganizationMembership с role = OWNER для этого пользователя.
+  ownerUserId Int
+  owner       User @relation("OrganizationOwner", fields: [ownerUserId], references: [id])
+
+  memberships  OrganizationMembership[]
+  invites      Invite[]
+  joinRequests JoinRequest[]
+
+  lessons       Lesson[]
+  scheduleRules ScheduleRule[]
+  groups        Group[]
+
+  notifications        Notification[]
+  notificationSettings NotificationSetting[]
+}
+
+/// Роль пользователя в организации.
+enum OrgRole {
+  OWNER
+  MEMBER
+}
+
+/// Участие пользователя в организации.
+/// Один пользователь может состоять в нескольких организациях,
+/// но только один раз в каждой конкретной организации.
+model OrganizationMembership {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  role OrgRole
+
+  /// Включения данного участника в группы этой организации.
+  groupMemberships GroupMembership[]
+
+  /// Отметки этого участника на занятиях этой организации.
+  lessonAttendances LessonAttendance[]
+
+  /// Один пользователь — одна роль в организации.
+  /// Также используется как цель составного FK из GroupMembership и LessonAttendance.
+  @@unique([organizationId, userId])
+  @@index([userId])
+}
+
+// ============================================================
+//  Приглашения в организацию
+// ============================================================
+
+/// Ссылка-приглашение в организацию.
+/// Переход по ссылке создаёт JoinRequest(PENDING) — членство появляется
+/// только после одобрения владельцем (см. JoinRequest).
+model Invite {
+  id             Int          @id @default(autoincrement())
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  token String @unique /// длинный непубличный токен для URL
+
+  /// Автор приглашения. FK намеренно не создаётся,
+  /// чтобы не тянуть каскады на User.
+  createdByUserId Int
+
+  expiresAt DateTime? /// null = бессрочно
+  usedCount Int       @default(0) /// сколько раз по приглашению подключились (заявка одобрена)
+  createdAt DateTime  @default(now())
+
+  joinRequests JoinRequest[]
+
+  @@index([organizationId])
+  @@index([createdByUserId])
+}
+
+/// Статус заявки на вступление в организацию по приглашению.
+enum JoinRequestStatus {
+  PENDING /// ждёт решения владельца
+  APPROVED /// владелец одобрил — заявитель стал участником (OrganizationMembership создан)
+  REJECTED /// владелец отклонил
+  CANCELLED /// заявитель отменил сам, пока заявка ждала решения
+}
+
+/// Заявка на вступление в организацию по ссылке-приглашению.
+/// В отличие от прямого вступления в открытую организацию (`Organization.join`),
+/// решение по заявке принимает владелец: approve создаёт `OrganizationMembership`,
+/// reject/cancel — не создаёт.
+model JoinRequest {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  /// Кто вступает в организацию: сам заявитель либо его ребёнок (см. requestedByUserId).
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// Кто фактически подал заявку — обычно равно userId; отличается, когда родитель
+  /// подаёт заявку от имени ребёнка (тогда userId — ребёнок). FK намеренно не создаётся,
+  /// как в Invite.createdByUserId — на удалённого автора заявка не ссылается.
+  requestedByUserId Int?
+
+  /// Приглашение, по которому пришла заявка — null, если ссылку успели отозвать позже.
+  inviteId Int?
+  invite   Invite? @relation(fields: [inviteId], references: [id], onDelete: SetNull)
+
+  status JoinRequestStatus @default(PENDING)
+
+  decidedAt       DateTime? /// когда approve/reject/cancel
+  /// Кто принял решение (владелец либо сам заявитель при cancel).
+  /// FK намеренно не создаётся, как в Invite.createdByUserId.
+  decidedByUserId Int?
+
+  /// Одну активную (PENDING) заявку на пару кружок+пользователь проверяем в сервисе:
+  /// частичный уникальный индекс Prisma не поддерживает без raw SQL.
+  @@index([organizationId, status])
+  @@index([userId, status])
+}
+
+// ============================================================
+//  Расписание и занятия
+// ============================================================
+
+/// Правило регулярного расписания: например,
+/// «вторник и четверг, 16:00, 90 минут».
+///
+/// Конкретные Lesson материализуются из правил cron-задачей
+/// на заданный горизонт вперёд.
+model ScheduleRule {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  /// Группа, для которой действует правило. null — правило без привязки к группе.
+  /// Составной FK гарантирует, что группа (если указана) принадлежит той же организации.
+  groupId Int?
+  group   Group? @relation(fields: [groupId, organizationId], references: [id, organizationId], onDelete: Cascade)
+
+  title           String /// название занятия, копируется в Lesson.title при генерации
+  weekday         Int /// день недели, 1..7 (ISO, понедельник = 1)
+  startTime       String /// "16:00" в таймзоне расписания, например Europe/Moscow
+  durationMinutes Int
+
+  place              String? /// место по умолчанию, копируется в Lesson.place при генерации
+  color              String? /// цвет в календаре (свободная строка), копируется в Lesson.color при генерации
+  activeFrom         DateTime  @db.Date /// с какой даты правило действует
+  activeTo           DateTime? @db.Date /// по какую дату; null = бессрочно
+  lastGeneratedUntil DateTime? @db.Date /// докуда уже созданы занятия
+
+  lessons Lesson[]
+
+  @@index([organizationId])
+  @@index([groupId])
+}
+
+/// Статус занятия.
+enum LessonStatus {
+  SCHEDULED
+  MOVED /// перенесено: startsAt новый, originalStartsAt — прежний
+  CANCELLED /// отменено
+}
+
+/// Конкретное занятие.
+/// Создаётся из ScheduleRule или вручную для разового занятия.
+model Lesson {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  /// null — разовое занятие вне регулярной сетки.
+  scheduleRuleId Int?
+  scheduleRule   ScheduleRule? @relation(fields: [scheduleRuleId], references: [id])
+
+  /// Группа занятия. При генерации из правила копируется из ScheduleRule.groupId.
+  /// null — разовое занятие без привязки к группе.
+  /// Составной FK гарантирует, что группа (если указана) принадлежит той же организации.
+  groupId Int?
+  group   Group? @relation(fields: [groupId, organizationId], references: [id, organizationId], onDelete: Cascade)
+
+  title           String
+  startsAt        DateTime /// дата-время начала в UTC
+  durationMinutes Int
+  place           String? /// место проведения конкретного занятия
+  color           String? /// цвет в календаре (свободная строка)
+  lessonInfo      String? /// например: «взять с собой»
+
+  status           LessonStatus @default(SCHEDULED)
+  originalStartsAt DateTime? /// прежнее время при переносе
+  changeReason     String? /// причина отмены или переноса
+
+  /// Отметки участников «иду/не иду».
+  attendances LessonAttendance[]
+
+  /// Отправленные напоминания «идёшь на занятие?».
+  notifications LessonNotification[]
+
+  /// Идемпотентная генерация: одно занятие на правило и время.
+  @@unique([scheduleRuleId, startsAt])
+  /// Нужен как цель составного внешнего ключа: LessonAttendance(lessonId, organizationId) -> Lesson(id, organizationId).
+  @@unique([id, organizationId])
+  @@index([organizationId, startsAt])
+  @@index([status, startsAt])
+  @@index([groupId, startsAt])
+}
+
+/// Отправленное напоминание «идёшь на занятие?» — трекинг, чтобы cron не слал повторно.
+/// За сколько часов до занятия слать (24, 1, ...) — настройка в коде (NotificationService),
+/// не в схеме: чтобы поменять/добавить офсет, миграция не нужна.
+model LessonNotification {
+  id Int @id @default(autoincrement())
+
+  lessonId Int
+  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  /// О чьём участии спрашивали (сам участник или ребёнок).
+  participantUserId Int
+  participant       User @relation("LessonNotificationParticipant", fields: [participantUserId], references: [id])
+
+  /// Кому реально ушло сообщение в VK (сам участник или родитель).
+  recipientUserId Int
+  recipient       User @relation("LessonNotificationRecipient", fields: [recipientUserId], references: [id])
+
+  /// За сколько часов до занятия отправлено; 0 — ручная отправка из админки (не по расписанию).
+  hoursBefore Int
+  sentAt      DateTime @default(now())
+
+  /// Одно напоминание с таким офсетом на участника занятия.
+  @@unique([lessonId, participantUserId, hoursBefore])
+}
+
+/// Статус отметки участника на занятии.
+enum LessonAttendanceStatus {
+  GOING /// иду
+  NOT_GOING /// не иду
+}
+
+/// Отметка участника о посещении конкретного занятия («иду»/«не иду»).
+///
+/// organizationId хранится здесь же (как в GroupMembership) — двумя составными
+/// внешними ключами БД гарантирует: 1) занятие принадлежит organizationId;
+/// 2) пользователь состоит в этой же организации.
+model LessonAttendance {
+  lessonId       Int
+  organizationId Int
+  userId         Int
+
+  status LessonAttendanceStatus
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  /// Проверяет, что занятие относится к organizationId.
+  lesson Lesson @relation(fields: [lessonId, organizationId], references: [id, organizationId], onDelete: Cascade)
+
+  /// Проверяет наличие членства пользователя в этой организации.
+  organizationMembership OrganizationMembership @relation(fields: [organizationId, userId], references: [organizationId, userId], onDelete: Cascade)
+
+  /// Прямая связь для удобной выборки отметок пользователя.
+  user User @relation(fields: [userId], references: [id])
+
+  /// Одна отметка на пару занятие+пользователь.
+  @@id([lessonId, userId])
+  @@index([organizationId, userId])
+}
+
+// ============================================================
+//  Группы
+// ============================================================
+
+/// Группа внутри организации: именованное подмножество её участников.
+/// Например: «Средняя группа, вт/чт».
+model Group {
+  id Int @id @default(autoincrement())
+
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String? /// описание группы
+  memo        String? /// памятка: что приносить постоянно
+  active      Boolean @default(true) /// мягкое удаление / архив группы
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  /// Состав группы.
+  memberships GroupMembership[]
+
+  /// Расписание и занятия этой группы.
+  scheduleRules ScheduleRule[]
+  lessons       Lesson[]
+
+  /// Нужен как цель составного внешнего ключа:
+  /// GroupMembership(groupId, organizationId)
+  ///   -> Group(id, organizationId).
+  ///
+  /// Гарантирует, что переданный organizationId действительно
+  /// принадлежит указанной группе.
+  @@unique([id, organizationId])
+  @@index([organizationId])
+}
+
+/// Включение пользователя в группу.
+///
+/// organizationId намеренно хранится и здесь. Благодаря двум составным
+/// внешним ключам БД гарантирует:
+///
+/// 1. группа принадлежит organizationId;
+/// 2. пользователь состоит в этой же organizationId.
+///
+/// Поэтому нельзя включить в группу организации A пользователя,
+/// который не является участником организации A.
+model GroupMembership {
+  groupId        Int
+  organizationId Int
+  userId         Int
+
+  createdAt DateTime @default(now())
+
+  /// Проверяет, что группа относится к organizationId.
+  group Group @relation(fields: [groupId, organizationId], references: [id, organizationId], onDelete: Cascade)
+
+  /// Проверяет наличие членства пользователя в этой организации.
+  organizationMembership OrganizationMembership @relation(fields: [organizationId, userId], references: [organizationId, userId], onDelete: Cascade)
+
+  /// Прямая связь для удобной выборки групп пользователя.
+  user User @relation(fields: [userId], references: [id])
+
+  /// Один пользователь может быть включён в конкретную группу только один раз.
+  @@id([groupId, userId])
+  /// Индекс для запроса групп конкретного участника организации.
+  @@index([organizationId, userId])
+}
+
+/// Обращение из публичного чата на сайте (без авторизации). Контакт — телефон и/или email,
+/// хотя бы одно поле обязательно (проверяется в DTO). Картинки — до 5 шт, relative-пути в filePaths.
+model ChatSubmission {
+  id        Int      @id @default(autoincrement())
+  message   String
+  phone     String?
+  email     String?
+  filePaths String[]
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+// ============================================================
+//  Уведомления и мессенджеры
+// ============================================================
+
+/// Канал доставки уведомления.
+enum NotificationChannel {
+  EMAIL
+  TELEGRAM
+  MAX
+  VK
+  IN_APP
+}
+
+/// Частота дайджеста для канала/события (на будущее — батчинг вместо INSTANT).
+enum NotificationDigestFrequency {
+  INSTANT
+  DAILY
+  WEEKLY
+}
+
+/// Статус доставки конкретного уведомления.
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  READ
+}
+
+/// Настройка канала для события уведомления.
+/// userId = null — дефолт на уровне организации; userId задан — персональный override.
+model NotificationSetting {
+  id Int @id @default(autoincrement())
+
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  userId Int?
+  user   User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  eventType String /// ключ события из кода (event-registry), не enum
+  channel   NotificationChannel
+  enabled   Boolean             @default(true)
+
+  digestFrequency  NotificationDigestFrequency @default(INSTANT)
+  quietHoursStart  String? /// "HH:mm" начало тихих часов
+  quietHoursEnd    String? /// "HH:mm" конец тихих часов
+  daysOfWeek       Int[] /// 1..7 (ISO), пусто = каждый день
+  notificationTime String? /// фиксированное время отправки дайджеста, "HH:mm"
+  config           Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([organizationId, userId, eventType, channel])
+  @@index([organizationId, eventType])
+  @@index([userId, eventType])
+}
+
+/// Лента и журнал доставки уведомления конкретному пользователю по конкретному каналу.
+model Notification {
+  id Int @id @default(autoincrement())
+
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  eventType String
+  channel   NotificationChannel
+
+  title   String
+  body    String
+  payload Json?
+
+  status NotificationStatus @default(PENDING)
+  readAt DateTime?
+  sentAt DateTime?
+  error  String? /// текст последней ошибки отправки, провайдер-агностичный
+
+  createdAt DateTime @default(now())
+
+  @@index([organizationId, userId])
+  @@index([userId, status])
+  @@index([userId, readAt])
+  @@index([createdAt])
+}
