@@ -304,7 +304,8 @@ export class ProgramBot implements BotFeature {
             `pr:v:${p.id}`,
           ),
         ]),
-        [btn('➕ С шаблона', 'pr:tpl'), btn('➕ С нуля', 'pr:new')],
+        [btn('📦 Готовые', 'pr:tpl')],
+        [btn('➕ Создать с нуля', 'pr:new')],
         [BACK_TO_MENU],
       ],
     );

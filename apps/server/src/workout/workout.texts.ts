@@ -92,7 +92,7 @@ export function stepMessage(
   lines.push(
     '',
     sets.length < item.plannedSets
-      ? `➡️ Сейчас подход ${sets.length + 1} из ${item.plannedSets}.\n${hint('Введи вес и повторы, например «22 10».')}`
+      ? `Сейчас подход ${numEmoji(sets.length + 1)} из ${numEmoji(item.plannedSets)}.\n${hint('❗ Введи вес и повторы, например «22 10».')}`
       : `Все подходы записаны: ${sets.length} из ${item.plannedSets}.\n${hint(`Жми «Следующее упражнение». Или запиши ещё подход (${sets.length + 1}-й), например «22 10».`)}`,
   );
 
