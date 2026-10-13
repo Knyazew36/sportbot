@@ -292,7 +292,7 @@ export class ProgramBot implements BotFeature {
     const activeId = ctx.profile.activeProgramId;
     return msg(
       programs.length
-        ? 'Твои программы. Активная отмечена ✅ — по ней идёт ротация комплексов.'
+        ? 'Твои программы. Активная отмечена ✅ — комплексы из неё идут по очереди.'
         : 'Программ пока нет. Возьми шаблон или собери свою.',
       [
         ...programs.map((p) => [

@@ -26,15 +26,16 @@ function Switch({
   return (
     <SwitchPrimitive
       className={cn(
-        'relative peer focus-visible:border-ring focus-visible:ring-ring/50 flex h-6 w-10 px-0.5 shrink-0 items-center justify-start rounded-full border border-transparent outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50',
-        'data-[state=checked]:bg-primary data-[state=unchecked]:bg-ash data-[state=checked]:justify-end',
+        // Квадратный тумблер в рамке: включённый залит синим, как выбранный тоггл
+        'relative peer flex h-7 w-12 shrink-0 items-center justify-start border-[1.5px] border-foreground px-[3px] outline-none focus-visible:ring-4 focus-visible:ring-ring/25 disabled:cursor-not-allowed disabled:opacity-50',
+        'data-[state=checked]:bg-primary data-[state=unchecked]:bg-background data-[state=checked]:justify-end',
         className,
       )}
       {...props}
     >
       <SwitchThumbPrimitive
         className={cn(
-          'relative z-10 bg-paper data-[state=checked]:bg-success pointer-events-none block size-5 rounded-full ring-0',
+          'relative z-10 pointer-events-none block size-[18px] ring-0 bg-foreground/70 data-[state=checked]:bg-background',
         )}
         pressedAnimation={{ width: pressedWidth }}
       >

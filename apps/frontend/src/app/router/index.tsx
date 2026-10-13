@@ -10,7 +10,7 @@ import GuestRoute from './guards/GuestRoute'
 import PrivateRoute from './guards/PrivateRoute'
 import RequireAbility from './guards/RequireAbility'
 import RouteError from './RouteError'
-import { type AppRoute, appRoutes, guestRoutes, privateRoutes, publicRoutes } from './routes'
+import { type AppRoute, appRoutes, guestRoutes, previewRoutes, privateRoutes, publicRoutes } from './routes'
 
 const toRouteObject = ({ path, Component, lazy, can }: AppRoute): RouteObject => {
   const route: RouteObject = lazy
@@ -67,6 +67,11 @@ export const router = createBrowserRouter([
           },
           ...privateRoutes.map(toRouteObject),
         ],
+      },
+      {
+        path: ROUTES.PREVIEW,
+        lazy: () => import('@/pages/preview/PreviewLayout').then(m => ({ Component: m.default })),
+        children: [{ index: true, loader: () => redirect(ROUTES.PREVIEW_TODAY) }, ...previewRoutes.map(toRouteObject)],
       },
       ...publicRoutes.map(toRouteObject),
     ],

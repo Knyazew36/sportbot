@@ -4,12 +4,15 @@
 @import '@fontsource-variable/inter';
 @import '@fontsource-variable/oswald';
 @import '@fontsource-variable/jetbrains-mono';
+@import '@fontsource-variable/cormorant';
+@import '@fontsource-variable/cormorant/wght-italic.css';
+@import '@fontsource-variable/onest';
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* Дизайн «AI for Business»: Inter вместо SuisseIntl, Oswald вместо SuisseIntlCond (у Anton нет кириллицы), JetBrains Mono вместо SuisseIntlMono */
-  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  /* Спортбот: Onest — основной гротеск, Oswald — плакатные цифры и заголовки (у Anton нет кириллицы) */
+  --font-sans: 'Onest Variable', ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-sans);
   --font-display: 'Oswald Variable', 'Arial Narrow', sans-serif;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
@@ -58,16 +61,27 @@
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
-  --radius-2xl: 20px;
-  --radius-3xl: 24px;
-  --radius-4xl: 32px;
-  --radius-card: 32px;
-  --radius-pill: 48px;
-  --radius-arc: 64px;
+  /* Спортбот: кремовая бумага, один синий голос, чёрный для теней и акцентов (DESIGN.md) */
+  --color-sb-paper: var(--sb-paper);
+  --color-sb-sheet: var(--sb-sheet);
+  --color-sb-ink: var(--sb-ink);
+  --color-sb-blue: var(--sb-blue);
+  --color-sb-rule: var(--sb-rule);
+  --color-sb-tint: var(--sb-tint);
+  --color-sb-danger: var(--sb-danger);
+  --font-serif: 'Cormorant Variable', 'Times New Roman', serif;
+  --font-grotesk: 'Onest Variable', ui-sans-serif, sans-serif;
+  /* Плакатная система квадратная: скругления только у пилюль-чипов и круглых аватаров */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-4xl: 0px;
+  --radius-card: 0px;
+  --radius-pill: 60px;
+  --radius-arc: 0px;
   --text-caption: 12px;
   --text-caption--line-height: 1.6;
   --text-caption--letter-spacing: -0.03em;
@@ -97,95 +111,72 @@
   --text-display-xl--letter-spacing: -0.03em;
 }
 
-/* Основная тема: тёплый серый холст, белые карточки, чёрные блоки; глубина только контрастом поверхностей, без теней */
+/* Тема Спортбота: кремовая бумага, один синий голос, чернила для теней и акцентов (DESIGN.md).
+   Токены шаблона (canvas, paper, carbon…) переложены на ту же палитру, чтобы shadcn и кабинет говорили одним языком */
 :root {
-  --canvas: #e5e5e5;
-  --paper: #ffffff;
-  --carbon: #000000;
-  --mist: #f3f3f3;
-  --ash: #c6c6c6;
-  --smoke: #979797;
-  --slate: #444444;
-  --graphite: #2f2f2f;
-  --hatch: #c6c6c6;
+  --sb-paper: #fff8f1;
+  --sb-sheet: #fffdf9;
+  --sb-ink: #0a0a0a;
+  --sb-blue: #006eff;
+  --sb-rule: #e2e8f0;
+  --sb-tint: color-mix(in oklab, #006eff 9%, transparent);
+  --sb-danger: #d92d20;
+  /* Высота нижнего меню: h-16 + рамка + отступ под системную полоску. По ней прилипают главные кнопки */
+  --sb-nav-h: calc(65.5px + max(0.5rem, env(safe-area-inset-bottom)));
 
-  --background: var(--canvas);
-  --foreground: var(--carbon);
-  --card: var(--paper);
-  --card-foreground: var(--carbon);
-  --popover: var(--paper);
-  --popover-foreground: var(--carbon);
-  --primary: var(--carbon);
-  --primary-foreground: var(--paper);
+  --canvas: color-mix(in oklab, var(--sb-paper), var(--sb-ink) 4%);
+  --paper: var(--sb-sheet);
+  --carbon: var(--sb-ink);
+  --mist: color-mix(in oklab, var(--sb-paper), var(--sb-ink) 5%);
+  --ash: var(--sb-rule);
+  --smoke: color-mix(in oklab, var(--sb-ink) 45%, var(--sb-paper));
+  --slate: color-mix(in oklab, var(--sb-ink) 70%, var(--sb-paper));
+  --graphite: color-mix(in oklab, var(--sb-ink) 85%, var(--sb-paper));
+  --hatch: color-mix(in oklab, var(--sb-ink) 22%, var(--sb-paper));
+
+  --background: var(--sb-paper);
+  --foreground: var(--sb-ink);
+  --card: var(--sb-sheet);
+  --card-foreground: var(--sb-ink);
+  --popover: var(--sb-paper);
+  --popover-foreground: var(--sb-ink);
+  --primary: var(--sb-blue);
+  --primary-foreground: var(--sb-paper);
   --secondary: var(--mist);
-  --secondary-foreground: var(--carbon);
+  --secondary-foreground: var(--sb-ink);
   --muted: var(--mist);
   --muted-foreground: var(--slate);
-  --accent: var(--mist);
-  --accent-foreground: var(--carbon);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: var(--ash);
-  --input: var(--mist);
-  --ring: var(--carbon);
-  --chart-1: #000000;
-  --chart-2: #444444;
-  --chart-3: #979797;
-  --chart-4: #c6c6c6;
-  --chart-5: #d1ffca;
-  --radius: 0.5rem;
-  --sidebar: var(--paper);
-  --sidebar-foreground: var(--carbon);
-  --sidebar-primary: var(--carbon);
-  --sidebar-primary-foreground: var(--paper);
-  --sidebar-accent: var(--mist);
-  --sidebar-accent-foreground: var(--carbon);
-  --sidebar-border: var(--ash);
-  --sidebar-ring: var(--carbon);
+  --accent: var(--sb-tint);
+  --accent-foreground: var(--sb-ink);
+  --destructive: var(--sb-danger);
+  --border: var(--sb-rule);
+  --input: color-mix(in oklab, var(--sb-ink) 25%, transparent);
+  --ring: var(--sb-blue);
+  --chart-1: var(--sb-blue);
+  --chart-2: var(--sb-ink);
+  --chart-3: color-mix(in oklab, var(--sb-blue) 55%, var(--sb-paper));
+  --chart-4: var(--smoke);
+  --chart-5: var(--sb-rule);
+  --radius: 0rem;
+  --sidebar: var(--sb-sheet);
+  --sidebar-foreground: var(--sb-ink);
+  --sidebar-primary: var(--sb-blue);
+  --sidebar-primary-foreground: var(--sb-paper);
+  --sidebar-accent: var(--sb-tint);
+  --sidebar-accent-foreground: var(--sb-ink);
+  --sidebar-border: var(--sb-rule);
+  --sidebar-ring: var(--sb-blue);
 }
 
-/* Тёмная тема в дизайне не описана — инверсия той же монохромной системы */
+/* Тёмная — «ночной стадион»: та же бумага и синий, инвертированные. Производные токены пересчитываются сами */
 .dark {
-  --canvas: #111111;
-  --paper: #1c1c1c;
-  --carbon: #ffffff;
-  --mist: #262626;
-  --ash: #3a3a3a;
-  --smoke: #8a8a8a;
-  --slate: #b5b5b5;
-  --graphite: #2f2f2f;
-  --hatch: #4a4a4a;
-
-  --background: var(--canvas);
-  --foreground: var(--carbon);
-  --card: var(--paper);
-  --card-foreground: var(--carbon);
-  --popover: var(--paper);
-  --popover-foreground: var(--carbon);
-  --primary: var(--carbon);
-  --primary-foreground: #000000;
-  --secondary: var(--mist);
-  --secondary-foreground: var(--carbon);
-  --muted: var(--mist);
-  --muted-foreground: var(--slate);
-  --accent: var(--mist);
-  --accent-foreground: var(--carbon);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: var(--ash);
-  --input: var(--mist);
-  --ring: var(--carbon);
-  --chart-1: #ffffff;
-  --chart-2: #b5b5b5;
-  --chart-3: #8a8a8a;
-  --chart-4: #3a3a3a;
-  --chart-5: #d1ffca;
-  --sidebar: var(--paper);
-  --sidebar-foreground: var(--carbon);
-  --sidebar-primary: var(--carbon);
-  --sidebar-primary-foreground: #000000;
-  --sidebar-accent: var(--mist);
-  --sidebar-accent-foreground: var(--carbon);
-  --sidebar-border: var(--ash);
-  --sidebar-ring: var(--carbon);
+  --sb-paper: #070d1a;
+  --sb-sheet: #0c1527;
+  --sb-ink: #fff8f1;
+  --sb-blue: #4c97ff;
+  --sb-rule: #1b2740;
+  --sb-tint: color-mix(in oklab, #4c97ff 13%, transparent);
+  --sb-danger: #ff6b5e;
 }
 
 @layer base {
@@ -257,4 +248,55 @@
   &::-webkit-scrollbar {
     display: none;
   }
+}
+
+/* ── Спортбот: типографика ────────────────────────────────────────────── */
+.sb {
+  font-family: var(--font-grotesk);
+  font-weight: 350;
+  letter-spacing: -0.02em;
+  font-feature-settings: 'clig', 'liga';
+}
+
+/* Плакатный кондензированный заголовок: числа, названия комплексов */
+@utility sb-poster {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 0.86;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+/* Волосяная антиква — только крупные вводные строки */
+@utility sb-serif {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+}
+
+/* Метка над значением: uppercase, разрядка вместо жирности */
+@utility sb-label {
+  font-family: var(--font-grotesk);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Растр печатного плаката: точки синего вместо градиента */
+@utility sb-halftone {
+  background-image: radial-gradient(var(--sb-blue) 1px, transparent 1.3px);
+  background-size: 7px 7px;
+}
+
+/* Беговые дорожки — фирменная разметка блоков */
+@utility sb-lanes {
+  background-image: repeating-linear-gradient(90deg, var(--sb-blue) 0 1.5px, transparent 1.5px 14px);
+}
+
+/* Зерно бумаги поверх всего экрана */
+@utility sb-grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }

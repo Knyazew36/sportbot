@@ -7,25 +7,11 @@
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": ["dist/**", "!dist/cache/**"]
     },
-    "lint": {
-      "dependsOn": ["^lint"]
-    },
-    "check-types": {
-      "dependsOn": ["^check-types"]
-    },
-    "test": {
-      "dependsOn": ["^build"]
-    },
+    "lint": {},
+    "check-types": {},
     "dev": {
-      "dependsOn": ["^build"],
       "cache": false,
       "persistent": true
-    },
-    "deploy": {
-      "cache": false
-    },
-    "deploy-dev": {
-      "cache": false
     }
   }
 }

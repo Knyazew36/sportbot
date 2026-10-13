@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Адрес API прода — свой на каждом сервере, создаёт setup.sh
+.env.production

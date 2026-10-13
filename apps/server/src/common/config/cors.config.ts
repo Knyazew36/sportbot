@@ -58,6 +58,8 @@ export function getCorsConfig(configService: ConfigService): CorsOptions {
       'Authorization',
       'X-Requested-With',
       'recaptcha',
+      // Организация запроса — фронт шлёт фоном, читает OrgScopeGuard
+      'x-organization-id',
     ],
     exposedHeaders: ['Set-Cookie', 'Content-Disposition'],
   };

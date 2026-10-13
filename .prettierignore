@@ -1,0 +1,7 @@
+node_modules
+dist
+yarn.lock
+# Сгенерированное: shadcn add / orval перезапишут, формат не трогаем
+apps/frontend/src/shared/ui/shadcn
+apps/frontend/src/shared/api/generated
+apps/server/src/generated

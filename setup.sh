@@ -10,7 +10,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SERVER="$ROOT/apps/server"
-FRONT="$ROOT/apps/front"
+FRONT="$ROOT/apps/frontend"
 
 BUILD=false
 INSTALL=true
@@ -43,8 +43,9 @@ for tool in node yarn; do
 done
 
 NODE_MAJOR="$(node -p "process.versions.node.split('.')[0]")"
-if [ "$NODE_MAJOR" -lt 18 ]; then
-  echo "❌ Нужен Node.js 18+, установлен $(node -v)" >&2
+# Vite 8 на фронте требует Node.js 22
+if [ "$NODE_MAJOR" -lt 22 ]; then
+  echo "❌ Нужен Node.js 22+, установлен $(node -v)" >&2
   exit 1
 fi
 
@@ -58,9 +59,11 @@ fi
 
 # ── Файлы .env ──────────────────────────────────────────────────────────────
 
-if [ ! -f "$FRONT/.env" ]; then
-  cp "$FRONT/.env.example" "$FRONT/.env"
-  echo "📝 Создан apps/front/.env из примера"
+# Локально фронт берёт адрес API из закоммиченного .env.development; адрес прода нужен только сборке —
+# отдельный .env.production явно показывает, что именно его заполнить перед yarn build
+if [ ! -f "$FRONT/.env.production" ]; then
+  cp "$FRONT/.env.example" "$FRONT/.env.production"
+  echo "📝 Создан apps/frontend/.env.production из примера — укажите в нём VITE_API_URL прода"
 fi
 
 if [ ! -f "$SERVER/.env" ]; then

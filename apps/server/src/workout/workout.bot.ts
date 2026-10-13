@@ -132,7 +132,7 @@ export class WorkoutBot implements BotFeature {
         await this.workouts.discard(userId, id);
         await this.sessions.clear(ctx);
         return ctx.edit(
-          msg('Тренировка отменена, ротация не сдвинулась.', [
+          msg('Тренировка отменена, очередь комплексов не сдвинулась.', [
             [btn('🏋️ Тренировка сегодня', 'wo:today')],
             [BACK_TO_MENU],
           ]),
