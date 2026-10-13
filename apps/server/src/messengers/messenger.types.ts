@@ -72,9 +72,20 @@ export type MessengerButton =
   | { kind: 'callback'; text: string; payload: string };
 
 export interface MessengerMessage {
+  /** Текст; курсив помечается italic() из messenger-format — канал переводит его в разметку платформы. */
   text: string;
   /** Ряды кнопок: внешний массив — строки клавиатуры, внутренний — кнопки в строке. */
   buttons?: MessengerButton[][];
+  /**
+   * Картинка к сообщению. path — абсолютный путь к файлу; cachedId — id уже загруженного в этот
+   * мессенджер файла (file_id Telegram / token MAX): с ним файл повторно не загружается.
+   */
+  image?: { path: string; cachedId?: string };
+}
+
+/** Итог отправки: id картинки на стороне мессенджера — его можно кэшировать и передать как cachedId. */
+export interface MessengerSendResult {
+  imageId?: string;
 }
 
 /**
@@ -115,5 +126,8 @@ export interface MessengerChannel {
   canDeliver(user: MessengerUser): boolean;
 
   /** Отправить сообщение. Бросает ошибку с понятным текстом, если платформа отказала. */
-  send(user: MessengerUser, message: MessengerMessage): Promise<void>;
+  send(
+    user: MessengerUser,
+    message: MessengerMessage,
+  ): Promise<MessengerSendResult>;
 }

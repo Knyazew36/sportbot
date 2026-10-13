@@ -62,10 +62,14 @@ const envSchema = z
     MAX_FILE_SIZE: z.coerce.number().int().positive().default(5242880),
 
     // --- платформенный админ (сид) ---
-    PLATFORM_ADMIN_EMAIL: z
-      .email()
-      .optional()
-      .or(z.literal('').transform(() => undefined)),
+    // Пробелы, \r и неснятые кавычки вокруг значения — частая причина ложного «Invalid email»
+    PLATFORM_ADMIN_EMAIL: z.preprocess(
+      (value) =>
+        typeof value === 'string'
+          ? value.trim().replace(/^['"‘’“”]+|['"‘’“”]+$/g, '') || undefined
+          : value,
+      z.email().optional(),
+    ),
     PLATFORM_ADMIN_PASSWORD: optionalString,
 
     // --- Мессенджеры (src/messengers). Не заданы — канал тихо не подключается,
@@ -74,6 +78,12 @@ const envSchema = z
     TG_BOT_NAME: optionalString,
     MAX_BOT_TOKEN: optionalString,
     MAX_BOT_NAME: optionalString,
+    // --- спортбот: администратор по id в мессенджере (business-tz.md, раздел 30.1) ---
+    // Ник (без «@») или числовой id — достаточно одного из способов
+    ADMIN_TELEGRAM_USERNAME: optionalString,
+    ADMIN_TELEGRAM_ID: optionalString,
+    ADMIN_MAX_USERNAME: optionalString,
+    ADMIN_MAX_ID: optionalString,
     VK_BOT_TOKEN: optionalString,
     VK_GROUP_ID: optionalString,
     // Нужны только мини-приложению VK (проверка подписи launch-параметров).

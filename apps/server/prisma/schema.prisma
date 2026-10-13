@@ -1,4 +1,5 @@
-// Схема БД шаблона: пользователи, организации, приглашения, уведомления, журнал действий.
+// Схема БД: шаблон (пользователи, организации, приглашения, уведомления, журнал действий)
+// и спортбот (справочник, программы, тренировки, опросы, друзья, группы) — см. business-tz.md, раздел 24.
 
 generator client {
   provider = "prisma-client"
@@ -16,12 +17,12 @@ datasource db {
 /// Аккаунт. Один человек = одна строка. Вход по email+паролю и/или через мессенджеры —
 /// способы не взаимоисключающие.
 model User {
-  id              Int       @id @default(autoincrement())
+  id              Int     @id @default(autoincrement())
   name            String? /// имя
   lastName        String? /// фамилия
   avatarPath      String? /// путь к файлу аватара относительно upload root (avatars/uuid.ext); null — аватар не задан
   phone           String? /// телефон, опционально
-  isPlatformAdmin Boolean   @default(false) /// платформенный админ: ops-доступ
+  isPlatformAdmin Boolean @default(false) /// платформенный админ: ops-доступ
 
   // --- email-вход ---
   email         String? @unique
@@ -56,6 +57,24 @@ model User {
   notifications        Notification[]
   notificationSettings NotificationSetting[]
   auditLogs            AuditLog[]
+
+  // --- спортбот ---
+  sportProfile       SportProfile?
+  pauses             Pause[]
+  limitations        Limitation[]
+  bodyWeights        BodyWeight[]
+  botSessions        BotSession[]
+  authoredExercises  Exercise[]          @relation("ExerciseAuthor")
+  authoredStretches  Stretch[]           @relation("StretchAuthor")
+  moderationRequests ModerationRequest[]
+  complaints         Complaint[]
+  programs           Program[]
+  planDays           PlanDay[]
+  workouts           Workout[]
+  friendInvites      FriendInvite[]
+  friendshipsA       Friendship[]        @relation("FriendshipA")
+  friendshipsB       Friendship[]        @relation("FriendshipB")
+  groupMemberships   BotGroupMember[]
 
   @@index([telegramId])
   @@index([maxId])
@@ -95,7 +114,7 @@ model Organization {
   updatedAt DateTime @updatedAt
   active    Boolean  @default(true)
 
-  name   String
+  name String
 
   /// Произвольные настройки организации (форма — OrganizationSettingsDto), расширяются в проекте.
   settings Json @default("{}")
@@ -340,5 +359,658 @@ model AuditLog {
 
   @@index([organizationId, createdAt])
   @@index([organizationId, entity, entityId])
+  @@index([userId])
+}
+
+// ============================================================
+//  Спортбот: пользователь и настройки
+// ============================================================
+
+/// Мессенджер, в котором работает бот. Подмножество NotificationChannel.
+enum BotChannel {
+  TELEGRAM
+  MAX
+}
+
+/// Режим учёта тренировки.
+enum TrackingMode {
+  SIMPLE /// только факт тренировки
+  DETAILED /// подходы, повторы, веса
+}
+
+/// Как часто бот сам спрашивает вес тела.
+enum WeightAskFrequency {
+  OFF
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+}
+
+/// Как создана пауза.
+enum PauseOrigin {
+  MANUAL /// пользователь поставил сам
+  SUGGESTED /// согласился на предложение бота после трёх пропусков
+}
+
+/// Всё спортивное про пользователя. Отдельно от User, чтобы модель шаблона оставалась переносимой.
+model SportProfile {
+  userId Int  @id
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  displayName String /// имя для друзей и групп; по умолчанию из профиля мессенджера
+  timeZone    String @default("Europe/Moscow") /// IANA: Europe/Moscow, Etc/GMT-5
+
+  trainingDays Int[] /// 0..6, 0 — воскресенье, как Date.getDay()
+  morningTime  String @default("08:00") /// "HH:mm" в поясе пользователя
+  eveningTime  String @default("20:00") /// "HH:mm" в поясе пользователя
+
+  trackingMode       TrackingMode       @default(SIMPLE)
+  weightAskFrequency WeightAskFrequency @default(OFF)
+  weightAskedOn      DateTime?          @db.Date /// когда бот последний раз спрашивал вес
+
+  activeProgramId Int?
+  activeProgram   Program? @relation("ActiveProgram", fields: [activeProgramId], references: [id], onDelete: SetNull)
+  /// Указатель ротации: комплекс, который бот предложит следующим.
+  nextComplexId   Int?
+  nextComplex     Complex? @relation("NextComplex", fields: [nextComplexId], references: [id], onDelete: SetNull)
+
+  onboardingStep Int       @default(1) /// текущий шаг первого запуска, 1..5
+  onboardedAt    DateTime? /// null — первый запуск не закончен
+
+  /// Кэш серии: пересчитывается при каждой смене статуса дня плана.
+  currentStreak Int @default(0)
+  bestStreak    Int @default(0)
+  missedInRow   Int @default(0) /// пропуски подряд — на третьем бот предлагает паузу
+
+  jointDisclaimerShownAt DateTime? /// дисклеймер «не заменяет врача» показываем один раз
+  weeklySummarySentOn    DateTime? @db.Date /// понедельник недели, за которую личная сводка уже ушла
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([activeProgramId])
+}
+
+/// Пауза: опросов нет, дни не считаются пропусками, серия заморожена.
+model Pause {
+  id     Int  @id @default(autoincrement())
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  startDate  DateTime    @db.Date
+  endDate    DateTime?   @db.Date /// null — до отмены
+  origin     PauseOrigin @default(MANUAL)
+  endedAt    DateTime? /// когда пауза фактически снята; null — действует
+  endAskedAt DateTime? /// когда бот спросил «возвращаемся?»
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, endedAt])
+}
+
+/// Ограничение по суставу: упражнения с этой зоной помечаются и исключаются из аналогов.
+model Limitation {
+  id     Int  @id @default(autoincrement())
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  jointId Int
+  joint   Joint @relation(fields: [jointId], references: [id], onDelete: Restrict)
+
+  startDate   DateTime  @db.Date
+  endDate     DateTime? @db.Date /// null — до отмены
+  cancelledAt DateTime? /// снято вручную раньше срока
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, cancelledAt])
+}
+
+/// Вес тела. Приватные данные: не отдаются ни друзьям, ни группе.
+model BodyWeight {
+  id     Int  @id @default(autoincrement())
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  date  DateTime @db.Date
+  value Decimal  @db.Decimal(5, 2) /// кг
+
+  createdAt DateTime @default(now())
+
+  /// Повторный ввод за день заменяет значение.
+  @@unique([userId, date])
+}
+
+/// Блокировка аккаунта мессенджера. Не привязана к User: должна пережить «удалить мои данные».
+model BlockedAccount {
+  id         Int        @id @default(autoincrement())
+  channel    BotChannel
+  externalId String /// telegramId или maxId
+  reason     String?
+  createdAt  DateTime   @default(now())
+
+  @@unique([channel, externalId])
+}
+
+/// Чего бот ждёт от пользователя в диалоге (ввод названия, подхода, даты).
+/// В БД, а не в памяти: перезапуск сервера не ломает начатый ввод.
+model BotSession {
+  id     Int  @id @default(autoincrement())
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  channel   BotChannel
+  state     String /// ключ ожидания, напр. "ex.create.name", "wo.set:1203"
+  data      Json       @default("{}") /// накопленный ввод многошагового сценария
+  expiresAt DateTime /// после этого момента ожидание считается сброшенным
+
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, channel])
+}
+
+// ============================================================
+//  Спортбот: справочник
+// ============================================================
+
+/// Инвентарь упражнения.
+enum Equipment {
+  BARBELL
+  DUMBBELL
+  MACHINE
+  BODYWEIGHT
+}
+
+/// Запись общего справочника или личный черновик автора.
+enum CatalogStatus {
+  CATALOG
+  DRAFT
+}
+
+/// Роль мышцы в упражнении.
+enum MuscleRole {
+  PRIMARY
+  SECONDARY
+}
+
+/// Тип растяжки. В MVP используются только COOLDOWN; WARMUP заложен под этап 2.
+enum StretchKind {
+  COOLDOWN
+  WARMUP
+}
+
+/// Исход заявки на модерацию.
+enum ModerationOutcome {
+  PENDING
+  APPROVED
+  APPROVED_EDITED
+  DUPLICATE
+  REJECTED
+}
+
+enum ComplaintStatus {
+  OPEN
+  RESOLVED
+  REJECTED
+}
+
+/// Мышца. Закрытый справочник, наполняется сидом.
+model Muscle {
+  id        Int    @id @default(autoincrement())
+  code      String @unique /// латинский ключ для импорта: chest, lats, …
+  name      String
+  bodyOrder Int /// порядок сверху вниз по телу — по нему сортируется заминка
+
+  exercises ExerciseMuscle[]
+  stretches StretchMuscle[]
+}
+
+/// Сустав или зона. Закрытый справочник, наполняется сидом.
+model Joint {
+  id   Int    @id @default(autoincrement())
+  code String @unique /// латинский ключ для импорта: shoulder, knee, …
+  name String
+
+  exercises   ExerciseJoint[]
+  limitations Limitation[]
+}
+
+model Exercise {
+  id             Int     @id @default(autoincrement())
+  code           String? @unique /// ключ записи справочника для импорта; у черновиков null
+  name           String
+  nameNormalized String /// нижний регистр, ё→е, без знаков — для поиска и подсказки дублей
+
+  technique           String? /// ключевые пункты техники и типичные ошибки
+  imagePath           String? /// файл относительно upload root (catalog/uuid.ext)
+  /// Кэш уже загруженной в мессенджер картинки; сбрасывается при смене imagePath.
+  imageTelegramFileId String?
+  imageMaxToken       String?
+  videoUrl            String? /// ссылка на внешнее видео, свои видео бот не хранит
+  equipment           Equipment?
+
+  status CatalogStatus @default(CATALOG)
+
+  /// Автор черновика или одобренной записи; null — запись справочника от админа либо обезличенная.
+  authorId Int?
+  author   User? @relation("ExerciseAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+
+  /// Черновик-оригинал для копии, отданной другу вместе с программой: исход модерации
+  /// оригинала применяется ко всем копиям.
+  originDraftId Int?
+  originDraft   Exercise?  @relation("ExerciseDraftCopy", fields: [originDraftId], references: [id], onDelete: SetNull)
+  draftCopies   Exercise[] @relation("ExerciseDraftCopy")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  muscles            ExerciseMuscle[]
+  joints             ExerciseJoint[]
+  complexExercises   ComplexExercise[]
+  workoutExercises   WorkoutExercise[]   @relation("WorkoutExerciseExercise")
+  replacedInWorkouts WorkoutExercise[]   @relation("WorkoutExerciseReplaced")
+  moderationRequests ModerationRequest[] @relation("ModerationExercise")
+  duplicateRequests  ModerationRequest[] @relation("ModerationDuplicateExercise")
+  complaints         Complaint[]
+
+  @@index([nameNormalized])
+  @@index([status, authorId])
+  @@index([originDraftId])
+}
+
+model ExerciseMuscle {
+  exerciseId Int
+  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  muscleId   Int
+  muscle     Muscle   @relation(fields: [muscleId], references: [id], onDelete: Restrict)
+
+  role MuscleRole
+
+  @@id([exerciseId, muscleId])
+  @@index([muscleId, role])
+}
+
+model ExerciseJoint {
+  exerciseId Int
+  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  jointId    Int
+  joint      Joint    @relation(fields: [jointId], references: [id], onDelete: Restrict)
+
+  @@id([exerciseId, jointId])
+  @@index([jointId])
+}
+
+model Stretch {
+  id             Int     @id @default(autoincrement())
+  code           String? @unique /// ключ записи справочника для импорта; у черновиков null
+  name           String
+  nameNormalized String
+
+  howTo               String? /// как делать
+  imagePath           String?
+  imageTelegramFileId String?
+  imageMaxToken       String?
+
+  holdSeconds Int /// время удержания
+  perSide     Boolean     @default(false) /// «на каждую сторону» — время удваивается
+  kind        StretchKind @default(COOLDOWN)
+
+  status CatalogStatus @default(CATALOG)
+
+  authorId Int?
+  author   User? @relation("StretchAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+
+  originDraftId Int?
+  originDraft   Stretch?  @relation("StretchDraftCopy", fields: [originDraftId], references: [id], onDelete: SetNull)
+  draftCopies   Stretch[] @relation("StretchDraftCopy")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  muscles            StretchMuscle[]
+  workoutStretches   WorkoutStretch[]
+  moderationRequests ModerationRequest[] @relation("ModerationStretch")
+  duplicateRequests  ModerationRequest[] @relation("ModerationDuplicateStretch")
+  complaints         Complaint[]
+
+  @@index([nameNormalized])
+  @@index([status, kind, authorId])
+  @@index([originDraftId])
+}
+
+model StretchMuscle {
+  stretchId Int
+  stretch   Stretch @relation(fields: [stretchId], references: [id], onDelete: Cascade)
+  muscleId  Int
+  muscle    Muscle  @relation(fields: [muscleId], references: [id], onDelete: Restrict)
+
+  @@id([stretchId, muscleId])
+  @@index([muscleId])
+}
+
+/// Заявка на модерацию своего упражнения или растяжки. Заполнено ровно одно из exerciseId / stretchId.
+model ModerationRequest {
+  id Int @id @default(autoincrement())
+
+  exerciseId Int?
+  exercise   Exercise? @relation("ModerationExercise", fields: [exerciseId], references: [id], onDelete: Cascade)
+  stretchId  Int?
+  stretch    Stretch?  @relation("ModerationStretch", fields: [stretchId], references: [id], onDelete: Cascade)
+
+  authorId Int?
+  author   User? @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  outcome ModerationOutcome @default(PENDING)
+  reason  String? /// короткая причина для автора
+
+  /// Запись справочника, с которой слит дубль.
+  duplicateOfExerciseId Int?
+  duplicateOfExercise   Exercise? @relation("ModerationDuplicateExercise", fields: [duplicateOfExerciseId], references: [id], onDelete: SetNull)
+  duplicateOfStretchId  Int?
+  duplicateOfStretch    Stretch?  @relation("ModerationDuplicateStretch", fields: [duplicateOfStretchId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime  @default(now())
+  decidedAt DateTime?
+
+  @@index([outcome])
+  /// По этому индексу считается суточный лимит заявок автора.
+  @@index([authorId, createdAt])
+}
+
+/// Жалоба «ошибка в описании» на запись справочника.
+model Complaint {
+  id Int @id @default(autoincrement())
+
+  exerciseId Int?
+  exercise   Exercise? @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  stretchId  Int?
+  stretch    Stretch?  @relation(fields: [stretchId], references: [id], onDelete: Cascade)
+
+  userId Int?
+  user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  text   String
+  status ComplaintStatus @default(OPEN)
+
+  createdAt DateTime @default(now())
+
+  @@index([status])
+}
+
+// ============================================================
+//  Спортбот: программы
+// ============================================================
+
+/// Программа пользователя или шаблон администратора (isTemplate, ownerId = null).
+model Program {
+  id         Int     @id @default(autoincrement())
+  name       String
+  isTemplate Boolean @default(false)
+  code       String? @unique /// ключ шаблона для импорта
+
+  ownerId Int?
+  owner   User? @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  /// Программа, с которой снята копия (шаблон или программа друга).
+  sourceProgramId Int?
+  sourceProgram   Program?  @relation("ProgramCopy", fields: [sourceProgramId], references: [id], onDelete: SetNull)
+  copies          Program[] @relation("ProgramCopy")
+  sourceSyncedAt  DateTime? /// какой версии источника соответствует копия
+
+  /// Меняется при любой правке состава — по нему друг узнаёт об обновлении.
+  contentUpdatedAt DateTime  @default(now())
+  updateNotifiedAt DateTime? /// когда владельцу копии последний раз предлагали обновиться (не чаще раза в сутки)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  complexes Complex[]
+  activeFor SportProfile[] @relation("ActiveProgram")
+
+  @@index([ownerId])
+  @@index([sourceProgramId])
+}
+
+/// Комплекс — набор упражнений одной тренировки. Комплексы программы идут по кругу по position.
+model Complex {
+  id        Int     @id @default(autoincrement())
+  programId Int
+  program   Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  name     String
+  position Int /// порядок в ротации
+
+  exercises   ComplexExercise[]
+  nextFor     SportProfile[]    @relation("NextComplex")
+  workouts    Workout[]
+  suggestedIn PlanDay[]
+
+  @@index([programId, position])
+}
+
+model ComplexExercise {
+  id        Int     @id @default(autoincrement())
+  complexId Int
+  complex   Complex @relation(fields: [complexId], references: [id], onDelete: Cascade)
+
+  /// Restrict: запись, стоящая в комплексе, удаляется только через слияние дубля.
+  exerciseId Int
+  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Restrict)
+
+  position Int
+  sets     Int
+  repsMin  Int
+  repsMax  Int
+
+  @@index([complexId, position])
+  @@index([exerciseId])
+}
+
+// ============================================================
+//  Спортбот: тренировки и опросы
+// ============================================================
+
+enum PlanDayType {
+  PLANNED /// тренировочный день по расписанию
+  RESCHEDULED /// разовый день после «напомнить завтра»
+}
+
+enum PlanDayStatus {
+  PENDING /// ответа ещё нет
+  DONE
+  MISSED
+  PAUSED /// день пришёлся на паузу — не пропуск
+}
+
+enum PollAnswer {
+  YES
+  NO
+}
+
+enum WorkoutStatus {
+  IN_PROGRESS
+  FINISHED
+  AUTO_CLOSED /// бот закрыл сам в конце дня
+}
+
+enum CooldownBlock {
+  MAIN
+  OPTIONAL /// «если есть время»
+}
+
+/// День, в который бот ждёт тренировку. Дата — в поясе пользователя.
+model PlanDay {
+  id     Int  @id @default(autoincrement())
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  date   DateTime      @db.Date
+  type   PlanDayType   @default(PLANNED)
+  status PlanDayStatus @default(PENDING)
+
+  morningAnswer PollAnswer?
+  eveningAnswer PollAnswer?
+
+  /// Отметки «вопрос уже задан» — крон выбирает только строки с пустой отметкой, повторов нет.
+  morningAskedAt    DateTime?
+  morningRemindedAt DateTime?
+  eveningAskedAt    DateTime?
+  eveningRemindedAt DateTime?
+
+  /// Комплекс, предложенный утром или выбранный вручную — он засчитывается при вечернем «да».
+  suggestedComplexId Int?
+  suggestedComplex   Complex? @relation(fields: [suggestedComplexId], references: [id], onDelete: SetNull)
+
+  /// Тренировка, закрывшая день.
+  workoutId Int?     @unique
+  workout   Workout? @relation(fields: [workoutId], references: [id], onDelete: SetNull)
+
+  rescheduleOfferedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, date])
+  @@index([status, date])
+}
+
+/// Факт выполнения комплекса в конкретный день.
+model Workout {
+  id     Int  @id @default(autoincrement())
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  complexId   Int?
+  complex     Complex? @relation(fields: [complexId], references: [id], onDelete: SetNull)
+  complexName String /// снимок названия: комплекс могут переименовать или удалить
+
+  date      DateTime      @db.Date
+  mode      TrackingMode
+  status    WorkoutStatus @default(IN_PROGRESS)
+  unplanned Boolean       @default(false) /// начата не в тренировочный день
+
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+
+  exercises WorkoutExercise[]
+  stretches WorkoutStretch[]
+  planDay   PlanDay?
+
+  @@index([userId, date])
+  @@index([userId, status])
+}
+
+model WorkoutExercise {
+  id        Int     @id @default(autoincrement())
+  workoutId Int
+  workout   Workout @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+
+  /// История весов привязана к упражнению, а не к программе. Restrict — как в ComplexExercise.
+  exerciseId Int
+  exercise   Exercise @relation("WorkoutExerciseExercise", fields: [exerciseId], references: [id], onDelete: Restrict)
+
+  position Int
+  done     Boolean @default(false)
+
+  plannedSets Int
+  repsMin     Int
+  repsMax     Int
+
+  /// Упражнение комплекса, вместо которого сделано это (замена «только сегодня» или «в комплексе»).
+  replacedExerciseId Int?
+  replacedExercise   Exercise? @relation("WorkoutExerciseReplaced", fields: [replacedExerciseId], references: [id], onDelete: SetNull)
+
+  sets WorkoutSet[]
+
+  @@index([workoutId, position])
+  /// По этому индексу ищется прошлый результат по упражнению.
+  @@index([exerciseId])
+}
+
+model WorkoutSet {
+  id                Int             @id @default(autoincrement())
+  workoutExerciseId Int
+  workoutExercise   WorkoutExercise @relation(fields: [workoutExerciseId], references: [id], onDelete: Cascade)
+
+  number Int
+  weight Decimal @db.Decimal(6, 2) /// кг; 0 — упражнение без веса
+  reps   Int
+
+  @@unique([workoutExerciseId, number])
+}
+
+/// Растяжка заминки. Набор выбирается один раз и не меняется.
+model WorkoutStretch {
+  id        Int     @id @default(autoincrement())
+  workoutId Int
+  workout   Workout @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+
+  stretchId Int
+  stretch   Stretch @relation(fields: [stretchId], references: [id], onDelete: Restrict)
+
+  block    CooldownBlock
+  position Int
+
+  @@index([workoutId, position])
+  @@index([stretchId])
+}
+
+// ============================================================
+//  Спортбот: друзья и группы
+// ============================================================
+
+/// Одноразовая ссылка-приглашение в друзья. Не путать с Invite — приглашением в организацию.
+model FriendInvite {
+  id       Int    @id @default(autoincrement())
+  code     String @unique /// короткий код для диплинка start=fr_<code>
+  senderId Int
+  sender   User   @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([senderId])
+}
+
+/// Взаимная связь двух пользователей. Пара хранится один раз: userAId < userBId.
+model Friendship {
+  id      Int  @id @default(autoincrement())
+  userAId Int
+  userA   User @relation("FriendshipA", fields: [userAId], references: [id], onDelete: Cascade)
+  userBId Int
+  userB   User @relation("FriendshipB", fields: [userBId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userAId, userBId])
+  @@index([userBId])
+}
+
+/// Групповой чат, в который добавили бота.
+model BotGroup {
+  id      Int        @id @default(autoincrement())
+  channel BotChannel
+  chatId  String /// id чата в мессенджере
+  title   String
+  active  Boolean    @default(true) /// false — бота удалили из группы
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members BotGroupMember[]
+
+  @@unique([channel, chatId])
+}
+
+/// Участник группы, который запускал бота в личке.
+model BotGroupMember {
+  groupId Int
+  group   BotGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  userId  Int
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@id([groupId, userId])
   @@index([userId])
 }

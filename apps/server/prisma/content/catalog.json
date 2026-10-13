@@ -1,0 +1,1635 @@
+{
+  "exercises": [
+    {
+      "code": "bench-press",
+      "name": "Жим штанги лёжа",
+      "technique": "Лопатки сведены и прижаты к скамье, стопы упираются в пол. Гриф опускается на низ груди, локти под углом около 45° к корпусу. Жми вверх и слегка назад, к стойкам.\nОшибки: отрыв таза от скамьи, отбив грифа от груди, локти строго в стороны.",
+      "equipment": "BARBELL",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "triceps",
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "incline-bench-press",
+      "name": "Жим штанги на наклонной скамье",
+      "technique": "Наклон скамьи 30–45°. Лопатки сведены, гриф опускается на верх груди, предплечья вертикальны.\nОшибки: слишком крутой наклон — работают дельты, а не грудь; отрыв лопаток в верхней точке.",
+      "equipment": "BARBELL",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "front-delts",
+        "triceps"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "db-bench-press",
+      "name": "Жим гантелей лёжа",
+      "technique": "Лопатки сведены, гантели над грудью. Опускай до комфортного растяжения груди, локти под углом 45°. Вверху не ударяй гантели друг о друга.\nОшибки: слишком глубокое опускание с болью в плече, разведение локтей в стороны.",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "triceps",
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "incline-db-press",
+      "name": "Жим гантелей на наклонной скамье",
+      "technique": "Наклон 30–45°, гантели над верхом груди. Опускай подконтрольно, предплечья вертикальны.\nОшибки: прогиб в пояснице с отрывом таза, жим «к лицу».",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "front-delts",
+        "triceps"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "db-fly",
+      "name": "Разводка гантелей лёжа",
+      "technique": "Локти слегка согнуты и зафиксированы. Разводи руки по дуге до растяжения груди, своди, будто обнимаешь бочку.\nОшибки: слишком большой вес, разгибание локтей — получается жим, опускание ниже уровня плеч.",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder"
+      ]
+    },
+    {
+      "code": "chest-press-machine",
+      "name": "Жим в тренажёре на грудь",
+      "technique": "Сиденье на высоте, при которой рукояти на уровне середины груди. Лопатки прижаты к спинке, выжимай без рывка, не разгибая локти «в замок».\nОшибки: плечи уходят вперёд, отрыв спины от спинки.",
+      "equipment": "MACHINE",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "triceps",
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "pec-deck",
+      "name": "Сведение рук в тренажёре «бабочка»",
+      "technique": "Спина прижата, локти чуть согнуты. Своди руки перед грудью, на секунду задержись в пиковой точке, возвращай медленно.\nОшибки: рывок корпусом, слишком глубокий отвод рук назад.",
+      "equipment": "MACHINE",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder"
+      ]
+    },
+    {
+      "code": "dips",
+      "name": "Отжимания на брусьях",
+      "technique": "Корпус слегка наклонён вперёд, локти идут назад и немного в стороны. Опускайся до угла в локте около 90°.\nОшибки: слишком глубокое опускание, плечи подняты к ушам, раскачка.",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "chest",
+        "triceps"
+      ],
+      "secondary": [
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "push-ups",
+      "name": "Отжимания от пола",
+      "technique": "Тело — прямая линия от пяток до макушки, кисти чуть шире плеч. Опускайся грудью к полу, локти под 45°.\nОшибки: провисание поясницы, поднятый таз, неполная амплитуда.",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "triceps",
+        "front-delts",
+        "abs"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "cable-crossover",
+      "name": "Сведение рук в кроссовере",
+      "technique": "Шаг вперёд, корпус слегка наклонён. Своди рукояти перед собой по дуге, локти зафиксированы.\nОшибки: сгибание локтей — превращается в жим, работа инерцией.",
+      "equipment": "MACHINE",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder"
+      ]
+    },
+    {
+      "code": "pull-ups",
+      "name": "Подтягивания широким хватом",
+      "technique": "Начинай движение с опускания лопаток, тянись грудью к перекладине. Опускайся подконтрольно до почти прямых рук.\nОшибки: раскачка, подтягивание подбородком за счёт шеи, половинная амплитуда.",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "lats"
+      ],
+      "secondary": [
+        "biceps",
+        "rear-delts",
+        "forearms"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "lat-pulldown",
+      "name": "Тяга верхнего блока к груди",
+      "technique": "Бёдра зафиксированы валиком, корпус слегка отклонён. Тяни рукоять к верху груди, сводя лопатки, локти вниз.\nОшибки: тяга за голову, сильный отклон назад с рывком.",
+      "equipment": "MACHINE",
+      "primary": [
+        "lats"
+      ],
+      "secondary": [
+        "biceps",
+        "rear-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "barbell-row",
+      "name": "Тяга штанги в наклоне",
+      "technique": "Спина прямая, наклон около 45°, колени чуть согнуты. Тяни гриф к низу живота, локти вдоль корпуса, сводя лопатки.\nОшибки: округление спины, рывок корпусом вверх на каждом повторе.",
+      "equipment": "BARBELL",
+      "primary": [
+        "lats"
+      ],
+      "secondary": [
+        "rear-delts",
+        "biceps",
+        "lower-back",
+        "traps"
+      ],
+      "joints": [
+        "lower-back",
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "db-row",
+      "name": "Тяга гантели одной рукой в наклоне",
+      "technique": "Колено и рука — на скамье, спина параллельна полу. Тяни гантель к поясу, локоть вдоль корпуса.\nОшибки: разворот корпуса вслед за гантелью, тяга к груди вместо пояса.",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "lats"
+      ],
+      "secondary": [
+        "rear-delts",
+        "biceps"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "seated-cable-row",
+      "name": "Тяга нижнего блока сидя",
+      "technique": "Спина прямая, колени слегка согнуты. Тяни рукоять к животу, сводя лопатки; корпус почти неподвижен.\nОшибки: раскачка корпуса вперёд-назад, округление поясницы.",
+      "equipment": "MACHINE",
+      "primary": [
+        "lats"
+      ],
+      "secondary": [
+        "rear-delts",
+        "biceps",
+        "traps"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "t-bar-row",
+      "name": "Тяга Т-грифа",
+      "technique": "Наклон с прямой спиной, тяни гриф к груди или животу, сводя лопатки в верхней точке.\nОшибки: округление спины, подъём корпуса рывком.",
+      "equipment": "BARBELL",
+      "primary": [
+        "lats"
+      ],
+      "secondary": [
+        "rear-delts",
+        "biceps",
+        "traps",
+        "lower-back"
+      ],
+      "joints": [
+        "lower-back",
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "deadlift",
+      "name": "Становая тяга",
+      "technique": "Гриф над серединой стопы, спина прямая, плечи чуть впереди грифа. Поднимай, отталкиваясь ногами от пола, гриф скользит по ногам.\nОшибки: округление поясницы, отрыв грифа от ног, переразгибание в верхней точке.",
+      "equipment": "BARBELL",
+      "primary": [
+        "lower-back",
+        "glutes",
+        "hamstrings"
+      ],
+      "secondary": [
+        "quads",
+        "traps",
+        "forearms",
+        "lats"
+      ],
+      "joints": [
+        "lower-back",
+        "hip",
+        "knee"
+      ]
+    },
+    {
+      "code": "hyperextension",
+      "name": "Гиперэкстензия",
+      "technique": "Валик — под сгибом бёдер. Опускайся с прямой спиной, поднимайся до прямой линии корпуса и ног.\nОшибки: переразгибание вверху, рывки, округление спины.",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "lower-back"
+      ],
+      "secondary": [
+        "glutes",
+        "hamstrings"
+      ],
+      "joints": [
+        "lower-back",
+        "hip"
+      ]
+    },
+    {
+      "code": "shrugs",
+      "name": "Шраги со штангой",
+      "technique": "Руки прямые, поднимай плечи строго вверх к ушам, вверху короткая пауза.\nОшибки: вращение плечами, сгибание локтей, кивок головой вперёд.",
+      "equipment": "BARBELL",
+      "primary": [
+        "traps"
+      ],
+      "secondary": [
+        "forearms"
+      ],
+      "joints": [
+        "neck",
+        "shoulder"
+      ]
+    },
+    {
+      "code": "face-pull",
+      "name": "Тяга каната к лицу",
+      "technique": "Блок на уровне лица. Тяни канат к переносице, разводя концы и поднимая локти выше кистей.\nОшибки: слишком большой вес и отклон корпуса, локти ниже кистей.",
+      "equipment": "MACHINE",
+      "primary": [
+        "rear-delts"
+      ],
+      "secondary": [
+        "traps",
+        "mid-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "overhead-press",
+      "name": "Жим штанги стоя",
+      "technique": "Пресс и ягодицы напряжены, гриф на верху груди. Жми вверх, уводя голову назад и возвращая её под гриф вверху.\nОшибки: прогиб в пояснице, помощь ногами, локти далеко позади грифа.",
+      "equipment": "BARBELL",
+      "primary": [
+        "front-delts"
+      ],
+      "secondary": [
+        "mid-delts",
+        "triceps",
+        "traps"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "db-shoulder-press",
+      "name": "Жим гантелей сидя",
+      "technique": "Спина прижата к спинке, гантели на уровне ушей. Жми вверх по лёгкой дуге, не ударяя гантели вверху.\nОшибки: прогиб поясницы, опускание локтей слишком низко.",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "front-delts"
+      ],
+      "secondary": [
+        "mid-delts",
+        "triceps"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "arnold-press",
+      "name": "Жим Арнольда",
+      "technique": "Старт — ладони к себе на уровне подбородка. Выжимая, разворачивай кисти ладонями вперёд.\nОшибки: рывок, слишком большой вес, потеря контроля на развороте.",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "front-delts",
+        "mid-delts"
+      ],
+      "secondary": [
+        "triceps"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "lateral-raise",
+      "name": "Махи гантелями в стороны",
+      "technique": "Локти чуть согнуты, поднимай руки через стороны до уровня плеч, мизинец чуть выше большого пальца.\nОшибки: раскачка корпусом, подъём выше плеч с включением трапеций.",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "mid-delts"
+      ],
+      "secondary": [
+        "traps"
+      ],
+      "joints": [
+        "shoulder"
+      ]
+    },
+    {
+      "code": "rear-delt-fly",
+      "name": "Разводка гантелей в наклоне",
+      "technique": "Наклон с прямой спиной, локти слегка согнуты. Разводи руки в стороны, не сводя лопатки до упора.\nОшибки: большой вес и рывки, подъём корпуса.",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "rear-delts"
+      ],
+      "secondary": [
+        "traps"
+      ],
+      "joints": [
+        "shoulder"
+      ]
+    },
+    {
+      "code": "reverse-pec-deck",
+      "name": "Обратные разведения в тренажёре",
+      "technique": "Грудь прижата к спинке, руки почти прямые. Отводи рукояти назад по дуге до линии плеч.\nОшибки: сведение лопаток вместо работы дельт, рывок.",
+      "equipment": "MACHINE",
+      "primary": [
+        "rear-delts"
+      ],
+      "secondary": [
+        "traps"
+      ],
+      "joints": [
+        "shoulder"
+      ]
+    },
+    {
+      "code": "upright-row",
+      "name": "Тяга штанги к подбородку",
+      "technique": "Хват чуть шире плеч, тяни гриф вдоль корпуса до уровня груди, локти выше кистей.\nОшибки: узкий хват и подъём до подбородка — перегружается плечевой сустав.",
+      "equipment": "BARBELL",
+      "primary": [
+        "mid-delts",
+        "traps"
+      ],
+      "secondary": [
+        "front-delts",
+        "biceps"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "barbell-curl",
+      "name": "Подъём штанги на бицепс",
+      "technique": "Локти прижаты к корпусу и неподвижны. Поднимай гриф до уровня плеч, опускай медленно.\nОшибки: раскачка корпусом, вынос локтей вперёд.",
+      "equipment": "BARBELL",
+      "primary": [
+        "biceps"
+      ],
+      "secondary": [
+        "forearms"
+      ],
+      "joints": [
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "db-curl",
+      "name": "Подъём гантелей на бицепс",
+      "technique": "Локти у корпуса, по ходу подъёма разворачивай кисть ладонью вверх. Опускай подконтрольно.\nОшибки: читинг корпусом, неполное разгибание.",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "biceps"
+      ],
+      "secondary": [
+        "forearms"
+      ],
+      "joints": [
+        "elbow"
+      ]
+    },
+    {
+      "code": "hammer-curl",
+      "name": "Молотки",
+      "technique": "Нейтральный хват — ладони друг к другу. Локти неподвижны, поднимай гантели к плечам.\nОшибки: раскачка, разведение локтей в стороны.",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "biceps",
+        "forearms"
+      ],
+      "secondary": [],
+      "joints": [
+        "elbow"
+      ]
+    },
+    {
+      "code": "preacher-curl",
+      "name": "Сгибание рук на скамье Скотта",
+      "technique": "Плечи полностью лежат на подушке. Поднимай без рывка, внизу не разгибай локти до конца.\nОшибки: отрыв плеч от подушки, резкое опускание.",
+      "equipment": "MACHINE",
+      "primary": [
+        "biceps"
+      ],
+      "secondary": [
+        "forearms"
+      ],
+      "joints": [
+        "elbow"
+      ]
+    },
+    {
+      "code": "triceps-pushdown",
+      "name": "Разгибание рук на блоке",
+      "technique": "Локти прижаты к бокам и неподвижны. Разгибай руки до конца, вверх возвращай до угла 90°.\nОшибки: подключение плеч и корпуса, локти гуляют вперёд-назад.",
+      "equipment": "MACHINE",
+      "primary": [
+        "triceps"
+      ],
+      "secondary": [],
+      "joints": [
+        "elbow"
+      ]
+    },
+    {
+      "code": "skull-crusher",
+      "name": "Французский жим лёжа",
+      "technique": "Плечи вертикальны или чуть отклонены к голове. Сгибай только локти, опуская гриф ко лбу или за голову.\nОшибки: разведение локтей, движение в плечах.",
+      "equipment": "BARBELL",
+      "primary": [
+        "triceps"
+      ],
+      "secondary": [],
+      "joints": [
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "overhead-triceps-ext",
+      "name": "Разгибание гантели из-за головы",
+      "technique": "Локти смотрят вверх и не расходятся. Опускай гантель за голову до растяжения, разгибай до конца.\nОшибки: прогиб в пояснице, локти в стороны.",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "triceps"
+      ],
+      "secondary": [],
+      "joints": [
+        "elbow",
+        "shoulder"
+      ]
+    },
+    {
+      "code": "close-grip-bench",
+      "name": "Жим штанги узким хватом",
+      "technique": "Хват на ширине плеч, локти вдоль корпуса. Опускай гриф на низ груди.\nОшибки: слишком узкий хват — страдают запястья, локти в стороны.",
+      "equipment": "BARBELL",
+      "primary": [
+        "triceps"
+      ],
+      "secondary": [
+        "chest",
+        "front-delts"
+      ],
+      "joints": [
+        "elbow",
+        "shoulder",
+        "wrist"
+      ]
+    },
+    {
+      "code": "wrist-curl",
+      "name": "Сгибание кистей со штангой",
+      "technique": "Предплечья лежат на скамье или бёдрах, кисти свисают. Сгибай кисти вверх, опускай медленно.\nОшибки: отрыв предплечий, слишком большой вес.",
+      "equipment": "BARBELL",
+      "primary": [
+        "forearms"
+      ],
+      "secondary": [],
+      "joints": [
+        "wrist"
+      ]
+    },
+    {
+      "code": "squat",
+      "name": "Приседания со штангой",
+      "technique": "Гриф на трапециях, стопы чуть шире плеч, носки слегка врозь. Садись, отводя таз назад, колени идут в сторону носков, спина прямая.\nОшибки: сведение коленей внутрь, отрыв пяток, округление поясницы внизу.",
+      "equipment": "BARBELL",
+      "primary": [
+        "quads",
+        "glutes"
+      ],
+      "secondary": [
+        "hamstrings",
+        "lower-back",
+        "adductors"
+      ],
+      "joints": [
+        "knee",
+        "hip",
+        "lower-back",
+        "ankle"
+      ]
+    },
+    {
+      "code": "front-squat",
+      "name": "Фронтальные приседания",
+      "technique": "Гриф лежит на передних дельтах, локти высоко. Корпус вертикален, садись между стоп.\nОшибки: опускание локтей, округление грудного отдела.",
+      "equipment": "BARBELL",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [
+        "glutes",
+        "abs",
+        "lower-back"
+      ],
+      "joints": [
+        "knee",
+        "hip",
+        "wrist",
+        "ankle"
+      ]
+    },
+    {
+      "code": "leg-press",
+      "name": "Жим ногами",
+      "technique": "Поясница прижата к спинке. Опускай платформу до угла в коленях около 90°, выжимай, не выпрямляя колени «в замок».\nОшибки: отрыв таза от спинки, сведение коленей.",
+      "equipment": "MACHINE",
+      "primary": [
+        "quads",
+        "glutes"
+      ],
+      "secondary": [
+        "hamstrings",
+        "adductors"
+      ],
+      "joints": [
+        "knee",
+        "hip"
+      ]
+    },
+    {
+      "code": "lunges",
+      "name": "Выпады с гантелями",
+      "technique": "Шаг вперёд, корпус вертикален. Опускайся до угла 90° в обоих коленях, отталкивайся пяткой передней ноги.\nОшибки: колено передней ноги уходит внутрь, короткий шаг.",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "quads",
+        "glutes"
+      ],
+      "secondary": [
+        "hamstrings",
+        "adductors"
+      ],
+      "joints": [
+        "knee",
+        "hip",
+        "ankle"
+      ]
+    },
+    {
+      "code": "bulgarian-split-squat",
+      "name": "Болгарские сплит-приседания",
+      "technique": "Задняя стопа на скамье, вес на передней ноге. Опускайся вертикально вниз.\nОшибки: перенос веса на заднюю ногу, завал корпуса.",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "quads",
+        "glutes"
+      ],
+      "secondary": [
+        "hamstrings",
+        "adductors"
+      ],
+      "joints": [
+        "knee",
+        "hip",
+        "ankle"
+      ]
+    },
+    {
+      "code": "leg-extension",
+      "name": "Разгибание ног в тренажёре",
+      "technique": "Ось тренажёра — напротив колена, спина прижата. Разгибай ноги до конца, опускай медленно.\nОшибки: рывок, отрыв таза от сиденья.",
+      "equipment": "MACHINE",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [],
+      "joints": [
+        "knee"
+      ]
+    },
+    {
+      "code": "leg-curl",
+      "name": "Сгибание ног в тренажёре",
+      "technique": "Валик — чуть выше пяток. Сгибай ноги до конца, не отрывая таз, возвращай подконтрольно.\nОшибки: подъём таза, рывки.",
+      "equipment": "MACHINE",
+      "primary": [
+        "hamstrings"
+      ],
+      "secondary": [
+        "calves"
+      ],
+      "joints": [
+        "knee"
+      ]
+    },
+    {
+      "code": "romanian-deadlift",
+      "name": "Румынская тяга",
+      "technique": "Колени чуть согнуты и зафиксированы. Отводи таз назад, гриф скользит по ногам до середины голени, спина прямая.\nОшибки: округление спины, приседание вместо наклона.",
+      "equipment": "BARBELL",
+      "primary": [
+        "hamstrings",
+        "glutes"
+      ],
+      "secondary": [
+        "lower-back",
+        "forearms"
+      ],
+      "joints": [
+        "lower-back",
+        "hip"
+      ]
+    },
+    {
+      "code": "glute-bridge",
+      "name": "Ягодичный мост со штангой",
+      "technique": "Лопатки на скамье, гриф на сгибе бёдер. Поднимай таз до прямой линии корпуса, вверху сожми ягодицы.\nОшибки: переразгибание поясницы, толчок носками.",
+      "equipment": "BARBELL",
+      "primary": [
+        "glutes"
+      ],
+      "secondary": [
+        "hamstrings",
+        "lower-back"
+      ],
+      "joints": [
+        "hip",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "adductor-machine",
+      "name": "Сведение ног в тренажёре",
+      "technique": "Спина прижата, своди ноги без рывка, возвращай медленно до комфортного растяжения.\nОшибки: слишком большая амплитуда на старте, рывки.",
+      "equipment": "MACHINE",
+      "primary": [
+        "adductors"
+      ],
+      "secondary": [],
+      "joints": [
+        "hip"
+      ]
+    },
+    {
+      "code": "abductor-machine",
+      "name": "Разведение ног в тренажёре",
+      "technique": "Спина прижата или корпус слегка наклонён вперёд. Разводи ноги, задержись на секунду, возвращай медленно.\nОшибки: работа инерцией, отрыв таза.",
+      "equipment": "MACHINE",
+      "primary": [
+        "glutes"
+      ],
+      "secondary": [],
+      "joints": [
+        "hip"
+      ]
+    },
+    {
+      "code": "calf-raise",
+      "name": "Подъём на носки стоя",
+      "technique": "Колени почти прямые. Опускай пятки ниже платформы до растяжения, поднимайся максимально высоко.\nОшибки: пружинящие неполные повторы, сгибание коленей.",
+      "equipment": "MACHINE",
+      "primary": [
+        "calves"
+      ],
+      "secondary": [],
+      "joints": [
+        "ankle"
+      ]
+    },
+    {
+      "code": "seated-calf-raise",
+      "name": "Подъём на носки сидя",
+      "technique": "Валик — на нижней части бёдер. Полная амплитуда: растяжение внизу, пауза вверху.\nОшибки: слишком быстрый темп, короткая амплитуда.",
+      "equipment": "MACHINE",
+      "primary": [
+        "calves"
+      ],
+      "secondary": [],
+      "joints": [
+        "ankle"
+      ]
+    },
+    {
+      "code": "crunches",
+      "name": "Скручивания",
+      "technique": "Поясница прижата к полу. Скругляй спину, подтягивая рёбра к тазу; руки не тянут голову.\nОшибки: подъём корпуса целиком, рывок шеей.",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "abs"
+      ],
+      "secondary": [],
+      "joints": [
+        "neck",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "hanging-leg-raise",
+      "name": "Подъём ног в висе",
+      "technique": "Поднимай ноги, подкручивая таз вверх; опускай медленно, без раскачки.\nОшибки: раскачка, подъём только за счёт сгибателей бедра.",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "abs"
+      ],
+      "secondary": [
+        "forearms"
+      ],
+      "joints": [
+        "hip",
+        "shoulder",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "plank",
+      "name": "Планка",
+      "technique": "Локти под плечами, тело — прямая линия, пресс и ягодицы напряжены. В плане повторов — секунды удержания.\nОшибки: провисание поясницы, поднятый таз.",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "abs"
+      ],
+      "secondary": [
+        "lower-back",
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "cable-crunch",
+      "name": "Скручивания на блоке",
+      "technique": "На коленях, канат у головы. Скругляй спину, подтягивая локти к бёдрам, таз неподвижен.\nОшибки: приседание на пятки, тяга руками.",
+      "equipment": "MACHINE",
+      "primary": [
+        "abs"
+      ],
+      "secondary": [],
+      "joints": [
+        "lower-back"
+      ]
+    }
+  ],
+  "stretches": [
+    {
+      "code": "neck-side",
+      "name": "Наклон головы в сторону",
+      "howTo": "Сядь ровно, наклони голову ухом к плечу, противоположное плечо тяни вниз. Не дави рукой на голову.",
+      "muscles": [
+        "traps"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "traps-chin-down",
+      "name": "Растяжка трапеций наклоном головы вперёд",
+      "howTo": "Сцепи пальцы на затылке, мягко опусти подбородок к груди, локти направь вниз.",
+      "muscles": [
+        "traps"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "front-delt-behind",
+      "name": "Растяжка передних дельт за спиной",
+      "howTo": "Сцепи руки за спиной в замок, выпрями их и отведи назад-вверх, грудь раскрой.",
+      "muscles": [
+        "front-delts",
+        "chest"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "cross-body-shoulder",
+      "name": "Растяжка плеча через грудь",
+      "howTo": "Прямую руку проведи перед грудью, второй рукой прижми её к себе выше локтя. Плечо не поднимай.",
+      "muscles": [
+        "rear-delts",
+        "mid-delts"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "mid-delt-behind-back",
+      "name": "Растяжка средних дельт за спиной",
+      "howTo": "Заведи руку за спину, второй рукой возьми её за запястье и мягко тяни в противоположную сторону, наклоняя голову туда же.",
+      "muscles": [
+        "mid-delts"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "chest-wall",
+      "name": "Растяжка груди у стены",
+      "howTo": "Встань боком к стене, ладонь и предплечье — на стену на уровне плеча. Плавно разворачивай корпус от стены.",
+      "muscles": [
+        "chest",
+        "front-delts"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "chest-doorway",
+      "name": "Растяжка груди в дверном проёме",
+      "howTo": "Упрись предплечьями в косяки на уровне плеч и подай корпус вперёд до растяжения груди.",
+      "muscles": [
+        "chest"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "lats-hang",
+      "name": "Вис на перекладине",
+      "howTo": "Повисни на прямых руках, расслабь плечи и спину, дыши ровно.",
+      "muscles": [
+        "lats",
+        "forearms"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "lats-side-bend",
+      "name": "Наклон в сторону с рукой над головой",
+      "howTo": "Подними руку вверх, возьмись второй рукой за запястье и наклонись в сторону, вытягивая бок.",
+      "muscles": [
+        "lats"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "child-pose",
+      "name": "Поза ребёнка",
+      "howTo": "Сядь на пятки, наклонись вперёд и вытяни руки по полу. Тянись пальцами вперёд, таз держи у пяток.",
+      "muscles": [
+        "lats",
+        "lower-back"
+      ],
+      "holdSeconds": 40,
+      "perSide": false,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "biceps-wall",
+      "name": "Растяжка бицепса у стены",
+      "howTo": "Прямую руку упри ладонью в стену позади себя на уровне плеча, пальцы назад. Разворачивай корпус от руки.",
+      "muscles": [
+        "biceps",
+        "front-delts"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "triceps-overhead",
+      "name": "Растяжка трицепса за головой",
+      "howTo": "Подними руку и согни её за головой, второй рукой мягко надави на локоть вниз и назад.",
+      "muscles": [
+        "triceps"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "forearm-flexor",
+      "name": "Растяжка сгибателей предплечья",
+      "howTo": "Вытяни руку ладонью вверх, второй рукой потяни пальцы вниз и на себя.",
+      "muscles": [
+        "forearms"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "forearm-extensor",
+      "name": "Растяжка разгибателей предплечья",
+      "howTo": "Вытяни руку ладонью вниз, согни кисть и второй рукой потяни её на себя.",
+      "muscles": [
+        "forearms"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "cobra",
+      "name": "Кобра",
+      "howTo": "Лёжа на животе, упрись ладонями под плечами и подними грудь, таз остаётся на полу. Не запрокидывай голову.",
+      "muscles": [
+        "abs"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "abs-standing-reach",
+      "name": "Вытяжение вверх стоя",
+      "howTo": "Сцепи руки над головой ладонями вверх и тянись вверх, слегка прогибаясь назад.",
+      "muscles": [
+        "abs",
+        "lats"
+      ],
+      "holdSeconds": 20,
+      "perSide": false,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "knees-to-chest",
+      "name": "Колени к груди лёжа",
+      "howTo": "Лёжа на спине, подтяни оба колена к груди и обхвати их руками. Поясницу расслабь.",
+      "muscles": [
+        "lower-back",
+        "glutes"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "cat-stretch",
+      "name": "Кошка",
+      "howTo": "На четвереньках округли спину вверх, подбородок к груди, задержись.",
+      "muscles": [
+        "lower-back"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "lying-twist",
+      "name": "Скручивание лёжа",
+      "howTo": "Лёжа на спине, согни колено и опусти его через корпус в сторону, плечи остаются на полу.",
+      "muscles": [
+        "lower-back",
+        "glutes"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "figure-four",
+      "name": "Растяжка ягодичных «четвёрка»",
+      "howTo": "Лёжа на спине, положи лодыжку на колено другой ноги и подтяни нижнюю ногу к груди.",
+      "muscles": [
+        "glutes"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "pigeon",
+      "name": "Поза голубя",
+      "howTo": "Переднюю ногу согни перед собой, заднюю вытяни назад. Опусти таз и наклонись корпусом к передней ноге.",
+      "muscles": [
+        "glutes",
+        "adductors"
+      ],
+      "holdSeconds": 40,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "quad-standing",
+      "name": "Растяжка квадрицепса стоя",
+      "howTo": "Стоя, согни ногу и возьмись за стопу, подтяни пятку к ягодице. Колени рядом, таз подкручен вперёд.",
+      "muscles": [
+        "quads"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "couch-stretch",
+      "name": "Растяжка квадрицепса у стены",
+      "howTo": "Колено — у стены, голень вдоль неё, вторая нога впереди в выпаде. Выпрями корпус и подкрути таз.",
+      "muscles": [
+        "quads"
+      ],
+      "holdSeconds": 40,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "hamstring-forward-fold",
+      "name": "Наклон к прямым ногам стоя",
+      "howTo": "Ноги вместе, колени чуть мягкие. Наклонись от бёдер и тянись руками к полу, спину не округляй рывком.",
+      "muscles": [
+        "hamstrings",
+        "lower-back"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "hamstring-seated",
+      "name": "Наклон к ноге сидя",
+      "howTo": "Сидя, одна нога прямая, стопа второй у бедра. Тянись грудью к прямой ноге.",
+      "muscles": [
+        "hamstrings"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "butterfly",
+      "name": "Бабочка",
+      "howTo": "Сидя, соедини стопы и подтяни их к себе. Локтями мягко дави на колени вниз, спина прямая.",
+      "muscles": [
+        "adductors"
+      ],
+      "holdSeconds": 40,
+      "perSide": false,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "side-lunge-stretch",
+      "name": "Боковой выпад",
+      "howTo": "Широкая стойка, перенеси вес на согнутую ногу, вторая остаётся прямой со стопой на полу.",
+      "muscles": [
+        "adductors",
+        "hamstrings"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "calf-wall",
+      "name": "Растяжка икр у стены",
+      "howTo": "Упрись руками в стену, заднюю ногу выпрями, пятку прижми к полу и подай таз вперёд.",
+      "muscles": [
+        "calves"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "calf-step",
+      "name": "Растяжка икр на ступеньке",
+      "howTo": "Встань носком на край ступеньки и опусти пятку вниз, колено прямое.",
+      "muscles": [
+        "calves"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    }
+  ],
+  "programs": [
+    {
+      "code": "fullbody-3",
+      "name": "Фулбоди на 3 дня",
+      "complexes": [
+        {
+          "name": "День A",
+          "exercises": [
+            {
+              "code": "squat",
+              "sets": 4,
+              "repsMin": 6,
+              "repsMax": 10
+            },
+            {
+              "code": "bench-press",
+              "sets": 4,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "lat-pulldown",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "db-shoulder-press",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "barbell-curl",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "crunches",
+              "sets": 3,
+              "repsMin": 15,
+              "repsMax": 20
+            }
+          ]
+        },
+        {
+          "name": "День B",
+          "exercises": [
+            {
+              "code": "deadlift",
+              "sets": 3,
+              "repsMin": 5,
+              "repsMax": 8
+            },
+            {
+              "code": "incline-db-press",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "seated-cable-row",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "lateral-raise",
+              "sets": 3,
+              "repsMin": 12,
+              "repsMax": 15
+            },
+            {
+              "code": "triceps-pushdown",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 15
+            },
+            {
+              "code": "plank",
+              "sets": 3,
+              "repsMin": 30,
+              "repsMax": 60
+            }
+          ]
+        },
+        {
+          "name": "День C",
+          "exercises": [
+            {
+              "code": "leg-press",
+              "sets": 4,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "dips",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "db-row",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "leg-curl",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 15
+            },
+            {
+              "code": "face-pull",
+              "sets": 3,
+              "repsMin": 12,
+              "repsMax": 15
+            },
+            {
+              "code": "calf-raise",
+              "sets": 3,
+              "repsMin": 12,
+              "repsMax": 20
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "upper-lower-4",
+      "name": "Верх/низ на 4 дня",
+      "complexes": [
+        {
+          "name": "Верх A",
+          "exercises": [
+            {
+              "code": "bench-press",
+              "sets": 4,
+              "repsMin": 6,
+              "repsMax": 10
+            },
+            {
+              "code": "barbell-row",
+              "sets": 4,
+              "repsMin": 8,
+              "repsMax": 10
+            },
+            {
+              "code": "overhead-press",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 10
+            },
+            {
+              "code": "lat-pulldown",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "barbell-curl",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "skull-crusher",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            }
+          ]
+        },
+        {
+          "name": "Низ A",
+          "exercises": [
+            {
+              "code": "squat",
+              "sets": 4,
+              "repsMin": 6,
+              "repsMax": 10
+            },
+            {
+              "code": "romanian-deadlift",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "leg-extension",
+              "sets": 3,
+              "repsMin": 12,
+              "repsMax": 15
+            },
+            {
+              "code": "leg-curl",
+              "sets": 3,
+              "repsMin": 12,
+              "repsMax": 15
+            },
+            {
+              "code": "calf-raise",
+              "sets": 4,
+              "repsMin": 12,
+              "repsMax": 20
+            },
+            {
+              "code": "hanging-leg-raise",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 15
+            }
+          ]
+        },
+        {
+          "name": "Верх B",
+          "exercises": [
+            {
+              "code": "incline-db-press",
+              "sets": 4,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "pull-ups",
+              "sets": 4,
+              "repsMin": 6,
+              "repsMax": 12
+            },
+            {
+              "code": "db-shoulder-press",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "seated-cable-row",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "hammer-curl",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "triceps-pushdown",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 15
+            }
+          ]
+        },
+        {
+          "name": "Низ B",
+          "exercises": [
+            {
+              "code": "deadlift",
+              "sets": 3,
+              "repsMin": 5,
+              "repsMax": 8
+            },
+            {
+              "code": "leg-press",
+              "sets": 4,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "lunges",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "glute-bridge",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "seated-calf-raise",
+              "sets": 4,
+              "repsMin": 12,
+              "repsMax": 20
+            },
+            {
+              "code": "cable-crunch",
+              "sets": 3,
+              "repsMin": 12,
+              "repsMax": 15
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "split-3",
+      "name": "Сплит на 3 дня",
+      "complexes": [
+        {
+          "name": "Грудь и трицепс",
+          "exercises": [
+            {
+              "code": "bench-press",
+              "sets": 4,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "incline-db-press",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "db-fly",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 15
+            },
+            {
+              "code": "dips",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "triceps-pushdown",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 15
+            }
+          ]
+        },
+        {
+          "name": "Спина и бицепс",
+          "exercises": [
+            {
+              "code": "pull-ups",
+              "sets": 4,
+              "repsMin": 6,
+              "repsMax": 12
+            },
+            {
+              "code": "barbell-row",
+              "sets": 4,
+              "repsMin": 8,
+              "repsMax": 10
+            },
+            {
+              "code": "seated-cable-row",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "hyperextension",
+              "sets": 3,
+              "repsMin": 12,
+              "repsMax": 15
+            },
+            {
+              "code": "barbell-curl",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "hammer-curl",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            }
+          ]
+        },
+        {
+          "name": "Ноги и плечи",
+          "exercises": [
+            {
+              "code": "squat",
+              "sets": 4,
+              "repsMin": 6,
+              "repsMax": 10
+            },
+            {
+              "code": "leg-press",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "leg-curl",
+              "sets": 3,
+              "repsMin": 12,
+              "repsMax": 15
+            },
+            {
+              "code": "overhead-press",
+              "sets": 4,
+              "repsMin": 8,
+              "repsMax": 10
+            },
+            {
+              "code": "lateral-raise",
+              "sets": 3,
+              "repsMin": 12,
+              "repsMax": 15
+            },
+            {
+              "code": "calf-raise",
+              "sets": 4,
+              "repsMin": 12,
+              "repsMax": 20
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

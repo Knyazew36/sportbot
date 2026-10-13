@@ -108,6 +108,66 @@ export class TelegramBotService implements OnApplicationBootstrap {
     }
   }
 
+  /**
+   * Отправить картинку с подписью. photo — file_id уже загруженного файла или путь к файлу.
+   * Подпись Telegram — до 1024 символов: длинный текст уходит отдельным сообщением следом.
+   * @returns file_id картинки — для повторной отправки без загрузки.
+   */
+  public async sendPhoto(
+    telegramId: string | number,
+    photo: { fileId?: string; path: string },
+    text: string,
+    extra?: TelegramSendExtra,
+  ): Promise<string | undefined> {
+    const fits = text.length <= 1024;
+    try {
+      const result = await this.bot.telegram.sendPhoto(
+        Number(telegramId),
+        photo.fileId ?? { source: photo.path },
+        fits
+          ? {
+              caption: text,
+              caption_entities: extra?.entities,
+              reply_markup: extra?.reply_markup as never,
+            }
+          : undefined,
+      );
+      if (!fits) await this.sendMessage(telegramId, text, extra);
+      this.logger.debug(`Картинка отправлена telegramId=${telegramId}`);
+      return result.photo.at(-1)?.file_id;
+    } catch (error) {
+      const message =
+        error instanceof TelegramError
+          ? `Telegram[${error.code}]: ${error.description}`
+          : String(error);
+      this.logger.error(
+        `Ошибка отправки картинки telegramId=${telegramId}: ${message}`,
+      );
+      if (
+        error instanceof TelegramError &&
+        UNREACHABLE_DESCRIPTIONS.some((d) => error.description.includes(d))
+      ) {
+        await this.dialogService.markClosed(telegramId);
+      }
+      throw error instanceof TelegramError ? new Error(message) : error;
+    }
+  }
+
+  /** Меню команд бота (кнопка «/» в клиенте). */
+  public async setCommands(
+    commands: { name: string; description: string }[],
+  ): Promise<void> {
+    await this.bot.telegram.setMyCommands(
+      commands.map((c) => ({ command: c.name, description: c.description })),
+    );
+    this.logger.log(`Меню команд обновлено: ${commands.length}`);
+  }
+
+  /** Ссылка на скачивание файла, присланного боту. */
+  public async getFileUrl(fileId: string): Promise<string> {
+    return (await this.bot.telegram.getFileLink(fileId)).toString();
+  }
+
   // ── Клавиатуры ──────────────────────────────────────────────────────────
 
   /** Обёртка inline-клавиатуры для extra. */

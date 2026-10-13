@@ -67,6 +67,32 @@ export abstract class MaxAppAdapter {
   }
 
   /**
+   * «Начать» без диплинка входа/привязки (payload — свой, например приглашение в друзья).
+   * @returns true — обработано; false — модуль покажет приветствие.
+   */
+
+  public async onStart(
+    _ctx: Context,
+    _user: MessengerUser,
+    _payload: string | undefined,
+  ): Promise<boolean> {
+    return false;
+  }
+
+  /**
+   * Команда `/имя` текстом (в т.ч. /start). command — без слэша.
+   * @returns true — обработано; false — сообщение уйдёт в onMessage.
+   */
+
+  public async onCommand(
+    _ctx: Context,
+    _user: MessengerUser,
+    _command: string,
+  ): Promise<boolean> {
+    return false;
+  }
+
+  /**
    * Нажатие callback-кнопки, которую модуль не распознал (кнопки проекта: опросы и т.п.).
    * @returns true — обработано; false — модуль ответит, что кнопка устарела.
    */

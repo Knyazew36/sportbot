@@ -7,8 +7,10 @@ import {
   MessengerChannel,
   MessengerMessage,
   MessengerRegistry,
+  MessengerSendResult,
 } from '../../index';
 
+import { toHtml } from '../../messenger-format';
 import type { MessengerUser } from '../../messenger.types';
 import { MaxBotService } from '../bot/max-bot.service';
 import { MaxDialogService } from '../dialog/max-dialog.service';
@@ -42,13 +44,44 @@ export class MaxMessengerChannel implements MessengerChannel, OnModuleInit {
   public async send(
     user: MessengerUser,
     message: MessengerMessage,
-  ): Promise<void> {
+  ): Promise<MessengerSendResult> {
     if (!user.maxId) throw new Error('У пользователя не привязан MAX');
-    await this.botService.sendMessage(
-      user.maxId,
-      message.text,
-      this.toExtra(message),
-    );
+    const { text, format } = this.format(message);
+    if (!message.image) {
+      await this.botService.sendMessage(user.maxId, text, {
+        ...this.toExtra(message),
+        format,
+      });
+      return {};
+    }
+    const image = await this.botService.imageAttachment({
+      token: message.image.cachedId,
+      path: message.image.path,
+    });
+    const extra = {
+      attachments: [image, ...(this.toExtra(message)?.attachments ?? [])],
+      format,
+    };
+    // Только что загруженная картинка может быть ещё не обработана — ждём и повторяем
+    for (let attempt = 1; ; attempt++) {
+      try {
+        const sent = await this.botService.sendMessage(user.maxId, text, extra);
+        const attachments = (sent?.body?.attachments ?? []) as Array<{
+          type: string;
+          payload?: { token?: string };
+        }>;
+        return {
+          imageId: attachments.find((a) => a.type === 'image')?.payload?.token,
+        };
+      } catch (error) {
+        if (
+          attempt >= 4 ||
+          !(error as Error).message.includes('attachment.not.ready')
+        )
+          throw error;
+        await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
+      }
+    }
   }
 
   // ── Ответ правкой сообщения ─────────────────────────────────────────────
@@ -62,9 +95,11 @@ export class MaxMessengerChannel implements MessengerChannel, OnModuleInit {
         ctx.message?.timestamp ? new Date(ctx.message.timestamp) : null,
       edit: async (message) => {
         // Пустой attachments убирает старую клавиатуру — без поля MAX оставил бы прежние кнопки
+        const { text, format } = this.format(message);
         const result = await ctx.editMessage({
-          text: message.text,
+          text,
           attachments: this.toExtra(message)?.attachments ?? [],
+          format,
         });
         // MAX может ответить 200 с success: false (сообщение старше 7 суток и т.п.) — для вызывающего это отказ
         if (!result.success) {
@@ -77,7 +112,41 @@ export class MaxMessengerChannel implements MessengerChannel, OnModuleInit {
     };
   }
 
+  /**
+   * Ответить на нажатие кнопки заменой сообщения — одним вызовом и ответ на callback, и правка.
+   * Бросает, если платформа отказала. На одно нажатие MAX принимает один ответ: после него
+   * править сообщение можно только через callbackMessage(ctx).edit.
+   */
+  public async answerWithMessage(
+    ctx: Context,
+    message: MessengerMessage,
+  ): Promise<void> {
+    const { text, format } = this.format(message);
+    const result = await ctx.answerOnCallback({
+      message: {
+        text,
+        attachments: this.toExtra(message)?.attachments ?? [],
+        format,
+      },
+    });
+    if (!result.success) {
+      const reason = 'message' in result ? result.message : undefined;
+      throw new Error(
+        `MAX: не удалось заменить сообщение: ${reason ?? 'без причины'}`,
+      );
+    }
+  }
+
   // ── Внутреннее ──────────────────────────────────────────────────────────
+
+  /** Текст в разметке MAX: курсив есть — HTML, нет — обычный текст без режима разметки. */
+  private format(message: MessengerMessage): {
+    text: string;
+    format: 'html' | undefined;
+  } {
+    const { text, html } = toHtml(message.text);
+    return { text, format: html ? 'html' : undefined };
+  }
 
   private toExtra(message: MessengerMessage) {
     return message.buttons?.length

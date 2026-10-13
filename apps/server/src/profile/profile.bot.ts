@@ -1,0 +1,445 @@
+import { Injectable } from '@nestjs/common';
+
+import {
+  BACK_TO_MENU,
+  BotContext,
+  BotFeature,
+  BotHandler,
+  BotSessionService,
+  BotSessionState,
+  btn,
+  cut,
+  grid,
+  msg,
+  parseUserTime,
+  WEEKDAY_ORDER,
+  WEEKDAY_SHORT,
+  hint,
+} from '@/bot';
+import { SportProfile, WeightAskFrequency } from '@/generated/prisma/client';
+import { MessengerButton, MessengerMessage } from '@/messengers';
+import { ProgramService } from '@/program/program.service';
+
+import {
+  CITY_ZONES,
+  ONBOARDING_STEPS,
+  ProfileService,
+} from './profile.service';
+
+const MODE_TITLE = { SIMPLE: 'простой', DETAILED: 'детальный' } as const;
+
+const WEIGHT_FREQUENCY_TITLE: Record<WeightAskFrequency, string> = {
+  OFF: 'выключен',
+  WEEKLY: 'раз в неделю',
+  BIWEEKLY: 'раз в две недели',
+  MONTHLY: 'раз в месяц',
+};
+
+const zoneTitle = (zone: string): string =>
+  CITY_ZONES.find((city) => city.zone === zone)?.title ??
+  // Etc/GMT-5 — это UTC+5: знак у Etc обратный
+  zone.replace(/^Etc\/GMT([+-]?)(\d*)$/, (_m, sign: string, hours: string) =>
+    hours ? `UTC${sign === '-' ? '+' : '−'}${hours}` : 'UTC',
+  );
+
+const daysTitle = (days: number[]): string =>
+  days.length
+    ? WEEKDAY_ORDER.filter((d) => days.includes(d))
+        .map((d) => WEEKDAY_SHORT[d])
+        .join(', ')
+    : 'не выбраны';
+
+/**
+ * Первый запуск (префикс `ob`) и настройки (префикс `st`). Экраны общие: отличаются только
+ * префиксом кнопок и тем, куда ведёт выход — на следующий шаг или обратно в настройки.
+ */
+@Injectable()
+@BotHandler({ prefixes: ['ob', 'st'], commands: ['settings'] })
+export class ProfileBot implements BotFeature {
+  constructor(
+    private readonly profiles: ProfileService,
+    private readonly programs: ProgramService,
+    private readonly sessions: BotSessionService,
+  ) {}
+
+  public async onCommand(ctx: BotContext, command: string): Promise<void> {
+    if (command === 'settings') {
+      await ctx.reply(this.settingsScreen(ctx.profile));
+      return;
+    }
+    // Сюда роутер приводит любого, кто не закончил первый запуск
+    if (ctx.profile.onboardingStep === 1)
+      await ctx.reply(
+        msg(
+          `Привет, ${ctx.profile.displayName}! Я веду тренировки в зале: храню программу, показываю технику, собираю заминку и напоминаю о тренировках.\n\nНастроимся за ${ONBOARDING_STEPS} шагов.\n${hint('На каждом можно просто нажать «Дальше».')}`,
+        ),
+      );
+    await ctx.reply(await this.stepScreen(ctx.profile));
+  }
+
+  public async onCallback(
+    ctx: BotContext,
+    prefix: string,
+    action: string,
+    args: string[],
+  ): Promise<void> {
+    const userId = ctx.user.id;
+    const onboarding = prefix === 'ob';
+    await this.sessions.clear(ctx);
+
+    switch (action) {
+      // ── общее ──
+      case 'tz': {
+        if (args[0] === undefined)
+          return ctx.edit(this.zoneScreen(ctx.profile));
+        const city = CITY_ZONES[Number(args[0])];
+        if (!city) return ctx.toast('Кнопка устарела');
+        ctx.profile = await this.profiles.update(userId, {
+          timeZone: city.zone,
+        });
+        return ctx.edit(this.settingsScreen(ctx.profile));
+      }
+      case 'tzt':
+        await this.sessions.set(ctx, 'st.tz');
+        return ctx.edit(
+          msg(
+            `Сколько у тебя сейчас времени?\n${hint('Напиши, например «14:30».')}`,
+            [[btn('Отмена', 'st:menu')]],
+          ),
+        );
+      case 'days':
+        return ctx.edit(this.daysScreen(ctx.profile, prefix));
+      case 'day': {
+        ctx.profile = await this.profiles.update(userId, {
+          trainingDays: this.profiles.toggleDay(
+            ctx.profile.trainingDays,
+            Number(args[0]),
+          ),
+        });
+        return ctx.edit(this.daysScreen(ctx.profile, prefix));
+      }
+      case 'time':
+        return ctx.edit(this.timeScreen(ctx.profile, prefix));
+      case 'mt':
+      case 'et':
+        await this.sessions.set(ctx, `${prefix}.${action}`);
+        return ctx.edit(
+          msg(
+            action === 'mt'
+              ? `Во сколько спрашивать утром «будешь тренироваться?»\n${hint('Напиши время, например «8:00».')}`
+              : `Во сколько спрашивать вечером «потренировался?»\n${hint('Напиши время, например «20:30».')}`,
+            [[btn('Отмена', onboarding ? 'ob:show' : 'st:time')]],
+          ),
+        );
+      case 'mode': {
+        if (args[0] === undefined)
+          return ctx.edit(this.modeScreen(ctx.profile, prefix));
+        ctx.profile = await this.profiles.update(userId, {
+          trackingMode: args[0] === 'd' ? 'DETAILED' : 'SIMPLE',
+        });
+        return onboarding
+          ? this.advance(ctx, 4)
+          : ctx.edit(this.settingsScreen(ctx.profile));
+      }
+
+      // ── первый запуск ──
+      case 'show':
+        return ctx.edit(await this.stepScreen(ctx.profile));
+      case 'next':
+        return this.advance(ctx, Number(args[0]));
+      case 'tpl':
+        await this.programs.copy(Number(args[0]), userId);
+        return this.advance(ctx, 3);
+      case 'scratch':
+        await this.programs.create(userId, 'Моя программа');
+        return this.advance(ctx, 3);
+
+      // ── настройки ──
+      case 'menu':
+        return ctx.edit(this.settingsScreen(ctx.profile));
+      case 'wf': {
+        if (args[0] === undefined)
+          return ctx.edit(
+            msg('Как часто спрашивать вес тела?', [
+              ...(
+                Object.keys(WEIGHT_FREQUENCY_TITLE) as WeightAskFrequency[]
+              ).map((value) => [
+                btn(
+                  `${ctx.profile.weightAskFrequency === value ? '✅ ' : ''}${WEIGHT_FREQUENCY_TITLE[value]}`,
+                  `st:wf:${value}`,
+                ),
+              ]),
+              [btn('⬅️ Настройки', 'st:menu')],
+            ]),
+          );
+        if (!(args[0] in WEIGHT_FREQUENCY_TITLE))
+          return ctx.toast('Кнопка устарела');
+        ctx.profile = await this.profiles.update(userId, {
+          weightAskFrequency: args[0] as WeightAskFrequency,
+        });
+        return ctx.edit(this.settingsScreen(ctx.profile));
+      }
+      case 'name':
+        await this.sessions.set(ctx, 'st.name');
+        return ctx.edit(
+          msg(`Как тебя показывать друзьям?\n${hint('Напиши имя.')}`, [
+            [btn('Отмена', 'st:menu')],
+          ]),
+        );
+      case 'del':
+        return ctx.edit(
+          msg(
+            'Удалить все твои данные? Сотрётся профиль, программы, история тренировок, вес тела, ограничения, друзья и черновики. Вернуть будет нельзя.\n\nКопии программ, которые ты раздал друзьям, у них останутся.',
+            [
+              [btn('Да, удалить всё', 'st:delok')],
+              [btn('Нет, оставить', 'st:menu')],
+            ],
+          ),
+        );
+      case 'delok':
+        await this.profiles.deleteAccount(userId);
+        return ctx.edit(
+          msg(
+            'Данные удалены. Захочешь вернуться — нажми /start, начнём с нуля.',
+          ),
+        );
+      default:
+        return ctx.toast('Кнопка устарела');
+    }
+  }
+
+  public async onText(
+    ctx: BotContext,
+    session: BotSessionState,
+  ): Promise<void> {
+    const userId = ctx.user.id;
+    const [prefix, field] = session.state.split('.');
+    const text = ctx.text ?? '';
+
+    if (field === 'tz') {
+      ctx.profile = await this.profiles.update(userId, {
+        timeZone: this.profiles.zoneFromLocalTime(text),
+      });
+      await this.sessions.clear(ctx);
+      await ctx.reply(this.settingsScreen(ctx.profile));
+      return;
+    }
+
+    if (field === 'mt' || field === 'et') {
+      const time = parseUserTime(text);
+      if (!time) {
+        await ctx.reply(
+          msg('Не понял время. Напиши, например «8:00» или «20:30».'),
+        );
+        return;
+      }
+      ctx.profile = await this.profiles.update(
+        userId,
+        field === 'mt' ? { morningTime: time } : { eveningTime: time },
+      );
+      await this.sessions.clear(ctx);
+      await ctx.reply(this.timeScreen(ctx.profile, prefix));
+      return;
+    }
+
+    if (field === 'name') {
+      const name = text.trim().slice(0, 64);
+      if (!name) {
+        await ctx.reply(msg('Имя не может быть пустым.'));
+        return;
+      }
+      ctx.profile = await this.profiles.update(userId, { displayName: name });
+      await this.sessions.clear(ctx);
+      await ctx.reply(this.settingsScreen(ctx.profile));
+    }
+  }
+
+  // ── Первый запуск ───────────────────────────────────────────────────────
+
+  /**
+   * «Дальше» с шага fromStep. Номер шага приходит в кнопке: нажатие под старым сообщением
+   * не перескакивает через шаг.
+   */
+  private async advance(ctx: BotContext, fromStep: number): Promise<void> {
+    const userId = ctx.user.id;
+    if (ctx.profile.onboardedAt || ctx.profile.onboardingStep !== fromStep) {
+      await ctx.edit(await this.stepScreen(ctx.profile));
+      return;
+    }
+    // Шаг программы без выбора: значение по умолчанию — первый шаблон
+    if (fromStep === 3 && !ctx.profile.activeProgramId) {
+      const fresh = await this.profiles.update(userId, {});
+      if (!fresh.activeProgramId) {
+        const [template] = await this.programs.templates();
+        if (template) await this.programs.copy(template.id, userId);
+      }
+    }
+    if (fromStep < ONBOARDING_STEPS) {
+      ctx.profile = await this.profiles.update(userId, {
+        onboardingStep: fromStep + 1,
+      });
+      await ctx.edit(await this.stepScreen(ctx.profile));
+      return;
+    }
+    ctx.profile = await this.profiles.update(userId, {
+      onboardedAt: new Date(),
+    });
+    await ctx.edit(
+      msg(
+        [
+          'Готово, настройка закончена.',
+          '',
+          `Часовой пояс: ${zoneTitle(ctx.profile.timeZone)}`,
+          `Тренировочные дни: ${daysTitle(ctx.profile.trainingDays)}`,
+          `Вопросы: утром в ${ctx.profile.morningTime}, вечером в ${ctx.profile.eveningTime}`,
+          `Режим учёта: ${MODE_TITLE[ctx.profile.trackingMode]}`,
+          '',
+          'В тренировочные дни я сам спрошу про тренировку. Начать прямо сейчас — /today. Всё остальное — в меню.',
+        ].join('\n'),
+        [
+          [btn('🏋️ Тренировка сегодня', 'wo:today')],
+          [btn('🏠 Меню', 'mn:main')],
+        ],
+      ),
+    );
+  }
+
+  private async stepScreen(profile: SportProfile): Promise<MessengerMessage> {
+    switch (profile.onboardingStep) {
+      case 1:
+        return this.daysScreen(profile, 'ob');
+      case 2:
+        return this.timeScreen(profile, 'ob');
+      case 3: {
+        const templates = await this.programs.templates();
+        return msg(
+          `Шаг 3 из ${ONBOARDING_STEPS}. Программа.\n\nВозьми готовый шаблон — потом его можно править — или собери свою с нуля.${templates.length ? `\n${hint('«Дальше» выберет первый шаблон.')}` : ''}`,
+          [
+            ...templates.map((t) => [btn(cut(t.name), `ob:tpl:${t.id}`)]),
+            [btn('✍️ С нуля', 'ob:scratch')],
+            [btn('Дальше ➡️', 'ob:next:3')],
+          ],
+        );
+      }
+      default:
+        return this.modeScreen(profile, 'ob');
+    }
+  }
+
+  // ── Экраны ──────────────────────────────────────────────────────────────
+
+  /** Часовой пояс — только в настройках: при первом запуске шага нет, по умолчанию Москва. */
+  private zoneScreen(profile: SportProfile): MessengerMessage {
+    return msg(
+      `Часовой пояс.\n\nСейчас: ${zoneTitle(profile.timeZone)}.\n${hint('Выбери город с твоим временем или введи текущее время — пояс подберу сам.')}`,
+      [
+        ...grid(
+          CITY_ZONES.map((city, index) =>
+            btn(
+              `${city.zone === profile.timeZone ? '✅ ' : ''}${city.title}`,
+              `st:tz:${index}`,
+            ),
+          ),
+          2,
+        ),
+        [btn('⌨️ Ввести текущее время', 'st:tzt')],
+        [btn('⬅️ Настройки', 'st:menu')],
+      ],
+    );
+  }
+
+  private daysScreen(profile: SportProfile, prefix: string): MessengerMessage {
+    const onboarding = prefix === 'ob';
+    return msg(
+      `${onboarding ? `Шаг 1 из ${ONBOARDING_STEPS}. ` : ''}Тренировочные дни.\n\nВ эти дни я буду спрашивать про тренировку.\nСейчас: ${daysTitle(profile.trainingDays)}.\n${hint('Нажми на день, чтобы включить или выключить.')}`,
+      [
+        ...grid(
+          WEEKDAY_ORDER.map((day) =>
+            btn(
+              `${profile.trainingDays.includes(day) ? '✅' : '▫️'} ${WEEKDAY_SHORT[day]}`,
+              `${prefix}:day:${day}`,
+            ),
+          ),
+          4,
+        ),
+        [
+          onboarding
+            ? btn('Дальше ➡️', 'ob:next:1')
+            : btn('⬅️ Настройки', 'st:menu'),
+        ],
+      ],
+    );
+  }
+
+  private timeScreen(profile: SportProfile, prefix: string): MessengerMessage {
+    const onboarding = prefix === 'ob';
+    return msg(
+      [
+        `${onboarding ? `Шаг 2 из ${ONBOARDING_STEPS}. ` : ''}Время опросов.`,
+        '',
+        'В тренировочные дни я сам напишу тебе дважды:',
+        `🌅 Утром в ${profile.morningTime} — спрошу «Будешь сегодня тренироваться?» и пришлю комплекс на день.`,
+        `🌙 Вечером в ${profile.eveningTime} — спрошу «Потренировался?», чтобы засчитать тренировку.`,
+        '',
+        'Не ответишь утром — напомню один раз через 2 часа. В остальные дни не беспокою.',
+        hint('Время можно поменять кнопками ниже.'),
+      ].join('\n'),
+      [
+        [
+          btn('🌅 Изменить утро', `${prefix}:mt`),
+          btn('🌙 Изменить вечер', `${prefix}:et`),
+        ],
+        [
+          onboarding
+            ? btn('Дальше ➡️', 'ob:next:2')
+            : btn('⬅️ Настройки', 'st:menu'),
+        ],
+      ],
+    );
+  }
+
+  private modeScreen(profile: SportProfile, prefix: string): MessengerMessage {
+    const onboarding = prefix === 'ob';
+    const mark = (mode: 'SIMPLE' | 'DETAILED') =>
+      profile.trackingMode === mode ? '✅ ' : '';
+    return msg(
+      `${onboarding ? `Шаг 4 из ${ONBOARDING_STEPS}. ` : ''}Режим учёта.\n\nПростой — выдаю комплекс одним сообщением и вечером спрашиваю, была ли тренировка.\nДетальный — веду по упражнениям, записываю подходы и веса, показываю прошлый результат.`,
+      [
+        [
+          btn(`${mark('SIMPLE')}Простой`, `${prefix}:mode:s`),
+          btn(`${mark('DETAILED')}Детальный`, `${prefix}:mode:d`),
+        ],
+        [
+          onboarding
+            ? btn('Дальше ➡️', 'ob:next:4')
+            : btn('⬅️ Настройки', 'st:menu'),
+        ],
+      ],
+    );
+  }
+
+  private settingsScreen(profile: SportProfile): MessengerMessage {
+    const rows: MessengerButton[][] = [
+      [btn('🌍 Часовой пояс', 'st:tz'), btn('📅 Дни', 'st:days')],
+      [btn('⏰ Время вопросов', 'st:time'), btn('📝 Режим учёта', 'st:mode')],
+      [btn('⚖️ Вопрос о весе', 'st:wf'), btn('🙂 Имя', 'st:name')],
+      [btn('⏸ Пауза', 'pa:menu'), btn('🦴 Ограничения', 'lm:menu')],
+      [btn('🗓 История отметок', 'pd:hist'), btn('👥 Друзья', 'fr:menu')],
+      [btn('🗑 Удалить мои данные', 'st:del')],
+      [BACK_TO_MENU],
+    ];
+    return msg(
+      [
+        'Настройки',
+        '',
+        `Имя: ${profile.displayName}`,
+        `Часовой пояс: ${zoneTitle(profile.timeZone)}`,
+        `Тренировочные дни: ${daysTitle(profile.trainingDays)}`,
+        `Вопросы: утром в ${profile.morningTime}, вечером в ${profile.eveningTime}`,
+        `Режим учёта: ${MODE_TITLE[profile.trackingMode]}`,
+        `Вопрос о весе тела: ${WEIGHT_FREQUENCY_TITLE[profile.weightAskFrequency]}`,
+      ].join('\n'),
+      rows,
+    );
+  }
+}

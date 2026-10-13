@@ -30,6 +30,20 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { OrganizationModule } from './organization/organization.module';
 import { UploadModule } from './upload/upload.module';
 import { UserModule } from './user/user.module';
+import { AdminModule } from './admin/admin.module';
+import { BodyWeightModule } from './body-weight/body-weight.module';
+import { BotModule } from './bot';
+import { CatalogModule } from './catalog/catalog.module';
+import { LimitationModule } from './limitation/limitation.module';
+import { ModerationModule } from './moderation/moderation.module';
+import { PauseModule } from './pause/pause.module';
+import { PlanPollModule } from './plan/plan-poll.module';
+import { PlanModule } from './plan/plan.module';
+import { ProfileModule } from './profile/profile.module';
+import { ProgramModule } from './program/program.module';
+import { SocialModule } from './social/social.module';
+import { StatsModule } from './stats/stats.module';
+import { WorkoutModule } from './workout/workout.module';
 
 @Module({
   imports: [
@@ -50,6 +64,8 @@ import { UserModule } from './user/user.module';
 
     // Общий слой мессенджеров: реестр каналов для уведомлений и хранилище пользователей (src/messengers)
     MessengersModule.forRoot({ userStore: PrismaMessengerUserStore }),
+    // Ядро бота: роутер и очередь отправки нужны адаптерам мессенджеров
+    BotModule,
     AppMessengersSupportModule,
     // MAX / Telegram / VK — только те, для которых заданы env-переменные (иначе лог и старт без них)
     ...messengerIntegrations(),
@@ -65,7 +81,20 @@ import { UserModule } from './user/user.module';
     AuditLogModule,
     ChatModule,
 
-    // Модули проекта подключаются ниже
+    // Спортбот (business-tz.md, раздел 23.1)
+    ProfileModule,
+    CatalogModule,
+    ModerationModule,
+    ProgramModule,
+    WorkoutModule,
+    PlanModule,
+    PlanPollModule,
+    PauseModule,
+    LimitationModule,
+    BodyWeightModule,
+    StatsModule,
+    SocialModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [

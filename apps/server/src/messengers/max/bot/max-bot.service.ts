@@ -85,6 +85,28 @@ export class MaxBotService implements OnApplicationBootstrap {
     }
   }
 
+  /**
+   * Вложение-картинка для extra.attachments. token — уже загруженная картинка; иначе файл
+   * загружается. MAX обрабатывает загрузку не мгновенно: отправка сразу после неё может
+   * вернуть attachment.not.ready — отправку в этом случае повторяет вызывающий.
+   */
+  public async imageAttachment(image: {
+    token?: string;
+    path: string;
+  }): Promise<Record<string, unknown>> {
+    if (image.token) return { type: 'image', payload: { token: image.token } };
+    const uploaded = await this.bot.api.uploadImage({ source: image.path });
+    return uploaded.toJson();
+  }
+
+  /** Меню команд бота. */
+  public async setCommands(
+    commands: { name: string; description: string }[],
+  ): Promise<void> {
+    await this.bot.api.setMyCommands(commands);
+    this.logger.log(`Меню команд обновлено: ${commands.length}`);
+  }
+
   // ── Клавиатуры ──────────────────────────────────────────────────────────
 
   /** Обёртка inline-клавиатуры для extra.attachments. */

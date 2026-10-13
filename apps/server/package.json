@@ -16,7 +16,8 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/src/main.js",
     "lint": "eslint \"src/**/*.ts\"",
-    "lint:fix": "eslint \"src/**/*.ts\" --fix"
+    "lint:fix": "eslint \"src/**/*.ts\" --fix",
+    "content:import": "ts-node -r tsconfig-paths/register prisma/import-content.ts"
   },
   "dependencies": {
     "@casl/ability": "^7.0.1",
@@ -30,6 +31,7 @@
     "@nestjs/throttler": "^6.5.0",
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "7.10.0",
+    "@resvg/resvg-js": "^2.6.2",
     "@telegram-apps/init-data-node": "^2.0.0",
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",

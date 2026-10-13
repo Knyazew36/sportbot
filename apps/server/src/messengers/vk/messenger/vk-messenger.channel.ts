@@ -6,6 +6,8 @@ import {
   MessengerChannel,
   MessengerMessage,
   MessengerRegistry,
+  MessengerSendResult,
+  plainText,
 } from '../../index';
 
 import type { MessengerUser } from '../../messenger.types';
@@ -42,13 +44,14 @@ export class VkMessengerChannel implements MessengerChannel, OnModuleInit {
   public async send(
     user: MessengerUser,
     message: MessengerMessage,
-  ): Promise<void> {
+  ): Promise<MessengerSendResult> {
     if (!user.vkId) throw new Error('У пользователя не привязан VK');
     await this.botService.sendMessage(
       user.vkId,
-      message.text,
+      plainText(message.text),
       this.toKeyboard(message),
     );
+    return {};
   }
 
   // ── Ответ правкой сообщения ─────────────────────────────────────────────
@@ -65,7 +68,7 @@ export class VkMessengerChannel implements MessengerChannel, OnModuleInit {
         this.botService.editMessage(
           ctx.peerId,
           ctx.conversationMessageId,
-          message.text,
+          plainText(message.text),
           this.toKeyboard(message),
         ),
     };

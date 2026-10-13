@@ -67,6 +67,7 @@ export class TelegramBotUpdate {
       return this.askLoginConfirmation(ctx, intent.token);
     if (intent?.kind === 'link')
       return this.askLinkConfirmation(ctx, intent.token);
+    if (await this.adapter.onStart(ctx, user, payload || undefined)) return;
     await this.sendWelcome(ctx, user);
   }
 
@@ -182,6 +183,13 @@ export class TelegramBotUpdate {
       telegramId,
       this.toUserInfo(ctx),
     );
+    const text = ctx.message && 'text' in ctx.message ? ctx.message.text : '';
+    const command = /^\/([a-z0-9_]+)(?:@\w+)?(?:\s|$)/i.exec(text)?.[1];
+    if (
+      command &&
+      (await this.adapter.onCommand(ctx, user, command.toLowerCase()))
+    )
+      return;
     const handled = await this.adapter.onMessage(ctx, user);
     if (!handled) await this.sendWelcome(ctx, user);
   }

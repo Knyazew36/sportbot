@@ -8,8 +8,10 @@ import {
   MessengerChannel,
   MessengerMessage,
   MessengerRegistry,
+  MessengerSendResult,
 } from '../../index';
 
+import { italicSpans } from '../../messenger-format';
 import type { MessengerUser } from '../../messenger.types';
 import { TelegramBotService } from '../bot/telegram-bot.service';
 import { TelegramDialogService } from '../dialog/telegram-dialog.service';
@@ -45,14 +47,21 @@ export class TelegramMessengerChannel
   public async send(
     user: MessengerUser,
     message: MessengerMessage,
-  ): Promise<void> {
+  ): Promise<MessengerSendResult> {
     if (!user.telegramId)
       throw new Error('У пользователя не привязан Telegram');
-    await this.botService.sendMessage(
-      user.telegramId,
-      message.text,
-      this.toExtra(message),
-    );
+    const { text, extra } = this.format(message);
+    if (message.image) {
+      const imageId = await this.botService.sendPhoto(
+        user.telegramId,
+        { fileId: message.image.cachedId, path: message.image.path },
+        text,
+        extra,
+      );
+      return { imageId };
+    }
+    await this.botService.sendMessage(user.telegramId, text, extra);
+    return {};
   }
 
   // ── Ответ правкой сообщения ─────────────────────────────────────────────
@@ -68,14 +77,30 @@ export class TelegramMessengerChannel
       },
       // Без reply_markup Telegram убирает inline-клавиатуру. Тот же текст — ошибка «message is not modified»
       edit: async (message) => {
-        await ctx.editMessageText(message.text, {
-          reply_markup: this.toExtra(message)?.reply_markup as never,
+        const { text, extra } = this.format(message);
+        await ctx.editMessageText(text, {
+          reply_markup: extra.reply_markup as never,
+          entities: extra.entities,
         });
       },
     };
   }
 
   // ── Внутреннее ──────────────────────────────────────────────────────────
+
+  /** Текст без маркеров курсива и extra с клавиатурой и entities. */
+  private format(message: MessengerMessage) {
+    const { text, spans } = italicSpans(message.text);
+    return {
+      text,
+      extra: {
+        reply_markup: this.toExtra(message)?.reply_markup,
+        entities: spans.length
+          ? spans.map((span) => ({ type: 'italic' as const, ...span }))
+          : undefined,
+      },
+    };
+  }
 
   private toExtra(message: MessengerMessage) {
     return message.buttons?.length

@@ -24,6 +24,10 @@ function stripPasswordHash(value: any): any {
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    // Обёртка — только для HTTP-ответов. Обработчики ботов (telegraf, max) тоже проходят через
+    // глобальный интерсептор, а nestjs-telegraf шлёт непустой результат обработчика в чат как текст:
+    // обёрнутый undefined превращался в сообщение «[object Object]» после каждого нажатия
+    if (context.getType<string>() !== 'http') return next.handle();
     return next.handle().pipe(
       map((data) => {
         const response: any = {
