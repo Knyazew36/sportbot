@@ -1,36 +1,64 @@
 // Мини-приложения мессенджеров: сервер авторизует запрос по подписанным данным запуска в заголовке
 // Authorization со своей схемой (см. apps/server/src/messengers/*/auth/*.strategy.ts).
-// Данные появляются, только если страница открыта внутри мессенджера и в index.html подключён его SDK-скрипт
-export type MiniappPlatform = 'telegram' | 'max' | 'vk'
+// SDK мессенджера подгружает initMiniapp: только свой и только когда страница открыта внутри мессенджера
+import { detectPlatform, getHashParam, LAUNCH_DATA_PARAM, type MiniappPlatform } from './detect-platform'
+import { loadSdk, type SdkPlatform } from './load-sdk'
 
-type InitDataHost = { initData?: string }
+export type { MiniappPlatform }
+
+type WebApp = { initData?: string; ready?: () => void; expand?: () => void }
 
 declare global {
   interface Window {
-    Telegram?: { WebApp?: InitDataHost }
-    WebApp?: InitDataHost
+    Telegram?: { WebApp?: WebApp }
+    WebApp?: WebApp
   }
 }
 
 type Miniapp = { platform: MiniappPlatform; authorization: string }
 
-const detect = (): Miniapp | null => {
-  const telegram = window.Telegram?.WebApp?.initData
-  if (telegram) return { platform: 'telegram', authorization: `tma ${telegram}` }
+const SCHEME: Record<SdkPlatform, string> = { telegram: 'tma', max: 'max' }
 
-  const max = window.WebApp?.initData
-  if (max) return { platform: 'max', authorization: `max ${max}` }
+let miniapp: Miniapp | null = null
 
-  // VK передаёт параметры запуска в адресе; подпись в них проверяет сервер
-  const search = window.location.search.slice(1)
-  const params = new URLSearchParams(search)
-  if (params.has('vk_user_id') && params.has('sign')) return { platform: 'vk', authorization: `vk ${search}` }
+const getWebApp = (platform: SdkPlatform): WebApp | undefined =>
+  platform === 'telegram' ? window.Telegram?.WebApp : window.WebApp
 
-  return null
+const initSdkPlatform = async (platform: SdkPlatform): Promise<Miniapp | null> => {
+  // Читаем до загрузки: SDK и роутер могут изменить адрес
+  const fromHash = getHashParam(LAUNCH_DATA_PARAM[platform])
+
+  try {
+    await loadSdk(platform)
+  } catch (error) {
+    // Данные запуска есть и в адресе, авторизация от CDN мессенджера не зависит
+    console.warn('[miniapp]', error)
+  }
+
+  const webApp = getWebApp(platform)
+  webApp?.ready?.()
+  if (platform === 'telegram') webApp?.expand?.()
+
+  const initData = webApp?.initData || fromHash
+  return initData ? { platform, authorization: `${SCHEME[platform]} ${initData}` } : null
 }
 
-// Определяется один раз при загрузке: после первой навигации SPA параметры запуска из адреса пропадут
-const miniapp = detect()
+// Вызывается один раз до создания роутера: его лоадеры сразу проверяют авторизацию
+export const initMiniapp = async (): Promise<void> => {
+  const platform = detectPlatform()
+  if (!platform) return
+
+  if (platform === 'vk') {
+    // VK передаёт параметры запуска в адресе; подпись в них проверяет сервер.
+    // После первой навигации SPA они пропадут, поэтому запоминаем сразу
+    const search = window.location.search.slice(1)
+    const params = new URLSearchParams(search)
+    if (params.has('vk_user_id') && params.has('sign')) miniapp = { platform, authorization: `vk ${search}` }
+    return
+  }
+
+  miniapp = await initSdkPlatform(platform)
+}
 
 export const getMiniappPlatform = (): MiniappPlatform | null => miniapp?.platform ?? null
 
