@@ -20,7 +20,7 @@ import { SportProfile, User } from '@/generated/prisma/client';
 import { PauseService } from '@/pause/pause.service';
 import { ProgramService } from '@/program/program.service';
 import { StatsService } from '@/stats/stats.service';
-import { completedMessage, cooldownMessage } from '@/workout/workout.texts';
+import { finishedMessage } from '@/workout/workout.texts';
 import { isDone, WorkoutService } from '@/workout/workout.service';
 
 import { PlanDayService } from './plan-day.service';
@@ -131,8 +131,7 @@ export class PlanCronService {
 
     // Закрытие дня: незавершённые тренировки прошлых дат
     for (const result of await this.workouts.autoCloseStale(profile, today)) {
-      await this.sender.send(user, completedMessage(result));
-      await this.sender.send(user, cooldownMessage(result.cooldown));
+      await this.sender.send(user, finishedMessage(result));
       actions++;
     }
 

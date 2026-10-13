@@ -15,12 +15,7 @@ import { PlanDayService } from '@/plan/plan-day.service';
 import { ProgramService } from '@/program/program.service';
 import { exercisesCount } from '@/program/program.texts';
 
-import {
-  completedMessage,
-  cooldownMessage,
-  previewMessage,
-  stepMessage,
-} from './workout.texts';
+import { finishedMessage, previewMessage, stepMessage } from './workout.texts';
 import {
   CompleteResult,
   isDone,
@@ -48,8 +43,14 @@ export class WorkoutFlow {
   public async today(ctx: BotContext): Promise<MessengerMessage> {
     const userId = ctx.user.id;
     const today = localToday(ctx.profile.timeZone);
-    for (const result of await this.workouts.autoCloseStale(ctx.profile, today))
-      await this.announce(ctx, result);
+    // Отдельным сообщением: текущее сейчас займёт экран сегодняшней тренировки
+    for (const result of await this.workouts.autoCloseStale(
+      ctx.profile,
+      today,
+    )) {
+      await this.sessions.clear(ctx);
+      await ctx.reply(finishedMessage(result));
+    }
 
     const current = await this.workouts.current(userId);
     if (current) return this.show(ctx, current);
@@ -144,13 +145,12 @@ export class WorkoutFlow {
 
   // ── Завершение ──────────────────────────────────────────────────────────
 
-  /** Сообщить о засчитанной тренировке и прислать заминку отдельным сообщением. */
+  /** Сменить экран тренировки на итог с заминкой — одним сообщением. */
   public async announce(
     ctx: BotContext,
     result: CompleteResult,
   ): Promise<void> {
     await this.sessions.clear(ctx);
-    await ctx.edit(completedMessage(result));
-    await ctx.reply(cooldownMessage(result.cooldown));
+    await ctx.edit(finishedMessage(result));
   }
 }

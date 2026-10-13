@@ -169,15 +169,23 @@ export function analogsMessage(
 
 // ── Завершение и заминка ────────────────────────────────────────────────
 
-export function completedMessage(result: CompleteResult): MessengerMessage {
-  return msg(
-    [
-      result.auto
-        ? `Тренировку «${result.complexName}» закрыл сам в конце дня — она засчитана ✅`
-        : `Тренировка «${result.complexName}» засчитана ✅`,
-      `Серия: ${result.currentStreak}`,
-    ].join('\n'),
-  );
+/**
+ * Итог засчитанной тренировки и заминка одним сообщением: итог уходит вместе с заминкой
+ * по «Завершить» и не остаётся висеть в чате отдельной строкой.
+ */
+export function finishedMessage(result: CompleteResult): MessengerMessage {
+  const cooldown = cooldownMessage(result.cooldown);
+  const summary = [
+    result.auto
+      ? `Тренировку «${result.complexName}» закрыл сам в конце дня — она засчитана ✅`
+      : `Тренировка «${result.complexName}» засчитана ✅`,
+    `🔥 Серия: ${result.currentStreak}`,
+  ].join('\n');
+  return msg(`${summary}\n\n${cooldown.text}`, [
+    ...(cooldown.buttons ?? []),
+    // Без растяжек кнопки «Завершить» нет — иначе итог было бы нечем закрыть
+    ...(cooldown.buttons ? [] : [[btn('✅ Завершить', 'cd:done')]]),
+  ]);
 }
 
 /**
@@ -190,10 +198,10 @@ export function cooldownMessage(
 ): MessengerMessage {
   const all = [...view.main, ...view.optional];
   if (!all.length)
-    return msg('Заминка: подходящих растяжек в справочнике пока нет.');
+    return msg('🧘 Заминка: подходящих растяжек в справочнике пока нет.');
   const line = (index: number) =>
     `${numEmoji(index + 1)} ${all[index].name} — ${holdText(all[index])}`;
-  const lines = [`Заминка, ~${view.minutes} мин`];
+  const lines = [`🧘 Заминка, ~${view.minutes} мин`];
   view.main.forEach((_s, index) => lines.push(line(index)));
   if (view.optional.length) {
     lines.push('', 'Если есть время:');
@@ -215,5 +223,5 @@ export function cooldownMessage(
 
 /** Итог после «Завершить» под заминкой: показывается пару секунд, затем сменяется меню. */
 export function cooldownDoneMessage(): MessengerMessage {
-  return msg('Заминка сделана ✅ Отличная работа, до следующей тренировки!');
+  return msg('🧘 Заминка сделана ✅ Отличная работа, до следующей тренировки!');
 }

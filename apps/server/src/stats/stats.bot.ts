@@ -37,7 +37,7 @@ export class StatsBot implements BotFeature {
         const exercises = await this.stats.progressExercises(ctx.user.id);
         return ctx.edit(
           exercises.length
-            ? msg('По какому упражнению показать график?', [
+            ? msg('📈 По какому упражнению показать график?', [
                 ...exercises.map((e) => [btn(cut(e.name), `ss:pg:${e.id}`)]),
                 [btn('⬅️ Статистика', 'ss:menu')],
               ])
@@ -73,7 +73,7 @@ export class StatsBot implements BotFeature {
     const lines = await this.stats.summaryLines(ctx.profile, {
       withMonth: true,
     });
-    return msg(['Статистика', '', ...lines].join('\n'), [
+    return msg(['📊 Статистика', '', ...lines].join('\n'), [
       [btn('📈 Прогресс весов', 'ss:prog')],
       [BACK_TO_MENU],
     ]);

@@ -136,7 +136,7 @@ export const cut = (text: string, max = 40): string =>
  */
 export const hint = (text: string): string => italic(text);
 
-export const BACK_TO_MENU = btn('⬅️ Меню', 'mn:main');
+export const BACK_TO_MENU = btn('🏠 Меню', 'mn:main');
 
 /** Администратор определяется по env ADMIN_TELEGRAM_ID / ADMIN_MAX_ID. */
 export type AdminIdentity = Pick<

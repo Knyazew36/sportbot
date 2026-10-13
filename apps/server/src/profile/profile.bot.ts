@@ -2,16 +2,19 @@ import { Injectable } from '@nestjs/common';
 
 import {
   BACK_TO_MENU,
+  BOT_CHANNEL_TITLE,
   BotContext,
   BotFeature,
   BotHandler,
   BotSessionService,
   BotSessionState,
+  botStartLink,
   btn,
   cut,
   grid,
   msg,
   numEmoji,
+  otherBotChannel,
   parseUserTime,
   WEEKDAY_ORDER,
   WEEKDAY_SHORT,
@@ -272,6 +275,12 @@ export class ProfileBot implements BotFeature {
     ctx.profile = await this.profiles.update(userId, {
       onboardedAt: new Date(),
     });
+    // Второй мессенджер предлагаем, только если бот в нём подключён и он ещё не привязан
+    const there = otherBotChannel(ctx.channel);
+    const other = BOT_CHANNEL_TITLE[there];
+    const canLink =
+      !!botStartLink(there, '') &&
+      !ctx.user[there === 'TELEGRAM' ? 'telegramId' : 'maxId'];
     await ctx.edit(
       msg(
         [
@@ -283,10 +292,24 @@ export class ProfileBot implements BotFeature {
           '',
           '🔔 В тренировочные дни я сам спрошу про тренировку.',
           '🚀 Начать прямо сейчас — /today. Всё остальное — в меню.',
+          ...(canLink
+            ? [
+                '',
+                `🔗 Пользуешься ещё и ${other}? Привяжи его — будет один аккаунт:`,
+                '• общие программы, история тренировок и настройки;',
+                '• отмечать тренировки можно в любом из двух мессенджеров;',
+                '• сам выберешь, куда присылать вопросы и напоминания.',
+                '',
+                `Как привязать: нажми кнопку ниже, открой ссылку в ${other} и подтверди там привязку.`,
+                hint(
+                  'Ссылка одноразовая, действует 15 минут. Сделать это позже: Настройки → Мессенджеры.',
+                ),
+              ]
+            : []),
         ].join('\n'),
         [
-          [btn('🏋️ Тренировка сегодня', 'wo:today')],
-          [btn('🏠 Меню', 'mn:main')],
+          ...(canLink ? [[btn(`🔗 Привязать ${other}`, 'ln:new')]] : []),
+          [BACK_TO_MENU],
         ],
       ),
     );

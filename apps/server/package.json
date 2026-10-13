@@ -17,7 +17,8 @@
     "start:prod": "node dist/src/main.js",
     "lint": "eslint \"src/**/*.ts\"",
     "lint:fix": "eslint \"src/**/*.ts\" --fix",
-    "content:import": "ts-node -r tsconfig-paths/register prisma/import-content.ts"
+    "content:import": "ts-node -r tsconfig-paths/register prisma/import-content.ts",
+    "content:setup": "./content.sh"
   },
   "dependencies": {
     "@casl/ability": "^7.0.1",

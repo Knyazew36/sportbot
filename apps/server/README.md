@@ -32,6 +32,26 @@ Swagger: `http://localhost:4003/api/docs`.
 
 Проверки: `npm run check-types`, `npm run lint` (`lint:fix` — с автоисправлением).
 
+### Справочник упражнений
+
+```bash
+./content.sh                    # или npm run content:setup
+```
+
+Скрипт делает три шага: `prisma generate`, `prisma db seed` (мышцы и суставы), импорт
+`prisma/content/catalog.json` (упражнения, растяжки, шаблоны программ). Миграции не накатывает —
+сначала `npx prisma migrate deploy`.
+
+- Картинки в репозитории не лежат: в `catalog.json` ссылки, импорт скачивает их в `uploads/catalog`
+  на той машине, где запущен. На проде запускать отдельно.
+- Повторный запуск безопасен: записи обновляются по `code`, уже скачанные картинки заново не качаются.
+  Удаления импортом нет.
+- Без картинок: `./content.sh --no-images` — быстро, сеть не нужна; уже привязанные картинки не трогает.
+  Докачать позже — обычный запуск без флага.
+- Свой файл: `./content.sh путь/к/файлу.json`. Только импорт без сида — `npm run content:import`.
+- Данные и фото — из [free-exercise-db](https://github.com/yuhonas/free-exercise-db) (Unlicense),
+  русский текст, суставы и время удержания дописаны вручную.
+
 ### Схема БД
 
 - Изменил `schema.prisma` → `npx prisma migrate dev --name <что_изменилось>`, папку миграции закоммитить.

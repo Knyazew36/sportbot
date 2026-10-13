@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 
 import {
   mainMenuMessage,
+  BACK_TO_MENU,
   BotContext,
   BotFeature,
   BotHandler,
@@ -133,6 +134,7 @@ export class WorkoutBot implements BotFeature {
         return ctx.edit(
           msg('Тренировка отменена, ротация не сдвинулась.', [
             [btn('🏋️ Тренировка сегодня', 'wo:today')],
+            [BACK_TO_MENU],
           ]),
         );
       default:

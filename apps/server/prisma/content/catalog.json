@@ -4,6 +4,7 @@
       "code": "bench-press",
       "name": "Жим штанги лёжа",
       "technique": "Лопатки сведены и прижаты к скамье, стопы упираются в пол. Гриф опускается на низ груди, локти под углом около 45° к корпусу. Жми вверх и слегка назад, к стойкам.\nОшибки: отрыв таза от скамьи, отбив грифа от груди, локти строго в стороны.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Bench_Press_-_Medium_Grip/0.jpg",
       "equipment": "BARBELL",
       "primary": [
         "chest"
@@ -22,6 +23,7 @@
       "code": "incline-bench-press",
       "name": "Жим штанги на наклонной скамье",
       "technique": "Наклон скамьи 30–45°. Лопатки сведены, гриф опускается на верх груди, предплечья вертикальны.\nОшибки: слишком крутой наклон — работают дельты, а не грудь; отрыв лопаток в верхней точке.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Incline_Bench_Press_-_Medium_Grip/0.jpg",
       "equipment": "BARBELL",
       "primary": [
         "chest"
@@ -40,6 +42,7 @@
       "code": "db-bench-press",
       "name": "Жим гантелей лёжа",
       "technique": "Лопатки сведены, гантели над грудью. Опускай до комфортного растяжения груди, локти под углом 45°. Вверху не ударяй гантели друг о друга.\nОшибки: слишком глубокое опускание с болью в плече, разведение локтей в стороны.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Bench_Press/0.jpg",
       "equipment": "DUMBBELL",
       "primary": [
         "chest"
@@ -57,6 +60,7 @@
       "code": "incline-db-press",
       "name": "Жим гантелей на наклонной скамье",
       "technique": "Наклон 30–45°, гантели над верхом груди. Опускай подконтрольно, предплечья вертикальны.\nОшибки: прогиб в пояснице с отрывом таза, жим «к лицу».",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Incline_Dumbbell_Press/0.jpg",
       "equipment": "DUMBBELL",
       "primary": [
         "chest"
@@ -74,6 +78,7 @@
       "code": "db-fly",
       "name": "Разводка гантелей лёжа",
       "technique": "Локти слегка согнуты и зафиксированы. Разводи руки по дуге до растяжения груди, своди, будто обнимаешь бочку.\nОшибки: слишком большой вес, разгибание локтей — получается жим, опускание ниже уровня плеч.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Flyes/0.jpg",
       "equipment": "DUMBBELL",
       "primary": [
         "chest"
@@ -89,6 +94,7 @@
       "code": "chest-press-machine",
       "name": "Жим в тренажёре на грудь",
       "technique": "Сиденье на высоте, при которой рукояти на уровне середины груди. Лопатки прижаты к спинке, выжимай без рывка, не разгибая локти «в замок».\nОшибки: плечи уходят вперёд, отрыв спины от спинки.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leverage_Chest_Press/0.jpg",
       "equipment": "MACHINE",
       "primary": [
         "chest"
@@ -106,6 +112,7 @@
       "code": "pec-deck",
       "name": "Сведение рук в тренажёре «бабочка»",
       "technique": "Спина прижата, локти чуть согнуты. Своди руки перед грудью, на секунду задержись в пиковой точке, возвращай медленно.\nОшибки: рывок корпусом, слишком глубокий отвод рук назад.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Butterfly/0.jpg",
       "equipment": "MACHINE",
       "primary": [
         "chest"
@@ -121,6 +128,7 @@
       "code": "dips",
       "name": "Отжимания на брусьях",
       "technique": "Корпус слегка наклонён вперёд, локти идут назад и немного в стороны. Опускайся до угла в локте около 90°.\nОшибки: слишком глубокое опускание, плечи подняты к ушам, раскачка.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dips_-_Chest_Version/0.jpg",
       "equipment": "BODYWEIGHT",
       "primary": [
         "chest",
@@ -138,6 +146,7 @@
       "code": "push-ups",
       "name": "Отжимания от пола",
       "technique": "Тело — прямая линия от пяток до макушки, кисти чуть шире плеч. Опускайся грудью к полу, локти под 45°.\nОшибки: провисание поясницы, поднятый таз, неполная амплитуда.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Pushups/0.jpg",
       "equipment": "BODYWEIGHT",
       "primary": [
         "chest"
@@ -157,6 +166,7 @@
       "code": "cable-crossover",
       "name": "Сведение рук в кроссовере",
       "technique": "Шаг вперёд, корпус слегка наклонён. Своди рукояти перед собой по дуге, локти зафиксированы.\nОшибки: сгибание локтей — превращается в жим, работа инерцией.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_Crossover/0.jpg",
       "equipment": "MACHINE",
       "primary": [
         "chest"
@@ -172,6 +182,7 @@
       "code": "pull-ups",
       "name": "Подтягивания широким хватом",
       "technique": "Начинай движение с опускания лопаток, тянись грудью к перекладине. Опускайся подконтрольно до почти прямых рук.\nОшибки: раскачка, подтягивание подбородком за счёт шеи, половинная амплитуда.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Pullups/0.jpg",
       "equipment": "BODYWEIGHT",
       "primary": [
         "lats"
@@ -190,6 +201,7 @@
       "code": "lat-pulldown",
       "name": "Тяга верхнего блока к груди",
       "technique": "Бёдра зафиксированы валиком, корпус слегка отклонён. Тяни рукоять к верху груди, сводя лопатки, локти вниз.\nОшибки: тяга за голову, сильный отклон назад с рывком.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Wide-Grip_Lat_Pulldown/0.jpg",
       "equipment": "MACHINE",
       "primary": [
         "lats"
@@ -207,6 +219,7 @@
       "code": "barbell-row",
       "name": "Тяга штанги в наклоне",
       "technique": "Спина прямая, наклон около 45°, колени чуть согнуты. Тяни гриф к низу живота, локти вдоль корпуса, сводя лопатки.\nОшибки: округление спины, рывок корпусом вверх на каждом повторе.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bent_Over_Barbell_Row/0.jpg",
       "equipment": "BARBELL",
       "primary": [
         "lats"
@@ -227,6 +240,7 @@
       "code": "db-row",
       "name": "Тяга гантели одной рукой в наклоне",
       "technique": "Колено и рука — на скамье, спина параллельна полу. Тяни гантель к поясу, локоть вдоль корпуса.\nОшибки: разворот корпуса вслед за гантелью, тяга к груди вместо пояса.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/One-Arm_Dumbbell_Row/0.jpg",
       "equipment": "DUMBBELL",
       "primary": [
         "lats"
@@ -244,6 +258,7 @@
       "code": "seated-cable-row",
       "name": "Тяга нижнего блока сидя",
       "technique": "Спина прямая, колени слегка согнуты. Тяни рукоять к животу, сводя лопатки; корпус почти неподвижен.\nОшибки: раскачка корпуса вперёд-назад, округление поясницы.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Cable_Rows/0.jpg",
       "equipment": "MACHINE",
       "primary": [
         "lats"
@@ -263,6 +278,7 @@
       "code": "t-bar-row",
       "name": "Тяга Т-грифа",
       "technique": "Наклон с прямой спиной, тяни гриф к груди или животу, сводя лопатки в верхней точке.\nОшибки: округление спины, подъём корпуса рывком.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/T-Bar_Row_with_Handle/0.jpg",
       "equipment": "BARBELL",
       "primary": [
         "lats"
@@ -283,6 +299,7 @@
       "code": "deadlift",
       "name": "Становая тяга",
       "technique": "Гриф над серединой стопы, спина прямая, плечи чуть впереди грифа. Поднимай, отталкиваясь ногами от пола, гриф скользит по ногам.\nОшибки: округление поясницы, отрыв грифа от ног, переразгибание в верхней точке.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Deadlift/0.jpg",
       "equipment": "BARBELL",
       "primary": [
         "lower-back",
@@ -305,6 +322,7 @@
       "code": "hyperextension",
       "name": "Гиперэкстензия",
       "technique": "Валик — под сгибом бёдер. Опускайся с прямой спиной, поднимайся до прямой линии корпуса и ног.\nОшибки: переразгибание вверху, рывки, округление спины.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Hyperextensions_Back_Extensions/0.jpg",
       "equipment": "BODYWEIGHT",
       "primary": [
         "lower-back"
@@ -322,6 +340,7 @@
       "code": "shrugs",
       "name": "Шраги со штангой",
       "technique": "Руки прямые, поднимай плечи строго вверх к ушам, вверху короткая пауза.\nОшибки: вращение плечами, сгибание локтей, кивок головой вперёд.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Shrug/0.jpg",
       "equipment": "BARBELL",
       "primary": [
         "traps"
@@ -338,6 +357,7 @@
       "code": "face-pull",
       "name": "Тяга каната к лицу",
       "technique": "Блок на уровне лица. Тяни канат к переносице, разводя концы и поднимая локти выше кистей.\nОшибки: слишком большой вес и отклон корпуса, локти ниже кистей.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Face_Pull/0.jpg",
       "equipment": "MACHINE",
       "primary": [
         "rear-delts"
@@ -355,6 +375,7 @@
       "code": "overhead-press",
       "name": "Жим штанги стоя",
       "technique": "Пресс и ягодицы напряжены, гриф на верху груди. Жми вверх, уводя голову назад и возвращая её под гриф вверху.\nОшибки: прогиб в пояснице, помощь ногами, локти далеко позади грифа.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Military_Press/0.jpg",
       "equipment": "BARBELL",
       "primary": [
         "front-delts"
@@ -375,6 +396,7 @@
       "code": "db-shoulder-press",
       "name": "Жим гантелей сидя",
       "technique": "Спина прижата к спинке, гантели на уровне ушей. Жми вверх по лёгкой дуге, не ударяя гантели вверху.\nОшибки: прогиб поясницы, опускание локтей слишком низко.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Dumbbell_Press/0.jpg",
       "equipment": "DUMBBELL",
       "primary": [
         "front-delts"
@@ -392,6 +414,7 @@
       "code": "arnold-press",
       "name": "Жим Арнольда",
       "technique": "Старт — ладони к себе на уровне подбородка. Выжимая, разворачивай кисти ладонями вперёд.\nОшибки: рывок, слишком большой вес, потеря контроля на развороте.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Arnold_Dumbbell_Press/0.jpg",
       "equipment": "DUMBBELL",
       "primary": [
         "front-delts",
@@ -409,6 +432,7 @@
       "code": "lateral-raise",
       "name": "Махи гантелями в стороны",
       "technique": "Локти чуть согнуты, поднимай руки через стороны до уровня плеч, мизинец чуть выше большого пальца.\nОшибки: раскачка корпусом, подъём выше плеч с включением трапеций.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Lateral_Raise/0.jpg",
       "equipment": "DUMBBELL",
       "primary": [
         "mid-delts"
@@ -424,6 +448,7 @@
       "code": "rear-delt-fly",
       "name": "Разводка гантелей в наклоне",
       "technique": "Наклон с прямой спиной, локти слегка согнуты. Разводи руки в стороны, не сводя лопатки до упора.\nОшибки: большой вес и рывки, подъём корпуса.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Bent-Over_Rear_Delt_Raise/0.jpg",
       "equipment": "DUMBBELL",
       "primary": [
         "rear-delts"
@@ -439,6 +464,7 @@
       "code": "reverse-pec-deck",
       "name": "Обратные разведения в тренажёре",
       "technique": "Грудь прижата к спинке, руки почти прямые. Отводи рукояти назад по дуге до линии плеч.\nОшибки: сведение лопаток вместо работы дельт, рывок.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Reverse_Machine_Flyes/0.jpg",
       "equipment": "MACHINE",
       "primary": [
         "rear-delts"
@@ -454,6 +480,7 @@
       "code": "upright-row",
       "name": "Тяга штанги к подбородку",
       "technique": "Хват чуть шире плеч, тяни гриф вдоль корпуса до уровня груди, локти выше кистей.\nОшибки: узкий хват и подъём до подбородка — перегружается плечевой сустав.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Upright_Barbell_Row/0.jpg",
       "equipment": "BARBELL",
       "primary": [
         "mid-delts",
@@ -473,6 +500,7 @@
       "code": "barbell-curl",
       "name": "Подъём штанги на бицепс",
       "technique": "Локти прижаты к корпусу и неподвижны. Поднимай гриф до уровня плеч, опускай медленно.\nОшибки: раскачка корпусом, вынос локтей вперёд.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Curl/0.jpg",
       "equipment": "BARBELL",
       "primary": [
         "biceps"
@@ -489,6 +517,7 @@
       "code": "db-curl",
       "name": "Подъём гантелей на бицепс",
       "technique": "Локти у корпуса, по ходу подъёма разворачивай кисть ладонью вверх. Опускай подконтрольно.\nОшибки: читинг корпусом, неполное разгибание.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Bicep_Curl/0.jpg",
       "equipment": "DUMBBELL",
       "primary": [
         "biceps"
@@ -504,6 +533,7 @@
       "code": "hammer-curl",
       "name": "Молотки",
       "technique": "Нейтральный хват — ладони друг к другу. Локти неподвижны, поднимай гантели к плечам.\nОшибки: раскачка, разведение локтей в стороны.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Hammer_Curls/0.jpg",
       "equipment": "DUMBBELL",
       "primary": [
         "biceps",
@@ -518,6 +548,7 @@
       "code": "preacher-curl",
       "name": "Сгибание рук на скамье Скотта",
       "technique": "Плечи полностью лежат на подушке. Поднимай без рывка, внизу не разгибай локти до конца.\nОшибки: отрыв плеч от подушки, резкое опускание.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Machine_Preacher_Curls/0.jpg",
       "equipment": "MACHINE",
       "primary": [
         "biceps"
@@ -533,6 +564,7 @@
       "code": "triceps-pushdown",
       "name": "Разгибание рук на блоке",
       "technique": "Локти прижаты к бокам и неподвижны. Разгибай руки до конца, вверх возвращай до угла 90°.\nОшибки: подключение плеч и корпуса, локти гуляют вперёд-назад.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Triceps_Pushdown/0.jpg",
       "equipment": "MACHINE",
       "primary": [
         "triceps"
@@ -546,6 +578,7 @@
       "code": "skull-crusher",
       "name": "Французский жим лёжа",
       "technique": "Плечи вертикальны или чуть отклонены к голове. Сгибай только локти, опуская гриф ко лбу или за голову.\nОшибки: разведение локтей, движение в плечах.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/EZ-Bar_Skullcrusher/0.jpg",
       "equipment": "BARBELL",
       "primary": [
         "triceps"
@@ -560,6 +593,7 @@
       "code": "overhead-triceps-ext",
       "name": "Разгибание гантели из-за головы",
       "technique": "Локти смотрят вверх и не расходятся. Опускай гантель за голову до растяжения, разгибай до конца.\nОшибки: прогиб в пояснице, локти в стороны.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Dumbbell_Triceps_Extension/0.jpg",
       "equipment": "DUMBBELL",
       "primary": [
         "triceps"
@@ -574,6 +608,7 @@
       "code": "close-grip-bench",
       "name": "Жим штанги узким хватом",
       "technique": "Хват на ширине плеч, локти вдоль корпуса. Опускай гриф на низ груди.\nОшибки: слишком узкий хват — страдают запястья, локти в стороны.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Close-Grip_Barbell_Bench_Press/0.jpg",
       "equipment": "BARBELL",
       "primary": [
         "triceps"
@@ -592,6 +627,7 @@
       "code": "wrist-curl",
       "name": "Сгибание кистей со штангой",
       "technique": "Предплечья лежат на скамье или бёдрах, кисти свисают. Сгибай кисти вверх, опускай медленно.\nОшибки: отрыв предплечий, слишком большой вес.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Palms-Up_Barbell_Wrist_Curl_Over_A_Bench/0.jpg",
       "equipment": "BARBELL",
       "primary": [
         "forearms"
@@ -605,6 +641,7 @@
       "code": "squat",
       "name": "Приседания со штангой",
       "technique": "Гриф на трапециях, стопы чуть шире плеч, носки слегка врозь. Садись, отводя таз назад, колени идут в сторону носков, спина прямая.\nОшибки: сведение коленей внутрь, отрыв пяток, округление поясницы внизу.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Squat/0.jpg",
       "equipment": "BARBELL",
       "primary": [
         "quads",
@@ -626,6 +663,7 @@
       "code": "front-squat",
       "name": "Фронтальные приседания",
       "technique": "Гриф лежит на передних дельтах, локти высоко. Корпус вертикален, садись между стоп.\nОшибки: опускание локтей, округление грудного отдела.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Front_Barbell_Squat/0.jpg",
       "equipment": "BARBELL",
       "primary": [
         "quads"
@@ -646,6 +684,7 @@
       "code": "leg-press",
       "name": "Жим ногами",
       "technique": "Поясница прижата к спинке. Опускай платформу до угла в коленях около 90°, выжимай, не выпрямляя колени «в замок».\nОшибки: отрыв таза от спинки, сведение коленей.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Press/0.jpg",
       "equipment": "MACHINE",
       "primary": [
         "quads",
@@ -664,6 +703,7 @@
       "code": "lunges",
       "name": "Выпады с гантелями",
       "technique": "Шаг вперёд, корпус вертикален. Опускайся до угла 90° в обоих коленях, отталкивайся пяткой передней ноги.\nОшибки: колено передней ноги уходит внутрь, короткий шаг.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Lunges/0.jpg",
       "equipment": "DUMBBELL",
       "primary": [
         "quads",
@@ -683,6 +723,7 @@
       "code": "bulgarian-split-squat",
       "name": "Болгарские сплит-приседания",
       "technique": "Задняя стопа на скамье, вес на передней ноге. Опускайся вертикально вниз.\nОшибки: перенос веса на заднюю ногу, завал корпуса.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Split_Squat_with_Dumbbells/0.jpg",
       "equipment": "DUMBBELL",
       "primary": [
         "quads",
@@ -702,6 +743,7 @@
       "code": "leg-extension",
       "name": "Разгибание ног в тренажёре",
       "technique": "Ось тренажёра — напротив колена, спина прижата. Разгибай ноги до конца, опускай медленно.\nОшибки: рывок, отрыв таза от сиденья.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Extensions/0.jpg",
       "equipment": "MACHINE",
       "primary": [
         "quads"
@@ -715,6 +757,7 @@
       "code": "leg-curl",
       "name": "Сгибание ног в тренажёре",
       "technique": "Валик — чуть выше пяток. Сгибай ноги до конца, не отрывая таз, возвращай подконтрольно.\nОшибки: подъём таза, рывки.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Lying_Leg_Curls/0.jpg",
       "equipment": "MACHINE",
       "primary": [
         "hamstrings"
@@ -730,6 +773,7 @@
       "code": "romanian-deadlift",
       "name": "Румынская тяга",
       "technique": "Колени чуть согнуты и зафиксированы. Отводи таз назад, гриф скользит по ногам до середины голени, спина прямая.\nОшибки: округление спины, приседание вместо наклона.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Romanian_Deadlift/0.jpg",
       "equipment": "BARBELL",
       "primary": [
         "hamstrings",
@@ -748,6 +792,7 @@
       "code": "glute-bridge",
       "name": "Ягодичный мост со штангой",
       "technique": "Лопатки на скамье, гриф на сгибе бёдер. Поднимай таз до прямой линии корпуса, вверху сожми ягодицы.\nОшибки: переразгибание поясницы, толчок носками.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Glute_Bridge/0.jpg",
       "equipment": "BARBELL",
       "primary": [
         "glutes"
@@ -765,6 +810,7 @@
       "code": "adductor-machine",
       "name": "Сведение ног в тренажёре",
       "technique": "Спина прижата, своди ноги без рывка, возвращай медленно до комфортного растяжения.\nОшибки: слишком большая амплитуда на старте, рывки.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Thigh_Adductor/0.jpg",
       "equipment": "MACHINE",
       "primary": [
         "adductors"
@@ -778,6 +824,7 @@
       "code": "abductor-machine",
       "name": "Разведение ног в тренажёре",
       "technique": "Спина прижата или корпус слегка наклонён вперёд. Разводи ноги, задержись на секунду, возвращай медленно.\nОшибки: работа инерцией, отрыв таза.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Thigh_Abductor/0.jpg",
       "equipment": "MACHINE",
       "primary": [
         "glutes"
@@ -791,6 +838,7 @@
       "code": "calf-raise",
       "name": "Подъём на носки стоя",
       "technique": "Колени почти прямые. Опускай пятки ниже платформы до растяжения, поднимайся максимально высоко.\nОшибки: пружинящие неполные повторы, сгибание коленей.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Calf_Raises/0.jpg",
       "equipment": "MACHINE",
       "primary": [
         "calves"
@@ -804,6 +852,7 @@
       "code": "seated-calf-raise",
       "name": "Подъём на носки сидя",
       "technique": "Валик — на нижней части бёдер. Полная амплитуда: растяжение внизу, пауза вверху.\nОшибки: слишком быстрый темп, короткая амплитуда.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Calf_Raise/0.jpg",
       "equipment": "MACHINE",
       "primary": [
         "calves"
@@ -817,6 +866,7 @@
       "code": "crunches",
       "name": "Скручивания",
       "technique": "Поясница прижата к полу. Скругляй спину, подтягивая рёбра к тазу; руки не тянут голову.\nОшибки: подъём корпуса целиком, рывок шеей.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Crunches/0.jpg",
       "equipment": "BODYWEIGHT",
       "primary": [
         "abs"
@@ -831,6 +881,7 @@
       "code": "hanging-leg-raise",
       "name": "Подъём ног в висе",
       "technique": "Поднимай ноги, подкручивая таз вверх; опускай медленно, без раскачки.\nОшибки: раскачка, подъём только за счёт сгибателей бедра.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Hanging_Leg_Raise/0.jpg",
       "equipment": "BODYWEIGHT",
       "primary": [
         "abs"
@@ -848,6 +899,7 @@
       "code": "plank",
       "name": "Планка",
       "technique": "Локти под плечами, тело — прямая линия, пресс и ягодицы напряжены. В плане повторов — секунды удержания.\nОшибки: провисание поясницы, поднятый таз.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Plank/0.jpg",
       "equipment": "BODYWEIGHT",
       "primary": [
         "abs"
@@ -865,12 +917,2831 @@
       "code": "cable-crunch",
       "name": "Скручивания на блоке",
       "technique": "На коленях, канат у головы. Скругляй спину, подтягивая локти к бёдрам, таз неподвижен.\nОшибки: приседание на пятки, тяга руками.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_Crunch/0.jpg",
       "equipment": "MACHINE",
       "primary": [
         "abs"
       ],
       "secondary": [],
       "joints": [
+        "lower-back"
+      ]
+    },
+    {
+      "code": "decline-bench-press",
+      "name": "Жим штанги на скамье с обратным наклоном",
+      "technique": "Ноги закреплены под валиками, лопатки сведены. Гриф опускается на низ груди, локти под углом около 45° к корпусу. Жми строго вверх, не расслабляя лопатки.\nОшибки: слишком крутой наклон скамьи, отбив грифа от груди, снятие штанги без страхующего.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Decline_Barbell_Bench_Press/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "triceps",
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "wide-grip-bench-press",
+      "name": "Жим штанги лёжа широким хватом",
+      "technique": "Хват шире обычного на ладонь с каждой стороны, лопатки сведены, стопы в полу. Гриф опускается на середину груди, предплечья в нижней точке вертикальны. Жми вверх без рывка.\nОшибки: хват настолько широкий, что тянет плечи, локти строго в стороны под 90°, отбив от груди.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Wide-Grip_Barbell_Bench_Press/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "front-delts",
+        "triceps"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "smith-bench-press",
+      "name": "Жим лёжа в тренажёре Смита",
+      "technique": "Скамья стоит так, чтобы гриф опускался на низ груди. Лопатки сведены, стопы в полу. Сними гриф поворотом кистей, опусти до касания груди и выжми вверх.\nОшибки: скамья стоит слишком близко к голове, отрыв таза, не выставлены ограничители.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Smith_Machine_Bench_Press/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "triceps",
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "smith-incline-press",
+      "name": "Жим в тренажёре Смита на наклонной скамье",
+      "technique": "Скамья под углом 30–45°, гриф опускается на верх груди под ключицы. Лопатки сведены и прижаты, локти чуть впереди грифа. Жми вверх до почти прямых рук.\nОшибки: угол скамьи больше 45°, гриф опускается к шее, плечи выкатываются вперёд.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Smith_Machine_Incline_Bench_Press/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "front-delts",
+        "triceps"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "decline-db-press",
+      "name": "Жим гантелей на скамье с обратным наклоном",
+      "technique": "Ноги закреплены, гантели над низом груди, лопатки сведены. Опускай гантели к бокам груди до растяжения, локти под 45° к корпусу. Жми вверх, сводя гантели над грудью.\nОшибки: удар гантелей друг о друга вверху, слишком глубокое опускание, бросок гантелей в конце подхода.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Decline_Dumbbell_Bench_Press/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "triceps",
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "neutral-grip-db-press",
+      "name": "Жим гантелей лёжа нейтральным хватом",
+      "technique": "Ладони смотрят друг на друга, лопатки сведены. Опускай гантели вдоль корпуса, локти идут близко к бокам. Жми вверх, не разворачивая кисти.\nОшибки: локти уходят в стороны, запястья заломлены, отрыв таза от скамьи.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Bench_Press_with_Neutral_Grip/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "triceps",
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "db-floor-press",
+      "name": "Жим гантелей лёжа на полу",
+      "technique": "Лёжа на полу, колени согнуты, гантели над грудью. Опускай до мягкого касания пола трицепсами, короткая пауза и жим вверх. Амплитуда неполная — упор на верхнюю часть движения.\nОшибки: удар локтями о пол, отбив от пола, локти под 90° к корпусу.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Floor_Press/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "triceps",
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "incline-db-fly",
+      "name": "Разводка гантелей на наклонной скамье",
+      "technique": "Скамья под углом 30°, руки чуть согнуты в локтях и этот угол не меняется. Разводи гантели в стороны до растяжения груди, своди по дуге над верхом груди.\nОшибки: слишком тяжёлые гантели, разгибание локтей в жим, опускание ниже комфортной глубины.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Incline_Dumbbell_Flyes/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "decline-db-fly",
+      "name": "Разводка гантелей на скамье с обратным наклоном",
+      "technique": "Ноги закреплены, руки чуть согнуты, гантели над низом груди. Разводи в стороны до растяжения, своди по дуге, сжимая грудь вверху.\nОшибки: прямые локти, рывок из нижней точки, слишком большой вес.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Decline_Dumbbell_Flyes/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "db-pullover",
+      "name": "Пуловер с гантелью",
+      "technique": "Лёжа на скамье, гантель в двух руках над грудью, локти слегка согнуты. Опускай гантель за голову до растяжения груди и широчайших, возвращай по той же дуге. Таз не поднимается.\nОшибки: сгибание и разгибание локтей вместо движения в плечах, слишком глубокое опускание, прогиб в пояснице.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bent-Arm_Dumbbell_Pullover/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "lats",
+        "triceps"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "incline-chest-press-machine",
+      "name": "Жим в тренажёре на верх груди",
+      "technique": "Сиденье настроено так, чтобы рукояти были на уровне верха груди. Лопатки сведены и прижаты к спинке. Жми до почти прямых рук, возвращай плавно, не бросая вес.\nОшибки: плечи отрываются от спинки, локти выше плеч, удар плитами внизу.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leverage_Incline_Chest_Press/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "front-delts",
+        "triceps"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "cable-chest-press",
+      "name": "Жим на блоках сидя",
+      "technique": "Сидя, рукояти у груди, локти под 45° к корпусу, грудь раскрыта. Жми вперёд до почти прямых рук, плавно возвращай.\nОшибки: плечи выкатываются вперёд, корпус раскачивается, слишком быстрый возврат.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_Chest_Press/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "front-delts",
+        "triceps"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "low-cable-crossover",
+      "name": "Сведение рук в кроссовере снизу вверх",
+      "technique": "Блоки внизу, шаг вперёд, руки чуть согнуты. Своди рукояти по дуге снизу вверх до уровня глаз, задержись на секунду. Упор на верх груди.\nОшибки: сгибание локтей как при подъёме на бицепс, раскачка корпусом, плечи подняты к ушам.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Low_Cable_Crossover/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "cable-fly-bench",
+      "name": "Сведение рук на блоках лёжа",
+      "technique": "Скамья между нижними блоками, руки чуть согнуты. Разводи в стороны до растяжения груди, своди над грудью по дуге. Трос держит нагрузку и в верхней точке.\nОшибки: прямые локти, слишком глубокое разведение, скамья стоит не по центру блоков.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Flat_Bench_Cable_Flyes/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "floor-press",
+      "name": "Жим штанги лёжа на полу",
+      "technique": "Лёжа на полу в силовой раме, гриф над грудью. Опускай до мягкого касания пола трицепсами, пауза, жим вверх. Укороченная амплитуда нагружает трицепс.\nОшибки: удар локтями о пол, отбив, жим без страховочных упоров.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Floor_Press/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "triceps"
+      ],
+      "secondary": [
+        "chest",
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "feet-elevated-push-ups",
+      "name": "Отжимания с ногами на скамье",
+      "technique": "Носки на скамье, ладони чуть шире плеч, тело — прямая линия. Опускайся до касания грудью пола, локти под 45° к корпусу. Упор на верх груди и плечи.\nОшибки: провисание поясницы, поднятый таз, неполная амплитуда.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Push-Ups_With_Feet_Elevated/0.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "front-delts",
+        "triceps",
+        "abs"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "incline-push-ups",
+      "name": "Отжимания от скамьи",
+      "technique": "Ладони на краю скамьи чуть шире плеч, тело прямое. Опускайся до касания грудью скамьи, локти под 45°. Облегчённый вариант отжиманий.\nОшибки: прогиб в пояснице, локти строго в стороны, кивки головой вместо движения корпусом.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Incline_Push-Up/0.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "triceps",
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "wide-push-ups",
+      "name": "Отжимания широким хватом",
+      "technique": "Ладони заметно шире плеч, пальцы чуть наружу, тело прямое. Опускайся до касания грудью пола и выжимай себя вверх.\nОшибки: слишком широкая постановка рук, провисание таза, половина амплитуды.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Push-Up_Wide/0.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "front-delts",
+        "triceps"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "chin-ups",
+      "name": "Подтягивания обратным хватом",
+      "technique": "Хват снизу на ширине плеч. Из виса опусти лопатки и тяни локти вниз к рёбрам, пока подбородок не выйдет над перекладиной. Опускайся плавно до прямых рук.\nОшибки: раскачка и рывки, неполное опускание, подбородок тянется вверх вместо груди.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Chin-Up/0.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "lats"
+      ],
+      "secondary": [
+        "biceps",
+        "forearms"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "neutral-grip-pull-ups",
+      "name": "Подтягивания узким параллельным хватом",
+      "technique": "Ладони смотрят друг на друга, хват узкий. Тяни грудь к рукоятям, слегка прогибаясь в грудном отделе, локти идут вниз и назад. Опускайся до прямых рук.\nОшибки: раскачка, тяга одними руками без опускания лопаток, неполная амплитуда.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/V-Bar_Pullup/0.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "lats"
+      ],
+      "secondary": [
+        "biceps",
+        "rear-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "close-grip-lat-pulldown",
+      "name": "Тяга верхнего блока узким хватом",
+      "technique": "Хват сверху чуть уже плеч, бёдра под валиками. Тяни рукоять к верху груди, локти вниз вдоль корпуса, грудь навстречу. Возвращай до полного растяжения.\nОшибки: сильный откид корпуса назад, тяга за счёт рывка, плечи подняты к ушам.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Close-Grip_Front_Lat_Pulldown/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "lats"
+      ],
+      "secondary": [
+        "biceps",
+        "rear-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "reverse-grip-lat-pulldown",
+      "name": "Тяга верхнего блока обратным хватом",
+      "technique": "Хват снизу на ширине плеч. Тяни рукоять к верху груди, локти прижаты и идут вниз-назад. Вверху полностью растягивай широчайшие.\nОшибки: тяга одним бицепсом, раскачка корпуса, неполное выпрямление рук.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Underhand_Cable_Pulldowns/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "lats"
+      ],
+      "secondary": [
+        "biceps",
+        "rear-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "v-bar-pulldown",
+      "name": "Тяга верхнего блока с V-рукоятью",
+      "technique": "Параллельный узкий хват, небольшой отклон корпуса. Тяни рукоять к верху груди, сводя лопатки, локти вниз. Плавно выпрямляй руки.\nОшибки: рукоять тянется к животу за счёт откида, рывки, округление спины.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/V-Bar_Pulldown/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "lats"
+      ],
+      "secondary": [
+        "biceps",
+        "rear-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "behind-neck-pulldown",
+      "name": "Тяга верхнего блока за голову",
+      "technique": "Широкий хват, корпус вертикально. Тяни гриф к основанию шеи только до уровня ушей–затылка, локти строго вниз. Требует хорошей подвижности плеч; при дискомфорте замени на тягу к груди.\nОшибки: сильный наклон головы вперёд, удар грифом по шее, большой вес.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Wide-Grip_Pulldown_Behind_The_Neck/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "lats"
+      ],
+      "secondary": [
+        "biceps",
+        "rear-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "one-arm-lat-pulldown",
+      "name": "Тяга верхнего блока одной рукой",
+      "technique": "Одна D-рукоять, бёдра под валиками. Тяни локоть вниз к боку, разворачивая кисть к себе, в нижней точке сожми широчайшую. Вверху дай мышце растянуться.\nОшибки: скручивание корпуса за рукой, тяга бицепсом, рывки.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/One_Arm_Lat_Pulldown/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "lats"
+      ],
+      "secondary": [
+        "biceps",
+        "rear-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "straight-arm-pulldown",
+      "name": "Пуловер на верхнем блоке стоя",
+      "technique": "Стоя лицом к блоку, лёгкий наклон вперёд, руки почти прямые. Тяни рукоять по дуге к бёдрам, работая только в плечах. Возвращай до растяжения широчайших.\nОшибки: сгибание локтей, раскачка корпусом, слишком большой вес.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Straight-Arm_Pulldown/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "lats"
+      ],
+      "secondary": [
+        "triceps",
+        "rear-delts"
+      ],
+      "joints": [
+        "shoulder"
+      ]
+    },
+    {
+      "code": "barbell-pullover",
+      "name": "Пуловер со штангой",
+      "technique": "Лёжа на скамье, хват на ширине плеч, локти согнуты и этот угол не меняется. Опускай гриф за голову до растяжения, возвращай по дуге к груди.\nОшибки: локти расходятся в стороны, прогиб в пояснице, движение превращается во французский жим.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bent-Arm_Barbell_Pullover/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "lats"
+      ],
+      "secondary": [
+        "chest",
+        "triceps"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "reverse-grip-barbell-row",
+      "name": "Тяга штанги в наклоне обратным хватом",
+      "technique": "Хват снизу на ширине плеч, наклон около 45°, спина прямая, колени чуть согнуты. Тяни гриф к низу живота, локти вдоль корпуса. Опускай до прямых рук.\nОшибки: округление спины, рывок корпусом, подъём корпуса с каждым повторением.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Reverse_Grip_Bent-Over_Rows/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "lats"
+      ],
+      "secondary": [
+        "biceps",
+        "traps",
+        "rear-delts",
+        "lower-back"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "db-bent-over-row",
+      "name": "Тяга двух гантелей в наклоне",
+      "technique": "Наклон корпуса почти до параллели с полом, спина прямая. Тяни гантели к поясу, сводя лопатки, локти идут вдоль корпуса.\nОшибки: круглая спина, тяга вверх плечами, раскачка.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bent_Over_Two-Dumbbell_Row/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "lats"
+      ],
+      "secondary": [
+        "traps",
+        "biceps",
+        "rear-delts",
+        "lower-back"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "incline-db-row",
+      "name": "Тяга гантелей лёжа на наклонной скамье",
+      "technique": "Лёжа грудью на скамье под углом 30–45°, руки свисают вниз. Тяни гантели к поясу, сводя лопатки, пауза вверху. Скамья снимает нагрузку с поясницы.\nОшибки: отрыв груди от скамьи, тяга за счёт рывка, неполное сведение лопаток.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Incline_Row/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "lats"
+      ],
+      "secondary": [
+        "traps",
+        "biceps",
+        "rear-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "chest-supported-t-bar-row",
+      "name": "Тяга Т-грифа с упором груди",
+      "technique": "Грудь на подушке, верх подушки на уровне верха груди. Тяни рукояти к себе, сводя лопатки, локти назад. Опускай до полного растяжения, не бросая вес.\nОшибки: отрыв груди от подушки, рывки, неполная амплитуда.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Lying_T-Bar_Row/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "lats"
+      ],
+      "secondary": [
+        "traps",
+        "biceps",
+        "rear-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "one-arm-landmine-row",
+      "name": "Тяга Т-грифа одной рукой",
+      "technique": "Гриф закреплён одним концом, стой сбоку в наклоне, свободная рука упирается в колено. Тяни конец грифа к поясу, локоть вдоль корпуса.\nОшибки: разворот корпуса за рукой, круглая спина, рывок.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/One-Arm_Long_Bar_Row/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "lats"
+      ],
+      "secondary": [
+        "biceps",
+        "traps",
+        "rear-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "smith-row",
+      "name": "Тяга в наклоне в тренажёре Смита",
+      "technique": "Наклон около 45°, спина прямая, хват сверху чуть шире плеч. Тяни гриф к низу живота, сводя лопатки. Фиксированная траектория — подбери стойку так, чтобы гриф шёл вдоль бёдер.\nОшибки: круглая спина, подъём корпуса, тяга к груди.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Smith_Machine_Bent_Over_Row/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "lats"
+      ],
+      "secondary": [
+        "traps",
+        "biceps",
+        "rear-delts",
+        "lower-back"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "machine-high-row",
+      "name": "Тяга сверху в рычажном тренажёре",
+      "technique": "Бёдра под валиками, рукояти над головой. Тяни рукояти вниз и к себе, локти идут к бокам, лопатки сводятся. Вверху полное растяжение.\nОшибки: откид корпуса назад, рывки, плечи подняты к ушам.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leverage_High_Row/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "lats"
+      ],
+      "secondary": [
+        "traps",
+        "biceps",
+        "rear-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "machine-row",
+      "name": "Тяга в рычажном тренажёре сидя",
+      "technique": "Грудь упирается в подушку, рукояти на уровне груди. Тяни рукояти к себе, сводя лопатки, локти назад. Возвращай до растяжения, не отрывая грудь.\nОшибки: отклонение корпуса назад, тяга одними руками, бросок веса.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leverage_Iso_Row/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "lats"
+      ],
+      "secondary": [
+        "traps",
+        "biceps",
+        "rear-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "one-arm-cable-row",
+      "name": "Тяга нижнего блока одной рукой сидя",
+      "technique": "Сидя, стопы в упоре, спина прямая, одна D-рукоять. Тяни локоть назад вдоль корпуса, слегка разворачивая кисть. Вперёд — до растяжения, без округления спины.\nОшибки: скручивание корпуса, раскачка вперёд-назад, круглая поясница.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_One-arm_Cable_Pulley_Rows/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "lats"
+      ],
+      "secondary": [
+        "traps",
+        "biceps",
+        "rear-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "rack-pull",
+      "name": "Тяга с плинтов",
+      "technique": "Гриф на упорах рамы на уровне колен или чуть ниже. Спина прямая, плечи над грифом. Выпрямляйся, подавая таз вперёд, гриф идёт вплотную к бёдрам.\nОшибки: округление спины, рывок с упоров, откид корпуса назад вверху.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Rack_Pulls/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "lower-back"
+      ],
+      "secondary": [
+        "glutes",
+        "hamstrings",
+        "traps",
+        "forearms"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "deficit-deadlift",
+      "name": "Становая тяга из ямы",
+      "technique": "Стоя на подставке 3–7 см, гриф над серединой стопы. Спина прямая, таз ниже обычного. Срывай плавно ногами, гриф идёт вдоль голеней. Нужна хорошая подвижность.\nОшибки: слишком высокая подставка, округление поясницы на срыве, рывок руками.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Deficit_Deadlift/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "lower-back"
+      ],
+      "secondary": [
+        "glutes",
+        "hamstrings",
+        "quads",
+        "traps",
+        "forearms"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "sumo-deadlift",
+      "name": "Становая тяга сумо",
+      "technique": "Широкая стойка, носки развёрнуты, хват внутри ног на ширине плеч. Колени над стопами, спина прямая, грудь вперёд. Вставай, разводя колени и подавая таз к грифу.\nОшибки: колени заваливаются внутрь, таз поднимается раньше плеч, круглая спина.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Sumo_Deadlift/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "glutes"
+      ],
+      "secondary": [
+        "quads",
+        "hamstrings",
+        "adductors",
+        "lower-back",
+        "traps"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "good-morning",
+      "name": "Наклоны со штангой на плечах",
+      "technique": "Гриф на трапециях, колени чуть согнуты. Отводи таз назад и наклоняйся с прямой спиной до растяжения бицепса бедра. Возвращайся за счёт подачи таза вперёд. Вес небольшой.\nОшибки: округление спины, приседание вместо наклона, большой вес.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Good_Morning/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "hamstrings"
+      ],
+      "secondary": [
+        "glutes",
+        "lower-back"
+      ],
+      "joints": [
+        "hip",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "reverse-hyperextension",
+      "name": "Обратная гиперэкстензия",
+      "technique": "Корпус лежит на подушке, ноги свисают. Поднимай прямые ноги до линии корпуса, сжимая ягодицы, плавно опускай.\nОшибки: мах ногами выше корпуса, рывки, переразгибание поясницы.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Reverse_Hyperextension/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "glutes"
+      ],
+      "secondary": [
+        "hamstrings",
+        "lower-back"
+      ],
+      "joints": [
+        "hip",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "db-shrugs",
+      "name": "Шраги с гантелями",
+      "technique": "Гантели по бокам, руки прямые. Поднимай плечи строго вверх к ушам, пауза на секунду, плавно опускай.\nОшибки: вращение плечами, сгибание локтей, наклон головы вперёд.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Shrug/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "traps"
+      ],
+      "secondary": [
+        "forearms"
+      ],
+      "joints": [
+        "shoulder"
+      ]
+    },
+    {
+      "code": "behind-back-shrugs",
+      "name": "Шраги со штангой за спиной",
+      "technique": "Гриф за спиной на прямых руках, хват на ширине плеч. Поднимай плечи вверх, пауза, опускай. Нагрузка смещается на среднюю часть трапеций.\nОшибки: сгибание локтей, наклон корпуса вперёд, слишком большой вес.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Shrug_Behind_The_Back/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "traps"
+      ],
+      "secondary": [
+        "forearms"
+      ],
+      "joints": [
+        "shoulder"
+      ]
+    },
+    {
+      "code": "cable-shrugs",
+      "name": "Шраги на нижнем блоке",
+      "technique": "Стоя лицом к нижнему блоку, прямая рукоять в опущенных руках. Поднимай плечи вверх, пауза, плавно опускай.\nОшибки: сгибание локтей, откид корпуса назад, рывки.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_Shrugs/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "traps"
+      ],
+      "secondary": [
+        "forearms"
+      ],
+      "joints": [
+        "shoulder"
+      ]
+    },
+    {
+      "code": "machine-shrugs",
+      "name": "Шраги в рычажном тренажёре",
+      "technique": "Стоя между рукоятями, руки прямые. Поднимай плечи к ушам, пауза вверху, медленно опускай до растяжения.\nОшибки: вращение плечами, сгибание рук, неполная амплитуда.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leverage_Shrug/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "traps"
+      ],
+      "secondary": [
+        "forearms"
+      ],
+      "joints": [
+        "shoulder"
+      ]
+    },
+    {
+      "code": "db-upright-row",
+      "name": "Тяга гантелей к подбородку",
+      "technique": "Гантели перед бёдрами. Тяни вверх вдоль корпуса, локти ведут движение и идут в стороны, до уровня груди. Плавно опускай.\nОшибки: локти выше плеч, кисти выше локтей, раскачка корпусом.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Dumbbell_Upright_Row/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "mid-delts"
+      ],
+      "secondary": [
+        "traps",
+        "biceps"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "cable-upright-row",
+      "name": "Тяга нижнего блока к подбородку",
+      "technique": "Стоя лицом к нижнему блоку, прямая рукоять. Тяни вдоль корпуса до уровня груди, локти в стороны и выше кистей.\nОшибки: узкий хват с заломом запястий, локти выше плеч, откид назад.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Upright_Cable_Row/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "mid-delts"
+      ],
+      "secondary": [
+        "traps",
+        "biceps"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "seated-barbell-press",
+      "name": "Жим штанги сидя",
+      "technique": "Сидя с опорой на спинку, хват чуть шире плеч, гриф у верха груди. Жми вверх по вертикали, в верхней точке гриф над макушкой. Опускай до уровня подбородка–ключиц.\nОшибки: сильный прогиб в пояснице, локти далеко за грифом, неполное опускание.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Barbell_Military_Press/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "front-delts"
+      ],
+      "secondary": [
+        "mid-delts",
+        "triceps"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "behind-neck-press",
+      "name": "Жим штанги из-за головы",
+      "technique": "Гриф на трапециях, хват широкий. Жми вверх до прямых рук, опускай только до уровня ушей. Требует хорошей подвижности плеч; при дискомфорте замени на жим с груди.\nОшибки: опускание грифа на шею, наклон головы вперёд, большой вес.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Barbell_Press_Behind_Neck/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "mid-delts"
+      ],
+      "secondary": [
+        "front-delts",
+        "triceps"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "smith-shoulder-press",
+      "name": "Жим сидя в тренажёре Смита",
+      "technique": "Скамья с вертикальной спинкой стоит так, чтобы гриф шёл перед лицом. Опускай до уровня подбородка, жми вверх до почти прямых рук.\nОшибки: скамья слишком далеко, локти уходят назад, прогиб в пояснице.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Smith_Machine_Overhead_Shoulder_Press/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "front-delts"
+      ],
+      "secondary": [
+        "mid-delts",
+        "triceps"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "machine-shoulder-press",
+      "name": "Жим в тренажёре на плечи",
+      "technique": "Сиденье настроено так, чтобы рукояти были на уровне плеч. Спина прижата. Жми вверх до почти прямых рук, плавно опускай.\nОшибки: отрыв спины от спинки, плечи подняты к ушам, удар плитами внизу.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Machine_Shoulder_Military_Press/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "front-delts"
+      ],
+      "secondary": [
+        "mid-delts",
+        "triceps"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "standing-db-press",
+      "name": "Жим гантелей стоя",
+      "technique": "Гантели у плеч, пресс и ягодицы напряжены. Жми вверх до почти прямых рук, гантели над плечами. Опускай до уровня ушей.\nОшибки: прогиб в пояснице, толчок ногами, локти уходят вперёд.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Dumbbell_Press/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "front-delts"
+      ],
+      "secondary": [
+        "mid-delts",
+        "triceps"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "alternating-db-press",
+      "name": "Попеременный жим гантелей стоя",
+      "technique": "Гантели у плеч. Жми одну руку вверх, вторая остаётся у плеча, затем меняй. Корпус неподвижен, пресс напряжён.\nОшибки: наклон корпуса в сторону, раскачка, неполное выпрямление руки.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Alternating_Dumbbell_Press/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "front-delts"
+      ],
+      "secondary": [
+        "mid-delts",
+        "triceps"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "one-arm-db-press",
+      "name": "Жим гантели одной рукой",
+      "technique": "Одна гантель у плеча, свободная рука на поясе или держится за опору. Жми вверх, не наклоняя корпус в сторону.\nОшибки: наклон в сторону от гантели, прогиб в пояснице, толчок ногами.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_One-Arm_Shoulder_Press/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "front-delts"
+      ],
+      "secondary": [
+        "mid-delts",
+        "triceps",
+        "abs"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "neutral-grip-shoulder-press",
+      "name": "Жим гантелей стоя нейтральным хватом",
+      "technique": "Ладони смотрят друг на друга, локти направлены вперёд. Жми вверх до почти прямых рук, опускай к плечам. Вариант щадит плечевой сустав.\nОшибки: разворот локтей в стороны, прогиб в пояснице, рывок.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Palms-In_Dumbbell_Press/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "front-delts"
+      ],
+      "secondary": [
+        "mid-delts",
+        "triceps"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "front-db-raise",
+      "name": "Подъём гантелей перед собой",
+      "technique": "Гантели перед бёдрами, локти чуть согнуты. Поднимай руки перед собой до уровня плеч, плавно опускай. Можно попеременно.\nОшибки: раскачка корпусом, подъём выше плеч, большой вес.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Front_Dumbbell_Raise/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "front-delts"
+      ],
+      "secondary": [
+        "mid-delts"
+      ],
+      "joints": [
+        "shoulder"
+      ]
+    },
+    {
+      "code": "front-barbell-raise",
+      "name": "Подъём штанги перед собой",
+      "technique": "Хват сверху на ширине плеч, локти чуть согнуты. Поднимай гриф перед собой до уровня глаз, опускай подконтрольно.\nОшибки: откид корпуса назад, рывок с бёдер, сгибание локтей.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Front_Barbell_Raise_Over_Head/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "front-delts"
+      ],
+      "secondary": [
+        "mid-delts",
+        "traps"
+      ],
+      "joints": [
+        "shoulder"
+      ]
+    },
+    {
+      "code": "front-cable-raise",
+      "name": "Подъём руки перед собой на блоке",
+      "technique": "Стоя спиной к нижнему блоку, рукоять в одной руке. Поднимай прямую руку перед собой до уровня плеч, плавно возвращай.\nОшибки: разворот корпуса, раскачка, подъём выше плеч.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Front_Cable_Raise/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "front-delts"
+      ],
+      "secondary": [
+        "mid-delts"
+      ],
+      "joints": [
+        "shoulder"
+      ]
+    },
+    {
+      "code": "db-scaption",
+      "name": "Подъём гантелей в плоскости лопатки",
+      "technique": "Лёгкие гантели, большие пальцы вверх. Поднимай руки под углом около 30° вперёд от линии плеч до уровня плеч. Медленно опускай.\nОшибки: большой вес, подъём плеч к ушам, раскачка.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Scaption/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "mid-delts"
+      ],
+      "secondary": [
+        "front-delts",
+        "traps"
+      ],
+      "joints": [
+        "shoulder"
+      ]
+    },
+    {
+      "code": "cable-lateral-raise",
+      "name": "Мах в сторону на нижнем блоке",
+      "technique": "Стоя боком к нижнему блоку, рукоять в дальней руке. Отводи руку в сторону до уровня плеча, локоть чуть согнут и ведёт движение.\nОшибки: подъём плеча к уху, наклон корпуса, кисть выше локтя.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Low-Pulley_Deltoid_Raise/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "mid-delts"
+      ],
+      "secondary": [
+        "traps"
+      ],
+      "joints": [
+        "shoulder"
+      ]
+    },
+    {
+      "code": "seated-lateral-raise",
+      "name": "Махи гантелями в стороны сидя",
+      "technique": "Сидя на краю скамьи, гантели по бокам. Поднимай руки в стороны до уровня плеч, локти чуть согнуты. Положение сидя убирает раскачку.\nОшибки: кисти выше локтей, плечи к ушам, большой вес.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Side_Lateral_Raise/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "mid-delts"
+      ],
+      "secondary": [
+        "traps"
+      ],
+      "joints": [
+        "shoulder"
+      ]
+    },
+    {
+      "code": "incline-lateral-raise",
+      "name": "Мах гантелью лёжа боком на наклонной скамье",
+      "technique": "Лёжа боком на наклонной скамье, гантель в верхней руке у бедра. Отводи руку вверх до уровня плеча, опускай медленно. Нагрузка сильна в начале движения.\nОшибки: большой вес, мах выше вертикали, разворот корпуса.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/One-Arm_Incline_Lateral_Raise/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "mid-delts"
+      ],
+      "secondary": [
+        "rear-delts"
+      ],
+      "joints": [
+        "shoulder"
+      ]
+    },
+    {
+      "code": "cable-rear-delt-fly",
+      "name": "Разведение рук на блоках на задние дельты",
+      "technique": "Блоки на уровне плеч или выше, тросы крест-накрест без рукоятей. Разводи руки в стороны-назад, локти чуть согнуты. Плавно возвращай.\nОшибки: сведение лопаток вместо работы дельт, сгибание локтей, откид корпуса.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_Rear_Delt_Fly/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "rear-delts"
+      ],
+      "secondary": [
+        "traps"
+      ],
+      "joints": [
+        "shoulder"
+      ]
+    },
+    {
+      "code": "bent-over-cable-lateral",
+      "name": "Мах в наклоне на нижнем блоке",
+      "technique": "Наклон до параллели с полом, спина прямая, рукоять нижнего блока в дальней руке. Отводи руку в сторону до уровня плеча.\nОшибки: разворот корпуса, круглая спина, рывок.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bent_Over_Low-Pulley_Side_Lateral/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "rear-delts"
+      ],
+      "secondary": [
+        "traps"
+      ],
+      "joints": [
+        "shoulder",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "incline-rear-delt-raise",
+      "name": "Разводка гантелей лёжа грудью на наклонной скамье",
+      "technique": "Лёжа грудью на наклонной скамье, руки свисают. Разводи гантели в стороны до уровня плеч, локти чуть согнуты.\nОшибки: отрыв груди от скамьи, сведение лопаток рывком, большой вес.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Reverse_Flyes/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "rear-delts"
+      ],
+      "secondary": [
+        "traps"
+      ],
+      "joints": [
+        "shoulder"
+      ]
+    },
+    {
+      "code": "rear-delt-row",
+      "name": "Тяга штанги к груди в наклоне",
+      "technique": "Широкий хват сверху, наклон почти до параллели. Тяни гриф к верху груди, локти в стороны под 90° к корпусу.\nОшибки: тяга к животу, круглая спина, подъём корпуса.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Rear_Delt_Row/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "rear-delts"
+      ],
+      "secondary": [
+        "traps",
+        "lats",
+        "biceps"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "cable-external-rotation",
+      "name": "Наружная ротация плеча на блоке",
+      "technique": "Стоя боком к блоку на уровне локтя, локоть согнут на 90° и прижат к боку. Разворачивай предплечье наружу, не отрывая локоть. Вес минимальный.\nОшибки: отрыв локтя от корпуса, поворот корпусом, большой вес.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/External_Rotation_with_Cable/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "rear-delts"
+      ],
+      "joints": [
+        "shoulder"
+      ]
+    },
+    {
+      "code": "db-external-rotation",
+      "name": "Наружная ротация плеча с гантелью лёжа",
+      "technique": "Лёжа на боку, локоть верхней руки согнут на 90° и прижат к боку. Поднимай гантель, разворачивая предплечье вверх. Вес лёгкий.\nОшибки: отрыв локтя, рывок, большой вес.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/External_Rotation/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "rear-delts"
+      ],
+      "joints": [
+        "shoulder"
+      ]
+    },
+    {
+      "code": "ez-bar-curl",
+      "name": "Подъём EZ-штанги на бицепс",
+      "technique": "Хват снизу за изогнутые части грифа, локти прижаты к бокам. Сгибай руки до уровня плеч, опускай до почти прямых. Изогнутый гриф разгружает запястья.\nОшибки: раскачка корпусом, локти уходят вперёд, бросок веса вниз.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/EZ-Bar_Curl/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "biceps"
+      ],
+      "secondary": [
+        "forearms"
+      ],
+      "joints": [
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "wide-grip-barbell-curl",
+      "name": "Подъём штанги на бицепс широким хватом",
+      "technique": "Хват шире плеч, локти у корпуса. Сгибай руки, не отводя локти. Акцент на короткую головку бицепса.\nОшибки: читинг корпусом, залом запястий, неполное опускание.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Wide-Grip_Standing_Barbell_Curl/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "biceps"
+      ],
+      "secondary": [
+        "forearms"
+      ],
+      "joints": [
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "close-grip-barbell-curl",
+      "name": "Подъём штанги на бицепс узким хватом",
+      "technique": "Хват уже плеч, локти прижаты. Сгибай руки до верха, опускай плавно. Акцент на длинную головку.\nОшибки: локти расходятся, раскачка, боль в запястьях от прямого грифа — возьми EZ.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Close-Grip_Standing_Barbell_Curl/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "biceps"
+      ],
+      "secondary": [
+        "forearms"
+      ],
+      "joints": [
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "reverse-barbell-curl",
+      "name": "Подъём штанги обратным хватом",
+      "technique": "Хват сверху на ширине плеч, локти прижаты. Сгибай руки, держа кисти прямыми. Работают плечелучевая мышца и разгибатели предплечья.\nОшибки: залом кистей, раскачка, слишком большой вес.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Reverse_Barbell_Curl/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "forearms"
+      ],
+      "secondary": [
+        "biceps"
+      ],
+      "joints": [
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "drag-curl",
+      "name": "Протяжка штанги на бицепс",
+      "technique": "Хват снизу. Тяни гриф вверх вдоль корпуса, отводя локти назад, до низа груди. Гриф всё время касается тела.\nОшибки: локти идут вперёд, подъём плеч, откид корпуса.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Drag_Curl/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "biceps"
+      ],
+      "secondary": [
+        "forearms"
+      ],
+      "joints": [
+        "elbow",
+        "shoulder"
+      ]
+    },
+    {
+      "code": "spider-curl",
+      "name": "Паучьи сгибания",
+      "technique": "Лёжа грудью на вертикальной стороне скамьи Скотта или на наклонной скамье, руки свисают отвесно. Сгибай руки, не двигая плечами.\nОшибки: локти уходят назад, рывок, неполная амплитуда.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Spider_Curl/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "biceps"
+      ],
+      "secondary": [
+        "forearms"
+      ],
+      "joints": [
+        "elbow"
+      ]
+    },
+    {
+      "code": "barbell-preacher-curl",
+      "name": "Подъём штанги на скамье Скотта",
+      "technique": "Трицепсы лежат на подушке, подмышки у её верхнего края. Сгибай руки до верха, опускай почти до прямых, не расслабляясь внизу.\nОшибки: полное разгибание с рывком, отрыв локтей от подушки, отбив внизу.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Preacher_Curl/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "biceps"
+      ],
+      "secondary": [
+        "forearms"
+      ],
+      "joints": [
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "alternate-db-curl",
+      "name": "Попеременный подъём гантелей на бицепс",
+      "technique": "Стоя, гантели по бокам. Сгибай руки по очереди, разворачивая кисть ладонью вверх по ходу движения. Локти у корпуса.\nОшибки: раскачка, локоть уходит вперёд, спешка.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Alternate_Bicep_Curl/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "biceps"
+      ],
+      "secondary": [
+        "forearms"
+      ],
+      "joints": [
+        "elbow"
+      ]
+    },
+    {
+      "code": "incline-db-curl",
+      "name": "Подъём гантелей на бицепс на наклонной скамье",
+      "technique": "Сидя на скамье под углом 45–60°, руки свисают за линию корпуса. Сгибай руки, не подавая локти вперёд. Сильное растяжение внизу.\nОшибки: локти идут вперёд, отрыв спины от скамьи, большой вес.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Incline_Dumbbell_Curl/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "biceps"
+      ],
+      "secondary": [
+        "forearms"
+      ],
+      "joints": [
+        "elbow",
+        "shoulder"
+      ]
+    },
+    {
+      "code": "seated-db-curl",
+      "name": "Подъём гантелей на бицепс сидя",
+      "technique": "Сидя на краю скамьи с прямой спиной. Сгибай руки одновременно, локти у корпуса, вверху разверни кисти наружу.\nОшибки: раскачка корпусом, локти вперёд, неполное опускание.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Dumbbell_Curl/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "biceps"
+      ],
+      "secondary": [
+        "forearms"
+      ],
+      "joints": [
+        "elbow"
+      ]
+    },
+    {
+      "code": "concentration-curl",
+      "name": "Концентрированный подъём на бицепс",
+      "technique": "Сидя, локоть упирается во внутреннюю сторону бедра. Сгибай руку до плеча, пауза, медленно опускай.\nОшибки: помощь корпусом, отрыв локтя от бедра, неполное разгибание.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Concentration_Curls/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "biceps"
+      ],
+      "secondary": [
+        "forearms"
+      ],
+      "joints": [
+        "elbow"
+      ]
+    },
+    {
+      "code": "db-preacher-curl",
+      "name": "Подъём гантели на скамье Скотта одной рукой",
+      "technique": "Трицепс на подушке, подмышка у её верхнего края. Сгибай руку до верха, опускай почти до прямой.\nОшибки: рывок из нижней точки, отрыв локтя, переразгибание.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/One_Arm_Dumbbell_Preacher_Curl/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "biceps"
+      ],
+      "secondary": [
+        "forearms"
+      ],
+      "joints": [
+        "elbow"
+      ]
+    },
+    {
+      "code": "zottman-curl",
+      "name": "Сгибания Зоттмана",
+      "technique": "Поднимай гантели хватом снизу, вверху разверни кисти ладонями вниз и медленно опускай. Внизу снова разверни.\nОшибки: быстрое опускание, раскачка, большой вес.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Zottman_Curl/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "biceps"
+      ],
+      "secondary": [
+        "forearms"
+      ],
+      "joints": [
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "cross-body-hammer-curl",
+      "name": "Молотки через корпус",
+      "technique": "Нейтральный хват. Сгибай руку по диагонали к противоположному плечу, локоть у корпуса. Попеременно.\nОшибки: разворот корпуса, локоть вперёд, рывок.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cross_Body_Hammer_Curl/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "biceps"
+      ],
+      "secondary": [
+        "forearms"
+      ],
+      "joints": [
+        "elbow"
+      ]
+    },
+    {
+      "code": "cable-curl",
+      "name": "Сгибание рук на нижнем блоке",
+      "technique": "Стоя лицом к нижнему блоку, прямая рукоять, локти прижаты. Сгибай руки до верха, плавно опускай. Трос держит нагрузку по всей амплитуде.\nОшибки: откид корпуса, локти вперёд, бросок веса.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Biceps_Cable_Curl/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "biceps"
+      ],
+      "secondary": [
+        "forearms"
+      ],
+      "joints": [
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "rope-hammer-curl",
+      "name": "Молотки с канатом на нижнем блоке",
+      "technique": "Канат на нижнем блоке, нейтральный хват. Сгибай руки, локти у корпуса, вверху чуть разведи концы каната.\nОшибки: раскачка, локти вперёд, залом кистей.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_Hammer_Curls_-_Rope_Attachment/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "biceps"
+      ],
+      "secondary": [
+        "forearms"
+      ],
+      "joints": [
+        "elbow"
+      ]
+    },
+    {
+      "code": "high-cable-curl",
+      "name": "Сгибание рук на верхних блоках",
+      "technique": "Стоя между верхними блоками, руки в стороны на уровне плеч. Сгибай руки, подтягивая рукояти к голове, плечи неподвижны.\nОшибки: опускание локтей, раскачка, большой вес.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/High_Cable_Curls/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "biceps"
+      ],
+      "joints": [
+        "elbow",
+        "shoulder"
+      ]
+    },
+    {
+      "code": "machine-biceps-curl",
+      "name": "Сгибание рук в тренажёре",
+      "technique": "Локти на подушке на уровне оси тренажёра. Сгибай руки до верха, плавно опускай почти до прямых.\nОшибки: отрыв локтей, рывок, удар плитами внизу.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Machine_Bicep_Curl/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "biceps"
+      ],
+      "secondary": [
+        "forearms"
+      ],
+      "joints": [
+        "elbow"
+      ]
+    },
+    {
+      "code": "rope-pushdown",
+      "name": "Разгибание рук с канатом на блоке",
+      "technique": "Канат на верхнем блоке, локти прижаты к бокам. Разгибай руки вниз, в конце разводя концы каната в стороны. Возвращай до угла 90°.\nОшибки: локти уходят вперёд, наклон корпусом на вес, неполное разгибание.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Triceps_Pushdown_-_Rope_Attachment/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "triceps"
+      ],
+      "joints": [
+        "elbow"
+      ]
+    },
+    {
+      "code": "v-bar-pushdown",
+      "name": "Разгибание рук на блоке с V-рукоятью",
+      "technique": "V-рукоять на верхнем блоке, локти у корпуса. Разгибай руки до конца, плавно возвращай.\nОшибки: локти гуляют, плечи наваливаются на рукоять, рывки.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Triceps_Pushdown_-_V-Bar_Attachment/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "triceps"
+      ],
+      "joints": [
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "reverse-grip-pushdown",
+      "name": "Разгибание рук на блоке обратным хватом",
+      "technique": "Хват снизу, локти прижаты. Разгибай руки до конца, держи кисти прямыми. Вес меньше, чем при обычном хвате.\nОшибки: залом кистей, отрыв локтей, большой вес.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Reverse_Grip_Triceps_Pushdown/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "triceps"
+      ],
+      "secondary": [
+        "forearms"
+      ],
+      "joints": [
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "one-arm-pushdown",
+      "name": "Разгибание одной руки на блоке",
+      "technique": "Одна рукоять на верхнем блоке, хват снизу или сверху. Локоть прижат к боку, разгибай руку до конца.\nОшибки: поворот корпуса, локоть вперёд, рывок.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_One_Arm_Tricep_Extension/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "triceps"
+      ],
+      "joints": [
+        "elbow"
+      ]
+    },
+    {
+      "code": "rope-overhead-extension",
+      "name": "Разгибание рук с канатом из-за головы",
+      "technique": "Стоя спиной к блоку в наклоне, канат за головой, локти направлены вперёд. Разгибай руки, не двигая плечами.\nОшибки: локти расходятся, движение в плечах, прогиб в пояснице.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_Rope_Overhead_Triceps_Extension/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "triceps"
+      ],
+      "joints": [
+        "elbow",
+        "shoulder"
+      ]
+    },
+    {
+      "code": "cable-lying-extension",
+      "name": "Французский жим лёжа на нижнем блоке",
+      "technique": "Лёжа головой к нижнему блоку, плечи вертикально. Разгибай руки вверх, опускай рукоять ко лбу.\nОшибки: локти расходятся, движение плечами, рывок.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_Lying_Triceps_Extension/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "triceps"
+      ],
+      "joints": [
+        "elbow"
+      ]
+    },
+    {
+      "code": "db-skull-crusher",
+      "name": "Французский жим с гантелями лёжа",
+      "technique": "Лёжа на скамье, гантели над грудью нейтральным хватом. Сгибай локти, опуская гантели к ушам, плечи неподвижны. Разгибай до конца.\nОшибки: локти расходятся, плечи ходят вперёд-назад, удар по голове при потере контроля.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Lying_Dumbbell_Tricep_Extension/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "triceps"
+      ],
+      "joints": [
+        "elbow"
+      ]
+    },
+    {
+      "code": "standing-french-press",
+      "name": "Французский жим стоя",
+      "technique": "Гриф над головой узким хватом, локти направлены вверх. Опускай гриф за голову, сгибая только локти. Разгибай до конца.\nОшибки: локти в стороны, прогиб в пояснице, большой вес.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Overhead_Barbell_Triceps_Extension/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "triceps"
+      ],
+      "joints": [
+        "elbow",
+        "shoulder"
+      ]
+    },
+    {
+      "code": "one-arm-overhead-extension",
+      "name": "Разгибание одной руки с гантелью из-за головы",
+      "technique": "Гантель над головой, локоть смотрит вверх, свободная рука придерживает его. Опускай гантель за голову и разгибай руку.\nОшибки: локоть уходит в сторону, наклон корпуса, рывок.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_One-Arm_Triceps_Extension/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "triceps"
+      ],
+      "joints": [
+        "elbow",
+        "shoulder"
+      ]
+    },
+    {
+      "code": "db-kickback",
+      "name": "Разгибание руки с гантелью в наклоне",
+      "technique": "Наклон до параллели, плечо вдоль корпуса и неподвижно. Разгибай руку назад до прямой, пауза, верни к углу 90°.\nОшибки: мах плечом, большой вес, неполное разгибание.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Tricep_Dumbbell_Kickback/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "triceps"
+      ],
+      "joints": [
+        "elbow"
+      ]
+    },
+    {
+      "code": "bench-dips",
+      "name": "Обратные отжимания от скамьи",
+      "technique": "Ладони на краю скамьи за спиной, ноги вперёд. Опускайся, сгибая локти до 90°, спина близко к скамье. Выжимай себя вверх.\nОшибки: слишком глубокое опускание, таз далеко от скамьи, локти в стороны.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bench_Dips/0.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "triceps"
+      ],
+      "secondary": [
+        "chest",
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "triceps-dips",
+      "name": "Отжимания на брусьях на трицепс",
+      "technique": "Корпус вертикально, локти прижаты и идут назад. Опускайся до угла 90° в локтях, выжимай до прямых рук.\nОшибки: наклон вперёд, локти в стороны, слишком глубокое опускание.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dips_-_Triceps_Version/0.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "triceps"
+      ],
+      "secondary": [
+        "chest",
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "dip-machine",
+      "name": "Отжимания в тренажёре сидя",
+      "technique": "Сидя, рукояти по бокам, локти прижаты. Жми рукояти вниз до прямых рук, возвращай до угла 90°.\nОшибки: подъём плеч к ушам, отрыв таза, локти в стороны.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dip_Machine/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "triceps"
+      ],
+      "secondary": [
+        "chest",
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "machine-triceps-extension",
+      "name": "Разгибание рук в тренажёре",
+      "technique": "Локти на подушке на уровне оси тренажёра. Разгибай руки до конца, плавно возвращай.\nОшибки: отрыв локтей, рывок, удар плитами.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Machine_Triceps_Extension/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "triceps"
+      ],
+      "joints": [
+        "elbow"
+      ]
+    },
+    {
+      "code": "close-grip-push-ups",
+      "name": "Отжимания узким хватом",
+      "technique": "Ладони под плечами или чуть уже, локти скользят вдоль корпуса. Опускайся до касания грудью, выжимай до прямых рук.\nОшибки: локти в стороны, провисание таза, ладони слишком близко с заломом запястий.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Push-Ups_-_Close_Triceps_Position/0.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "triceps"
+      ],
+      "secondary": [
+        "chest",
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "smith-close-grip-press",
+      "name": "Жим узким хватом в тренажёре Смита",
+      "technique": "Хват на ширине плеч, локти вдоль корпуса. Опускай гриф на низ груди, жми вверх до прямых рук.\nОшибки: слишком узкий хват, локти в стороны, отбив.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Smith_Machine_Close-Grip_Bench_Press/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "triceps"
+      ],
+      "secondary": [
+        "chest",
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "reverse-grip-bench-press",
+      "name": "Жим штанги лёжа обратным хватом",
+      "technique": "Хват снизу на ширине плеч, локти вдоль корпуса. Опускай гриф на низ груди, жми вверх. Снимать и ставить штангу лучше со страхующим.\nОшибки: большой вес без страховки, залом кистей, локти в стороны.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Reverse_Triceps_Bench_Press/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "triceps"
+      ],
+      "secondary": [
+        "chest",
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "reverse-wrist-curl",
+      "name": "Разгибание кистей со штангой",
+      "technique": "Предплечья лежат на скамье, кисти свисают ладонями вниз. Поднимай кисти вверх, плавно опускай. Вес небольшой.\nОшибки: отрыв предплечий, рывки, большой вес.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Palms-Down_Wrist_Curl_Over_A_Bench/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "forearms"
+      ],
+      "joints": [
+        "wrist"
+      ]
+    },
+    {
+      "code": "db-wrist-curl",
+      "name": "Сгибание кистей с гантелями",
+      "technique": "Предплечья на скамье, ладони вверх, кисти свисают. Сгибай кисти вверх, опускай до растяжения.\nОшибки: отрыв предплечий, движение локтями, рывки.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Palms-Up_Dumbbell_Wrist_Curl_Over_A_Bench/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "forearms"
+      ],
+      "joints": [
+        "wrist"
+      ]
+    },
+    {
+      "code": "db-reverse-wrist-curl",
+      "name": "Разгибание кистей с гантелями",
+      "technique": "Предплечья на скамье, ладони вниз. Поднимай кисти вверх, плавно опускай.\nОшибки: большой вес, отрыв предплечий, неполная амплитуда.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Palms-Down_Dumbbell_Wrist_Curl_Over_A_Bench/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "forearms"
+      ],
+      "joints": [
+        "wrist"
+      ]
+    },
+    {
+      "code": "behind-back-wrist-curl",
+      "name": "Сгибание кистей со штангой за спиной",
+      "technique": "Стоя, гриф за спиной в прямых руках, ладони назад. Сгибай кисти, поднимая гриф, плавно опускай.\nОшибки: сгибание локтей, раскачка, большой вес.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Palms-Up_Barbell_Behind_The_Back_Wrist_Curl/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "forearms"
+      ],
+      "joints": [
+        "wrist"
+      ]
+    },
+    {
+      "code": "cable-wrist-curl",
+      "name": "Сгибание кистей на нижнем блоке",
+      "technique": "Сидя лицом к нижнему блоку, предплечья на бёдрах, ладони вверх. Сгибай кисти, плавно возвращай.\nОшибки: отрыв предплечий, движение корпусом, рывки.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_Wrist_Curl/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "forearms"
+      ],
+      "joints": [
+        "wrist"
+      ]
+    },
+    {
+      "code": "smith-squat",
+      "name": "Приседания в тренажёре Смита",
+      "technique": "Гриф на трапециях, стопы чуть впереди линии грифа, на ширине плеч. Опускайся до параллели бёдер с полом, колени идут по линии носков. Вставай через всю стопу.\nОшибки: колени внутрь, отрыв пяток, стопы слишком далеко впереди с округлением поясницы.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Smith_Machine_Squat/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [
+        "glutes",
+        "hamstrings",
+        "lower-back"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "ankle",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "hack-squat",
+      "name": "Гакк-приседания",
+      "technique": "Спина и таз прижаты к подушке, стопы на платформе на ширине плеч. Опускайся до параллели или чуть ниже, колени по линии носков. Вверху не выключай колени.\nОшибки: отрыв таза от подушки, колени внутрь, отрыв пяток.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Hack_Squat/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [
+        "glutes",
+        "hamstrings"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "ankle"
+      ]
+    },
+    {
+      "code": "barbell-hack-squat",
+      "name": "Гакк-приседания со штангой за спиной",
+      "technique": "Гриф за ногами в опущенных руках, пятки можно поставить на блины. Приседай с вертикальной спиной, гриф идёт вдоль задней поверхности ног.\nОшибки: круглая спина, наклон вперёд, отрыв пяток без подставки.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Hack_Squat/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [
+        "glutes",
+        "hamstrings",
+        "forearms"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "ankle"
+      ]
+    },
+    {
+      "code": "box-squat",
+      "name": "Приседания на ящик",
+      "technique": "Ящик или скамья сзади на высоте параллели. Отводи таз назад и садись подконтрольно, не расслабляя корпус. Короткая пауза и вставай за счёт ягодиц.\nОшибки: падение на ящик, расслабление спины внизу, раскачка для подъёма.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Box_Squat/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [
+        "glutes",
+        "hamstrings",
+        "lower-back"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "ankle",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "wide-stance-squat",
+      "name": "Приседания со штангой в широкой стойке",
+      "technique": "Стопы заметно шире плеч, носки развёрнуты. Приседай, разводя колени по линии носков, спина прямая. Больше работают ягодицы и приводящие.\nОшибки: колени внутрь, округление поясницы, слишком широкая стойка.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Wide_Stance_Barbell_Squat/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [
+        "glutes",
+        "adductors",
+        "hamstrings",
+        "lower-back"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "ankle",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "zercher-squat",
+      "name": "Приседания Зерхера",
+      "technique": "Гриф лежит на сгибах локтей, руки прижаты к корпусу. Приседай с вертикальной спиной до параллели и ниже.\nОшибки: округление спины, локти расходятся, гриф без мягкой накладки при большом весе.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Zercher_Squats/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [
+        "glutes",
+        "hamstrings",
+        "abs",
+        "biceps"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "ankle",
+        "elbow"
+      ]
+    },
+    {
+      "code": "db-squat",
+      "name": "Приседания с гантелями",
+      "technique": "Гантели по бокам в прямых руках. Отводи таз назад и приседай до параллели, спина прямая, колени по линии носков.\nОшибки: наклон вперёд, колени внутрь, отрыв пяток.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Squat/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [
+        "glutes",
+        "hamstrings"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "ankle"
+      ]
+    },
+    {
+      "code": "plie-squat",
+      "name": "Плие-приседания с гантелью",
+      "technique": "Широкая стойка, носки развёрнуты, одна гантель в двух руках между ног. Приседай вертикально вниз, колени разводятся по линии носков.\nОшибки: колени внутрь, наклон корпуса, неполная глубина.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Plie_Dumbbell_Squat/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [
+        "glutes",
+        "adductors"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "ankle"
+      ]
+    },
+    {
+      "code": "bodyweight-squat",
+      "name": "Приседания без веса",
+      "technique": "Стопы на ширине плеч, руки перед собой. Отводи таз назад и приседай до параллели, спина прямая. Вставай через пятки.\nОшибки: колени внутрь, отрыв пяток, округление спины.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bodyweight_Squat/0.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [
+        "glutes",
+        "hamstrings"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "ankle"
+      ]
+    },
+    {
+      "code": "barbell-lunge",
+      "name": "Выпады со штангой",
+      "technique": "Гриф на трапециях. Шаг вперёд, опускайся до угла 90° в обоих коленях, корпус вертикально. Оттолкнись передней ногой и вернись.\nОшибки: колено уходит внутрь, короткий шаг, наклон корпуса вперёд.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Lunge/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [
+        "glutes",
+        "hamstrings"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "ankle"
+      ]
+    },
+    {
+      "code": "walking-lunge",
+      "name": "Выпады в ходьбе со штангой",
+      "technique": "Гриф на трапециях. Шагай вперёд выпадами, опускаясь до касания коленом пола, и сразу переходи в следующий шаг. Корпус вертикально.\nОшибки: потеря равновесия от узкой постановки стоп, удар коленом о пол, короткий шаг.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Walking_Lunge/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [
+        "glutes",
+        "hamstrings"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "ankle"
+      ]
+    },
+    {
+      "code": "db-reverse-lunge",
+      "name": "Обратные выпады с гантелями",
+      "technique": "Гантели по бокам. Шаг назад, опускайся до угла 90° в коленях, вес на передней ноге. Вернись, оттолкнувшись передней ногой. Щадит колени больше, чем выпад вперёд.\nОшибки: толчок задней ногой, наклон корпуса, колено внутрь.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Rear_Lunge/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [
+        "glutes",
+        "hamstrings"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "ankle"
+      ]
+    },
+    {
+      "code": "barbell-bulgarian-split-squat",
+      "name": "Болгарские сплит-приседания со штангой",
+      "technique": "Гриф на трапециях, задняя стопа на скамье. Опускайся на передней ноге до параллели бедра с полом, корпус чуть наклонён.\nОшибки: передняя стопа слишком близко к скамье, колено внутрь, опора на заднюю ногу.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/One_Leg_Barbell_Squat/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [
+        "glutes",
+        "hamstrings"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "ankle"
+      ]
+    },
+    {
+      "code": "smith-split-squat",
+      "name": "Сплит-приседания в тренажёре Смита",
+      "technique": "Гриф на трапециях, одна нога впереди, вторая сзади на носке или на скамье. Опускайся вертикально до угла 90° в переднем колене.\nОшибки: короткая стойка, колено внутрь, толчок задней ногой.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Smith_Single-Leg_Split_Squat/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [
+        "glutes",
+        "hamstrings"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "ankle"
+      ]
+    },
+    {
+      "code": "side-lunge",
+      "name": "Боковые выпады со штангой",
+      "technique": "Широкая стойка, гриф на трапециях. Сгибай одну ногу, отводя таз назад, вторая остаётся прямой. Вернись и повтори в другую сторону.\nОшибки: пятка рабочей ноги отрывается, колено внутрь, округление спины.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Side_Split_Squat/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [
+        "glutes",
+        "adductors",
+        "hamstrings"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "ankle"
+      ]
+    },
+    {
+      "code": "db-step-up",
+      "name": "Зашагивания на скамью с гантелями",
+      "technique": "Гантели по бокам, одна стопа целиком на скамье. Поднимайся за счёт верхней ноги, не отталкиваясь нижней. Опускайся подконтрольно.\nОшибки: толчок нижней ногой, колено внутрь, наклон корпуса.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Step_Ups/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [
+        "glutes",
+        "hamstrings"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "ankle"
+      ]
+    },
+    {
+      "code": "barbell-step-up",
+      "name": "Зашагивания на скамью со штангой",
+      "technique": "Гриф на трапециях, стопа целиком на скамье. Вставай за счёт верхней ноги, опускайся медленно. Высота — бедро не выше параллели.\nОшибки: слишком высокая опора, толчок нижней ногой, потеря равновесия.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Step_Ups/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [
+        "glutes",
+        "hamstrings"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "ankle"
+      ]
+    },
+    {
+      "code": "single-leg-extension",
+      "name": "Разгибание одной ноги в тренажёре",
+      "technique": "Валик на нижней части голени, колено на оси тренажёра. Разгибай одну ногу до конца, пауза, медленно опускай. Помогает выровнять разницу между ногами.\nОшибки: отрыв таза от сиденья, рывок, бросок веса.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Single-Leg_Leg_Extension/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "quads"
+      ],
+      "joints": [
+        "knee"
+      ]
+    },
+    {
+      "code": "narrow-leg-press",
+      "name": "Жим ногами узкой постановкой стоп",
+      "technique": "Стопы вместе или на ширине таза по центру платформы. Опускай платформу до угла 90° в коленях, жми без полного выключения коленей.\nОшибки: отрыв таза от спинки, колени в стороны или внутрь, выключение коленей вверху.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Narrow_Stance_Leg_Press/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [
+        "glutes",
+        "hamstrings"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "ankle"
+      ]
+    },
+    {
+      "code": "stiff-leg-deadlift",
+      "name": "Становая тяга на прямых ногах",
+      "technique": "Колени почти прямые и неподвижны. Отводи таз назад и опускай гриф вдоль ног до растяжения бицепса бедра, спина прямая. Вставай, подавая таз вперёд.\nОшибки: округление спины, гриф далеко от ног, опускание ниже своей гибкости.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Stiff-Legged_Barbell_Deadlift/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "hamstrings"
+      ],
+      "secondary": [
+        "glutes",
+        "lower-back"
+      ],
+      "joints": [
+        "hip",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "db-romanian-deadlift",
+      "name": "Румынская тяга с гантелями",
+      "technique": "Гантели перед бёдрами, колени чуть согнуты. Отводи таз назад, гантели скользят вдоль ног до середины голени. Спина прямая.\nОшибки: круглая спина, приседание вместо наклона, гантели далеко от ног.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Stiff-Legged_Dumbbell_Deadlift/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "hamstrings"
+      ],
+      "secondary": [
+        "glutes",
+        "lower-back"
+      ],
+      "joints": [
+        "hip",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "seated-leg-curl",
+      "name": "Сгибание ног в тренажёре сидя",
+      "technique": "Колени на оси тренажёра, валик на нижней части голени, бёдра зафиксированы. Сгибай ноги до конца, медленно возвращай.\nОшибки: отрыв таза, рывок, неполное возвращение.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Leg_Curl/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "hamstrings"
+      ],
+      "secondary": [
+        "calves"
+      ],
+      "joints": [
+        "knee"
+      ]
+    },
+    {
+      "code": "standing-leg-curl",
+      "name": "Сгибание ноги в тренажёре стоя",
+      "technique": "Стоя, бедро прижато к подушке, валик над пяткой. Сгибай ногу до конца, медленно опускай.\nОшибки: прогиб в пояснице, мах бедром, рывок.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Leg_Curl/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "hamstrings"
+      ],
+      "secondary": [
+        "calves"
+      ],
+      "joints": [
+        "knee"
+      ]
+    },
+    {
+      "code": "glute-ham-raise",
+      "name": "Подъём корпуса в тренажёре GHR",
+      "technique": "Колени на подушке, стопы закреплены. Из положения корпуса параллельно полу поднимайся, сгибая колени, до вертикали. Опускайся медленно.\nОшибки: сгибание в тазобедренных, рывок, переразгибание поясницы.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Glute_Ham_Raise/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "hamstrings"
+      ],
+      "secondary": [
+        "glutes",
+        "calves",
+        "lower-back"
+      ],
+      "joints": [
+        "knee",
+        "hip"
+      ]
+    },
+    {
+      "code": "nordic-curl",
+      "name": "Скандинавские сгибания",
+      "technique": "Колени на мягкой опоре, пятки закреплены под валиком. Медленно опускай прямой корпус вперёд, страхуясь руками, и возвращайся за счёт бицепса бедра.\nОшибки: сгибание в тазу, падение без контроля, выполнение без разминки.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Natural_Glute_Ham_Raise/0.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "hamstrings"
+      ],
+      "secondary": [
+        "glutes",
+        "calves"
+      ],
+      "joints": [
+        "knee"
+      ]
+    },
+    {
+      "code": "hip-thrust",
+      "name": "Ягодичный мост от скамьи со штангой",
+      "technique": "Лопатки на краю скамьи, гриф с накладкой на сгибе бёдер, стопы под коленями. Поднимай таз до прямой линии корпуса, сжимай ягодицы вверху, подбородок к груди.\nОшибки: переразгибание поясницы, стопы слишком далеко, движение за счёт спины.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Hip_Thrust/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "glutes"
+      ],
+      "secondary": [
+        "hamstrings",
+        "quads"
+      ],
+      "joints": [
+        "hip",
+        "knee"
+      ]
+    },
+    {
+      "code": "bodyweight-glute-bridge",
+      "name": "Ягодичный мост без веса",
+      "technique": "Лёжа на спине, стопы на ширине плеч у таза. Поднимай таз, толкаясь пятками, до прямой линии от плеч до коленей. Пауза вверху.\nОшибки: прогиб в пояснице, толчок носками, неполная амплитуда.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Butt_Lift_Bridge/0.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "glutes"
+      ],
+      "secondary": [
+        "hamstrings"
+      ],
+      "joints": [
+        "hip"
+      ]
+    },
+    {
+      "code": "single-leg-glute-bridge",
+      "name": "Ягодичный мост на одной ноге",
+      "technique": "Лёжа на спине, одна стопа на полу, вторая нога поднята. Поднимай таз за счёт опорной ноги, таз держи ровно.\nОшибки: перекос таза, прогиб в пояснице, толчок носком.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Single_Leg_Glute_Bridge/0.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "glutes"
+      ],
+      "secondary": [
+        "hamstrings"
+      ],
+      "joints": [
+        "hip"
+      ]
+    },
+    {
+      "code": "cable-kickback",
+      "name": "Отведение ноги назад на блоке",
+      "technique": "Манжета нижнего блока на щиколотке, лёгкий наклон вперёд, руки на опоре. Отводи ногу назад, сжимая ягодицу, без прогиба в пояснице.\nОшибки: мах с прогибом спины, разворот таза, рывок.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/One-Legged_Cable_Kickback/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "glutes"
+      ],
+      "secondary": [
+        "hamstrings"
+      ],
+      "joints": [
+        "hip"
+      ]
+    },
+    {
+      "code": "glute-kickback",
+      "name": "Отведение ноги назад на четвереньках",
+      "technique": "На четвереньках, колено согнуто на 90°. Поднимай ногу, толкая пятку в потолок, до линии бедра с корпусом.\nОшибки: прогиб в пояснице, разворот таза, мах по инерции.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Glute_Kickback/0.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "glutes"
+      ],
+      "secondary": [
+        "hamstrings"
+      ],
+      "joints": [
+        "hip"
+      ]
+    },
+    {
+      "code": "cable-pull-through",
+      "name": "Протяжка каната между ног",
+      "technique": "Стоя спиной к нижнему блоку, канат между ног. Отводи таз назад с прямой спиной, затем разгибайся, подавая таз вперёд и сжимая ягодицы.\nОшибки: приседание вместо наклона, тяга руками, круглая спина.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Pull_Through/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "glutes"
+      ],
+      "secondary": [
+        "hamstrings",
+        "lower-back"
+      ],
+      "joints": [
+        "hip",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "cable-hip-adduction",
+      "name": "Приведение ноги на блоке",
+      "technique": "Манжета на щиколотке ноги, ближней к блоку, держись за опору. Приводи ногу к опорной и чуть за неё, плавно возвращай.\nОшибки: наклон корпуса, мах по инерции, разворот таза.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cable_Hip_Adduction/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "adductors"
+      ],
+      "joints": [
+        "hip"
+      ]
+    },
+    {
+      "code": "barbell-calf-raise",
+      "name": "Подъём на носки со штангой",
+      "technique": "Гриф на трапециях, носки на подставке или блине. Поднимайся на носки как можно выше, пауза, опускай пятки ниже подставки.\nОшибки: сгибание коленей, пружинящие движения, неполная амплитуда.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Barbell_Calf_Raise/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "calves"
+      ],
+      "joints": [
+        "ankle"
+      ]
+    },
+    {
+      "code": "db-calf-raise",
+      "name": "Подъём на носки с гантелями",
+      "technique": "Гантели по бокам, носки на подставке. Поднимайся на носки до конца, пауза, опускайся до растяжения.\nОшибки: быстрый темп с отбивом, сгибание коленей, завал стоп наружу.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Dumbbell_Calf_Raise/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "calves"
+      ],
+      "joints": [
+        "ankle"
+      ]
+    },
+    {
+      "code": "smith-calf-raise",
+      "name": "Подъём на носки в тренажёре Смита",
+      "technique": "Гриф на трапециях, носки на подставке под грифом. Поднимайся на носки, пауза, опускай пятки вниз.\nОшибки: сгибание коленей, неполная амплитуда, рывки.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Smith_Machine_Calf_Raise/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "calves"
+      ],
+      "joints": [
+        "ankle"
+      ]
+    },
+    {
+      "code": "leg-press-calf-raise",
+      "name": "Жим носками в тренажёре для жима ногами",
+      "technique": "Ноги почти прямые, на краю платформы только носки. Выжимай платформу носками, пауза, опускай до растяжения икр. Упоры не снимай.\nОшибки: выключенные колени, снятые упоры, короткая амплитуда.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Calf_Press_On_The_Leg_Press_Machine/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "calves"
+      ],
+      "joints": [
+        "ankle"
+      ]
+    },
+    {
+      "code": "barbell-seated-calf-raise",
+      "name": "Подъём на носки сидя со штангой",
+      "technique": "Сидя на скамье, гриф с накладкой на коленях, носки на подставке. Поднимай пятки как можно выше, плавно опускай. Работает в основном камбаловидная.\nОшибки: гриф на коленных чашечках, отбив, неполная амплитуда.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Seated_Calf_Raise/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "calves"
+      ],
+      "joints": [
+        "ankle"
+      ]
+    },
+    {
+      "code": "db-seated-calf-raise",
+      "name": "Подъём на носок сидя с гантелью",
+      "technique": "Сидя, гантель на бедре над коленом, носок на подставке. Поднимай пятку до конца, пауза, опускай до растяжения.\nОшибки: гантель давит на колено, рывки, короткая амплитуда.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Seated_One-Leg_Calf_Raise/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "calves"
+      ],
+      "joints": [
+        "ankle"
+      ]
+    },
+    {
+      "code": "sit-up",
+      "name": "Подъём корпуса из положения лёжа",
+      "technique": "Лёжа на спине, колени согнуты, стопы зафиксированы. Поднимай корпус до вертикали, скругляя спину, плавно опускайся.\nОшибки: рывок руками за голову, прямая спина с нагрузкой на поясницу, падение назад.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Sit-Up/0.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "abs"
+      ],
+      "joints": [
+        "hip",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "decline-crunch",
+      "name": "Скручивания на наклонной скамье",
+      "technique": "Ноги закреплены на наклонной скамье головой вниз. Скручивай корпус, отрывая лопатки, поясница прижата. Плавно опускайся.\nОшибки: тяга руками за шею, подъём всей спиной, рывки.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Decline_Crunch/0.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "abs"
+      ],
+      "joints": [
+        "lower-back"
+      ]
+    },
+    {
+      "code": "decline-oblique-crunch",
+      "name": "Косые скручивания на наклонной скамье",
+      "technique": "Ноги закреплены, корпус приподнят над скамьёй. Скручивайся, направляя плечо к противоположному колену, попеременно.\nОшибки: тяга локтем вместо поворота корпуса, рывки, полное расслабление внизу.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Decline_Oblique_Crunch/0.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "abs"
+      ],
+      "joints": [
+        "lower-back"
+      ]
+    },
+    {
+      "code": "reverse-crunch",
+      "name": "Обратные скручивания",
+      "technique": "Лёжа на спине, колени согнуты над тазом. Подтягивай колени к груди, отрывая таз от пола за счёт пресса. Плавно опускай.\nОшибки: мах ногами, отрыв таза рывком, опускание ног с прогибом поясницы.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Reverse_Crunch/0.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "abs"
+      ],
+      "joints": [
+        "hip",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "bicycle-crunch",
+      "name": "Велосипед",
+      "technique": "Лёжа на спине, руки за головой, лопатки оторваны. Тяни локоть к противоположному колену, вторая нога выпрямляется, попеременно.\nОшибки: тяга за шею, быстрый темп без скручивания, прогиб в пояснице.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Air_Bike/0.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "abs"
+      ],
+      "joints": [
+        "hip",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "cross-body-crunch",
+      "name": "Диагональные скручивания",
+      "technique": "Лёжа на спине, колени согнуты. Одновременно поднимай плечо и противоположное колено навстречу друг другу, попеременно.\nОшибки: тяга за голову, рывки, отрыв поясницы.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cross-Body_Crunch/0.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "abs"
+      ],
+      "joints": [
+        "lower-back"
+      ]
+    },
+    {
+      "code": "oblique-crunch",
+      "name": "Боковые скручивания на полу",
+      "technique": "Лёжа на спине, колени согнуты и уложены на одну сторону. Скручивай корпус вверх, отрывая лопатки. Затем смени сторону.\nОшибки: тяга за шею, слишком высокий подъём рывком, скручивание шеи.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Oblique_Crunches_-_On_The_Floor/0.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "abs"
+      ],
+      "joints": [
+        "lower-back"
+      ]
+    },
+    {
+      "code": "heel-touches",
+      "name": "Касания пяток лёжа",
+      "technique": "Лёжа на спине, колени согнуты, лопатки приподняты. Тянись рукой к одноимённой пятке, наклоняя корпус вбок, попеременно.\nОшибки: опускание лопаток между повторами, движение шеей, спешка.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Alternate_Heel_Touchers/0.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "abs"
+      ],
+      "joints": [
+        "lower-back"
+      ]
+    },
+    {
+      "code": "russian-twist",
+      "name": "Русские скручивания",
+      "technique": "Сидя, корпус отклонён назад, спина прямая, стопы на полу или на весу. Поворачивай корпус вправо-влево, руки перед собой.\nОшибки: круглая спина, поворот одними руками, рывки.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Russian_Twist/0.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "abs"
+      ],
+      "secondary": [
+        "lower-back"
+      ],
+      "joints": [
+        "lower-back"
+      ]
+    },
+    {
+      "code": "lying-leg-raise",
+      "name": "Подъём ног лёжа на скамье",
+      "technique": "Лёжа на скамье, руки держатся за край за головой. Поднимай почти прямые ноги до вертикали, опускай, не касаясь скамьи. Поясница прижата.\nОшибки: прогиб в пояснице при опускании, мах, полное опускание ног.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Flat_Bench_Lying_Leg_Raise/0.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "abs"
+      ],
+      "joints": [
+        "hip",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "jackknife",
+      "name": "Складка",
+      "technique": "Лёжа на спине, руки за головой. Одновременно поднимай прямые ноги и корпус, касаясь руками стоп. Опускайся подконтрольно.\nОшибки: рывок за счёт маха, круглая спина с болью в пояснице, падение вниз.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Jackknife_Sit-Up/0.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "abs"
+      ],
+      "joints": [
+        "hip",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "seated-leg-tucks",
+      "name": "Подтягивание коленей сидя на скамье",
+      "technique": "Сидя на краю скамьи, корпус отклонён назад, руки держатся за края. Подтягивай колени к груди и выпрямляй ноги, не касаясь пола.\nОшибки: круглая поясница, рывки, опускание стоп на пол.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Leg_Tucks/0.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "abs"
+      ],
+      "joints": [
+        "hip",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "hanging-pike",
+      "name": "Подъём прямых ног к перекладине",
+      "technique": "В висе на перекладине поднимай прямые ноги до касания носками перекладины, скручивая таз. Опускай медленно. Сложный вариант.\nОшибки: раскачка, мах ногами, бросок вниз.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Hanging_Pike/0.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "abs"
+      ],
+      "secondary": [
+        "forearms"
+      ],
+      "joints": [
+        "shoulder",
+        "hip",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "side-plank",
+      "name": "Боковая планка",
+      "technique": "Опора на предплечье и ребро стопы, локоть под плечом. Тело — прямая линия от головы до пяток. Удерживай положение, затем смени сторону.\nОшибки: провисание таза, заваливание корпуса вперёд, задержка дыхания.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Bridge/0.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "abs"
+      ],
+      "secondary": [
+        "mid-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "dead-bug",
+      "name": "Мёртвый жук",
+      "technique": "Лёжа на спине, руки вверх, колени над тазом под 90°. Опускай противоположные руку и ногу к полу, поясница прижата. Попеременно.\nОшибки: отрыв поясницы, спешка, задержка дыхания.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dead_Bug/0.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "abs"
+      ],
+      "joints": [
+        "hip",
+        "shoulder",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "ab-crunch-machine",
+      "name": "Скручивания в тренажёре",
+      "technique": "Сиденье настроено, стопы под валиками, руки на рукоятях. Скручивай корпус вперёд за счёт пресса, плавно возвращайся.\nОшибки: тяга руками, большой вес, рывки.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Ab_Crunch_Machine/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "abs"
+      ],
+      "joints": [
+        "lower-back"
+      ]
+    },
+    {
+      "code": "barbell-rollout",
+      "name": "Раскатка штанги с колен",
+      "technique": "На коленях, руки на грифе с круглыми блинами. Катись вперёд с прямым корпусом, пока держишь поясницу, и возвращайся за счёт пресса.\nОшибки: провал поясницы, слишком большая амплитуда, возврат за счёт таза.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Ab_Rollout_-_On_Knees/0.jpg",
+      "equipment": "BARBELL",
+      "primary": [
+        "abs"
+      ],
+      "secondary": [
+        "lats",
+        "front-delts",
+        "lower-back"
+      ],
+      "joints": [
+        "shoulder",
+        "lower-back"
+      ]
+    },
+    {
+      "code": "db-side-bend",
+      "name": "Наклоны в сторону с гантелью",
+      "technique": "Гантель в одной руке, вторая на поясе. Наклоняйся в сторону гантели и поднимайся чуть выше вертикали. Только в боковой плоскости.\nОшибки: гантели в обеих руках, наклон вперёд, большой вес.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dumbbell_Side_Bend/0.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "abs"
+      ],
+      "joints": [
+        "lower-back"
+      ]
+    },
+    {
+      "code": "cable-wood-chop",
+      "name": "Дровосек на блоке",
+      "technique": "Стоя боком к верхнему блоку, рукоять в двух руках. Тяни по диагонали сверху вниз к противоположному бедру, поворачивая корпус и стопу.\nОшибки: тяга одними руками, круглая спина, рывок.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Cable_Wood_Chop/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "abs"
+      ],
+      "secondary": [
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "lower-back",
+        "hip"
+      ]
+    },
+    {
+      "code": "pallof-press",
+      "name": "Жим Паллофа",
+      "technique": "Стоя боком к блоку на уровне груди, рукоять в двух руках у груди. Выжимай руки вперёд и возвращай, не давая корпусу развернуться к блоку.\nОшибки: разворот корпуса, наклон в сторону, слишком большой вес.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Pallof_Press/0.jpg",
+      "equipment": "MACHINE",
+      "primary": [
+        "abs"
+      ],
+      "secondary": [
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder",
         "lower-back"
       ]
     }
@@ -880,6 +3751,7 @@
       "code": "neck-side",
       "name": "Наклон головы в сторону",
       "howTo": "Сядь ровно, наклони голову ухом к плечу, противоположное плечо тяни вниз. Не дави рукой на голову.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Neck_Stretch/0.jpg",
       "muscles": [
         "traps"
       ],
@@ -891,6 +3763,7 @@
       "code": "traps-chin-down",
       "name": "Растяжка трапеций наклоном головы вперёд",
       "howTo": "Сцепи пальцы на затылке, мягко опусти подбородок к груди, локти направь вниз.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Chin_To_Chest_Stretch/0.jpg",
       "muscles": [
         "traps"
       ],
@@ -902,6 +3775,7 @@
       "code": "front-delt-behind",
       "name": "Растяжка передних дельт за спиной",
       "howTo": "Сцепи руки за спиной в замок, выпрями их и отведи назад-вверх, грудь раскрой.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Biceps_Stretch/0.jpg",
       "muscles": [
         "front-delts",
         "chest"
@@ -914,6 +3788,7 @@
       "code": "cross-body-shoulder",
       "name": "Растяжка плеча через грудь",
       "howTo": "Прямую руку проведи перед грудью, второй рукой прижми её к себе выше локтя. Плечо не поднимай.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Shoulder_Stretch/0.jpg",
       "muscles": [
         "rear-delts",
         "mid-delts"
@@ -972,6 +3847,7 @@
       "code": "lats-side-bend",
       "name": "Наклон в сторону с рукой над головой",
       "howTo": "Подними руку вверх, возьмись второй рукой за запястье и наклонись в сторону, вытягивая бок.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Lateral_Stretch/0.jpg",
       "muscles": [
         "lats"
       ],
@@ -983,6 +3859,7 @@
       "code": "child-pose",
       "name": "Поза ребёнка",
       "howTo": "Сядь на пятки, наклонись вперёд и вытяни руки по полу. Тянись пальцами вперёд, таз держи у пяток.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Childs_Pose/0.jpg",
       "muscles": [
         "lats",
         "lower-back"
@@ -1007,6 +3884,7 @@
       "code": "triceps-overhead",
       "name": "Растяжка трицепса за головой",
       "howTo": "Подними руку и согни её за головой, второй рукой мягко надави на локоть вниз и назад.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Triceps_Stretch/0.jpg",
       "muscles": [
         "triceps"
       ],
@@ -1051,6 +3929,7 @@
       "code": "abs-standing-reach",
       "name": "Вытяжение вверх стоя",
       "howTo": "Сцепи руки над головой ладонями вверх и тянись вверх, слегка прогибаясь назад.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Overhead_Stretch/0.jpg",
       "muscles": [
         "abs",
         "lats"
@@ -1063,6 +3942,7 @@
       "code": "knees-to-chest",
       "name": "Колени к груди лёжа",
       "howTo": "Лёжа на спине, подтяни оба колена к груди и обхвати их руками. Поясницу расслабь.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Hug_Knees_To_Chest/0.jpg",
       "muscles": [
         "lower-back",
         "glutes"
@@ -1075,6 +3955,7 @@
       "code": "cat-stretch",
       "name": "Кошка",
       "howTo": "На четвереньках округли спину вверх, подбородок к груди, задержись.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cat_Stretch/0.jpg",
       "muscles": [
         "lower-back"
       ],
@@ -1086,6 +3967,7 @@
       "code": "lying-twist",
       "name": "Скручивание лёжа",
       "howTo": "Лёжа на спине, согни колено и опусти его через корпус в сторону, плечи остаются на полу.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Knee_Across_The_Body/0.jpg",
       "muscles": [
         "lower-back",
         "glutes"
@@ -1098,6 +3980,7 @@
       "code": "figure-four",
       "name": "Растяжка ягодичных «четвёрка»",
       "howTo": "Лёжа на спине, положи лодыжку на колено другой ноги и подтяни нижнюю ногу к груди.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Ankle_On_The_Knee/0.jpg",
       "muscles": [
         "glutes"
       ],
@@ -1143,6 +4026,7 @@
       "code": "hamstring-forward-fold",
       "name": "Наклон к прямым ногам стоя",
       "howTo": "Ноги вместе, колени чуть мягкие. Наклонись от бёдер и тянись руками к полу, спину не округляй рывком.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Toe_Touches/0.jpg",
       "muscles": [
         "hamstrings",
         "lower-back"
@@ -1155,6 +4039,7 @@
       "code": "hamstring-seated",
       "name": "Наклон к ноге сидя",
       "howTo": "Сидя, одна нога прямая, стопа второй у бедра. Тянись грудью к прямой ноге.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Floor_Hamstring_Stretch/0.jpg",
       "muscles": [
         "hamstrings"
       ],
@@ -1189,6 +4074,7 @@
       "code": "calf-wall",
       "name": "Растяжка икр у стены",
       "howTo": "Упрись руками в стену, заднюю ногу выпрями, пятку прижми к полу и подай таз вперёд.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Calf_Stretch_Hands_Against_Wall/0.jpg",
       "muscles": [
         "calves"
       ],
@@ -1206,6 +4092,1215 @@
       "holdSeconds": 30,
       "perSide": true,
       "kind": "COOLDOWN"
+    },
+    {
+      "code": "all-fours-quad",
+      "name": "Растяжка квадрицепса на четвереньках",
+      "howTo": "Стоя на четвереньках, согни одну ногу и возьми стопу одноимённой рукой. Подтяни пятку к ягодице и подай таз вниз к полу. Поясницу не прогибай.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/All_Fours_Quad_Stretch/0.jpg",
+      "muscles": [
+        "quads"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "calf-wall-elbows",
+      "name": "Растяжка икр с упором предплечьями в стену",
+      "howTo": "Встань в шаге от стены и обопрись на неё предплечьями. Тело прямое, пятки прижаты к полу. Чем дальше стопы от стены, тем сильнее растяжение.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Calf_Stretch_Elbows_Against_Wall/0.jpg",
+      "muscles": [
+        "calves"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "bench-side-bend",
+      "name": "Наклон в сторону сидя на скамье",
+      "howTo": "Сядь прямо на скамью. Подними одну руку над головой и наклонись в противоположную сторону, свободной рукой держись за скамью. Таз не отрывай.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Chair_Lower_Back_Stretch/0.jpg",
+      "muscles": [
+        "lats",
+        "abs"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "bench-upper-body",
+      "name": "Растяжка груди и плеч с хватом за скамью",
+      "howTo": "Сядь на край скамьи и возьмись руками за её край позади себя. Выпрями руки и подай корпус вперёд с прямой спиной, пока не почувствуешь растяжение в груди и плечах.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Chair_Upper_Body_Stretch/0.jpg",
+      "muscles": [
+        "front-delts",
+        "chest",
+        "biceps"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "stick-overhead-chest",
+      "name": "Растяжка груди и плеч с палкой над головой",
+      "howTo": "Возьми гимнастическую палку или бодибар хватом шире плеч. Подними её над головой и плавно отведи за голову на прямых руках. Не прогибайся в пояснице.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Chest_And_Front_Of_Shoulder_Stretch/0.jpg",
+      "muscles": [
+        "chest",
+        "front-delts"
+      ],
+      "holdSeconds": 20,
+      "perSide": false,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "chest-fitball",
+      "name": "Растяжка груди на фитболе",
+      "howTo": "Нужен фитбол. Встань на четвереньки рядом с мячом, положи локоть отведённой в сторону руки на мяч. Опускай грудь к полу, локоть остаётся на мяче.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Chest_Stretch_on_Stability_Ball/0.jpg",
+      "muscles": [
+        "chest",
+        "front-delts"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "seated-spinal-twist",
+      "name": "Скручивание сидя с ногой через бедро",
+      "howTo": "Сидя на полу, одна нога прямая, вторую согни и поставь стопу за колено прямой ноги. Упрись противоположным локтем в согнутое колено и поверни корпус в сторону согнутой ноги.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dancers_Stretch/0.jpg",
+      "muscles": [
+        "lower-back",
+        "glutes"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "elbows-back",
+      "name": "Сведение локтей за спиной",
+      "howTo": "Стоя прямо, положи ладони на поясницу пальцами вниз, локти в стороны. Плавно своди локти за спиной навстречу друг другу, раскрывая грудь.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Elbows_Back/0.jpg",
+      "muscles": [
+        "chest",
+        "front-delts"
+      ],
+      "holdSeconds": 20,
+      "perSide": false,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "lying-hamstring-strap",
+      "name": "Растяжка бицепса бедра лёжа с ремнём",
+      "howTo": "Нужен ремень или полотенце. Лёжа на спине, накинь ремень на стопу и подними прямую ногу вверх. Тяни ремень на себя, вторая нога лежит на полу.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Hamstring_Stretch/0.jpg",
+      "muscles": [
+        "hamstrings",
+        "calves"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "hug-fitball",
+      "name": "Растяжка поясницы в обнимку с фитболом",
+      "howTo": "Нужен фитбол. Сядь на корточки, мяч между ног, стопы на полу, колени над щиколотками. Обними мяч и расслабь спину, опуская таз вниз.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Hug_A_Ball/0.jpg",
+      "muscles": [
+        "lower-back",
+        "glutes"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "it-band-strap",
+      "name": "Растяжка наружной поверхности бедра с ремнём",
+      "howTo": "Нужен ремень или полотенце. Лёжа на спине, накинь ремень на стопу и уведи прямую ногу через корпус в противоположную сторону. Тяни носок на себя, плечи прижаты к полу.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/IT_Band_and_Glute_Stretch/0.jpg",
+      "muscles": [
+        "glutes"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "lying-groin-strap",
+      "name": "Растяжка приводящих лёжа с ремнём",
+      "howTo": "Нужен ремень или полотенце. Лёжа на спине, накинь ремень на стопу и отведи прямую ногу как можно дальше в сторону. Мягко подтягивай ремнём, таз не разворачивай.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Intermediate_Groin_Stretch/0.jpg",
+      "muscles": [
+        "adductors",
+        "hamstrings"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "prone-quad-strap",
+      "name": "Растяжка квадрицепса лёжа на животе с ремнём",
+      "howTo": "Нужен ремень или полотенце. Лёжа на животе, накинь ремень на стопу, согни колено и тяни ремень двумя руками через плечо. Колено и бедро слегка отрываются от пола.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Intermediate_Hip_Flexor_and_Quad_Stretch/0.jpg",
+      "muscles": [
+        "quads"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "kneeling-forearm",
+      "name": "Растяжка предплечий на коленях",
+      "howTo": "Встань на колени и поставь ладони на пол пальцами к коленям. Плавно отклоняйся назад, не отрывая ладони, до растяжения в запястьях и предплечьях.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Kneeling_Forearm_Stretch/0.jpg",
+      "muscles": [
+        "forearms"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "kneeling-hip-flexor",
+      "name": "Растяжка сгибателей бедра в выпаде на колене",
+      "howTo": "Одна нога впереди стопой на полу, колено второй на полу, подъём стопы лежит на полу. Подай таз вперёд до растяжения в передней части бедра задней ноги. Корпус вертикально.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Kneeling_Hip_Flexor/0.jpg",
+      "muscles": [
+        "quads"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "leg-up-hamstring",
+      "name": "Растяжка бицепса бедра лёжа, нога вверх",
+      "howTo": "Лёжа на спине, одна нога согнута и стоит на полу. Вторую подними вверх и обхвати руками за бедро, постепенно выпрямляя колено, подошва смотрит в потолок.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg-Up_Hamstring_Stretch/0.jpg",
+      "muscles": [
+        "hamstrings"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "kneeling-backbend",
+      "name": "Прогиб назад на коленях",
+      "howTo": "Стоя на коленях, возьмись руками за пятки. Подай таз вверх и вперёд, прогнись в грудном отделе и посмотри в потолок. При дискомфорте в пояснице уменьши прогиб.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Looking_At_Ceiling/0.jpg",
+      "muscles": [
+        "quads",
+        "abs"
+      ],
+      "holdSeconds": 20,
+      "perSide": false,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "standing-twist",
+      "name": "Поворот корпуса стоя",
+      "howTo": "Стопы на ширине плеч, руки на поясе. Поверни корпус в сторону до ощущения растяжения и удержи. Таз остаётся на месте.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Middle_Back_Stretch/0.jpg",
+      "muscles": [
+        "lower-back",
+        "abs"
+      ],
+      "holdSeconds": 15,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "bench-quad",
+      "name": "Растяжка квадрицепса лёжа на скамье",
+      "howTo": "Лёжа на спине на скамье, свесь одну ногу и руку с края. Согни колено и возьмись за подъём стопы, тяни пятку к ягодице. Поясницу не прогибай.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/On-Your-Back_Quad_Stretch/0.jpg",
+      "muscles": [
+        "quads"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "side-lying-quad",
+      "name": "Растяжка квадрицепса лёжа на боку",
+      "howTo": "Лёжа на боку, нижнее колено согнуто впереди для опоры. Согни верхнюю ногу назад и возьмись за стопу, подай бедро вперёд, а стопу — в ладонь.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/On_Your_Side_Quad_Stretch/0.jpg",
+      "muscles": [
+        "quads"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "half-locust",
+      "name": "Полусаранча",
+      "howTo": "Лёжа на животе, согни одно колено и возьми стопу одноимённой рукой. Одновременно поднимай стопу вверх и отрывай плечи от пола.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/One_Half_Locust/0.jpg",
+      "muscles": [
+        "quads",
+        "chest",
+        "front-delts"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "one-hand-hang",
+      "name": "Вис на одной руке с опорой на ноги",
+      "howTo": "Возьмись за перекладину одной рукой хватом сверху, стопы на полу или подставке. Перенеси большую часть веса на руку и расслабь бок.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/One_Handed_Hang/0.jpg",
+      "muscles": [
+        "lats",
+        "biceps"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "one-knee-to-chest",
+      "name": "Колено к груди лёжа",
+      "howTo": "Лёжа на спине, одна нога прямая. Вторую согни и подтяни колено к груди, держа руками под коленом. Затылок и плечи на полу.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/One_Knee_To_Chest/0.jpg",
+      "muscles": [
+        "glutes",
+        "lower-back"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "pyramid-fitball",
+      "name": "Пирамида на фитболе",
+      "howTo": "Нужен фитбол. Ляг животом на мяч так, чтобы таз был на вершине, руки и ноги опущены на пол. Расслабь спину и шею.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Pyramid/0.jpg",
+      "muscles": [
+        "lower-back",
+        "lats"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "side-lying-quad-strap",
+      "name": "Растяжка квадрицепса лёжа на боку с ремнём",
+      "howTo": "Нужен ремень или полотенце. Лёжа на боку, накинь ремень на верхнюю стопу, согни колено и отведи бедро назад. Тяни ремень через плечо, подтягивая пятку к ягодице.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Quad_Stretch/0.jpg",
+      "muscles": [
+        "quads"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "stick-behind-back",
+      "name": "Растяжка плеч с палкой за спиной",
+      "howTo": "Возьми гимнастическую палку или бодибар за спиной хватом шире плеч, ладони назад. Плавно поднимай прямые руки вверх за спиной, не наклоняясь вперёд.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Round_The_World_Shoulder_Stretch/0.jpg",
+      "muscles": [
+        "front-delts",
+        "chest",
+        "biceps"
+      ],
+      "holdSeconds": 20,
+      "perSide": false,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "runners-stretch",
+      "name": "Растяжка бегуна",
+      "howTo": "Из низкого выпада поставь руки по бокам от передней стопы, пятка передней ноги на полу. Выпрямляй переднюю ногу, поднимая таз вверх и наклоняясь к ней.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Runners_Stretch/0.jpg",
+      "muscles": [
+        "hamstrings",
+        "calves"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "seated-calf",
+      "name": "Растяжка икр сидя",
+      "howTo": "Сидя на полу, одна нога согнута, вторая прямая. Возьмись за носок прямой ноги рукой или полотенцем и тяни его на себя. Спина прямая.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Calf_Stretch/0.jpg",
+      "muscles": [
+        "calves",
+        "hamstrings"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "seated-hamstring-strap",
+      "name": "Растяжка задней поверхности ноги сидя с ремнём",
+      "howTo": "Нужен ремень или полотенце. Сидя с прямыми ногами, накинь ремень на одну стопу. Слегка наклонись вперёд и тяни носок на себя.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Hamstring_and_Calf_Stretch/0.jpg",
+      "muscles": [
+        "hamstrings",
+        "calves"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "seated-side-bend",
+      "name": "Наклон в сторону сидя на полу",
+      "howTo": "Сидя на полу, стопы вместе перед собой. Одна рука на полу, вторая за головой. Поднимай локоть к потолку и наклоняй корпус в сторону опорной руки.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Overhead_Stretch/0.jpg",
+      "muscles": [
+        "abs",
+        "lats"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "side-lying-reach",
+      "name": "Вытяжение лёжа на боку",
+      "howTo": "Лёжа на боку, нижнее колено согнуто впереди для опоры, верхняя нога прямая. Вытяни верхнюю руку над головой и тяни её за запястье, растягивая весь бок.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side-Lying_Floor_Stretch/0.jpg",
+      "muscles": [
+        "lats",
+        "abs"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "side-lying-groin",
+      "name": "Растяжка приводящих лёжа на боку",
+      "howTo": "Лёжа на боку, нижнее колено согнуто. Подними верхнюю ногу и возьмись за неё под коленом или за стопу. Тяни колено к плечу, одновременно толкая стопу в ладонь.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Lying_Groin_Stretch/0.jpg",
+      "muscles": [
+        "adductors",
+        "hamstrings"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "side-wrist-pull",
+      "name": "Тяга руки за запястье через корпус",
+      "howTo": "Стоя, перенеси одну руку через корпус и возьми её за запястье другой рукой у бедра. Выпрямляй руку и поднимай до уровня плеч, чувствуя растяжение в спине.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Wrist_Pull/0.jpg",
+      "muscles": [
+        "rear-delts",
+        "lats"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "bench-quad-standing",
+      "name": "Растяжка квадрицепса стоя с ногой на скамье",
+      "howTo": "Встань спиной к скамье в полушаге от неё. Положи подъём одной стопы на скамью, опорное колено слегка согни. Подай таз вперёд, корпус вертикально.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Elevated_Quad_Stretch/0.jpg",
+      "muscles": [
+        "quads"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "calf-heel-on-step",
+      "name": "Растяжка икр с пяткой на ступеньке",
+      "howTo": "Поставь пятку прямой ноги на ступеньку или блин. Наклонись с прямой спиной и возьмись за носок, тяни его к себе. Опорное колено чуть согнуто.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Gastrocnemius_Calf_Stretch/0.jpg",
+      "muscles": [
+        "calves",
+        "hamstrings"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "standing-hamstring-strap",
+      "name": "Растяжка задней поверхности ноги стоя с ремнём",
+      "howTo": "Нужен ремень или полотенце. Накинь ремень на стопу и выставь эту ногу вперёд на пятку. Согни заднюю ногу, наклонись вперёд и тяни носок ремнём на себя.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Hamstring_and_Calf_Stretch/0.jpg",
+      "muscles": [
+        "hamstrings",
+        "calves"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "standing-hip-flexor",
+      "name": "Растяжка сгибателей бедра стоя",
+      "howTo": "Одна стопа чуть впереди другой. Согни оба колена, оторви заднюю пятку и подай таз вперёд со стороны задней ноги. Корпус вертикально.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Hip_Flexors/0.jpg",
+      "muscles": [
+        "quads"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "standing-pelvic-tilt",
+      "name": "Подкручивание таза стоя",
+      "howTo": "Стопы на ширине таза, колени мягкие. Несколько раз покачай таз вперёд-назад, затем подкрути копчик вперёд и удержи, вытягивая поясницу.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Pelvic_Tilt/0.jpg",
+      "muscles": [
+        "lower-back",
+        "glutes"
+      ],
+      "holdSeconds": 20,
+      "perSide": false,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "soleus-stretch",
+      "name": "Растяжка камбаловидной и ахилла стоя",
+      "howTo": "Одна стопа чуть впереди другой. Согни оба колена, не отрывая заднюю пятку от пола, и перенеси вес на заднюю ногу.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Soleus_And_Achilles_Stretch/0.jpg",
+      "muscles": [
+        "calves"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "straddle",
+      "name": "Наклон вперёд сидя с разведёнными ногами",
+      "howTo": "Сидя на полу, разведи прямые ноги в стороны буквой V. Поставь руки на пол перед собой и наклоняйся вперёд с прямой спиной.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/The_Straddle/0.jpg",
+      "muscles": [
+        "hamstrings",
+        "adductors"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "triceps-cross-shoulder",
+      "name": "Растяжка трицепса через плечо",
+      "howTo": "Перенеси руку через корпус и заведи кисть за противоположное плечо. Второй рукой возьмись за локоть и мягко дави на него к плечу.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Tricep_Side_Stretch/0.jpg",
+      "muscles": [
+        "triceps",
+        "rear-delts"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "seated-thigh-hug",
+      "name": "Растяжка верха спины с обхватом бёдер",
+      "howTo": "Сидя, наклонись вперёд и обхвати бёдра снизу двумя руками, колени вместе. Опусти грудь к коленям, затем округли спину вверх, не отпуская руки.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Upper_Back-Leg_Grab/0.jpg",
+      "muscles": [
+        "traps",
+        "lower-back"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "upper-back-reach",
+      "name": "Вытяжение рук вперёд с округлением спины",
+      "howTo": "Сцепи пальцы в замок перед собой большими пальцами вниз. Вытяни руки вперёд, округляя верх спины и разводя лопатки.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Upper_Back_Stretch/0.jpg",
+      "muscles": [
+        "traps",
+        "rear-delts"
+      ],
+      "holdSeconds": 20,
+      "perSide": false,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "upward-reach",
+      "name": "Вытяжение вверх с ладонями вместе",
+      "howTo": "Подними прямые руки над головой, ладони вместе. Тянись вверх и слегка назад, спина прямая, рёбра не выпячивай.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Upward_Stretch/0.jpg",
+      "muscles": [
+        "lats",
+        "front-delts"
+      ],
+      "holdSeconds": 20,
+      "perSide": false,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "lats-wall",
+      "name": "Растяжка широчайших с опорой рукой на стену",
+      "howTo": "Встань боком к стене или стойке. Согни руку над головой и обопрись на стену предплечьем. Плавно подавай корпус к стене и вниз, пока не почувствуешь растяжение в боку под рукой.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/One_Arm_Against_Wall/0.jpg",
+      "muscles": [
+        "lats"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "adductor-roll",
+      "name": "Прокатка приводящих на ролле",
+      "howTo": "Нужен массажный ролл. Лёжа на животе, отведи одну ногу в сторону и положи внутреннюю поверхность бедра на ролл. Медленно катайся от паха до колена, задерживаясь на болезненных точках.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Adductor/0.jpg",
+      "muscles": [
+        "adductors"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "tibialis-roll",
+      "name": "Прокатка передней поверхности голени",
+      "howTo": "Нужен массажный ролл или массажная палка. Прокатывай мышцы снаружи от большеберцовой кости от колена до щиколотки. По самой кости не катай.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Anterior_Tibialis-SMR/0.jpg",
+      "muscles": [
+        "calves"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "brachialis-roll",
+      "name": "Прокатка плеча на ролле",
+      "howTo": "Нужен массажный ролл. Лёжа на боку, положи наружную сторону бицепса на ролл, рука вдоль корпуса. Приподними таз и удерживай давление на напряжённой точке.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Brachialis-SMR/0.jpg",
+      "muscles": [
+        "biceps"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "calf-roll",
+      "name": "Прокатка икр на ролле",
+      "howTo": "Нужен массажный ролл. Сидя на полу, положи икру на ролл, руки сзади. Приподними таз и катайся от ахилла до подколенной ямки, не заезжая под колено.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Calves-SMR/0.jpg",
+      "muscles": [
+        "calves"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "foot-roll",
+      "name": "Прокатка стопы",
+      "howTo": "Нужен массажный мяч или малый ролл. Сидя или стоя без обуви, поставь свод стопы на мяч и прокатывай от пятки до подушечек с умеренным давлением.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Foot-SMR/0.jpg",
+      "muscles": [
+        "calves"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "hamstring-roll",
+      "name": "Прокатка бицепса бедра на ролле",
+      "howTo": "Нужен массажный ролл. Сидя, положи заднюю поверхность бедра на ролл, руки сзади. Приподними таз, перенеси вес на одну ногу и катайся от ягодицы до колена.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Hamstring-SMR/0.jpg",
+      "muscles": [
+        "hamstrings"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "it-band-roll",
+      "name": "Прокатка наружной поверхности бедра на ролле",
+      "howTo": "Нужен массажный ролл. Лёжа на боку, положи наружную сторону бедра на ролл, верхняя нога стоит впереди. Катайся от таза до колена, задерживаясь на болезненных точках.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Iliotibial_Tract-SMR/0.jpg",
+      "muscles": [
+        "glutes",
+        "quads"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "lat-roll",
+      "name": "Прокатка широчайших на ролле",
+      "howTo": "Нужен массажный ролл. Лёжа на боку, положи ролл под подмышку, рука вытянута за голову. Перенеси вес на широчайшую и медленно прокатывай вдоль рёбер.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Latissimus_Dorsi-SMR/0.jpg",
+      "muscles": [
+        "lats"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "lower-back-roll",
+      "name": "Прокатка поясницы на ролле",
+      "howTo": "Нужен массажный ролл. Сидя, положи ролл под поясницу, руки скрещены на груди. Приподними таз и слегка смести вес на одну сторону — катай мышцы сбоку от позвоночника, не сам позвоночник.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Lower_Back-SMR/0.jpg",
+      "muscles": [
+        "lower-back"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "neck-roll",
+      "name": "Прокатка шеи",
+      "howTo": "Нужна массажная палка или малый ролл. Приложи ролл к мышцам сбоку от шейного отдела, не к позвоночнику. Прокатывай от затылка до основания шеи с лёгким давлением.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Neck-SMR/0.jpg",
+      "muscles": [
+        "traps"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "peroneal-roll",
+      "name": "Прокатка наружной стороны голени на ролле",
+      "howTo": "Нужен массажный ролл. Лёжа на боку с опорой на предплечье, положи наружную сторону голени на ролл. Приподними таз и катайся от колена до щиколотки.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Peroneals-SMR/0.jpg",
+      "muscles": [
+        "calves"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "peroneal-strap",
+      "name": "Растяжка малоберцовых с ремнём",
+      "howTo": "Нужен ремень или полотенце. Сидя, накинь ремень на стопу прямой ноги, пятка на весу. Тяни ремень так, чтобы стопа развернулась внутренним краем к себе.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Peroneals_Stretch/0.jpg",
+      "muscles": [
+        "calves"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "piriformis-roll",
+      "name": "Прокатка грушевидной мышцы на ролле",
+      "howTo": "Нужен массажный ролл. Сядь на ролл, положи щиколотку одной ноги на колено другой. Смести вес на ягодицу скрещённой ноги и прокатывай верхнюю часть ягодицы.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Piriformis-SMR/0.jpg",
+      "muscles": [
+        "glutes"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "tibialis-strap",
+      "name": "Растяжка задней большеберцовой с ремнём",
+      "howTo": "Нужен ремень или полотенце. Сидя, накинь ремень на стопу прямой ноги, пятка на весу. Тяни ремень так, чтобы стопа развернулась наружным краем к себе.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Posterior_Tibialis_Stretch/0.jpg",
+      "muscles": [
+        "calves"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "quad-roll",
+      "name": "Прокатка квадрицепса на ролле",
+      "howTo": "Нужен массажный ролл. Лёжа на животе с опорой на предплечья, положи переднюю поверхность бедра на ролл. Катайся от таза до колена, стопа расслаблена.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Quadriceps-SMR/0.jpg",
+      "muscles": [
+        "quads"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "rhomboid-roll",
+      "name": "Прокатка верха спины на ролле",
+      "howTo": "Нужен массажный ролл. Лёжа на спине, положи ролл под лопатки, руки скрещены на груди. Приподними таз и катайся от середины спины до верха лопаток, смещая вес то на одну, то на другую сторону.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Rhomboids-SMR/0.jpg",
+      "muscles": [
+        "traps"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "COOLDOWN"
+    },
+    {
+      "code": "leg-swing-90-90",
+      "name": "Разгибание ноги лёжа из положения 90/90",
+      "howTo": "Лёжа на спине, одна нога прямая на полу, вторая согнута под 90° в тазу и колене. Выпрямляй её вверх с короткой паузой и возвращай, 10–20 раз.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/90_90_Hamstring/0.jpg",
+      "muscles": [
+        "hamstrings"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "ankle-circles",
+      "name": "Вращения стопой",
+      "howTo": "Держась за опору, приподними одну ногу над полом. Рисуй носком большие круги, затем смени направление и ногу.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Ankle_Circles/0.jpg",
+      "muscles": [
+        "calves"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "arm-circles",
+      "name": "Круги руками",
+      "howTo": "Стоя, разведи прямые руки в стороны параллельно полу. Делай небольшие круги диаметром около 30 см, затем смени направление.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Arm_Circles/0.jpg",
+      "muscles": [
+        "front-delts",
+        "mid-delts",
+        "rear-delts"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "bench-leg-swing",
+      "name": "Отведение прямой ноги сидя на скамье",
+      "howTo": "Сидя на скамье, держись за её края. Подними прямую ногу, потяни носок на себя, медленно отведи её в сторону и верни к центру. Затем смени ногу.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Chair_Leg_Extended_Stretch/0.jpg",
+      "muscles": [
+        "hamstrings",
+        "adductors"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "crossover-reverse-lunge",
+      "name": "Обратный выпад с поворотом корпуса",
+      "howTo": "Шаг назад в выпад и одновременно поверни корпус в сторону передней ноги. Короткая пауза, вернись и повтори в другую сторону.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Crossover_Reverse_Lunge/0.jpg",
+      "muscles": [
+        "glutes",
+        "quads",
+        "lower-back"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "dynamic-back-swing",
+      "name": "Махи руками вверх",
+      "howTo": "Стопы на ширине плеч. Махни прямыми руками вперёд-вверх 5–10 раз, с каждым разом увеличивая амплитуду, пока руки не окажутся над головой.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dynamic_Back_Stretch/0.jpg",
+      "muscles": [
+        "lats"
+      ],
+      "holdSeconds": 20,
+      "perSide": false,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "dynamic-chest-swing",
+      "name": "Разведение рук с хлопком",
+      "howTo": "Вытяни прямые руки перед собой, ладони вместе. Быстро отведи руки назад и верни, как в размашистом хлопке. 5–10 раз, постепенно ускоряясь.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dynamic_Chest_Stretch/0.jpg",
+      "muscles": [
+        "chest"
+      ],
+      "holdSeconds": 20,
+      "perSide": false,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "elbow-circles",
+      "name": "Круги локтями",
+      "howTo": "Положи кисти на плечи, локти в стороны на уровне плеч. Медленно рисуй локтями круги, затем смени направление.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Elbow_Circles/0.jpg",
+      "muscles": [
+        "front-delts",
+        "mid-delts",
+        "rear-delts",
+        "traps"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "frog-hops",
+      "name": "Прыжки лягушкой",
+      "howTo": "Руки за головой, присядь с прямой спиной. Прыгай вперёд невысоко, мягко приземляйся и сразу прыгай снова. 5–10 раз.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Frog_Hops/0.jpg",
+      "muscles": [
+        "quads",
+        "glutes",
+        "calves"
+      ],
+      "holdSeconds": 20,
+      "perSide": false,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "front-leg-swings",
+      "name": "Махи ногой вперёд-назад",
+      "howTo": "Держась рукой за опору, маши прямой ногой вперёд и назад, насколько позволяет гибкость. 5–10 раз, затем смени ногу.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Front_Leg_Raises/0.jpg",
+      "muscles": [
+        "hamstrings",
+        "quads"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "butterfly-curl",
+      "name": "Наклоны в позе бабочки",
+      "howTo": "Сидя, стопы вместе, колени в стороны, пальцы в замке за головой. Скругляйся вниз, подводя локти к внутренней стороне бёдер, и возвращайся с прямой спиной. 10–20 раз.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Groin_and_Back_Stretch/0.jpg",
+      "muscles": [
+        "adductors",
+        "lower-back"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "groiners",
+      "name": "Прыжки ногами к рукам из упора лёжа",
+      "howTo": "Из упора лёжа прыжком поставь обе стопы снаружи от ладоней, голова поднята. Вернись в упор и сразу повтори, 10–20 раз.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Groiners/0.jpg",
+      "muscles": [
+        "adductors",
+        "glutes"
+      ],
+      "holdSeconds": 20,
+      "perSide": false,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "all-fours-hip-circles",
+      "name": "Круги бедром на четвереньках",
+      "howTo": "На четвереньках приподними одно согнутое колено. Медленно рисуй коленом большой круг, двигаясь только в тазобедренном суставе. Затем смени ногу.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Hip_Circles_prone/0.jpg",
+      "muscles": [
+        "glutes",
+        "adductors"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "inchworm",
+      "name": "Гусеница",
+      "howTo": "Стоя, наклонись и поставь ладони на пол перед стопами, ноги прямые. Шагай руками вперёд до упора лёжа, затем подшагивай стопами к рукам.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Inchworm/0.jpg",
+      "muscles": [
+        "hamstrings",
+        "calves",
+        "abs"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "scorpion",
+      "name": "Скорпион лёжа на животе",
+      "howTo": "Лёжа на животе, руки в стороны ладонями в пол. Согни колено и перенеси ногу за спиной к противоположной кисти, вернись и повтори другой ногой.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Iron_Crosses_stretch/0.jpg",
+      "muscles": [
+        "quads",
+        "lower-back"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "knee-circles",
+      "name": "Круги коленями",
+      "howTo": "Стопы вместе, руки на поясе или на коленях, колени чуть согнуты. Плавно рисуй коленями круги в одну и в другую сторону.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Knee_Circles/0.jpg",
+      "muscles": [
+        "quads",
+        "hamstrings",
+        "calves"
+      ],
+      "holdSeconds": 20,
+      "perSide": false,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "prone-back-extension",
+      "name": "Подъём корпуса лёжа на животе",
+      "howTo": "Лёжа на животе, руки в стороны. Поднимай грудь от пола за счёт мышц спины, не отталкиваясь руками. 10–20 раз.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Lower_Back_Curl/0.jpg",
+      "muscles": [
+        "lower-back"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "pelvic-tilt-bridge",
+      "name": "Подкручивание таза с выходом в мост",
+      "howTo": "Лёжа на спине, стопы под коленями. Сначала подкрути только копчик вверх, втягивая живот, затем подними весь позвоночник в мост, кроме шеи. Опускайся позвонок за позвонком.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Pelvic_Tilt_Into_Bridge/0.jpg",
+      "muscles": [
+        "lower-back",
+        "glutes"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "kneeling-leg-raise",
+      "name": "Подъём ноги назад на четвереньках",
+      "howTo": "На четвереньках выпрямляй одну ногу назад и вверх, разгибая колено и бедро. 5–10 раз, затем смени ногу.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Rear_Leg_Raises/0.jpg",
+      "muscles": [
+        "glutes",
+        "hamstrings"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "scissor-kick",
+      "name": "Ножницы",
+      "howTo": "Лёжа на спине, руки в стороны ладонями вниз, ноги приподняты над полом. Поочерёдно поднимай и опускай ноги, не касаясь пола. Поясница прижата.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Scissor_Kick/0.jpg",
+      "muscles": [
+        "abs"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "shoulder-rolls",
+      "name": "Круги плечами",
+      "howTo": "Руки расслаблены вдоль корпуса. Плавно веди плечи вперёд, вверх, назад и вниз, затем смени направление.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Shoulder_Circles/0.jpg",
+      "muscles": [
+        "traps",
+        "mid-delts"
+      ],
+      "holdSeconds": 20,
+      "perSide": false,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "shoulder-shrug-warmup",
+      "name": "Подъём плеч к ушам",
+      "howTo": "Руки расслаблены вдоль корпуса. Подними плечи к ушам и опусти вниз, повторяй в спокойном темпе.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Shoulder_Raise/0.jpg",
+      "muscles": [
+        "traps"
+      ],
+      "holdSeconds": 20,
+      "perSide": false,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "side-leg-swings",
+      "name": "Махи ногой в сторону",
+      "howTo": "Держась за опору, маши прямой ногой в сторону и обратно, заводя её перед опорной. 5–10 раз с растущей амплитудой, затем смени ногу.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Leg_Raises/0.jpg",
+      "muscles": [
+        "adductors",
+        "glutes"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "partial-squats",
+      "name": "Неглубокие приседания без веса",
+      "howTo": "Стопы на ширине плеч. Отводи таз назад и приседай выше параллели, быстро возвращайся вверх. 5–10 раз.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Sit_Squats/0.jpg",
+      "muscles": [
+        "quads",
+        "glutes"
+      ],
+      "holdSeconds": 20,
+      "perSide": false,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "bench-spinal-twist",
+      "name": "Скручивания сидя на скамье с наклоном",
+      "howTo": "Сидя на скамье, пальцы в замке за головой. Повернись в сторону три раза, затем наклонись и потянись локтем к полу с внутренней стороны колена. Повтори в другую сторону.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Spinal_Stretch/0.jpg",
+      "muscles": [
+        "lower-back",
+        "lats",
+        "traps"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "jumping-split-squats",
+      "name": "Выпады со сменой ног в прыжке",
+      "howTo": "Из стойки прыжком встань в выпад, слегка согнув колени. Сразу оттолкнись и поменяй ноги в воздухе. 5–10 раз на каждую ногу.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Split_Squats/0.jpg",
+      "muscles": [
+        "quads",
+        "glutes",
+        "hamstrings"
+      ],
+      "holdSeconds": 20,
+      "perSide": false,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "standing-hip-circles",
+      "name": "Круги бедром стоя",
+      "howTo": "Стоя на одной ноге и держась за опору, подними колено до уровня таза. Отводи его в сторону, рисуя большой круг. Затем смени ногу.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Hip_Circles/0.jpg",
+      "muscles": [
+        "glutes",
+        "adductors"
+      ],
+      "holdSeconds": 20,
+      "perSide": true,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "stomach-vacuum",
+      "name": "Вакуум",
+      "howTo": "Стоя, руки на поясе. Глубоко вдохни, затем полностью выдохни и втяни живот как можно глубже, будто подтягивая пупок к позвоночнику. Удерживай, дыша поверхностно.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Stomach_Vacuum/0.jpg",
+      "muscles": [
+        "abs"
+      ],
+      "holdSeconds": 20,
+      "perSide": false,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "superman",
+      "name": "Супермен",
+      "howTo": "Лёжа на животе, руки вытянуты вперёд. Одновременно подними руки, грудь и ноги от пола, задержись на 2 секунды и опусти.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Superman/0.jpg",
+      "muscles": [
+        "lower-back",
+        "glutes"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "toe-touchers",
+      "name": "Скручивания с касанием носков",
+      "howTo": "Лёжа на спине, ноги подняты вертикально. Тянись прямыми руками к носкам, отрывая лопатки от пола, и опускайся.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Toe_Touchers/0.jpg",
+      "muscles": [
+        "abs"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "fitball-torso-rotation",
+      "name": "Повороты корпуса с фитболом",
+      "howTo": "Нужен фитбол. Стоя, держи мяч на прямых руках перед собой. Поворачивай корпус в одну и в другую сторону, следя глазами за мячом.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Torso_Rotation/0.jpg",
+      "muscles": [
+        "abs"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "lying-windmills",
+      "name": "Мельница лёжа",
+      "howTo": "Лёжа на спине, руки в стороны, ноги прямые. Подними одну ногу и перенеси через корпус к противоположной кисти, вернись и повтори другой ногой.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Windmills/0.jpg",
+      "muscles": [
+        "glutes",
+        "lower-back",
+        "hamstrings"
+      ],
+      "holdSeconds": 30,
+      "perSide": false,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "worlds-greatest-stretch",
+      "name": "Лучшая в мире растяжка",
+      "howTo": "Сделай глубокий выпад и удержи его. Затем опусти локоть со стороны передней ноги к её стопе. После этого поставь руки на пол и выпрями переднюю ногу, поднимая таз.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Worlds_Greatest_Stretch/0.jpg",
+      "muscles": [
+        "quads",
+        "hamstrings",
+        "glutes"
+      ],
+      "holdSeconds": 30,
+      "perSide": true,
+      "kind": "WARMUP"
+    },
+    {
+      "code": "wrist-circles",
+      "name": "Вращения кистями",
+      "howTo": "Разведи прямые руки в стороны на уровне плеч. Вращай кистями по кругу, затем смени направление.",
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Wrist_Circles/0.jpg",
+      "muscles": [
+        "forearms"
+      ],
+      "holdSeconds": 20,
+      "perSide": false,
+      "kind": "WARMUP"
     }
   ],
   "programs": [

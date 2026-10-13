@@ -4,6 +4,7 @@ import { BotHandler } from './bot-handler.decorator';
 import { BotSessionService } from './bot-session.service';
 import {
   AdminIdentity,
+  BACK_TO_MENU,
   BotContext,
   BotFeature,
   btn,
@@ -49,7 +50,7 @@ export class MenuBot implements BotFeature {
 
   public async onCommand(ctx: BotContext, command: string): Promise<void> {
     if (command === 'help') {
-      await ctx.reply(msg(HELP, [[btn('⬅️ Меню', 'mn:main')]]));
+      await ctx.reply(msg(HELP, [[BACK_TO_MENU]]));
       return;
     }
     if (command === 'cancel') await ctx.reply(msg('Ввод отменён.'));
@@ -63,7 +64,7 @@ export class MenuBot implements BotFeature {
   ): Promise<void> {
     await this.sessions.clear(ctx);
     if (action === 'help') {
-      await ctx.edit(msg(HELP, [[btn('⬅️ Меню', 'mn:main')]]));
+      await ctx.edit(msg(HELP, [[BACK_TO_MENU]]));
       return;
     }
     await ctx.edit(mainMenuMessage(ctx.user));

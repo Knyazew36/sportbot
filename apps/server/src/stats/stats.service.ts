@@ -140,8 +140,8 @@ export class StatsService {
     ]);
 
     const lines = [
-      `Неделя ${fmtRange(monday, sunday)}`,
-      `Тренировок: ${week.done} из ${week.planned}${week.planned ? ` (${week.percent}%)` : ''}`,
+      `🗓 Неделя ${fmtRange(monday, sunday)}`,
+      `🏋️ Тренировок: ${week.done} из ${week.planned}${week.planned ? ` (${week.percent}%)` : ''}`,
     ];
     if (options.withMonth) {
       const month = await this.attendance(
@@ -151,11 +151,11 @@ export class StatsService {
         today,
       );
       lines.push(
-        `За месяц: ${month.done} из ${month.planned}${month.planned ? ` (${month.percent}%)` : ''}`,
+        `📅 За месяц: ${month.done} из ${month.planned}${month.planned ? ` (${month.percent}%)` : ''}`,
       );
     }
     lines.push(
-      `Серия: ${fresh.currentStreak}, рекорд: ${fresh.bestStreak}`,
+      `🔥 Серия: ${fresh.currentStreak}, 🏆 рекорд: ${fresh.bestStreak}`,
       '',
     );
 
@@ -163,7 +163,7 @@ export class StatsService {
       .filter((m) => (weekLoad.get(m.id) ?? 0) > 0)
       .sort((a, b) => (weekLoad.get(b.id) ?? 0) - (weekLoad.get(a.id) ?? 0));
     lines.push(
-      'Подходы по мышцам:',
+      '💪 Подходы по мышцам:',
       loaded.length
         ? loaded
             .map(
@@ -177,7 +177,7 @@ export class StatsService {
     // Пока тренировок не было совсем, «забыто всё» — шум, а не подсказка
     if (forgotten.length && forgotten.length < muscles.length)
       lines.push(
-        `Забыто: ${forgotten.map((m) => m.name.toLowerCase()).join(', ')}`,
+        `😴 Забыто: ${forgotten.map((m) => m.name.toLowerCase()).join(', ')}`,
       );
     return lines;
   }
@@ -270,7 +270,7 @@ export class StatsService {
     const delta = last - first;
     return {
       file,
-      caption: `${name}: ${num(first)} → ${num(last)} кг (${delta >= 0 ? '+' : '−'}${num(Math.abs(delta))}) за ${points.length} тренировок`,
+      caption: `📈 ${name}: ${num(first)} → ${num(last)} кг (${delta >= 0 ? '+' : '−'}${num(Math.abs(delta))}) за ${points.length} тренировок`,
     };
   }
 }
