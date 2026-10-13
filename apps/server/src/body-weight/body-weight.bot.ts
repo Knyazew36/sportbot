@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 import {
   BACK_TO_MENU,
@@ -15,10 +15,15 @@ import { MessengerMessage } from '@/messengers';
 
 import { BodyWeightService } from './body-weight.service';
 
+/** Сколько ответ на «Пропустить» остаётся на экране до удаления. */
+const SKIP_SHOW_MS = 3000;
+
 /** Вес тела: приватные данные, не видны ни друзьям, ни группе. */
 @Injectable()
 @BotHandler({ prefixes: ['bw'], commands: ['weight'] })
 export class BodyWeightBot implements BotFeature {
+  private readonly logger = new Logger(`⚖️ ${BodyWeightBot.name}`);
+
   constructor(
     private readonly weights: BodyWeightService,
     private readonly sessions: BotSessionService,
@@ -36,7 +41,18 @@ export class BodyWeightBot implements BotFeature {
   ): Promise<void> {
     if (action === 'skip') {
       await this.sessions.clear(ctx);
-      return ctx.edit(msg('Хорошо, спрошу в следующий раз.'));
+      await ctx.edit(msg('Хорошо, спрошу в следующий раз.'));
+      // Не ждём здесь: обработчик не должен держать очередь апдейтов мессенджера
+      setTimeout(() => {
+        ctx
+          .remove()
+          .catch((error: Error) =>
+            this.logger.warn(
+              `Ответ на пропуск веса не удалён: ${error.message}, userId=${ctx.user.id}`,
+            ),
+          );
+      }, SKIP_SHOW_MS);
+      return;
     }
     await this.sessions.set(ctx, 'bw.value');
     await ctx.edit(await this.screen(ctx));

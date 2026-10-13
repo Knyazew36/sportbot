@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 import {
   BotContext,
@@ -22,10 +22,15 @@ const STATUS_TITLE: Record<PlanDayStatus, string> = {
   PAUSED: '⏸ пауза',
 };
 
+/** Сколько подтверждение ответа на опрос остаётся на экране до удаления. */
+const ANSWER_SHOW_MS = 3000;
+
 /** День плана: ответы на утренний и вечерний вопрос, перенос, исправление отметок. */
 @Injectable()
 @BotHandler({ prefixes: ['pd'], commands: ['history'] })
 export class PlanBot implements BotFeature {
+  private readonly logger = new Logger(`❓ ${PlanBot.name}`);
+
   constructor(
     private readonly polls: PollService,
     private readonly flow: WorkoutFlow,
@@ -69,18 +74,22 @@ export class PlanBot implements BotFeature {
           yes ? 'YES' : 'NO',
         );
         if (!day) return ctx.toast('Кнопка устарела');
-        if (yes)
-          return this.flow.announce(
+        if (yes) {
+          await this.flow.counted(
             ctx,
             await this.polls.confirmDone(ctx.profile, day),
           );
+          return this.removeLater(ctx);
+        }
         return this.sendAll(ctx, await this.polls.miss(ctx.profile, dayId));
       }
 
       case 'rs':
-        if (!yes) return ctx.edit(msg('Хорошо, без напоминания.'));
-        await this.polls.reschedule(ctx.profile, dayId);
-        return ctx.edit(msg('Напомню завтра утром.'));
+        if (yes) await this.polls.reschedule(ctx.profile, dayId);
+        await ctx.edit(
+          msg(yes ? 'Напомню завтра утром.' : 'Хорошо, без напоминания.'),
+        );
+        return this.removeLater(ctx);
 
       case 'fix':
         if (args[1] === 'd') {
@@ -106,7 +115,25 @@ export class PlanBot implements BotFeature {
   ): Promise<void> {
     if (!messages.length) return ctx.toast('Кнопка устарела');
     await ctx.edit(messages[0]);
+    // С кнопками сообщение ещё ждёт ответа («Напомнить завтра?») — уйдёт после него
+    if (!messages[0].buttons?.length) this.removeLater(ctx);
     for (const message of messages.slice(1)) await ctx.reply(message);
+  }
+
+  /**
+   * Подтверждение ответа висит пару секунд и удаляется. Не ждём здесь: обработчик не должен
+   * держать очередь апдейтов мессенджера.
+   */
+  private removeLater(ctx: BotContext): void {
+    setTimeout(() => {
+      ctx
+        .remove()
+        .catch((error: Error) =>
+          this.logger.warn(
+            `Подтверждение ответа не удалено: ${error.message}, userId=${ctx.user.id}`,
+          ),
+        );
+    }, ANSWER_SHOW_MS);
   }
 
   private async historyScreen(ctx: BotContext): Promise<MessengerMessage> {

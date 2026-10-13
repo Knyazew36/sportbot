@@ -46,6 +46,8 @@ export type ComplexFull = Prisma.ComplexGetPayload<{
 
 const NAME_MAX = 60;
 const DEFAULT_PLAN = { sets: 3, repsMin: 8, repsMax: 12 };
+export const CARDIO_NAME_MAX = 40;
+export const CARDIO_MINUTES_MAX = 300;
 
 function cleanName(name: string): string {
   const trimmed = name.trim().replace(/\s+/g, ' ');
@@ -234,6 +236,37 @@ export class ProgramService {
       data: { name: cleanName(name) },
     });
     if (!count) throw new NotFoundException('Комплекс не найден.');
+  }
+
+  /** Кардио из ввода: название и минуты в конце, например «Беговая дорожка 30». */
+  public async setCardio(
+    userId: number,
+    complexId: number,
+    input: string,
+  ): Promise<void> {
+    const match = /^(.*\D)\s*(\d+)\s*(?:мин\S*)?$/iu.exec(input.trim());
+    // «Велотренажёр — 35 минут»: разделитель перед числом в название не попадает
+    const name =
+      match?.[1]
+        .replace(/[\s—–:-]+$/u, '')
+        .trim()
+        .replace(/\s+/g, ' ') ?? '';
+    const minutes = Number(match?.[2]);
+    if (!name)
+      throw new BadRequestException(
+        'Не понял. Формат: название и минуты, например «Беговая дорожка 30».',
+      );
+    if (name.length > CARDIO_NAME_MAX)
+      throw new BadRequestException(
+        `Название кардио — до ${CARDIO_NAME_MAX} символов.`,
+      );
+    if (minutes < 1 || minutes > CARDIO_MINUTES_MAX)
+      throw new BadRequestException(`Минут — от 1 до ${CARDIO_MINUTES_MAX}.`);
+    await this.updateCardio(userId, complexId, name, minutes);
+  }
+
+  public async clearCardio(userId: number, complexId: number): Promise<void> {
+    await this.updateCardio(userId, complexId, null, null);
   }
 
   /** @returns id программы, из которой удалён комплекс. */
@@ -452,6 +485,24 @@ export class ProgramService {
     });
   }
 
+  private async updateCardio(
+    userId: number,
+    complexId: number,
+    cardioName: string | null,
+    cardioMinutes: number | null,
+  ): Promise<void> {
+    const [complex] = await this.prisma.complex.updateManyAndReturn({
+      where: { id: complexId, program: { ownerId: userId } },
+      data: { cardioName, cardioMinutes },
+      select: { programId: true },
+    });
+    if (!complex) throw new NotFoundException('Комплекс не найден.');
+    await this.touch(complex.programId);
+    this.logger.log(
+      `Кардио комплекса: complexId=${complexId}, минут=${cardioMinutes ?? 'нет'}`,
+    );
+  }
+
   private async activateIfNone(
     userId: number,
     programId: number,
@@ -508,7 +559,13 @@ export class ProgramService {
     const draftCopies = new Map<number, number>();
     for (const complex of source.complexes) {
       const created = await tx.complex.create({
-        data: { programId, name: complex.name, position: complex.position },
+        data: {
+          programId,
+          name: complex.name,
+          position: complex.position,
+          cardioName: complex.cardioName,
+          cardioMinutes: complex.cardioMinutes,
+        },
       });
       for (const item of complex.exercises) {
         let exerciseId = item.exerciseId;

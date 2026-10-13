@@ -11,7 +11,7 @@ import {
   MessengerSendResult,
 } from '../../index';
 
-import { italicSpans } from '../../messenger-format';
+import { textSpans } from '../../messenger-format';
 import type { MessengerUser } from '../../messenger.types';
 import { TelegramBotService } from '../bot/telegram-bot.service';
 import { TelegramDialogService } from '../dialog/telegram-dialog.service';
@@ -81,6 +81,7 @@ export class TelegramMessengerChannel
         await ctx.editMessageText(text, {
           reply_markup: extra.reply_markup as never,
           entities: extra.entities,
+          link_preview_options: extra.link_preview_options,
         });
       },
     };
@@ -88,15 +89,17 @@ export class TelegramMessengerChannel
 
   // ── Внутреннее ──────────────────────────────────────────────────────────
 
-  /** Текст без маркеров курсива и extra с клавиатурой и entities. */
+  /** Текст без маркеров разметки и extra с клавиатурой и entities. */
   private format(message: MessengerMessage) {
-    const { text, spans } = italicSpans(message.text);
+    const { text, spans } = textSpans(message.text);
     return {
       text,
       extra: {
         reply_markup: this.toExtra(message)?.reply_markup,
-        entities: spans.length
-          ? spans.map((span) => ({ type: 'italic' as const, ...span }))
+        entities: spans.length ? spans : undefined,
+        // Ссылка под подписью иначе тянет за собой карточку-превью страницы
+        link_preview_options: spans.some((span) => span.type === 'text_link')
+          ? { is_disabled: true }
           : undefined,
       },
     };

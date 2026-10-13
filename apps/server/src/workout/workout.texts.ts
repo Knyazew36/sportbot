@@ -2,7 +2,7 @@ import { numEmoji, btn, cut, fmtDay, grid, msg, hint } from '@/bot';
 import { holdText } from '@/catalog/catalog.texts';
 import { MessengerButton, MessengerMessage } from '@/messengers';
 import { ComplexFull } from '@/program/program.service';
-import { exercisesCount, planText } from '@/program/program.texts';
+import { cardioText, exercisesCount, planText } from '@/program/program.texts';
 
 import { CooldownView } from './cooldown.service';
 import {
@@ -44,6 +44,7 @@ export function previewMessage(
   complex: ComplexFull,
   limited: Set<number>,
 ): MessengerMessage {
+  const cardio = cardioText(complex);
   return msg(
     [
       `«${complex.name}» — ${exercisesCount(complex.exercises.length)}`,
@@ -51,6 +52,7 @@ export function previewMessage(
         (item, index) =>
           `${index + 1}. ${item.exercise.name}${warn(item.exercise, limited)} — ${planText(item.sets, item.repsMin, item.repsMax)}`,
       ),
+      ...(cardio ? [cardio] : []),
     ].join('\n'),
     [
       [btn('▶️ Начать', `wo:start:${complex.id}`)],
@@ -169,19 +171,36 @@ export function analogsMessage(
 
 // ── Завершение и заминка ────────────────────────────────────────────────
 
+const summaryText = (result: CompleteResult): string =>
+  [
+    result.auto
+      ? `Тренировку «${result.complexName}» закрыл сам в конце дня — она засчитана ✅`
+      : `Тренировка «${result.complexName}» засчитана ✅`,
+    `🔥 Серия: ${result.currentStreak}`,
+  ].join('\n');
+
+/**
+ * Итог без заминки — ответ на вечернее «да»: тренировка давно позади, сообщение показывается
+ * пару секунд и удаляется.
+ */
+export function countedMessage(result: CompleteResult): MessengerMessage {
+  return msg(summaryText(result));
+}
+
 /**
  * Итог засчитанной тренировки и заминка одним сообщением: итог уходит вместе с заминкой
  * по «Завершить» и не остаётся висеть в чате отдельной строкой.
  */
 export function finishedMessage(result: CompleteResult): MessengerMessage {
   const cooldown = cooldownMessage(result.cooldown);
-  const summary = [
-    result.auto
-      ? `Тренировку «${result.complexName}» закрыл сам в конце дня — она засчитана ✅`
-      : `Тренировка «${result.complexName}» засчитана ✅`,
-    `🔥 Серия: ${result.currentStreak}`,
-  ].join('\n');
-  return msg(`${summary}\n\n${cooldown.text}`, [
+  // Автозакрытие приходит на следующий день — напоминать о кардио уже поздно
+  const cardio = result.auto ? null : cardioText(result);
+  const parts = [
+    summaryText(result),
+    ...(cardio ? [cardio] : []),
+    cooldown.text,
+  ];
+  return msg(parts.join('\n\n'), [
     ...(cooldown.buttons ?? []),
     // Без растяжек кнопки «Завершить» нет — иначе итог было бы нечем закрыть
     ...(cooldown.buttons ? [] : [[btn('✅ Завершить', 'cd:done')]]),

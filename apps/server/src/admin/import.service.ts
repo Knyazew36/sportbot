@@ -6,6 +6,7 @@ import { PrismaService } from 'prisma/prisma.service';
 import { resolveCatalogImage } from '@/catalog/catalog-image';
 import { normalizeName, uploadRoot } from '@/catalog/catalog.service';
 import { Equipment, StretchKind } from '@/generated/prisma/client';
+import { CARDIO_MINUTES_MAX, CARDIO_NAME_MAX } from '@/program/program.service';
 
 interface ImportExercise {
   code: string;
@@ -35,6 +36,7 @@ interface ImportProgram {
   name: string;
   complexes: {
     name: string;
+    cardio?: { name: string; minutes: number };
     exercises: {
       code: string;
       sets: number;
@@ -183,6 +185,13 @@ export class ImportService {
         if (!isText(complex?.name)) errors.push(`${where}: нет name`);
         if (!list(complex?.exercises).length)
           errors.push(`${where}: нет упражнений`);
+        if (
+          complex?.cardio !== undefined &&
+          (!isText(complex.cardio?.name) ||
+            complex.cardio.name.trim().length > CARDIO_NAME_MAX ||
+            !isCount(complex.cardio?.minutes, CARDIO_MINUTES_MAX))
+        )
+          errors.push(`${where}: проверь cardio — нужны name и minutes`);
         for (const item of list(
           complex?.exercises,
         ) as ImportProgram['complexes'][number]['exercises']) {
@@ -395,6 +404,8 @@ export class ImportService {
                 programId: program.id,
                 name: complex.name.trim(),
                 position: index + 1,
+                cardioName: complex.cardio?.name.trim() ?? null,
+                cardioMinutes: complex.cardio?.minutes ?? null,
                 exercises: {
                   create: complex.exercises.map((exercise, position) => ({
                     exerciseId: exerciseId.get(exercise.code)!,

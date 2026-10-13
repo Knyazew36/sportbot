@@ -20,6 +20,11 @@ NestJS 12 + Prisma 7 + PostgreSQL. В шаблоне только то, что �
 
 ## Запуск
 
+Первый запуск одной командой из корня репозитория: `./setup.sh` (или `yarn setup`) — зависимости,
+`.env`, миграции, сиды и справочник упражнений. Флаги: `--no-images`, `--build`, `--skip-install`.
+
+То же вручную:
+
 ```bash
 cp .env.example .env            # заполнить DATABASE_URL, JWT_SECRET, RESEND_API_KEY, MAIL_FROM
 npx prisma migrate deploy       # применить миграции

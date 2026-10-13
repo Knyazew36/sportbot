@@ -15,6 +15,9 @@ import { VK_LOG_EMOJI } from './vk/vk.constants';
 
 const logger = new Logger('📨 Messengers');
 
+/** VK временно выключен независимо от env. Вернуть — поставить false. */
+const VK_DISABLED = true;
+
 /** Имена незаданных переменных — пустая строка в .env тоже считается незаданной. */
 const missingEnv = (names: string[]): string[] =>
   names.filter((name) => !process.env[name]?.trim());
@@ -94,7 +97,11 @@ export function messengerIntegrations(): DynamicModule[] {
 
   const vkMissing = missingEnv(['VK_BOT_TOKEN', 'VK_GROUP_ID']);
   const vkGroupId = optionalPositiveInt('VK_GROUP_ID');
-  if (vkMissing.length || !vkGroupId) {
+  if (VK_DISABLED) {
+    logger.warn(
+      `${VK_LOG_EMOJI} ❌ VK выключен вручную (VK_DISABLED в app-messengers.ts): бот сообщества, вход через VK и уведомления в VK недоступны`,
+    );
+  } else if (vkMissing.length || !vkGroupId) {
     logger.warn(
       `${VK_LOG_EMOJI} ❌ VK выключен — ${
         vkMissing.length

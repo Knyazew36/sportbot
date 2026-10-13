@@ -17,7 +17,12 @@ import { CatalogService } from '@/catalog/catalog.service';
 import { MessengerButton, MessengerMessage } from '@/messengers';
 
 import { ProgramService } from './program.service';
-import { complexesCount, exercisesCount, planText } from './program.texts';
+import {
+  cardioText,
+  complexesCount,
+  exercisesCount,
+  planText,
+} from './program.texts';
 
 /** Программы и комплексы: создание с шаблона и с нуля, редактор, активная программа. */
 @Injectable()
@@ -169,6 +174,25 @@ export class ProgramBot implements BotFeature {
         await this.programs.addExercise(userId, id, Number(args[1]));
         await ctx.toast('Добавлено: 3 × 8–12');
         return ctx.edit(await this.complexScreen(ctx, id));
+      case 'cardio': {
+        const complex = await this.programs.findComplex(userId, id);
+        await this.sessions.set(ctx, `cx.cardio:${id}`);
+        return ctx.edit(
+          msg(
+            `Какое кардио после упражнений и сколько минут?\n${hint('Например «Беговая дорожка 30».')}`,
+            [
+              ...(cardioText(complex)
+                ? [[btn('🗑 Убрать кардио', `cx:cardiorm:${id}`)]]
+                : []),
+              [btn('Отмена', `cx:v:${id}`)],
+            ],
+          ),
+        );
+      }
+      case 'cardiorm':
+        await this.programs.clearCardio(userId, id);
+        await ctx.toast('Кардио убрано');
+        return ctx.edit(await this.complexScreen(ctx, id));
       case 'e':
         return ctx.edit(await this.itemScreen(ctx, id));
       case 'plan':
@@ -227,6 +251,11 @@ export class ProgramBot implements BotFeature {
       }
       case 'cx.ren':
         await this.programs.renameComplex(userId, id, text);
+        await this.sessions.clear(ctx);
+        await ctx.reply(await this.complexScreen(ctx, id));
+        return;
+      case 'cx.cardio':
+        await this.programs.setCardio(userId, id, text);
         await this.sessions.clear(ctx);
         await ctx.reply(await this.complexScreen(ctx, id));
         return;
@@ -307,7 +336,7 @@ export class ProgramBot implements BotFeature {
     const active = ctx.profile.activeProgramId === program.id;
     const lines = program.complexes.map(
       (c, index) =>
-        `${index + 1}. ${c.name} — ${exercisesCount(c.exercises.length)}`,
+        `${index + 1}. ${c.name} — ${exercisesCount(c.exercises.length)}${cardioText(c) ? ' + кардио' : ''}`,
     );
     return msg(
       [
@@ -344,6 +373,7 @@ export class ProgramBot implements BotFeature {
       (item, index) =>
         `${index + 1}. ${item.exercise.name} — ${planText(item.sets, item.repsMin, item.repsMax)}`,
     );
+    const cardio = cardioText(complex);
     return msg(
       [
         `«${complex.name}» — ${exercisesCount(complex.exercises.length)}`,
@@ -352,6 +382,7 @@ export class ProgramBot implements BotFeature {
         lines.length
           ? lines.join('\n')
           : 'Упражнений пока нет — добавь первое.',
+        ...(cardio ? [cardio] : []),
         '',
         hint(
           'Нажми на упражнение, чтобы поменять подходы, порядок или убрать.',
@@ -367,7 +398,10 @@ export class ProgramBot implements BotFeature {
           ),
           2,
         ),
-        [btn('➕ Упражнение', `cx:add:${complex.id}`)],
+        [
+          btn('➕ Упражнение', `cx:add:${complex.id}`),
+          btn('🏃 Кардио', `cx:cardio:${complex.id}`),
+        ],
         [
           btn('⬆️ Выше', `cx:up:${complex.id}`),
           btn('⬇️ Ниже', `cx:dn:${complex.id}`),

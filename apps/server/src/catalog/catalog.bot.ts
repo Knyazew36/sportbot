@@ -73,13 +73,10 @@ export class CatalogBot implements BotFeature {
           await ctx.toast('Продолжай: шаг тренировки — выше в чате');
         return;
       case 'cmp':
-        await this.sessions.set(ctx, `${prefix}.cmp:${Number(args[0])}`);
-        await ctx.reply(
-          msg(
-            `Что не так в описании?\n${hint('Напиши одним сообщением (до 500 символов).')}`,
-            [[btn('Отмена', 'ex:menu')]],
-          ),
-        );
+        return this.askComplaint(ctx, prefix, Number(args[0]), args[1] === 'w');
+      case 'cmpx':
+        await this.restoreSession(ctx);
+        if (!(await ctx.remove())) await ctx.toast('Отменено');
         return;
       default:
         return ctx.toast('Кнопка устарела');
@@ -126,7 +123,9 @@ export class CatalogBot implements BotFeature {
       id,
       text,
     );
-    await this.sessions.clear(ctx);
+    const fromWorkout = 'back' in session.data;
+    if (fromWorkout) await this.restoreSession(ctx, session);
+    else await this.sessions.clear(ctx);
     const title = complaint.exercise?.name ?? complaint.stretch?.name ?? '';
     await this.sender.sendToAdmins(
       msg(
@@ -139,7 +138,49 @@ export class CatalogBot implements BotFeature {
         ],
       ),
     );
-    await ctx.reply(msg('Спасибо, передал администратору.', [[BACK_TO_MENU]]));
+    await ctx.reply(
+      msg('Спасибо, передал администратору.', [
+        [fromWorkout ? btn('⬅️ Вернуться', 'ex:close') : BACK_TO_MENU],
+      ]),
+    );
+  }
+
+  // ── Жалоба ──────────────────────────────────────────────────────────────
+
+  private async askComplaint(
+    ctx: BotContext,
+    prefix: string,
+    id: number,
+    fromWorkout: boolean,
+  ): Promise<void> {
+    const state = `${prefix}.cmp:${id}`;
+    if (fromWorkout) {
+      // Жалоба занимает ожидание ввода подхода — запоминаем его, чтобы вернуть после
+      const current = await this.sessions.get(ctx.user.id, ctx.channel);
+      const back: unknown =
+        current && 'back' in current.data ? current.data.back : current;
+      await this.sessions.set(ctx, state, { back });
+    } else {
+      await this.sessions.set(ctx, state);
+    }
+    await ctx.reply(
+      msg(
+        `Что не так в описании?\n${hint('Напиши одним сообщением (до 500 символов).')}`,
+        [[btn('Отмена', fromWorkout ? 'ex:cmpx' : 'ex:menu')]],
+      ),
+    );
+  }
+
+  /** Вернуть ожидание ввода, которое было до жалобы из тренировки. */
+  private async restoreSession(
+    ctx: BotContext,
+    session?: BotSessionState | null,
+  ): Promise<void> {
+    const current =
+      session ?? (await this.sessions.get(ctx.user.id, ctx.channel));
+    const back = current?.data.back as BotSessionState | null | undefined;
+    if (back) await this.sessions.set(ctx, back.state, back.data);
+    else await this.sessions.clear(ctx);
   }
 
   // ── Экраны ──────────────────────────────────────────────────────────────
@@ -225,16 +266,19 @@ export class CatalogBot implements BotFeature {
     const buttons: MessengerButton[][] = [];
     if ('videoUrl' in entity && entity.videoUrl)
       buttons.push([linkBtn('🎬 Видео', entity.videoUrl)]);
-    if (fromWorkout) {
-      buttons.push([btn('⬅️ Вернуться', 'ex:close')]);
-    } else {
-      // Кнопка «Ошибка в описании» временно скрыта. Обработчик `cmp` и разбор жалоб
-      // у администратора оставлены — вернуть кнопку можно, раскомментировав строки ниже.
-      // Жалоба — только на запись общего справочника: свой черновик автор правит сам
-      // if (entity.status === 'CATALOG')
-      //   buttons.push([btn('✏️ Ошибка в описании', `${prefix}:cmp:${id}`)]);
-      buttons.push([btn('⬅️ Справочник', 'ex:menu')]);
-    }
+    // Жалоба — только на запись общего справочника: свой черновик автор правит сам
+    if (entity.status === 'CATALOG')
+      buttons.push([
+        btn(
+          '✏️ Ошибка в описании',
+          `${prefix}:cmp:${id}${fromWorkout ? ':w' : ''}`,
+        ),
+      ]);
+    buttons.push([
+      fromWorkout
+        ? btn('⬅️ Вернуться', 'ex:close')
+        : btn('⬅️ Справочник', 'ex:menu'),
+    ]);
 
     const text =
       'technique' in entity ? exerciseCard(entity) : stretchCard(entity);

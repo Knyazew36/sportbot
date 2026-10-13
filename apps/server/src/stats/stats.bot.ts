@@ -49,12 +49,18 @@ export class StatsBot implements BotFeature {
       }
       case 'pg':
         return this.sendChart(ctx, ctx.user.id, Number(args[0]));
+      case 'ok':
+        if (!(await ctx.remove())) await ctx.toast('👌');
+        return;
       default:
         return ctx.toast('Кнопка устарела');
     }
   }
 
-  /** График картинкой; временный файл удаляется после отправки. */
+  /**
+   * График картинкой с кнопкой «Ок», убирающей его из чата (общая и для графика друга);
+   * временный файл удаляется после отправки.
+   */
   public async sendChart(
     ctx: BotContext,
     userId: number,
@@ -63,7 +69,11 @@ export class StatsBot implements BotFeature {
     const chart = await this.stats.progressChart(userId, exerciseId);
     if (!chart) return ctx.toast('Недостаточно данных для графика');
     try {
-      await ctx.reply({ text: chart.caption, image: { path: chart.file } });
+      await ctx.reply({
+        text: chart.caption,
+        image: { path: chart.file },
+        buttons: [[btn('👌 Ок', 'ss:ok')]],
+      });
     } finally {
       fs.rmSync(chart.file, { force: true });
     }

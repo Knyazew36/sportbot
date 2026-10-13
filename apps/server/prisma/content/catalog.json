@@ -5725,6 +5725,147 @@
           ]
         }
       ]
+    },
+    {
+      "code": "universal",
+      "name": "Универсальная",
+      "complexes": [
+        {
+          "name": "День А",
+          "cardio": {
+            "name": "Беговая дорожка",
+            "minutes": 30
+          },
+          "exercises": [
+            {
+              "code": "squat",
+              "sets": 3,
+              "repsMin": 5,
+              "repsMax": 5
+            },
+            {
+              "code": "bench-press",
+              "sets": 4,
+              "repsMin": 5,
+              "repsMax": 5
+            },
+            {
+              "code": "lat-pulldown",
+              "sets": 4,
+              "repsMin": 8,
+              "repsMax": 8
+            },
+            {
+              "code": "db-shoulder-press",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 8
+            },
+            {
+              "code": "lateral-raise",
+              "sets": 4,
+              "repsMin": 12,
+              "repsMax": 12
+            },
+            {
+              "code": "dips",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 8
+            }
+          ]
+        },
+        {
+          "name": "День Б",
+          "cardio": {
+            "name": "Велотренажёр",
+            "minutes": 35
+          },
+          "exercises": [
+            {
+              "code": "romanian-deadlift",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 8
+            },
+            {
+              "code": "incline-db-press",
+              "sets": 4,
+              "repsMin": 8,
+              "repsMax": 8
+            },
+            {
+              "code": "barbell-row",
+              "sets": 4,
+              "repsMin": 6,
+              "repsMax": 6
+            },
+            {
+              "code": "seated-lateral-raise",
+              "sets": 3,
+              "repsMin": 15,
+              "repsMax": 15
+            },
+            {
+              "code": "barbell-curl",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 10
+            },
+            {
+              "code": "triceps-pushdown",
+              "sets": 3,
+              "repsMin": 12,
+              "repsMax": 12
+            }
+          ]
+        },
+        {
+          "name": "День В",
+          "cardio": {
+            "name": "Беговая дорожка",
+            "minutes": 25
+          },
+          "exercises": [
+            {
+              "code": "squat",
+              "sets": 3,
+              "repsMin": 5,
+              "repsMax": 5
+            },
+            {
+              "code": "standing-db-press",
+              "sets": 4,
+              "repsMin": 6,
+              "repsMax": 6
+            },
+            {
+              "code": "reverse-grip-lat-pulldown",
+              "sets": 4,
+              "repsMin": 8,
+              "repsMax": 8
+            },
+            {
+              "code": "db-row",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 8
+            },
+            {
+              "code": "hammer-curl",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 10
+            },
+            {
+              "code": "db-upright-row",
+              "sets": 3,
+              "repsMin": 12,
+              "repsMax": 12
+            }
+          ]
+        }
+      ]
     }
   ]
 }

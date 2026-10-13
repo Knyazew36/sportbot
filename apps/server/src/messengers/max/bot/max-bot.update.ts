@@ -90,6 +90,13 @@ export class MaxBotUpdate {
       return;
     }
 
+    // Не ждём: индикатор не должен задерживать обработку кнопки и ронять её при сбое
+    void ctx.sendAction('typing_on').catch((error: Error) => {
+      this.logger.warn(
+        `Не удалось показать typing_on, maxId=${maxUserId}: ${error.message}`,
+      );
+    });
+
     try {
       if (payload.startsWith(MAX_CALLBACK.loginConfirm)) {
         return await this.confirmLogin(

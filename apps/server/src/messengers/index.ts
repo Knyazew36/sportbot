@@ -5,9 +5,10 @@ export { MessengerRegistry } from './messenger.registry';
 export { MessengerUserStore } from './messenger.types';
 export {
   italic,
-  italicSpans,
+  link,
   plainText,
   separateItalic,
+  textSpans,
   toHtml,
 } from './messenger-format';
 export type {

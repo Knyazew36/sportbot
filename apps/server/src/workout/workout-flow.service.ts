@@ -15,7 +15,12 @@ import { PlanDayService } from '@/plan/plan-day.service';
 import { ProgramService } from '@/program/program.service';
 import { exercisesCount } from '@/program/program.texts';
 
-import { finishedMessage, previewMessage, stepMessage } from './workout.texts';
+import {
+  countedMessage,
+  finishedMessage,
+  previewMessage,
+  stepMessage,
+} from './workout.texts';
 import {
   CompleteResult,
   isDone,
@@ -152,5 +157,11 @@ export class WorkoutFlow {
   ): Promise<void> {
     await this.sessions.clear(ctx);
     await ctx.edit(finishedMessage(result));
+  }
+
+  /** Сменить вечерний вопрос на короткий итог без заминки. */
+  public async counted(ctx: BotContext, result: CompleteResult): Promise<void> {
+    await this.sessions.clear(ctx);
+    await ctx.edit(countedMessage(result));
   }
 }

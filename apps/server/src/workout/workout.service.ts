@@ -43,6 +43,8 @@ export interface CompleteResult {
   userId: number;
   workoutId: number;
   complexName: string;
+  cardioName: string | null;
+  cardioMinutes: number | null;
   auto: boolean;
   currentStreak: number;
   cooldown: CooldownView;
@@ -285,7 +287,13 @@ export class WorkoutService {
           detailed,
           tx,
         );
-        return { complexName: workout.complexName, currentStreak, cooldown };
+        return {
+          complexName: workout.complexName,
+          cardioName: workout.cardioName,
+          cardioMinutes: workout.cardioMinutes,
+          currentStreak,
+          cooldown,
+        };
       },
       { timeout: 20_000 },
     );
@@ -483,6 +491,8 @@ export class WorkoutService {
         userId,
         complexId: complex.id,
         complexName: complex.name,
+        cardioName: complex.cardioName,
+        cardioMinutes: complex.cardioMinutes,
         date,
         mode,
         exercises: {

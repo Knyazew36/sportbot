@@ -10,7 +10,7 @@ import {
   msg,
   hint,
 } from '@/bot';
-import { MessengerMessage } from '@/messengers';
+import { link, MessengerMessage } from '@/messengers';
 import { StatsBot } from '@/stats/stats.bot';
 import { StatsService } from '@/stats/stats.service';
 
@@ -37,13 +37,13 @@ export class SocialBot implements BotFeature {
     const invite = await this.social.findInvite(code);
     if (!invite) {
       await ctx.reply(
-        msg('Приглашение устарело или уже использовано.', [[BACK_TO_MENU]]),
+        msg('⌛ Приглашение устарело или уже использовано.', [[BACK_TO_MENU]]),
       );
       return;
     }
     if (invite.senderId === ctx.user.id) {
       await ctx.reply(
-        msg('Это твоя собственная ссылка — отправь её другу.', [
+        msg('🙂 Это твоя собственная ссылка — отправь её другу.', [
           [BACK_TO_MENU],
         ]),
       );
@@ -51,7 +51,7 @@ export class SocialBot implements BotFeature {
     }
     await ctx.reply(
       msg(
-        `${invite.sender.sportProfile?.displayName ?? 'Пользователь'} зовёт в друзья. Друзья видят тренировки, серию, нагрузку и веса друг друга; вес тела — нет.`,
+        `🤝 ${invite.sender.sportProfile?.displayName ?? 'Пользователь'} зовёт в друзья. Друзья видят тренировки, серию, нагрузку и веса друг друга; вес тела — нет.`,
         [[btn('Принять', `fr:acc:${invite.id}`), btn('Отклонить', 'fr:skip')]],
       ),
     );
@@ -73,11 +73,15 @@ export class SocialBot implements BotFeature {
         return ctx.edit(
           msg(
             [
-              'Отправь другу ссылку — ту, которая под его мессенджер. Она одноразовая и живёт 7 дней.',
-              '',
-              ...(links.telegram ? [`Telegram: ${links.telegram}`] : []),
-              ...(links.max ? [`MAX: ${links.max}`] : []),
-            ].join('\n'),
+              '🤝 Отправь другу приглашение',
+              ...(links.telegram
+                ? [`✈️ Telegram: ${link('ссылка', links.telegram)}`]
+                : []),
+              ...(links.max ? [`💬 MAX: ${link('ссылка', links.max)}`] : []),
+              hint(
+                '⏳ Ссылка одноразовая и живёт 7 дней.',
+              ),
+            ].join('\n\n'),
             [BACK],
           ),
         );
@@ -85,11 +89,11 @@ export class SocialBot implements BotFeature {
       case 'acc': {
         const name = await this.social.acceptInvite(ctx.profile, id);
         return ctx.edit(
-          msg(`Готово: ${name} теперь у тебя в друзьях.`, [BACK]),
+          msg(`🎉 Готово: ${name} теперь у тебя в друзьях.`, [BACK]),
         );
       }
       case 'skip':
-        return ctx.edit(msg('Хорошо.'));
+        return ctx.edit(msg('👌 Хорошо.'));
       case 'v':
         return ctx.edit(
           msg(await this.social.friendCard(userId, id), [
@@ -103,13 +107,13 @@ export class SocialBot implements BotFeature {
         const exercises = await this.stats.progressExercises(id);
         return ctx.edit(
           exercises.length
-            ? msg('По какому упражнению показать график?', [
+            ? msg('📈 По какому упражнению показать график?', [
                 ...exercises.map((e) => [
                   btn(cut(e.name), `fr:pg:${id}:${e.id}`),
                 ]),
                 [btn('⬅️ Назад', `fr:v:${id}`)],
               ])
-            : msg('У друга пока нет записанных весов.', [
+            : msg('🤷 У друга пока нет записанных весов.', [
                 [btn('⬅️ Назад', `fr:v:${id}`)],
               ]),
         );
@@ -127,7 +131,7 @@ export class SocialBot implements BotFeature {
         const friends = await this.social.friends(userId);
         return ctx.edit(
           friends.length
-            ? msg('С кем поделиться программой? Друг получит свою копию.', [
+            ? msg('📤 С кем поделиться программой? Друг получит свою копию.', [
                 ...friends.map((f) => [
                   btn(
                     cut(f.sportProfile?.displayName ?? 'Друг'),
@@ -136,7 +140,7 @@ export class SocialBot implements BotFeature {
                 ]),
                 [btn('⬅️ Программа', `pr:v:${id}`)],
               ])
-            : msg('Делиться пока не с кем — сначала пригласи друга.', [
+            : msg('🤷 Делиться пока не с кем — сначала пригласи друга.', [
                 [btn('➕ Пригласить друга', 'fr:inv')],
                 [btn('⬅️ Программа', `pr:v:${id}`)],
               ]),
@@ -149,7 +153,7 @@ export class SocialBot implements BotFeature {
           Number(args[1]),
         );
         return ctx.edit(
-          msg(`Отправил предложение: ${name}.`, [
+          msg(`📨 Отправил предложение: ${name}.`, [
             [btn('⬅️ Программа', `pr:v:${id}`)],
           ]),
         );
@@ -158,7 +162,7 @@ export class SocialBot implements BotFeature {
         const program = await this.social.takeProgram(userId, id);
         return ctx.edit(
           msg(
-            `Программа «${program.name}» скопирована. Личные упражнения автора пришли как твои черновики с пометкой «не проверено».`,
+            `✅ Программа «${program.name}» скопирована. Личные упражнения автора пришли как твои черновики с пометкой «не проверено».`,
             [[btn('Открыть программу', `pr:v:${program.id}`)]],
           ),
         );
@@ -166,13 +170,13 @@ export class SocialBot implements BotFeature {
       case 'upd':
         await this.social.updateCopy(userId, id);
         return ctx.edit(
-          msg('Программа обновлена до версии автора.', [
+          msg('🔄 Программа обновлена до версии автора.', [
             [btn('Открыть программу', `pr:v:${id}`)],
           ]),
         );
       case 'keep':
         await this.social.keepCopy(userId, id);
-        return ctx.edit(msg('Оставил как есть.'));
+        return ctx.edit(msg('👌 Оставил как есть.'));
       default:
         return ctx.toast('Кнопка устарела');
     }
@@ -182,8 +186,8 @@ export class SocialBot implements BotFeature {
     const friends = await this.social.friends(ctx.user.id);
     return msg(
       friends.length
-        ? `Твои друзья.\n${hint('Нажми на имя, чтобы посмотреть тренировки и нагрузку.')}`
-        : 'Друзей пока нет. Пригласи друга ссылкой — будете видеть тренировки, серию и веса друг друга.',
+        ? `👥 Твои друзья.\n${hint('Нажми на имя, чтобы посмотреть тренировки и нагрузку.')}`
+        : '👥 Друзей пока нет. Пригласи друга ссылкой — будете видеть тренировки, серию и веса друг друга.',
       [
         ...friends.map((f) => [
           btn(cut(f.sportProfile?.displayName ?? 'Друг'), `fr:v:${f.id}`),

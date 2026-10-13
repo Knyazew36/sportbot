@@ -801,6 +801,10 @@ model Complex {
   name     String
   position Int /// порядок в ротации
 
+  /// Кардио после упражнений комплекса: свободное название и длительность. Оба поля заполнены или оба пусты.
+  cardioName    String?
+  cardioMinutes Int?
+
   exercises   ComplexExercise[]
   nextFor     SportProfile[]    @relation("NextComplex")
   workouts    Workout[]
@@ -904,6 +908,10 @@ model Workout {
   complexId   Int?
   complex     Complex? @relation(fields: [complexId], references: [id], onDelete: SetNull)
   complexName String /// снимок названия: комплекс могут переименовать или удалить
+
+  /// Снимок кардио комплекса на момент начала тренировки.
+  cardioName    String?
+  cardioMinutes Int?
 
   date      DateTime      @db.Date
   mode      TrackingMode
