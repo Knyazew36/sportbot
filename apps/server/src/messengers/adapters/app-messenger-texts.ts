@@ -47,4 +47,6 @@ export const LINK_ERRORS = {
     `Веб-аккаунт не найден или к нему уже привязан другой ${CHANNEL_TITLE[channel]}-аккаунт`,
   accountTaken: (channel: MessengerChannelKey): string =>
     `Этот ${CHANNEL_TITLE[channel]}-аккаунт уже привязан к другому пользователю`,
+  hasSportData: (channel: MessengerChannelKey): string =>
+    `В этом ${CHANNEL_TITLE[channel]} уже есть аккаунт бота с данными — привяжи его в боте: Настройки → Мессенджеры`,
 };

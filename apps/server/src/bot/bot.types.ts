@@ -11,6 +11,32 @@ export type BotChannelKey = 'TELEGRAM' | 'MAX';
 
 export type BotUser = User & { sportProfile: SportProfile | null };
 
+export const BOT_CHANNEL_TITLE: Record<BotChannelKey, string> = {
+  TELEGRAM: 'Telegram',
+  MAX: 'MAX',
+};
+
+/** Куда бот пишет сам, пока пользователь с двумя мессенджерами не выбрал. */
+export const DEFAULT_NOTIFY_CHANNEL: BotChannelKey = 'TELEGRAM';
+
+/** Второй мессенджер бота. */
+export const otherBotChannel = (channel: BotChannelKey): BotChannelKey =>
+  channel === 'TELEGRAM' ? 'MAX' : 'TELEGRAM';
+
+/** Диплинк `…?start=<payload>` в бота этого мессенджера; undefined — бот в нём не подключён. */
+export function botStartLink(
+  channel: BotChannelKey,
+  payload: string,
+): string | undefined {
+  const name = (
+    channel === 'TELEGRAM' ? process.env.TG_BOT_NAME : process.env.MAX_BOT_NAME
+  )?.trim();
+  if (!name) return undefined;
+  return channel === 'TELEGRAM'
+    ? `https://t.me/${name}?start=${payload}`
+    : `https://max.ru/${name}?start=${payload}`;
+}
+
 /** Файл, присланный боту (импорт справочника от администратора). */
 export interface BotDocument {
   fileName: string;

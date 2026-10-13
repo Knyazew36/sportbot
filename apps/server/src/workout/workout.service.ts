@@ -144,17 +144,15 @@ export class WorkoutService {
 
   /**
    * Создать тренировку по комплексу. Вторая незавершённая не создаётся — возвращается начатая.
-   * В простом режиме это «план на день»: к нему привязываются замены и заминка до вечернего «да».
    */
   public async start(
     profile: SportProfile,
     complexId: number,
     date = localToday(profile.timeZone),
-    mode: TrackingMode = profile.trackingMode,
   ): Promise<WorkoutFull> {
     const existing = await this.current(profile.userId);
     if (existing) return existing;
-    return this.create(profile, complexId, date, mode);
+    return this.create(profile, complexId, date, 'DETAILED');
   }
 
   /** Отменить незавершённую тренировку (смена комплекса, отказ). */
@@ -299,7 +297,7 @@ export class WorkoutService {
 
   /**
    * Засчитать тренировку без «процесса»: вечернее «да» или исправление отметки. Берётся начатый
-   * план на эту дату, иначе создаётся тренировка простого вида по комплексу.
+   * план на эту дату, иначе создаётся запись без подходов (SIMPLE) по комплексу.
    */
   public async completeFromPlan(
     profile: SportProfile,

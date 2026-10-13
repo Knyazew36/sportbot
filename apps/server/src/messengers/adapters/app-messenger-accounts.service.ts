@@ -64,6 +64,14 @@ export class AppMessengerAccountsService {
     // У аккаунта мессенджера уже есть своя строка (мини-приложение/чат) — сливаем её в веб-аккаунт:
     // членства и сам идентификатор переезжают в target
     if (existingUser) {
+      // Слияние переносит только веб-сущности: спортивные данные ушли бы каскадом вместе со строкой.
+      // Аккаунты бота объединяются в самом боте (LinkService), где пользователь выбирает, чей оставить
+      const profile = await this.prisma.sportProfile.findUnique({
+        where: { userId: existingUser.id },
+        select: { onboardedAt: true },
+      });
+      if (profile?.onboardedAt && existingUser.id !== targetUserId)
+        throw new Error(LINK_ERRORS.hasSportData(channel));
       return this.userService.mergeMessengerAccountInto(
         existingUser.id,
         targetUserId,

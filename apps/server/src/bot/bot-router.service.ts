@@ -23,6 +23,8 @@ interface RegisteredHandler {
 /** Префикс обработчика первого запуска и главного меню — роутер обращается к ним напрямую. */
 const ONBOARDING_PREFIX = 'ob';
 const MENU_PREFIX = 'mn';
+/** Префикс привязки второго мессенджера: идёт мимо первого запуска. */
+const LINK_PREFIX = 'ln';
 
 /**
  * Единая точка входа событий бота: блокировка → первый запуск → обработчик по команде,
@@ -108,6 +110,8 @@ export class BotRouter implements OnApplicationBootstrap {
     // Любая команда сбрасывает ожидание ввода
     if (ctx.kind === 'command') await this.sessions.clear(ctx);
 
+    if (await this.dispatchLink(ctx)) return;
+
     if (!ctx.profile.onboardedAt) return this.dispatchOnboarding(ctx);
 
     if (ctx.kind === 'command') {
@@ -154,6 +158,30 @@ export class BotRouter implements OnApplicationBootstrap {
         return handler.feature.onText(ctx, session);
     }
     return this.menu(ctx);
+  }
+
+  /**
+   * Ссылка привязки `start=ln_<code>` и её кнопки работают и до конца первого запуска: во втором
+   * мессенджере человек чаще всего новичок, и первый запуск ссылку бы проглотил.
+   */
+  private async dispatchLink(ctx: BotContext): Promise<boolean> {
+    const link = this.byPrefix.get(LINK_PREFIX)?.feature;
+    if (!link) return false;
+    const startPrefix = `${LINK_PREFIX}_`;
+    if (
+      ctx.kind === 'command' &&
+      ctx.command === 'start' &&
+      ctx.startPayload?.startsWith(startPrefix)
+    ) {
+      await link.onStart?.(ctx, ctx.startPayload.slice(startPrefix.length));
+      return true;
+    }
+    if (ctx.kind === 'callback' && ctx.payload?.startsWith(`${LINK_PREFIX}:`)) {
+      const [prefix, action = '', ...args] = ctx.payload.split(':');
+      await link.onCallback?.(ctx, prefix, action, args);
+      return true;
+    }
+    return false;
   }
 
   /** Пользователя без законченного первого запуска любое действие возвращает к текущему шагу. */

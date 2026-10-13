@@ -11,6 +11,7 @@ import {
   cut,
   grid,
   msg,
+  numEmoji,
   parseUserTime,
   WEEKDAY_ORDER,
   WEEKDAY_SHORT,
@@ -25,8 +26,6 @@ import {
   ONBOARDING_STEPS,
   ProfileService,
 } from './profile.service';
-
-const MODE_TITLE = { SIMPLE: 'простой', DETAILED: 'детальный' } as const;
 
 const WEIGHT_FREQUENCY_TITLE: Record<WeightAskFrequency, string> = {
   OFF: 'выключен',
@@ -68,12 +67,11 @@ export class ProfileBot implements BotFeature {
       return;
     }
     // Сюда роутер приводит любого, кто не закончил первый запуск
-    if (ctx.profile.onboardingStep === 1)
-      await ctx.reply(
-        msg(
-          `Привет, ${ctx.profile.displayName}! Я веду тренировки в зале: храню программу, показываю технику, собираю заминку и напоминаю о тренировках.\n\nНастроимся за ${ONBOARDING_STEPS} шагов.\n${hint('На каждом можно просто нажать «Дальше».')}`,
-        ),
-      );
+    // Приветствие сменяется шагами по кнопке «Далее» (ob:show)
+    if (ctx.profile.onboardingStep === 1) {
+      await ctx.reply(this.welcomeScreen(ctx.profile));
+      return;
+    }
     await ctx.reply(await this.stepScreen(ctx.profile));
   }
 
@@ -131,16 +129,6 @@ export class ProfileBot implements BotFeature {
             [[btn('Отмена', onboarding ? 'ob:show' : 'st:time')]],
           ),
         );
-      case 'mode': {
-        if (args[0] === undefined)
-          return ctx.edit(this.modeScreen(ctx.profile, prefix));
-        ctx.profile = await this.profiles.update(userId, {
-          trackingMode: args[0] === 'd' ? 'DETAILED' : 'SIMPLE',
-        });
-        return onboarding
-          ? this.advance(ctx, 4)
-          : ctx.edit(this.settingsScreen(ctx.profile));
-      }
 
       // ── первый запуск ──
       case 'show':
@@ -257,7 +245,7 @@ export class ProfileBot implements BotFeature {
   // ── Первый запуск ───────────────────────────────────────────────────────
 
   /**
-   * «Дальше» с шага fromStep. Номер шага приходит в кнопке: нажатие под старым сообщением
+   * «Далее» с шага fromStep. Номер шага приходит в кнопке: нажатие под старым сообщением
    * не перескакивает через шаг.
    */
   private async advance(ctx: BotContext, fromStep: number): Promise<void> {
@@ -287,14 +275,14 @@ export class ProfileBot implements BotFeature {
     await ctx.edit(
       msg(
         [
-          'Готово, настройка закончена.',
+          '🎉 Готово, настройка закончена!',
           '',
-          `Часовой пояс: ${zoneTitle(ctx.profile.timeZone)}`,
-          `Тренировочные дни: ${daysTitle(ctx.profile.trainingDays)}`,
-          `Вопросы: утром в ${ctx.profile.morningTime}, вечером в ${ctx.profile.eveningTime}`,
-          `Режим учёта: ${MODE_TITLE[ctx.profile.trackingMode]}`,
+          `🌍 Часовой пояс: ${zoneTitle(ctx.profile.timeZone)}`,
+          `📅 Тренировочные дни: ${daysTitle(ctx.profile.trainingDays)}`,
+          `⏰ Вопросы: утром в ${ctx.profile.morningTime}, вечером в ${ctx.profile.eveningTime}`,
           '',
-          'В тренировочные дни я сам спрошу про тренировку. Начать прямо сейчас — /today. Всё остальное — в меню.',
+          '🔔 В тренировочные дни я сам спрошу про тренировку.',
+          '🚀 Начать прямо сейчас — /today. Всё остальное — в меню.',
         ].join('\n'),
         [
           [btn('🏋️ Тренировка сегодня', 'wo:today')],
@@ -304,25 +292,56 @@ export class ProfileBot implements BotFeature {
     );
   }
 
+  private welcomeScreen(profile: SportProfile): MessengerMessage {
+    return msg(
+      [
+        `👋 Привет, ${profile.displayName}!`,
+        '',
+        'Я твой помощник для тренировок в зале 💪 Вот что умею:',
+        '',
+        '📋 Храню программу — готовый шаблон или твоя собственная, с комплексами по дням.',
+        '🏋️ Выдаю комплекс на день и веду по упражнениям: подходы, веса, прошлый результат.',
+        '📚 Показываю технику упражнений и растяжек из справочника.',
+        '🧘 Собираю заминку под мышцы, которые работали.',
+        '⏰ Напоминаю о тренировке утром и спрашиваю вечером, как прошло.',
+        '📊 Считаю посещаемость, серию и нагрузку по мышцам.',
+        '⚖️ Слежу за весом тела.',
+        '🦴 Учитываю ограничения и травмы, ⏸ ставлю паузу на отпуск или болезнь.',
+        '👥 Помогаю делиться программой с друзьями.',
+        '',
+        `⚙️ Настроимся за ${ONBOARDING_STEPS} шага — это минута.`,
+        hint('На каждом шаге можно просто нажать «Далее».'),
+      ].join('\n'),
+      [[btn('Далее ➡️', 'ob:show')]],
+    );
+  }
+
+  /** Заголовок шага первого запуска: «2️⃣ Шаг 2 из 4 · ». В настройках заголовка нет. */
+  private stepTitle(step: number, onboarding = true): string {
+    return onboarding
+      ? `${numEmoji(step)} Шаг ${step} из ${ONBOARDING_STEPS} · `
+      : '';
+  }
+
   private async stepScreen(profile: SportProfile): Promise<MessengerMessage> {
     switch (profile.onboardingStep) {
       case 1:
         return this.daysScreen(profile, 'ob');
       case 2:
         return this.timeScreen(profile, 'ob');
-      case 3: {
+      default: {
         const templates = await this.programs.templates();
         return msg(
-          `Шаг 3 из ${ONBOARDING_STEPS}. Программа.\n\nВозьми готовый шаблон — потом его можно править — или собери свою с нуля.${templates.length ? `\n${hint('«Дальше» выберет первый шаблон.')}` : ''}`,
+          `${this.stepTitle(3)}📋 Программа\n\n📦 Возьми готовый шаблон — потом его можно править.\n✍️ Или собери свою с нуля.${templates.length ? `\n${hint('«Далее» выберет первый шаблон.')}` : ''}`,
           [
-            ...templates.map((t) => [btn(cut(t.name), `ob:tpl:${t.id}`)]),
+            ...templates.map((t) => [
+              btn(`📦 ${cut(t.name, 37)}`, `ob:tpl:${t.id}`),
+            ]),
             [btn('✍️ С нуля', 'ob:scratch')],
-            [btn('Дальше ➡️', 'ob:next:3')],
+            [btn('Далее ➡️', 'ob:next:3')],
           ],
         );
       }
-      default:
-        return this.modeScreen(profile, 'ob');
     }
   }
 
@@ -351,7 +370,7 @@ export class ProfileBot implements BotFeature {
   private daysScreen(profile: SportProfile, prefix: string): MessengerMessage {
     const onboarding = prefix === 'ob';
     return msg(
-      `${onboarding ? `Шаг 1 из ${ONBOARDING_STEPS}. ` : ''}Тренировочные дни.\n\nВ эти дни я буду спрашивать про тренировку.\nСейчас: ${daysTitle(profile.trainingDays)}.\n${hint('Нажми на день, чтобы включить или выключить.')}`,
+      `${this.stepTitle(1, onboarding)}📅 Тренировочные дни\n\n🔔 В эти дни я буду спрашивать про тренировку.\n🗓 Сейчас: ${daysTitle(profile.trainingDays)}.\n${hint('Нажми на день, чтобы включить или выключить.')}`,
       [
         ...grid(
           WEEKDAY_ORDER.map((day) =>
@@ -364,7 +383,7 @@ export class ProfileBot implements BotFeature {
         ),
         [
           onboarding
-            ? btn('Дальше ➡️', 'ob:next:1')
+            ? btn('Далее ➡️', 'ob:next:1')
             : btn('⬅️ Настройки', 'st:menu'),
         ],
       ],
@@ -375,13 +394,14 @@ export class ProfileBot implements BotFeature {
     const onboarding = prefix === 'ob';
     return msg(
       [
-        `${onboarding ? `Шаг 2 из ${ONBOARDING_STEPS}. ` : ''}Время опросов.`,
+        `${this.stepTitle(2, onboarding)}⏰ Время опросов`,
         '',
         'В тренировочные дни я сам напишу тебе дважды:',
         `🌅 Утром в ${profile.morningTime} — спрошу «Будешь сегодня тренироваться?» и пришлю комплекс на день.`,
         `🌙 Вечером в ${profile.eveningTime} — спрошу «Потренировался?», чтобы засчитать тренировку.`,
         '',
-        'Не ответишь утром — напомню один раз через 2 часа. В остальные дни не беспокою.',
+        '🔁 Не ответишь утром — напомню один раз через 2 часа.',
+        '😴 В остальные дни не беспокою.',
         hint('Время можно поменять кнопками ниже.'),
       ].join('\n'),
       [
@@ -391,27 +411,7 @@ export class ProfileBot implements BotFeature {
         ],
         [
           onboarding
-            ? btn('Дальше ➡️', 'ob:next:2')
-            : btn('⬅️ Настройки', 'st:menu'),
-        ],
-      ],
-    );
-  }
-
-  private modeScreen(profile: SportProfile, prefix: string): MessengerMessage {
-    const onboarding = prefix === 'ob';
-    const mark = (mode: 'SIMPLE' | 'DETAILED') =>
-      profile.trackingMode === mode ? '✅ ' : '';
-    return msg(
-      `${onboarding ? `Шаг 4 из ${ONBOARDING_STEPS}. ` : ''}Режим учёта.\n\nПростой — выдаю комплекс одним сообщением и вечером спрашиваю, была ли тренировка.\nДетальный — веду по упражнениям, записываю подходы и веса, показываю прошлый результат.`,
-      [
-        [
-          btn(`${mark('SIMPLE')}Простой`, `${prefix}:mode:s`),
-          btn(`${mark('DETAILED')}Детальный`, `${prefix}:mode:d`),
-        ],
-        [
-          onboarding
-            ? btn('Дальше ➡️', 'ob:next:4')
+            ? btn('Далее ➡️', 'ob:next:2')
             : btn('⬅️ Настройки', 'st:menu'),
         ],
       ],
@@ -421,10 +421,10 @@ export class ProfileBot implements BotFeature {
   private settingsScreen(profile: SportProfile): MessengerMessage {
     const rows: MessengerButton[][] = [
       [btn('🌍 Часовой пояс', 'st:tz'), btn('📅 Дни', 'st:days')],
-      [btn('⏰ Время вопросов', 'st:time'), btn('📝 Режим учёта', 'st:mode')],
-      [btn('⚖️ Вопрос о весе', 'st:wf'), btn('🙂 Имя', 'st:name')],
-      [btn('⏸ Пауза', 'pa:menu'), btn('🦴 Ограничения', 'lm:menu')],
-      [btn('🗓 История отметок', 'pd:hist'), btn('👥 Друзья', 'fr:menu')],
+      [btn('⏰ Время вопросов', 'st:time'), btn('⚖️ Вопрос о весе', 'st:wf')],
+      [btn('🙂 Имя', 'st:name'), btn('⏸ Пауза', 'pa:menu')],
+      [btn('🦴 Ограничения', 'lm:menu'), btn('🗓 История отметок', 'pd:hist')],
+      [btn('👥 Друзья', 'fr:menu'), btn('🔗 Мессенджеры', 'ln:menu')],
       [btn('🗑 Удалить мои данные', 'st:del')],
       [BACK_TO_MENU],
     ];
@@ -436,7 +436,6 @@ export class ProfileBot implements BotFeature {
         `Часовой пояс: ${zoneTitle(profile.timeZone)}`,
         `Тренировочные дни: ${daysTitle(profile.trainingDays)}`,
         `Вопросы: утром в ${profile.morningTime}, вечером в ${profile.eveningTime}`,
-        `Режим учёта: ${MODE_TITLE[profile.trackingMode]}`,
         `Вопрос о весе тела: ${WEIGHT_FREQUENCY_TITLE[profile.weightAskFrequency]}`,
       ].join('\n'),
       rows,

@@ -8,7 +8,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { randomBytes } from 'crypto';
 import { PrismaService } from 'prisma/prisma.service';
 
-import { BotSender, btn, fmtShort, localToday, msg } from '@/bot';
+import { BotSender, botStartLink, btn, fmtShort, localToday, msg } from '@/bot';
 import { Prisma, SportProfile } from '@/generated/prisma/client';
 import { PlanDayService } from '@/plan/plan-day.service';
 import { ProgramService } from '@/program/program.service';
@@ -59,13 +59,9 @@ export class SocialService {
       },
     });
     this.logger.log(`Приглашение создано: userId=${userId}`);
-    const telegram = process.env.TG_BOT_NAME?.trim();
-    const max = process.env.MAX_BOT_NAME?.trim();
     return {
-      telegram: telegram
-        ? `https://t.me/${telegram}?start=fr_${code}`
-        : undefined,
-      max: max ? `https://max.ru/${max}?start=fr_${code}` : undefined,
+      telegram: botStartLink('TELEGRAM', `fr_${code}`),
+      max: botStartLink('MAX', `fr_${code}`),
     };
   }
 

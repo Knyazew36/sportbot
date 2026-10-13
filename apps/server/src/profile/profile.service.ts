@@ -19,8 +19,8 @@ export const CITY_ZONES: { title: string; zone: string }[] = [
   { title: 'Камчатка', zone: 'Asia/Kamchatka' },
 ];
 
-/** Шаги первого запуска: дни, время вопросов, программа, режим учёта. Часовой пояс — Москва по умолчанию, меняется в настройках. */
-export const ONBOARDING_STEPS = 4;
+/** Шаги первого запуска: дни, время вопросов, программа. Часовой пояс — Москва по умолчанию, меняется в настройках. */
+export const ONBOARDING_STEPS = 3;
 
 @Injectable()
 export class ProfileService {
@@ -76,57 +76,66 @@ export class ProfileService {
    * остаются без автора, копии программ у друзей — без источника.
    */
   public async deleteAccount(userId: number): Promise<void> {
-    await this.prisma.$transaction(async (tx) => {
-      // Сначала свои программы и тренировки: они держат черновики через Restrict
-      await tx.program.deleteMany({ where: { ownerId: userId } });
-      await tx.workout.deleteMany({ where: { userId } });
-
-      // Черновик, на который всё ещё кто-то ссылается, передаём этому человеку, а не удаляем
-      const usedDrafts = await tx.exercise.findMany({
-        where: {
-          authorId: userId,
-          status: 'DRAFT',
-          OR: [
-            { complexExercises: { some: {} } },
-            { workoutExercises: { some: {} } },
-          ],
-        },
-        select: {
-          id: true,
-          complexExercises: {
-            take: 1,
-            select: {
-              complex: { select: { program: { select: { ownerId: true } } } },
-            },
-          },
-          workoutExercises: {
-            take: 1,
-            select: { workout: { select: { userId: true } } },
-          },
-        },
-      });
-      for (const draft of usedDrafts) {
-        const heir =
-          draft.complexExercises[0]?.complex.program.ownerId ??
-          draft.workoutExercises[0]?.workout.userId ??
-          null;
-        await tx.exercise.update({
-          where: { id: draft.id },
-          data: { authorId: heir },
-        });
-      }
-      await tx.exercise.deleteMany({
-        where: { authorId: userId, status: 'DRAFT' },
-      });
-      await tx.stretch.deleteMany({
-        where: {
-          authorId: userId,
-          status: 'DRAFT',
-          workoutStretches: { none: {} },
-        },
-      });
-      await tx.user.delete({ where: { id: userId } });
-    });
+    await this.prisma.$transaction((tx) => this.eraseUser(tx, userId));
     this.logger.log(`Данные пользователя удалены: userId=${userId}`);
+  }
+
+  /**
+   * Стереть пользователя внутри чужой транзакции — так же уходит аккаунт, проигравший при
+   * привязке второго мессенджера (LinkService).
+   */
+  public async eraseUser(
+    tx: Prisma.TransactionClient,
+    userId: number,
+  ): Promise<void> {
+    // Сначала свои программы и тренировки: они держат черновики через Restrict
+    await tx.program.deleteMany({ where: { ownerId: userId } });
+    await tx.workout.deleteMany({ where: { userId } });
+
+    // Черновик, на который всё ещё кто-то ссылается, передаём этому человеку, а не удаляем
+    const usedDrafts = await tx.exercise.findMany({
+      where: {
+        authorId: userId,
+        status: 'DRAFT',
+        OR: [
+          { complexExercises: { some: {} } },
+          { workoutExercises: { some: {} } },
+        ],
+      },
+      select: {
+        id: true,
+        complexExercises: {
+          take: 1,
+          select: {
+            complex: { select: { program: { select: { ownerId: true } } } },
+          },
+        },
+        workoutExercises: {
+          take: 1,
+          select: { workout: { select: { userId: true } } },
+        },
+      },
+    });
+    for (const draft of usedDrafts) {
+      const heir =
+        draft.complexExercises[0]?.complex.program.ownerId ??
+        draft.workoutExercises[0]?.workout.userId ??
+        null;
+      await tx.exercise.update({
+        where: { id: draft.id },
+        data: { authorId: heir },
+      });
+    }
+    await tx.exercise.deleteMany({
+      where: { authorId: userId, status: 'DRAFT' },
+    });
+    await tx.stretch.deleteMany({
+      where: {
+        authorId: userId,
+        status: 'DRAFT',
+        workoutStretches: { none: {} },
+      },
+    });
+    await tx.user.delete({ where: { id: userId } });
   }
 }

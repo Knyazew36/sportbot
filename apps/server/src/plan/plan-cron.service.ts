@@ -262,17 +262,25 @@ export class PlanCronService {
 
     if (!day.morningAskedAt) {
       const complex = await this.programs.nextComplex(userId);
+      // Первый запуск закончен сегодня уже после утреннего времени: вопрос и его повтор
+      // не шлём — экран «настройка закончена» сам предлагает тренировку. Вечерний остаётся.
+      const { onboardedAt, timeZone } = profile;
+      const setupAfterMorning =
+        !!onboardedAt &&
+        localToday(timeZone, onboardedAt).getTime() === today.getTime() &&
+        localMinutes(timeZone, onboardedAt) >= morning;
       const { count } = await this.prisma.planDay.updateMany({
         where: { id: day.id, status: 'PENDING', morningAskedAt: null },
         data: {
           morningAskedAt: now,
+          ...(setupAfterMorning && { morningRemindedAt: now }),
           suggestedComplexId: day.suggestedComplexId ?? complex?.id ?? null,
         },
       });
       if (!count) return 0;
       // Сервер простоял до вечера или тренировка уже идёт — утренний вопрос неуместен
       const started = await this.workouts.current(userId);
-      if (minutes >= evening || started) return 0;
+      if (minutes >= evening || started || setupAfterMorning) return 0;
       await this.sender.send(
         user,
         this.polls.morningMessage(day.id, complex?.name ?? null, false),

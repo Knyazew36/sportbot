@@ -75,6 +75,7 @@ model User {
   friendshipsA       Friendship[]        @relation("FriendshipA")
   friendshipsB       Friendship[]        @relation("FriendshipB")
   groupMemberships   BotGroupMember[]
+  accountLinkCodes   AccountLinkCode[]
 
   @@index([telegramId])
   @@index([maxId])
@@ -372,7 +373,8 @@ enum BotChannel {
   MAX
 }
 
-/// Режим учёта тренировки.
+/// Вид записи тренировки. Режим у пользователя один — детальный; SIMPLE остаётся для
+/// тренировок, засчитанных без подходов (вечернее «да», исправление отметки).
 enum TrackingMode {
   SIMPLE /// только факт тренировки
   DETAILED /// подходы, повторы, веса
@@ -404,7 +406,6 @@ model SportProfile {
   morningTime  String @default("08:00") /// "HH:mm" в поясе пользователя
   eveningTime  String @default("20:00") /// "HH:mm" в поясе пользователя
 
-  trackingMode       TrackingMode       @default(SIMPLE)
   weightAskFrequency WeightAskFrequency @default(OFF)
   weightAskedOn      DateTime?          @db.Date /// когда бот последний раз спрашивал вес
 
@@ -414,7 +415,7 @@ model SportProfile {
   nextComplexId   Int?
   nextComplex     Complex? @relation("NextComplex", fields: [nextComplexId], references: [id], onDelete: SetNull)
 
-  onboardingStep Int       @default(1) /// текущий шаг первого запуска, 1..5
+  onboardingStep Int       @default(1) /// текущий шаг первого запуска, 1..3
   onboardedAt    DateTime? /// null — первый запуск не закончен
 
   /// Кэш серии: пересчитывается при каждой смене статуса дня плана.
@@ -424,6 +425,10 @@ model SportProfile {
 
   jointDisclaimerShownAt DateTime? /// дисклеймер «не заменяет врача» показываем один раз
   weeklySummarySentOn    DateTime? @db.Date /// понедельник недели, за которую личная сводка уже ушла
+
+  /// Куда бот пишет сам (опросы, напоминания), когда привязаны оба мессенджера.
+  /// Пусто — пользователь не выбирал: пишем в Telegram.
+  notifyChannels BotChannel[] @default([])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -490,6 +495,22 @@ model BlockedAccount {
   createdAt  DateTime   @default(now())
 
   @@unique([channel, externalId])
+}
+
+/// Одноразовый код привязки второго мессенджера: диплинк start=ln_<code>.
+model AccountLinkCode {
+  id     Int    @id @default(autoincrement())
+  code   String @unique
+  /// Аккаунт, в котором нажали «Привязать».
+  userId Int
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  channel BotChannel /// мессенджер, который привязываем: ссылка работает только в нём
+
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([userId])
 }
 
 /// Чего бот ждёт от пользователя в диалоге (ввод названия, подхода, даты).

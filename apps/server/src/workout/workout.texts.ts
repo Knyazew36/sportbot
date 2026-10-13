@@ -39,7 +39,7 @@ const setText = (set: { weight: number; reps: number }): string =>
 
 // ── Комплекс ────────────────────────────────────────────────────────────
 
-/** Комплекс до старта детальной тренировки. */
+/** Комплекс до старта тренировки. */
 export function previewMessage(
   complex: ComplexFull,
   limited: Set<number>,
@@ -59,42 +59,7 @@ export function previewMessage(
   );
 }
 
-/** Комплекс одним сообщением — простой режим. */
-export function simpleMessage(
-  workout: WorkoutFull,
-  limited: Set<number>,
-): MessengerMessage {
-  const rows: MessengerButton[][] = workout.exercises.map((item, index) => [
-    btn(
-      cut(`${numEmoji(index + 1)} ${item.exercise.name}`, 30),
-      // w — в карточке будет «Вернуться», которая её закроет
-      `ex:v:${item.exerciseId}:w`,
-    ),
-    btn(`🔁 Заменить ${numEmoji(index + 1)}`, `sw:list:${item.id}`),
-  ]);
-  return msg(
-    [
-      `«${workout.complexName}» — ${exercisesCount(workout.exercises.length)}`,
-      ...workout.exercises.map(
-        (item, index) =>
-          `${numEmoji(index + 1)} ${item.exercise.name}${warn(item.exercise, limited)} — ${planText(item.plannedSets, item.repsMin, item.repsMax)}`,
-      ),
-      ...(workout.exercises.some((item) => limitedZones(item.exercise, limited))
-        ? ['', hint('⚠️ — упражнение нагружает зону с ограничением. Заменить?')]
-        : []),
-    ].join('\n'),
-    [
-      ...rows,
-      [
-        btn('🔀 Другой комплекс', 'wo:pick'),
-        btn('🧘 Показать заминку', `cd:show:${workout.id}`),
-      ],
-      [btn('✅ Потренировался', `wo:fin:${workout.id}`)],
-    ],
-  );
-}
-
-/** Шаг тренировки — детальный режим. */
+/** Шаг тренировки. */
 export function stepMessage(
   workout: WorkoutFull,
   item: WorkoutExerciseFull,

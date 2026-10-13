@@ -19,7 +19,6 @@ import {
   completedMessage,
   cooldownMessage,
   previewMessage,
-  simpleMessage,
   stepMessage,
 } from './workout.texts';
 import {
@@ -81,7 +80,7 @@ export class WorkoutFlow {
     return this.offer(ctx, complex.id);
   }
 
-  /** Предложить конкретный комплекс: простой режим — сразу списком, детальный — с кнопкой «Начать». */
+  /** Предложить конкретный комплекс: список упражнений с кнопкой «Начать». */
   public async offer(
     ctx: BotContext,
     complexId: number,
@@ -91,12 +90,8 @@ export class WorkoutFlow {
       return msg(`В комплексе «${complex.name}» пока нет упражнений.`, [
         [btn('✏️ Открыть комплекс', `cx:v:${complex.id}`)],
         [btn('🔀 Другой комплекс', 'wo:pick')],
+        [BACK_TO_MENU],
       ]);
-    if (ctx.profile.trackingMode === 'SIMPLE') {
-      // Прежний «план на день» заменяется выбранным комплексом
-      await this.workouts.discard(ctx.user.id);
-      return this.show(ctx, await this.workouts.start(ctx.profile, complex.id));
-    }
     const limited = await this.limitations.activeJointIds(ctx.profile);
     return previewMessage(complex, limited);
   }
@@ -125,8 +120,8 @@ export class WorkoutFlow {
   // ── Текущая тренировка ──────────────────────────────────────────────────
 
   /**
-   * Экран начатой тренировки. Детальный режим — шаг с упражнением itemId (по умолчанию первое
-   * несделанное) и ожидание ввода подхода.
+   * Экран начатой тренировки: шаг с упражнением itemId (по умолчанию первое несделанное)
+   * и ожидание ввода подхода.
    */
   public async show(
     ctx: BotContext,
@@ -134,7 +129,6 @@ export class WorkoutFlow {
     itemId?: number,
   ): Promise<MessengerMessage> {
     const limited = await this.limitations.activeJointIds(ctx.profile);
-    if (workout.mode === 'SIMPLE') return simpleMessage(workout, limited);
     const item =
       workout.exercises.find((e) => e.id === itemId) ??
       workout.exercises.find((e) => !isDone(e)) ??

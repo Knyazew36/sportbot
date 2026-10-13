@@ -35,6 +35,7 @@ import { BodyWeightModule } from './body-weight/body-weight.module';
 import { BotModule } from './bot';
 import { CatalogModule } from './catalog/catalog.module';
 import { LimitationModule } from './limitation/limitation.module';
+import { LinkModule } from './link/link.module';
 import { ModerationModule } from './moderation/moderation.module';
 import { PauseModule } from './pause/pause.module';
 import { PlanPollModule } from './plan/plan-poll.module';
@@ -94,6 +95,7 @@ import { WorkoutModule } from './workout/workout.module';
     BodyWeightModule,
     StatsModule,
     SocialModule,
+    LinkModule,
     AdminModule,
   ],
   controllers: [AppController],

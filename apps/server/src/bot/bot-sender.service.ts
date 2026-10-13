@@ -8,7 +8,12 @@ import {
   MessengerSendResult,
 } from '@/messengers';
 
-import { adminConfigured, BotChannelKey, isAdmin } from './bot.types';
+import {
+  adminConfigured,
+  BotChannelKey,
+  DEFAULT_NOTIFY_CHANNEL,
+  isAdmin,
+} from './bot.types';
 
 /** Не больше 20 сообщений в секунду на мессенджер. */
 const CHANNEL_INTERVAL_MS = 50;
@@ -55,22 +60,30 @@ export class BotSender {
   }
 
   /**
-   * Сообщение от бота по его инициативе: во все привязанные мессенджеры, куда можно доставить.
+   * Сообщение от бота по его инициативе. Привязаны оба мессенджера — в выбранные пользователем
+   * (SportProfile.notifyChannels; не выбирал — Telegram); туда не дошло — в оставшийся, чтобы
+   * вопрос не потерялся. `all` — во все привязанные, мимо выбора.
    * Не бросает: недоставка пишется в лог. @returns ушло ли хотя бы в один мессенджер.
    */
-  public async send(user: User, message: MessengerMessage): Promise<boolean> {
+  public async send(
+    user: User,
+    message: MessengerMessage,
+    options: { all?: boolean } = {},
+  ): Promise<boolean> {
+    const deliverable = CHANNELS.filter((channel) =>
+      this.registry.get(channel)?.canDeliver(user),
+    );
+    const chosen = options.all
+      ? deliverable
+      : await this.chosenChannels(user.id, deliverable);
+
     let delivered = false;
-    for (const channel of CHANNELS) {
-      const messenger = this.registry.get(channel);
-      if (!messenger?.canDeliver(user)) continue;
-      try {
-        await this.sendVia(channel, user, message);
-        delivered = true;
-      } catch (error) {
-        this.logger.warn(
-          `Не доставлено userId=${user.id} в ${channel}: ${(error as Error).message}`,
-        );
-      }
+    for (const channel of chosen)
+      if (await this.trySend(channel, user, message)) delivered = true;
+    for (const channel of deliverable) {
+      if (delivered) break;
+      if (chosen.includes(channel)) continue;
+      delivered = await this.trySend(channel, user, message);
     }
     if (!delivered)
       this.logger.debug(
@@ -106,7 +119,40 @@ export class BotSender {
       this.logger.warn(
         'Администратор ещё не запускал бота — сообщение не ушло',
       );
-    for (const admin of admins) await this.send(admin, message);
+    for (const admin of admins) await this.send(admin, message, { all: true });
+  }
+
+  // ── Выбор мессенджера ───────────────────────────────────────────────────
+
+  private async chosenChannels(
+    userId: number,
+    deliverable: BotChannelKey[],
+  ): Promise<BotChannelKey[]> {
+    if (deliverable.length < 2) return deliverable;
+    const profile = await this.prisma.sportProfile.findUnique({
+      where: { userId },
+      select: { notifyChannels: true },
+    });
+    const wanted: BotChannelKey[] = profile?.notifyChannels.length
+      ? profile.notifyChannels
+      : [DEFAULT_NOTIFY_CHANNEL];
+    return deliverable.filter((channel) => wanted.includes(channel));
+  }
+
+  private async trySend(
+    channel: BotChannelKey,
+    user: User,
+    message: MessengerMessage,
+  ): Promise<boolean> {
+    try {
+      await this.sendVia(channel, user, message);
+      return true;
+    } catch (error) {
+      this.logger.warn(
+        `Не доставлено userId=${user.id} в ${channel}: ${(error as Error).message}`,
+      );
+      return false;
+    }
   }
 
   // ── Очередь ─────────────────────────────────────────────────────────────
