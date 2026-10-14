@@ -119,8 +119,15 @@ export class MaxBotService implements OnApplicationBootstrap {
   /** Кнопка, открывающая мини-приложение этого бота. */
   public openAppButton(
     text = '🚀 Открыть приложение',
+    startParam?: string,
   ): Record<string, unknown> {
-    return { type: 'open_app', text, web_app: this.options.botName };
+    // payload кнопки MAX приходит в мини-приложение как start_param данных запуска
+    return {
+      type: 'open_app',
+      text,
+      web_app: this.options.botName,
+      ...(startParam && { payload: startParam }),
+    };
   }
 
   // ── Polling ─────────────────────────────────────────────────────────────

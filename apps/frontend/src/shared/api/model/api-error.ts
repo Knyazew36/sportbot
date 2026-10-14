@@ -28,7 +28,10 @@ export const getApiErrorStatus = (error: unknown): number | undefined =>
 export const getApiErrorCode = (error: unknown): string | undefined => getBody(error)?.code
 
 /** Ошибки полей формы из 422 валидации DTO; пусто — ошибка не про поля */
-export const getFieldErrors = (error: unknown): Record<string, string> =>
-  getApiErrorStatus(error) === 422 ? (getBody(error)?.errors ?? {}) : {}
+export const getFieldErrors = (error: unknown): Record<string, string> => {
+  if (getApiErrorStatus(error) !== 422) return {}
+  const entries = Object.entries(getBody(error)?.errors ?? {})
+  return Object.fromEntries(entries.map(([field, messages]) => [field, messages[0] ?? '']))
+}
 
 export const hasFieldErrors = (error: unknown): boolean => Object.keys(getFieldErrors(error)).length > 0

@@ -14,16 +14,19 @@ type QueryScreenProps<T> = {
   empty?: { title?: string; description?: ReactNode; action?: ReactNode }
   /** Строк-скелетов при загрузке */
   rows?: number
+  /** Поля состояний загрузки, пустоты и ошибки */
+  className?: string
   children: (data: T) => ReactNode
 }
 
 // Три состояния любого экрана данных (frontend-tz, раздел 15) в стиле Mini App: загрузка, пусто, ошибка с «Повторить»
-export const QueryScreen = <T,>({ query, isEmpty, empty, rows, children }: QueryScreenProps<T>) => {
+export const QueryScreen = <T,>({ query, isEmpty, empty, rows, className = 'mx-5', children }: QueryScreenProps<T>) => {
   if (query.isPending) {
     return (
       <ScreenState
         state='loading'
         rows={rows}
+        className={className}
       />
     )
   }
@@ -32,6 +35,7 @@ export const QueryScreen = <T,>({ query, isEmpty, empty, rows, children }: Query
     return (
       <ScreenState
         state='error'
+        className={className}
         action={
           <Button
             variant='outline'
@@ -51,6 +55,7 @@ export const QueryScreen = <T,>({ query, isEmpty, empty, rows, children }: Query
     return (
       <ScreenState
         state='empty'
+        className={className}
         title={empty?.title}
         description={empty?.description}
         action={empty?.action}

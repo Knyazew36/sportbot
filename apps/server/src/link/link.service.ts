@@ -7,7 +7,12 @@ import {
 import { randomBytes } from 'crypto';
 import { PrismaService } from 'prisma/prisma.service';
 
-import { BOT_CHANNEL_TITLE, BotChannelKey, otherBotChannel } from '@/bot';
+import {
+  BOT_CHANNEL_TITLE,
+  BotChannelKey,
+  botStartLink,
+  otherBotChannel,
+} from '@/bot';
 import { AccountLinkCode, Prisma, User } from '@/generated/prisma/client';
 import { ProfileService } from '@/profile/profile.service';
 
@@ -241,6 +246,34 @@ export class LinkService {
       return { keeper: merged, onboarded: !!profile?.onboardedAt };
     });
     return result;
+  }
+
+  // ── Приложение ──────────────────────────────────────────────────────────
+
+  /** Мессенджеры, где бот подключён: в остальные привязать нельзя. */
+  public available(): BotChannelKey[] {
+    return (['TELEGRAM', 'MAX'] as const).filter(
+      (channel) => !!botStartLink(channel, ''),
+    );
+  }
+
+  /** Ссылка привязки второго мессенджера из приложения: открыть в нём и подтвердить в боте. */
+  public async codeLink(
+    userId: number,
+  ): Promise<{ channel: BotChannelKey; url: string }> {
+    const { linked } = await this.state(userId);
+    const channel = (['TELEGRAM', 'MAX'] as const).find(
+      (c) => !linked.includes(c),
+    );
+    if (!channel)
+      throw new BadRequestException('Оба мессенджера уже привязаны.');
+    const base = botStartLink(channel, 'ln_');
+    if (!base)
+      throw new BadRequestException(
+        `Бот в ${BOT_CHANNEL_TITLE[channel]} не подключён.`,
+      );
+    const code = await this.createCode(userId, channel);
+    return { channel, url: `${base}${code}` };
   }
 
   // ── Отвязка и доставка ──────────────────────────────────────────────────

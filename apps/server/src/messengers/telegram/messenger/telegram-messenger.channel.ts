@@ -118,7 +118,7 @@ export class TelegramMessengerChannel
   private toTelegramButton(button: MessengerButton): InlineKeyboardButton {
     switch (button.kind) {
       case 'open_app':
-        return this.botService.openAppButton(button.text);
+        return this.botService.openAppButton(button.text, button.startParam);
       case 'link':
         return { text: button.text, url: button.url };
       case 'callback':

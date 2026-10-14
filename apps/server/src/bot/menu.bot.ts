@@ -4,6 +4,7 @@ import { BotHandler } from './bot-handler.decorator';
 import { BotSessionService } from './bot-session.service';
 import {
   AdminIdentity,
+  appBtn,
   BACK_TO_MENU,
   BotContext,
   BotFeature,
@@ -15,6 +16,7 @@ import {
 /** Команды бота: регистрируются в меню обоих мессенджеров при старте. */
 export const BOT_COMMANDS: { name: string; description: string }[] = [
   { name: 'today', description: 'Тренировка сегодня' },
+  { name: 'app', description: 'Открыть приложение' },
   { name: 'programs', description: 'Программы и комплексы' },
   { name: 'catalog', description: 'Справочник упражнений и растяжек' },
   { name: 'stats', description: 'Статистика' },
@@ -30,6 +32,7 @@ export const BOT_COMMANDS: { name: string; description: string }[] = [
 const HELP = `Я веду твои тренировки в зале.
 
 /today — выдать комплекс на сегодня
+/app — открыть приложение: таймеры, графики, календарь
 /programs — программы и комплексы
 /catalog — упражнения и растяжки с техникой
 /stats — посещаемость, серия, нагрузка по мышцам
@@ -43,7 +46,7 @@ const HELP = `Я веду твои тренировки в зале.
 @Injectable()
 @BotHandler({
   prefixes: ['mn'],
-  commands: ['start', 'menu', 'help', 'cancel'],
+  commands: ['start', 'menu', 'help', 'cancel', 'app'],
 })
 export class MenuBot implements BotFeature {
   constructor(private readonly sessions: BotSessionService) {}
@@ -51,6 +54,15 @@ export class MenuBot implements BotFeature {
   public async onCommand(ctx: BotContext, command: string): Promise<void> {
     if (command === 'help') {
       await ctx.reply(msg(HELP, [[BACK_TO_MENU]]));
+      return;
+    }
+    if (command === 'app') {
+      await ctx.reply(
+        msg('Таймеры, графики и календарь — в приложении.', [
+          [appBtn(undefined, '📱 Открыть приложение')],
+          [BACK_TO_MENU],
+        ]),
+      );
       return;
     }
     if (command === 'cancel') await ctx.reply(msg('Ввод отменён.'));

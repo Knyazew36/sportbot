@@ -20,7 +20,7 @@ import {
   leftoversMessage,
   noSetsMessage,
 } from './workout.texts';
-import { isDone, WorkoutService } from './workout.service';
+import { canComplete, isDone, WorkoutService } from './workout.service';
 
 /** Тренировка (`wo`), замена упражнения (`sw`), заминка (`cd`). */
 /** Сколько итог «Заминка сделана» остаётся на экране до смены на меню. */
@@ -115,8 +115,7 @@ export class WorkoutBot implements BotFeature {
         const workout = await this.workouts.find(userId, id);
         if (workout.status !== 'IN_PROGRESS')
           return ctx.toast('Тренировка уже закрыта');
-        // Детальная тренировка засчитывается, если сделано хотя бы одно упражнение
-        if (workout.mode === 'DETAILED' && !workout.exercises.some(isDone))
+        if (!canComplete(workout))
           return ctx.edit(
             msg('Пока не сделано ни одного упражнения — засчитывать нечего.', [
               [btn('Продолжить', 'wo:cont')],

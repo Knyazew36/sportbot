@@ -1,10 +1,11 @@
+import { errorCatch } from '@front-cmdt/utils/error-catch'
 import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query'
 
 import { subscribeSession } from '@/shared/auth/session-events'
 import { toast } from '@/shared/ui/shadcn/toast'
 
 import { getAccessToken } from './model/access-token'
-import { getApiErrorMessage, getApiErrorStatus, hasFieldErrors } from './model/api-error'
+import { getApiErrorStatus, hasFieldErrors } from './model/api-error'
 
 // Единые договорённости о тостах (CLAUDE.md, «Запросы»): хуки не пишут onError/onSuccess ради уведомлений
 declare module '@tanstack/react-query' {
@@ -22,18 +23,20 @@ declare module '@tanstack/react-query' {
 
 const DEFAULT_SUCCESS = 'Готово'
 
+const errorText = (error: unknown) => String(errorCatch(error) || 'Не удалось выполнить запрос. Попробуйте ещё раз')
+
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
     // Первая загрузка показывает ошибку на самом экране с кнопкой «Повторить».
     // Тост нужен, только когда на экране уже старые данные и молча не обновились
     onError: (error, query) => {
-      if (query.state.data !== undefined) toast.add({ title: getApiErrorMessage(error), type: 'error' })
+      if (query.state.data !== undefined) toast.add({ title: errorText(error), type: 'error' })
     },
   }),
   mutationCache: new MutationCache({
     onError: (error, _vars, _ctx, mutation) => {
       if (mutation.meta?.inlineFieldErrors && hasFieldErrors(error)) return
-      toast.add({ title: getApiErrorMessage(error), type: 'error' })
+      toast.add({ title: errorText(error), type: 'error' })
     },
     onSuccess: (_data, _vars, _ctx, mutation) => {
       if (mutation.meta?.skipSuccessToast) return

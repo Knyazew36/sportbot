@@ -103,6 +103,26 @@ export const btn = (text: string, payload: string): MessengerButton => ({
   payload,
 });
 
+/**
+ * Экраны Mini App для кнопок «Открыть в приложении» (frontend-tz, 5.1). Значение уходит в startapp
+ * и разбирается фронтом (shared/miniapp/start-route.ts) — меняется только парой.
+ */
+export const APP_SCREEN = {
+  today: 'today',
+  cooldown: (workoutId: number) => `cd_${workoutId}`,
+  friend: (userId: number) => `fr_${userId}`,
+  program: (programId: number) => `pr_${programId}`,
+  mine: 'mine',
+  request: (requestId: number) => `md_${requestId}`,
+  complaint: (complaintId: number) => `cp_${complaintId}`,
+} as const;
+
+/** Кнопка мини-приложения, сразу на нужный экран. Кнопки бота при этом остаются: всё можно и в чате. */
+export const appBtn = (
+  startParam?: string,
+  text = '📱 Открыть в приложении',
+): MessengerButton => ({ kind: 'open_app', text, startParam });
+
 export const linkBtn = (text: string, url: string): MessengerButton => ({
   kind: 'link',
   text,

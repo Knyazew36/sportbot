@@ -2,7 +2,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Link, useLocation, useNavigate } from 'react-router'
 import { z } from 'zod'
-
 import { useLogin } from '@/entities/session'
 import { getApiErrorMessage, getApiErrorStatus } from '@/shared/api'
 import { type AuthLocationState, ROUTES } from '@/shared/config/paths'

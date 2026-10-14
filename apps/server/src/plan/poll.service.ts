@@ -1,7 +1,15 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 
-import { addDays, btn, localToday, msg, weekdayOf } from '@/bot';
+import {
+  addDays,
+  APP_SCREEN,
+  appBtn,
+  btn,
+  localToday,
+  msg,
+  weekdayOf,
+} from '@/bot';
 import { PlanDay, PollAnswer, SportProfile } from '@/generated/prisma/client';
 import { MessengerMessage } from '@/messengers';
 import { PauseService } from '@/pause/pause.service';
@@ -11,6 +19,22 @@ import { PlanDayService } from './plan-day.service';
 
 /** Отметку за день можно исправить в течение 7 дней. */
 export const FIX_WINDOW_DAYS = 7;
+
+/** Итог пропуска дня: что предложить пользователю дальше. */
+export interface MissOutcome {
+  /** false — день уже не ждал ответа (двойное нажатие, старая кнопка). */
+  changed: boolean;
+  /** Предложить «напомнить завтра». */
+  canReschedule: boolean;
+  /** Три пропуска подряд — предложить паузу. */
+  suggestPause: boolean;
+}
+
+/** Итог вечернего ответа из приложения. */
+export interface EveningOutcome {
+  done: CompleteResult | null;
+  missed: MissOutcome | null;
+}
 
 /** Ответы на опросы, пропуск с переносом, исправление отметок. */
 @Injectable()
@@ -33,6 +57,7 @@ export class PollService {
   ): MessengerMessage {
     const buttons = [
       [btn('💪 Да', `pd:am:${dayId}:y`), btn('😴 Нет', `pd:am:${dayId}:n`)],
+      [appBtn(APP_SCREEN.today)],
     ];
     if (reminder) return msg('Так что, сегодня идёшь в зал?', buttons);
     return msg(
@@ -114,32 +139,92 @@ export class PollService {
     profile: SportProfile,
     dayId: number,
   ): Promise<MessengerMessage[]> {
-    const result = await this.planDays.markMissed(profile.userId, dayId);
+    const result = await this.missDay(profile, dayId);
     if (!result.changed) return [];
-    const messages: MessengerMessage[] = [];
+    const messages: MessengerMessage[] = [
+      result.canReschedule
+        ? msg('Записал пропуск. Напомнить завтра?', [
+            [
+              btn('Да, завтра', `pd:rs:${dayId}:y`),
+              btn('Нет', `pd:rs:${dayId}:n`),
+            ],
+          ])
+        : msg('Записал пропуск.'),
+    ];
+    if (result.suggestPause) messages.push(this.pauses.offerMessage());
+    return messages;
+  }
+
+  /** Пропуск дня без сообщений: общая часть для бота и приложения. */
+  public async missDay(
+    profile: SportProfile,
+    dayId: number,
+  ): Promise<MissOutcome> {
+    const result = await this.planDays.markMissed(profile.userId, dayId);
+    if (!result.changed)
+      return { changed: false, canReschedule: false, suggestPause: false };
     const tomorrow = addDays(localToday(profile.timeZone), 1);
     // Завтра и так тренировочный день — перенос не предлагается
     const canReschedule =
       !result.wasRescheduled &&
       !profile.trainingDays.includes(weekdayOf(tomorrow));
-    if (canReschedule) {
+    if (canReschedule)
       await this.prisma.planDay.updateMany({
         where: { id: dayId },
         data: { rescheduleOfferedAt: new Date() },
       });
-      messages.push(
-        msg('Записал пропуск. Напомнить завтра?', [
-          [
-            btn('Да, завтра', `pd:rs:${dayId}:y`),
-            btn('Нет', `pd:rs:${dayId}:n`),
-          ],
-        ]),
-      );
-    } else {
-      messages.push(msg('Записал пропуск.'));
-    }
-    if (result.suggestPause) messages.push(this.pauses.offerMessage());
-    return messages;
+    return { changed: true, canReschedule, suggestPause: result.suggestPause };
+  }
+
+  // ── Сегодня из приложения ───────────────────────────────────────────────
+
+  /**
+   * «Сегодня не буду» в приложении — как утреннее «нет» в боте (frontend-tz, 7).
+   * День плана заводится сам, если утренний вопрос ещё не задавался: после ответа бот про день не спросит.
+   */
+  public async skipToday(profile: SportProfile): Promise<MissOutcome> {
+    const day = await this.todayForAnswer(profile);
+    await this.prisma.planDay.updateMany({
+      where: { id: day.id, morningAnswer: null },
+      data: { morningAnswer: 'NO' },
+    });
+    this.logger.log(
+      `«Сегодня не буду» из приложения: planDayId=${day.id}, userId=${profile.userId}`,
+    );
+    return this.missDay(profile, day.id);
+  }
+
+  /** Вечерний ответ из приложения: «да» засчитывает комплекс дня, «нет» — пропуск. */
+  public async answerEveningToday(
+    profile: SportProfile,
+    yes: boolean,
+  ): Promise<EveningOutcome> {
+    const day = await this.todayForAnswer(profile);
+    const answered = await this.answer(
+      profile.userId,
+      day.id,
+      'evening',
+      yes ? 'YES' : 'NO',
+    );
+    if (!answered)
+      throw new BadRequestException('На этот вопрос ответ уже есть.');
+    if (yes)
+      return { done: await this.confirmDone(profile, answered), missed: null };
+    return { done: null, missed: await this.missDay(profile, day.id) };
+  }
+
+  /** «Нет» на «напомнить завтра»: вопрос больше не показывается. */
+  public async declineReschedule(
+    profile: SportProfile,
+    dayId: number,
+  ): Promise<void> {
+    await this.prisma.planDay.updateMany({
+      where: { id: dayId, userId: profile.userId },
+      data: { rescheduleOfferedAt: null },
+    });
+    this.logger.log(
+      `Перенос не нужен: planDayId=${dayId}, userId=${profile.userId}`,
+    );
   }
 
   /** «Напомнить завтра»: разовый утренний вопрос вне расписания. */
@@ -232,5 +317,26 @@ export class PollService {
     this.logger.log(
       `Отметка исправлена → MISSED: planDayId=${dayId}, userId=${userId}`,
     );
+  }
+
+  // ── Внутреннее ──────────────────────────────────────────────────────────
+
+  /** Сегодняшний день плана, который ждёт ответа; до утреннего вопроса его ещё нет — заводим. */
+  private async todayForAnswer(profile: SportProfile): Promise<PlanDay> {
+    const userId = profile.userId;
+    const today = localToday(profile.timeZone);
+    const existing = await this.planDays.find(userId, today);
+    if (!existing && !profile.trainingDays.includes(weekdayOf(today)))
+      throw new BadRequestException('Сегодня не тренировочный день.');
+    const day =
+      existing ??
+      (await this.prisma.planDay.upsert({
+        where: { userId_date: { userId, date: today } },
+        update: {},
+        create: { userId, date: today },
+      }));
+    if (day.status !== 'PENDING')
+      throw new BadRequestException('Ответ на сегодня уже есть.');
+    return day;
   }
 }

@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 
 import {
+  APP_SCREEN,
+  appBtn,
   BotContext,
   BotFeature,
   BotHandler,
@@ -294,7 +296,10 @@ export class ModerationBot implements BotFeature {
   private async finish(ctx: BotContext, decision: Decision): Promise<void> {
     await this.sessions.clear(ctx);
     if (decision.authorId)
-      await this.sender.sendToUserId(decision.authorId, msg(decision.text));
+      await this.sender.sendToUserId(
+        decision.authorId,
+        msg(decision.text, [[appBtn(APP_SCREEN.mine)]]),
+      );
     await ctx.edit(msg(`Готово. Автору ушло:\n${decision.text}`, [BACK]));
   }
 }

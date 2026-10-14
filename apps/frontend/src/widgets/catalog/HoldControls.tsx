@@ -1,6 +1,6 @@
 import type { LucideIcon } from 'lucide-react'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { useCountdown } from '@/shared/lib/hooks/use-countdown'
 import { StickyFooter } from '@/shared/ui/kit/Screen'
@@ -16,14 +16,23 @@ type HoldControlsProps = {
   side?: 1 | 2
   back: SideAction
   next: SideAction
+  /** Время удержания вышло — один раз: звук, вибрация, автопереход (frontend-tz, 9.1) */
+  onEnd?: () => void
 }
 
 // Низ экрана удержания растяжки: таймер вокруг кнопки паузы и два перехода по бокам.
 // Общий для заминки и «Попробовать» в карточке растяжки. Отсчёт перезапускается сменой key снаружи
-export const HoldControls = ({ holdSeconds, side, back, next }: HoldControlsProps) => {
+export const HoldControls = ({ holdSeconds, side, back, next, onEnd }: HoldControlsProps) => {
   const [paused, setPaused] = useState(false)
   const [left] = useCountdown(holdSeconds, { paused })
   const over = left <= 0
+  const endedRef = useRef(false)
+
+  useEffect(() => {
+    if (!over || endedRef.current) return
+    endedRef.current = true
+    onEnd?.()
+  }, [over, onEnd])
 
   return (
     <StickyFooter className='pt-3'>

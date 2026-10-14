@@ -104,11 +104,13 @@ async function bootstrap() {
         const fields = Object.fromEntries(
           errors.map((e) => [
             e.property,
-            Object.values(e.constraints ?? {})[0] ?? 'Неверное значение',
+            Object.values(e.constraints ?? {}).length
+              ? Object.values(e.constraints ?? {})
+              : ['Неверное значение'],
           ]),
         );
         return new UnprocessableEntityException({
-          message: Object.values(fields),
+          message: Object.values(fields).flat(),
           errors: fields,
         });
       },

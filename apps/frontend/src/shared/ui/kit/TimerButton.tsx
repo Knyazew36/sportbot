@@ -31,7 +31,7 @@ export const TimerButton = ({ left, total, paused, onToggle, className }: TimerB
         onClick={onToggle}
         aria-label={paused ? `Продолжить, осталось ${seconds} секунд` : `Пауза, осталось ${seconds} секунд`}
         className={cn(
-          'border-foreground focus-visible:ring-ring/25 absolute inset-[20px] flex flex-col items-center justify-center rounded-full border-[1.5px] shadow-[3px_3px_0_var(--sb-ink)] transition-[translate,box-shadow,background-color] duration-100 outline-none focus-visible:ring-4 active:translate-[3px] active:shadow-none',
+          'border-foreground focus-visible:ring-ring/25 absolute inset-[20px] flex flex-col items-center justify-center rounded-full border-[1.5px] shadow-[3px_3px_0_var(--sb-ink)] dark:shadow-none dark:active:translate-none transition-[translate,box-shadow,background-color] duration-100 outline-none focus-visible:ring-4 active:translate-[3px] active:shadow-none',
           paused ? 'bg-background text-foreground' : 'bg-primary text-primary-foreground',
         )}
       >

@@ -44,6 +44,20 @@ export type ComplexFull = Prisma.ComplexGetPayload<{
   include: typeof COMPLEX_INCLUDE;
 }>;
 
+/** Шаблоны программ правит администратор: у них нет владельца. */
+export const TEMPLATES = 'templates' as const;
+/** Чью программу правим: пользователя (его id) или шаблон. */
+export type ProgramOwner = number | typeof TEMPLATES;
+
+export const ownerWhere = (owner: ProgramOwner): Prisma.ProgramWhereInput =>
+  owner === TEMPLATES ? { isTemplate: true } : { ownerId: owner };
+
+/** Упражнение, которое можно поставить в программу: справочник и свои черновики; в шаблон — только справочник. */
+const visibleExercise = (owner: ProgramOwner): Prisma.ExerciseWhereInput =>
+  owner === TEMPLATES
+    ? { status: 'CATALOG' }
+    : { OR: [{ status: 'CATALOG' }, { status: 'DRAFT', authorId: owner }] };
+
 const NAME_MAX = 60;
 const DEFAULT_PLAN = { sets: 3, repsMin: 8, repsMax: 12 };
 export const CARDIO_NAME_MAX = 40;
@@ -81,9 +95,12 @@ export class ProgramService {
     });
   }
 
-  public async find(userId: number, programId: number): Promise<ProgramFull> {
+  public async find(
+    owner: ProgramOwner,
+    programId: number,
+  ): Promise<ProgramFull> {
     const program = await this.prisma.program.findFirst({
-      where: { id: programId, ownerId: userId },
+      where: { id: programId, ...ownerWhere(owner) },
       include: PROGRAM_INCLUDE,
     });
     if (!program) throw new NotFoundException('Программа не найдена.');
@@ -101,22 +118,22 @@ export class ProgramService {
     return program;
   }
 
-  public async rename(userId: number, programId: number, name: string) {
+  public async rename(owner: ProgramOwner, programId: number, name: string) {
     const { count } = await this.prisma.program.updateMany({
-      where: { id: programId, ownerId: userId },
+      where: { id: programId, ...ownerWhere(owner) },
       data: { name: cleanName(name) },
     });
     if (!count) throw new NotFoundException('Программа не найдена.');
     this.logger.log(`Программа переименована: programId=${programId}`);
   }
 
-  public async remove(userId: number, programId: number): Promise<void> {
+  public async remove(owner: ProgramOwner, programId: number): Promise<void> {
     const { count } = await this.prisma.program.deleteMany({
-      where: { id: programId, ownerId: userId },
+      where: { id: programId, ...ownerWhere(owner) },
     });
     if (!count) throw new NotFoundException('Программа не найдена.');
     this.logger.log(
-      `Программа удалена: programId=${programId}, userId=${userId}`,
+      `Программа удалена: programId=${programId}, владелец=${owner}`,
     );
   }
 
@@ -202,19 +219,23 @@ export class ProgramService {
   // ── Комплексы ───────────────────────────────────────────────────────────
 
   public async findComplex(
-    userId: number,
+    owner: ProgramOwner,
     complexId: number,
   ): Promise<ComplexFull> {
     const complex = await this.prisma.complex.findFirst({
-      where: { id: complexId, program: { ownerId: userId } },
+      where: { id: complexId, program: ownerWhere(owner) },
       include: COMPLEX_INCLUDE,
     });
     if (!complex) throw new NotFoundException('Комплекс не найден.');
     return complex;
   }
 
-  public async addComplex(userId: number, programId: number, name: string) {
-    const program = await this.find(userId, programId);
+  public async addComplex(
+    owner: ProgramOwner,
+    programId: number,
+    name: string,
+  ) {
+    const program = await this.find(owner, programId);
     const complex = await this.prisma.complex.create({
       data: {
         programId,
@@ -223,16 +244,20 @@ export class ProgramService {
       },
     });
     await this.touch(programId);
-    await this.repairPointer(userId);
+    if (owner !== TEMPLATES) await this.repairPointer(owner);
     this.logger.log(
       `Комплекс создан: complexId=${complex.id}, programId=${programId}`,
     );
     return complex;
   }
 
-  public async renameComplex(userId: number, complexId: number, name: string) {
+  public async renameComplex(
+    owner: ProgramOwner,
+    complexId: number,
+    name: string,
+  ) {
     const { count } = await this.prisma.complex.updateMany({
-      where: { id: complexId, program: { ownerId: userId } },
+      where: { id: complexId, program: ownerWhere(owner) },
       data: { name: cleanName(name) },
     });
     if (!count) throw new NotFoundException('Комплекс не найден.');
@@ -271,16 +296,16 @@ export class ProgramService {
 
   /** @returns id программы, из которой удалён комплекс. */
   public async removeComplex(
-    userId: number,
+    owner: ProgramOwner,
     complexId: number,
   ): Promise<number> {
-    const complex = await this.findComplex(userId, complexId);
+    const complex = await this.findComplex(owner, complexId);
     await this.prisma.complex.delete({ where: { id: complexId } });
     await this.touch(complex.programId);
     // Указатель ротации на удалённом комплексе обнулился (SetNull) — ставим на первый
-    await this.repairPointer(userId);
+    if (owner !== TEMPLATES) await this.repairPointer(owner);
     this.logger.log(
-      `Комплекс удалён: complexId=${complexId}, userId=${userId}`,
+      `Комплекс удалён: complexId=${complexId}, владелец=${owner}`,
     );
     return complex.programId;
   }
@@ -305,18 +330,15 @@ export class ProgramService {
   // ── Упражнения комплекса ────────────────────────────────────────────────
 
   public async addExercise(
-    userId: number,
+    owner: ProgramOwner,
     complexId: number,
     exerciseId: number,
   ) {
-    const complex = await this.findComplex(userId, complexId);
+    const complex = await this.findComplex(owner, complexId);
     if (complex.exercises.some((item) => item.exerciseId === exerciseId))
       throw new BadRequestException('Это упражнение уже есть в комплексе.');
     const visible = await this.prisma.exercise.findFirst({
-      where: {
-        id: exerciseId,
-        OR: [{ status: 'CATALOG' }, { status: 'DRAFT', authorId: userId }],
-      },
+      where: { id: exerciseId, ...visibleExercise(owner) },
       select: { id: true },
     });
     if (!visible) throw new NotFoundException('Упражнение не найдено.');
@@ -334,9 +356,9 @@ export class ProgramService {
     );
   }
 
-  public async findItem(userId: number, itemId: number) {
+  public async findItem(owner: ProgramOwner, itemId: number) {
     const item = await this.prisma.complexExercise.findFirst({
-      where: { id: itemId, complex: { program: { ownerId: userId } } },
+      where: { id: itemId, complex: { program: ownerWhere(owner) } },
       include: { exercise: true, complex: true },
     });
     if (!item) throw new NotFoundException('Упражнение комплекса не найдено.');
@@ -344,8 +366,11 @@ export class ProgramService {
   }
 
   /** @returns id комплекса. */
-  public async removeItem(userId: number, itemId: number): Promise<number> {
-    const item = await this.findItem(userId, itemId);
+  public async removeItem(
+    owner: ProgramOwner,
+    itemId: number,
+  ): Promise<number> {
+    const item = await this.findItem(owner, itemId);
     await this.prisma.complexExercise.delete({ where: { id: itemId } });
     await this.touch(item.complex.programId);
     this.logger.log(`Упражнение убрано из комплекса: itemId=${itemId}`);
@@ -422,6 +447,97 @@ export class ProgramService {
     );
   }
 
+  // ── Редактор приложения ─────────────────────────────────────────────────
+
+  /** Кардио комплекса из формы: название и минуты по отдельности; null — убрать. */
+  public async setCardioValues(
+    owner: ProgramOwner,
+    complexId: number,
+    name: string | null,
+    minutes: number | null,
+  ): Promise<void> {
+    const clean = name?.trim().replace(/\s+/g, ' ') || null;
+    if (!clean) return this.updateCardio(owner, complexId, null, null);
+    if (clean.length > CARDIO_NAME_MAX)
+      throw new BadRequestException(
+        `Название кардио — до ${CARDIO_NAME_MAX} символов.`,
+      );
+    if (!minutes || minutes < 1 || minutes > CARDIO_MINUTES_MAX)
+      throw new BadRequestException(`Минут — от 1 до ${CARDIO_MINUTES_MAX}.`);
+    await this.updateCardio(owner, complexId, clean, minutes);
+  }
+
+  /** План подходов из формы: «3 × 8–12». */
+  public async updatePlan(
+    owner: ProgramOwner,
+    itemId: number,
+    plan: { sets: number; repsMin: number; repsMax: number },
+  ) {
+    if (plan.repsMin > plan.repsMax)
+      throw new BadRequestException('Минимум повторов не больше максимума.');
+    const item = await this.findItem(owner, itemId);
+    await this.prisma.complexExercise.update({
+      where: { id: itemId },
+      data: plan,
+    });
+    await this.touch(item.complex.programId);
+    this.logger.log(
+      `План упражнения: itemId=${itemId}, ${plan.sets}×${plan.repsMin}-${plan.repsMax}`,
+    );
+    return item;
+  }
+
+  /** Порядок комплексов после перетаскивания: ids — все комплексы программы в новом порядке. */
+  public async reorderComplexes(
+    owner: ProgramOwner,
+    programId: number,
+    ids: number[],
+  ): Promise<void> {
+    const program = await this.find(owner, programId);
+    this.assertSameSet(
+      program.complexes.map((c) => c.id),
+      ids,
+    );
+    await this.prisma.$transaction(
+      ids.map((id, index) =>
+        this.prisma.complex.update({
+          where: { id },
+          data: { position: index + 1 },
+        }),
+      ),
+    );
+    await this.touch(programId);
+    this.logger.log(
+      `Порядок комплексов: programId=${programId}, [${ids.join(',')}]`,
+    );
+  }
+
+  /** Порядок упражнений комплекса: ids — все упражнения комплекса в новом порядке. */
+  public async reorderItems(
+    owner: ProgramOwner,
+    complexId: number,
+    ids: number[],
+  ): Promise<number> {
+    const complex = await this.findComplex(owner, complexId);
+    this.assertSameSet(
+      complex.exercises.map((e) => e.id),
+      ids,
+    );
+    await this.prisma.$transaction(
+      ids.map((id, index) =>
+        this.prisma.complexExercise.update({
+          where: { id },
+          data: { position: index + 1 },
+        }),
+      ),
+    );
+    await this.touch(complex.programId);
+    this.logger.log(
+      `Порядок упражнений: complexId=${complexId}, [${ids.join(',')}]`,
+    );
+    return complex.programId;
+  }
+
   // ── Ротация ─────────────────────────────────────────────────────────────
 
   /** Комплексы активной программы по порядку. */
@@ -486,13 +602,13 @@ export class ProgramService {
   }
 
   private async updateCardio(
-    userId: number,
+    owner: ProgramOwner,
     complexId: number,
     cardioName: string | null,
     cardioMinutes: number | null,
   ): Promise<void> {
     const [complex] = await this.prisma.complex.updateManyAndReturn({
-      where: { id: complexId, program: { ownerId: userId } },
+      where: { id: complexId, program: ownerWhere(owner) },
       data: { cardioName, cardioMinutes },
       select: { programId: true },
     });
@@ -629,6 +745,18 @@ export class ProgramService {
       },
     });
     return copy.id;
+  }
+
+  /** Новый порядок — та же самая выборка id, без пропусков и чужих. */
+  private assertSameSet(current: number[], next: number[]): void {
+    const same =
+      current.length === next.length &&
+      new Set(next).size === next.length &&
+      next.every((id) => current.includes(id));
+    if (!same)
+      throw new BadRequestException(
+        'Список изменился — обнови экран и попробуй ещё раз.',
+      );
   }
 
   private async swap<T extends { id: number; position: number }>(

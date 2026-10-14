@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 
 import { BotChannel, SportProfile, User } from '@/generated/prisma/client';
@@ -30,6 +30,18 @@ export class SportAccountService {
   }
 
   // ── Профиль ─────────────────────────────────────────────────────────────
+
+  /** Профиль для запросов Mini App: создаётся первым запросом приложения (miniapp/me). */
+  public async profile(userId: number): Promise<SportProfile> {
+    const profile = await this.prisma.sportProfile.findUnique({
+      where: { userId },
+    });
+    if (!profile)
+      throw new NotFoundException(
+        'Профиль не найден — открой приложение заново.',
+      );
+    return profile;
+  }
 
   /** Спортивный профиль; при первом входе (из бота или приложения) создаётся с именем из мессенджера. */
   public async ensureProfile(

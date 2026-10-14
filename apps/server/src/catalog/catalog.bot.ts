@@ -126,18 +126,7 @@ export class CatalogBot implements BotFeature {
     const fromWorkout = 'back' in session.data;
     if (fromWorkout) await this.restoreSession(ctx, session);
     else await this.sessions.clear(ctx);
-    const title = complaint.exercise?.name ?? complaint.stretch?.name ?? '';
-    await this.sender.sendToAdmins(
-      msg(
-        `Жалоба на описание: «${title}» от ${ctx.profile.displayName}\n\n${complaint.text}`,
-        [
-          [
-            btn('Исправлено', `cp:ok:${complaint.id}`),
-            btn('Отклонить', `cp:no:${complaint.id}`),
-          ],
-        ],
-      ),
-    );
+    await this.sender.sendToAdmins(this.catalog.complaintMessage(complaint));
     await ctx.reply(
       msg('Спасибо, передал администратору.', [
         [fromWorkout ? btn('⬅️ Вернуться', 'ex:close') : BACK_TO_MENU],

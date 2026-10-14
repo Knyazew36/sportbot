@@ -48,13 +48,17 @@ export const guestRoutes: AppRoute[] = [
 const soon = () => import('@/pages/soon/SoonPage')
 
 export const miniappRoutes: AppRoute[] = [
-  { path: ROUTES.TODAY, lazy: soon },
+  { path: ROUTES.TODAY, lazy: () => import('@/pages/today/TodayPage') },
   { path: ROUTES.PROGRAMS, lazy: soon },
   { path: ROUTES.LIBRARY, lazy: soon },
   { path: ROUTES.STATS, lazy: soon },
   { path: ROUTES.ME, lazy: soon },
   { path: ROUTES.ADMIN, lazy: soon },
-  { path: ROUTES.ONBOARDING, lazy: soon },
+  { path: ROUTES.ONBOARDING, lazy: () => import('@/pages/onboarding/OnboardingPage') },
+  { path: ROUTES.WORKOUT, lazy: () => import('@/pages/workout/WorkoutPage') },
+  { path: ROUTES.WORKOUT_REPLACE, lazy: () => import('@/pages/workout/ReplaceExercisePage') },
+  { path: ROUTES.WORKOUT_SUMMARY, lazy: () => import('@/pages/workout/SummaryPage') },
+  { path: ROUTES.COOLDOWN, lazy: () => import('@/pages/cooldown/CooldownPage') },
 ]
 
 // ── Превью дизайна: внутри оболочки PreviewLayout (/preview/*) ─────────────

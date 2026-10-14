@@ -26,6 +26,7 @@ import { ProgramService } from '@/program/program.service';
 
 import {
   CITY_ZONES,
+  zoneTitle,
   ONBOARDING_STEPS,
   ProfileService,
 } from './profile.service';
@@ -36,13 +37,6 @@ const WEIGHT_FREQUENCY_TITLE: Record<WeightAskFrequency, string> = {
   BIWEEKLY: 'раз в две недели',
   MONTHLY: 'раз в месяц',
 };
-
-const zoneTitle = (zone: string): string =>
-  CITY_ZONES.find((city) => city.zone === zone)?.title ??
-  // Etc/GMT-5 — это UTC+5: знак у Etc обратный
-  zone.replace(/^Etc\/GMT([+-]?)(\d*)$/, (_m, sign: string, hours: string) =>
-    hours ? `UTC${sign === '-' ? '+' : '−'}${hours}` : 'UTC',
-  );
 
 const daysTitle = (days: number[]): string =>
   days.length
@@ -296,9 +290,8 @@ export class ProfileBot implements BotFeature {
             ? [
                 '',
                 `🔗 Пользуешься ещё и ${other}? Привяжи его — будет один аккаунт:`,
-             
+
                 `Как привязать: нажми кнопку ниже, открой ссылку в ${other} и подтверди там привязку.`,
-           
               ]
             : []),
         ].join('\n'),
@@ -423,10 +416,7 @@ export class ProfileBot implements BotFeature {
         hint('Время можно поменять кнопками ниже.'),
       ].join('\n'),
       [
-        [
-          btn('🌅 Утро', `${prefix}:mt`),
-          btn('🌙 Вечер', `${prefix}:et`),
-        ],
+        [btn('🌅 Утро', `${prefix}:mt`), btn('🌙 Вечер', `${prefix}:et`)],
         [
           onboarding
             ? btn('Далее ➡️', 'ob:next:2')

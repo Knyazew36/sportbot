@@ -770,6 +770,11 @@
     stylelint-order "7.0.1"
     stylelint-scss "7.0.0"
 
+"@front-cmdt/utils@^0.1.15":
+  version "0.1.15"
+  resolved "https://registry.yarnpkg.com/@front-cmdt/utils/-/utils-0.1.15.tgz#89f6f3afb8202976b830df74dc5ccb0c7dea1703"
+  integrity sha512-R5UhVuXZB39eF9VnquKwVNb3QvDeRyoYiS7u97/0T9y1UsJ4lIicEX9qrt+lyJv0nWyHDovnrMzPMD2u/P7wkw==
+
 "@hono/node-server@^1.19.9 || ^2.0.5":
   version "2.1.4"
   resolved "https://registry.yarnpkg.com/@hono/node-server/-/node-server-2.1.4.tgz#12160a6a8b7a947a9371f48ca53bf2e24be5119f"

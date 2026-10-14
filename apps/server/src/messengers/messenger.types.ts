@@ -64,8 +64,11 @@ export abstract class MessengerUserStore {
  * платформы (inline-клавиатура MAX, inline_keyboard Telegram, keyboard VK).
  */
 export type MessengerButton =
-  /** Открыть мини-приложение этого бота. */
-  | { kind: 'open_app'; text: string }
+  /**
+   * Открыть мини-приложение этого бота. startParam — какой экран открыть сразу
+   * (латиница, цифры, «_» и «-», до 64 символов — ограничение Telegram startapp).
+   */
+  | { kind: 'open_app'; text: string; startParam?: string }
   /** Обычная ссылка. */
   | { kind: 'link'; text: string; url: string }
   /** Кнопка с ответом боту: нажатие придёт в обработчик проекта с этим payload. */

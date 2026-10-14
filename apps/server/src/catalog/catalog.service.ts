@@ -3,9 +3,10 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { PrismaService } from 'prisma/prisma.service';
 
-import { BotChannelKey } from '@/bot';
+import { APP_SCREEN, appBtn, BotChannelKey, btn, msg } from '@/bot';
 import { paginatePrisma } from '@/common/prisma';
 import { Joint, Muscle, Prisma } from '@/generated/prisma/client';
+import { MessengerMessage } from '@/messengers';
 
 export const EXERCISE_INCLUDE = {
   muscles: { include: { muscle: true } },
@@ -282,5 +283,29 @@ export class CatalogService {
       `Жалоба создана: complaintId=${complaint.id}, ${kind} id=${id}, userId=${userId}`,
     );
     return complaint;
+  }
+
+  /** Жалоба администратору с кнопками исхода — одинаковая из бота и приложения. */
+  public complaintMessage(complaint: {
+    id: number;
+    text: string;
+    exercise: { name: string } | null;
+    stretch: { name: string } | null;
+    user: { sportProfile: { displayName: string } | null } | null;
+  }): MessengerMessage {
+    const title = complaint.exercise?.name ?? complaint.stretch?.name ?? '';
+    const author = complaint.user?.sportProfile?.displayName ?? 'пользователя';
+    return msg(
+      `Жалоба на описание: «${title}» от ${author}
+
+${complaint.text}`,
+      [
+        [
+          btn('Исправлено', `cp:ok:${complaint.id}`),
+          btn('Отклонить', `cp:no:${complaint.id}`),
+        ],
+        [appBtn(APP_SCREEN.complaint(complaint.id))],
+      ],
+    );
   }
 }

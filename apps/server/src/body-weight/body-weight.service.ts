@@ -56,6 +56,24 @@ export class BodyWeightService {
     return value;
   }
 
+  /** Вес из формы приложения; повторный ввод за день заменяет значение. */
+  public async recordByUser(
+    userId: number,
+    value: number,
+  ): Promise<{ date: string; value: number }> {
+    const profile = await this.prisma.sportProfile.findUniqueOrThrow({
+      where: { userId },
+    });
+    const date = localToday(profile.timeZone);
+    await this.prisma.bodyWeight.upsert({
+      where: { userId_date: { userId, date } },
+      update: { value },
+      create: { userId, date, value },
+    });
+    this.logger.log(`Вес тела записан из приложения: userId=${userId}`);
+    return { date: date.toISOString().slice(0, 10), value };
+  }
+
   // ── Периодический вопрос ────────────────────────────────────────────────
 
   /**

@@ -185,6 +185,8 @@
   }
   html {
     @apply font-sans;
+    /* Место под полосу прокрутки занято всегда: короткий и длинный экран одной ширины, вёрстка не прыгает */
+    scrollbar-gutter: stable;
   }
   body {
     @apply bg-background text-body text-foreground antialiased;

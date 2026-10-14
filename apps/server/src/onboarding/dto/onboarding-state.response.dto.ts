@@ -1,0 +1,23 @@
+import { ApiProperty } from '@nestjs/swagger';
+
+import { OnboardingTemplateResponseDto } from './onboarding-template.response.dto';
+
+export class OnboardingStateResponseDto {
+  @ApiProperty({ description: 'Текущий шаг, 1..3' })
+  step: number;
+
+  @ApiProperty()
+  onboarded: boolean;
+
+  @ApiProperty({ type: [Number], description: '0..6, 0 — воскресенье' })
+  trainingDays: number[];
+
+  @ApiProperty({ example: '08:00' })
+  morningTime: string;
+
+  @ApiProperty({ example: '20:00' })
+  eveningTime: string;
+
+  @ApiProperty({ type: [OnboardingTemplateResponseDto] })
+  templates: OnboardingTemplateResponseDto[];
+}

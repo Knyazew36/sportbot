@@ -4,12 +4,18 @@
  * api
  * OpenAPI spec version: 0.0.1
  */
+import type { UpdateProfileDtoWeightAskFrequency } from './updateProfileDtoWeightAskFrequency';
 
 export interface UpdateProfileDto {
-  /** Имя */
-  name?: string;
-  /** Фамилия */
-  lastName?: string;
-  /** Телефон (опционально) */
-  phone?: string;
+  /** Имя для друзей */
+  displayName?: string;
+  /** 0..6, 0 — воскресенье */
+  trainingDays?: number[];
+  morningTime?: string;
+  eveningTime?: string;
+  weightAskFrequency?: UpdateProfileDtoWeightAskFrequency;
+  /** Отдых между подходами, с */
+  restSeconds?: number;
+  restAutoStart?: boolean;
+  timerSound?: boolean;
 }

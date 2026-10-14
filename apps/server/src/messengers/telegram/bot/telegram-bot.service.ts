@@ -179,10 +179,23 @@ export class TelegramBotService implements OnApplicationBootstrap {
    * Кнопка, открывающая мини-приложение. web_app-кнопка открывает его прямо поверх чата;
    * без webAppUrl — ссылка ?startapp на Main Mini App бота.
    */
-  public openAppButton(text = '🚀 Открыть приложение'): InlineKeyboardButton {
-    return this.options.webAppUrl
-      ? { text, web_app: { url: this.options.webAppUrl } }
-      : { text, url: `https://t.me/${this.options.botName}?startapp` };
+  public openAppButton(
+    text = '🚀 Открыть приложение',
+    startParam?: string,
+  ): InlineKeyboardButton {
+    // Кнопка web_app не передаёт start_param в initData — экран едет в адресе приложения
+    const query = startParam
+      ? `startapp=${encodeURIComponent(startParam)}`
+      : '';
+    if (this.options.webAppUrl) {
+      const url = new URL(this.options.webAppUrl);
+      if (startParam) url.searchParams.set('startapp', startParam);
+      return { text, web_app: { url: url.toString() } };
+    }
+    return {
+      text,
+      url: `https://t.me/${this.options.botName}?${query || 'startapp'}`,
+    };
   }
 
   // ── Polling ─────────────────────────────────────────────────────────────

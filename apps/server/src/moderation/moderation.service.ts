@@ -1,8 +1,9 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 
-import { btn, msg } from '@/bot';
+import { APP_SCREEN, appBtn, btn, msg } from '@/bot';
 import { CatalogKind, normalizeName } from '@/catalog/catalog.service';
+import { paginatePrisma } from '@/common/prisma';
 import {
   Equipment,
   ModerationOutcome,
@@ -26,6 +27,17 @@ export const REQUEST_INCLUDE = {
 
 export type RequestFull = Prisma.ModerationRequestGetPayload<{
   include: typeof REQUEST_INCLUDE;
+}>;
+
+const MINE_INCLUDE = {
+  exercise: { select: { id: true, name: true } },
+  stretch: { select: { id: true, name: true } },
+  duplicateOfExercise: { select: { id: true, name: true } },
+  duplicateOfStretch: { select: { id: true, name: true } },
+} satisfies Prisma.ModerationRequestInclude;
+
+export type MineEntry = Prisma.ModerationRequestGetPayload<{
+  include: typeof MINE_INCLUDE;
 }>;
 
 export interface DraftInput {
@@ -52,6 +64,13 @@ export interface Decision {
   authorId: number | null;
   text: string;
 }
+
+/** Причина для автора: коротко, без точки в конце — её ставит текст уведомления. */
+const cleanReason = (reason?: string): string | undefined =>
+  reason
+    ?.trim()
+    .replace(/[.\s]+$/, '')
+    .slice(0, 200) || undefined;
 
 export const OUTCOME_TITLE: Record<ModerationOutcome, string> = {
   PENDING: '⏳ на проверке',
@@ -154,6 +173,34 @@ export class ModerationService {
     });
   }
 
+  /** Сколько заявок ещё можно отправить за скользящие сутки: при нуле мастер не открывается. */
+  public async remaining(
+    userId: number,
+  ): Promise<{ left: number; limit: number }> {
+    const recent = await this.prisma.moderationRequest.count({
+      where: {
+        authorId: userId,
+        createdAt: { gte: new Date(Date.now() - DAY_MS) },
+      },
+    });
+    return { left: Math.max(0, DAILY_LIMIT - recent), limit: DAILY_LIMIT };
+  }
+
+  /** Вкладка «Мои» в приложении: все заявки, у дубля — запись-оригинал. */
+  public async mineList(userId: number, page?: number, limit?: number) {
+    const result = await paginatePrisma(this.prisma.moderationRequest, {
+      page,
+      limit,
+      where: { authorId: userId },
+      orderBy: { id: 'desc' },
+      include: MINE_INCLUDE,
+    });
+    return {
+      items: result.items as unknown as MineEntry[],
+      meta: result.meta,
+    };
+  }
+
   public async mine(userId: number): Promise<RequestFull[]> {
     return this.prisma.moderationRequest.findMany({
       where: { authorId: userId },
@@ -199,6 +246,7 @@ export class ModerationService {
         btn('Дубль', `md:dup:${request.id}`),
         btn('Отклонить', `md:rej:${request.id}`),
       ],
+      [appBtn(APP_SCREEN.request(request.id))],
     ]);
   }
 
@@ -211,10 +259,12 @@ export class ModerationService {
   public async approve(
     requestId: number,
     edits?: DraftEdits,
+    reason?: string,
   ): Promise<Decision> {
     const outcome: ModerationOutcome = edits ? 'APPROVED_EDITED' : 'APPROVED';
+    const note = cleanReason(reason);
     const decision = await this.prisma.$transaction(async (tx) => {
-      const request = await this.decide(tx, requestId, outcome);
+      const request = await this.decide(tx, requestId, outcome, note);
       if (request.exerciseId) {
         const exercise = await tx.exercise.update({
           where: { id: request.exerciseId },
@@ -271,7 +321,7 @@ export class ModerationService {
     );
     return {
       authorId: decision.authorId,
-      text: `«${decision.name}» добавлен в общий справочник.`,
+      text: `«${decision.name}» добавлен в общий справочник.${note ? ` ${note}.` : ''}`,
     };
   }
 
@@ -282,9 +332,11 @@ export class ModerationService {
   public async duplicate(
     requestId: number,
     targetId: number,
+    reason?: string,
   ): Promise<Decision> {
+    const note = cleanReason(reason);
     const decision = await this.prisma.$transaction(async (tx) => {
-      const request = await this.decide(tx, requestId, 'DUPLICATE');
+      const request = await this.decide(tx, requestId, 'DUPLICATE', note);
       if (request.exerciseId) {
         const draftId = request.exerciseId;
         const draft = await tx.exercise.findUniqueOrThrow({
@@ -340,15 +392,15 @@ export class ModerationService {
     );
     return {
       authorId: decision.authorId,
-      text: `«${decision.from}» объединён с «${decision.to}» — в твоих комплексах он заменён, история весов сохранена.`,
+      text: `«${decision.from}» объединён с «${decision.to}» — в твоих комплексах он заменён, история весов сохранена.${note ? ` ${note}.` : ''}`,
     };
   }
 
   /** Отклонить: запись остаётся личным черновиком автора. */
   public async reject(requestId: number, reason: string): Promise<Decision> {
-    const cleanReason = reason.trim().slice(0, 200);
+    const note = cleanReason(reason) ?? 'без причины';
     const request = await this.prisma.$transaction(async (tx) => {
-      const decided = await this.decide(tx, requestId, 'REJECTED', cleanReason);
+      const decided = await this.decide(tx, requestId, 'REJECTED', note);
       return tx.moderationRequest.findUniqueOrThrow({
         where: { id: decided.id },
         include: REQUEST_INCLUDE,
@@ -358,7 +410,7 @@ export class ModerationService {
     const name = request.exercise?.name ?? request.stretch?.name ?? 'Запись';
     return {
       authorId: request.authorId,
-      text: `«${name}» не попал в общий справочник: ${cleanReason}. У тебя он остаётся.`,
+      text: `«${name}» не попал в общий справочник: ${note}. У тебя он остаётся.`,
     };
   }
 

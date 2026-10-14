@@ -61,6 +61,19 @@ const ANALOGS_LIMIT = 8;
 export const isDone = (item: WorkoutExerciseFull): boolean =>
   item.done || item.sets.length > 0;
 
+/** Детальная тренировка засчитывается, если сделано хотя бы одно упражнение (business-tz, 7.3). */
+export const canComplete = (workout: WorkoutFull): boolean =>
+  workout.mode !== 'DETAILED' || workout.exercises.some(isDone);
+
+/** Границы ввода подхода — как в боте: вес 0..999 кг (0 — без веса), повторы 1..999. */
+const isValidSet = (weight: number, reps: number): boolean =>
+  Number.isFinite(weight) &&
+  weight >= 0 &&
+  weight <= 999 &&
+  Number.isInteger(reps) &&
+  reps >= 1 &&
+  reps <= 999;
+
 @Injectable()
 export class WorkoutService {
   private readonly logger = new Logger(`🏋️ ${WorkoutService.name}`);
@@ -184,16 +197,22 @@ export class WorkoutService {
     const first = match ? Number(match[1].replace(',', '.')) : NaN;
     const weight = match?.[2] ? first : 0;
     const reps = match?.[2] ? Number(match[2]) : first;
-    if (
-      !match ||
-      !Number.isInteger(reps) ||
-      reps < 1 ||
-      reps > 999 ||
-      weight > 999
-    )
+    if (!match || !isValidSet(weight, reps))
       throw new BadRequestException(
         'Не понял. Напиши вес и повторы, например «22 10» или «22.5х10»; без веса — только повторы: «12».',
       );
+    return this.addSetValues(userId, itemId, weight, reps);
+  }
+
+  /** Подход из приложения: вес отдельно от повторов, 0 — без веса. */
+  public async addSetValues(
+    userId: number,
+    itemId: number,
+    weight: number,
+    reps: number,
+  ): Promise<number> {
+    if (!isValidSet(weight, reps))
+      throw new BadRequestException('Вес до 999 кг, повторы от 1 до 999.');
     const item = await this.findItem(userId, itemId);
     if (item.workout.status !== 'IN_PROGRESS')
       throw new BadRequestException('Тренировка уже закрыта.');
@@ -209,6 +228,41 @@ export class WorkoutService {
       `Подход записан: workoutExerciseId=${itemId}, userId=${userId}`,
     );
     return item.workoutId;
+  }
+
+  /** Исправить сохранённый подход, пока тренировка не завершена (frontend-tz, 8.2). */
+  public async updateSet(
+    userId: number,
+    setId: number,
+    weight: number,
+    reps: number,
+  ): Promise<number> {
+    if (!isValidSet(weight, reps))
+      throw new BadRequestException('Вес до 999 кг, повторы от 1 до 999.');
+    const set = await this.openSet(userId, setId);
+    await this.prisma.workoutSet.update({
+      where: { id: setId },
+      data: { weight, reps },
+    });
+    this.logger.log(`Подход исправлен: setId=${setId}, userId=${userId}`);
+    return set.workoutExercise.workoutId;
+  }
+
+  /** Удалить любой подход незавершённой тренировки; номера оставшихся сдвигаются. */
+  public async deleteSet(userId: number, setId: number): Promise<number> {
+    const set = await this.openSet(userId, setId);
+    await this.prisma.$transaction([
+      this.prisma.workoutSet.delete({ where: { id: setId } }),
+      this.prisma.workoutSet.updateMany({
+        where: {
+          workoutExerciseId: set.workoutExerciseId,
+          number: { gt: set.number },
+        },
+        data: { number: { decrement: 1 } },
+      }),
+    ]);
+    this.logger.log(`Подход удалён: setId=${setId}, userId=${userId}`);
+    return set.workoutExercise.workoutId;
   }
 
   public async undoSet(userId: number, itemId: number): Promise<void> {
@@ -400,7 +454,7 @@ export class WorkoutService {
           ? { joints: { none: { jointId: { in: limited } } } }
           : {}),
       },
-      include: { muscles: true },
+      include: { muscles: { include: { muscle: true } } },
     });
     const matched = (exercise: (typeof candidates)[number]) =>
       exercise.muscles.filter(
@@ -477,6 +531,18 @@ export class WorkoutService {
   }
 
   // ── Внутреннее ──────────────────────────────────────────────────────────
+
+  /** Подход пользователя в незавершённой тренировке — его ещё можно править. */
+  private async openSet(userId: number, setId: number) {
+    const set = await this.prisma.workoutSet.findFirst({
+      where: { id: setId, workoutExercise: { workout: { userId } } },
+      include: { workoutExercise: { include: { workout: true } } },
+    });
+    if (!set) throw new NotFoundException('Подход не найден.');
+    if (set.workoutExercise.workout.status !== 'IN_PROGRESS')
+      throw new BadRequestException('Тренировка уже закрыта.');
+    return set;
+  }
 
   private async create(
     profile: SportProfile,

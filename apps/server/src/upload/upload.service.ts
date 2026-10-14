@@ -13,7 +13,11 @@ export class UploadService {
     `${ENTITY_EMOJI.upload} ${UploadService.name}`,
   );
   /** Категории, раздаваемые статикой по /api/uploads/<категория>/ (см. main.ts). */
-  public static readonly PUBLIC_CATEGORIES = ['avatars', 'chat'] as const;
+  public static readonly PUBLIC_CATEGORIES = [
+    'avatars',
+    'chat',
+    'catalog',
+  ] as const;
 
   readonly uploadRoot: string;
 

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 
 import { btn, localToday, msg } from '@/bot';
@@ -60,11 +60,15 @@ export class PauseService {
 
   /** @returns была ли действующая пауза. */
   public async end(profile: SportProfile): Promise<boolean> {
+    return this.endByUser(profile.userId);
+  }
+
+  public async endByUser(userId: number): Promise<boolean> {
     const { count } = await this.prisma.pause.updateMany({
-      where: { userId: profile.userId, endedAt: null },
+      where: { userId, endedAt: null },
       data: { endedAt: new Date() },
     });
-    if (count) this.logger.log(`Пауза снята: userId=${profile.userId}`);
+    if (count) this.logger.log(`Пауза снята: userId=${userId}`);
     return count > 0;
   }
 
@@ -75,6 +79,26 @@ export class PauseService {
       data: { endAskedAt: new Date() },
     });
     return count > 0;
+  }
+
+  // ── Приложение ──────────────────────────────────────────────────────────
+
+  /** Пауза из приложения: «до даты» (последний день включительно) или «до отмены». */
+  public async startByUser(
+    userId: number,
+    endDate: string | null,
+  ): Promise<{ startDate: string; endDate: string | null }> {
+    const profile = await this.prisma.sportProfile.findUniqueOrThrow({
+      where: { userId },
+    });
+    const end = endDate ? new Date(`${endDate}T00:00:00.000Z`) : null;
+    if (end && end < localToday(profile.timeZone))
+      throw new BadRequestException('Дата окончания уже прошла.');
+    const pause = await this.start(profile, end, 'MANUAL');
+    return {
+      startDate: pause.startDate.toISOString().slice(0, 10),
+      endDate: pause.endDate ? pause.endDate.toISOString().slice(0, 10) : null,
+    };
   }
 
   // ── Сообщения для крона и опросов ───────────────────────────────────────

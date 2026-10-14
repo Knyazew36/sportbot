@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 
 import { localToday } from '@/bot';
@@ -62,6 +67,39 @@ export class LimitationService {
       `Ограничение включено: limitationId=${limitation.id}, userId=${profile.userId}, jointId=${jointId}`,
     );
     return { jointName: limitation.joint.name, showDisclaimer };
+  }
+
+  // ── Приложение ──────────────────────────────────────────────────────────
+
+  public async listByUser(userId: number) {
+    const profile = await this.prisma.sportProfile.findUniqueOrThrow({
+      where: { userId },
+    });
+    const items = await this.active(userId, localToday(profile.timeZone));
+    return items.map((item) => ({
+      id: item.id,
+      jointId: item.jointId,
+      jointName: item.joint.name,
+      startDate: item.startDate.toISOString().slice(0, 10),
+      endDate: item.endDate ? item.endDate.toISOString().slice(0, 10) : null,
+    }));
+  }
+
+  /** Включить ограничение из приложения: зона и срок «до даты» или «до отмены». */
+  public async addByUser(
+    userId: number,
+    jointId: number,
+    endDate: string | null,
+  ) {
+    const [profile, joint] = await Promise.all([
+      this.prisma.sportProfile.findUniqueOrThrow({ where: { userId } }),
+      this.prisma.joint.findUnique({ where: { id: jointId } }),
+    ]);
+    if (!joint) throw new NotFoundException('Такой зоны нет.');
+    const end = endDate ? new Date(`${endDate}T00:00:00.000Z`) : null;
+    if (end && end < localToday(profile.timeZone))
+      throw new BadRequestException('Дата окончания уже прошла.');
+    return this.add(profile, jointId, end);
   }
 
   public async cancel(userId: number, limitationId: number): Promise<void> {

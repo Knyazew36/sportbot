@@ -161,7 +161,7 @@ export class MaxMessengerChannel implements MessengerChannel, OnModuleInit {
   private toMaxButton(button: MessengerButton): Record<string, unknown> {
     switch (button.kind) {
       case 'open_app':
-        return this.botService.openAppButton(button.text);
+        return this.botService.openAppButton(button.text, button.startParam);
       case 'link':
         return { type: 'link', text: button.text, url: button.url };
       case 'callback':

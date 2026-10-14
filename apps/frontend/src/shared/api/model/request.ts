@@ -1,4 +1,5 @@
-import axios, { type AxiosError } from 'axios'
+import { log } from '@front-cmdt/utils/log'
+import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 
 import { getMiniappAuthorization } from '@/shared/miniapp'
 
@@ -8,6 +9,11 @@ import { getOrganizationId } from './organization-id'
 import type { ApiErrorBody } from './type'
 
 const $api = axios.create({ baseURL: apiDomain })
+
+// Лог запросов в консоль браузера — только на деве
+const LOG_DISABLED = !import.meta.env.DEV
+
+const logName = (config?: InternalAxiosRequestConfig) => `${config?.method?.toUpperCase()} ${config?.url}`
 
 $api.interceptors.request.use(config => {
   // Токен появляется только после входа, поэтому заголовок ставится на каждый запрос, а не при создании клиента.
@@ -23,11 +29,25 @@ $api.interceptors.request.use(config => {
     config.headers.set(ORGANIZATION_HEADER, String(organizationId))
   }
 
+  log({
+    name: logName(config),
+    data: { params: config.params, body: config.data },
+    type: 'request',
+    isDisabled: LOG_DISABLED,
+  })
   return config
 })
 
 $api.interceptors.response.use(
-  response => response,
+  response => {
+    log({
+      name: `${logName(response.config)} → ${response.status}`,
+      data: response.data,
+      type: 'response',
+      isDisabled: LOG_DISABLED,
+    })
+    return response
+  },
   async (error: AxiosError<ApiErrorBody | Blob>) => {
     // У бинарных ручек (responseType: 'blob') JSON-тело ошибки тоже приходит как Blob — перепарсиваем
     const body = error.response?.data
@@ -45,12 +65,12 @@ $api.interceptors.response.use(
       clearAccessToken()
     }
 
-    if (import.meta.env.DEV) {
-      console.error(
-        `[api] ${error.config?.method?.toUpperCase()} ${error.config?.url} → ${error.response?.status ?? error.code}`,
-        error.response?.data,
-      )
-    }
+    log({
+      name: `${logName(error.config)} → ${error.response?.status ?? error.code}`,
+      data: error.response?.data ?? error.message,
+      type: 'catch',
+      isDisabled: LOG_DISABLED,
+    })
 
     throw error
   },

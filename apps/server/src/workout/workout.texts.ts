@@ -1,4 +1,14 @@
-import { numEmoji, btn, cut, fmtDay, grid, msg, hint } from '@/bot';
+import {
+  APP_SCREEN,
+  appBtn,
+  btn,
+  cut,
+  fmtDay,
+  grid,
+  hint,
+  msg,
+  numEmoji,
+} from '@/bot';
 import { holdText } from '@/catalog/catalog.texts';
 import { MessengerButton, MessengerMessage } from '@/messengers';
 import { ComplexFull } from '@/program/program.service';
@@ -205,6 +215,7 @@ export function finishedMessage(result: CompleteResult): MessengerMessage {
     ...(cooldown.buttons ?? []),
     // Без растяжек кнопки «Завершить» нет — иначе итог было бы нечем закрыть
     ...(cooldown.buttons ? [] : [[btn('✅ Завершить', 'cd:done')]]),
+    [appBtn(APP_SCREEN.cooldown(result.workoutId), '🧘 Заминка в приложении')],
   ]);
 }
 

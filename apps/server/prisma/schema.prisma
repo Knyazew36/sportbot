@@ -430,6 +430,12 @@ model SportProfile {
   /// Пусто — пользователь не выбирал: пишем в Telegram.
   notifyChannels BotChannel[] @default([])
 
+  /// Таймеры Mini App: бот про них не знает.
+  showRestTimer Boolean @default(true) /// показывать таймер отдыха на экране тренировки
+  restSeconds   Int     @default(90) /// отдых между подходами, с
+  restAutoStart Boolean @default(true) /// таймер отдыха стартует сам после подхода
+  timerSound    Boolean @default(true) /// звук и вибрация по окончании таймеров
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -764,10 +770,11 @@ model Complaint {
 
 /// Программа пользователя или шаблон администратора (isTemplate, ownerId = null).
 model Program {
-  id         Int     @id @default(autoincrement())
-  name       String
-  isTemplate Boolean @default(false)
-  code       String? @unique /// ключ шаблона для импорта
+  id          Int     @id @default(autoincrement())
+  name        String
+  isTemplate  Boolean @default(false)
+  code        String? @unique /// ключ шаблона для импорта
+  description String? /// описание шаблона: для кого и как заниматься
 
   ownerId Int?
   owner   User? @relation(fields: [ownerId], references: [id], onDelete: Cascade)

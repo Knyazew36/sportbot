@@ -19,6 +19,14 @@ export const CITY_ZONES: { title: string; zone: string }[] = [
   { title: 'Камчатка', zone: 'Asia/Kamchatka' },
 ];
 
+/** Название пояса для людей: город из списка или «UTC+5». */
+export const zoneTitle = (zone: string): string =>
+  CITY_ZONES.find((city) => city.zone === zone)?.title ??
+  // Etc/GMT-5 — это UTC+5: знак у Etc обратный
+  zone.replace(/^Etc\/GMT([+-]?)(\d*)$/, (_m, sign: string, hours: string) =>
+    hours ? `UTC${sign === '-' ? '+' : '−'}${hours}` : 'UTC',
+  );
+
 /** Шаги первого запуска: дни, время вопросов, программа. Часовой пояс — Москва по умолчанию, меняется в настройках. */
 export const ONBOARDING_STEPS = 3;
 

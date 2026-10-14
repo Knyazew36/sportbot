@@ -1,0 +1,349 @@
+import { ArrowRightIcon, ListIcon, SkipBackIcon, SkipForwardIcon } from 'lucide-react'
+import { useParams } from 'react-router'
+
+import { useState } from 'react'
+
+import { splitSteps } from '@/entities/catalog/lib'
+import { type Cooldown, useCooldown } from '@/entities/workout'
+import { toAssetUrl } from '@/shared/api'
+import { buildPath, ROUTES } from '@/shared/config/paths'
+import { pluralize } from '@/shared/lib/format'
+import { timerEndSignal } from '@/shared/lib/signal'
+import { cn } from '@/shared/lib/utils'
+import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
+import { CatalogImage } from '@/shared/ui/kit/CatalogImage'
+import { List } from '@/shared/ui/kit/ListRow'
+import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
+import { Rise } from '@/shared/ui/kit/Reveal'
+import { Screen, StickyFooter } from '@/shared/ui/kit/Screen'
+import { TopBar } from '@/shared/ui/kit/ScreenHeader'
+import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
+import { StepList } from '@/shared/ui/kit/StepList'
+import { Eyebrow, Lead, Poster } from '@/shared/ui/kit/Typography'
+import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
+import { Badge } from '@/shared/ui/shadcn/badge'
+import { CatalogRow } from '@/widgets/catalog/CatalogRow'
+import { HoldControls } from '@/widgets/catalog/HoldControls'
+
+import { StretchListSheet } from './components/StretchListSheet'
+
+type Phase = { kind: 'overview' } | { kind: 'step'; index: number; side: 1 | 2 } | { kind: 'more' } | { kind: 'done' }
+
+// Заминка тренировки (frontend-tz, 9): состав и порядок — с сервера, при повторном открытии не меняется.
+// Прохождение ничего не записывает в статистику
+const CooldownView = ({ cooldown }: { cooldown: Cooldown }) => {
+  const [phase, setPhase] = useState<Phase>({ kind: 'overview' })
+  const [listOpen, setListOpen] = useState(false)
+  const all = [...cooldown.main, ...cooldown.optional]
+  const back = buildPath(ROUTES.WORKOUT_SUMMARY, { workoutId: cooldown.workoutId })
+
+  const go = (index: number) => setPhase({ kind: 'step', index, side: 1 })
+
+  const next = () => {
+    if (phase.kind !== 'step') return
+    const stretch = all[phase.index]!
+    if (stretch.perSide && phase.side === 1) return setPhase({ ...phase, side: 2 })
+    // После основного блока — вопрос, хватит ли времени на остальное (frontend-tz, 9.1)
+    if (phase.index === cooldown.main.length - 1 && cooldown.optional.length) return setPhase({ kind: 'more' })
+    if (phase.index < all.length - 1) return go(phase.index + 1)
+    setPhase({ kind: 'done' })
+  }
+
+  const prev = () => {
+    if (phase.kind !== 'step') return
+    if (phase.side === 2) return setPhase({ ...phase, side: 1 })
+    if (phase.index > 0) go(phase.index - 1)
+  }
+
+  const listSheet = (
+    <StretchListSheet
+      open={listOpen}
+      onOpenChange={setListOpen}
+      main={cooldown.main}
+      optional={cooldown.optional}
+      minutes={cooldown.minutes}
+      current={phase.kind === 'step' ? phase.index : null}
+      onPick={go}
+    />
+  )
+
+  if (!all.length)
+    return (
+      <Screen
+        header={
+          <TopBar
+            back={back}
+            title='Заминка'
+          />
+        }
+        className='px-5'
+      >
+        <Rise>
+          <Lead>растяжек под эту тренировку —</Lead>
+          <Poster
+            as='h1'
+            size='display'
+            tone='primary'
+          >
+            нет
+          </Poster>
+          <Lead
+            size='md'
+            tone='soft'
+            className='mt-3'
+          >
+            В справочнике пока нет растяжек на мышцы, которые работали.
+          </Lead>
+        </Rise>
+      </Screen>
+    )
+
+  if (phase.kind === 'overview')
+    return (
+      <Screen
+        header={
+          <TopBar
+            back={back}
+            title='Заминка'
+            subtitle={`~${cooldown.minutes} мин`}
+          />
+        }
+        footer={
+          <StickyFooter className='grid grid-cols-[auto_minmax(0,1fr)] gap-2'>
+            <ButtonLink
+              to={ROUTES.TODAY}
+              variant='outline'
+              size='xl'
+              className='px-4'
+            >
+              Пропустить
+            </ButtonLink>
+            <Button
+              size='xl'
+              className='justify-between'
+              onClick={() => go(0)}
+            >
+              Начать
+              <ArrowRightIcon
+                className='size-7'
+                strokeWidth={2.5}
+              />
+            </Button>
+          </StickyFooter>
+        }
+        className='px-5'
+      >
+        <Rise>
+          <Lead>растяжка на отработавшие мышцы —</Lead>
+          <Poster
+            as='h1'
+            size='display'
+            tone='primary'
+            numeric
+          >
+            ~{cooldown.minutes} мин
+          </Poster>
+        </Rise>
+        {[
+          { title: 'Основной блок', list: cooldown.main },
+          { title: 'Если есть время', list: cooldown.optional },
+        ]
+          .filter(b => b.list.length)
+          .map(block => (
+            <ScreenSection
+              key={block.title}
+              title={block.title}
+              aside={pluralize(block.list.length, ['растяжка', 'растяжки', 'растяжек'])}
+            >
+              <List>
+                {block.list.map(s => (
+                  <CatalogRow
+                    key={s.id}
+                    name={s.name}
+                    imageUrl={toAssetUrl(s.imageUrl) ?? null}
+                    meta={`${s.muscles} · ${s.holdSeconds} с${s.perSide ? ' × 2' : ''}`}
+                  />
+                ))}
+              </List>
+            </ScreenSection>
+          ))}
+      </Screen>
+    )
+
+  if (phase.kind === 'more' || phase.kind === 'done')
+    return (
+      <Screen
+        header={
+          <TopBar
+            back={back}
+            title='Заминка'
+            subtitle={phase.kind === 'done' ? 'готово' : 'основной блок пройден'}
+          />
+        }
+        footer={
+          <StickyFooter>
+            {phase.kind === 'more' ? (
+              <div className='grid grid-cols-2 gap-2'>
+                <Button
+                  variant='outline'
+                  size='xl'
+                  onClick={() => setPhase({ kind: 'done' })}
+                >
+                  Нет
+                </Button>
+                <Button
+                  size='xl'
+                  onClick={() => go(cooldown.main.length)}
+                >
+                  Да
+                </Button>
+              </div>
+            ) : (
+              <ButtonLink
+                to={ROUTES.TODAY}
+                size='xl'
+                className='w-full'
+              >
+                На «Сегодня»
+              </ButtonLink>
+            )}
+          </StickyFooter>
+        }
+        className='px-5'
+      >
+        <Rise className='flex flex-1 flex-col justify-center'>
+          <Lead>{phase.kind === 'more' ? 'есть время ещё —' : 'растянулись —'}</Lead>
+          <Poster
+            as='h1'
+            size='display'
+            tone='primary'
+            className='mt-1'
+          >
+            {phase.kind === 'more' ? `на ${cooldown.optionalMinutes} мин?` : 'Готово'}
+          </Poster>
+          <div className='sb-lanes mt-6 h-20 opacity-30' />
+        </Rise>
+        {listSheet}
+      </Screen>
+    )
+
+  const stretch = all[phase.index]!
+  const inMain = phase.index < cooldown.main.length
+  const isLast =
+    (phase.index === all.length - 1 || (inMain && phase.index === cooldown.main.length - 1)) &&
+    (!stretch.perSide || phase.side === 2)
+
+  return (
+    <div className='flex min-h-svh flex-1 flex-col'>
+      <Screen
+        key={`screen-${phase.index}-${phase.side}`}
+        header={
+          <>
+            <TopBar
+              back={back}
+              title='Заминка'
+              subtitle={`растяжка ${phase.index + 1} из ${all.length} · ~${cooldown.minutes} мин`}
+              action={
+                <div className='flex items-center gap-2'>
+                  <Button
+                    variant='alert'
+                    size='icon'
+                    onClick={() => setListOpen(true)}
+                    aria-label='Весь список'
+                  >
+                    <ListIcon className='size-5' />
+                  </Button>
+                  {/* Заминка ничего не пишет в статистику — выйти можно в любой момент без подтверждения */}
+                  <Button
+                    variant='destructive'
+                    size='sm'
+                    className='h-10'
+                    onClick={() => setPhase({ kind: 'done' })}
+                  >
+                    Завершить
+                  </Button>
+                </div>
+              }
+            />
+            {/* Пройденные и текущая залиты, «если есть время» — пунктиром */}
+            <div className='flex gap-1 px-5 pt-3'>
+              {all.map((s, i) => (
+                <span
+                  key={s.id}
+                  className={cn(
+                    'h-1 flex-1',
+                    i <= phase.index
+                      ? 'bg-primary'
+                      : i < cooldown.main.length
+                        ? 'bg-border'
+                        : 'border-border border-t-2 border-dashed',
+                  )}
+                />
+              ))}
+            </div>
+          </>
+        }
+        className='gap-5 px-5 pt-4'
+      >
+        <Rise className='relative [@media(max-height:620px)]:hidden'>
+          <CatalogImage
+            src={toAssetUrl(stretch.imageUrl) ?? null}
+            alt={stretch.name}
+            size='cover'
+            className='aspect-[16/10] max-h-[30svh]'
+          />
+          {stretch.perSide && <Badge className='absolute right-2 bottom-2'>сторона {phase.side} из 2</Badge>}
+        </Rise>
+        <Rise>
+          <Eyebrow
+            as='p'
+            tone='primary'
+          >
+            {inMain ? 'Основной блок' : 'Если есть время'} · {stretch.muscles}
+          </Eyebrow>
+          <Poster
+            as='h1'
+            size='2xl'
+            className='mt-2 hyphens-auto'
+          >
+            {stretch.name}
+          </Poster>
+        </Rise>
+        {stretch.howTo && (
+          <Rise>
+            <StepList
+              items={splitSteps(stretch.howTo)}
+              size='lg'
+            />
+          </Rise>
+        )}
+      </Screen>
+
+      {/* Ключи соседей разные: одинаковые сломали бы сверку React и старый экран оставался бы рядом с новым */}
+      <HoldControls
+        key={`hold-${phase.index}-${phase.side}`}
+        holdSeconds={stretch.holdSeconds}
+        side={stretch.perSide ? phase.side : undefined}
+        back={{ label: 'Назад', icon: SkipBackIcon, onClick: prev }}
+        next={{
+          label: stretch.perSide && phase.side === 1 ? 'Сторона' : isLast ? 'Готово' : 'Дальше',
+          icon: SkipForwardIcon,
+          onClick: next,
+        }}
+        onEnd={() => {
+          timerEndSignal(cooldown.timerSound)
+          next()
+        }}
+      />
+      {listSheet}
+    </div>
+  )
+}
+
+const CooldownPage = () => {
+  const workoutId = Number(useParams().workoutId)
+  const cooldown = useCooldown(workoutId)
+  return <QueryScreen query={cooldown}>{data => <CooldownView cooldown={data} />}</QueryScreen>
+}
+
+export default CooldownPage

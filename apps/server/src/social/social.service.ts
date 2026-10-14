@@ -8,7 +8,16 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { randomBytes } from 'crypto';
 import { PrismaService } from 'prisma/prisma.service';
 
-import { BotSender, botStartLink, btn, fmtShort, localToday, msg } from '@/bot';
+import {
+  APP_SCREEN,
+  appBtn,
+  BotSender,
+  botStartLink,
+  btn,
+  fmtShort,
+  localToday,
+  msg,
+} from '@/bot';
 import { Prisma, SportProfile } from '@/generated/prisma/client';
 import { PlanDayService } from '@/plan/plan-day.service';
 import { ProgramService } from '@/program/program.service';
@@ -111,6 +120,7 @@ export class SocialService {
       invite.sender,
       msg(`${profile.displayName} принял приглашение — теперь вы друзья.`, [
         [btn('👥 Друзья', 'fr:menu')],
+        [appBtn(APP_SCREEN.friend(userId))],
       ]),
     );
     return invite.sender.sportProfile?.displayName ?? 'Друг';
@@ -299,6 +309,7 @@ export class SocialService {
                 btn('Обновить', `fr:upd:${copy.id}`),
                 btn('Оставить как есть', `fr:keep:${copy.id}`),
               ],
+              [appBtn(APP_SCREEN.program(copy.id))],
             ],
           ),
         );
