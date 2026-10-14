@@ -22,10 +22,20 @@ import { PermissionBanner } from './components/PermissionBanner'
 import { RestDay } from './components/RestDay'
 import { TrainingDay } from './components/TrainingDay'
 
+type Cta = { label: string; to: string; variant?: 'success'; size?: 'lg' }
+
 // Главное действие дня у большого пальца
-const cta = (day: DayToday): { label: string; to: string } | null => {
+const cta = (day: DayToday): Cta | null => {
   if (day.state === 'TRAINING' && day.complex)
     return { label: 'Начать', to: `${ROUTES.WORKOUT}?complexId=${day.complex.id}` }
+  // Внеплановая тренировка в день отдыха (7.2): зелёная, а надпись длинная — кнопка на ступень меньше
+  if (day.state === 'REST' && day.complex)
+    return {
+      label: 'Всё равно потренироваться',
+      to: `${ROUTES.WORKOUT}?complexId=${day.complex.id}`,
+      variant: 'success',
+      size: 'lg',
+    }
   if (day.state === 'IN_PROGRESS') return { label: 'Продолжить', to: ROUTES.WORKOUT }
   if (day.state === 'DONE' && day.workout && !isCooldownClosed(day.workout.id))
     return { label: 'Заминка', to: buildPath(ROUTES.COOLDOWN, { workoutId: day.workout.id }) }
@@ -62,12 +72,13 @@ const TodayPage = () => {
           <StickyFooter>
             <ButtonLink
               to={action.to}
-              size='xl'
+              variant={action.variant}
+              size={action.size ?? 'xl'}
               className='w-full justify-between'
             >
               {action.label}
               <ArrowRightIcon
-                className='size-7'
+                className={action.size === 'lg' ? 'size-6' : 'size-7'}
                 strokeWidth={2.5}
               />
             </ButtonLink>

@@ -52,7 +52,6 @@ export const InProgressDay = ({ day }: { day: DayToday }) => {
           trigger={
             <Button
               variant='destructive'
-              size='sm'
               className='w-full'
             />
           }

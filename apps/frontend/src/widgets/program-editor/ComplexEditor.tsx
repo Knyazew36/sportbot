@@ -1,6 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusIcon, Trash2Icon } from 'lucide-react'
+import { Reorder } from 'motion/react'
 import { useForm } from 'react-hook-form'
+
+import { useState } from 'react'
 
 import {
   type ComplexExerciseValues,
@@ -11,13 +14,13 @@ import {
 import { applyFieldErrors } from '@/shared/lib/form'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
-import { List } from '@/shared/ui/kit/ListRow'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { TextField } from '@/shared/ui/kit/TextField'
 import { Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
+import { arrangeBy } from './arrange'
 import { ComplexExerciseRow } from './ComplexExerciseRow'
 
 /** Что страница комплекса умеет с ним делать: программы пользователя (frontend-tz, 10.3) и шаблоны админа (14.2) */
@@ -69,12 +72,16 @@ const ComplexNameForm = ({ complex, onRename }: ComplexNameFormProps) => {
 
 // Комплекс целиком: название, упражнения с планом, добавление и удаление. Каждая правка сразу уходит на сервер
 export const ComplexEditor = ({ complex, actions, addExerciseTo }: ComplexEditorProps) => {
-  const ids = complex.exercises.map(e => e.id)
+  // Порядок под пальцем: на сервер уходит один раз, когда строку отпустили
+  const [dragOrder, setDragOrder] = useState<number[] | null>(null)
+  const shown = arrangeBy(complex.exercises, dragOrder ?? undefined)
+  const ids = shown.map(e => e.id)
 
-  const move = (from: number, to: number) => {
-    const next = [...ids]
-    next.splice(to, 0, ...next.splice(from, 1))
-    actions.reorderExercises(complex.id, next)
+  const drop = () => {
+    if (!dragOrder) return
+    const changed = dragOrder.some((id, i) => id !== complex.exercises[i]?.id)
+    if (changed) actions.reorderExercises(complex.id, dragOrder)
+    setDragOrder(null)
   }
 
   return (
@@ -88,21 +95,26 @@ export const ComplexEditor = ({ complex, actions, addExerciseTo }: ComplexEditor
 
       <ScreenSection
         title='Упражнения'
-        aside={ids.length > 1 ? 'в порядке выполнения' : undefined}
+        aside={ids.length > 1 ? 'порядок — тяни за ручку' : undefined}
       >
         {ids.length ? (
-          <List>
-            {complex.exercises.map((e, i) => (
+          <Reorder.Group
+            as='ol'
+            axis='y'
+            values={ids}
+            onReorder={setDragOrder}
+            className='border-border border-t-[1.5px]'
+          >
+            {shown.map(e => (
               <ComplexExerciseRow
                 key={e.id}
                 exercise={e}
-                onMoveUp={i > 0 ? () => move(i, i - 1) : undefined}
-                onMoveDown={i < ids.length - 1 ? () => move(i, i + 1) : undefined}
+                onDrop={drop}
                 onPlanChange={plan => actions.updateExercise(e.id, plan)}
                 onRemove={() => actions.deleteExercise(e.id)}
               />
             ))}
-          </List>
+          </Reorder.Group>
         ) : (
           <Text
             size='sm'

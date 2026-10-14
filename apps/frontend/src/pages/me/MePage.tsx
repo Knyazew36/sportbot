@@ -26,6 +26,7 @@ import { LimitsSection } from './components/LimitsSection'
 import { MessengersSection } from './components/MessengersSection'
 import { PauseSection } from './components/PauseSection'
 import { ScheduleSection } from './components/ScheduleSection'
+import { ThemeSection } from './components/ThemeSection'
 import { TrainingSection } from './components/TrainingSection'
 
 // Имя, которое видят друзья: сохраняется при уходе из поля
@@ -109,6 +110,7 @@ const MePage = () => {
             <BodyWeightSection profile={p} />
             <FriendsSection />
             <MessengersSection />
+            <ThemeSection />
             <DeleteDataSection />
           </>
         )}

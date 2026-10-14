@@ -82,13 +82,15 @@ const ProgramsPage = () => {
                 >
                   <List>
                     {rest.map(p => (
+                      // Вся строка ведёт в программу: ссылка растянута на строку, кнопка лежит поверх неё
                       <ListRow
                         key={p.id}
+                        className='hover:bg-accent/60 relative -mx-gutter px-gutter transition-colors'
                         lead={String(p.complexCount).padStart(2, '0')}
                         title={
                           <Link
                             to={buildPath(ROUTES.PROGRAM, { programId: p.id })}
-                            className='underline-offset-4 hover:underline'
+                            className='after:absolute after:inset-0'
                           >
                             {p.name}
                           </Link>
@@ -98,6 +100,7 @@ const ProgramsPage = () => {
                           <Button
                             variant='outline'
                             size='xs'
+                            className='relative z-10'
                             disabled={activate.isPending}
                             onClick={() => activate.mutate(p.id)}
                           >

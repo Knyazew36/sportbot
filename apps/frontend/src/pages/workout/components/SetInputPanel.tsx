@@ -109,10 +109,8 @@ export const SetInputPanel = ({ item, settings, timer, onSubmitStart }: SetInput
           />
           <Button
             type='submit'
-            className={cn(
-              'h-auto min-w-[6.5rem] gap-1.5 overflow-hidden px-3.5 transition-colors duration-300',
-              saved && 'bg-success hover:bg-success text-black',
-            )}
+            variant={saved ? 'success' : 'default'}
+            className='h-auto min-w-[6.5rem] gap-1.5 overflow-hidden px-3.5 transition-colors duration-300'
             disabled={add.isPending}
           >
             <AnimatePresence

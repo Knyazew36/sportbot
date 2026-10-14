@@ -13,7 +13,7 @@ export const DeleteDataSection = () => {
   return (
     <ScreenSection
       variant='block'
-      index={8}
+      index={9}
       title='Удаление данных'
     >
       <div className='border-destructive/60 flex flex-col gap-3 border-[1.5px] border-dashed p-4'>

@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ArrowDownIcon, ArrowUpIcon, Trash2Icon } from 'lucide-react'
+import { GripVerticalIcon, Trash2Icon } from 'lucide-react'
+import { Reorder, useDragControls } from 'motion/react'
 import { useForm } from 'react-hook-form'
 
 import {
@@ -10,7 +11,6 @@ import {
 } from '@/entities/program'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'
-import { ListRow } from '@/shared/ui/kit/ListRow'
 import { Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Badge } from '@/shared/ui/shadcn/badge'
@@ -32,9 +32,8 @@ const Caption = ({ children }: { children: string }) => (
 
 type ComplexExerciseRowProps = {
   exercise: ProgramExercise
-  /** Сдвиг на одну позицию; undefined — двигать некуда */
-  onMoveUp?: () => void
-  onMoveDown?: () => void
+  /** Строку отпустили после перетаскивания — сохранить новый порядок */
+  onDrop: () => void
   onPlanChange: (plan: ComplexExerciseValues) => Promise<unknown>
   onRemove: () => void
 }
@@ -42,11 +41,12 @@ type ComplexExerciseRowProps = {
 // Упражнение комплекса: план «3 × 8–12» правится на месте и сохраняется, когда фокус уходит из строки
 export const ComplexExerciseRow = ({
   exercise,
-  onMoveUp,
-  onMoveDown,
+  onDrop,
   onPlanChange,
   onRemove,
 }: ComplexExerciseRowProps) => {
+  // Перетаскивание только за ручку: иначе прокрутка пальцем и ввод в поля хватали бы строку
+  const drag = useDragControls()
   const {
     register,
     handleSubmit,
@@ -70,110 +70,115 @@ export const ComplexExerciseRow = ({
   })
 
   return (
-    <ListRow
-      title={exercise.name}
-      meta={exercise.muscles}
-      trail={
-        <div className='flex flex-col gap-1'>
-          <Button
-            variant='outline'
-            size='icon-sm'
-            aria-label='Выше'
-            disabled={!onMoveUp}
-            onClick={onMoveUp}
-          >
-            <ArrowUpIcon />
-          </Button>
-          <Button
-            variant='outline'
-            size='icon-sm'
-            aria-label='Ниже'
-            disabled={!onMoveDown}
-            onClick={onMoveDown}
-          >
-            <ArrowDownIcon />
-          </Button>
-        </div>
-      }
+    <Reorder.Item
+      value={exercise.id}
+      dragListener={false}
+      dragControls={drag}
+      onDragEnd={onDrop}
+      className='bg-background border-border grid grid-cols-[auto_1fr] items-start gap-x-2 border-b-[1.5px] py-3.5'
+      whileDrag={{ scale: 1.02, boxShadow: '6px 6px 0 var(--sb-blue)' }}
     >
-      {exercise.draft && (
-        <Badge
-          variant='outline'
-          className='mt-2'
-        >
-          не проверено
-        </Badge>
-      )}
-      <form
-        onSubmit={save}
-        // Сохраняем, только когда фокус ушёл из всей строки: переход между полями плана — ещё правка
-        onBlur={e => {
-          if (!e.currentTarget.contains(e.relatedTarget)) void save()
-        }}
-        className='mt-2 flex items-start gap-1.5'
+      <button
+        type='button'
+        className='text-foreground/50 flex h-10 w-8 touch-none items-center justify-center'
+        onPointerDown={e => drag.start(e)}
+        aria-label={`Перетащить «${exercise.name}»`}
       >
-        <label className='flex flex-col items-center gap-1'>
-          <Input
-            inputMode='numeric'
-            className={`${CELL} w-11`}
-            aria-label='Подходов'
-            aria-invalid={!!errors.sets}
-            {...register('sets')}
-          />
-          <Caption>подх.</Caption>
-        </label>
-        <Poster
-          as='span'
-          size='sm'
-          className='leading-9'
+        <GripVerticalIcon className='size-5' />
+      </button>
+      <div className='min-w-0'>
+        <Text
+          size='lg'
+          className='leading-tight'
         >
-          ×
-        </Poster>
-        <div className='flex flex-col items-center gap-1'>
-          <div className='flex items-center gap-1.5'>
+          {exercise.name}
+        </Text>
+        <Text
+          size='xs'
+          tone='muted'
+          className='mt-1'
+        >
+          {exercise.muscles}
+        </Text>
+        {exercise.draft && (
+          <Badge
+            variant='outline'
+            className='mt-2'
+          >
+            не проверено
+          </Badge>
+        )}
+        <form
+          onSubmit={save}
+          // Сохраняем, только когда фокус ушёл из всей строки: переход между полями плана — ещё правка
+          onBlur={e => {
+            if (!e.currentTarget.contains(e.relatedTarget)) void save()
+          }}
+          className='mt-2 flex items-start gap-1.5'
+        >
+          <label className='flex flex-col items-center gap-1'>
             <Input
               inputMode='numeric'
-              className={`${CELL} w-12`}
-              aria-label='Повторов от'
-              aria-invalid={!!errors.repsMin}
-              {...register('repsMin')}
+              className={`${CELL} w-11`}
+              aria-label='Подходов'
+              aria-invalid={!!errors.sets}
+              {...register('sets')}
             />
-            <Poster
-              as='span'
-              size='sm'
-            >
-              –
-            </Poster>
-            <Input
-              inputMode='numeric'
-              className={`${CELL} w-12`}
-              aria-label='Повторов до'
-              aria-invalid={!!errors.repsMax}
-              {...register('repsMax')}
-            />
+            <Caption>подх.</Caption>
+          </label>
+          <Poster
+            as='span'
+            size='sm'
+            className='leading-9'
+          >
+            ×
+          </Poster>
+          <div className='flex flex-col items-center gap-1'>
+            <div className='flex items-center gap-1.5'>
+              <Input
+                inputMode='numeric'
+                className={`${CELL} w-12`}
+                aria-label='Повторов от'
+                aria-invalid={!!errors.repsMin}
+                {...register('repsMin')}
+              />
+              <Poster
+                as='span'
+                size='sm'
+              >
+                –
+              </Poster>
+              <Input
+                inputMode='numeric'
+                className={`${CELL} w-12`}
+                aria-label='Повторов до'
+                aria-invalid={!!errors.repsMax}
+                {...register('repsMax')}
+              />
+            </div>
+            <Caption>повт.</Caption>
           </div>
-          <Caption>повт.</Caption>
-        </div>
-        {/* Enter на телефонной клавиатуре отправляет форму — отдельная кнопка не нужна */}
-        <button
-          type='submit'
-          hidden
+          {/* Enter на телефонной клавиатуре отправляет форму — отдельная кнопка не нужна */}
+          <button
+            type='submit'
+            hidden
+          />
+          <Button
+            type='button'
+            variant='outline'
+            size='icon-sm'
+            className='text-destructive ml-auto'
+            aria-label={`Удалить «${exercise.name}» из комплекса`}
+            onClick={onRemove}
+          >
+            <Trash2Icon />
+          </Button>
+        </form>
+        <ErrorText
+          className='mt-2'
+          errors={[errors.sets, errors.repsMin, errors.repsMax]}
         />
-        <Button
-          type='button'
-          variant='outline'
-          size='icon-sm'
-          className='text-destructive ml-auto'
-          aria-label={`Удалить «${exercise.name}» из комплекса`}
-          onClick={onRemove}
-        >
-          <Trash2Icon />
-        </Button>
-      </form>
-      <ErrorText
-        className='mt-2'
-        errors={[errors.sets, errors.repsMin, errors.repsMax]}
-      />
-    </ListRow>
+      </div>
+    </Reorder.Item>
   )
 }
