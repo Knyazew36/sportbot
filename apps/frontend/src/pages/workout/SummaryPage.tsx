@@ -14,7 +14,7 @@ import { Screen, StickyFooter } from '@/shared/ui/kit/Screen'
 import { ScreenHeader } from '@/shared/ui/kit/ScreenHeader'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { StatGrid } from '@/shared/ui/kit/StatGrid'
-import { Eyebrow, Lead, Poster, Text } from '@/shared/ui/kit/Typography'
+import { Lead, Poster, Text } from '@/shared/ui/kit/Typography'
 
 // Протокол: что сделано по каждому упражнению
 const Protocol = ({ workoutId }: { workoutId: number }) => {
