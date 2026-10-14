@@ -18,6 +18,8 @@ export interface ApiErrorBody {
   path: string
   /** Машинный код варианта ошибки, если сервер его передал (new ConflictException({ message, code })) */
   code?: string
+  /** Ошибки по полям формы — при 422 от валидации DTO: { поле: текст } */
+  errors?: Record<string, string>
   /** Стек — только при NODE_ENV=development на сервере */
   exception?: string
 }

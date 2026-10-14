@@ -8,6 +8,7 @@ import { Eyebrow, Lead, Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/shadcn/toggle-group'
 import { MiniAppShell } from '@/widgets/miniapp/MiniAppShell'
+import { PREVIEW_NAV } from '@/widgets/miniapp/nav'
 
 // Все экраны макета по порядку пути пользователя: вход → день → тренировка → разделы → админ
 const SCREENS = [
@@ -123,6 +124,7 @@ const PreviewLayout = () => {
       </aside>
 
       <MiniAppShell
+        nav={PREVIEW_NAV}
         isAdmin
         className='lg:border-border lg:border-x-[1.5px]'
       />

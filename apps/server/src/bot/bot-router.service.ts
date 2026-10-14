@@ -5,13 +5,13 @@ import {
   OnApplicationBootstrap,
 } from '@nestjs/common';
 import { DiscoveryService, Reflector } from '@nestjs/core';
-import { PrismaService } from 'prisma/prisma.service';
 
 import {
   BOT_HANDLER_METADATA,
   BotHandlerOptions,
 } from './bot-handler.decorator';
 import { BotSessionService } from './bot-session.service';
+import { SportAccountService } from './sport-account.service';
 import { BotContext, BotFeature, isAdmin } from './bot.types';
 
 interface RegisteredHandler {
@@ -40,8 +40,8 @@ export class BotRouter implements OnApplicationBootstrap {
   constructor(
     private readonly discovery: DiscoveryService,
     private readonly reflector: Reflector,
-    private readonly prisma: PrismaService,
     private readonly sessions: BotSessionService,
+    private readonly accounts: SportAccountService,
   ) {}
 
   public onApplicationBootstrap(): void {
@@ -75,12 +75,12 @@ export class BotRouter implements OnApplicationBootstrap {
   public async handle(ctx: BotContext): Promise<void> {
     const where = `userId=${ctx.user.id}, ${ctx.channel}`;
     try {
-      if (await this.isBlocked(ctx)) {
+      if (await this.accounts.isBlocked(ctx.user, ctx.channel)) {
         this.logger.warn(`Заблокированный пользователь, ${where}`);
         await ctx.toast('Доступ к боту закрыт.');
         return;
       }
-      ctx.profile = ctx.user.sportProfile ?? (await this.createProfile(ctx));
+      ctx.profile = await this.accounts.ensureProfile(ctx.user, ctx.channel);
       ctx.user.sportProfile = ctx.profile;
       // Текст пользователя в лог не пишем — только вид события
       this.logger.log(
@@ -216,42 +216,5 @@ export class BotRouter implements OnApplicationBootstrap {
     );
     await ctx.toast('Недоступно');
     return false;
-  }
-
-  private async isBlocked(ctx: BotContext): Promise<boolean> {
-    const externalId =
-      ctx.channel === 'TELEGRAM' ? ctx.user.telegramId : ctx.user.maxId;
-    if (!externalId) return false;
-    const blocked = await this.prisma.blockedAccount.findUnique({
-      where: { channel_externalId: { channel: ctx.channel, externalId } },
-      select: { id: true },
-    });
-    return !!blocked;
-  }
-
-  private createProfile(ctx: BotContext) {
-    const tg = ctx.user.telegramData as { first_name?: string } | null;
-    const max = ctx.user.maxData as {
-      name?: string;
-      first_name?: string;
-    } | null;
-    const displayName =
-      ctx.user.name ||
-      (ctx.channel === 'TELEGRAM'
-        ? tg?.first_name
-        : (max?.first_name ?? max?.name)) ||
-      tg?.first_name ||
-      max?.name ||
-      'Спортсмен';
-    this.logger.log(`Новый спортивный профиль, userId=${ctx.user.id}`);
-    return this.prisma.sportProfile.upsert({
-      where: { userId: ctx.user.id },
-      update: {},
-      create: {
-        userId: ctx.user.id,
-        displayName: displayName.slice(0, 64),
-        trainingDays: [1, 3, 5],
-      },
-    });
   }
 }

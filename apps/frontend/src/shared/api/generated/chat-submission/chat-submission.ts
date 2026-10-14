@@ -4,25 +4,6 @@
  * api
  * OpenAPI spec version: 0.0.1
  */
-import {
-  useMutation,
-  useQuery
-} from '@tanstack/react-query';
-import type {
-  DataTag,
-  DefinedInitialDataOptions,
-  DefinedUseQueryResult,
-  MutationFunction,
-  QueryClient,
-  QueryFunction,
-  QueryKey,
-  UndefinedInitialDataOptions,
-  UseMutationOptions,
-  UseMutationResult,
-  UseQueryOptions,
-  UseQueryResult
-} from '@tanstack/react-query';
-
 import type {
   ChatControllerCreate200,
   ChatControllerCreateBody,
@@ -36,31 +17,12 @@ import { customInstance } from '../../model/orval-mutator';
 
 
 
-
-const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKey: K } => {
-  const result = { queryKey } as T & { queryKey: K };
-  for (const key of Object.keys(query)) {
-    // The explicit queryKey always wins, matching the previous
-    // `{ ...query, queryKey }` spread where it was set last.
-    if (key === 'queryKey') continue;
-    Object.defineProperty(result, key, {
-      enumerable: true,
-      configurable: true,
-      get: () => (query as Record<string, unknown>)[key],
-    });
-  }
-  return result;
-};
-
-/**
+  /**
  * @summary Отправить сообщение из чата (телефон/email + до 5 картинок)
  */
 export const chatControllerCreate = (
     chatControllerCreateBody: ChatControllerCreateBody,
- signal?: AbortSignal
-) => {
-
-      const formData = new FormData();
+ ) => {const formData = new FormData();
 formData.append(`message`, chatControllerCreateBody.message);
 if(chatControllerCreateBody.phone !== undefined) {
  formData.append(`phone`, chatControllerCreateBody.phone);
@@ -75,308 +37,45 @@ if(chatControllerCreateBody.files !== undefined) {
       return customInstance<ChatControllerCreate200>(
       {url: `/chat-submission/create`, method: 'POST',
       headers: {'Content-Type': 'multipart/form-data', },
-       data: formData, signal
+       data: formData
     },
       );
     }
-
-
-
-
-export const getChatControllerCreateMutationKey = () => ['chatControllerCreate'] as const;
-
-export const getChatControllerCreateMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof chatControllerCreate>>, TError,ChatControllerCreateMutationVariables, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof chatControllerCreate>>, TError,ChatControllerCreateMutationVariables, TContext> => {
-
-const mutationKey = getChatControllerCreateMutationKey();
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof chatControllerCreate>>, ChatControllerCreateMutationVariables> = (props) => {
-          const {data} = props ?? {};
-
-          return  chatControllerCreate(data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type ChatControllerCreateMutationResult = NonNullable<Awaited<ReturnType<typeof chatControllerCreate>>>
-    export type ChatControllerCreateMutationBody = ChatControllerCreateBody
-    export type ChatControllerCreateMutationError = unknown
-    export type ChatControllerCreateMutationVariables = {data: ChatControllerCreateBody}
-
-    /**
- * @summary Отправить сообщение из чата (телефон/email + до 5 картинок)
- */
-export const useChatControllerCreate = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof chatControllerCreate>>, TError,ChatControllerCreateMutationVariables, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof chatControllerCreate>>,
-        TError,
-        ChatControllerCreateMutationVariables,
-        TContext
-      > => {
-      return useMutation(getChatControllerCreateMutationOptions(options), queryClient);
-    }
-    /**
+  /**
  * @summary Сообщения с сайта (платформенный админ)
  */
 export const chatControllerList = (
     params?: ChatControllerListParams,
- signal?: AbortSignal
-) => {
-
-
+ ) => {
       return customInstance<ChatControllerList200>(
       {url: `/chat-submission/list`, method: 'GET',
-        params, signal
+        params
     },
       );
     }
-
-
-
-
-export const getChatControllerListQueryKey = (params?: ChatControllerListParams,) => {
-    return [
-    `/chat-submission/list`, ...(params ? [params] : [])
-    ] as const;
-    }
-
-
-export const getChatControllerListQueryOptions = <TData = Awaited<ReturnType<typeof chatControllerList>>, TError = unknown>(params?: ChatControllerListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof chatControllerList>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getChatControllerListQueryKey(params);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof chatControllerList>>> = ({ signal }) => chatControllerList(params, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof chatControllerList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type ChatControllerListQueryResult = NonNullable<Awaited<ReturnType<typeof chatControllerList>>>
-export type ChatControllerListQueryError = unknown
-
-
-export function useChatControllerList<TData = Awaited<ReturnType<typeof chatControllerList>>, TError = unknown>(
- params: undefined |  ChatControllerListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof chatControllerList>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof chatControllerList>>,
-          TError,
-          Awaited<ReturnType<typeof chatControllerList>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useChatControllerList<TData = Awaited<ReturnType<typeof chatControllerList>>, TError = unknown>(
- params?: ChatControllerListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof chatControllerList>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof chatControllerList>>,
-          TError,
-          Awaited<ReturnType<typeof chatControllerList>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useChatControllerList<TData = Awaited<ReturnType<typeof chatControllerList>>, TError = unknown>(
- params?: ChatControllerListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof chatControllerList>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Сообщения с сайта (платформенный админ)
- */
-
-export function useChatControllerList<TData = Awaited<ReturnType<typeof chatControllerList>>, TError = unknown>(
- params?: ChatControllerListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof chatControllerList>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getChatControllerListQueryOptions(params,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
-}
-
-
-
-
-
-
-/**
+  /**
  * @summary Сообщение с сайта по id (платформенный админ)
  */
 export const chatControllerFindOne = (
     id: number,
- signal?: AbortSignal
-) => {
-
-
+ ) => {
       return customInstance<ChatControllerFindOne200>(
-      {url: `/chat-submission/${id}`, method: 'GET', signal
+      {url: `/chat-submission/${id}`, method: 'GET'
     },
       );
     }
-
-
-
-
-export const getChatControllerFindOneQueryKey = (id: number,) => {
-    return [
-    `/chat-submission/${id}`
-    ] as const;
-    }
-
-
-export const getChatControllerFindOneQueryOptions = <TData = Awaited<ReturnType<typeof chatControllerFindOne>>, TError = unknown>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof chatControllerFindOne>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getChatControllerFindOneQueryKey(id);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof chatControllerFindOne>>> = ({ signal }) => chatControllerFindOne(id, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof chatControllerFindOne>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type ChatControllerFindOneQueryResult = NonNullable<Awaited<ReturnType<typeof chatControllerFindOne>>>
-export type ChatControllerFindOneQueryError = unknown
-
-
-export function useChatControllerFindOne<TData = Awaited<ReturnType<typeof chatControllerFindOne>>, TError = unknown>(
- id: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof chatControllerFindOne>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof chatControllerFindOne>>,
-          TError,
-          Awaited<ReturnType<typeof chatControllerFindOne>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useChatControllerFindOne<TData = Awaited<ReturnType<typeof chatControllerFindOne>>, TError = unknown>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof chatControllerFindOne>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof chatControllerFindOne>>,
-          TError,
-          Awaited<ReturnType<typeof chatControllerFindOne>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useChatControllerFindOne<TData = Awaited<ReturnType<typeof chatControllerFindOne>>, TError = unknown>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof chatControllerFindOne>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Сообщение с сайта по id (платформенный админ)
- */
-
-export function useChatControllerFindOne<TData = Awaited<ReturnType<typeof chatControllerFindOne>>, TError = unknown>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof chatControllerFindOne>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getChatControllerFindOneQueryOptions(id,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
-}
-
-
-
-
-
-
-/**
+  /**
  * @summary Удалить сообщение с сайта вместе с вложениями (платформенный админ)
  */
 export const chatControllerRemove = (
     id: number,
- signal?: AbortSignal
-) => {
-
-
+ ) => {
       return customInstance<ChatControllerRemove200>(
-      {url: `/chat-submission/delete/${id}`, method: 'POST', signal
+      {url: `/chat-submission/delete/${id}`, method: 'POST'
     },
       );
     }
-
-
-
-
-export const getChatControllerRemoveMutationKey = () => ['chatControllerRemove'] as const;
-
-export const getChatControllerRemoveMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof chatControllerRemove>>, TError,ChatControllerRemoveMutationVariables, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof chatControllerRemove>>, TError,ChatControllerRemoveMutationVariables, TContext> => {
-
-const mutationKey = getChatControllerRemoveMutationKey();
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof chatControllerRemove>>, ChatControllerRemoveMutationVariables> = (props) => {
-          const {id} = props ?? {};
-
-          return  chatControllerRemove(id,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type ChatControllerRemoveMutationResult = NonNullable<Awaited<ReturnType<typeof chatControllerRemove>>>
-
-    export type ChatControllerRemoveMutationError = unknown
-    export type ChatControllerRemoveMutationVariables = {id: number}
-
-    /**
- * @summary Удалить сообщение с сайта вместе с вложениями (платформенный админ)
- */
-export const useChatControllerRemove = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof chatControllerRemove>>, TError,ChatControllerRemoveMutationVariables, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof chatControllerRemove>>,
-        TError,
-        ChatControllerRemoveMutationVariables,
-        TContext
-      > => {
-      return useMutation(getChatControllerRemoveMutationOptions(options), queryClient);
-    }
+  export type ChatControllerCreateResult = NonNullable<Awaited<ReturnType<typeof chatControllerCreate>>>
+export type ChatControllerListResult = NonNullable<Awaited<ReturnType<typeof chatControllerList>>>
+export type ChatControllerFindOneResult = NonNullable<Awaited<ReturnType<typeof chatControllerFindOne>>>
+export type ChatControllerRemoveResult = NonNullable<Awaited<ReturnType<typeof chatControllerRemove>>>

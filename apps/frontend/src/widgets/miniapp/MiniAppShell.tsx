@@ -1,15 +1,29 @@
-import { Outlet, useLocation } from 'react-router'
+import { Outlet, useLocation, useNavigate } from 'react-router'
+
+import { useEffect } from 'react'
 
 import { cn } from '@/shared/lib/utils'
+import { showBackButton } from '@/shared/miniapp'
 import { ScreenChromeProvider } from '@/shared/ui/kit/screen-chrome'
 
 import { BottomNav } from './BottomNav'
-import { isFocusRoute } from './nav'
+import { isFocusRoute, isSectionRoot, type ShellNav } from './nav'
+
+type MiniAppShellProps = { nav: ShellNav; isAdmin?: boolean; className?: string }
 
 // Оболочка Mini App: телефонная колонка на бумаге с зерном, экран и нижнее меню
-export const MiniAppShell = ({ isAdmin = false, className }: { isAdmin?: boolean; className?: string }) => {
+export const MiniAppShell = ({ nav, isAdmin = false, className }: MiniAppShellProps) => {
   const { pathname } = useLocation()
-  const navVisible = !isFocusRoute(pathname)
+  const navigate = useNavigate()
+  const navVisible = !isFocusRoute(nav, pathname)
+  const sectionRoot = isSectionRoot(nav, pathname)
+
+  // Системная «Назад» мессенджера — шаг назад внутри приложения (frontend-tz, раздел 6). На корне раздела её нет
+  useEffect(() => {
+    if (sectionRoot) return
+    const hide = showBackButton(() => navigate(-1))
+    return hide || undefined
+  }, [sectionRoot, navigate])
 
   return (
     <div
@@ -25,7 +39,12 @@ export const MiniAppShell = ({ isAdmin = false, className }: { isAdmin?: boolean
           <Outlet />
         </div>
       </ScreenChromeProvider>
-      {navVisible && <BottomNav isAdmin={isAdmin} />}
+      {navVisible && (
+        <BottomNav
+          nav={nav.items}
+          isAdmin={isAdmin}
+        />
+      )}
     </div>
   )
 }

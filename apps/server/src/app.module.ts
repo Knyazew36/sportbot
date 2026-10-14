@@ -36,6 +36,7 @@ import { BotModule } from './bot';
 import { CatalogModule } from './catalog/catalog.module';
 import { LimitationModule } from './limitation/limitation.module';
 import { LinkModule } from './link/link.module';
+import { MiniappModule } from './miniapp/miniapp.module';
 import { ModerationModule } from './moderation/moderation.module';
 import { PauseModule } from './pause/pause.module';
 import { PlanPollModule } from './plan/plan-poll.module';
@@ -84,6 +85,7 @@ import { WorkoutModule } from './workout/workout.module';
 
     // Спортбот (business-tz.md, раздел 23.1)
     ProfileModule,
+    MiniappModule,
     CatalogModule,
     ModerationModule,
     ProgramModule,

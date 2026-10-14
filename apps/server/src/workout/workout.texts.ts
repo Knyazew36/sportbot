@@ -192,9 +192,10 @@ export function countedMessage(result: CompleteResult): MessengerMessage {
  * по «Завершить» и не остаётся висеть в чате отдельной строкой.
  */
 export function finishedMessage(result: CompleteResult): MessengerMessage {
+  // Автозакрытие приходит на следующий день — заминка и кардио уже не к месту, только уведомление
+  if (result.auto) return countedMessage(result);
   const cooldown = cooldownMessage(result.cooldown);
-  // Автозакрытие приходит на следующий день — напоминать о кардио уже поздно
-  const cardio = result.auto ? null : cardioText(result);
+  const cardio = cardioText(result);
   const parts = [
     summaryText(result),
     ...(cardio ? [cardio] : []),

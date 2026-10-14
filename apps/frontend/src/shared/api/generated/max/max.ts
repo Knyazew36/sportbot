@@ -4,25 +4,6 @@
  * api
  * OpenAPI spec version: 0.0.1
  */
-import {
-  useMutation,
-  useQuery
-} from '@tanstack/react-query';
-import type {
-  DataTag,
-  DefinedInitialDataOptions,
-  DefinedUseQueryResult,
-  MutationFunction,
-  QueryClient,
-  QueryFunction,
-  QueryKey,
-  UndefinedInitialDataOptions,
-  UseMutationOptions,
-  UseMutationResult,
-  UseQueryOptions,
-  UseQueryResult
-} from '@tanstack/react-query';
-
 import type {
   MaxControllerLoginStatus200,
   MaxControllerLoginStatusParams,
@@ -34,242 +15,40 @@ import { customInstance } from '../../model/orval-mutator';
 
 
 
-
-const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKey: K } => {
-  const result = { queryKey } as T & { queryKey: K };
-  for (const key of Object.keys(query)) {
-    // The explicit queryKey always wins, matching the previous
-    // `{ ...query, queryKey }` spread where it was set last.
-    if (key === 'queryKey') continue;
-    Object.defineProperty(result, key, {
-      enumerable: true,
-      configurable: true,
-      get: () => (query as Record<string, unknown>)[key],
-    });
-  }
-  return result;
-};
-
-/**
+  /**
  * @summary Вход через MAX: ссылка на чат с ботом, где вход подтверждается кнопкой
  */
 export const maxControllerStartLogin = (
 
- signal?: AbortSignal
-) => {
-
-
+ ) => {
       return customInstance<MaxControllerStartLogin200>(
-      {url: `/auth/max-login/start`, method: 'POST', signal
+      {url: `/auth/max-login/start`, method: 'POST'
     },
       );
     }
-
-
-
-
-export const getMaxControllerStartLoginMutationKey = () => ['maxControllerStartLogin'] as const;
-
-export const getMaxControllerStartLoginMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof maxControllerStartLogin>>, TError,void, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof maxControllerStartLogin>>, TError,void, TContext> => {
-
-const mutationKey = getMaxControllerStartLoginMutationKey();
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof maxControllerStartLogin>>, void> = () => {
-
-
-          return  maxControllerStartLogin()
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type MaxControllerStartLoginMutationResult = NonNullable<Awaited<ReturnType<typeof maxControllerStartLogin>>>
-
-    export type MaxControllerStartLoginMutationError = unknown
-
-
-    /**
- * @summary Вход через MAX: ссылка на чат с ботом, где вход подтверждается кнопкой
- */
-export const useMaxControllerStartLogin = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof maxControllerStartLogin>>, TError,void, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof maxControllerStartLogin>>,
-        TError,
-        void,
-        TContext
-      > => {
-      return useMutation(getMaxControllerStartLoginMutationOptions(options), queryClient);
-    }
-    /**
+  /**
  * @summary Статус входа через MAX — браузер поллит, пока пользователь подтверждает в чате
  */
 export const maxControllerLoginStatus = (
     params: MaxControllerLoginStatusParams,
- signal?: AbortSignal
-) => {
-
-
+ ) => {
       return customInstance<MaxControllerLoginStatus200>(
       {url: `/auth/max-login/status`, method: 'GET',
-        params, signal
+        params
     },
       );
     }
-
-
-
-
-export const getMaxControllerLoginStatusQueryKey = (params?: MaxControllerLoginStatusParams,) => {
-    return [
-    `/auth/max-login/status`, ...(params ? [params] : [])
-    ] as const;
-    }
-
-
-export const getMaxControllerLoginStatusQueryOptions = <TData = Awaited<ReturnType<typeof maxControllerLoginStatus>>, TError = unknown>(params: MaxControllerLoginStatusParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof maxControllerLoginStatus>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getMaxControllerLoginStatusQueryKey(params);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof maxControllerLoginStatus>>> = ({ signal }) => maxControllerLoginStatus(params, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof maxControllerLoginStatus>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type MaxControllerLoginStatusQueryResult = NonNullable<Awaited<ReturnType<typeof maxControllerLoginStatus>>>
-export type MaxControllerLoginStatusQueryError = unknown
-
-
-export function useMaxControllerLoginStatus<TData = Awaited<ReturnType<typeof maxControllerLoginStatus>>, TError = unknown>(
- params: MaxControllerLoginStatusParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof maxControllerLoginStatus>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof maxControllerLoginStatus>>,
-          TError,
-          Awaited<ReturnType<typeof maxControllerLoginStatus>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useMaxControllerLoginStatus<TData = Awaited<ReturnType<typeof maxControllerLoginStatus>>, TError = unknown>(
- params: MaxControllerLoginStatusParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof maxControllerLoginStatus>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof maxControllerLoginStatus>>,
-          TError,
-          Awaited<ReturnType<typeof maxControllerLoginStatus>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useMaxControllerLoginStatus<TData = Awaited<ReturnType<typeof maxControllerLoginStatus>>, TError = unknown>(
- params: MaxControllerLoginStatusParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof maxControllerLoginStatus>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Статус входа через MAX — браузер поллит, пока пользователь подтверждает в чате
- */
-
-export function useMaxControllerLoginStatus<TData = Awaited<ReturnType<typeof maxControllerLoginStatus>>, TError = unknown>(
- params: MaxControllerLoginStatusParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof maxControllerLoginStatus>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getMaxControllerLoginStatusQueryOptions(params,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
-}
-
-
-
-
-
-
-/**
+  /**
  * @summary Привязка MAX к текущему аккаунту: ссылка на чат с ботом, где привязка подтверждается кнопкой
  */
 export const maxControllerStartLink = (
 
- signal?: AbortSignal
-) => {
-
-
+ ) => {
       return customInstance<MaxControllerStartLink200>(
-      {url: `/user/me/link-max/start`, method: 'POST', signal
+      {url: `/user/me/link-max/start`, method: 'POST'
     },
       );
     }
-
-
-
-
-export const getMaxControllerStartLinkMutationKey = () => ['maxControllerStartLink'] as const;
-
-export const getMaxControllerStartLinkMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof maxControllerStartLink>>, TError,void, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof maxControllerStartLink>>, TError,void, TContext> => {
-
-const mutationKey = getMaxControllerStartLinkMutationKey();
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof maxControllerStartLink>>, void> = () => {
-
-
-          return  maxControllerStartLink()
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type MaxControllerStartLinkMutationResult = NonNullable<Awaited<ReturnType<typeof maxControllerStartLink>>>
-
-    export type MaxControllerStartLinkMutationError = unknown
-
-
-    /**
- * @summary Привязка MAX к текущему аккаунту: ссылка на чат с ботом, где привязка подтверждается кнопкой
- */
-export const useMaxControllerStartLink = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof maxControllerStartLink>>, TError,void, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof maxControllerStartLink>>,
-        TError,
-        void,
-        TContext
-      > => {
-      return useMutation(getMaxControllerStartLinkMutationOptions(options), queryClient);
-    }
+  export type MaxControllerStartLoginResult = NonNullable<Awaited<ReturnType<typeof maxControllerStartLogin>>>
+export type MaxControllerLoginStatusResult = NonNullable<Awaited<ReturnType<typeof maxControllerLoginStatus>>>
+export type MaxControllerStartLinkResult = NonNullable<Awaited<ReturnType<typeof maxControllerStartLink>>>

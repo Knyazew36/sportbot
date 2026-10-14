@@ -3,6 +3,8 @@ import { z } from 'zod'
 // Схема env: опечатка или пропуск переменной роняет приложение при старте с понятным текстом, а не в рантайме запроса
 const envSchema = z.object({
   VITE_API_URL: z.url(),
+  // Ссылка на бота для экрана «Открой приложение из бота»
+  VITE_BOT_URL: z.url().default('https://t.me'),
 })
 
 const parsed = envSchema.safeParse(import.meta.env)
@@ -14,4 +16,5 @@ if (!parsed.success) {
 export const env = {
   // Без хвостового слэша: пути запросов начинаются с «/»
   API_URL: parsed.data.VITE_API_URL.replace(/\/+$/, ''),
+  BOT_URL: parsed.data.VITE_BOT_URL,
 }

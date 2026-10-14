@@ -43,6 +43,20 @@ export const guestRoutes: AppRoute[] = [
   { path: ROUTES.RESET_PASSWORD, lazy: () => import('@/pages/auth/ResetPasswordPage') },
 ]
 
+// ── Mini App: внутри MiniappRoute (вход из бота, нижнее меню) ──────────────
+// Разделы без логики пока показывают заглушку; по мере готовности блоков сюда встают настоящие страницы
+const soon = () => import('@/pages/soon/SoonPage')
+
+export const miniappRoutes: AppRoute[] = [
+  { path: ROUTES.TODAY, lazy: soon },
+  { path: ROUTES.PROGRAMS, lazy: soon },
+  { path: ROUTES.LIBRARY, lazy: soon },
+  { path: ROUTES.STATS, lazy: soon },
+  { path: ROUTES.ME, lazy: soon },
+  { path: ROUTES.ADMIN, lazy: soon },
+  { path: ROUTES.ONBOARDING, lazy: soon },
+]
+
 // ── Превью дизайна: внутри оболочки PreviewLayout (/preview/*) ─────────────
 export const previewRoutes: AppRoute[] = [
   { path: ROUTES.PREVIEW_TODAY, lazy: () => import('@/pages/preview/TodayScreen') },

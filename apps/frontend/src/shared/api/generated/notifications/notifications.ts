@@ -4,25 +4,6 @@
  * api
  * OpenAPI spec version: 0.0.1
  */
-import {
-  useMutation,
-  useQuery
-} from '@tanstack/react-query';
-import type {
-  DataTag,
-  DefinedInitialDataOptions,
-  DefinedUseQueryResult,
-  MutationFunction,
-  QueryClient,
-  QueryFunction,
-  QueryKey,
-  UndefinedInitialDataOptions,
-  UseMutationOptions,
-  UseMutationResult,
-  UseQueryOptions,
-  UseQueryResult
-} from '@tanstack/react-query';
-
 import type {
   NotificationsControllerCountUnread200,
   NotificationsControllerFindOne200,
@@ -40,652 +21,104 @@ import { customInstance } from '../../model/orval-mutator';
 
 
 
-
-const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKey: K } => {
-  const result = { queryKey } as T & { queryKey: K };
-  for (const key of Object.keys(query)) {
-    // The explicit queryKey always wins, matching the previous
-    // `{ ...query, queryKey }` spread where it was set last.
-    if (key === 'queryKey') continue;
-    Object.defineProperty(result, key, {
-      enumerable: true,
-      configurable: true,
-      get: () => (query as Record<string, unknown>)[key],
-    });
-  }
-  return result;
-};
-
-/**
+  /**
  * @summary Лента уведомлений текущего пользователя (колокольчик)
  */
 export const notificationsControllerList = (
     params?: NotificationsControllerListParams,
- signal?: AbortSignal
-) => {
-
-
+ ) => {
       return customInstance<NotificationsControllerList200>(
       {url: `/notifications/list`, method: 'GET',
-        params, signal
+        params
     },
       );
     }
-
-
-
-
-export const getNotificationsControllerListQueryKey = (params?: NotificationsControllerListParams,) => {
-    return [
-    `/notifications/list`, ...(params ? [params] : [])
-    ] as const;
-    }
-
-
-export const getNotificationsControllerListQueryOptions = <TData = Awaited<ReturnType<typeof notificationsControllerList>>, TError = unknown>(params?: NotificationsControllerListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationsControllerList>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getNotificationsControllerListQueryKey(params);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof notificationsControllerList>>> = ({ signal }) => notificationsControllerList(params, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof notificationsControllerList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type NotificationsControllerListQueryResult = NonNullable<Awaited<ReturnType<typeof notificationsControllerList>>>
-export type NotificationsControllerListQueryError = unknown
-
-
-export function useNotificationsControllerList<TData = Awaited<ReturnType<typeof notificationsControllerList>>, TError = unknown>(
- params: undefined |  NotificationsControllerListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationsControllerList>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof notificationsControllerList>>,
-          TError,
-          Awaited<ReturnType<typeof notificationsControllerList>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useNotificationsControllerList<TData = Awaited<ReturnType<typeof notificationsControllerList>>, TError = unknown>(
- params?: NotificationsControllerListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationsControllerList>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof notificationsControllerList>>,
-          TError,
-          Awaited<ReturnType<typeof notificationsControllerList>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useNotificationsControllerList<TData = Awaited<ReturnType<typeof notificationsControllerList>>, TError = unknown>(
- params?: NotificationsControllerListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationsControllerList>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Лента уведомлений текущего пользователя (колокольчик)
- */
-
-export function useNotificationsControllerList<TData = Awaited<ReturnType<typeof notificationsControllerList>>, TError = unknown>(
- params?: NotificationsControllerListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationsControllerList>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getNotificationsControllerListQueryOptions(params,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
-}
-
-
-
-
-
-
-/**
+  /**
  * @summary Число непрочитанных уведомлений в ленте
  */
 export const notificationsControllerCountUnread = (
 
- signal?: AbortSignal
-) => {
-
-
+ ) => {
       return customInstance<NotificationsControllerCountUnread200>(
-      {url: `/notifications/unread-count`, method: 'GET', signal
+      {url: `/notifications/unread-count`, method: 'GET'
     },
       );
     }
-
-
-
-
-export const getNotificationsControllerCountUnreadQueryKey = () => {
-    return [
-    `/notifications/unread-count`
-    ] as const;
-    }
-
-
-export const getNotificationsControllerCountUnreadQueryOptions = <TData = Awaited<ReturnType<typeof notificationsControllerCountUnread>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationsControllerCountUnread>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getNotificationsControllerCountUnreadQueryKey();
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof notificationsControllerCountUnread>>> = ({ signal }) => notificationsControllerCountUnread(signal);
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof notificationsControllerCountUnread>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type NotificationsControllerCountUnreadQueryResult = NonNullable<Awaited<ReturnType<typeof notificationsControllerCountUnread>>>
-export type NotificationsControllerCountUnreadQueryError = unknown
-
-
-export function useNotificationsControllerCountUnread<TData = Awaited<ReturnType<typeof notificationsControllerCountUnread>>, TError = unknown>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationsControllerCountUnread>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof notificationsControllerCountUnread>>,
-          TError,
-          Awaited<ReturnType<typeof notificationsControllerCountUnread>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useNotificationsControllerCountUnread<TData = Awaited<ReturnType<typeof notificationsControllerCountUnread>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationsControllerCountUnread>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof notificationsControllerCountUnread>>,
-          TError,
-          Awaited<ReturnType<typeof notificationsControllerCountUnread>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useNotificationsControllerCountUnread<TData = Awaited<ReturnType<typeof notificationsControllerCountUnread>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationsControllerCountUnread>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Число непрочитанных уведомлений в ленте
- */
-
-export function useNotificationsControllerCountUnread<TData = Awaited<ReturnType<typeof notificationsControllerCountUnread>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationsControllerCountUnread>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getNotificationsControllerCountUnreadQueryOptions(options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
-}
-
-
-
-
-
-
-/**
+  /**
  * @summary Отметить все уведомления прочитанными
  */
 export const notificationsControllerMarkAllRead = (
 
- signal?: AbortSignal
-) => {
-
-
+ ) => {
       return customInstance<NotificationsControllerMarkAllRead200>(
-      {url: `/notifications/read-all`, method: 'POST', signal
+      {url: `/notifications/read-all`, method: 'POST'
     },
       );
     }
-
-
-
-
-export const getNotificationsControllerMarkAllReadMutationKey = () => ['notificationsControllerMarkAllRead'] as const;
-
-export const getNotificationsControllerMarkAllReadMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof notificationsControllerMarkAllRead>>, TError,void, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof notificationsControllerMarkAllRead>>, TError,void, TContext> => {
-
-const mutationKey = getNotificationsControllerMarkAllReadMutationKey();
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof notificationsControllerMarkAllRead>>, void> = () => {
-
-
-          return  notificationsControllerMarkAllRead()
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type NotificationsControllerMarkAllReadMutationResult = NonNullable<Awaited<ReturnType<typeof notificationsControllerMarkAllRead>>>
-
-    export type NotificationsControllerMarkAllReadMutationError = unknown
-
-
-    /**
- * @summary Отметить все уведомления прочитанными
- */
-export const useNotificationsControllerMarkAllRead = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof notificationsControllerMarkAllRead>>, TError,void, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof notificationsControllerMarkAllRead>>,
-        TError,
-        void,
-        TContext
-      > => {
-      return useMutation(getNotificationsControllerMarkAllReadMutationOptions(options), queryClient);
-    }
-    /**
+  /**
  * @summary Отметить уведомление прочитанным
  */
 export const notificationsControllerMarkRead = (
     id: number,
- signal?: AbortSignal
-) => {
-
-
+ ) => {
       return customInstance<NotificationsControllerMarkRead200>(
-      {url: `/notifications/read/${id}`, method: 'POST', signal
+      {url: `/notifications/read/${id}`, method: 'POST'
     },
       );
     }
-
-
-
-
-export const getNotificationsControllerMarkReadMutationKey = () => ['notificationsControllerMarkRead'] as const;
-
-export const getNotificationsControllerMarkReadMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof notificationsControllerMarkRead>>, TError,NotificationsControllerMarkReadMutationVariables, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof notificationsControllerMarkRead>>, TError,NotificationsControllerMarkReadMutationVariables, TContext> => {
-
-const mutationKey = getNotificationsControllerMarkReadMutationKey();
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof notificationsControllerMarkRead>>, NotificationsControllerMarkReadMutationVariables> = (props) => {
-          const {id} = props ?? {};
-
-          return  notificationsControllerMarkRead(id,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type NotificationsControllerMarkReadMutationResult = NonNullable<Awaited<ReturnType<typeof notificationsControllerMarkRead>>>
-
-    export type NotificationsControllerMarkReadMutationError = unknown
-    export type NotificationsControllerMarkReadMutationVariables = {id: number}
-
-    /**
- * @summary Отметить уведомление прочитанным
- */
-export const useNotificationsControllerMarkRead = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof notificationsControllerMarkRead>>, TError,NotificationsControllerMarkReadMutationVariables, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof notificationsControllerMarkRead>>,
-        TError,
-        NotificationsControllerMarkReadMutationVariables,
-        TContext
-      > => {
-      return useMutation(getNotificationsControllerMarkReadMutationOptions(options), queryClient);
-    }
-    /**
+  /**
  * @summary Матрица событие × канал: дефолты организации + свои переопределения
  */
 export const notificationsControllerGetSettings = (
 
- signal?: AbortSignal
-) => {
-
-
+ ) => {
       return customInstance<NotificationsControllerGetSettings200>(
-      {url: `/notifications/settings`, method: 'GET', signal
+      {url: `/notifications/settings`, method: 'GET'
     },
       );
     }
-
-
-
-
-export const getNotificationsControllerGetSettingsQueryKey = () => {
-    return [
-    `/notifications/settings`
-    ] as const;
-    }
-
-
-export const getNotificationsControllerGetSettingsQueryOptions = <TData = Awaited<ReturnType<typeof notificationsControllerGetSettings>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationsControllerGetSettings>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getNotificationsControllerGetSettingsQueryKey();
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof notificationsControllerGetSettings>>> = ({ signal }) => notificationsControllerGetSettings(signal);
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof notificationsControllerGetSettings>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type NotificationsControllerGetSettingsQueryResult = NonNullable<Awaited<ReturnType<typeof notificationsControllerGetSettings>>>
-export type NotificationsControllerGetSettingsQueryError = unknown
-
-
-export function useNotificationsControllerGetSettings<TData = Awaited<ReturnType<typeof notificationsControllerGetSettings>>, TError = unknown>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationsControllerGetSettings>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof notificationsControllerGetSettings>>,
-          TError,
-          Awaited<ReturnType<typeof notificationsControllerGetSettings>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useNotificationsControllerGetSettings<TData = Awaited<ReturnType<typeof notificationsControllerGetSettings>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationsControllerGetSettings>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof notificationsControllerGetSettings>>,
-          TError,
-          Awaited<ReturnType<typeof notificationsControllerGetSettings>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useNotificationsControllerGetSettings<TData = Awaited<ReturnType<typeof notificationsControllerGetSettings>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationsControllerGetSettings>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Матрица событие × канал: дефолты организации + свои переопределения
- */
-
-export function useNotificationsControllerGetSettings<TData = Awaited<ReturnType<typeof notificationsControllerGetSettings>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationsControllerGetSettings>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getNotificationsControllerGetSettingsQueryOptions(options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
-}
-
-
-
-
-
-
-/**
+  /**
  * @summary Дефолт организации для события × канала (OWNER/ADMIN)
  */
 export const notificationsControllerUpsertOrgSetting = (
     upsertNotificationSettingDto: UpsertNotificationSettingDto,
- signal?: AbortSignal
-) => {
-
-
+ ) => {
       return customInstance<NotificationsControllerUpsertOrgSetting200>(
       {url: `/notifications/settings/org`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
-      data: upsertNotificationSettingDto, signal
+      data: upsertNotificationSettingDto
     },
       );
     }
-
-
-
-
-export const getNotificationsControllerUpsertOrgSettingMutationKey = () => ['notificationsControllerUpsertOrgSetting'] as const;
-
-export const getNotificationsControllerUpsertOrgSettingMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof notificationsControllerUpsertOrgSetting>>, TError,NotificationsControllerUpsertOrgSettingMutationVariables, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof notificationsControllerUpsertOrgSetting>>, TError,NotificationsControllerUpsertOrgSettingMutationVariables, TContext> => {
-
-const mutationKey = getNotificationsControllerUpsertOrgSettingMutationKey();
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof notificationsControllerUpsertOrgSetting>>, NotificationsControllerUpsertOrgSettingMutationVariables> = (props) => {
-          const {data} = props ?? {};
-
-          return  notificationsControllerUpsertOrgSetting(data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type NotificationsControllerUpsertOrgSettingMutationResult = NonNullable<Awaited<ReturnType<typeof notificationsControllerUpsertOrgSetting>>>
-    export type NotificationsControllerUpsertOrgSettingMutationBody = UpsertNotificationSettingDto
-    export type NotificationsControllerUpsertOrgSettingMutationError = unknown
-    export type NotificationsControllerUpsertOrgSettingMutationVariables = {data: UpsertNotificationSettingDto}
-
-    /**
- * @summary Дефолт организации для события × канала (OWNER/ADMIN)
- */
-export const useNotificationsControllerUpsertOrgSetting = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof notificationsControllerUpsertOrgSetting>>, TError,NotificationsControllerUpsertOrgSettingMutationVariables, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof notificationsControllerUpsertOrgSetting>>,
-        TError,
-        NotificationsControllerUpsertOrgSettingMutationVariables,
-        TContext
-      > => {
-      return useMutation(getNotificationsControllerUpsertOrgSettingMutationOptions(options), queryClient);
-    }
-    /**
+  /**
  * @summary Своё переопределение события × канала поверх дефолта организации
  */
 export const notificationsControllerUpsertMySetting = (
     upsertNotificationSettingDto: UpsertNotificationSettingDto,
- signal?: AbortSignal
-) => {
-
-
+ ) => {
       return customInstance<NotificationsControllerUpsertMySetting200>(
       {url: `/notifications/settings/me`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
-      data: upsertNotificationSettingDto, signal
+      data: upsertNotificationSettingDto
     },
       );
     }
-
-
-
-
-export const getNotificationsControllerUpsertMySettingMutationKey = () => ['notificationsControllerUpsertMySetting'] as const;
-
-export const getNotificationsControllerUpsertMySettingMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof notificationsControllerUpsertMySetting>>, TError,NotificationsControllerUpsertMySettingMutationVariables, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof notificationsControllerUpsertMySetting>>, TError,NotificationsControllerUpsertMySettingMutationVariables, TContext> => {
-
-const mutationKey = getNotificationsControllerUpsertMySettingMutationKey();
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof notificationsControllerUpsertMySetting>>, NotificationsControllerUpsertMySettingMutationVariables> = (props) => {
-          const {data} = props ?? {};
-
-          return  notificationsControllerUpsertMySetting(data,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type NotificationsControllerUpsertMySettingMutationResult = NonNullable<Awaited<ReturnType<typeof notificationsControllerUpsertMySetting>>>
-    export type NotificationsControllerUpsertMySettingMutationBody = UpsertNotificationSettingDto
-    export type NotificationsControllerUpsertMySettingMutationError = unknown
-    export type NotificationsControllerUpsertMySettingMutationVariables = {data: UpsertNotificationSettingDto}
-
-    /**
- * @summary Своё переопределение события × канала поверх дефолта организации
- */
-export const useNotificationsControllerUpsertMySetting = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof notificationsControllerUpsertMySetting>>, TError,NotificationsControllerUpsertMySettingMutationVariables, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof notificationsControllerUpsertMySetting>>,
-        TError,
-        NotificationsControllerUpsertMySettingMutationVariables,
-        TContext
-      > => {
-      return useMutation(getNotificationsControllerUpsertMySettingMutationOptions(options), queryClient);
-    }
-    /**
+  /**
  * @summary Уведомление по id
  */
 export const notificationsControllerFindOne = (
     id: number,
- signal?: AbortSignal
-) => {
-
-
+ ) => {
       return customInstance<NotificationsControllerFindOne200>(
-      {url: `/notifications/${id}`, method: 'GET', signal
+      {url: `/notifications/${id}`, method: 'GET'
     },
       );
     }
-
-
-
-
-export const getNotificationsControllerFindOneQueryKey = (id: number,) => {
-    return [
-    `/notifications/${id}`
-    ] as const;
-    }
-
-
-export const getNotificationsControllerFindOneQueryOptions = <TData = Awaited<ReturnType<typeof notificationsControllerFindOne>>, TError = unknown>(id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationsControllerFindOne>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getNotificationsControllerFindOneQueryKey(id);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof notificationsControllerFindOne>>> = ({ signal }) => notificationsControllerFindOne(id, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof notificationsControllerFindOne>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type NotificationsControllerFindOneQueryResult = NonNullable<Awaited<ReturnType<typeof notificationsControllerFindOne>>>
-export type NotificationsControllerFindOneQueryError = unknown
-
-
-export function useNotificationsControllerFindOne<TData = Awaited<ReturnType<typeof notificationsControllerFindOne>>, TError = unknown>(
- id: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationsControllerFindOne>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof notificationsControllerFindOne>>,
-          TError,
-          Awaited<ReturnType<typeof notificationsControllerFindOne>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useNotificationsControllerFindOne<TData = Awaited<ReturnType<typeof notificationsControllerFindOne>>, TError = unknown>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationsControllerFindOne>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof notificationsControllerFindOne>>,
-          TError,
-          Awaited<ReturnType<typeof notificationsControllerFindOne>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useNotificationsControllerFindOne<TData = Awaited<ReturnType<typeof notificationsControllerFindOne>>, TError = unknown>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationsControllerFindOne>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Уведомление по id
- */
-
-export function useNotificationsControllerFindOne<TData = Awaited<ReturnType<typeof notificationsControllerFindOne>>, TError = unknown>(
- id: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof notificationsControllerFindOne>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getNotificationsControllerFindOneQueryOptions(id,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
-}
-
-
-
-
-
-
+  export type NotificationsControllerListResult = NonNullable<Awaited<ReturnType<typeof notificationsControllerList>>>
+export type NotificationsControllerCountUnreadResult = NonNullable<Awaited<ReturnType<typeof notificationsControllerCountUnread>>>
+export type NotificationsControllerMarkAllReadResult = NonNullable<Awaited<ReturnType<typeof notificationsControllerMarkAllRead>>>
+export type NotificationsControllerMarkReadResult = NonNullable<Awaited<ReturnType<typeof notificationsControllerMarkRead>>>
+export type NotificationsControllerGetSettingsResult = NonNullable<Awaited<ReturnType<typeof notificationsControllerGetSettings>>>
+export type NotificationsControllerUpsertOrgSettingResult = NonNullable<Awaited<ReturnType<typeof notificationsControllerUpsertOrgSetting>>>
+export type NotificationsControllerUpsertMySettingResult = NonNullable<Awaited<ReturnType<typeof notificationsControllerUpsertMySetting>>>
+export type NotificationsControllerFindOneResult = NonNullable<Awaited<ReturnType<typeof notificationsControllerFindOne>>>

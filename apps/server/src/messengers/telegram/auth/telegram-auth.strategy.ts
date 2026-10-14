@@ -86,7 +86,15 @@ export class TelegramAuthStrategy {
    */
   public verifyAndParse(initDataRaw: string) {
     try {
-      validate(initDataRaw, this.options.token, { expiresIn: this.ttlSeconds });
+      // Локальная разработка: фронт вне Telegram шлёт моковые initData без настоящей подписи.
+      // Только при NODE_ENV=development — на проде подпись проверяется всегда
+      if (process.env.NODE_ENV === 'development') {
+        this.logger.debug('dev: подпись initData не проверяется');
+      } else {
+        validate(initDataRaw, this.options.token, {
+          expiresIn: this.ttlSeconds,
+        });
+      }
     } catch (err) {
       this.logger.warn(
         `initData не прошёл проверку: ${(err as Error).message}`,

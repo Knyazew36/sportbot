@@ -4,25 +4,6 @@
  * api
  * OpenAPI spec version: 0.0.1
  */
-import {
-  useMutation,
-  useQuery
-} from '@tanstack/react-query';
-import type {
-  DataTag,
-  DefinedInitialDataOptions,
-  DefinedUseQueryResult,
-  MutationFunction,
-  QueryClient,
-  QueryFunction,
-  QueryKey,
-  UndefinedInitialDataOptions,
-  UseMutationOptions,
-  UseMutationResult,
-  UseQueryOptions,
-  UseQueryResult
-} from '@tanstack/react-query';
-
 import type {
   JoinRequestControllerApprove200,
   JoinRequestControllerCancel200,
@@ -36,399 +17,64 @@ import { customInstance } from '../../model/orval-mutator';
 
 
 
-
-const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKey: K } => {
-  const result = { queryKey } as T & { queryKey: K };
-  for (const key of Object.keys(query)) {
-    // The explicit queryKey always wins, matching the previous
-    // `{ ...query, queryKey }` spread where it was set last.
-    if (key === 'queryKey') continue;
-    Object.defineProperty(result, key, {
-      enumerable: true,
-      configurable: true,
-      get: () => (query as Record<string, unknown>)[key],
-    });
-  }
-  return result;
-};
-
-/**
+  /**
  * @summary Мои заявки на вступление во все организации (для отображения статуса «ждёт одобрения»)
  */
 export const joinRequestControllerListMine = (
 
- signal?: AbortSignal
-) => {
-
-
+ ) => {
       return customInstance<JoinRequestControllerListMine200>(
-      {url: `/join-request/mine`, method: 'GET', signal
+      {url: `/join-request/mine`, method: 'GET'
     },
       );
     }
-
-
-
-
-export const getJoinRequestControllerListMineQueryKey = () => {
-    return [
-    `/join-request/mine`
-    ] as const;
-    }
-
-
-export const getJoinRequestControllerListMineQueryOptions = <TData = Awaited<ReturnType<typeof joinRequestControllerListMine>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof joinRequestControllerListMine>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getJoinRequestControllerListMineQueryKey();
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof joinRequestControllerListMine>>> = ({ signal }) => joinRequestControllerListMine(signal);
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof joinRequestControllerListMine>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type JoinRequestControllerListMineQueryResult = NonNullable<Awaited<ReturnType<typeof joinRequestControllerListMine>>>
-export type JoinRequestControllerListMineQueryError = unknown
-
-
-export function useJoinRequestControllerListMine<TData = Awaited<ReturnType<typeof joinRequestControllerListMine>>, TError = unknown>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof joinRequestControllerListMine>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof joinRequestControllerListMine>>,
-          TError,
-          Awaited<ReturnType<typeof joinRequestControllerListMine>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useJoinRequestControllerListMine<TData = Awaited<ReturnType<typeof joinRequestControllerListMine>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof joinRequestControllerListMine>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof joinRequestControllerListMine>>,
-          TError,
-          Awaited<ReturnType<typeof joinRequestControllerListMine>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useJoinRequestControllerListMine<TData = Awaited<ReturnType<typeof joinRequestControllerListMine>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof joinRequestControllerListMine>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Мои заявки на вступление во все организации (для отображения статуса «ждёт одобрения»)
- */
-
-export function useJoinRequestControllerListMine<TData = Awaited<ReturnType<typeof joinRequestControllerListMine>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof joinRequestControllerListMine>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getJoinRequestControllerListMineQueryOptions(options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
-}
-
-
-
-
-
-
-/**
+  /**
  * @summary Заявки на вступление в организацию (OWNER/ADMIN, фильтр ?organizationId=&status=)
  */
 export const joinRequestControllerList = (
     params: JoinRequestControllerListParams,
- signal?: AbortSignal
-) => {
-
-
+ ) => {
       return customInstance<JoinRequestControllerList200>(
       {url: `/join-request/list`, method: 'GET',
-        params, signal
+        params
     },
       );
     }
-
-
-
-
-export const getJoinRequestControllerListQueryKey = (params?: JoinRequestControllerListParams,) => {
-    return [
-    `/join-request/list`, ...(params ? [params] : [])
-    ] as const;
-    }
-
-
-export const getJoinRequestControllerListQueryOptions = <TData = Awaited<ReturnType<typeof joinRequestControllerList>>, TError = unknown>(params: JoinRequestControllerListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof joinRequestControllerList>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getJoinRequestControllerListQueryKey(params);
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof joinRequestControllerList>>> = ({ signal }) => joinRequestControllerList(params, signal);
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof joinRequestControllerList>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type JoinRequestControllerListQueryResult = NonNullable<Awaited<ReturnType<typeof joinRequestControllerList>>>
-export type JoinRequestControllerListQueryError = unknown
-
-
-export function useJoinRequestControllerList<TData = Awaited<ReturnType<typeof joinRequestControllerList>>, TError = unknown>(
- params: JoinRequestControllerListParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof joinRequestControllerList>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof joinRequestControllerList>>,
-          TError,
-          Awaited<ReturnType<typeof joinRequestControllerList>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useJoinRequestControllerList<TData = Awaited<ReturnType<typeof joinRequestControllerList>>, TError = unknown>(
- params: JoinRequestControllerListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof joinRequestControllerList>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof joinRequestControllerList>>,
-          TError,
-          Awaited<ReturnType<typeof joinRequestControllerList>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useJoinRequestControllerList<TData = Awaited<ReturnType<typeof joinRequestControllerList>>, TError = unknown>(
- params: JoinRequestControllerListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof joinRequestControllerList>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/**
- * @summary Заявки на вступление в организацию (OWNER/ADMIN, фильтр ?organizationId=&status=)
- */
-
-export function useJoinRequestControllerList<TData = Awaited<ReturnType<typeof joinRequestControllerList>>, TError = unknown>(
- params: JoinRequestControllerListParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof joinRequestControllerList>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getJoinRequestControllerListQueryOptions(params,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
-}
-
-
-
-
-
-
-/**
+  /**
  * @summary Одобрить заявку — заявитель становится участником организации
  */
 export const joinRequestControllerApprove = (
     id: number,
- signal?: AbortSignal
-) => {
-
-
+ ) => {
       return customInstance<JoinRequestControllerApprove200>(
-      {url: `/join-request/${id}/approve`, method: 'POST', signal
+      {url: `/join-request/${id}/approve`, method: 'POST'
     },
       );
     }
-
-
-
-
-export const getJoinRequestControllerApproveMutationKey = () => ['joinRequestControllerApprove'] as const;
-
-export const getJoinRequestControllerApproveMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof joinRequestControllerApprove>>, TError,JoinRequestControllerApproveMutationVariables, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof joinRequestControllerApprove>>, TError,JoinRequestControllerApproveMutationVariables, TContext> => {
-
-const mutationKey = getJoinRequestControllerApproveMutationKey();
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof joinRequestControllerApprove>>, JoinRequestControllerApproveMutationVariables> = (props) => {
-          const {id} = props ?? {};
-
-          return  joinRequestControllerApprove(id,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type JoinRequestControllerApproveMutationResult = NonNullable<Awaited<ReturnType<typeof joinRequestControllerApprove>>>
-
-    export type JoinRequestControllerApproveMutationError = unknown
-    export type JoinRequestControllerApproveMutationVariables = {id: number}
-
-    /**
- * @summary Одобрить заявку — заявитель становится участником организации
- */
-export const useJoinRequestControllerApprove = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof joinRequestControllerApprove>>, TError,JoinRequestControllerApproveMutationVariables, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof joinRequestControllerApprove>>,
-        TError,
-        JoinRequestControllerApproveMutationVariables,
-        TContext
-      > => {
-      return useMutation(getJoinRequestControllerApproveMutationOptions(options), queryClient);
-    }
-    /**
+  /**
  * @summary Отклонить заявку
  */
 export const joinRequestControllerReject = (
     id: number,
- signal?: AbortSignal
-) => {
-
-
+ ) => {
       return customInstance<JoinRequestControllerReject200>(
-      {url: `/join-request/${id}/reject`, method: 'POST', signal
+      {url: `/join-request/${id}/reject`, method: 'POST'
     },
       );
     }
-
-
-
-
-export const getJoinRequestControllerRejectMutationKey = () => ['joinRequestControllerReject'] as const;
-
-export const getJoinRequestControllerRejectMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof joinRequestControllerReject>>, TError,JoinRequestControllerRejectMutationVariables, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof joinRequestControllerReject>>, TError,JoinRequestControllerRejectMutationVariables, TContext> => {
-
-const mutationKey = getJoinRequestControllerRejectMutationKey();
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof joinRequestControllerReject>>, JoinRequestControllerRejectMutationVariables> = (props) => {
-          const {id} = props ?? {};
-
-          return  joinRequestControllerReject(id,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type JoinRequestControllerRejectMutationResult = NonNullable<Awaited<ReturnType<typeof joinRequestControllerReject>>>
-
-    export type JoinRequestControllerRejectMutationError = unknown
-    export type JoinRequestControllerRejectMutationVariables = {id: number}
-
-    /**
- * @summary Отклонить заявку
- */
-export const useJoinRequestControllerReject = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof joinRequestControllerReject>>, TError,JoinRequestControllerRejectMutationVariables, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof joinRequestControllerReject>>,
-        TError,
-        JoinRequestControllerRejectMutationVariables,
-        TContext
-      > => {
-      return useMutation(getJoinRequestControllerRejectMutationOptions(options), queryClient);
-    }
-    /**
+  /**
  * @summary Отменить свою заявку, пока она не рассмотрена владельцем
  */
 export const joinRequestControllerCancel = (
     id: number,
- signal?: AbortSignal
-) => {
-
-
+ ) => {
       return customInstance<JoinRequestControllerCancel200>(
-      {url: `/join-request/${id}/cancel`, method: 'POST', signal
+      {url: `/join-request/${id}/cancel`, method: 'POST'
     },
       );
     }
-
-
-
-
-export const getJoinRequestControllerCancelMutationKey = () => ['joinRequestControllerCancel'] as const;
-
-export const getJoinRequestControllerCancelMutationOptions = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof joinRequestControllerCancel>>, TError,JoinRequestControllerCancelMutationVariables, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof joinRequestControllerCancel>>, TError,JoinRequestControllerCancelMutationVariables, TContext> => {
-
-const mutationKey = getJoinRequestControllerCancelMutationKey();
-const {mutation: mutationOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof joinRequestControllerCancel>>, JoinRequestControllerCancelMutationVariables> = (props) => {
-          const {id} = props ?? {};
-
-          return  joinRequestControllerCancel(id,)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type JoinRequestControllerCancelMutationResult = NonNullable<Awaited<ReturnType<typeof joinRequestControllerCancel>>>
-
-    export type JoinRequestControllerCancelMutationError = unknown
-    export type JoinRequestControllerCancelMutationVariables = {id: number}
-
-    /**
- * @summary Отменить свою заявку, пока она не рассмотрена владельцем
- */
-export const useJoinRequestControllerCancel = <TError = unknown,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof joinRequestControllerCancel>>, TError,JoinRequestControllerCancelMutationVariables, TContext>, }
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof joinRequestControllerCancel>>,
-        TError,
-        JoinRequestControllerCancelMutationVariables,
-        TContext
-      > => {
-      return useMutation(getJoinRequestControllerCancelMutationOptions(options), queryClient);
-    }
+  export type JoinRequestControllerListMineResult = NonNullable<Awaited<ReturnType<typeof joinRequestControllerListMine>>>
+export type JoinRequestControllerListResult = NonNullable<Awaited<ReturnType<typeof joinRequestControllerList>>>
+export type JoinRequestControllerApproveResult = NonNullable<Awaited<ReturnType<typeof joinRequestControllerApprove>>>
+export type JoinRequestControllerRejectResult = NonNullable<Awaited<ReturnType<typeof joinRequestControllerReject>>>
+export type JoinRequestControllerCancelResult = NonNullable<Awaited<ReturnType<typeof joinRequestControllerCancel>>>

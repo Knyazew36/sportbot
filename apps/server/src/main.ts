@@ -2,7 +2,11 @@
 // в декораторах контроллеров) — раньше, чем ConfigModule успевает прочитать .env
 import 'dotenv/config';
 
-import { Logger, ValidationPipe } from '@nestjs/common';
+import {
+  Logger,
+  UnprocessableEntityException,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -94,6 +98,20 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true, // Удаляет неописанные в DTO поля
       transform: true, // Автоматически преобразует входные данные к типу DTO
+      // 422 с ошибками по полям: фронт показывает их под инпутами формы. message остаётся
+      // массивом текстов — для мест, где ошибку показывают одним тостом
+      exceptionFactory: (errors) => {
+        const fields = Object.fromEntries(
+          errors.map((e) => [
+            e.property,
+            Object.values(e.constraints ?? {})[0] ?? 'Неверное значение',
+          ]),
+        );
+        return new UnprocessableEntityException({
+          message: Object.values(fields),
+          errors: fields,
+        });
+      },
     }),
   );
 

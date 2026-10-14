@@ -2,11 +2,12 @@
 // Authorization со своей схемой (см. apps/server/src/messengers/*/auth/*.strategy.ts).
 // SDK мессенджера подгружает initMiniapp: только свой и только когда страница открыта внутри мессенджера
 import { detectPlatform, getHashParam, LAUNCH_DATA_PARAM, type MiniappPlatform } from './detect-platform'
+import { devTelegramInitData } from './dev-launch'
 import { loadSdk, type SdkPlatform } from './load-sdk'
+import type { WebApp } from './webapp'
 
 export type { MiniappPlatform }
-
-type WebApp = { initData?: string; ready?: () => void; expand?: () => void }
+export * from './webapp'
 
 declare global {
   interface Window {
@@ -15,7 +16,7 @@ declare global {
   }
 }
 
-type Miniapp = { platform: MiniappPlatform; authorization: string }
+type Miniapp = { platform: MiniappPlatform; authorization: string; startParam: string | null }
 
 const SCHEME: Record<SdkPlatform, string> = { telegram: 'tma', max: 'max' }
 
@@ -40,20 +41,29 @@ const initSdkPlatform = async (platform: SdkPlatform): Promise<Miniapp | null> =
   if (platform === 'telegram') webApp?.expand?.()
 
   const initData = webApp?.initData || fromHash
-  return initData ? { platform, authorization: `${SCHEME[platform]} ${initData}` } : null
+  if (!initData) return null
+  const startParam = webApp?.initDataUnsafe?.start_param ?? new URLSearchParams(initData).get('start_param')
+  return { platform, authorization: `${SCHEME[platform]} ${initData}`, startParam }
 }
 
 // Вызывается один раз до создания роутера: его лоадеры сразу проверяют авторизацию
 export const initMiniapp = async (): Promise<void> => {
   const platform = detectPlatform()
-  if (!platform) return
+  if (!platform) {
+    // Открыто в браузере на деве — входим моковым пользователем Telegram, если он задан
+    const devInitData = devTelegramInitData()
+    if (devInitData) miniapp = { platform: 'telegram', authorization: `tma ${devInitData}`, startParam: null }
+    return
+  }
 
   if (platform === 'vk') {
     // VK передаёт параметры запуска в адресе; подпись в них проверяет сервер.
     // После первой навигации SPA они пропадут, поэтому запоминаем сразу
     const search = window.location.search.slice(1)
     const params = new URLSearchParams(search)
-    if (params.has('vk_user_id') && params.has('sign')) miniapp = { platform, authorization: `vk ${search}` }
+    if (params.has('vk_user_id') && params.has('sign')) {
+      miniapp = { platform, authorization: `vk ${search}`, startParam: null }
+    }
     return
   }
 
@@ -63,3 +73,6 @@ export const initMiniapp = async (): Promise<void> => {
 export const getMiniappPlatform = (): MiniappPlatform | null => miniapp?.platform ?? null
 
 export const getMiniappAuthorization = (): string | null => miniapp?.authorization ?? null
+
+/** Параметр запуска из кнопки бота (startapp): по нему приложение открывает нужный экран */
+export const getMiniappStartParam = (): string | null => miniapp?.startParam ?? null

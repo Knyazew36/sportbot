@@ -15,5 +15,6 @@ export function getSwaggerConfig() {
     .addTag('notifications', 'Уведомления')
     .addTag('audit-log', 'Журнал действий')
     .addTag('chat-submission', 'Обратная связь с сайта')
+    .addTag('miniapp', 'Mini App: вход')
     .build();
 }

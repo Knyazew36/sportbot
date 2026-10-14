@@ -5,6 +5,7 @@ export * from './chat-submission/chat-submission';
 export * from './invite/invite';
 export * from './join-request/join-request';
 export * from './max/max';
+export * from './miniapp/miniapp';
 export * from './notifications/notifications';
 export * from './organization/organization';
 export * from './telegram/telegram';

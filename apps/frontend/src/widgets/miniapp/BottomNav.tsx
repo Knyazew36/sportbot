@@ -2,11 +2,11 @@ import { NavLink } from 'react-router'
 
 import { cn } from '@/shared/lib/utils'
 
-import { NAV } from './nav'
+import type { NavItem } from './nav'
 
 // Нижнее меню: активный раздел отмечен отрезком беговой дорожки сверху. У администратора шестой пункт
-export const BottomNav = ({ isAdmin }: { isAdmin: boolean }) => {
-  const items = NAV.filter(item => isAdmin || !item.adminOnly)
+export const BottomNav = ({ nav, isAdmin }: { nav: NavItem[]; isAdmin: boolean }) => {
+  const items = nav.filter(item => isAdmin || !item.adminOnly)
   return (
     <nav
       aria-label='Разделы'

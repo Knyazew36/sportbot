@@ -6,3 +6,4 @@ export { BotRouter } from './bot-router.service';
 export { BotSender } from './bot-sender.service';
 export { BotSessionService } from './bot-session.service';
 export { BOT_COMMANDS, mainMenuMessage } from './menu.bot';
+export { SportAccountService } from './sport-account.service';

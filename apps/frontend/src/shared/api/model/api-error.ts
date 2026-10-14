@@ -26,3 +26,9 @@ export const getApiErrorStatus = (error: unknown): number | undefined =>
   isAxiosError(error) ? error.response?.status : undefined
 
 export const getApiErrorCode = (error: unknown): string | undefined => getBody(error)?.code
+
+/** Ошибки полей формы из 422 валидации DTO; пусто — ошибка не про поля */
+export const getFieldErrors = (error: unknown): Record<string, string> =>
+  getApiErrorStatus(error) === 422 ? (getBody(error)?.errors ?? {}) : {}
+
+export const hasFieldErrors = (error: unknown): boolean => Object.keys(getFieldErrors(error)).length > 0

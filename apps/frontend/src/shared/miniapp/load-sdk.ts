@@ -12,7 +12,10 @@ export const loadSdk = (platform: SdkPlatform): Promise<void> =>
   new Promise((resolve, reject) => {
     const src = SDK_URL[platform]
     const script = document.createElement('script')
-    const timer = window.setTimeout(() => reject(new Error(`SDK не загрузился за ${TIMEOUT_MS} мс: ${src}`)), TIMEOUT_MS)
+    const timer = window.setTimeout(
+      () => reject(new Error(`SDK не загрузился за ${TIMEOUT_MS} мс: ${src}`)),
+      TIMEOUT_MS,
+    )
 
     script.src = src
     script.onload = () => {

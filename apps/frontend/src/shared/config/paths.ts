@@ -24,6 +24,15 @@ export const ROUTES = {
   SETTINGS: '/app/:orgId/settings',
   PROFILE: '/app/:orgId/profile',
 
+  // Mini App: открывается из бота, пользователь определяется по данным запуска мессенджера
+  TODAY: '/today',
+  PROGRAMS: '/programs',
+  LIBRARY: '/library',
+  STATS: '/stats',
+  ME: '/me',
+  ADMIN: '/admin',
+  ONBOARDING: '/onboarding',
+
   // Превью дизайна Mini App на моковых данных
   PREVIEW: '/preview',
   PREVIEW_TODAY: '/preview/today',

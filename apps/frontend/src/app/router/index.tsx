@@ -4,13 +4,23 @@ import RootLayout from '@/app/layouts/RootLayout'
 import { getLastOrganizationId, setOrganizationId } from '@/shared/api'
 import { isAuthenticated } from '@/shared/auth'
 import { buildPath, ROUTES } from '@/shared/config/paths'
+import { getMiniappPlatform } from '@/shared/miniapp'
 import { PageLoader } from '@/shared/ui/kit/PageLoader'
 
 import GuestRoute from './guards/GuestRoute'
+import MiniappRoute from './guards/MiniappRoute'
 import PrivateRoute from './guards/PrivateRoute'
 import RequireAbility from './guards/RequireAbility'
 import RouteError from './RouteError'
-import { type AppRoute, appRoutes, guestRoutes, previewRoutes, privateRoutes, publicRoutes } from './routes'
+import {
+  type AppRoute,
+  appRoutes,
+  guestRoutes,
+  miniappRoutes,
+  previewRoutes,
+  privateRoutes,
+  publicRoutes,
+} from './routes'
 
 const toRouteObject = ({ path, Component, lazy, can }: AppRoute): RouteObject => {
   const route: RouteObject = lazy
@@ -30,8 +40,9 @@ const toRouteObject = ({ path, Component, lazy, can }: AppRoute): RouteObject =>
     : route
 }
 
-// Корень сайта: в организацию прошлого визита, а без неё — к выбору рабочей области
+// Корень сайта: из мессенджера — в Mini App; в кабинете — в организацию прошлого визита или к выбору рабочей области
 const homeLoader = () => {
+  if (getMiniappPlatform()) return redirect(ROUTES.TODAY)
   if (!isAuthenticated()) return redirect(ROUTES.LOGIN)
   const orgId = getLastOrganizationId()
   return redirect(orgId ? buildPath(ROUTES.DASHBOARD, { orgId }) : ROUTES.WORKSPACES)
@@ -68,6 +79,7 @@ export const router = createBrowserRouter([
           ...privateRoutes.map(toRouteObject),
         ],
       },
+      { Component: MiniappRoute, children: miniappRoutes.map(toRouteObject) },
       {
         path: ROUTES.PREVIEW,
         lazy: () => import('@/pages/preview/PreviewLayout').then(m => ({ Component: m.default })),
