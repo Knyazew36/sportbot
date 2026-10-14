@@ -1,5 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
+import { statsKeys } from '@/entities/stats'
 import {
   dayControllerEvening,
   dayControllerFix,
@@ -61,13 +62,16 @@ export const useRescheduleAnswer = () => {
   })
 }
 
-/** Исправление отметки дня в пределах недели */
+/** Исправление отметки дня в пределах недели: меняет и «Сегодня», и календарь со статистикой */
 export const useFixDay = () => {
-  const invalidate = useInvalidateDay()
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({ dayId, status }: { dayId: number; status: DayFixDto['status'] }) =>
       dayControllerFix(dayId, { status }),
     meta: { successMessage: 'Отметку исправил' },
-    onSuccess: invalidate,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: dayKeys.all })
+      void queryClient.invalidateQueries({ queryKey: statsKeys.all })
+    },
   })
 }

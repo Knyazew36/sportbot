@@ -5,7 +5,7 @@ import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Poster, Text } from '@/shared/ui/kit/Typography'
 
-import { planText } from './complex-letter'
+import { planText } from '@/entities/program'
 
 type Complex = NonNullable<DayToday['complex']>
 

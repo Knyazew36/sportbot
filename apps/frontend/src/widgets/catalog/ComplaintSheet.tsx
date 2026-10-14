@@ -1,7 +1,12 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { CheckIcon } from 'lucide-react'
+import { useForm } from 'react-hook-form'
 
 import { useState } from 'react'
 
+import { complaintSchema, type ComplaintValues } from '@/entities/catalog/model/schemas'
+import { applyFieldErrors } from '@/shared/lib/form'
+import { ErrorText } from '@/shared/ui/kit/ErrorText'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Label } from '@/shared/ui/shadcn/label'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'
@@ -12,19 +17,53 @@ type ComplaintSheetProps = {
   onOpenChange: (open: boolean) => void
   /** Название записи — чтобы было видно, на что жалуемся */
   subject: string
+  onSubmit: (text: string) => Promise<unknown>
+}
+
+const ComplaintForm = ({ onSubmit, onSent }: { onSubmit: ComplaintSheetProps['onSubmit']; onSent: () => void }) => {
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<ComplaintValues>({ resolver: zodResolver(complaintSchema), defaultValues: { text: '' } })
+
+  return (
+    <form
+      className='flex flex-col gap-3'
+      onSubmit={handleSubmit(({ text }) =>
+        onSubmit(text)
+          .then(onSent)
+          .catch(error => applyFieldErrors(error, setError)),
+      )}
+    >
+      <Label htmlFor='complaint'>Что не так</Label>
+      <Textarea
+        id='complaint'
+        placeholder='Например: на картинке другое упражнение'
+        maxLength={500}
+        aria-invalid={!!errors.text}
+        {...register('text')}
+      />
+      <ErrorText errors={errors.text} />
+      <Button
+        type='submit'
+        className='w-full'
+        disabled={isSubmitting}
+      >
+        Отправить
+      </Button>
+    </form>
+  )
 }
 
 // «Ошибка в описании»: жалоба уходит администратору (business-tz, 5.7)
-export const ComplaintSheet = ({ open, onOpenChange, subject }: ComplaintSheetProps) => {
-  const [text, setText] = useState('')
+export const ComplaintSheet = ({ open, onOpenChange, subject, onSubmit }: ComplaintSheetProps) => {
   const [sent, setSent] = useState(false)
 
   const close = (next: boolean) => {
     onOpenChange(next)
-    if (!next) {
-      setText('')
-      setSent(false)
-    }
+    if (!next) setSent(false)
   }
 
   return (
@@ -50,23 +89,12 @@ export const ComplaintSheet = ({ open, onOpenChange, subject }: ComplaintSheetPr
               Готово
             </Button>
           ) : (
-            <>
-              <Label htmlFor='complaint'>Что не так</Label>
-              <Textarea
-                id='complaint'
-                value={text}
-                onChange={e => setText(e.target.value)}
-                placeholder='Например: на картинке другое упражнение'
-                maxLength={500}
+            open && (
+              <ComplaintForm
+                onSubmit={onSubmit}
+                onSent={() => setSent(true)}
               />
-              <Button
-                className='w-full'
-                disabled={text.trim().length < 3}
-                onClick={() => setSent(true)}
-              >
-                Отправить
-              </Button>
-            </>
+            )
           )}
         </div>
       </SheetContent>

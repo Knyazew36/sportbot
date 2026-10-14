@@ -42,7 +42,11 @@ const initSdkPlatform = async (platform: SdkPlatform): Promise<Miniapp | null> =
 
   const initData = webApp?.initData || fromHash
   if (!initData) return null
-  const startParam = webApp?.initDataUnsafe?.start_param ?? new URLSearchParams(initData).get('start_param')
+  // Кнопка web_app в Telegram не кладёт start_param в initData — бот передаёт экран в адресе (?startapp=)
+  const startParam =
+    webApp?.initDataUnsafe?.start_param ??
+    new URLSearchParams(initData).get('start_param') ??
+    new URLSearchParams(window.location.search).get('startapp')
   return { platform, authorization: `${SCHEME[platform]} ${initData}`, startParam }
 }
 

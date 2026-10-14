@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { dayKeys } from '@/entities/day'
+import { statsKeys } from '@/entities/stats'
 import type {
   CooldownResponseDto,
   CreateWorkoutSetDto,
@@ -133,6 +134,8 @@ export const useFinishWorkout = () => {
       queryClient.setQueryData(workoutKeys.summary(summary.workoutId), summary)
       queryClient.setQueryData(workoutKeys.current, { workout: null })
       void queryClient.invalidateQueries({ queryKey: dayKeys.all })
+      // Засчитанная тренировка меняет серию, посещаемость и веса
+      void queryClient.invalidateQueries({ queryKey: statsKeys.all })
     },
   })
 }

@@ -30,7 +30,25 @@ export const MINIAPP_NAV: ShellNav = {
     { label: 'Админ', to: ROUTES.ADMIN, icon: ShieldIcon, adminOnly: true },
   ],
   // Тренировка и заминка (frontend-tz, раздел 6), первый запуск и вложенные экраны со своей кнопкой «Назад»
-  focus: [ROUTES.ONBOARDING, ROUTES.WORKOUT, ROUTES.WORKOUT_REPLACE, ROUTES.WORKOUT_SUMMARY, ROUTES.COOLDOWN],
+  focus: [
+    ROUTES.ONBOARDING,
+    ROUTES.WORKOUT,
+    ROUTES.WORKOUT_REPLACE,
+    ROUTES.WORKOUT_SUMMARY,
+    ROUTES.COOLDOWN,
+    ROUTES.PROGRAM,
+    ROUTES.PROGRAM_TEMPLATES,
+    ROUTES.PROGRAM_TEMPLATE,
+    ROUTES.PROGRAM_ADD_EXERCISE,
+    ROUTES.LIBRARY_NEW,
+    ROUTES.EXERCISE,
+    ROUTES.STRETCH,
+    ROUTES.FRIEND,
+    ROUTES.ADMIN_REQUEST,
+    ROUTES.ADMIN_CATALOG_ITEM,
+    ROUTES.ADMIN_TEMPLATE,
+    ROUTES.ADMIN_TEMPLATE_ADD_EXERCISE,
+  ],
 }
 
 export const PREVIEW_NAV: ShellNav = {

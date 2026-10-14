@@ -14,6 +14,8 @@ type CatalogFiltersProps = {
   onQueryChange: (query: string) => void
   group: string
   onGroupChange: (group: string) => void
+  /** Кнопки мышц; по умолчанию шесть групп. API фильтрует по одной мышце — тогда передаём мышцы справочника */
+  groups?: readonly (string | { value: string; label: string })[]
   /** Фильтр инвентаря есть только у упражнений — у растяжек его не передаём */
   equipment?: Equipment | 'ALL'
   onEquipmentChange?: (equipment: Equipment | 'ALL') => void
@@ -26,6 +28,7 @@ export const CatalogFilters = ({
   onQueryChange,
   group,
   onGroupChange,
+  groups = GROUPS,
   equipment,
   onEquipmentChange,
   placeholder = 'Название упражнения',
@@ -39,7 +42,7 @@ export const CatalogFilters = ({
     {/* Ленты фильтров прокручиваются вбок: на 320px шесть групп в строку не влезают */}
     <div className='no-scrollbar -mx-5 overflow-x-auto px-5 pb-1'>
       <Segmented
-        options={GROUPS}
+        options={groups}
         value={group}
         onValueChange={onGroupChange}
       />

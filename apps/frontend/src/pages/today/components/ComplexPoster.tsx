@@ -4,7 +4,7 @@ import { Rise } from '@/shared/ui/kit/Reveal'
 import { StatGrid } from '@/shared/ui/kit/StatGrid'
 import { Eyebrow, Lead, Poster } from '@/shared/ui/kit/Typography'
 
-import { complexLetter } from './complex-letter'
+import { complexLetter } from '@/entities/program'
 
 type ComplexPosterProps = {
   complex: NonNullable<DayToday['complex']>

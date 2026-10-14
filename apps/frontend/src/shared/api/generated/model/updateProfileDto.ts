@@ -14,6 +14,8 @@ export interface UpdateProfileDto {
   morningTime?: string;
   eveningTime?: string;
   weightAskFrequency?: UpdateProfileDtoWeightAskFrequency;
+  /** Показывать таймер отдыха */
+  showRestTimer?: boolean;
   /** Отдых между подходами, с */
   restSeconds?: number;
   restAutoStart?: boolean;

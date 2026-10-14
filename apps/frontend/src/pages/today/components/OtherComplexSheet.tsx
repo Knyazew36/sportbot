@@ -2,7 +2,7 @@ import type { DayToday } from '@/entities/day'
 import { OptionButton } from '@/shared/ui/kit/OptionButton'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'
 
-import { complexLetter } from './complex-letter'
+import { complexLetter } from '@/entities/program'
 
 type OtherComplexSheetProps = {
   open: boolean

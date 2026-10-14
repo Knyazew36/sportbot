@@ -60,3 +60,12 @@ export const splitSteps = (text: string | null) =>
     .split(/(?<=[.!?])\s+(?=[А-ЯЁA-Z])/)
     .map(step => step.trim().replace(/\.$/, ''))
     .filter(Boolean)
+
+/** «Все» в фильтрах справочника: ни мышцы, ни инвентаря */
+export const FILTER_ALL = 'ALL'
+
+/** Кнопки фильтра по мышце: API фильтрует по одной мышце, значение — её id строкой */
+export const muscleFilterOptions = (muscles: { id: number; name: string }[] | undefined) => [
+  { value: FILTER_ALL, label: 'Все' },
+  ...(muscles ?? []).map(m => ({ value: String(m.id), label: m.name })),
+]

@@ -149,6 +149,10 @@ const FriendScreen = () => {
       {friend.weightProgress.length > 0 && (
         <WeightProgress
           exercises={EXERCISES}
+          exercise={EXERCISES[0]!.value}
+          onExerciseChange={() => undefined}
+          period='3 мес'
+          onPeriodChange={() => undefined}
           data={friend.weightProgress}
         />
       )}

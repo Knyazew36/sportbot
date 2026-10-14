@@ -5,6 +5,7 @@ import { Screen } from '@/shared/ui/kit/Screen'
 import { ScreenHeader } from '@/shared/ui/kit/ScreenHeader'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
 import { MARK_LABEL } from '@/widgets/stats/marks'
+import type { Period } from '@/widgets/stats/periods'
 import { MonthCalendar } from '@/widgets/stats/MonthCalendar'
 import { MuscleLoad } from '@/widgets/stats/MuscleLoad'
 import { Attendance, StreakPanel } from '@/widgets/stats/StreakPanel'
@@ -70,6 +71,8 @@ const DayDetails = ({ day }: { day: number }) => (
 
 const StatsScreen = () => {
   const [selected, setSelected] = useState(12)
+  const [exercise, setExercise] = useState(STATS_EXERCISES[0]!.value)
+  const [period, setPeriod] = useState<Period>('3 мес')
 
   return (
     <Screen
@@ -92,6 +95,10 @@ const StatsScreen = () => {
       />
       <WeightProgress
         exercises={STATS_EXERCISES}
+        exercise={exercise}
+        onExerciseChange={setExercise}
+        period={period}
+        onPeriodChange={setPeriod}
         data={weightData}
       />
       <MuscleLoad items={stats.muscles} />

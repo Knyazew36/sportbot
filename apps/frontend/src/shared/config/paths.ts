@@ -47,6 +47,7 @@ export const ROUTES = {
   ADMIN_REQUEST: '/admin/moderation/:requestId',
   ADMIN_CATALOG_ITEM: '/admin/catalog/:kind/:itemId',
   ADMIN_TEMPLATE: '/admin/templates/:templateId',
+  ADMIN_TEMPLATE_ADD_EXERCISE: '/admin/templates/:templateId/add/:complexId',
 
   // Превью дизайна Mini App на моковых данных
   PREVIEW: '/preview',

@@ -138,6 +138,7 @@ const StretchScreen = () => {
       <ComplaintSheet
         open={complaintOpen}
         onOpenChange={setComplaintOpen}
+        onSubmit={() => Promise.resolve()}
         subject={stretch.name}
       />
     </Screen>

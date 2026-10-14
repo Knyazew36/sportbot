@@ -1,0 +1,75 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+
+import { dayKeys } from '@/entities/day'
+import { statsKeys } from '@/entities/stats'
+import { bodyWeightControllerCreate } from '@/shared/api/generated/body-weight/body-weight'
+import type { ProfileResponseDto, SetTimezoneDto, UpdateProfileDto } from '@/shared/api/generated/model'
+import {
+  profileControllerCities,
+  profileControllerSetTimezone,
+  profileControllerUpdate,
+  profileControllerView,
+} from '@/shared/api/generated/profile/profile'
+
+export type Profile = ProfileResponseDto
+
+export const profileKeys = {
+  profile: ['profile'] as const,
+  cities: ['profile', 'cities'] as const,
+}
+
+/** Настройки пользователя: расписание, таймеры, пауза, последний вес */
+export const useProfile = () =>
+  useQuery({
+    queryKey: profileKeys.profile,
+    queryFn: () => profileControllerView(),
+  })
+
+/** Города России с поясами — выбор часового пояса, как в боте */
+export const useCities = () =>
+  useQuery({
+    queryKey: profileKeys.cities,
+    queryFn: () => profileControllerCities(),
+    staleTime: Infinity,
+  })
+
+// Расписание и пауза меняют экран «Сегодня»: тренировочный ли день, спросит ли бот
+const useApplyProfile = () => {
+  const queryClient = useQueryClient()
+  return (profile: Profile) => {
+    queryClient.setQueryData(profileKeys.profile, profile)
+    void queryClient.invalidateQueries({ queryKey: dayKeys.all })
+  }
+}
+
+export const useUpdateProfile = () => {
+  const apply = useApplyProfile()
+  return useMutation({
+    mutationFn: (body: UpdateProfileDto) => profileControllerUpdate(body),
+    meta: { successMessage: 'Сохранил', inlineFieldErrors: true },
+    onSuccess: apply,
+  })
+}
+
+export const useSetTimezone = () => {
+  const apply = useApplyProfile()
+  return useMutation({
+    mutationFn: (body: SetTimezoneDto) => profileControllerSetTimezone(body),
+    meta: { successMessage: 'Часовой пояс сохранён', inlineFieldErrors: true },
+    onSuccess: apply,
+  })
+}
+
+// ── Вес тела ────────────────────────────────────────────────────────────────
+
+export const useAddBodyWeight = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (value: number) => bodyWeightControllerCreate({ value }),
+    meta: { successMessage: 'Вес записан', inlineFieldErrors: true },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: profileKeys.profile })
+      void queryClient.invalidateQueries({ queryKey: statsKeys.all })
+    },
+  })
+}

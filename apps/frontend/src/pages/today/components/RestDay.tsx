@@ -5,7 +5,7 @@ import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Lead, Poster } from '@/shared/ui/kit/Typography'
 
-import { complexLetter } from './complex-letter'
+import { complexLetter } from '@/entities/program'
 import { WeekStreak } from './WeekStreak'
 
 // Нетренировочный день: комплекс по очереди свёрнут, можно всё равно потренироваться (внеплановая, 7.2)

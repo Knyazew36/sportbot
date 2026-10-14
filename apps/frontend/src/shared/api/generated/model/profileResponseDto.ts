@@ -17,6 +17,8 @@ export interface ProfileResponseDto {
   morningTime: string;
   eveningTime: string;
   weightAskFrequency: ProfileResponseDtoWeightAskFrequency;
+  /** Показывать таймер отдыха на экране тренировки */
+  showRestTimer: boolean;
   /** Отдых между подходами, с */
   restSeconds: number;
   restAutoStart: boolean;

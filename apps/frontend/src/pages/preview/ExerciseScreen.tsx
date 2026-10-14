@@ -233,6 +233,7 @@ const ExerciseScreen = () => {
       <ComplaintSheet
         open={complaintOpen}
         onOpenChange={setComplaintOpen}
+        onSubmit={() => Promise.resolve()}
         subject={exercise.name}
       />
     </Screen>

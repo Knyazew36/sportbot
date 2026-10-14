@@ -44,16 +44,25 @@ export const guestRoutes: AppRoute[] = [
 ]
 
 // ── Mini App: внутри MiniappRoute (вход из бота, нижнее меню) ──────────────
-// Разделы без логики пока показывают заглушку; по мере готовности блоков сюда встают настоящие страницы
-const soon = () => import('@/pages/soon/SoonPage')
-
 export const miniappRoutes: AppRoute[] = [
   { path: ROUTES.TODAY, lazy: () => import('@/pages/today/TodayPage') },
-  { path: ROUTES.PROGRAMS, lazy: soon },
-  { path: ROUTES.LIBRARY, lazy: soon },
-  { path: ROUTES.STATS, lazy: soon },
-  { path: ROUTES.ME, lazy: soon },
-  { path: ROUTES.ADMIN, lazy: soon },
+  { path: ROUTES.PROGRAMS, lazy: () => import('@/pages/programs/ProgramsPage') },
+  { path: ROUTES.PROGRAM_TEMPLATES, lazy: () => import('@/pages/programs/TemplatesPage') },
+  { path: ROUTES.PROGRAM_TEMPLATE, lazy: () => import('@/pages/programs/TemplatePage') },
+  { path: ROUTES.PROGRAM, lazy: () => import('@/pages/programs/ProgramEditorPage') },
+  { path: ROUTES.PROGRAM_ADD_EXERCISE, lazy: () => import('@/pages/programs/AddExercisePage') },
+  { path: ROUTES.LIBRARY, lazy: () => import('@/pages/library/LibraryPage') },
+  { path: ROUTES.LIBRARY_NEW, lazy: () => import('@/pages/library/NewEntryPage') },
+  { path: ROUTES.EXERCISE, lazy: () => import('@/pages/library/ExercisePage') },
+  { path: ROUTES.STRETCH, lazy: () => import('@/pages/library/StretchPage') },
+  { path: ROUTES.STATS, lazy: () => import('@/pages/stats/StatsPage') },
+  { path: ROUTES.ME, lazy: () => import('@/pages/me/MePage') },
+  { path: ROUTES.FRIEND, lazy: () => import('@/pages/friend/FriendPage') },
+  { path: ROUTES.ADMIN, lazy: () => import('@/pages/admin/AdminPage') },
+  { path: ROUTES.ADMIN_REQUEST, lazy: () => import('@/pages/admin/ModerationRequestPage') },
+  { path: ROUTES.ADMIN_CATALOG_ITEM, lazy: () => import('@/pages/admin/CatalogItemPage') },
+  { path: ROUTES.ADMIN_TEMPLATE, lazy: () => import('@/pages/admin/TemplateEditorPage') },
+  { path: ROUTES.ADMIN_TEMPLATE_ADD_EXERCISE, lazy: () => import('@/pages/admin/TemplateAddExercisePage') },
   { path: ROUTES.ONBOARDING, lazy: () => import('@/pages/onboarding/OnboardingPage') },
   { path: ROUTES.WORKOUT, lazy: () => import('@/pages/workout/WorkoutPage') },
   { path: ROUTES.WORKOUT_REPLACE, lazy: () => import('@/pages/workout/ReplaceExercisePage') },

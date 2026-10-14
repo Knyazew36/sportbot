@@ -2,7 +2,7 @@ import type { DayToday } from '@/entities/day'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Ticket } from '@/shared/ui/kit/Ticket'
 
-import { complexLetter } from './complex-letter'
+import { complexLetter } from '@/entities/program'
 
 // Очередь комплексов программы: выбранный на сегодня подсвечен
 export const ComplexQueue = ({

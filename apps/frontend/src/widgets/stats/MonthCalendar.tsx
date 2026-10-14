@@ -1,8 +1,9 @@
-import { ArrowRightIcon, XIcon } from 'lucide-react'
+import { ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon, XIcon } from 'lucide-react'
 
 import type { ReactNode } from 'react'
 
 import { cn } from '@/shared/lib/utils'
+import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
 
@@ -30,13 +31,49 @@ type MonthCalendarProps = {
   onSelect?: (day: number) => void
   /** Детали выбранного дня под календарём */
   children?: ReactNode
+  /** Листание месяцев; без них — только название месяца */
+  onPrev?: () => void
+  onNext?: () => void
 }
 
 // Календарь месяца с отметками дней: тренировка, пропуск, перенос, пауза
-export const MonthCalendar = ({ month, lead, days, selected, onSelect, children }: MonthCalendarProps) => (
+export const MonthCalendar = ({
+  month,
+  lead,
+  days,
+  selected,
+  onSelect,
+  children,
+  onPrev,
+  onNext,
+}: MonthCalendarProps) => (
   <ScreenSection
     title='Календарь'
-    action={<Poster as='span'>{month}</Poster>}
+    action={
+      <div className='flex items-center gap-2'>
+        {onPrev && (
+          <Button
+            variant='outline'
+            size='icon-sm'
+            onClick={onPrev}
+            aria-label='Прошлый месяц'
+          >
+            <ChevronLeftIcon />
+          </Button>
+        )}
+        <Poster as='span'>{month}</Poster>
+        {onNext && (
+          <Button
+            variant='outline'
+            size='icon-sm'
+            onClick={onNext}
+            aria-label='Следующий месяц'
+          >
+            <ChevronRightIcon />
+          </Button>
+        )}
+      </div>
+    }
   >
     <div className='grid grid-cols-7 gap-1.5'>
       {['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(d => (

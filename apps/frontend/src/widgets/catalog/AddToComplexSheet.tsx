@@ -14,7 +14,8 @@ type AddToComplexSheetProps = {
   exercise: string
   program: string
   complexes: ComplexOption[]
-  onPick: (complexId: number) => void
+  /** Комплекс выбран: сообщение «Добавлено» — когда промис выполнится */
+  onPick: (complexId: number) => Promise<unknown> | void
 }
 
 // «Добавить в комплекс» из карточки упражнения: выбор комплекса активной программы (frontend-tz, 11.2)
@@ -42,7 +43,7 @@ export const AddToComplexSheet = ({
           <SheetTitle>{target ? 'Добавлено' : 'В какой комплекс?'}</SheetTitle>
           <SheetDescription>
             {target
-              ? `«${exercise}» — в конце комплекса «${target.title}», 3 × 8–12. Подходы можно поправить в редакторе.`
+              ? `«${exercise}» — в конце комплекса «${target.title}». Подходы можно поправить в редакторе программы.`
               : program}
           </SheetDescription>
         </SheetHeader>
@@ -63,10 +64,12 @@ export const AddToComplexSheet = ({
                 mark={c.letter}
                 title={c.title}
                 meta={`${c.count} упр.`}
-                onClick={() => {
-                  onPick(c.id)
-                  setAdded(c.id)
-                }}
+                onClick={() =>
+                  Promise.resolve(onPick(c.id))
+                    .then(() => setAdded(c.id))
+                    // Ошибку уже показал общий тост — шторка остаётся на выборе
+                    .catch(() => undefined)
+                }
               />
             ))
           )}

@@ -6,6 +6,8 @@
  */
 
 export interface WorkoutSettingsResponseDto {
+  /** Показывать таймер отдыха; выключен — внизу только ввод подхода */
+  showRestTimer: boolean;
   /** Отдых между подходами, с */
   restSeconds: number;
   /** Таймер отдыха стартует сам после подхода */
