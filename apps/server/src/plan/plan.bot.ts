@@ -62,7 +62,11 @@ export class PlanBot implements BotFeature {
           yes ? 'YES' : 'NO',
         );
         if (!day) return ctx.toast('Кнопка устарела');
-        if (yes) return ctx.edit(await this.flow.today(ctx));
+        if (yes) {
+          // Вопрос превращается в подтверждение и уходит вместе с ним — в чате не копятся опросы
+          await ctx.edit(msg('Принято 💪 Хорошей тренировки!'));
+          return this.removeLater(ctx);
+        }
         return this.sendAll(ctx, await this.polls.miss(ctx.profile, dayId));
       }
 

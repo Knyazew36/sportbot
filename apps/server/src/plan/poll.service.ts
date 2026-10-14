@@ -32,7 +32,7 @@ export class PollService {
     reminder: boolean,
   ): MessengerMessage {
     const buttons = [
-      [btn('Да', `pd:am:${dayId}:y`), btn('Нет', `pd:am:${dayId}:n`)],
+      [btn('💪 Да', `pd:am:${dayId}:y`), btn('😴 Нет', `pd:am:${dayId}:n`)],
     ];
     if (reminder) return msg('Так что, сегодня идёшь в зал?', buttons);
     return msg(
@@ -49,7 +49,7 @@ export class PollService {
       nextMorning
         ? 'Вчера ты не ответил: тренировка была?'
         : 'Потренировался сегодня?',
-      [[btn('Да', `pd:pm:${dayId}:y`), btn('Нет', `pd:pm:${dayId}:n`)]],
+      [[btn('💪 Да', `pd:pm:${dayId}:y`), btn('😴 Нет', `pd:pm:${dayId}:n`)]],
     );
   }
 
