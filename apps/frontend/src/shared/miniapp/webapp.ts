@@ -20,6 +20,9 @@ export type WebApp = {
   ready?: () => void
   expand?: () => void
   colorScheme?: 'light' | 'dark'
+  setHeaderColor?: (color: string) => void
+  setBackgroundColor?: (color: string) => void
+  setBottomBarColor?: (color: string) => void
   onEvent?: (event: string, cb: () => void) => void
   offEvent?: (event: string, cb: () => void) => void
   BackButton?: BackButton
@@ -75,6 +78,14 @@ export const onMessengerThemeChange = (cb: () => void): (() => void) => {
   const app = webApp()
   app?.onEvent?.('themeChanged', cb)
   return () => app?.offEvent?.('themeChanged', cb)
+}
+
+/** Красит шапку, фон и нижнюю полосу окна мессенджера в цвет приложения (#RRGGBB), иначе там остаётся тема мессенджера */
+export const paintMessengerChrome = (color: string) => {
+  const app = webApp()
+  app?.setHeaderColor?.(color)
+  app?.setBackgroundColor?.(color)
+  app?.setBottomBarColor?.(color)
 }
 
 // ── «Поделиться» ─────────────────────────────────────────────────────────────
