@@ -227,9 +227,17 @@ const StartWorkout = ({ complexId }: { complexId?: number }) => {
 }
 
 const WorkoutPage = () => {
-  const [params] = useSearchParams()
+  const [params, setParams] = useSearchParams()
   const complexId = Number(params.get('complexId')) || undefined
   const current = useCurrentWorkout()
+  const hasWorkout = Boolean(current.data?.workout)
+  const wantsStart = params.has('complexId') || params.has('start')
+
+  // Начатая тренировка больше не нуждается в параметрах запуска: иначе после «Завершить» или отмены
+  // тренировки нет, а complexId в адресе остался — StartWorkout тут же начал бы новую
+  useEffect(() => {
+    if (hasWorkout && wantsStart) setParams({}, { replace: true })
+  }, [hasWorkout, wantsStart, setParams])
 
   return (
     <QueryScreen query={current}>
