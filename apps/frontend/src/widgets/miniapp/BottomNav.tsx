@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router'
 
 import { cn } from '@/shared/lib/utils'
+import { haptic } from '@/shared/miniapp'
 
 import type { NavItem } from './nav'
 
@@ -19,6 +20,7 @@ export const BottomNav = ({ nav, isAdmin }: { nav: NavItem[]; isAdmin: boolean }
         <NavLink
           key={item.label}
           to={item.to}
+          onClick={haptic.select}
           className={({ isActive }) =>
             cn(
               'relative flex h-16 flex-col items-center justify-center gap-1.5 transition-colors',

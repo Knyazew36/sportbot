@@ -1,6 +1,8 @@
 import { PencilIcon } from 'lucide-react'
 
-import { complexLetter, useProgram } from '@/entities/program'
+import { useState } from 'react'
+
+import { complexLetter, type ProgramComplex, useProgram } from '@/entities/program'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
@@ -10,9 +12,13 @@ import { StatGrid } from '@/shared/ui/kit/StatGrid'
 import { Ticket } from '@/shared/ui/kit/Ticket'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
 
-// Активная программа — плакат: название, очередь комплексов билетами, сводка и правка
+import { ComplexSheet } from './ComplexSheet'
+
+// Активная программа — плакат: название, очередь комплексов билетами, сводка и правка.
+// Билет открывает состав комплекса в шторке
 export const ActiveProgram = ({ programId }: { programId: number }) => {
   const program = useProgram(programId)
+  const [opened, setOpened] = useState<{ complex: ProgramComplex; index: number } | null>(null)
 
   return (
     <QueryScreen
@@ -56,6 +62,7 @@ export const ActiveProgram = ({ programId }: { programId: number }) => {
                         mark={complexLetter(i)}
                         title={c.name}
                         active={c.isNext}
+                        onClick={() => setOpened({ complex: c, index: i })}
                       >
                         <Eyebrow>{c.exercises.length} упр.</Eyebrow>
                       </Ticket>
@@ -81,6 +88,10 @@ export const ActiveProgram = ({ programId }: { programId: number }) => {
                 Редактировать
               </ButtonLink>
             </Rise>
+            <ComplexSheet
+              complex={opened}
+              onClose={() => setOpened(null)}
+            />
           </>
         )
       }}

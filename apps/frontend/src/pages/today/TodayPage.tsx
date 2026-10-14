@@ -5,6 +5,7 @@ import { useState } from 'react'
 
 import { type DayToday, useToday } from '@/entities/day'
 import { useSportUser } from '@/entities/sport-user'
+import { isCooldownClosed } from '@/entities/workout'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
@@ -26,7 +27,7 @@ const cta = (day: DayToday): { label: string; to: string } | null => {
   if (day.state === 'TRAINING' && day.complex)
     return { label: 'Начать', to: `${ROUTES.WORKOUT}?complexId=${day.complex.id}` }
   if (day.state === 'IN_PROGRESS') return { label: 'Продолжить', to: ROUTES.WORKOUT }
-  if (day.state === 'DONE' && day.workout)
+  if (day.state === 'DONE' && day.workout && !isCooldownClosed(day.workout.id))
     return { label: 'Заминка', to: buildPath(ROUTES.COOLDOWN, { workoutId: day.workout.id }) }
   return null
 }

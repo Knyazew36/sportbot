@@ -10,9 +10,7 @@ import type { ApiErrorBody } from './type'
 
 const $api = axios.create({ baseURL: apiDomain })
 
-// Лог запросов в консоль браузера — только на деве
-const LOG_DISABLED = !import.meta.env.DEV
-
+// Лог запросов в консоль браузера и на проде: по нему разбираем проблемы у пользователей в мессенджере
 const logName = (config?: InternalAxiosRequestConfig) => `${config?.method?.toUpperCase()} ${config?.url}`
 
 $api.interceptors.request.use(config => {
@@ -33,7 +31,6 @@ $api.interceptors.request.use(config => {
     name: logName(config),
     data: { params: config.params, body: config.data },
     type: 'request',
-    isDisabled: LOG_DISABLED,
   })
   return config
 })
@@ -44,7 +41,6 @@ $api.interceptors.response.use(
       name: `${logName(response.config)} → ${response.status}`,
       data: response.data,
       type: 'response',
-      isDisabled: LOG_DISABLED,
     })
     return response
   },
@@ -69,7 +65,6 @@ $api.interceptors.response.use(
       name: `${logName(error.config)} → ${error.response?.status ?? error.code}`,
       data: error.response?.data ?? error.message,
       type: 'catch',
-      isDisabled: LOG_DISABLED,
     })
 
     throw error

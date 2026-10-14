@@ -11,7 +11,7 @@ const RouteError = () => {
 
   if (isRouteErrorResponse(error) && error.status === 404) return <NotFoundPage />
 
-  if (import.meta.env.DEV) console.error(error)
+  console.error(error)
 
   return (
     <div className='mx-auto flex min-h-svh max-w-3xl items-center p-4'>

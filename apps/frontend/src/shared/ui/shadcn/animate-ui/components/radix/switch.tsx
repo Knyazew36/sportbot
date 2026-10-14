@@ -7,6 +7,7 @@ import {
   type SwitchProps as SwitchPrimitiveProps,
 } from '@/shared/ui/shadcn/animate-ui/primitives/radix/switch';
 import { cn } from '@/shared/lib/utils';
+import { haptic } from '@/shared/miniapp';
 
 type SwitchProps = SwitchPrimitiveProps & {
   pressedWidth?: number;
@@ -21,6 +22,7 @@ function Switch({
   startIcon,
   endIcon,
   thumbIcon,
+  onCheckedChange,
   ...props
 }: SwitchProps) {
   return (
@@ -31,6 +33,11 @@ function Switch({
         'data-[state=checked]:bg-primary data-[state=unchecked]:bg-background data-[state=checked]:justify-end',
         className,
       )}
+      // Переключение отзывается лёгкой вибрацией в мессенджере
+      onCheckedChange={(checked) => {
+        haptic.select();
+        onCheckedChange?.(checked);
+      }}
       {...props}
     >
       <SwitchThumbPrimitive

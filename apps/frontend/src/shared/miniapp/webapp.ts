@@ -5,6 +5,7 @@ import { detectPlatform } from './detect-platform'
 type Haptic = {
   impactOccurred?: (style: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft') => void
   notificationOccurred?: (type: 'error' | 'success' | 'warning') => void
+  selectionChanged?: () => void
 }
 
 type BackButton = {
@@ -60,7 +61,12 @@ export const haptic = {
   /** Конец таймера, сохранённый подход */
   success: () => webApp()?.HapticFeedback?.notificationOccurred?.('success'),
   warning: () => webApp()?.HapticFeedback?.notificationOccurred?.('warning'),
+  /** Запрос не прошёл */
+  error: () => webApp()?.HapticFeedback?.notificationOccurred?.('error'),
+  /** Нажатие кнопки */
   tap: () => webApp()?.HapticFeedback?.impactOccurred?.('light'),
+  /** Смена выбора: сегмент, тумблер, раздел меню */
+  select: () => webApp()?.HapticFeedback?.selectionChanged?.(),
   /** Вне мессенджера — через браузер, если он умеет */
   long: () => {
     const feedback = webApp()?.HapticFeedback

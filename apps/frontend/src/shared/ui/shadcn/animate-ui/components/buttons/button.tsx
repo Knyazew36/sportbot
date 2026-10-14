@@ -9,6 +9,7 @@ import {
   type ButtonProps as ButtonPrimitiveProps,
 } from '@/shared/ui/shadcn/animate-ui/primitives/buttons/button';
 import { cn } from '@/shared/lib/utils';
+import { haptic } from '@/shared/miniapp';
 
 // Кнопка Спортбота: рамка и жёсткая тень. Тень — единственный признак «нажимается», у информационных
 // блоков её нет, поэтому в зале с одного взгляда видно, куда тыкать. При нажатии кнопка садится на место тени.
@@ -65,13 +66,18 @@ type ButtonProps = React.ComponentProps<'button'> &
   };
 
 // Масштаб при нажатии выключен: отклик даёт посадка на тень, второй эффект её смазывает
-function Button({ className, variant, size, hoverScale = 1, tapScale = 1, ...props }: ButtonProps) {
+// Вибрация на нажатие — в мессенджере посадка на тень ощущается и пальцем; вне мессенджера вызов пустой
+function Button({ className, variant, size, hoverScale = 1, tapScale = 1, onClick, ...props }: ButtonProps) {
   return (
     <ButtonPrimitive
       data-slot="button"
       hoverScale={hoverScale}
       tapScale={tapScale}
       className={cn(buttonVariants({ variant, size, className }))}
+      onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+        haptic.tap();
+        onClick?.(event);
+      }}
       {...(props as ButtonPrimitiveProps)}
     />
   );

@@ -2,6 +2,7 @@ import { errorCatch } from '@front-cmdt/utils/error-catch'
 import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query'
 
 import { subscribeSession } from '@/shared/auth/session-events'
+import { haptic } from '@/shared/miniapp'
 import { toast } from '@/shared/ui/shadcn/toast'
 
 import { getAccessToken } from './model/access-token'
@@ -34,12 +35,16 @@ export const queryClient = new QueryClient({
     },
   }),
   mutationCache: new MutationCache({
+    // Вибрация вместе с тостом: результат действия ощущается, даже если тост не заметили.
+    // Ошибки полей формы тоже отзываются — тоста там нет, но действие не прошло
     onError: (error, _vars, _ctx, mutation) => {
+      haptic.error()
       if (mutation.meta?.inlineFieldErrors && hasFieldErrors(error)) return
       toast.add({ title: errorText(error), type: 'error' })
     },
     onSuccess: (_data, _vars, _ctx, mutation) => {
       if (mutation.meta?.skipSuccessToast) return
+      haptic.success()
       toast.add({ title: mutation.meta?.successMessage ?? DEFAULT_SUCCESS, type: 'success' })
     },
   }),
