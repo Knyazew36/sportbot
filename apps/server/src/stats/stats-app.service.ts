@@ -90,15 +90,18 @@ export class StatsAppService {
     return this.stats.progressExercises(profile.userId);
   }
 
-  /** Прогресс весов: лучший вес подхода по тренировкам. */
+  /** Прогресс: лучший вес подхода по тренировкам, у упражнений без веса — лучшие повторы. */
   public async progress(
     viewerId: number,
     targetId: number | undefined,
     exerciseId: number,
   ): Promise<StatsPointResponseDto[]> {
     const profile = await this.target(viewerId, targetId);
-    const points = await this.stats.progressPoints(profile.userId, exerciseId);
-    return points.map((p) => ({ date: isoDate(p.date), value: p.weight }));
+    const { points } = await this.stats.progressPoints(
+      profile.userId,
+      exerciseId,
+    );
+    return points.map((p) => ({ date: isoDate(p.date), value: p.value }));
   }
 
   /** Прогресс весов по мышце: по каждому упражнению — график и «было → стало». */
@@ -116,16 +119,17 @@ export class StatsAppService {
       id: muscleId,
       name,
       exercises: exercises.map((e) => {
-        const weights = e.points.map((p) => p.weight);
+        const values = e.points.map((p) => p.value);
         return {
           id: e.id,
           name: e.name,
-          first: weights[0],
-          last: weights.at(-1)!,
-          best: Math.max(...weights),
+          unit: e.unit,
+          first: values[0],
+          last: values.at(-1)!,
+          best: Math.max(...values),
           points: e.points.map((p) => ({
             date: isoDate(p.date),
-            value: p.weight,
+            value: p.value,
           })),
         };
       }),

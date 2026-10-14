@@ -35,6 +35,25 @@ const DONE_STATUSES = ['FINISHED', 'AUTO_CLOSED'] as const;
 
 const num = (value: number): string => String(Number(value.toFixed(1)));
 
+/** В чём считается прогресс упражнения: вес или, если веса нет, повторы. */
+export type ProgressUnit = 'kg' | 'reps';
+
+export interface Progress {
+  unit: ProgressUnit;
+  points: { date: Date; value: number }[];
+}
+
+interface ProgressRow {
+  workout: { date: Date };
+  sets: { weight: unknown; reps: number }[];
+}
+
+const UNIT_SHORT: Record<ProgressUnit, string> = { kg: 'кг', reps: 'повт.' };
+const UNIT_AXIS: Record<ProgressUnit, string> = {
+  kg: 'максимальный вес подхода, кг',
+  reps: 'максимум повторов в подходе',
+};
+
 /** Статистика: агрегирующие запросы без таблиц-кэшей — объёмы малы (раздел 27 ТЗ). */
 @Injectable()
 export class StatsService {
@@ -184,17 +203,17 @@ export class StatsService {
 
   public async weeklySummary(profile: SportProfile): Promise<MessengerMessage> {
     return msg((await this.summaryLines(profile)).join('\n'), [
-      [btn('📈 Прогресс весов', 'ss:prog')],
+      [btn('📈 Прогресс', 'ss:prog')],
     ]);
   }
 
   // ── Прогресс весов ──────────────────────────────────────────────────────
 
-  /** Точки прогресса: тренировка → максимальный вес подхода. До 30 последних. */
+  /** Точки прогресса упражнения: в кг или, у упражнений без веса, в повторах. До 30 последних. */
   public async progressPoints(
     userId: number,
     exerciseId: number,
-  ): Promise<{ date: Date; weight: number }[]> {
+  ): Promise<Progress> {
     const items = await this.prisma.workoutExercise.findMany({
       where: {
         exerciseId,
@@ -205,19 +224,14 @@ export class StatsService {
       take: CHART_POINTS,
       select: {
         workout: { select: { date: true } },
-        sets: { select: { weight: true } },
+        sets: { select: { weight: true, reps: true } },
       },
     });
-    return items
-      .map((item) => ({
-        date: item.workout.date,
-        weight: Math.max(...item.sets.map((s) => Number(s.weight))),
-      }))
-      .reverse();
+    return progressOf(items.reverse());
   }
 
   /**
-   * Прогресс по мышце: упражнения, где она основная, с точками «тренировка → лучший вес».
+   * Прогресс по мышце: упражнения, где она основная, у каждого — свои точки (кг или повторы).
    * Вспомогательная роль не берётся — иначе у трицепса окажется весь жим. До 30 точек на упражнение.
    */
   public async muscleProgress(
@@ -225,11 +239,7 @@ export class StatsService {
     muscleId: number,
   ): Promise<{
     name: string;
-    exercises: {
-      id: number;
-      name: string;
-      points: { date: Date; weight: number }[];
-    }[];
+    exercises: ({ id: number; name: string } & Progress)[];
   }> {
     const [muscle, items] = await Promise.all([
       this.prisma.muscle.findUnique({
@@ -247,29 +257,35 @@ export class StatsService {
           exerciseId: true,
           exercise: { select: { name: true } },
           workout: { select: { date: true } },
-          sets: { select: { weight: true } },
+          sets: { select: { weight: true, reps: true } },
         },
       }),
     ]);
     if (!muscle) throw new NotFoundException('Мышца не найдена.');
     const byExercise = new Map<
       number,
-      { id: number; name: string; points: { date: Date; weight: number }[] }
+      { id: number; name: string; rows: ProgressRow[] }
     >();
     for (const item of items) {
       const entry = byExercise.get(item.exerciseId) ?? {
         id: item.exerciseId,
         name: item.exercise.name,
-        points: [],
+        rows: [],
       };
-      entry.points.push({
-        date: item.workout.date,
-        weight: Math.max(...item.sets.map((s) => Number(s.weight))),
-      });
+      entry.rows.push(item);
       byExercise.set(item.exerciseId, entry);
     }
     const exercises = [...byExercise.values()]
-      .map((e) => ({ ...e, points: e.points.slice(-CHART_POINTS) }))
+      .map(({ id, name, rows }) => {
+        const progress = progressOf(rows);
+        return {
+          id,
+          name,
+          unit: progress.unit,
+          points: progress.points.slice(-CHART_POINTS),
+        };
+      })
+      .filter((e) => e.points.length > 0)
       .sort(
         (a, b) =>
           b.points.length - a.points.length ||
@@ -281,27 +297,45 @@ export class StatsService {
     return { name: muscle.name, exercises };
   }
 
-  /** Упражнения, по которым есть хотя бы две точки прогресса. */
+  /**
+   * Упражнения, по которым есть хотя бы две точки прогресса, и в чём он считается.
+   * Точки в кг — только тренировки с весом, в повторах — любые тренировки с подходами.
+   */
   public async progressExercises(
     userId: number,
-  ): Promise<{ id: number; name: string }[]> {
-    const groups = await this.prisma.workoutExercise.groupBy({
-      by: ['exerciseId'],
-      where: {
-        sets: { some: {} },
-        workout: { userId, status: { in: [...DONE_STATUSES] } },
-      },
-      _count: { _all: true },
-    });
-    const ids = groups
-      .filter((g) => g._count._all >= 2)
-      .map((g) => g.exerciseId);
-    if (!ids.length) return [];
-    return this.prisma.exercise.findMany({
-      where: { id: { in: ids } },
+  ): Promise<{ id: number; name: string; unit: ProgressUnit }[]> {
+    const where = {
+      sets: { some: {} },
+      workout: { userId, status: { in: [...DONE_STATUSES] } },
+    };
+    const [all, weighted] = await Promise.all([
+      this.prisma.workoutExercise.groupBy({
+        by: ['exerciseId'],
+        where,
+        _count: { _all: true },
+      }),
+      this.prisma.workoutExercise.groupBy({
+        by: ['exerciseId'],
+        where: { ...where, sets: { some: { weight: { gt: 0 } } } },
+        _count: { _all: true },
+      }),
+    ]);
+    const withWeight = new Map(
+      weighted.map((g) => [g.exerciseId, g._count._all]),
+    );
+    const units = new Map<number, ProgressUnit>();
+    for (const g of all) {
+      const kg = withWeight.get(g.exerciseId);
+      if ((kg ?? g._count._all) >= 2)
+        units.set(g.exerciseId, kg ? 'kg' : 'reps');
+    }
+    if (!units.size) return [];
+    const exercises = await this.prisma.exercise.findMany({
+      where: { id: { in: [...units.keys()] } },
       select: { id: true, name: true },
       orderBy: { name: 'asc' },
     });
+    return exercises.map((e) => ({ ...e, unit: units.get(e.id)! }));
   }
 
   /**
@@ -312,14 +346,14 @@ export class StatsService {
     userId: number,
     exerciseId: number,
   ): Promise<{ file: string; caption: string } | null> {
-    const points = await this.progressPoints(userId, exerciseId);
+    const { unit, points } = await this.progressPoints(userId, exerciseId);
     if (points.length < 2) return null;
     const exercise = await this.prisma.exercise.findUnique({
       where: { id: exerciseId },
       select: { name: true },
     });
     const name = exercise?.name ?? 'Упражнение';
-    const png = renderProgressChart(name, points);
+    const png = renderProgressChart(name, points, UNIT_AXIS[unit]);
     const dir = path.join(uploadRoot(), 'tmp');
     fs.mkdirSync(dir, { recursive: true });
     const file = path.join(
@@ -328,14 +362,40 @@ export class StatsService {
     );
     fs.writeFileSync(file, png);
     this.logger.debug(
-      `График построен: userId=${userId}, exerciseId=${exerciseId}`,
+      `График построен: userId=${userId}, exerciseId=${exerciseId}, unit=${unit}`,
     );
-    const first = points[0].weight;
-    const last = points.at(-1)!.weight;
+    const first = points[0].value;
+    const last = points.at(-1)!.value;
     const delta = last - first;
     return {
       file,
-      caption: `📈 ${name}: ${num(first)} → ${num(last)} кг (${delta >= 0 ? '+' : '−'}${num(Math.abs(delta))}) за ${points.length} тренировок`,
+      caption: `📈 ${name}: ${num(first)} → ${num(last)} ${UNIT_SHORT[unit]} (${delta >= 0 ? '+' : '−'}${num(Math.abs(delta))}) за ${points.length} тренировок`,
     };
   }
+}
+
+/**
+ * Прогресс по тренировкам упражнения. Был хоть один подход с весом — считаем лучший вес,
+ * а тренировки без веса пропускаем: «0 кг» на графике читается как провал. Веса не было никогда
+ * (отжимания на брусьях, подтягивания) — лучший подход по повторам.
+ */
+function progressOf(rows: ProgressRow[]): Progress {
+  const weighted = rows.some((r) => r.sets.some((s) => Number(s.weight) > 0));
+  if (!weighted)
+    return {
+      unit: 'reps',
+      points: rows.map((r) => ({
+        date: r.workout.date,
+        value: Math.max(...r.sets.map((s) => s.reps)),
+      })),
+    };
+  return {
+    unit: 'kg',
+    points: rows
+      .map((r) => ({
+        date: r.workout.date,
+        value: Math.max(...r.sets.map((s) => Number(s.weight))),
+      }))
+      .filter((p) => p.value > 0),
+  };
 }

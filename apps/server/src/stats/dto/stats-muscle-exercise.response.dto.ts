@@ -1,8 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+import type { ProgressUnit } from '../stats.service';
 import { StatsPointResponseDto } from './stats-point.response.dto';
 
-/** Упражнение на мышцу: лучший вес подхода по тренировкам. */
+/** Упражнение на мышцу: лучший вес подхода по тренировкам, без веса — лучшие повторы. */
 export class StatsMuscleExerciseResponseDto {
   @ApiProperty()
   id: number;
@@ -10,13 +11,22 @@ export class StatsMuscleExerciseResponseDto {
   @ApiProperty()
   name: string;
 
-  @ApiProperty({ description: 'Лучший вес первой тренировки на графике, кг' })
+  @ApiProperty({
+    enum: ['kg', 'reps'],
+    description:
+      'В чём прогресс: kg — лучший вес подхода; reps — упражнение без веса, лучшие повторы',
+  })
+  unit: ProgressUnit;
+
+  @ApiProperty({
+    description: 'Значение первой тренировки на графике (кг или повторы)',
+  })
   first: number;
 
-  @ApiProperty({ description: 'Лучший вес последней тренировки, кг' })
+  @ApiProperty({ description: 'Значение последней тренировки' })
   last: number;
 
-  @ApiProperty({ description: 'Максимум за весь график, кг' })
+  @ApiProperty({ description: 'Максимум за весь график' })
   best: number;
 
   @ApiProperty({ type: [StatsPointResponseDto] })

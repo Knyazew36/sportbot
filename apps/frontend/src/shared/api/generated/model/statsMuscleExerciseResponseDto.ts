@@ -4,16 +4,19 @@
  * api
  * OpenAPI spec version: 0.0.1
  */
+import type { StatsMuscleExerciseResponseDtoUnit } from './statsMuscleExerciseResponseDtoUnit';
 import type { StatsPointResponseDto } from './statsPointResponseDto';
 
 export interface StatsMuscleExerciseResponseDto {
   id: number;
   name: string;
-  /** Лучший вес первой тренировки на графике, кг */
+  /** В чём прогресс: kg — лучший вес подхода; reps — упражнение без веса, лучшие повторы */
+  unit: StatsMuscleExerciseResponseDtoUnit;
+  /** Значение первой тренировки на графике (кг или повторы) */
   first: number;
-  /** Лучший вес последней тренировки, кг */
+  /** Значение последней тренировки */
   last: number;
-  /** Максимум за весь график, кг */
+  /** Максимум за весь график */
   best: number;
   points: StatsPointResponseDto[];
 }

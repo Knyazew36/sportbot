@@ -63,7 +63,8 @@ export const SetInputPanel = ({ item, settings, timer, onSubmitStart }: SetInput
     return add
       .mutateAsync({ itemId: item.id, ...values })
       .then(() => {
-        reset({ weight: '', reps: '' })
+        // React Compiler мемоизирует register(): без keepFieldsRef поля не перерегистрируются и инпуты не чистятся
+        reset({ weight: '', reps: '' }, { keepFieldsRef: true })
         setSaved(true)
         if (settings.showRestTimer && settings.restAutoStart) timer.start(settings.restSeconds)
       })

@@ -1,3 +1,4 @@
+import { PROGRESS_UNIT, type ProgressUnit } from '@/entities/stats'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Segmented } from '@/shared/ui/kit/Segmented'
 import { SelectField } from '@/shared/ui/kit/SelectField'
@@ -13,9 +14,11 @@ type WeightProgressProps = {
   period: Period
   onPeriodChange: (period: Period) => void
   data: { label: string; value: number }[]
+  /** В чём прогресс выбранного упражнения: кг или, если упражнение без веса, повторы */
+  unit?: ProgressUnit
 }
 
-// Прогресс рабочих весов по выбранному упражнению: лучший вес за тренировку, ступенькой
+// Прогресс по выбранному упражнению: лучший вес за тренировку, без веса — лучший подход по повторам, ступенькой
 export const WeightProgress = ({
   exercises,
   exercise,
@@ -23,13 +26,15 @@ export const WeightProgress = ({
   period,
   onPeriodChange,
   data,
+  unit = 'kg',
 }: WeightProgressProps) => {
+  const { short, aside } = PROGRESS_UNIT[unit]
   const best = data.length ? Math.max(...data.map(p => p.value)) : undefined
 
   return (
     <ScreenSection
-      title='Прогресс весов'
-      aside='лучший вес за тренировку'
+      title='Прогресс'
+      aside={aside}
     >
       <SelectField
         options={exercises}
@@ -43,7 +48,7 @@ export const WeightProgress = ({
           numeric
         >
           {best?.toString().replace('.', ',') ?? '—'}
-          <Unit>кг</Unit>
+          <Unit>{short}</Unit>
         </Poster>
         <Segmented
           options={PERIODS}
@@ -53,7 +58,7 @@ export const WeightProgress = ({
       </div>
       <StepChart
         data={data}
-        unit='кг'
+        unit={short}
         className='-mx-2'
       />
     </ScreenSection>

@@ -57,7 +57,7 @@ export const BodyWeightSection = ({ profile }: { profile: Profile }) => {
         onSubmit={handleSubmit(({ value }) =>
           add
             .mutateAsync(value)
-            .then(() => reset())
+            .then(() => reset(undefined, { keepFieldsRef: true }))
             .catch(error => applyFieldErrors(error, setError)),
         )}
       >

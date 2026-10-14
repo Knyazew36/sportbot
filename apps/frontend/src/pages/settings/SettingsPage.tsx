@@ -36,7 +36,7 @@ const OrganizationForm = ({ organization }: { organization: Organization }) => {
   const onSubmit = handleSubmit(values =>
     update.mutate(values, {
       onSuccess: saved => {
-        reset({ name: saved.name })
+        reset({ name: saved.name }, { keepFieldsRef: true })
         notifySuccess('Сохранено')()
       },
       onError: notifyError,

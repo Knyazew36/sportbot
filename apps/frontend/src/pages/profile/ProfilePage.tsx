@@ -46,7 +46,10 @@ const ProfileForm = ({ me }: { me: Me }) => {
       { ...values, ...(phone && { phone }) },
       {
         onSuccess: saved => {
-          reset({ name: saved.name ?? '', lastName: saved.lastName ?? '', phone: saved.phone ?? '' })
+          reset(
+            { name: saved.name ?? '', lastName: saved.lastName ?? '', phone: saved.phone ?? '' },
+            { keepFieldsRef: true },
+          )
           notifySuccess('Профиль сохранён')()
         },
         onError: notifyError,
@@ -149,7 +152,7 @@ const PasswordForm = () => {
       { newPassword, ...(currentPassword && { currentPassword }) },
       {
         onSuccess: () => {
-          reset()
+          reset(undefined, { keepFieldsRef: true })
           notifySuccess('Пароль изменён, другие сеансы завершены')()
         },
         onError: notifyError,

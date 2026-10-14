@@ -232,25 +232,41 @@ export function finishedMessage(result: CompleteResult): MessengerMessage {
 export interface ShareCardView {
   authorName: string;
   complexName: string;
+  exercises: WorkoutExerciseFull[];
   totals: WorkoutTotals;
-  currentStreak: number;
+  cardioName: string | null;
+  cardioMinutes: number | null;
   /** Ссылка на страницу результата; нет — бот в мессенджере не подключён, карточка без кнопки. */
   url?: string;
 }
 
 const kg = (value: number): string => `${value.toLocaleString('ru-RU')} кг`;
 
-/** Карточка результата для пересылки: читается без бота, кнопка ведёт на страницу результата. */
+/** Упражнение в карточке: подходы через запятую; засчитанное без записи — просто галочкой. */
+const shareExerciseText = (item: WorkoutExerciseFull): string => {
+  if (!item.sets.length) return `✅ ${item.exercise.name}`;
+  const sets = item.sets.map((s) =>
+    setText({ weight: Number(s.weight), reps: s.reps }),
+  );
+  return `✅ ${item.exercise.name}: ${sets.join(', ')}`;
+};
+
+/**
+ * Карточка результата для пересылки: что сделано и сколько. Длительность и серию не пишем —
+ * карточку пересылают друзьям, им интересен сам результат.
+ */
 export function shareCardMessage(view: ShareCardView): MessengerMessage {
   const { totals } = view;
+  const cardio = cardioText(view);
   const lines = [
     `💪 ${view.authorName} — тренировка «${view.complexName}» закончена!`,
     '',
-    `⏱ ${totals.minutes} мин`,
+    ...view.exercises.filter(isDone).map(shareExerciseText),
+    ...(cardio ? [cardio] : []),
+    '',
     `🏋️ Упражнений: ${totals.exercisesDone} из ${totals.exercisesTotal}`,
     ...(totals.sets ? [`🔁 Подходов: ${totals.sets}`] : []),
     ...(totals.tonnage ? [`📦 Поднято: ${kg(totals.tonnage)}`] : []),
-    `🔥 Серия: ${view.currentStreak}`,
   ];
   return msg(
     lines.join('\n'),

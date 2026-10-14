@@ -78,9 +78,7 @@ export class SocialBot implements BotFeature {
                 ? [`✈️ Telegram: ${link('ссылка', links.telegram)}`]
                 : []),
               ...(links.max ? [`💬 MAX: ${link('ссылка', links.max)}`] : []),
-              hint(
-                '⏳ Ссылка одноразовая и живёт 7 дней.',
-              ),
+              hint('⏳ Ссылка одноразовая и живёт 7 дней.'),
             ].join('\n\n'),
             [BACK],
           ),
@@ -97,7 +95,7 @@ export class SocialBot implements BotFeature {
       case 'v':
         return ctx.edit(
           msg(await this.social.friendCard(userId, id), [
-            [btn('📈 Прогресс весов', `fr:pl:${id}`)],
+            [btn('📈 Прогресс', `fr:pl:${id}`)],
             [btn('Разорвать дружбу', `fr:rm:${id}`)],
             BACK,
           ]),
@@ -113,7 +111,7 @@ export class SocialBot implements BotFeature {
                 ]),
                 [btn('⬅️ Назад', `fr:v:${id}`)],
               ])
-            : msg('🤷 У друга пока нет записанных весов.', [
+            : msg('🤷 У друга пока нет записанных подходов.', [
                 [btn('⬅️ Назад', `fr:v:${id}`)],
               ]),
         );

@@ -4,8 +4,11 @@
  * api
  * OpenAPI spec version: 0.0.1
  */
+import type { StatsExerciseResponseDtoUnit } from './statsExerciseResponseDtoUnit';
 
 export interface StatsExerciseResponseDto {
   id: number;
   name: string;
+  /** В чём прогресс: kg — лучший вес подхода; reps — упражнение без веса, лучшие повторы */
+  unit: StatsExerciseResponseDtoUnit;
 }

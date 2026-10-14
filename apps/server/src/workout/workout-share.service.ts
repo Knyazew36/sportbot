@@ -59,8 +59,10 @@ export class WorkoutShareService {
     return shareCardMessage({
       authorName: author.name,
       complexName: workout.complexName,
+      exercises: workout.exercises,
       totals: workoutTotals(workout),
-      currentStreak: author.currentStreak,
+      cardioName: workout.cardioName,
+      cardioMinutes: workout.cardioMinutes,
       url: botAppLink(channel, APP_SCREEN.result(workout.shareToken)),
     });
   }

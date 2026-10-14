@@ -28,7 +28,7 @@ export const AddSetForm = ({ item }: { item: WorkoutItem }) => {
       onSubmit={handleSubmit(values =>
         add
           .mutateAsync({ itemId: item.id, ...values })
-          .then(() => reset({ weight: '', reps: '' }))
+          .then(() => reset({ weight: '', reps: '' }, { keepFieldsRef: true }))
           .catch(error => applyFieldErrors(error, setError)),
       )}
     >
