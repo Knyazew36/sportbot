@@ -20,4 +20,5 @@ export interface UpdateProfileDto {
   restSeconds?: number;
   restAutoStart?: boolean;
   timerSound?: boolean;
+  timerVibration?: boolean;
 }

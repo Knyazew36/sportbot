@@ -12,8 +12,10 @@ export interface CooldownResponseDto {
   minutes: number;
   /** Блок «если есть время», мин */
   optionalMinutes: number;
-  /** Звук и вибрация по окончании удержания (настройка профиля) */
+  /** Звук по окончании удержания (настройка профиля) */
   timerSound: boolean;
+  /** Вибрация по окончании удержания (настройка профиля) */
+  timerVibration: boolean;
   /** Основной блок */
   main: CooldownStretchResponseDto[];
   /** Если есть время */

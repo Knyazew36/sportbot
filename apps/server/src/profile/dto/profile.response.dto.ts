@@ -33,8 +33,11 @@ export class ProfileResponseDto {
   @ApiProperty()
   restAutoStart: boolean;
 
-  @ApiProperty({ description: 'Звук и вибрация по окончании таймеров' })
+  @ApiProperty({ description: 'Звук по окончании таймеров' })
   timerSound: boolean;
+
+  @ApiProperty({ description: 'Вибрация по окончании таймеров' })
+  timerVibration: boolean;
 
   @ApiProperty({ type: ProfilePauseResponseDto, nullable: true })
   pause: ProfilePauseResponseDto | null;

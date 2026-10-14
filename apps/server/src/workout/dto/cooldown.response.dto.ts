@@ -13,9 +13,14 @@ export class CooldownResponseDto {
   optionalMinutes: number;
 
   @ApiProperty({
-    description: 'Звук и вибрация по окончании удержания (настройка профиля)',
+    description: 'Звук по окончании удержания (настройка профиля)',
   })
   timerSound: boolean;
+
+  @ApiProperty({
+    description: 'Вибрация по окончании удержания (настройка профиля)',
+  })
+  timerVibration: boolean;
 
   @ApiProperty({
     type: [CooldownStretchResponseDto],

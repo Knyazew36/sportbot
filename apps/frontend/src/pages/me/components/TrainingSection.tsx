@@ -71,7 +71,7 @@ export const TrainingSection = ({ profile }: { profile: Profile }) => {
               />
             </SettingRow>
             <SettingRow
-              title='Звук и вибрация'
+              title='Звук'
               hint='Когда таймер закончился'
               htmlFor='sound'
             >
@@ -80,6 +80,18 @@ export const TrainingSection = ({ profile }: { profile: Profile }) => {
                 checked={profile.timerSound}
                 disabled={update.isPending}
                 onCheckedChange={timerSound => update.mutate({ timerSound })}
+              />
+            </SettingRow>
+            <SettingRow
+              title='Вибрация'
+              hint='Когда таймер закончился'
+              htmlFor='vibration'
+            >
+              <Switch
+                id='vibration'
+                checked={profile.timerVibration}
+                disabled={update.isPending}
+                onCheckedChange={timerVibration => update.mutate({ timerVibration })}
               />
             </SettingRow>
           </div>

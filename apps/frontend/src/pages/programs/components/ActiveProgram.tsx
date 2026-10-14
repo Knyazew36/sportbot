@@ -1,24 +1,18 @@
 import { PencilIcon } from 'lucide-react'
 
-import { useState } from 'react'
-
-import { complexLetter, type ProgramComplex, useProgram } from '@/entities/program'
+import { useProgram } from '@/entities/program'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Rise } from '@/shared/ui/kit/Reveal'
-import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { StatGrid } from '@/shared/ui/kit/StatGrid'
-import { Ticket } from '@/shared/ui/kit/Ticket'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
-
-import { ComplexSheet } from './ComplexSheet'
+import { ComplexQueue } from '@/widgets/complex-queue/ComplexQueue'
 
 // Активная программа — плакат: название, очередь комплексов билетами, сводка и правка.
 // Билет открывает состав комплекса в шторке
 export const ActiveProgram = ({ programId }: { programId: number }) => {
   const program = useProgram(programId)
-  const [opened, setOpened] = useState<{ complex: ProgramComplex; index: number } | null>(null)
 
   return (
     <QueryScreen
@@ -50,26 +44,11 @@ export const ActiveProgram = ({ programId }: { programId: number }) => {
               )}
             </Rise>
             {p.complexes.length > 0 && (
-              <ScreenSection
-                title='Очередь комплексов'
+              <ComplexQueue
+                complexes={p.complexes}
+                activeId={p.complexes.find(c => c.isNext)?.id}
                 aside='следующий подсвечен'
-                bleed
-              >
-                <ol className='no-scrollbar flex gap-2 overflow-x-auto px-gutter'>
-                  {p.complexes.map((c, i) => (
-                    <li key={c.id}>
-                      <Ticket
-                        mark={complexLetter(i)}
-                        title={c.name}
-                        active={c.isNext}
-                        onClick={() => setOpened({ complex: c, index: i })}
-                      >
-                        <Eyebrow>{c.exercises.length} упр.</Eyebrow>
-                      </Ticket>
-                    </li>
-                  ))}
-                </ol>
-              </ScreenSection>
+              />
             )}
             <Rise className='flex flex-col gap-4 px-gutter'>
               <StatGrid
@@ -88,10 +67,6 @@ export const ActiveProgram = ({ programId }: { programId: number }) => {
                 Редактировать
               </ButtonLink>
             </Rise>
-            <ComplexSheet
-              complex={opened}
-              onClose={() => setOpened(null)}
-            />
           </>
         )
       }}

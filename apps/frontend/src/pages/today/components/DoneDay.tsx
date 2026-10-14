@@ -72,7 +72,6 @@ export const DoneDay = ({ day }: { day: DayToday }) => {
           variant='outline'
           size='sm'
           className='h-auto min-h-9 min-w-0 px-2 py-1.5 leading-tight whitespace-normal'
-          disabled={!day.complexes.length}
           onClick={() => setPickOpen(true)}
         >
           <PlusIcon />

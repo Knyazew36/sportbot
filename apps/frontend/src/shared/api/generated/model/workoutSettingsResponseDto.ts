@@ -12,6 +12,8 @@ export interface WorkoutSettingsResponseDto {
   restSeconds: number;
   /** Таймер отдыха стартует сам после подхода */
   restAutoStart: boolean;
-  /** Звук и вибрация по окончании таймеров */
+  /** Звук по окончании таймеров */
   timerSound: boolean;
+  /** Вибрация по окончании таймеров */
+  timerVibration: boolean;
 }

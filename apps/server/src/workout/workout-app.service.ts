@@ -242,6 +242,7 @@ export class WorkoutAppService {
       minutes: view.minutes,
       optionalMinutes: Math.ceil(seconds(view.optional) / 60),
       timerSound: profile.timerSound,
+      timerVibration: profile.timerVibration,
       main: view.main.map((s) => this.stretchView(s)),
       optional: view.optional.map((s) => this.stretchView(s)),
     };
@@ -301,6 +302,7 @@ export class WorkoutAppService {
         restSeconds: profile.restSeconds,
         restAutoStart: profile.restAutoStart,
         timerSound: profile.timerSound,
+        timerVibration: profile.timerVibration,
       },
     };
   }

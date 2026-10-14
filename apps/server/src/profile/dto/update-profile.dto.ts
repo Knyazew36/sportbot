@@ -76,4 +76,9 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsBoolean()
   timerSound?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  timerVibration?: boolean;
 }

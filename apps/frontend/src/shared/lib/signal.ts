@@ -21,13 +21,12 @@ const beep = () => {
     }
     window.setTimeout(() => void ctx.close(), 800)
   } catch {
-    // звук недоступен — остаётся вибрация
+    // звук недоступен — сигнал остаётся только вибрацией, если она включена
   }
 }
 
-/** Конец таймера: звук и вибрация, если они включены в профиле (frontend-tz, 13.2) */
-export const timerEndSignal = (enabled: boolean) => {
-  if (!enabled) return
-  beep()
-  haptic.long()
+/** Конец таймера: звук и вибрация — каждое по своей настройке профиля (frontend-tz, 13.2) */
+export const timerEndSignal = ({ timerSound, timerVibration }: { timerSound: boolean; timerVibration: boolean }) => {
+  if (timerSound) beep()
+  if (timerVibration) haptic.long()
 }

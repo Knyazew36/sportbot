@@ -22,8 +22,10 @@ export interface ProfileResponseDto {
   /** Отдых между подходами, с */
   restSeconds: number;
   restAutoStart: boolean;
-  /** Звук и вибрация по окончании таймеров */
+  /** Звук по окончании таймеров */
   timerSound: boolean;
+  /** Вибрация по окончании таймеров */
+  timerVibration: boolean;
   /** @nullable */
   pause: ProfilePauseResponseDto | null;
   /**

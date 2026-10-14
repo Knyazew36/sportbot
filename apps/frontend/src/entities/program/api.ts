@@ -85,7 +85,8 @@ export const useCreateProgram = () => {
   const apply = useApplyProgram()
   return useMutation({
     mutationFn: (name: string) => programControllerCreate({ name }),
-    meta: { successMessage: 'Программа создана' },
+    // Сразу открывается редактор новой программы — результат и так виден
+    meta: { skipSuccessToast: true },
     onSuccess: apply,
   })
 }
@@ -153,7 +154,8 @@ export const useAddComplex = () => {
   return useMutation({
     mutationFn: ({ programId, name }: { programId: number; name: string }) =>
       programControllerAddComplex(programId, { name }),
-    meta: { successMessage: 'Комплекс добавлен', inlineFieldErrors: true },
+    // После добавления сразу открывается страница нового комплекса — результат и так виден
+    meta: { skipSuccessToast: true, inlineFieldErrors: true },
     onSuccess: apply,
   })
 }

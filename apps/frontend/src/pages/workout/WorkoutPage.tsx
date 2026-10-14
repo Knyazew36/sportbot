@@ -43,7 +43,7 @@ const WorkoutView = ({ workout }: { workout: Workout }) => {
   const [editing, setEditing] = useState<WorkoutSet | null>(null)
   const timer = useDeadlineTimer({
     storageKey: `rest-timer-${workout.id}`,
-    onEnd: () => timerEndSignal(workout.settings.timerSound),
+    onEnd: () => timerEndSignal(workout.settings),
   })
 
   const items = workout.exercises

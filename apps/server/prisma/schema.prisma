@@ -434,7 +434,8 @@ model SportProfile {
   showRestTimer Boolean @default(true) /// показывать таймер отдыха на экране тренировки
   restSeconds   Int     @default(90) /// отдых между подходами, с
   restAutoStart Boolean @default(true) /// таймер отдыха стартует сам после подхода
-  timerSound    Boolean @default(true) /// звук и вибрация по окончании таймеров
+  timerSound     Boolean @default(true) /// звук по окончании таймеров
+  timerVibration Boolean @default(true) /// вибрация по окончании таймеров
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

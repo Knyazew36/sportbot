@@ -334,7 +334,7 @@ const CooldownView = ({ cooldown }: { cooldown: Cooldown }) => {
           onClick: next,
         }}
         onEnd={() => {
-          timerEndSignal(cooldown.timerSound)
+          timerEndSignal(cooldown)
           next()
         }}
       />

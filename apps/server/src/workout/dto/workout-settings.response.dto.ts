@@ -13,6 +13,9 @@ export class WorkoutSettingsResponseDto {
   @ApiProperty({ description: 'Таймер отдыха стартует сам после подхода' })
   restAutoStart: boolean;
 
-  @ApiProperty({ description: 'Звук и вибрация по окончании таймеров' })
+  @ApiProperty({ description: 'Звук по окончании таймеров' })
   timerSound: boolean;
+
+  @ApiProperty({ description: 'Вибрация по окончании таймеров' })
+  timerVibration: boolean;
 }

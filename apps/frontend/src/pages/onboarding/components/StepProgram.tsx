@@ -55,6 +55,8 @@ export const StepProgram = ({ formId, templates, onSubmit }: StepProgramProps) =
                     meta={`${pluralize(t.complexCount, ['комплекс', 'комплекса', 'комплексов'])} в очереди`}
                     selected={field.value === t.id}
                     onClick={() => field.onChange(t.id)}
+                    // Кнопка по умолчанию не сжимается — без этого вытолкнет «посмотреть» за край экрана
+                    className='min-w-0 flex-1 shrink'
                   />
                   <Button
                     type='button'

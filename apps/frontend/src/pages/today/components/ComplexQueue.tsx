@@ -1,34 +1,16 @@
-import type { DayToday } from '@/entities/day'
-import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
-import { Ticket } from '@/shared/ui/kit/Ticket'
+import { useActiveProgram } from '@/entities/program'
+import { ComplexQueue as ComplexQueueWidget } from '@/widgets/complex-queue/ComplexQueue'
 
-import { complexLetter } from '@/entities/program'
+// Очередь на «Сегодня»: в ответе дня у комплексов нет состава — для шторки берём активную программу целиком
+export const ComplexQueue = ({ currentId, byQueue }: { currentId: number; byQueue: boolean }) => {
+  const program = useActiveProgram()
+  if (!program.data?.complexes.length) return null
 
-// Очередь комплексов программы: выбранный на сегодня подсвечен
-export const ComplexQueue = ({
-  complexes,
-  currentId,
-  byQueue,
-}: {
-  complexes: DayToday['complexes']
-  currentId: number
-  byQueue: boolean
-}) => (
-  <ScreenSection
-    title='Очередь комплексов'
-    aside={byQueue ? 'следующий подсвечен' : 'выбран вручную'}
-    bleed
-  >
-    <ol className='no-scrollbar flex gap-2 overflow-x-auto px-gutter'>
-      {complexes.map((c, i) => (
-        <li key={c.id}>
-          <Ticket
-            mark={complexLetter(i)}
-            title={c.name}
-            active={c.id === currentId}
-          />
-        </li>
-      ))}
-    </ol>
-  </ScreenSection>
-)
+  return (
+    <ComplexQueueWidget
+      complexes={program.data.complexes}
+      activeId={currentId}
+      aside={byQueue ? 'следующий подсвечен' : 'выбран вручную'}
+    />
+  )
+}
