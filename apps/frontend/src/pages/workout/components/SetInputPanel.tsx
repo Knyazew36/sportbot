@@ -80,6 +80,7 @@ export const SetInputPanel = ({ item, settings, timer, onSubmitStart }: SetInput
     >
       <form
         onSubmit={submit}
+        autoComplete='off'
         className={cn(
           'border-primary relative border-t-2 bg-[color-mix(in_oklab,var(--sb-blue)_9%,var(--sb-paper))] px-gutter pt-2.5',
           settings.showRestTimer ? 'pb-3' : 'pb-[max(0.75rem,env(safe-area-inset-bottom))]',

@@ -20,8 +20,15 @@ export const BoxInput = ({ label, className, ...props }: BoxInputProps) => (
     >
       {label}
     </Eyebrow>
+    {/* Браузер и менеджеры паролей подставляли бы прошлые значения — а число всегда вводится заново */}
     <input
       inputMode='decimal'
+      autoComplete='off'
+      autoCorrect='off'
+      spellCheck={false}
+      data-1p-ignore
+      data-lpignore='true'
+      data-form-type='other'
       className='sb-poster placeholder:text-foreground/20 h-8 w-full bg-transparent text-[28px] leading-none outline-none'
       {...props}
     />
