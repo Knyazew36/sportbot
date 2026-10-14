@@ -10,11 +10,14 @@ import { ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { Swagger } from '@/common/decorators/swagger/swagger.decorator';
+import { BotChannel, User } from '@/generated/prisma/client';
+import { AuthChannel } from '@/miniapp/decorators/auth-channel.decorator';
 import { SportAuth } from '@/miniapp/decorators/sport-auth.decorator';
 
 import { CooldownResponseDto } from './dto/cooldown.response.dto';
 import { CreateWorkoutSetDto } from './dto/create-workout-set.dto';
 import { ReplaceWorkoutItemDto } from './dto/replace-workout-item.dto';
+import { SharedWorkoutResponseDto } from './dto/shared-workout.response.dto';
 import { StartWorkoutDto } from './dto/start-workout.dto';
 import { UpdateWorkoutSetDto } from './dto/update-workout-set.dto';
 import { WorkoutAnalogResponseDto } from './dto/workout-analog.response.dto';
@@ -22,6 +25,7 @@ import { WorkoutCurrentResponseDto } from './dto/workout-current.response.dto';
 import { WorkoutSummaryResponseDto } from './dto/workout-summary.response.dto';
 import { WorkoutResponseDto } from './dto/workout.response.dto';
 import { WorkoutAppService } from './workout-app.service';
+import { WorkoutShareService } from './workout-share.service';
 
 const ID_PARAM = { name: 'id', type: Number };
 
@@ -29,7 +33,10 @@ const ID_PARAM = { name: 'id', type: Number };
 @Controller('workout')
 @SportAuth()
 export class WorkoutController {
-  constructor(private readonly workoutAppService: WorkoutAppService) {}
+  constructor(
+    private readonly workoutAppService: WorkoutAppService,
+    private readonly workoutShareService: WorkoutShareService,
+  ) {}
 
   // ── Тренировка ──────────────────────────────────────────────────────────
 
@@ -185,6 +192,36 @@ export class WorkoutController {
       dto.exerciseId,
       dto.inComplex,
     );
+  }
+
+  // ── Поделиться ──────────────────────────────────────────────────────────
+
+  @Post('share/:id')
+  @Swagger({
+    title: 'Поделиться: бот присылает в чат карточку результата для пересылки',
+    param: ID_PARAM,
+    bearerAuth: true,
+  })
+  public share(
+    @CurrentUser() user: User,
+    @AuthChannel() channel: BotChannel | null,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.workoutShareService.sendCard(user, id, channel);
+  }
+
+  @Get('shared/:token')
+  @Swagger({
+    title: 'Результат тренировки по ссылке «Поделиться»',
+    param: { name: 'token', type: String },
+    response: SharedWorkoutResponseDto,
+    bearerAuth: true,
+  })
+  public shared(
+    @CurrentUser('id') userId: number,
+    @Param('token') token: string,
+  ) {
+    return this.workoutShareService.byToken(userId, token);
   }
 
   // ── По id ───────────────────────────────────────────────────────────────

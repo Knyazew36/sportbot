@@ -11,6 +11,11 @@ const BY_ID: Record<string, (id: number) => string> = {
   cp: () => `${ROUTES.ADMIN}?tab=complaints`,
 }
 
+// Ссылки «Поделиться» результатом: в startapp не id, а токен — чужие тренировки перебором не открыть
+const BY_TOKEN: Record<string, (token: string) => string> = {
+  ws: token => buildPath(ROUTES.WORKOUT_RESULT, { token }),
+}
+
 const PLAIN: Record<string, string> = {
   today: ROUTES.TODAY,
   mine: `${ROUTES.LIBRARY}?tab=mine`,
@@ -22,5 +27,8 @@ export const startRoute = (param: string | null): string | null => {
   if (PLAIN[param]) return PLAIN[param]
   const match = /^([a-z]+)_(\d+)$/.exec(param)
   const build = match && BY_ID[match[1]!]
-  return build ? build(Number(match[2])) : null
+  if (build) return build(Number(match[2]))
+  const token = /^([a-z]+)_([a-f0-9]+)$/.exec(param)
+  const byToken = token && BY_TOKEN[token[1]!]
+  return byToken ? byToken(token[2]!) : null
 }

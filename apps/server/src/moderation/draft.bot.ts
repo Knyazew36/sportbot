@@ -15,6 +15,7 @@ import {
 } from '@/bot';
 import { CatalogKind, CatalogService } from '@/catalog/catalog.service';
 import { MessengerMessage } from '@/messengers';
+import { swapChoiceMessage } from '@/workout/swap.texts';
 
 import { ModerationService, OUTCOME_TITLE } from './moderation.service';
 
@@ -30,6 +31,8 @@ interface Draft {
   holdSeconds?: number;
   perSide?: boolean;
   technique?: string;
+  /** Мастер открыт из замены упражнения в тренировке: созданное сразу ставим на замену. */
+  swapItemId?: number;
 }
 
 const HOLD_OPTIONS = [20, 30, 45, 60];
@@ -53,18 +56,28 @@ export class DraftBot implements BotFeature {
   ): Promise<void> {
     if (action === 'new') {
       const prefix = args[0] === 'sx' ? 'sx' : 'ex';
+      const swapItemId =
+        prefix === 'ex' && args[1] ? Number(args[1]) : undefined;
       await this.save(ctx, {
         prefix,
         step: 'name',
         primary: [],
         secondary: [],
+        swapItemId,
       });
       return ctx.edit(
         msg(
           prefix === 'ex'
             ? 'Как называется упражнение?'
             : 'Как называется растяжка?',
-          [[btn('Отмена', 'ex:menu')]],
+          [
+            [
+              btn(
+                'Отмена',
+                swapItemId ? `sw:list:${swapItemId}` : 'ex:menu',
+              ),
+            ],
+          ],
         ),
       );
     }
@@ -153,7 +166,13 @@ export class DraftBot implements BotFeature {
           await ctx.reply(
             msg('Возможно, ты искал одну из этих записей справочника?', [
               ...similar.map((item) => [
-                btn(cut(item.name), `${draft.prefix}:v:${item.id}`),
+                btn(
+                  cut(item.name),
+                  // Из замены похожее из справочника сразу ставим на замену, а не открываем карточку
+                  draft.swapItemId
+                    ? `sw:pick:${draft.swapItemId}:${item.id}`
+                    : `${draft.prefix}:v:${item.id}`,
+                ),
               ]),
               [btn(cut(`Нет, создать «${text}»`, 48), 'dr:go')],
             ]),
@@ -232,6 +251,16 @@ export class DraftBot implements BotFeature {
     await this.sessions.clear(ctx);
     await this.sender.sendToAdmins(this.moderation.requestMessage(request));
     const id = request.exerciseId ?? request.stretchId;
+    if (draft.swapItemId && id) {
+      await ctx.edit(
+        swapChoiceMessage(
+          draft.swapItemId,
+          id,
+          `«${draft.name}» сохранён как личный черновик и отправлен на проверку.`,
+        ),
+      );
+      return;
+    }
     await ctx.edit(
       msg(
         `«${draft.name}» сохранён как личный черновик с пометкой «не проверено» и отправлен на проверку.${draft.prefix === 'ex' ? ' Его уже можно ставить в комплекс.' : ' Он уже участвует в подборе заминки.'}`,

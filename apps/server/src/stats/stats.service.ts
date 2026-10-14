@@ -14,7 +14,7 @@ import {
 } from '@/bot';
 import { uploadRoot } from '@/catalog/catalog.service';
 import { SportProfile } from '@/generated/prisma/client';
-import { MessengerMessage } from '@/messengers';
+import { MessengerMessage, strike } from '@/messengers';
 
 import { renderProgressChart } from './progress-chart';
 
@@ -177,7 +177,7 @@ export class StatsService {
     // Пока тренировок не было совсем, «забыто всё» — шум, а не подсказка
     if (forgotten.length && forgotten.length < muscles.length)
       lines.push(
-        `😴 Забыто: ${forgotten.map((m) => m.name.toLowerCase()).join(', ')}`,
+        `😴 Забыто: ${forgotten.map((m) => strike(m.name.toLowerCase())).join(', ')}`,
       );
     return lines;
   }

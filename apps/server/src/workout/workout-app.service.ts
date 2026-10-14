@@ -24,6 +24,7 @@ import {
   WorkoutExerciseFull,
   WorkoutFull,
   WorkoutService,
+  workoutTotals,
 } from './workout.service';
 
 type MuscleLink = { role: string; muscle: { name: string } };
@@ -75,22 +76,11 @@ export class WorkoutAppService {
       this.accounts.profile(userId),
       this.workouts.find(userId, workoutId),
     ]);
-    const sets = workout.exercises.flatMap((e) => e.sets);
-    const end = workout.finishedAt ?? new Date();
     return {
       workoutId: workout.id,
       complexName: workout.complexName,
       status: workout.status,
-      minutes: Math.max(
-        1,
-        Math.round((end.getTime() - workout.startedAt.getTime()) / 60_000),
-      ),
-      exercisesDone: workout.exercises.filter(isDone).length,
-      exercisesTotal: workout.exercises.length,
-      sets: sets.length,
-      tonnage: Math.round(
-        sets.reduce((sum, s) => sum + Number(s.weight) * s.reps, 0),
-      ),
+      ...workoutTotals(workout),
       currentStreak: profile.currentStreak,
       cardioName: workout.cardioName,
       cardioMinutes: workout.cardioMinutes,

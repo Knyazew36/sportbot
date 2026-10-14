@@ -1,11 +1,19 @@
-import { RepeatIcon } from 'lucide-react'
-import { useNavigate, useParams } from 'react-router'
+import { PlusIcon, RepeatIcon } from 'lucide-react'
+import { useLocation, useNavigate, useParams } from 'react-router'
 
 import { useState } from 'react'
 
-import { useAnalogs, useCurrentWorkout, useReplaceItem, type WorkoutAnalog } from '@/entities/workout'
+import {
+  newEntryForReplacePath,
+  type ReplaceLocationState,
+  useAnalogs,
+  useCurrentWorkout,
+  useReplaceItem,
+  type WorkoutAnalog,
+} from '@/entities/workout'
 import { toAssetUrl } from '@/shared/api'
 import { ROUTES } from '@/shared/config/paths'
+import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { List } from '@/shared/ui/kit/ListRow'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Rise } from '@/shared/ui/kit/Reveal'
@@ -24,10 +32,14 @@ import { ExercisePreviewSheet } from './components/ExercisePreviewSheet'
 const ReplaceExercisePage = () => {
   const itemId = Number(useParams().itemId)
   const navigate = useNavigate()
+  const location = useLocation()
   const current = useCurrentWorkout()
   const analogs = useAnalogs(itemId)
   const replace = useReplaceItem()
-  const [choice, setChoice] = useState<WorkoutAnalog | null>(null)
+  // Вернулись из мастера своего упражнения — выбор «сегодня / в комплексе» открыт сразу
+  const [choice, setChoice] = useState<Pick<WorkoutAnalog, 'id' | 'name'> | null>(
+    () => (location.state as ReplaceLocationState | null)?.created ?? null,
+  )
   // Тап по строке — посмотреть упражнение; кнопка справа — сразу к выбору замены
   const [preview, setPreview] = useState<WorkoutAnalog | null>(null)
 
@@ -72,6 +84,16 @@ const ReplaceExercisePage = () => {
           empty={{
             title: 'Подходящих аналогов нет',
             description: 'Все упражнения на эти мышцы уже в тренировке или нагружают сустав с ограничением.',
+            action: (
+              <ButtonLink
+                to={newEntryForReplacePath(itemId)}
+                variant='outline'
+                size='sm'
+              >
+                <PlusIcon />
+                Создать своё упражнение
+              </ButtonLink>
+            ),
           }}
         >
           {list => (
@@ -99,6 +121,16 @@ const ReplaceExercisePage = () => {
             </List>
           )}
         </QueryScreen>
+        {!!analogs.data?.length && (
+          <ButtonLink
+            to={newEntryForReplacePath(itemId)}
+            variant='outline'
+            className='w-full'
+          >
+            <PlusIcon />
+            Нет нужного — создать своё
+          </ButtonLink>
+        )}
       </ScreenSection>
 
       <ExercisePreviewSheet
@@ -112,7 +144,12 @@ const ReplaceExercisePage = () => {
 
       <Sheet
         open={choice != null}
-        onOpenChange={open => !open && setChoice(null)}
+        onOpenChange={open => {
+          if (open) return
+          setChoice(null)
+          // Иначе созданное из state снова откроет выбор при возврате на экран
+          if (location.state) void navigate(location.pathname, { replace: true, state: null })
+        }}
       >
         <SheetContent side='bottom'>
           <SheetHeader>

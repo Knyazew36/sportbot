@@ -12,10 +12,11 @@ import {
   msg,
 } from '@/bot';
 
+import { swapChoiceMessage } from './swap.texts';
 import { WorkoutFlow } from './workout-flow.service';
+import { WorkoutShareService } from './workout-share.service';
 import {
   analogsMessage,
-  cooldownDoneMessage,
   cooldownMessage,
   leftoversMessage,
   noSetsMessage,
@@ -23,9 +24,6 @@ import {
 import { canComplete, isDone, WorkoutService } from './workout.service';
 
 /** Тренировка (`wo`), замена упражнения (`sw`), заминка (`cd`). */
-/** Сколько итог «Заминка сделана» остаётся на экране до смены на меню. */
-export const COOLDOWN_DONE_SHOW_MS = 2500;
-
 @Injectable()
 @BotHandler({ prefixes: ['wo', 'sw', 'cd'], commands: ['today'] })
 export class WorkoutBot implements BotFeature {
@@ -34,6 +32,7 @@ export class WorkoutBot implements BotFeature {
   constructor(
     private readonly workouts: WorkoutService,
     private readonly flow: WorkoutFlow,
+    private readonly share: WorkoutShareService,
     private readonly sessions: BotSessionService,
   ) {}
 
@@ -52,19 +51,13 @@ export class WorkoutBot implements BotFeature {
 
     if (prefix === 'cd') {
       if (action === 'done') {
-        await ctx.edit(cooldownDoneMessage());
-        // Итог висит пару секунд и сменяется меню. Не ждём здесь: обработчик не должен
-        // держать очередь апдейтов мессенджера
-        setTimeout(() => {
-          ctx
-            .edit(mainMenuMessage(ctx.user))
-            .catch((error: Error) =>
-              this.logger.warn(
-                `Меню после заминки не показано: ${error.message}, userId=${userId}`,
-              ),
-            );
-        }, COOLDOWN_DONE_SHOW_MS);
-        return;
+        // Заминка — отдельное сообщение под итогом: убираем его, итог с «Поделиться» остаётся.
+        // Старше 48 часов Telegram удалить не даст — тогда хотя бы меняем на меню
+        if (await ctx.remove()) return ctx.toast('🧘 Заминка сделана ✅');
+        this.logger.debug(
+          `Заминку не удалить, показываю меню: userId=${userId}`,
+        );
+        return ctx.edit(mainMenuMessage(ctx.user));
       }
       const view = await this.workouts.cooldown(userId, id);
       const workout = await this.workouts.find(userId, id);
@@ -127,6 +120,10 @@ export class WorkoutBot implements BotFeature {
           await this.workouts.complete(ctx.profile, id),
         );
       }
+      case 'share':
+        // Новым сообщением: карточку пересылают целиком, итог при этом остаётся на месте
+        await ctx.reply(await this.share.card(userId, id, ctx.channel));
+        return;
       case 'cancel':
         await this.workouts.discard(userId, id);
         await this.sessions.clear(ctx);
@@ -192,6 +189,9 @@ export class WorkoutBot implements BotFeature {
     const userId = ctx.user.id;
     switch (action) {
       case 'list': {
+        // Сюда возвращаются и из мастера своего упражнения — его ожидание ввода снимаем, иначе
+        // следующий текст уйдёт в мастер. Ожидание подхода вернёт показ шага тренировки
+        await this.sessions.clear(ctx);
         const { item, analogs } = await this.workouts.analogs(
           ctx.profile,
           itemId,
@@ -199,15 +199,7 @@ export class WorkoutBot implements BotFeature {
         return ctx.edit(analogsMessage(itemId, item.exercise.name, analogs));
       }
       case 'pick':
-        return ctx.edit(
-          msg('Заменить только сегодня или в комплексе?', [
-            [
-              btn('Только сегодня', `sw:day:${itemId}:${exerciseId}`),
-              btn('В комплексе', `sw:cx:${itemId}:${exerciseId}`),
-            ],
-            [btn('⬅️ К тренировке', 'wo:cont')],
-          ]),
-        );
+        return ctx.edit(swapChoiceMessage(itemId, exerciseId));
       case 'day':
       case 'cx': {
         const workoutId = await this.workouts.replace(

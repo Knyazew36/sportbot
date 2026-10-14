@@ -1,11 +1,11 @@
 import {
-  APP_SCREEN,
-  appBtn,
+  BACK_TO_MENU,
   btn,
   cut,
   fmtDay,
   grid,
   hint,
+  linkBtn,
   msg,
   numEmoji,
 } from '@/bot';
@@ -21,6 +21,7 @@ import {
   LastResult,
   WorkoutExerciseFull,
   WorkoutFull,
+  WorkoutTotals,
 } from './workout.service';
 
 type WithJoints = { joints: { jointId: number; joint: { name: string } }[] };
@@ -46,6 +47,13 @@ const num = (value: number): string => String(Number(value.toFixed(2)));
 /** Один подход: «22 кг × 10 повт.»; без веса — «без веса × 12 повт.». */
 const setText = (set: { weight: number; reps: number }): string =>
   `${set.weight === 0 ? 'без веса' : `${num(set.weight)} кг`} × ${set.reps} повт.`;
+
+/**
+ * Как записать подход. Пример — отдельной строкой, чтобы формат читался с одного взгляда,
+ * а вариант без веса — ниже, чтобы не путать с основным.
+ */
+export const SET_INPUT_EXAMPLE =
+  'например:\n60 10\nБез веса — только повторы: 10';
 
 // ── Комплекс ────────────────────────────────────────────────────────────
 
@@ -102,8 +110,8 @@ export function stepMessage(
   lines.push(
     '',
     sets.length < item.plannedSets
-      ? `Сейчас подход ${numEmoji(sets.length + 1)} из ${numEmoji(item.plannedSets)}.\n${hint('❗ Введи вес и повторы, например «22 10».')}`
-      : `Все подходы записаны: ${sets.length} из ${item.plannedSets}.\n${hint(`Жми «Следующее упражнение». Или запиши ещё подход (${sets.length + 1}-й), например «22 10».`)}`,
+      ? `Сейчас подход ${numEmoji(sets.length + 1)} из ${numEmoji(item.plannedSets)}.\n${hint(`❗ Введи вес и повторы, ${SET_INPUT_EXAMPLE}`)}`
+      : `Все подходы записаны: ${sets.length} из ${item.plannedSets}.\n${hint(`Жми «Следующее упражнение». Или запиши ещё подход (${sets.length + 1}-й), ${SET_INPUT_EXAMPLE}`)}`,
   );
 
   const rows: MessengerButton[][] = [
@@ -161,10 +169,13 @@ export function analogsMessage(
   name: string,
   analogs: { id: number; name: string; status: string }[],
 ): MessengerMessage {
+  // Нужного упражнения среди аналогов может не быть — тогда его создают прямо отсюда
+  const create = [btn('➕ Создать своё', `dr:new:ex:${itemId}`)];
   if (!analogs.length)
-    return msg(`Для «${name}» подходящих аналогов не нашёл.`, [
-      [btn('⬅️ К тренировке', 'wo:cont')],
-    ]);
+    return msg(
+      `Для «${name}» подходящих аналогов не нашёл. Можно создать своё упражнение.`,
+      [create, [btn('⬅️ К тренировке', 'wo:cont')]],
+    );
   return msg(`Чем заменить «${name}»?`, [
     ...grid(
       analogs.map((e) =>
@@ -175,6 +186,7 @@ export function analogsMessage(
       ),
       1,
     ),
+    create,
     [btn('⬅️ К тренировке', 'wo:cont')],
   ]);
 }
@@ -198,25 +210,52 @@ export function countedMessage(result: CompleteResult): MessengerMessage {
 }
 
 /**
- * Итог засчитанной тренировки и заминка одним сообщением: итог уходит вместе с заминкой
- * по «Завершить» и не остаётся висеть в чате отдельной строкой.
+ * Итог засчитанной тренировки. Заминка — отдельным сообщением по кнопке: его закрывают «Завершить»,
+ * а итог с «Поделиться» остаётся в чате.
  */
 export function finishedMessage(result: CompleteResult): MessengerMessage {
   // Автозакрытие приходит на следующий день — заминка и кардио уже не к месту, только уведомление
   if (result.auto) return countedMessage(result);
-  const cooldown = cooldownMessage(result.cooldown);
   const cardio = cardioText(result);
   const parts = [
+    '🏁 Тренировка закончена!',
     summaryText(result),
     ...(cardio ? [cardio] : []),
-    cooldown.text,
   ];
   return msg(parts.join('\n\n'), [
-    ...(cooldown.buttons ?? []),
-    // Без растяжек кнопки «Завершить» нет — иначе итог было бы нечем закрыть
-    ...(cooldown.buttons ? [] : [[btn('✅ Завершить', 'cd:done')]]),
-    [appBtn(APP_SCREEN.cooldown(result.workoutId), '🧘 Заминка в приложении')],
+    [btn('🧘 Заминка', `cd:show:${result.workoutId}`)],
+    [btn('📤 Поделиться', `wo:share:${result.workoutId}`)],
+    [BACK_TO_MENU],
   ]);
+}
+
+export interface ShareCardView {
+  authorName: string;
+  complexName: string;
+  totals: WorkoutTotals;
+  currentStreak: number;
+  /** Ссылка на страницу результата; нет — бот в мессенджере не подключён, карточка без кнопки. */
+  url?: string;
+}
+
+const kg = (value: number): string => `${value.toLocaleString('ru-RU')} кг`;
+
+/** Карточка результата для пересылки: читается без бота, кнопка ведёт на страницу результата. */
+export function shareCardMessage(view: ShareCardView): MessengerMessage {
+  const { totals } = view;
+  const lines = [
+    `💪 ${view.authorName} — тренировка «${view.complexName}» закончена!`,
+    '',
+    `⏱ ${totals.minutes} мин`,
+    `🏋️ Упражнений: ${totals.exercisesDone} из ${totals.exercisesTotal}`,
+    ...(totals.sets ? [`🔁 Подходов: ${totals.sets}`] : []),
+    ...(totals.tonnage ? [`📦 Поднято: ${kg(totals.tonnage)}`] : []),
+    `🔥 Серия: ${view.currentStreak}`,
+  ];
+  return msg(
+    lines.join('\n'),
+    view.url ? [[linkBtn('📊 Смотреть результат', view.url)]] : undefined,
+  );
 }
 
 /**
@@ -250,9 +289,4 @@ export function cooldownMessage(
     ),
     ...(finished ? [[btn('✅ Завершить', 'cd:done')]] : []),
   ]);
-}
-
-/** Итог после «Завершить» под заминкой: показывается пару секунд, затем сменяется меню. */
-export function cooldownDoneMessage(): MessengerMessage {
-  return msg('🧘 Заминка сделана ✅ Отличная работа, до следующей тренировки!');
 }

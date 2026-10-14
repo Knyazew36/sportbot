@@ -17,18 +17,29 @@ const SPAN = /\u0001([^\u0001\u0002]*)\u0002/g;
 const LINK_OPEN = '\u0003';
 const LINK_SEP = '\u0004';
 const LINK_CLOSE = '\u0005';
+
+const STRIKE_OPEN = '\u0006';
+const STRIKE_CLOSE = '\u0007';
 // eslint-disable-next-line no-control-regex
-const ALL_MARKERS = /[\u0001-\u0005]/g;
+const STRIKE = /\u0006([^\u0006\u0007]*)\u0007/g;
+
 // eslint-disable-next-line no-control-regex
-const LINK = /\u0003([^\u0001-\u0005]*)\u0004([^\u0001-\u0005]*)\u0005/g;
+const ALL_MARKERS = /[\u0001-\u0007]/g;
+// eslint-disable-next-line no-control-regex
+const LINK = /\u0003([^\u0001-\u0007]*)\u0004([^\u0001-\u0007]*)\u0005/g;
 const ANY_SPAN =
   // eslint-disable-next-line no-control-regex
-  /\u0001([^\u0001\u0002]*)\u0002|\u0003([^\u0001-\u0005]*)\u0004([^\u0001-\u0005]*)\u0005/g;
+  /\u0001([^\u0001\u0002]*)\u0002|\u0003([^\u0001-\u0007]*)\u0004([^\u0001-\u0007]*)\u0005|\u0006([^\u0006\u0007]*)\u0007/g;
 
 /** Пометить фрагмент курсивом. Вкладывать курсив в курсив нельзя. */
 export function italic(text: string): string {
   // Маркеры внутри фрагмента (например, из пользовательского ввода) сломали бы пары
   return `${ITALIC_OPEN}${plainText(text)}${ITALIC_CLOSE}`;
+}
+
+/** Пометить фрагмент зачёркнутым. Вкладывать в курсив и ссылку нельзя. */
+export function strike(text: string): string {
+  return `${STRIKE_OPEN}${plainText(text)}${STRIKE_CLOSE}`;
 }
 
 /**
@@ -59,6 +70,7 @@ export function plainText(text: string): string {
 
 export type TextSpan =
   | { type: 'italic'; offset: number; length: number }
+  | { type: 'strikethrough'; offset: number; length: number }
   | { type: 'text_link'; offset: number; length: number; url: string };
 
 /**
@@ -71,18 +83,17 @@ export function textSpans(text: string): { text: string; spans: TextSpan[] } {
   let cursor = 0;
   for (const match of text.matchAll(ANY_SPAN)) {
     plain += plainText(text.slice(cursor, match.index));
-    const [, italicText, label, url] = match;
-    const content = italicText ?? label;
-    if (content.length)
+    const [, italicText, label, url, strikeText] = match;
+    const content = italicText ?? label ?? strikeText;
+    const offset = plain.length;
+    const length = content.length;
+    if (length)
       spans.push(
-        italicText === undefined
-          ? {
-              type: 'text_link',
-              offset: plain.length,
-              length: content.length,
-              url,
-            }
-          : { type: 'italic', offset: plain.length, length: content.length },
+        italicText !== undefined
+          ? { type: 'italic', offset, length }
+          : strikeText !== undefined
+            ? { type: 'strikethrough', offset, length }
+            : { type: 'text_link', offset, length, url },
       );
     plain += content;
     cursor = match.index + match[0].length;
@@ -99,10 +110,15 @@ const escapeHtml = (value: string): string =>
  * без режима разметки.
  */
 export function toHtml(text: string): { text: string; html: boolean } {
-  if (!text.includes(ITALIC_OPEN) && !text.includes(LINK_OPEN))
+  if (
+    !text.includes(ITALIC_OPEN) &&
+    !text.includes(LINK_OPEN) &&
+    !text.includes(STRIKE_OPEN)
+  )
     return { text: plainText(text), html: false };
   const html = escapeHtml(text)
     .replace(SPAN, '<i>$1</i>')
+    .replace(STRIKE, '<s>$1</s>')
     .replace(LINK, '<a href="$2">$1</a>');
   return { text: plainText(html), html: true };
 }

@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowRightIcon, CheckIcon } from 'lucide-react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
-import { useSearchParams } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 
 import { useState } from 'react'
 
@@ -16,6 +16,7 @@ import {
   useMuscles,
   useSimilar,
 } from '@/entities/catalog'
+import { type ReplaceLocationState, replacePath } from '@/entities/workout'
 import { getFieldErrors } from '@/shared/api'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { applyFieldErrors } from '@/shared/lib/form'
@@ -46,7 +47,16 @@ const STEPS = ['Название', 'Мышцы', 'Подробности']
 const BACK = `${ROUTES.LIBRARY}?tab=mine`
 
 // «Возможно, ты искал…»: похожие записи справочника, чтобы не плодить дубли (business-tz, 5.5)
-const Similar = ({ kind, name }: { kind: CatalogKind; name: string }) => {
+// onPick — мастер открыт из замены: похожее из справочника сразу ставим на замену, а не открываем карточку
+const Similar = ({
+  kind,
+  name,
+  onPick,
+}: {
+  kind: CatalogKind
+  name: string
+  onPick?: (entry: { id: number; name: string }) => void
+}) => {
   const similar = useSimilar(kind, useDebouncedValue(name.trim(), 400))
   if (!similar.data?.length) return null
   return (
@@ -61,10 +71,13 @@ const Similar = ({ kind, name }: { kind: CatalogKind; name: string }) => {
             name={m.name}
             imageUrl={null}
             meta={kind === 'exercise' ? 'упражнение справочника' : 'растяжка справочника'}
+            onClick={onPick && (() => onPick({ id: m.id, name: m.name }))}
             to={
-              kind === 'exercise'
-                ? buildPath(ROUTES.EXERCISE, { exerciseId: m.id })
-                : buildPath(ROUTES.STRETCH, { stretchId: m.id })
+              onPick
+                ? undefined
+                : kind === 'exercise'
+                  ? buildPath(ROUTES.EXERCISE, { exerciseId: m.id })
+                  : buildPath(ROUTES.STRETCH, { stretchId: m.id })
             }
           />
         ))}
@@ -79,7 +92,19 @@ const Similar = ({ kind, name }: { kind: CatalogKind; name: string }) => {
   )
 }
 
-const Wizard = ({ kind, onDone }: { kind: CatalogKind; onDone: (name: string) => void }) => {
+type CreatedEntry = { id: number | null; name: string }
+
+const Wizard = ({
+  kind,
+  back,
+  onDone,
+  onPickSimilar,
+}: {
+  kind: CatalogKind
+  back: string
+  onDone: (entry: CreatedEntry) => void
+  onPickSimilar?: (entry: { id: number; name: string }) => void
+}) => {
   const [step, setStep] = useState(0)
   const muscles = useMuscles()
   const create = useCreateDraft()
@@ -109,7 +134,7 @@ const Wizard = ({ kind, onDone }: { kind: CatalogKind; onDone: (name: string) =>
         holdSeconds: kind === 'stretch' ? values.holdSeconds : undefined,
         perSide: kind === 'stretch' ? values.perSide : undefined,
       })
-      .then(() => onDone(values.name))
+      .then(entry => onDone({ id: entry.entryId, name: values.name }))
       .catch(error => {
         applyFieldErrors(error, setError)
         // Ошибка поля с прошлого шага — возвращаем туда, где её видно
@@ -125,7 +150,7 @@ const Wizard = ({ kind, onDone }: { kind: CatalogKind; onDone: (name: string) =>
       header={
         <>
           <TopBar
-            back={BACK}
+            back={back}
             title={`Добавить ${noun}`}
             subtitle={`шаг ${step + 1} из ${STEPS.length} · ${STEPS[step]?.toLowerCase()}`}
           />
@@ -197,6 +222,7 @@ const Wizard = ({ kind, onDone }: { kind: CatalogKind; onDone: (name: string) =>
             <Similar
               kind={kind}
               name={name}
+              onPick={onPickSimilar}
             />
           </>
         )}
@@ -309,9 +335,25 @@ const Wizard = ({ kind, onDone }: { kind: CatalogKind; onDone: (name: string) =>
 // Мастер своей записи справочника (frontend-tz, 11.4): при исчерпанном лимите не открывается
 const NewEntryPage = () => {
   const [params] = useSearchParams()
-  const kind: CatalogKind = params.get('kind') === 'stretch' ? 'stretch' : 'exercise'
+  const navigate = useNavigate()
+  // Открыт из замены упражнения в тренировке: созданное сразу уходит на выбор замены
+  const replaceItemId = Number(params.get('replace')) || null
+  const kind: CatalogKind = !replaceItemId && params.get('kind') === 'stretch' ? 'stretch' : 'exercise'
+  const back = replaceItemId ? replacePath(replaceItemId) : BACK
   const limit = useDraftLimit()
   const [created, setCreated] = useState<string | null>(null)
+
+  const toReplace = replaceItemId
+    ? (entry: { id: number; name: string }) => {
+        const state: ReplaceLocationState = { created: entry }
+        void navigate(replacePath(replaceItemId), { replace: true, state })
+      }
+    : undefined
+
+  const done = (entry: CreatedEntry) => {
+    if (toReplace && entry.id != null) toReplace({ id: entry.id, name: entry.name })
+    else setCreated(entry.name)
+  }
 
   if (created) {
     return (
@@ -361,7 +403,7 @@ const NewEntryPage = () => {
       <Screen
         header={
           <TopBar
-            back={BACK}
+            back={back}
             title={kind === 'exercise' ? 'Своё упражнение' : 'Своя растяжка'}
           />
         }
@@ -373,11 +415,11 @@ const NewEntryPage = () => {
           description={`Можно отправить ${limit.data.limit} заявок в сутки. Завтра можно снова.`}
           action={
             <ButtonLink
-              to={BACK}
+              to={back}
               variant='outline'
               size='sm'
             >
-              К моим записям
+              {replaceItemId ? 'К замене' : 'К моим записям'}
             </ButtonLink>
           }
         />
@@ -393,7 +435,9 @@ const NewEntryPage = () => {
       {() => (
         <Wizard
           kind={kind}
-          onDone={setCreated}
+          back={back}
+          onDone={done}
+          onPickSimilar={toReplace}
         />
       )}
     </QueryScreen>

@@ -36,6 +36,7 @@ export const ROUTES = {
   WORKOUT_REPLACE: '/workout/replace/:itemId',
   WORKOUT_SUMMARY: '/workout/:workoutId/summary',
   COOLDOWN: '/workout/:workoutId/cooldown',
+  WORKOUT_RESULT: '/result/:token',
   PROGRAM: '/programs/:programId',
   PROGRAM_TEMPLATES: '/programs/templates',
   PROGRAM_TEMPLATE: '/programs/templates/:templateId',

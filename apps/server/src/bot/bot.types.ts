@@ -37,6 +37,23 @@ export function botStartLink(
     : `https://max.ru/${name}?start=${payload}`;
 }
 
+/**
+ * Ссылка на мини-приложение бота сразу на экран startParam; undefined — бот в мессенджере не подключён.
+ * Для пересылаемых сообщений: кнопка open_app в чужом чате не работает, обычная ссылка — да.
+ */
+export function botAppLink(
+  channel: BotChannelKey,
+  startParam: string,
+): string | undefined {
+  const name = (
+    channel === 'TELEGRAM' ? process.env.TG_BOT_NAME : process.env.MAX_BOT_NAME
+  )?.trim();
+  if (!name) return undefined;
+  return channel === 'TELEGRAM'
+    ? `https://t.me/${name}?startapp=${startParam}`
+    : `https://max.ru/${name}?startapp=${startParam}`;
+}
+
 /** Файл, присланный боту (импорт справочника от администратора). */
 export interface BotDocument {
   fileName: string;
@@ -115,6 +132,7 @@ export const APP_SCREEN = {
   mine: 'mine',
   request: (requestId: number) => `md_${requestId}`,
   complaint: (complaintId: number) => `cp_${complaintId}`,
+  result: (shareToken: string) => `ws_${shareToken}`,
 } as const;
 
 /** Кнопка мини-приложения, сразу на нужный экран. Кнопки бота при этом остаются: всё можно и в чате. */

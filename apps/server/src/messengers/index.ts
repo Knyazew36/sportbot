@@ -8,6 +8,7 @@ export {
   link,
   plainText,
   separateItalic,
+  strike,
   textSpans,
   toHtml,
 } from './messenger-format';

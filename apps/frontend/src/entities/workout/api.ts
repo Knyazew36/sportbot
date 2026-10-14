@@ -6,6 +6,7 @@ import type {
   CooldownResponseDto,
   CreateWorkoutSetDto,
   ReplaceWorkoutItemDto,
+  SharedWorkoutResponseDto,
   UpdateWorkoutSetDto,
   WorkoutAnalogResponseDto,
   WorkoutResponseDto,
@@ -22,6 +23,8 @@ import {
   workoutControllerFinish,
   workoutControllerMarkDone,
   workoutControllerReplace,
+  workoutControllerShare,
+  workoutControllerShared,
   workoutControllerStart,
   workoutControllerSummary,
   workoutControllerUpdateSet,
@@ -33,6 +36,7 @@ export type WorkoutSet = WorkoutItem['sets'][number]
 export type WorkoutAnalog = WorkoutAnalogResponseDto
 export type WorkoutSummary = WorkoutSummaryResponseDto
 export type Cooldown = CooldownResponseDto
+export type SharedWorkout = SharedWorkoutResponseDto
 export type CooldownStretch = Cooldown['main'][number]
 
 export const workoutKeys = {
@@ -41,6 +45,7 @@ export const workoutKeys = {
   detail: (id: number) => ['workout', 'detail', id] as const,
   summary: (id: number) => ['workout', 'summary', id] as const,
   cooldown: (id: number) => ['workout', 'cooldown', id] as const,
+  shared: (token: string) => ['workout', 'shared', token] as const,
 }
 
 /** Незавершённая тренировка: начатая в боте видна и тут (frontend-tz, 4.1) */
@@ -171,4 +176,18 @@ export const useCooldown = (workoutId: number) =>
     queryKey: workoutKeys.cooldown(workoutId),
     queryFn: () => workoutControllerCooldown(workoutId),
     staleTime: Infinity,
+  })
+
+/** «Поделиться»: бот присылает в чат карточку результата, её пересылают друзьям */
+export const useShareWorkout = () =>
+  useMutation({
+    mutationFn: (id: number) => workoutControllerShare(id),
+    meta: { successMessage: 'Карточка в чате с ботом — перешли её друзьям' },
+  })
+
+/** Результат по ссылке из карточки: свой или чужой */
+export const useSharedWorkout = (token: string) =>
+  useQuery({
+    queryKey: workoutKeys.shared(token),
+    queryFn: () => workoutControllerShared(token),
   })

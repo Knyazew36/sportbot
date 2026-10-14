@@ -2,6 +2,7 @@ import { ArrowRightIcon, CheckIcon, MinusIcon } from 'lucide-react'
 import { useParams } from 'react-router'
 
 import { lastText, useWorkout, useWorkoutSummary, type WorkoutSummary } from '@/entities/workout'
+import { ShareWorkoutButton } from '@/features/share-workout/ShareWorkoutButton'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { pluralize } from '@/shared/lib/format'
 import { MedalArt } from '@/shared/ui/kit/Art'
@@ -163,6 +164,12 @@ const SummaryView = ({ summary }: { summary: WorkoutSummary }) => (
           Кардио после комплекса: {summary.cardioName}
           {summary.cardioMinutes ? `, ${summary.cardioMinutes} мин` : ''}
         </Text>
+      )}
+      {summary.status !== 'IN_PROGRESS' && (
+        <ShareWorkoutButton
+          workoutId={summary.workoutId}
+          className='mt-4 w-full'
+        />
       )}
     </Rise>
 

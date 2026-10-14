@@ -929,6 +929,9 @@ model Workout {
   startedAt  DateTime  @default(now())
   finishedAt DateTime?
 
+  /// Токен ссылки «Поделиться» на страницу результата; появляется при первом шаринге.
+  shareToken String? @unique
+
   exercises WorkoutExercise[]
   stretches WorkoutStretch[]
   planDay   PlanDay?

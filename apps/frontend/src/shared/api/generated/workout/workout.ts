@@ -19,6 +19,8 @@ import type {
   WorkoutControllerFinish200,
   WorkoutControllerMarkDone200,
   WorkoutControllerReplace200,
+  WorkoutControllerShare200,
+  WorkoutControllerShared200,
   WorkoutControllerStart200,
   WorkoutControllerSummary200,
   WorkoutControllerUpdateSet200
@@ -149,6 +151,28 @@ export const workoutControllerReplace = (
       );
     }
   /**
+ * @summary Поделиться: бот присылает в чат карточку результата для пересылки
+ */
+export const workoutControllerShare = (
+    id: number,
+ ) => {
+      return customInstance<WorkoutControllerShare200>(
+      {url: `/workout/share/${id}`, method: 'POST'
+    },
+      );
+    }
+  /**
+ * @summary Результат тренировки по ссылке «Поделиться»
+ */
+export const workoutControllerShared = (
+    token: string,
+ ) => {
+      return customInstance<WorkoutControllerShared200>(
+      {url: `/workout/shared/${token}`, method: 'GET'
+    },
+      );
+    }
+  /**
  * @summary Итог тренировки
  */
 export const workoutControllerSummary = (
@@ -191,6 +215,8 @@ export type WorkoutControllerDeleteSetResult = NonNullable<Awaited<ReturnType<ty
 export type WorkoutControllerMarkDoneResult = NonNullable<Awaited<ReturnType<typeof workoutControllerMarkDone>>>
 export type WorkoutControllerAnalogsResult = NonNullable<Awaited<ReturnType<typeof workoutControllerAnalogs>>>
 export type WorkoutControllerReplaceResult = NonNullable<Awaited<ReturnType<typeof workoutControllerReplace>>>
+export type WorkoutControllerShareResult = NonNullable<Awaited<ReturnType<typeof workoutControllerShare>>>
+export type WorkoutControllerSharedResult = NonNullable<Awaited<ReturnType<typeof workoutControllerShared>>>
 export type WorkoutControllerSummaryResult = NonNullable<Awaited<ReturnType<typeof workoutControllerSummary>>>
 export type WorkoutControllerCooldownResult = NonNullable<Awaited<ReturnType<typeof workoutControllerCooldown>>>
 export type WorkoutControllerFindResult = NonNullable<Awaited<ReturnType<typeof workoutControllerFind>>>

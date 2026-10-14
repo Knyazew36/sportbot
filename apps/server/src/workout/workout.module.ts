@@ -8,6 +8,7 @@ import { UploadModule } from '@/upload/upload.module';
 import { CooldownService } from './cooldown.service';
 import { WorkoutAppService } from './workout-app.service';
 import { WorkoutFlow } from './workout-flow.service';
+import { WorkoutShareService } from './workout-share.service';
 import { WorkoutBot } from './workout.bot';
 import { WorkoutController } from './workout.controller';
 import { WorkoutService } from './workout.service';
@@ -20,6 +21,7 @@ import { WorkoutService } from './workout.service';
     WorkoutAppService,
     CooldownService,
     WorkoutFlow,
+    WorkoutShareService,
     WorkoutBot,
   ],
   exports: [WorkoutService, WorkoutFlow],

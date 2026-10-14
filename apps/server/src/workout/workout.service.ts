@@ -65,6 +65,33 @@ export const isDone = (item: WorkoutExerciseFull): boolean =>
 export const canComplete = (workout: WorkoutFull): boolean =>
   workout.mode !== 'DETAILED' || workout.exercises.some(isDone);
 
+export interface WorkoutTotals {
+  minutes: number;
+  exercisesDone: number;
+  exercisesTotal: number;
+  sets: number;
+  /** Поднято за тренировку, кг (вес × повторы). */
+  tonnage: number;
+}
+
+/** Цифры итога: общие для экрана итога, карточки «Поделиться» и страницы результата. */
+export function workoutTotals(workout: WorkoutFull): WorkoutTotals {
+  const sets = workout.exercises.flatMap((e) => e.sets);
+  const end = workout.finishedAt ?? new Date();
+  return {
+    minutes: Math.max(
+      1,
+      Math.round((end.getTime() - workout.startedAt.getTime()) / 60_000),
+    ),
+    exercisesDone: workout.exercises.filter(isDone).length,
+    exercisesTotal: workout.exercises.length,
+    sets: sets.length,
+    tonnage: Math.round(
+      sets.reduce((sum, s) => sum + Number(s.weight) * s.reps, 0),
+    ),
+  };
+}
+
 /** Границы ввода подхода — как в боте: вес 0..999 кг (0 — без веса), повторы 1..999. */
 const isValidSet = (weight: number, reps: number): boolean =>
   Number.isFinite(weight) &&
@@ -199,7 +226,7 @@ export class WorkoutService {
     const reps = match?.[2] ? Number(match[2]) : first;
     if (!match || !isValidSet(weight, reps))
       throw new BadRequestException(
-        'Не понял. Напиши вес и повторы, например «22 10» или «22.5х10»; без веса — только повторы: «12».',
+        'Не понял. Напиши вес и повторы, например:\n60 10\nДробный вес — через точку: 22.5 10\nБез веса — только повторы: 10',
       );
     return this.addSetValues(userId, itemId, weight, reps);
   }

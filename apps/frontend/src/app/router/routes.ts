@@ -70,6 +70,7 @@ export const miniappRoutes: AppRoute[] = [
   { path: ROUTES.WORKOUT_REPLACE, lazy: () => import('@/pages/workout/ReplaceExercisePage') },
   { path: ROUTES.WORKOUT_SUMMARY, lazy: () => import('@/pages/workout/SummaryPage') },
   { path: ROUTES.COOLDOWN, lazy: () => import('@/pages/cooldown/CooldownPage') },
+  { path: ROUTES.WORKOUT_RESULT, lazy: () => import('@/pages/workout-result/WorkoutResultPage') },
 ]
 
 // ── Превью дизайна: внутри оболочки PreviewLayout (/preview/*) ─────────────
