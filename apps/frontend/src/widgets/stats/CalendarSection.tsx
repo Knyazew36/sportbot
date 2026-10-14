@@ -1,10 +1,13 @@
 import { addMonths, format, getDaysInMonth, parseISO } from 'date-fns'
+import { PencilIcon } from 'lucide-react'
 
 import { useState } from 'react'
 
 import { useFixDay } from '@/entities/day'
 import { type StatsDay, useCalendar, useStatsDay } from '@/entities/stats'
+import { buildPath, ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
+import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
@@ -38,14 +41,26 @@ const DayDetails = ({ day, canFix }: { day: StatsDay; canFix: boolean }) => {
       </div>
       {day.workouts.map(w => (
         <div key={w.id}>
-          <Text
-            size='sm'
-            tone='muted'
-            className='mb-2'
-          >
-            {w.complexName}
-            {w.unplanned && ' · внеплановая'}
-          </Text>
+          <div className='mb-2 flex items-center justify-between gap-3'>
+            <Text
+              size='sm'
+              tone='muted'
+            >
+              {w.complexName}
+              {w.unplanned && ' · внеплановая'}
+            </Text>
+            {/* Подходы правит только хозяин; в простом режиме их нет */}
+            {canFix && !w.simple && (
+              <ButtonLink
+                to={buildPath(ROUTES.WORKOUT_EDIT, { workoutId: w.id })}
+                variant='outline'
+                size='xs'
+              >
+                <PencilIcon />
+                Исправить
+              </ButtonLink>
+            )}
+          </div>
           <List>
             {w.exercises.map(e => (
               <ListRow

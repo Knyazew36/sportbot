@@ -15,6 +15,8 @@ import type {
   StatsControllerDayParams,
   StatsControllerMuscleLoad200,
   StatsControllerMuscleLoadParams,
+  StatsControllerMuscleProgress200,
+  StatsControllerMuscleProgressParams,
   StatsControllerProgress200,
   StatsControllerProgressExercises200,
   StatsControllerProgressExercisesParams,
@@ -101,6 +103,19 @@ export const statsControllerMuscleLoad = (
       );
     }
   /**
+ * @summary Прогресс весов по мышце: упражнения, где она основная
+ */
+export const statsControllerMuscleProgress = (
+    id: number,
+    params?: StatsControllerMuscleProgressParams,
+ ) => {
+      return customInstance<StatsControllerMuscleProgress200>(
+      {url: `/stats/muscle/${id}`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
  * @summary Календарь месяца с отметками дней
  */
 export const statsControllerCalendar = (
@@ -130,5 +145,6 @@ export type StatsControllerProgressExercisesResult = NonNullable<Awaited<ReturnT
 export type StatsControllerProgressResult = NonNullable<Awaited<ReturnType<typeof statsControllerProgress>>>
 export type StatsControllerBodyWeightResult = NonNullable<Awaited<ReturnType<typeof statsControllerBodyWeight>>>
 export type StatsControllerMuscleLoadResult = NonNullable<Awaited<ReturnType<typeof statsControllerMuscleLoad>>>
+export type StatsControllerMuscleProgressResult = NonNullable<Awaited<ReturnType<typeof statsControllerMuscleProgress>>>
 export type StatsControllerCalendarResult = NonNullable<Awaited<ReturnType<typeof statsControllerCalendar>>>
 export type StatsControllerDayResult = NonNullable<Awaited<ReturnType<typeof statsControllerDay>>>

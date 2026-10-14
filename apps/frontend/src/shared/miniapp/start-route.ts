@@ -18,6 +18,7 @@ const BY_TOKEN: Record<string, (token: string) => string> = {
 
 const PLAIN: Record<string, string> = {
   today: ROUTES.TODAY,
+  stats: ROUTES.STATS,
   mine: `${ROUTES.LIBRARY}?tab=mine`,
 }
 

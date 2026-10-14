@@ -80,7 +80,7 @@ const EditSetForm = ({ set, onClose }: { set: WorkoutSet; onClose: () => void })
   )
 }
 
-// Исправить или удалить сохранённый подход — пока тренировка не завершена (frontend-tz, 8.2)
+// Исправить или удалить сохранённый подход — в идущей тренировке и в прошедшей из статистики (frontend-tz, 8.2)
 export const EditSetSheet = ({ set, onClose }: { set: WorkoutSet | null; onClose: () => void }) => (
   <Sheet
     open={set != null}

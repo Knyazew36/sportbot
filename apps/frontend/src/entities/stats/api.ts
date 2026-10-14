@@ -3,7 +3,9 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import type {
   CalendarMark,
   StatsDayResponseDto,
+  StatsMuscleExerciseResponseDto,
   StatsMuscleLoadResponseDto,
+  StatsMuscleProgressResponseDto,
   StatsPointResponseDto,
   StatsSummaryResponseDto,
 } from '@/shared/api/generated/model'
@@ -13,6 +15,7 @@ import {
   statsControllerCalendar,
   statsControllerDay,
   statsControllerMuscleLoad,
+  statsControllerMuscleProgress,
   statsControllerProgress,
   statsControllerProgressExercises,
   statsControllerSummary,
@@ -21,6 +24,8 @@ import {
 export type StatsSummary = StatsSummaryResponseDto
 export type StatsPoint = StatsPointResponseDto
 export type StatsMuscleLoad = StatsMuscleLoadResponseDto
+export type StatsMuscleProgress = StatsMuscleProgressResponseDto
+export type StatsMuscleExercise = StatsMuscleExerciseResponseDto
 export type StatsDay = StatsDayResponseDto
 export type StatsMark = CalendarMark
 
@@ -33,6 +38,7 @@ export const statsKeys = {
   progress: (exerciseId: number, userId?: number) => ['stats', 'progress', exerciseId, userId ?? null] as const,
   bodyWeight: (days: number) => ['stats', 'body-weight', days] as const,
   muscleLoad: (weeksAgo: number, userId?: number) => ['stats', 'muscle-load', weeksAgo, userId ?? null] as const,
+  muscle: (muscleId: number, userId?: number) => ['stats', 'muscle', muscleId, userId ?? null] as const,
   calendar: (month: string, userId?: number) => ['stats', 'calendar', month, userId ?? null] as const,
   day: (date: string, userId?: number) => ['stats', 'day', date, userId ?? null] as const,
 }
@@ -83,6 +89,13 @@ export const useMuscleLoad = (weeksAgo: number, userId?: number) =>
     queryKey: statsKeys.muscleLoad(weeksAgo, userId),
     queryFn: () => statsControllerMuscleLoad({ weeksAgo, ...withUser(userId) }),
     placeholderData: keepPreviousData,
+  })
+
+/** Прогресс весов по мышце: упражнения, где она основная, у каждого — график лучшего веса */
+export const useMuscleProgress = (muscleId: number, userId?: number) =>
+  useQuery({
+    queryKey: statsKeys.muscle(muscleId, userId),
+    queryFn: () => statsControllerMuscleProgress(muscleId, withUser(userId)),
   })
 
 /** Отметки дней месяца; month — «2026-10» */

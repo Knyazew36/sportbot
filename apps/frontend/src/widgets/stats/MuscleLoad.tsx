@@ -1,13 +1,27 @@
+import { ChevronRightIcon } from 'lucide-react'
 import { motion } from 'motion/react'
+import { Link } from 'react-router'
+
+import type { ReactNode } from 'react'
+
+import { cn } from '@/shared/lib/utils'
 
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
 
-export type MuscleLoadItem = { name: string; sets: number; forgotten?: boolean }
+export type MuscleLoadItem = { muscleId?: number; name: string; sets: number; forgotten?: boolean }
+
+type MuscleLoadProps = {
+  items: MuscleLoadItem[]
+  title?: string
+  /** Куда ведёт мышца: прогресс весов по ней. Без него строки не нажимаются (превью) */
+  linkTo?: (item: MuscleLoadItem) => string
+}
 
 // Нагрузка по мышцам за неделю: полосы в подходах, забытые группы заштрихованы
-export const MuscleLoad = ({ items, title = 'Нагрузка по мышцам' }: { items: MuscleLoadItem[]; title?: string }) => {
+export const MuscleLoad = ({ items, title = 'Нагрузка по мышцам', linkTo }: MuscleLoadProps) => {
   const max = Math.max(...items.map(m => m.sets), 1)
+  const rowClass = cn('grid items-center gap-3', linkTo ? 'grid-cols-[84px_1fr_44px_16px]' : 'grid-cols-[84px_1fr_44px]')
   return (
     <ScreenSection
       title={title}
@@ -15,9 +29,10 @@ export const MuscleLoad = ({ items, title = 'Нагрузка по мышцам'
     >
       <ul className='flex flex-col gap-2'>
         {items.map((m, i) => (
-          <li
+          <MuscleRow
             key={m.name}
-            className='grid grid-cols-[84px_1fr_44px] items-center gap-3'
+            to={linkTo?.(m)}
+            className={rowClass}
             title={`${m.name}: ${m.sets} подх.`}
           >
             <Text
@@ -54,9 +69,28 @@ export const MuscleLoad = ({ items, title = 'Нагрузка по мышцам'
             >
               {m.sets.toString().replace('.', ',')}
             </Poster>
-          </li>
+            {linkTo && <ChevronRightIcon className='text-foreground/40 size-4' />}
+          </MuscleRow>
         ))}
       </ul>
     </ScreenSection>
   )
 }
+
+type MuscleRowProps = { to?: string; className: string; title: string; children: ReactNode }
+
+// Строка мышцы: со ссылкой — вся строка нажимается и ведёт на прогресс весов
+const MuscleRow = ({ to, className, title, children }: MuscleRowProps) => (
+  <li title={title}>
+    {to ? (
+      <Link
+        to={to}
+        className={cn(className, '-mx-1 px-1 py-0.5 active:bg-foreground/5')}
+      >
+        {children}
+      </Link>
+    ) : (
+      <div className={className}>{children}</div>
+    )}
+  </li>
+)

@@ -61,7 +61,14 @@ export const useCurrentWorkout = () =>
 const useApplyWorkout = () => {
   const queryClient = useQueryClient()
   return (workout: Workout) => {
-    queryClient.setQueryData(workoutKeys.current, { workout })
+    if (workout.status === 'IN_PROGRESS') {
+      queryClient.setQueryData(workoutKeys.current, { workout })
+    } else {
+      // Правка прошедшей тренировки из статистики: идущая не тронута, зато меняются графики, мышцы и итог
+      queryClient.setQueryData(workoutKeys.detail(workout.id), workout)
+      void queryClient.invalidateQueries({ queryKey: workoutKeys.summary(workout.id) })
+      void queryClient.invalidateQueries({ queryKey: statsKeys.all })
+    }
     void queryClient.invalidateQueries({ queryKey: dayKeys.all })
   }
 }

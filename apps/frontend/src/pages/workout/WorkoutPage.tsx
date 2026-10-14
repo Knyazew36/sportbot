@@ -24,11 +24,11 @@ import { Screen } from '@/shared/ui/kit/Screen'
 import { TopBar } from '@/shared/ui/kit/ScreenHeader'
 import { ScreenState } from '@/shared/ui/kit/ScreenState'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
+import { EditSetSheet } from '@/widgets/workout/EditSetSheet'
+import { SetList } from '@/widgets/workout/SetList'
 
-import { EditSetSheet } from './components/EditSetSheet'
 import { ExerciseCard } from './components/ExerciseCard'
 import { SetInputPanel } from './components/SetInputPanel'
-import { SetList } from './components/SetList'
 import { WorkoutLanes } from './components/WorkoutLanes'
 
 const minutesSince = (iso: string | Date) => Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 60_000))

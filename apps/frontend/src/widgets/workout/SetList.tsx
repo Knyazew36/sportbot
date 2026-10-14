@@ -5,10 +5,15 @@ import { Rise } from '@/shared/ui/kit/Reveal'
 import { Eyebrow, Poster, Text, Unit } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
-type SetListProps = { item: WorkoutItem; onEdit: (set: WorkoutSet) => void }
+type SetListProps = {
+  item: WorkoutItem
+  onEdit: (set: WorkoutSet) => void
+  /** Идущая тренировка: строка «вводим внизу» под панель ввода. В прошедшей подход добавляется формой под списком */
+  live?: boolean
+}
 
-// Сохранённые подходы упражнения; новый вводится в панели внизу. Подходов может быть больше или меньше плана
-export const SetList = ({ item, onEdit }: SetListProps) => (
+// Сохранённые подходы упражнения. Подходов может быть больше или меньше плана
+export const SetList = ({ item, onEdit, live = true }: SetListProps) => (
   <Rise>
     <div className='border-border grid grid-cols-[32px_1fr_1fr_40px] border-b-[1.5px] pb-2'>
       <Eyebrow tone='faint'>№</Eyebrow>
@@ -54,22 +59,24 @@ export const SetList = ({ item, onEdit }: SetListProps) => (
           </li>
         ))}
         {/* Следующий подход — тот, что сейчас вводится в панели внизу */}
-        <li className='border-primary bg-accent -mx-2 grid grid-cols-[32px_1fr] items-center border-b-[1.5px] px-2 py-3'>
-          <Poster
-            as='span'
-            size='sm'
-            tone='primary'
-          >
-            {item.sets.length + 1}
-          </Poster>
-          <Text
-            as='span'
-            size='sm'
-            tone='primary'
-          >
-            вводим внизу ↓
-          </Text>
-        </li>
+        {live && (
+          <li className='border-primary bg-accent -mx-2 grid grid-cols-[32px_1fr] items-center border-b-[1.5px] px-2 py-3'>
+            <Poster
+              as='span'
+              size='sm'
+              tone='primary'
+            >
+              {item.sets.length + 1}
+            </Poster>
+            <Text
+              as='span'
+              size='sm'
+              tone='primary'
+            >
+              вводим внизу ↓
+            </Text>
+          </li>
+        )}
       </ol>
     ) : (
       <Text
@@ -77,7 +84,7 @@ export const SetList = ({ item, onEdit }: SetListProps) => (
         tone='muted'
         className='py-4'
       >
-        Подходов ещё нет — первый вводится внизу.
+        {live ? 'Подходов ещё нет — первый вводится внизу.' : 'Подходов не записано.'}
       </Text>
     )}
   </Rise>

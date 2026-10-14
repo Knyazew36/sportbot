@@ -57,6 +57,7 @@ export const miniappRoutes: AppRoute[] = [
   { path: ROUTES.EXERCISE, lazy: () => import('@/pages/library/ExercisePage') },
   { path: ROUTES.STRETCH, lazy: () => import('@/pages/library/StretchPage') },
   { path: ROUTES.STATS, lazy: () => import('@/pages/stats/StatsPage') },
+  { path: ROUTES.STATS_MUSCLE, lazy: () => import('@/pages/stats-muscle/MuscleProgressPage') },
   { path: ROUTES.ME, lazy: () => import('@/pages/me/MePage') },
   { path: ROUTES.FRIEND, lazy: () => import('@/pages/friend/FriendPage') },
   { path: ROUTES.ADMIN, lazy: () => import('@/pages/admin/AdminPage') },
@@ -69,6 +70,7 @@ export const miniappRoutes: AppRoute[] = [
   { path: ROUTES.WORKOUT, lazy: () => import('@/pages/workout/WorkoutPage') },
   { path: ROUTES.WORKOUT_REPLACE, lazy: () => import('@/pages/workout/ReplaceExercisePage') },
   { path: ROUTES.WORKOUT_SUMMARY, lazy: () => import('@/pages/workout/SummaryPage') },
+  { path: ROUTES.WORKOUT_EDIT, lazy: () => import('@/pages/workout-edit/WorkoutEditPage') },
   { path: ROUTES.COOLDOWN, lazy: () => import('@/pages/cooldown/CooldownPage') },
   { path: ROUTES.WORKOUT_RESULT, lazy: () => import('@/pages/workout-result/WorkoutResultPage') },
 ]
