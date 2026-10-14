@@ -228,10 +228,17 @@ export class WorkoutService {
       throw new BadRequestException(
         'Не понял. Напиши вес и повторы, например:\n60 10\nДробный вес — через точку: 22.5 10\nБез веса — только повторы: 10',
       );
-    return this.addSetValues(userId, itemId, weight, reps);
+    const item = await this.findItem(userId, itemId);
+    // В чате подход пишется только в идущую тренировку: прошедшие правятся в приложении
+    if (item.workout.status !== 'IN_PROGRESS')
+      throw new BadRequestException('Тренировка уже закрыта.');
+    return this.createSet(item, weight, reps);
   }
 
-  /** Подход из приложения: вес отдельно от повторов, 0 — без веса. */
+  /**
+   * Подход из приложения: вес отдельно от повторов, 0 — без веса. Можно и в прошедшую
+   * тренировку — исправление из статистики.
+   */
   public async addSetValues(
     userId: number,
     itemId: number,
@@ -241,23 +248,14 @@ export class WorkoutService {
     if (!isValidSet(weight, reps))
       throw new BadRequestException('Вес до 999 кг, повторы от 1 до 999.');
     const item = await this.findItem(userId, itemId);
-    if (item.workout.status !== 'IN_PROGRESS')
-      throw new BadRequestException('Тренировка уже закрыта.');
-    await this.prisma.workoutSet.create({
-      data: {
-        workoutExerciseId: itemId,
-        number: (item.sets.at(-1)?.number ?? 0) + 1,
-        weight,
-        reps,
-      },
-    });
-    this.logger.debug(
-      `Подход записан: workoutExerciseId=${itemId}, userId=${userId}`,
-    );
-    return item.workoutId;
+    if (item.workout.mode === 'SIMPLE')
+      throw new BadRequestException(
+        'В простом режиме подходы не записываются.',
+      );
+    return this.createSet(item, weight, reps);
   }
 
-  /** Исправить сохранённый подход, пока тренировка не завершена (frontend-tz, 8.2). */
+  /** Исправить сохранённый подход — в идущей или прошедшей тренировке (frontend-tz, 8.2). */
   public async updateSet(
     userId: number,
     setId: number,
@@ -266,7 +264,7 @@ export class WorkoutService {
   ): Promise<number> {
     if (!isValidSet(weight, reps))
       throw new BadRequestException('Вес до 999 кг, повторы от 1 до 999.');
-    const set = await this.openSet(userId, setId);
+    const set = await this.ownedSet(userId, setId);
     await this.prisma.workoutSet.update({
       where: { id: setId },
       data: { weight, reps },
@@ -275,9 +273,9 @@ export class WorkoutService {
     return set.workoutExercise.workoutId;
   }
 
-  /** Удалить любой подход незавершённой тренировки; номера оставшихся сдвигаются. */
+  /** Удалить любой подход, в том числе прошедшей тренировки; номера оставшихся сдвигаются. */
   public async deleteSet(userId: number, setId: number): Promise<number> {
-    const set = await this.openSet(userId, setId);
+    const set = await this.ownedSet(userId, setId);
     await this.prisma.$transaction([
       this.prisma.workoutSet.delete({ where: { id: setId } }),
       this.prisma.workoutSet.updateMany({
@@ -559,16 +557,51 @@ export class WorkoutService {
 
   // ── Внутреннее ──────────────────────────────────────────────────────────
 
-  /** Подход пользователя в незавершённой тренировке — его ещё можно править. */
-  private async openSet(userId: number, setId: number) {
+  /** Подход пользователя. Статус не проверяем: прошедшие тренировки правятся из статистики. */
+  private async ownedSet(userId: number, setId: number) {
     const set = await this.prisma.workoutSet.findFirst({
       where: { id: setId, workoutExercise: { workout: { userId } } },
       include: { workoutExercise: { include: { workout: true } } },
     });
     if (!set) throw new NotFoundException('Подход не найден.');
-    if (set.workoutExercise.workout.status !== 'IN_PROGRESS')
-      throw new BadRequestException('Тренировка уже закрыта.');
     return set;
+  }
+
+  /** Новый подход в конец упражнения. */
+  private async createSet(
+    item: Awaited<ReturnType<WorkoutService['findItem']>>,
+    weight: number,
+    reps: number,
+  ): Promise<number> {
+    const closed = item.workout.status !== 'IN_PROGRESS';
+    await this.prisma.$transaction([
+      this.prisma.workoutSet.create({
+        data: {
+          workoutExerciseId: item.id,
+          number: (item.sets.at(-1)?.number ?? 0) + 1,
+          weight,
+          reps,
+        },
+      }),
+      // В прошедшей тренировке «сделано» уже не нажать, а нагрузка по мышцам считает только сделанные
+      ...(closed && !item.done
+        ? [
+            this.prisma.workoutExercise.update({
+              where: { id: item.id },
+              data: { done: true },
+            }),
+          ]
+        : []),
+    ]);
+    if (closed)
+      this.logger.log(
+        `Подход добавлен в прошедшую тренировку: workoutId=${item.workoutId}, workoutExerciseId=${item.id}, userId=${item.workout.userId}`,
+      );
+    else
+      this.logger.debug(
+        `Подход записан: workoutExerciseId=${item.id}, userId=${item.workout.userId}`,
+      );
+    return item.workoutId;
   }
 
   private async create(

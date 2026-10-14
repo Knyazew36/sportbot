@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import { PrismaService } from 'prisma/prisma.service';
@@ -214,6 +214,71 @@ export class StatsService {
         weight: Math.max(...item.sets.map((s) => Number(s.weight))),
       }))
       .reverse();
+  }
+
+  /**
+   * Прогресс по мышце: упражнения, где она основная, с точками «тренировка → лучший вес».
+   * Вспомогательная роль не берётся — иначе у трицепса окажется весь жим. До 30 точек на упражнение.
+   */
+  public async muscleProgress(
+    userId: number,
+    muscleId: number,
+  ): Promise<{
+    name: string;
+    exercises: {
+      id: number;
+      name: string;
+      points: { date: Date; weight: number }[];
+    }[];
+  }> {
+    const [muscle, items] = await Promise.all([
+      this.prisma.muscle.findUnique({
+        where: { id: muscleId },
+        select: { name: true },
+      }),
+      this.prisma.workoutExercise.findMany({
+        where: {
+          sets: { some: {} },
+          workout: { userId, status: { in: [...DONE_STATUSES] } },
+          exercise: { muscles: { some: { muscleId, role: 'PRIMARY' } } },
+        },
+        orderBy: [{ workout: { date: 'asc' } }, { id: 'asc' }],
+        select: {
+          exerciseId: true,
+          exercise: { select: { name: true } },
+          workout: { select: { date: true } },
+          sets: { select: { weight: true } },
+        },
+      }),
+    ]);
+    if (!muscle) throw new NotFoundException('Мышца не найдена.');
+    const byExercise = new Map<
+      number,
+      { id: number; name: string; points: { date: Date; weight: number }[] }
+    >();
+    for (const item of items) {
+      const entry = byExercise.get(item.exerciseId) ?? {
+        id: item.exerciseId,
+        name: item.exercise.name,
+        points: [],
+      };
+      entry.points.push({
+        date: item.workout.date,
+        weight: Math.max(...item.sets.map((s) => Number(s.weight))),
+      });
+      byExercise.set(item.exerciseId, entry);
+    }
+    const exercises = [...byExercise.values()]
+      .map((e) => ({ ...e, points: e.points.slice(-CHART_POINTS) }))
+      .sort(
+        (a, b) =>
+          b.points.length - a.points.length ||
+          a.name.localeCompare(b.name, 'ru'),
+      );
+    this.logger.debug(
+      `Прогресс по мышце: userId=${userId}, muscleId=${muscleId}, упражнений=${exercises.length}`,
+    );
+    return { name: muscle.name, exercises };
   }
 
   /** Упражнения, по которым есть хотя бы две точки прогресса. */

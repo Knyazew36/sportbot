@@ -15,6 +15,7 @@ import { StatsAttendanceWeekResponseDto } from './dto/stats-attendance-week.resp
 import { StatsDayResponseDto } from './dto/stats-day.response.dto';
 import { StatsExerciseResponseDto } from './dto/stats-exercise.response.dto';
 import { StatsMuscleLoadResponseDto } from './dto/stats-muscle-load.response.dto';
+import { StatsMuscleProgressResponseDto } from './dto/stats-muscle-progress.response.dto';
 import { StatsPointResponseDto } from './dto/stats-point.response.dto';
 import { StatsSummaryResponseDto } from './dto/stats-summary.response.dto';
 import { StatsService } from './stats.service';
@@ -98,6 +99,37 @@ export class StatsAppService {
     const profile = await this.target(viewerId, targetId);
     const points = await this.stats.progressPoints(profile.userId, exerciseId);
     return points.map((p) => ({ date: isoDate(p.date), value: p.weight }));
+  }
+
+  /** Прогресс весов по мышце: по каждому упражнению — график и «было → стало». */
+  public async muscleProgress(
+    viewerId: number,
+    targetId: number | undefined,
+    muscleId: number,
+  ): Promise<StatsMuscleProgressResponseDto> {
+    const profile = await this.target(viewerId, targetId);
+    const { name, exercises } = await this.stats.muscleProgress(
+      profile.userId,
+      muscleId,
+    );
+    return {
+      id: muscleId,
+      name,
+      exercises: exercises.map((e) => {
+        const weights = e.points.map((p) => p.weight);
+        return {
+          id: e.id,
+          name: e.name,
+          first: weights[0],
+          last: weights.at(-1)!,
+          best: Math.max(...weights),
+          points: e.points.map((p) => ({
+            date: isoDate(p.date),
+            value: p.weight,
+          })),
+        };
+      }),
+    };
   }
 
   /** Вес тела — только свой: друзьям он не виден. */

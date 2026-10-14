@@ -126,6 +126,7 @@ export const btn = (text: string, payload: string): MessengerButton => ({
  */
 export const APP_SCREEN = {
   today: 'today',
+  stats: 'stats',
   cooldown: (workoutId: number) => `cd_${workoutId}`,
   friend: (userId: number) => `fr_${userId}`,
   program: (programId: number) => `pr_${programId}`,

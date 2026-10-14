@@ -2,17 +2,25 @@ import { Injectable } from '@nestjs/common';
 import * as fs from 'fs';
 
 import {
+  APP_SCREEN,
+  appBtn,
   BACK_TO_MENU,
   BotContext,
   BotFeature,
   BotHandler,
   btn,
   cut,
+  hint,
   msg,
 } from '@/bot';
 import { MessengerMessage } from '@/messengers';
 
 import { StatsService } from './stats.service';
+
+// Подробности и правка прошедших тренировок есть только в приложении — в чате их не повторяем
+const APP_HINT = hint(
+  '📱 Подробнее — в приложении: прогресс весов по каждой мышце и исправление прошедших тренировок.',
+);
 
 /** Статистика: посещаемость, серия, нагрузка по мышцам, график прогресса весов. */
 @Injectable()
@@ -83,8 +91,9 @@ export class StatsBot implements BotFeature {
     const lines = await this.stats.summaryLines(ctx.profile, {
       withMonth: true,
     });
-    return msg(['📊 Статистика', '', ...lines].join('\n'), [
+    return msg(['📊 Статистика', '', ...lines, '', APP_HINT].join('\n'), [
       [btn('📈 Прогресс весов', 'ss:prog')],
+      [appBtn(APP_SCREEN.stats, '📱 Открыть статистику')],
       [BACK_TO_MENU],
     ]);
   }

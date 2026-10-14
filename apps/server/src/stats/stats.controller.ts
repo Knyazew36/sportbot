@@ -15,6 +15,7 @@ import { StatsDayResponseDto } from './dto/stats-day.response.dto';
 import { StatsExerciseResponseDto } from './dto/stats-exercise.response.dto';
 import { StatsMuscleLoadQueryDto } from './dto/stats-muscle-load-query.dto';
 import { StatsMuscleLoadResponseDto } from './dto/stats-muscle-load.response.dto';
+import { StatsMuscleProgressResponseDto } from './dto/stats-muscle-progress.response.dto';
 import { StatsPointResponseDto } from './dto/stats-point.response.dto';
 import { StatsSummaryResponseDto } from './dto/stats-summary.response.dto';
 import { StatsUserQueryDto } from './dto/stats-user-query.dto';
@@ -123,6 +124,22 @@ export class StatsController {
       query.userId,
       query.weeksAgo,
     );
+  }
+
+  @Get('muscle/:id')
+  @Swagger({
+    title: 'Прогресс весов по мышце: упражнения, где она основная',
+    param: { name: 'id', type: Number, description: 'Мышца' },
+    query: StatsUserQueryDto,
+    response: StatsMuscleProgressResponseDto,
+    bearerAuth: true,
+  })
+  public muscleProgress(
+    @CurrentUser('id') userId: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Query() query: StatsUserQueryDto,
+  ) {
+    return this.statsAppService.muscleProgress(userId, query.userId, id);
   }
 
   @Get('calendar')
