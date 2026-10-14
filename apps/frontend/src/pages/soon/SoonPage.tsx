@@ -10,7 +10,7 @@ import { ScreenState } from '@/shared/ui/kit/ScreenState'
 const SoonPage = () => (
   <Screen
     header={<ScreenHeader title='Спортбот' />}
-    className='px-5'
+    className='px-gutter'
   >
     <ScreenState
       state='empty'

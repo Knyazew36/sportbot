@@ -71,7 +71,7 @@ const UiKitScreen = () => {
       }
       className='gap-12'
     >
-      <Rise className='px-5'>
+      <Rise className='px-gutter'>
         <Lead>из чего собран</Lead>
         <Poster
           as='h1'
@@ -268,7 +268,7 @@ const UiKitScreen = () => {
 
       <ScreenSection title='10 · Шапки'>
         <Sample path='kit/ScreenHeader · ScreenHeader'>
-          <div className='border-border -mx-5 border-y-[1.5px]'>
+          <div className='border-border -mx-gutter border-y-[1.5px]'>
             <ScreenHeader
               title='Вторник · 13 октября'
               aside='день 47'
@@ -276,7 +276,7 @@ const UiKitScreen = () => {
           </div>
         </Sample>
         <Sample path='kit/ScreenHeader · TopBar'>
-          <div className='border-border relative -mx-5 border-y-[1.5px]'>
+          <div className='border-border relative -mx-gutter border-y-[1.5px]'>
             <TopBar
               back={ROUTES.PREVIEW_TODAY}
               title='Грудь и трицепс'
@@ -347,7 +347,7 @@ const UiKitScreen = () => {
           </List>
         </Sample>
         <Sample path='kit/Ticket'>
-          <div className='no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5'>
+          <div className='no-scrollbar -mx-gutter flex gap-2 overflow-x-auto px-gutter'>
             <Ticket
               mark='A'
               title='Грудь и трицепс'
@@ -530,7 +530,7 @@ const UiKitScreen = () => {
                 <SheetTitle>Шторка</SheetTitle>
                 <SheetDescription>Снизу у большого пальца: списки, выбор, короткие формы.</SheetDescription>
               </SheetHeader>
-              <div className='px-5 pb-6'>
+              <div className='px-gutter pb-6'>
                 <Button
                   className='w-full'
                   onClick={() => setSheetOpen(false)}

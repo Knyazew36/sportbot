@@ -29,7 +29,7 @@ export const ComplaintsTab = () => {
             .map(c => (
               <Rise
                 key={c.id}
-                className='border-foreground/80 mx-5 flex flex-col gap-3 border-[1.5px] p-4'
+                className='border-foreground/80 mx-gutter flex flex-col gap-3 border-[1.5px] p-4'
               >
                 <div className='flex flex-wrap items-center gap-1.5'>
                   <Badge variant='secondary'>{c.kind === 'exercise' ? 'упражнение' : 'растяжка'}</Badge>
@@ -77,7 +77,7 @@ export const ComplaintsTab = () => {
             ))
         }
       </QueryScreen>
-      <div className='px-5'>
+      <div className='px-gutter'>
         <LoadMore query={complaints} />
       </div>
     </div>

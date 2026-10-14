@@ -67,7 +67,7 @@ const AddExerciseScreen = () => {
             title='Добавить упражнение'
             subtitle={complex ? `в «${complex.title}»` : undefined}
           />
-          <div className='px-5 pt-3 pb-3'>
+          <div className='px-gutter pt-3 pb-3'>
             <CatalogFilters
               query={query}
               onQueryChange={setQuery}
@@ -91,7 +91,7 @@ const AddExerciseScreen = () => {
           </Button>
         </StickyFooter>
       }
-      className='px-5 pt-4'
+      className='px-gutter pt-4'
     >
       <Rise>
         {found.length === 0 ? (

@@ -63,7 +63,7 @@ function SheetContent({
             render={
               <Button
                 variant="outline"
-                className="absolute top-4 right-4"
+                className="absolute top-4 right-gutter"
                 size="icon-sm"
               />
             }
@@ -82,7 +82,7 @@ function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="sheet-header"
-      className={cn("flex flex-col gap-1.5 px-5 pt-5 pb-3 pr-16", className)}
+      className={cn("flex flex-col gap-1.5 px-gutter pt-5 pb-3 pr-16", className)}
       {...props}
     />
   )
@@ -92,7 +92,7 @@ function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="sheet-footer"
-      className={cn("mt-auto flex flex-col gap-3 px-5 pt-3 pb-5", className)}
+      className={cn("mt-auto flex flex-col gap-3 px-gutter pt-3 pb-5", className)}
       {...props}
     />
   )

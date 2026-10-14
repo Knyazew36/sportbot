@@ -20,7 +20,7 @@ export const ComplaintsTab = () => {
 
   if (open.length === 0) {
     return (
-      <Rise className='px-5'>
+      <Rise className='px-gutter'>
         <ScreenState
           state='empty'
           title='Жалоб нет'
@@ -37,7 +37,7 @@ export const ComplaintsTab = () => {
         return (
           <Rise
             key={c.id}
-            className='border-foreground/80 mx-5 flex flex-col gap-3 border-[1.5px] p-4'
+            className='border-foreground/80 mx-gutter flex flex-col gap-3 border-[1.5px] p-4'
           >
             <div className='flex flex-wrap items-center gap-1.5'>
               <Badge variant='secondary'>{c.kind === 'exercise' ? 'упражнение' : 'растяжка'}</Badge>

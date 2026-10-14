@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ArrowRightIcon } from 'lucide-react'
-import { motion } from 'motion/react'
+import { ArrowRightIcon, CheckIcon } from 'lucide-react'
+import { AnimatePresence, motion } from 'motion/react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import {
@@ -35,6 +36,13 @@ type SetInputPanelProps = {
 // Ввод подхода прибит к таймеру внизу, у большого пальца (frontend-tz, 8.2 и 15)
 export const SetInputPanel = ({ item, settings, timer, onSubmitStart }: SetInputPanelProps) => {
   const add = useAddSet()
+  // Короткая галочка на кнопке: подход записан, поля уже пустые под следующий
+  const [saved, setSaved] = useState(false)
+  useEffect(() => {
+    if (!saved) return
+    const id = setTimeout(() => setSaved(false), 1200)
+    return () => clearTimeout(id)
+  }, [saved])
   const number = item.sets.length + 1
   const hint = lastSetHint(item.last, number)
   const {
@@ -56,6 +64,7 @@ export const SetInputPanel = ({ item, settings, timer, onSubmitStart }: SetInput
       .mutateAsync({ itemId: item.id, ...values })
       .then(() => {
         reset({ weight: '', reps: '' })
+        setSaved(true)
         if (settings.showRestTimer && settings.restAutoStart) timer.start(settings.restSeconds)
       })
       .catch(error => applyFieldErrors(error, setError))
@@ -71,7 +80,7 @@ export const SetInputPanel = ({ item, settings, timer, onSubmitStart }: SetInput
       <form
         onSubmit={submit}
         className={cn(
-          'border-primary relative border-t-2 bg-[color-mix(in_oklab,var(--sb-blue)_9%,var(--sb-paper))] px-5 pt-2.5',
+          'border-primary relative border-t-2 bg-[color-mix(in_oklab,var(--sb-blue)_9%,var(--sb-paper))] px-gutter pt-2.5',
           settings.showRestTimer ? 'pb-3' : 'pb-[max(0.75rem,env(safe-area-inset-bottom))]',
         )}
       >
@@ -100,14 +109,48 @@ export const SetInputPanel = ({ item, settings, timer, onSubmitStart }: SetInput
           />
           <Button
             type='submit'
-            className='h-auto gap-1.5 px-3.5'
+            className={cn(
+              'h-auto min-w-[6.5rem] gap-1.5 overflow-hidden px-3.5 transition-colors duration-300',
+              saved && 'bg-success hover:bg-success text-black',
+            )}
             disabled={add.isPending}
           >
-            Далее
-            <ArrowRightIcon
-              className='size-5'
-              strokeWidth={3}
-            />
+            <AnimatePresence
+              mode='popLayout'
+              initial={false}
+            >
+              {saved ? (
+                <motion.span
+                  key='saved'
+                  initial={{ scale: 0.4, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.4, opacity: 0 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 22 }}
+                  className='flex items-center'
+                  aria-label='Подход записан'
+                >
+                  <CheckIcon
+                    className='size-6'
+                    strokeWidth={3.5}
+                  />
+                </motion.span>
+              ) : (
+                <motion.span
+                  key='next'
+                  initial={{ y: 12, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -12, opacity: 0 }}
+                  transition={{ duration: 0.18 }}
+                  className='flex items-center gap-1.5'
+                >
+                  Далее
+                  <ArrowRightIcon
+                    className='size-5'
+                    strokeWidth={3}
+                  />
+                </motion.span>
+              )}
+            </AnimatePresence>
           </Button>
         </div>
         <ErrorText

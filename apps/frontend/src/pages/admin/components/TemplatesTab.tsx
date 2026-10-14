@@ -33,7 +33,7 @@ const NewTemplateForm = () => {
 
   return (
     <form
-      className='flex flex-col gap-3 px-5 pb-6'
+      className='flex flex-col gap-3 px-gutter pb-6'
       onSubmit={handleSubmit(values =>
         create
           .mutateAsync({ name: values.name, description: values.description || undefined })
@@ -65,7 +65,7 @@ export const TemplatesTab = () => {
   const [open, setOpen] = useState(false)
 
   return (
-    <Rise className='flex flex-col gap-3 px-5'>
+    <Rise className='flex flex-col gap-3 px-gutter'>
       <div className='flex items-center justify-between gap-3'>
         <Eyebrow>шаблонов: {templates.data?.length ?? '—'}</Eyebrow>
         <Button

@@ -30,7 +30,7 @@ export const StickyFooter = ({ children, className }: StickyFooterProps) => {
   return (
     <div
       className={cn(
-        'bg-background border-border sticky z-20 border-t-[1.5px] px-5 pt-3',
+        'bg-background border-border sticky z-20 border-t-[1.5px] px-gutter pt-3',
         navVisible ? 'bottom-(--sb-nav-h) pb-3' : 'bottom-0 pb-[max(0.75rem,env(safe-area-inset-bottom))]',
         className,
       )}

@@ -60,7 +60,7 @@ const WorkoutView = ({ workout }: { workout: Workout }) => {
             title={workout.complexName}
           />
         }
-        className='px-5'
+        className='px-gutter'
       >
         <ScreenState
           state='empty'
@@ -145,7 +145,7 @@ const WorkoutView = ({ workout }: { workout: Workout }) => {
             />
           </>
         }
-        className='gap-6 px-5'
+        className='gap-6 px-gutter'
       >
         <ExerciseCard
           item={item}
@@ -206,7 +206,7 @@ const StartWorkout = ({ complexId }: { complexId?: number }) => {
             title='Тренировка'
           />
         }
-        className='px-5'
+        className='px-gutter'
       >
         <ScreenState
           state='error'

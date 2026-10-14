@@ -17,7 +17,7 @@ export const InProgressDay = ({ day }: { day: DayToday }) => {
 
   return (
     <>
-      <Rise className='px-5'>
+      <Rise className='px-gutter'>
         <Eyebrow
           as='p'
           tone='primary'
@@ -47,7 +47,7 @@ export const InProgressDay = ({ day }: { day: DayToday }) => {
         week={day.week}
       />
       {/* Отмена — как «Отменить» в боте: тренировка удаляется, очередь комплексов не сдвигается */}
-      <Rise className='px-5'>
+      <Rise className='px-gutter'>
         <ConfirmAction
           trigger={
             <Button

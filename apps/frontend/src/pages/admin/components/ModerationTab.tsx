@@ -14,7 +14,7 @@ export const ModerationTab = () => {
   const queue = useModerationQueue()
 
   return (
-    <Rise className='flex flex-col gap-3 px-5'>
+    <Rise className='flex flex-col gap-3 px-gutter'>
       <QueryScreen
         query={queue}
         className=''

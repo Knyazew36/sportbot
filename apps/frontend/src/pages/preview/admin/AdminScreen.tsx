@@ -39,7 +39,7 @@ const AdminScreen = () => {
             title='Админ'
             aside='только администратору'
           />
-          <div className='no-scrollbar overflow-x-auto px-5 pt-4 pb-1'>
+          <div className='no-scrollbar overflow-x-auto px-gutter pt-4 pb-1'>
             <Segmented
               options={TABS}
               value={tab}

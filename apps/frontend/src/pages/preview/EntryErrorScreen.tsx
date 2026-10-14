@@ -25,7 +25,7 @@ const EntryErrorScreen = () => {
         onRetry={() => undefined}
       />
       {/* Переключатель только для превью */}
-      <Rise className='no-scrollbar flex items-center gap-2 overflow-x-auto px-5 pb-4'>
+      <Rise className='no-scrollbar flex items-center gap-2 overflow-x-auto px-gutter pb-4'>
         <Eyebrow className='shrink-0'>превью:</Eyebrow>
         <Segmented
           options={REASONS}

@@ -14,7 +14,7 @@ type WorkoutLanesProps = {
 // Упражнения как беговые дорожки: сделано залито, текущее в синем контуре. Порядок не обязателен (frontend-tz, 8.1)
 export const WorkoutLanes = ({ items, currentId, onPick }: WorkoutLanesProps) => (
   <ol
-    className='grid gap-1.5 px-5 pt-4'
+    className='grid gap-1.5 px-gutter pt-4'
     style={{ gridTemplateColumns: `repeat(${Math.min(items.length, 8)}, minmax(0, 1fr))` }}
   >
     {items.map((item, i) => {

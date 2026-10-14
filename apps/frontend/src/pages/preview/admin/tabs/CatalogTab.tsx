@@ -61,7 +61,7 @@ export const CatalogTab = () => {
 
   return (
     <>
-      <Rise className='flex flex-col gap-3 px-5'>
+      <Rise className='flex flex-col gap-3 px-gutter'>
         <Segmented
           options={KINDS}
           value={kind}
@@ -74,7 +74,7 @@ export const CatalogTab = () => {
           onValueChange={setQuery}
           placeholder='Название записи'
         />
-        <div className='no-scrollbar -mx-5 overflow-x-auto px-5 pb-1'>
+        <div className='no-scrollbar -mx-gutter overflow-x-auto px-gutter pb-1'>
           <Segmented
             options={GAPS}
             value={gap}
@@ -83,7 +83,7 @@ export const CatalogTab = () => {
         </div>
       </Rise>
 
-      <Rise className='flex flex-col gap-3 px-5'>
+      <Rise className='flex flex-col gap-3 px-gutter'>
         <div className='flex items-center justify-between gap-3'>
           <Eyebrow>найдено: {found.length}</Eyebrow>
           <ButtonLink

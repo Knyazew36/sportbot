@@ -30,7 +30,7 @@ export const ActiveProgram = ({ programId }: { programId: number }) => {
         const sets = p.complexes.reduce((sum, c) => sum + c.exercises.reduce((s, e) => s + e.sets, 0), 0)
         return (
           <>
-            <Rise className='px-5'>
+            <Rise className='px-gutter'>
               <Eyebrow as='p'>Активная программа</Eyebrow>
               <Poster
                 as='h1'
@@ -55,7 +55,7 @@ export const ActiveProgram = ({ programId }: { programId: number }) => {
                 aside='следующий подсвечен'
                 bleed
               >
-                <ol className='no-scrollbar flex gap-2 overflow-x-auto px-5'>
+                <ol className='no-scrollbar flex gap-2 overflow-x-auto px-gutter'>
                   {p.complexes.map((c, i) => (
                     <li key={c.id}>
                       <Ticket
@@ -71,7 +71,7 @@ export const ActiveProgram = ({ programId }: { programId: number }) => {
                 </ol>
               </ScreenSection>
             )}
-            <Rise className='flex flex-col gap-4 px-5'>
+            <Rise className='flex flex-col gap-4 px-gutter'>
               <StatGrid
                 items={[
                   { label: 'комплексов', value: p.complexes.length },

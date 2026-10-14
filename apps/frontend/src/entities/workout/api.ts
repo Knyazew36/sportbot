@@ -75,7 +75,7 @@ export const useAddSet = () => {
   const apply = useApplyWorkout()
   return useMutation({
     mutationFn: (body: CreateWorkoutSetDto) => workoutControllerAddSet(body),
-    // Подход сразу появляется в списке, а запускается таймер отдыха — тост лишний
+    // Подход сразу появляется в списке, кнопка мигает галочкой, запускается таймер отдыха — тост лишний
     meta: { skipSuccessToast: true, inlineFieldErrors: true },
     onSuccess: apply,
   })

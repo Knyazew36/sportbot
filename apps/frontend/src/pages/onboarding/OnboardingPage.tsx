@@ -60,7 +60,7 @@ const Wizard = ({ state }: { state: OnboardingState }) => {
           <StepBar
             total={STEPS.length}
             current={step}
-            className='px-5 pt-3'
+            className='px-gutter pt-3'
           />
         </>
       }
@@ -97,7 +97,7 @@ const Wizard = ({ state }: { state: OnboardingState }) => {
           </Button>
         </StickyFooter>
       }
-      className='px-5'
+      className='px-gutter'
     >
       <Rise>
         <Lead>{current.lead}</Lead>

@@ -23,7 +23,7 @@ export const MissedDay = ({ day, suggestPause }: MissedDayProps) => {
 
   return (
     <>
-      <Rise className='px-5'>
+      <Rise className='px-gutter'>
         <Lead>сегодня —</Lead>
         <Poster
           as='h1'
@@ -36,7 +36,7 @@ export const MissedDay = ({ day, suggestPause }: MissedDayProps) => {
       </Rise>
 
       {dayId && (
-        <Rise className='px-5'>
+        <Rise className='px-gutter'>
           <ConfirmAction
             title='Тренировка всё-таки была?'
             description='Отмечу день тренировкой по комплексу дня, серия пересчитается.'
@@ -56,7 +56,7 @@ export const MissedDay = ({ day, suggestPause }: MissedDayProps) => {
       )}
 
       {day.rescheduleOffered && (
-        <Rise className='border-primary mx-5 flex flex-col gap-3 border-[1.5px] p-4'>
+        <Rise className='border-primary mx-gutter flex flex-col gap-3 border-[1.5px] p-4'>
           <Eyebrow tone='primary'>Перенос</Eyebrow>
           <Poster size='lg'>Напомнить завтра?</Poster>
           <Text
@@ -84,7 +84,7 @@ export const MissedDay = ({ day, suggestPause }: MissedDayProps) => {
       )}
 
       {suggestPause && (
-        <Rise className='hatch border-border mx-5 flex flex-col gap-3 border-[1.5px] p-4'>
+        <Rise className='hatch border-border mx-gutter flex flex-col gap-3 border-[1.5px] p-4'>
           <Poster size='lg'>Три пропуска подряд</Poster>
           <Text
             size='sm'

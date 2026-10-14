@@ -107,7 +107,7 @@ const RequestForm = ({ request }: { request: AdminRequest }) => {
 
   return (
     <>
-      <Rise className='px-5'>
+      <Rise className='px-gutter'>
         <Badge variant='secondary'>{request.kind === 'exercise' ? 'упражнение' : 'растяжка'}</Badge>
         <Poster
           as='h1'
@@ -186,7 +186,7 @@ const RequestForm = ({ request }: { request: AdminRequest }) => {
         onSubmit={submit}
       >
         <ScreenSection title='Исход'>
-          <div className='no-scrollbar -mx-5 overflow-x-auto px-5 pb-1'>
+          <div className='no-scrollbar -mx-gutter overflow-x-auto px-gutter pb-1'>
             <Controller
               control={control}
               name='outcome'
@@ -225,7 +225,7 @@ const RequestForm = ({ request }: { request: AdminRequest }) => {
             {request.kind === 'exercise' && (
               <>
                 <ScreenSection title='Инвентарь'>
-                  <div className='no-scrollbar -mx-5 overflow-x-auto px-5 pb-1'>
+                  <div className='no-scrollbar -mx-gutter overflow-x-auto px-gutter pb-1'>
                     <Controller
                       control={control}
                       name='equipment'

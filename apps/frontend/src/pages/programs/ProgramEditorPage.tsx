@@ -1,18 +1,13 @@
 import { CheckIcon, Trash2Icon } from 'lucide-react'
-import { useNavigate, useParams, useSearchParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 
 import {
   type Program,
   useActivateProgram,
   useAddComplex,
-  useDeleteComplex,
-  useDeleteComplexExercise,
   useDeleteProgram,
   useProgram,
-  useRenameComplex,
   useReorderComplexes,
-  useReorderComplexExercises,
-  useUpdateComplexExercise,
 } from '@/entities/program'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { pluralize } from '@/shared/lib/format'
@@ -25,49 +20,34 @@ import { TopBar } from '@/shared/ui/kit/ScreenHeader'
 import { Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { arrangeBy } from '@/widgets/program-editor/arrange'
-import { type ComplexEditorActions, ProgramComplexList } from '@/widgets/program-editor/ProgramComplexList'
+import { type ComplexListActions, ProgramComplexList } from '@/widgets/program-editor/ProgramComplexList'
 
 import { ProgramNameForm } from './components/ProgramNameForm'
 
 // Каждая правка сразу уходит на сервер; пока перестановка сохраняется, показываем новый порядок, а не старый
-const useEditorActions = (programId: number) => {
+const useListActions = (programId: number) => {
   const addComplex = useAddComplex()
-  const renameComplex = useRenameComplex()
-  const deleteComplex = useDeleteComplex()
   const reorderComplexes = useReorderComplexes()
-  const updateExercise = useUpdateComplexExercise()
-  const deleteExercise = useDeleteComplexExercise()
-  const reorderExercises = useReorderComplexExercises()
 
-  const actions: ComplexEditorActions = {
+  const actions: ComplexListActions = {
     addComplex: name => addComplex.mutateAsync({ programId, name }),
     reorderComplexes: ids => reorderComplexes.mutate({ programId, ids }),
-    renameComplex: (id, name) => renameComplex.mutateAsync({ id, name }),
-    deleteComplex: id => deleteComplex.mutateAsync(id),
-    updateExercise: (id, plan) => updateExercise.mutateAsync({ id, ...plan }),
-    deleteExercise: id => deleteExercise.mutate(id),
-    reorderExercises: (complexId, ids) => reorderExercises.mutate({ complexId, ids }),
   }
 
   const arrange = (program: Program) =>
-    arrangeBy(program.complexes, reorderComplexes.isPending ? reorderComplexes.variables.ids : undefined).map(c =>
-      reorderExercises.isPending && reorderExercises.variables.complexId === c.id
-        ? { ...c, exercises: arrangeBy(c.exercises, reorderExercises.variables.ids) }
-        : c,
-    )
+    arrangeBy(program.complexes, reorderComplexes.isPending ? reorderComplexes.variables.ids : undefined)
 
   return { actions, arrange, adding: addComplex.isPending }
 }
 
-// Редактор программы (frontend-tz, 10.3): название, комплексы в порядке очереди, упражнения с планом
+// Редактор программы (frontend-tz, 10.3): название и комплексы в порядке очереди. Упражнения — на странице комплекса
 const ProgramEditorPage = () => {
   const programId = Number(useParams().programId)
-  const [search] = useSearchParams()
   const navigate = useNavigate()
   const program = useProgram(programId)
   const activate = useActivateProgram()
   const remove = useDeleteProgram()
-  const { actions, arrange, adding } = useEditorActions(programId)
+  const { actions, arrange, adding } = useListActions(programId)
 
   return (
     <Screen
@@ -94,7 +74,7 @@ const ProgramEditorPage = () => {
       <QueryScreen query={program}>
         {p => (
           <>
-            <Rise className='flex flex-col gap-3 px-5'>
+            <Rise className='flex flex-col gap-3 px-gutter'>
               <ProgramNameForm program={p} />
               {p.active ? (
                 <Text
@@ -120,16 +100,14 @@ const ProgramEditorPage = () => {
               )}
             </Rise>
 
-            {/* После подбора упражнений возвращаемся с раскрытым комплексом, куда добавляли */}
             <ProgramComplexList
               complexes={arrange(p)}
               actions={actions}
               adding={adding}
-              initialExpandedId={Number(search.get('open')) || null}
-              addExerciseTo={complexId => buildPath(ROUTES.PROGRAM_ADD_EXERCISE, { programId: p.id, complexId })}
+              complexTo={complexId => buildPath(ROUTES.PROGRAM_COMPLEX, { programId: p.id, complexId })}
             />
 
-            <Rise className='px-5'>
+            <Rise className='px-gutter'>
               <ConfirmAction
                 trigger={
                   <Button

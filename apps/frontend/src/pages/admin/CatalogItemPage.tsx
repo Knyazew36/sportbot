@@ -89,7 +89,7 @@ const CatalogItemPage = () => {
     >
       {form}
       {id != null && (
-        <Rise className='px-5'>
+        <Rise className='px-gutter'>
           <ConfirmAction
             trigger={
               <Button

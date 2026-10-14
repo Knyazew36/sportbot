@@ -20,7 +20,7 @@ type QueryScreenProps<T> = {
 }
 
 // Три состояния любого экрана данных (frontend-tz, раздел 15) в стиле Mini App: загрузка, пусто, ошибка с «Повторить»
-export const QueryScreen = <T,>({ query, isEmpty, empty, rows, className = 'mx-5', children }: QueryScreenProps<T>) => {
+export const QueryScreen = <T,>({ query, isEmpty, empty, rows, className = 'mx-gutter', children }: QueryScreenProps<T>) => {
   if (query.isPending) {
     return (
       <ScreenState

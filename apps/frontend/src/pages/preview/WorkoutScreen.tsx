@@ -45,7 +45,7 @@ const catalogIdOf = (name: string) =>
 
 // Как беговые дорожки: сделано залито, текущее в синем контуре. Порядок не обязателен — можно перейти к любому
 const Lanes = ({ done, current, onPick }: { done: number[]; current: number; onPick: (index: number) => void }) => (
-  <ol className='grid grid-cols-6 gap-1.5 px-5 pt-4'>
+  <ol className='grid grid-cols-6 gap-1.5 px-gutter pt-4'>
     {plan.map((e, i) => {
       const isDone = done.includes(i)
       const isCurrent = current === i
@@ -142,7 +142,7 @@ const EditSetSheet = ({ set, onClose }: { set: WorkoutSet | null; onClose: () =>
         <SheetTitle>Подход {set?.n}</SheetTitle>
         <SheetDescription>Исправь вес или повторы.</SheetDescription>
       </SheetHeader>
-      <div className='flex flex-col gap-3 px-5 pb-6'>
+      <div className='flex flex-col gap-3 px-gutter pb-6'>
         <div className='grid grid-cols-2 gap-2'>
           <BoxInput
             label='вес, кг'
@@ -180,7 +180,7 @@ const EditSetSheet = ({ set, onClose }: { set: WorkoutSet | null; onClose: () =>
 )
 
 const CurrentSet = ({ set }: { set: WorkoutSet }) => (
-  <div className='border-primary relative border-t-2 bg-[color-mix(in_oklab,var(--sb-blue)_9%,var(--sb-paper))] px-5 pt-2.5 pb-3'>
+  <div className='border-primary relative border-t-2 bg-[color-mix(in_oklab,var(--sb-blue)_9%,var(--sb-paper))] px-gutter pt-2.5 pb-3'>
     <div className='flex items-baseline justify-between'>
       <Eyebrow tone='primary'>Подход {set.n}</Eyebrow>
       <Eyebrow>прошлый раз {set.last}</Eyebrow>
@@ -214,7 +214,7 @@ const RestTimer = ({ total }: { total: number }) => {
 
   return (
     <>
-      <div className='flex items-center gap-4 px-5 pt-4'>
+      <div className='flex items-center gap-4 px-gutter pt-4'>
         <div className='relative shrink-0'>
           <Ring
             value={Math.max(left, 0) / total}
@@ -269,7 +269,7 @@ const RestTimer = ({ total }: { total: number }) => {
           )}
         </div>
       </div>
-      <div className='grid grid-cols-2 gap-3 px-5 pt-4'>
+      <div className='grid grid-cols-2 gap-3 px-gutter pt-4'>
         <Button
           variant='paper'
           onClick={() => setLeft(v => Math.max(v, 0) + 30)}
@@ -309,7 +309,7 @@ const RestPanel = () => {
           {started ? (
             <RestTimer total={Number(restSeconds)} />
           ) : (
-            <div className='px-5 pt-4'>
+            <div className='px-gutter pt-4'>
               <Button
                 variant='paper'
                 size='lg'
@@ -399,7 +399,7 @@ const WorkoutScreen = () => {
             />
           </>
         }
-        className='gap-6 px-5'
+        className='gap-6 px-gutter'
       >
         <Rise className='relative'>
           {/* Номер упражнения контуром — как номер на стартовом нагруднике */}

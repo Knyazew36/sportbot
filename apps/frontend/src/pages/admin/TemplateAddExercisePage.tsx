@@ -12,7 +12,7 @@ const TemplateAddExercisePage = () => {
   const navigate = useNavigate()
   const template = useAdminTemplate(templateId)
   const add = useAddTemplateExercises()
-  const back = `${buildPath(ROUTES.ADMIN_TEMPLATE, { templateId })}?open=${complexId}`
+  const back = buildPath(ROUTES.ADMIN_TEMPLATE_COMPLEX, { templateId, complexId })
 
   return (
     <ExercisePicker

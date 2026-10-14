@@ -28,7 +28,7 @@ const TemplatesPage = () => {
           subtitle={templates.data ? pluralize(templates.data.length, ['шаблон', 'шаблона', 'шаблонов']) : undefined}
         />
       }
-      className='gap-4 px-5'
+      className='gap-4 px-gutter'
     >
       <QueryScreen
         query={templates}

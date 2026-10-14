@@ -4,7 +4,7 @@ import { Eyebrow, Lead, Poster, Suffix } from '@/shared/ui/kit/Typography'
 
 // Серия и рекорд на чёрной плашке — главный мотиватор статистики
 export const StreakPanel = ({ current, record }: { current: number; record: number }) => (
-  <Rise className='px-5'>
+  <Rise className='px-gutter'>
     <InkPanel className='p-4'>
       <div className='flex items-end justify-between'>
         <div>
@@ -45,7 +45,7 @@ export const StreakPanel = ({ current, record }: { current: number; record: numb
 
 // Посещаемость: месяц крупно, неделя рядом
 export const Attendance = ({ month, week, weekNote }: { month: number; week: number; weekNote: string }) => (
-  <Rise className='px-5'>
+  <Rise className='px-gutter'>
     <Lead>посещаемость</Lead>
     <div className='mt-2 grid grid-cols-2 items-end'>
       <div>

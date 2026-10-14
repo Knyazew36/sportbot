@@ -80,7 +80,7 @@ const StretchPage = () => {
       <QueryScreen query={stretch}>
         {st => (
           <>
-            <Rise className='flex flex-col gap-4 px-5'>
+            <Rise className='flex flex-col gap-4 px-gutter'>
               <CatalogImage
                 src={toAssetUrl(st.imageUrl) ?? null}
                 alt={st.name}
@@ -103,7 +103,7 @@ const StretchPage = () => {
               )}
             </Rise>
 
-            <Rise className='px-5'>
+            <Rise className='px-gutter'>
               <StatGrid
                 items={[
                   { label: 'удержание, с', value: st.holdSeconds },

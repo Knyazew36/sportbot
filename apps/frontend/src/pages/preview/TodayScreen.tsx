@@ -36,7 +36,7 @@ const STATES: { key: DayState; label: string }[] = [
 const PermissionBanner = () => (
   <button
     type='button'
-    className='border-border hover:bg-accent flex w-full items-center gap-3 border-b-[1.5px] px-5 py-3 text-left transition-colors'
+    className='border-border hover:bg-accent flex w-full items-center gap-3 border-b-[1.5px] px-gutter py-3 text-left transition-colors'
   >
     <BellOffIcon
       className='text-primary size-4 shrink-0'
@@ -62,7 +62,7 @@ const WEEK_CELL: Record<(typeof today.week)[number]['state'], string> = {
 }
 
 const Streak = () => (
-  <Rise className='border-foreground/80 mx-5 border-[1.5px]'>
+  <Rise className='border-foreground/80 mx-gutter border-[1.5px]'>
     <div className='flex items-stretch'>
       <div className='border-foreground/80 flex w-[min(132px,34vw)] shrink-0 flex-col justify-between gap-2 border-r-[1.5px] p-3'>
         <Eyebrow>Серия</Eyebrow>
@@ -138,7 +138,7 @@ const OtherComplexSheet = ({
         <SheetTitle>Другой комплекс</SheetTitle>
         <SheetDescription>{activeProgram.title}. Очередь продолжится с выбранного.</SheetDescription>
       </SheetHeader>
-      <div className='flex flex-col gap-2 px-5 pb-6'>
+      <div className='flex flex-col gap-2 px-gutter pb-6'>
         {activeProgram.complexes.map(c => (
           <OptionButton
             key={c.id}
@@ -169,7 +169,7 @@ const TrainingDay = () => {
 
   return (
     <>
-      <Rise className='relative px-5'>
+      <Rise className='relative px-gutter'>
         <Eyebrow as='p'>
           Комплекс {complex.letter} · {activeProgram.title}
         </Eyebrow>
@@ -191,7 +191,7 @@ const TrainingDay = () => {
             {tail.join(' ')}
           </Poster>
         )}
-        <BarbellArt className='-mx-5 mt-2 w-[calc(100%+2.5rem)]' />
+        <BarbellArt className='-mx-gutter mt-2 w-[calc(100%+2*var(--spacing-gutter))]' />
         <StatGrid
           className='mt-1'
           items={[
@@ -209,7 +209,7 @@ const TrainingDay = () => {
         aside={byRotation ? 'следующий подсвечен' : 'выбран вручную'}
         bleed
       >
-        <ol className='no-scrollbar flex gap-2 overflow-x-auto px-5'>
+        <ol className='no-scrollbar flex gap-2 overflow-x-auto px-gutter'>
           {activeProgram.complexes.map(c => (
             <li key={c.id}>
               <Ticket
@@ -261,7 +261,7 @@ const TrainingDay = () => {
       </ScreenSection>
 
       {/* Подписи переносятся: на 320px две кнопки в строку не влезают в одну линию */}
-      <Rise className='grid grid-cols-2 gap-2 px-5'>
+      <Rise className='grid grid-cols-2 gap-2 px-gutter'>
         <Button
           variant='outline'
           size='sm'
@@ -294,7 +294,7 @@ const TrainingDay = () => {
 
 const RestDay = () => (
   <>
-    <Rise className='px-5'>
+    <Rise className='px-gutter'>
       <Lead>сегодня —</Lead>
       <Poster
         as='h1'
@@ -307,7 +307,7 @@ const RestDay = () => (
       <div className='sb-lanes mt-4 h-24 opacity-40' />
     </Rise>
     <Streak />
-    <Rise className='px-5'>
+    <Rise className='px-gutter'>
       <List>
         <ListRow
           title='Грудь и трицепс'
@@ -324,7 +324,7 @@ const RestDay = () => (
         />
       </List>
     </Rise>
-    <Rise className='px-5'>
+    <Rise className='px-gutter'>
       <ButtonLink
         to={ROUTES.PREVIEW_WORKOUT}
         variant='outline'
@@ -349,7 +349,7 @@ const DoneDay = () => (
         13
       </Poster>
     </Rise>
-    <Rise className='px-5 text-center'>
+    <Rise className='px-gutter text-center'>
       <Eyebrow
         as='p'
         tone='primary'
@@ -378,7 +378,7 @@ const DoneDay = () => (
 
 const PauseDay = () => (
   <>
-    <Rise className='px-5'>
+    <Rise className='px-gutter'>
       <Eyebrow as='p'>Бот молчит, серия сохранена</Eyebrow>
       <Poster
         as='h1'
@@ -397,8 +397,8 @@ const PauseDay = () => (
         до 20 октября
       </Lead>
     </Rise>
-    <Rise className='hatch border-border mx-5 h-28 border-[1.5px] opacity-60' />
-    <Rise className='px-5'>
+    <Rise className='hatch border-border mx-gutter h-28 border-[1.5px] opacity-60' />
+    <Rise className='px-gutter'>
       <Button className='w-full'>Снять паузу</Button>
     </Rise>
   </>
@@ -436,7 +436,7 @@ const TodayScreen = () => {
           />
           {state === 'training' && <PermissionBanner />}
           {/* Переключатель только для превью: показать состояния дня из frontend-tz, раздел 7 */}
-          <div className='no-scrollbar flex items-center gap-2 overflow-x-auto px-5 pt-3 pb-1'>
+          <div className='no-scrollbar flex items-center gap-2 overflow-x-auto px-gutter pt-3 pb-1'>
             <Eyebrow className='shrink-0'>превью:</Eyebrow>
             <ToggleGroup
               value={[state]}

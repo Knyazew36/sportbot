@@ -58,7 +58,7 @@ const StretchSheet = ({
         <SheetTitle>Вся заминка</SheetTitle>
         <Eyebrow tone='primary'>~{totalMin} мин</Eyebrow>
       </SheetHeader>
-      <div className='flex min-h-0 flex-col gap-4 overflow-y-auto px-5 pb-5'>
+      <div className='flex min-h-0 flex-col gap-4 overflow-y-auto px-gutter pb-5'>
         {BLOCKS.map(block => (
           <div key={block.title}>
             <Eyebrow
@@ -144,7 +144,7 @@ const CooldownScreen = () => {
             </ButtonLink>
           </StickyFooter>
         }
-        className='px-5'
+        className='px-gutter'
       >
         <Rise className='flex flex-1 flex-col justify-center'>
           <Lead>растянулись —</Lead>
@@ -184,7 +184,7 @@ const CooldownScreen = () => {
               }
             />
             {/* Сегменты: пройденные и текущий залиты, «если есть время» — пунктиром */}
-            <div className='flex gap-1 px-5 pt-3'>
+            <div className='flex gap-1 px-gutter pt-3'>
               {all.map((s, i) => (
                 <span
                   key={s.id}
@@ -201,7 +201,7 @@ const CooldownScreen = () => {
             </div>
           </>
         }
-        className='gap-5 px-5 pt-4'
+        className='gap-5 px-gutter pt-4'
       >
         {/* Картинка из справочника — та же, что в карточке растяжки; на низких экранах уступает место описанию */}
         <Rise className='relative [@media(max-height:620px)]:hidden'>

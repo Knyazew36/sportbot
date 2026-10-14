@@ -60,7 +60,7 @@ const ModerationScreen = () => {
             title='Заявка'
           />
         }
-        className='px-5'
+        className='px-gutter'
       >
         <ScreenState
           state='empty'
@@ -121,7 +121,7 @@ const ModerationScreen = () => {
       }
       className='gap-8'
     >
-      <Rise className='px-5'>
+      <Rise className='px-gutter'>
         <Badge variant='secondary'>{request.kind === 'exercise' ? 'упражнение' : 'растяжка'}</Badge>
         <Poster
           as='h1'
@@ -187,7 +187,7 @@ const ModerationScreen = () => {
       </ScreenSection>
 
       <ScreenSection title='Исход'>
-        <div className='no-scrollbar -mx-5 overflow-x-auto px-5 pb-1'>
+        <div className='no-scrollbar -mx-gutter overflow-x-auto px-gutter pb-1'>
           <Segmented
             options={OUTCOMES}
             value={outcome}

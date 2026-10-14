@@ -74,7 +74,7 @@ const MePage = () => {
       <QueryScreen query={profile}>
         {p => (
           <>
-            <Rise className='flex flex-col gap-4 px-5'>
+            <Rise className='flex flex-col gap-4 px-gutter'>
               <div className='flex items-end justify-between gap-4'>
                 <div className='min-w-0'>
                   <Lead>привет,</Lead>

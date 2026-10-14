@@ -45,7 +45,7 @@ export const CatalogRow = ({ name, imageUrl, meta, draft, to, trail, selected, c
     meta={meta}
     // Ссылка растянута на всю строку, поэтому действия справа поднимаем над ней
     trail={trail && <div className='relative z-10'>{trail}</div>}
-    className={cn('relative -mx-5 px-5 transition-colors', selected && 'bg-accent', to && 'hover:bg-accent/60')}
+    className={cn('relative -mx-gutter px-gutter transition-colors', selected && 'bg-accent', to && 'hover:bg-accent/60')}
   >
     {draft && (
       <Badge

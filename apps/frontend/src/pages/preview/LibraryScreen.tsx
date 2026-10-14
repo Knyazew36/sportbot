@@ -77,7 +77,7 @@ const NewEntryLinks = () => (
 
 // Вкладка «Мои»: свои записи со статусом модерации (frontend-tz, 11.5)
 const MineTab = () => (
-  <Rise className='flex flex-col gap-4 px-5'>
+  <Rise className='flex flex-col gap-4 px-gutter'>
     <List>
       {myEntries.map(e => {
         const catalogPath =
@@ -234,7 +234,7 @@ const LibraryScreen = () => {
             title='Справочник'
             aside={`${exercises.length + stretches.length} записей`}
           />
-          <div className='flex flex-col gap-3 px-5 pt-4'>
+          <div className='flex flex-col gap-3 px-gutter pt-4'>
             <Segmented
               options={TABS}
               value={tab}
@@ -258,7 +258,7 @@ const LibraryScreen = () => {
         <MineTab />
       ) : (
         <>
-          <Rise className='px-5'>
+          <Rise className='px-gutter'>
             <CatalogFilters
               query={query}
               onQueryChange={setQuery}
@@ -269,8 +269,8 @@ const LibraryScreen = () => {
               placeholder={tab === 'exercises' ? 'Название упражнения' : 'Название растяжки'}
             />
           </Rise>
-          <Rise className='flex flex-col gap-3 px-5'>
-            <div className='no-scrollbar -mx-5 flex items-center gap-2 overflow-x-auto px-5'>
+          <Rise className='flex flex-col gap-3 px-gutter'>
+            <div className='no-scrollbar -mx-gutter flex items-center gap-2 overflow-x-auto px-gutter'>
               <Eyebrow className='shrink-0'>превью:</Eyebrow>
               <ToggleGroup
                 value={[demo]}

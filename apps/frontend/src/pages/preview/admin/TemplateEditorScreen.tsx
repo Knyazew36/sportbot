@@ -44,7 +44,7 @@ const TemplateEditorScreen = () => {
         />
       }
     >
-      <Rise className='flex flex-col gap-4 px-5'>
+      <Rise className='flex flex-col gap-4 px-gutter'>
         <div className='flex flex-col gap-2'>
           <Label htmlFor='template-title'>Название шаблона</Label>
           <Input

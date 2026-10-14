@@ -34,7 +34,7 @@ export const PermissionBanner = () => {
   )
 
   const className =
-    'border-border hover:bg-accent flex w-full items-center gap-3 border-b-[1.5px] px-5 py-3 text-left transition-colors'
+    'border-border hover:bg-accent flex w-full items-center gap-3 border-b-[1.5px] px-gutter py-3 text-left transition-colors'
 
   return native ? (
     <button

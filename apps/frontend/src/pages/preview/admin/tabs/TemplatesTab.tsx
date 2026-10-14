@@ -12,7 +12,7 @@ import { templates } from '../../model/mock'
 
 // Шаблоны программ: тот же редактор, что у программ пользователя, плюс описание (frontend-tz, 14.2)
 export const TemplatesTab = () => (
-  <Rise className='flex flex-col gap-3 px-5'>
+  <Rise className='flex flex-col gap-3 px-gutter'>
     <div className='flex items-center justify-between gap-3'>
       <Eyebrow>шаблонов: {templates.length}</Eyebrow>
       <ButtonLink

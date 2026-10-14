@@ -29,7 +29,7 @@ export const WeekStreak = ({ streak, week }: Pick<DayToday, 'streak' | 'week'>) 
   const progress = record > 0 ? (streak.current / record) * 100 : 0
 
   return (
-    <Rise className='border-foreground/80 mx-5 border-[1.5px]'>
+    <Rise className='border-foreground/80 mx-gutter border-[1.5px]'>
       <div className='flex items-stretch'>
         <div className='border-foreground/80 flex w-[min(132px,34vw)] shrink-0 flex-col justify-between gap-2 border-r-[1.5px] p-3'>
           <Eyebrow>Серия</Eyebrow>

@@ -10,6 +10,12 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Поле от края экрана Mini App — одно на все экраны, шапки и шторки (кроме нижнего меню).
+   Не inline: значение нужно и как переменная — в calc() у элементов «на всю ширину» */
+@theme {
+  --spacing-gutter: 0.75rem;
+}
+
 @theme inline {
   /* Спортбот: Onest — основной гротеск, Oswald — плакатные цифры и заголовки (у Anton нет кириллицы) */
   --font-sans: 'Onest Variable', ui-sans-serif, system-ui, sans-serif;

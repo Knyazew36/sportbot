@@ -35,7 +35,7 @@ export const DoneDay = ({ day }: { day: DayToday }) => {
           {current}
         </Poster>
       </Rise>
-      <Rise className='px-5 text-center'>
+      <Rise className='px-gutter text-center'>
         <Eyebrow
           as='p'
           tone='primary'
@@ -67,7 +67,7 @@ export const DoneDay = ({ day }: { day: DayToday }) => {
           {left > 0 ? `до рекорда — ${pluralize(left, ['день', 'дня', 'дней'])}` : 'это твой рекорд'}
         </Lead>
       </Rise>
-      <Rise className='grid grid-cols-2 gap-2 px-5'>
+      <Rise className='grid grid-cols-2 gap-2 px-gutter'>
         <Button
           variant='outline'
           size='sm'

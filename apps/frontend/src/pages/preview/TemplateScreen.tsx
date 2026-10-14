@@ -34,7 +34,7 @@ const TemplateScreen = () => {
             title='Шаблон'
           />
         }
-        className='px-5'
+        className='px-gutter'
       >
         <StateView
           state='empty'
@@ -102,7 +102,7 @@ const TemplateScreen = () => {
         </StickyFooter>
       }
     >
-      <Rise className='px-5'>
+      <Rise className='px-gutter'>
         <Poster
           as='h1'
           size='3xl'
@@ -119,7 +119,7 @@ const TemplateScreen = () => {
         </Text>
       </Rise>
 
-      <Rise className='px-5'>
+      <Rise className='px-gutter'>
         <StatGrid
           items={[
             { label: 'в неделю', value: template.days },
@@ -134,7 +134,7 @@ const TemplateScreen = () => {
         aside='по кругу, с первого'
         bleed
       >
-        <ol className='no-scrollbar flex gap-2 overflow-x-auto px-5'>
+        <ol className='no-scrollbar flex gap-2 overflow-x-auto px-gutter'>
           {template.complexes.map((c, i) => (
             <li key={c.title}>
               <Ticket
@@ -177,7 +177,7 @@ const TemplateScreen = () => {
         </ScreenSection>
       ))}
 
-      <Rise className='px-5'>
+      <Rise className='px-gutter'>
         <Text
           size='xs'
           tone='muted'

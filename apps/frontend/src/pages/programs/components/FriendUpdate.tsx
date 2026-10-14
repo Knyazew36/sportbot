@@ -11,7 +11,7 @@ export const FriendUpdate = ({ program }: { program: ProgramListItem }) => {
   const resync = useResyncProgram()
 
   return (
-    <Rise className='px-5'>
+    <Rise className='px-gutter'>
       <div className='border-primary bg-accent flex flex-col gap-3 border-[1.5px] p-4'>
         <Eyebrow
           as='p'

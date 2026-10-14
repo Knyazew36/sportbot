@@ -132,7 +132,7 @@ const Wizard = ({ kind, onDone }: { kind: CatalogKind; onDone: (name: string) =>
           <StepBar
             total={STEPS.length}
             current={step}
-            className='px-5 pt-3'
+            className='px-gutter pt-3'
           />
         </>
       }
@@ -183,7 +183,7 @@ const Wizard = ({ kind, onDone }: { kind: CatalogKind; onDone: (name: string) =>
       >
         {step === 0 && (
           <>
-            <Rise className='flex flex-col gap-2 px-5'>
+            <Rise className='flex flex-col gap-2 px-gutter'>
               <TextField
                 label='Название'
                 placeholder={kind === 'exercise' ? 'Например, «Жим гантелей сидя»' : 'Например, «Растяжка груди у стены»'}
@@ -276,7 +276,7 @@ const Wizard = ({ kind, onDone }: { kind: CatalogKind; onDone: (name: string) =>
         )}
 
         {step === 2 && (
-          <Rise className='flex flex-col gap-4 px-5'>
+          <Rise className='flex flex-col gap-4 px-gutter'>
             <Text tone='soft'>Можно пропустить — подробности допишет администратор.</Text>
             <div className='flex flex-col gap-2'>
               <Label htmlFor='entry-text'>{kind === 'exercise' ? 'Техника' : 'Как делать'}</Label>
@@ -332,7 +332,7 @@ const NewEntryPage = () => {
             </ButtonLink>
           </StickyFooter>
         }
-        className='px-5'
+        className='px-gutter'
       >
         <Rise>
           <Lead>черновик создан —</Lead>
@@ -365,7 +365,7 @@ const NewEntryPage = () => {
             title={kind === 'exercise' ? 'Своё упражнение' : 'Своя растяжка'}
           />
         }
-        className='px-5'
+        className='px-gutter'
       >
         <ScreenState
           state='empty'

@@ -32,7 +32,7 @@ const ALL = FILTER_ALL
 type ExercisePickerProps = {
   /** Комплекс, куда добавляем: уже стоящие в нём упражнения выключены */
   complex: ProgramComplex | undefined
-  /** Назад — в редактор с раскрытым комплексом */
+  /** Назад — на страницу комплекса */
   back: string
   adding: boolean
   onAdd: (exerciseIds: number[]) => void
@@ -73,7 +73,7 @@ export const ExercisePicker = ({ complex, back, adding, onAdd }: ExercisePickerP
             title='Добавить упражнение'
             subtitle={complex ? `в «${complex.name}»` : undefined}
           />
-          <div className='px-5 pt-3 pb-3'>
+          <div className='px-gutter pt-3 pb-3'>
             <CatalogFilters
               query={query}
               onQueryChange={setQuery}
@@ -98,7 +98,7 @@ export const ExercisePicker = ({ complex, back, adding, onAdd }: ExercisePickerP
           </Button>
         </StickyFooter>
       }
-      className='px-5 pt-4'
+      className='px-gutter pt-4'
     >
       <QueryScreen
         query={exercises}

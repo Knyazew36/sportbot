@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ArrowDownIcon, ArrowUpIcon, XIcon } from 'lucide-react'
+import { ArrowDownIcon, ArrowUpIcon, Trash2Icon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 
 import {
@@ -11,16 +11,27 @@ import {
 import { applyFieldErrors } from '@/shared/lib/form'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'
 import { ListRow } from '@/shared/ui/kit/ListRow'
-import { Poster } from '@/shared/ui/kit/Typography'
+import { Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Badge } from '@/shared/ui/shadcn/badge'
 import { Input } from '@/shared/ui/shadcn/input'
 
 const CELL = 'sb-poster h-9 px-1 text-center text-[20px]'
 
+// Мелкая подпись под полем плана: без неё «3 × 8–12» читается не всеми
+const Caption = ({ children }: { children: string }) => (
+  <Text
+    as='span'
+    size='2xs'
+    tone='muted'
+    className='text-center whitespace-nowrap'
+  >
+    {children}
+  </Text>
+)
+
 type ComplexExerciseRowProps = {
   exercise: ProgramExercise
-  index: number
   /** Сдвиг на одну позицию; undefined — двигать некуда */
   onMoveUp?: () => void
   onMoveDown?: () => void
@@ -31,7 +42,6 @@ type ComplexExerciseRowProps = {
 // Упражнение комплекса: план «3 × 8–12» правится на месте и сохраняется, когда фокус уходит из строки
 export const ComplexExerciseRow = ({
   exercise,
-  index,
   onMoveUp,
   onMoveDown,
   onPlanChange,
@@ -61,7 +71,6 @@ export const ComplexExerciseRow = ({
 
   return (
     <ListRow
-      lead={index + 1}
       title={exercise.name}
       meta={exercise.muscles}
       trail={
@@ -101,41 +110,50 @@ export const ComplexExerciseRow = ({
         onBlur={e => {
           if (!e.currentTarget.contains(e.relatedTarget)) void save()
         }}
-        className='mt-2 flex items-center gap-1.5'
+        className='mt-2 flex items-start gap-1.5'
       >
-        <Input
-          inputMode='numeric'
-          className={`${CELL} w-11`}
-          aria-label='Подходов'
-          aria-invalid={!!errors.sets}
-          {...register('sets')}
-        />
+        <label className='flex flex-col items-center gap-1'>
+          <Input
+            inputMode='numeric'
+            className={`${CELL} w-11`}
+            aria-label='Подходов'
+            aria-invalid={!!errors.sets}
+            {...register('sets')}
+          />
+          <Caption>подх.</Caption>
+        </label>
         <Poster
           as='span'
           size='sm'
+          className='leading-9'
         >
           ×
         </Poster>
-        <Input
-          inputMode='numeric'
-          className={`${CELL} w-12`}
-          aria-label='Повторов от'
-          aria-invalid={!!errors.repsMin}
-          {...register('repsMin')}
-        />
-        <Poster
-          as='span'
-          size='sm'
-        >
-          –
-        </Poster>
-        <Input
-          inputMode='numeric'
-          className={`${CELL} w-12`}
-          aria-label='Повторов до'
-          aria-invalid={!!errors.repsMax}
-          {...register('repsMax')}
-        />
+        <div className='flex flex-col items-center gap-1'>
+          <div className='flex items-center gap-1.5'>
+            <Input
+              inputMode='numeric'
+              className={`${CELL} w-12`}
+              aria-label='Повторов от'
+              aria-invalid={!!errors.repsMin}
+              {...register('repsMin')}
+            />
+            <Poster
+              as='span'
+              size='sm'
+            >
+              –
+            </Poster>
+            <Input
+              inputMode='numeric'
+              className={`${CELL} w-12`}
+              aria-label='Повторов до'
+              aria-invalid={!!errors.repsMax}
+              {...register('repsMax')}
+            />
+          </div>
+          <Caption>повт.</Caption>
+        </div>
         {/* Enter на телефонной клавиатуре отправляет форму — отдельная кнопка не нужна */}
         <button
           type='submit'
@@ -145,11 +163,11 @@ export const ComplexExerciseRow = ({
           type='button'
           variant='outline'
           size='icon-sm'
-          className='ml-auto'
-          aria-label={`Убрать «${exercise.name}»`}
+          className='text-destructive ml-auto'
+          aria-label={`Удалить «${exercise.name}» из комплекса`}
           onClick={onRemove}
         >
-          <XIcon />
+          <Trash2Icon />
         </Button>
       </form>
       <ErrorText

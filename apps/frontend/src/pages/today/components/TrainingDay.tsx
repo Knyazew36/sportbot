@@ -50,7 +50,7 @@ export const TrainingDay = ({ day, onPickComplex, onMissed }: TrainingDayProps) 
       <ComplexExercises complex={complex} />
 
       {/* Подписи переносятся: на узком экране две кнопки в строку не влезают в одну линию */}
-      <Rise className='grid grid-cols-2 gap-2 px-5'>
+      <Rise className='grid grid-cols-2 gap-2 px-gutter'>
         <Button
           variant='outline'
           size='sm'

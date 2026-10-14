@@ -74,7 +74,7 @@ const LibraryPage = () => {
       header={
         <>
           <ScreenHeader title='Справочник' />
-          <div className='flex flex-col gap-3 px-5 pt-4'>
+          <div className='flex flex-col gap-3 px-gutter pt-4'>
             <Segmented
               options={TABS}
               value={tab}
@@ -98,7 +98,7 @@ const LibraryPage = () => {
         <MineTab />
       ) : (
         <>
-          <Rise className='px-5'>
+          <Rise className='px-gutter'>
             <CatalogFilters
               query={query}
               onQueryChange={setQuery}
@@ -110,7 +110,7 @@ const LibraryPage = () => {
               placeholder={tab === 'exercises' ? 'Название упражнения' : 'Название растяжки'}
             />
           </Rise>
-          <Rise className='px-5'>
+          <Rise className='px-gutter'>
             {tab === 'exercises' ? (
               <CatalogResults
                 query={exercises}

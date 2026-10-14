@@ -6,7 +6,7 @@ import { Lead, Poster, Text } from '@/shared/ui/kit/Typography'
 // Нет активной программы или в ней нет комплексов: бот не может предложить тренировку
 export const NoProgramDay = () => (
   <>
-    <Rise className='px-5'>
+    <Rise className='px-gutter'>
       <Lead>программы —</Lead>
       <Poster
         as='h1'
@@ -23,7 +23,7 @@ export const NoProgramDay = () => (
         Возьми готовый шаблон или собери свою — и бот будет выдавать комплексы по очереди.
       </Text>
     </Rise>
-    <Rise className='grid grid-cols-2 gap-2 px-5'>
+    <Rise className='grid grid-cols-2 gap-2 px-gutter'>
       <ButtonLink to={ROUTES.PROGRAMS}>Взять шаблон</ButtonLink>
       <ButtonLink
         to={ROUTES.PROGRAMS}

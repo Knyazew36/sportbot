@@ -23,7 +23,7 @@ export const UsersTab = () => {
   const toggle = (id: number) => setBlocked(ids => (ids.includes(id) ? ids.filter(x => x !== id) : [...ids, id]))
 
   return (
-    <Rise className='flex flex-col gap-3 px-5'>
+    <Rise className='flex flex-col gap-3 px-gutter'>
       <SearchField
         value={query}
         onValueChange={setQuery}

@@ -45,7 +45,7 @@ const SummaryScreen = () => (
       </StickyFooter>
     }
   >
-    <Rise className='relative overflow-hidden px-5'>
+    <Rise className='relative overflow-hidden px-gutter'>
       <div className='sb-halftone absolute -top-10 -left-16 size-64 rounded-full opacity-20' />
       <Lead className='relative'>тренировка</Lead>
       <Poster
@@ -81,7 +81,7 @@ const SummaryScreen = () => (
       </div>
     </Rise>
 
-    <Rise className='px-5'>
+    <Rise className='px-gutter'>
       <StatGrid
         framed
         items={[

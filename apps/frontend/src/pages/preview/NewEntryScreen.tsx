@@ -69,7 +69,7 @@ const NewEntryScreen = () => {
             title={`Своё ${kind === 'exercise' ? 'упражнение' : 'растяжка'}`}
           />
         }
-        className='px-5'
+        className='px-gutter'
       >
         <ScreenState
           state='empty'
@@ -109,7 +109,7 @@ const NewEntryScreen = () => {
             </ButtonLink>
           </StickyFooter>
         }
-        className='px-5'
+        className='px-gutter'
       >
         <Rise>
           <Lead>черновик создан —</Lead>
@@ -146,7 +146,7 @@ const NewEntryScreen = () => {
           <StepBar
             total={STEPS.length}
             current={step}
-            className='px-5 pt-3'
+            className='px-gutter pt-3'
           />
         </>
       }
@@ -189,7 +189,7 @@ const NewEntryScreen = () => {
     >
       {step === 0 && (
         <>
-          <Rise className='flex flex-col gap-2 px-5'>
+          <Rise className='flex flex-col gap-2 px-gutter'>
             <Label htmlFor='entry-name'>Название</Label>
             <Input
               id='entry-name'
@@ -286,7 +286,7 @@ const NewEntryScreen = () => {
       )}
 
       {step === 2 && (
-        <Rise className='flex flex-col gap-4 px-5'>
+        <Rise className='flex flex-col gap-4 px-gutter'>
           <Text tone='soft'>Можно пропустить — подробности допишет администратор.</Text>
           <div className='flex flex-col gap-2'>
             <Label htmlFor='entry-text'>{kind === 'exercise' ? 'Техника' : 'Как делать'}</Label>

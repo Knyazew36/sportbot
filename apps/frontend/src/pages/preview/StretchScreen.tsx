@@ -35,7 +35,7 @@ const StretchScreen = () => {
             title='Растяжка'
           />
         }
-        className='px-5'
+        className='px-gutter'
       >
         <ScreenState
           state='empty'
@@ -91,7 +91,7 @@ const StretchScreen = () => {
       }
       className='gap-7'
     >
-      <Rise className='flex flex-col gap-4 px-5'>
+      <Rise className='flex flex-col gap-4 px-gutter'>
         <CatalogImage
           src={stretch.imageUrl}
           alt={stretch.name}
@@ -106,7 +106,7 @@ const StretchScreen = () => {
         </Poster>
       </Rise>
 
-      <Rise className='px-5'>
+      <Rise className='px-gutter'>
         <StatGrid
           items={[
             { label: 'удержание, с', value: stretch.holdSeconds },

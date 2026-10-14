@@ -13,7 +13,7 @@ import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
 const Report = ({ title, report }: { title: string; report: ImportReport }) => (
   <>
-    <Rise className='px-5'>
+    <Rise className='px-gutter'>
       <Eyebrow
         as='p'
         tone='primary'
@@ -62,7 +62,7 @@ export const ImportTab = () => {
 
   return (
     <>
-      <Rise className='flex flex-col gap-3 px-5'>
+      <Rise className='flex flex-col gap-3 px-gutter'>
         <Text tone='soft'>
           Файл с упражнениями, растяжками и шаблонами. Повторный импорт обновляет записи по коду, дублей не создаёт.
         </Text>
@@ -87,7 +87,7 @@ export const ImportTab = () => {
               title={`Проверка · ${file.name}`}
               report={check.data}
             />
-            <Rise className='px-5'>
+            <Rise className='px-gutter'>
               <Button
                 size='lg'
                 className='w-full'

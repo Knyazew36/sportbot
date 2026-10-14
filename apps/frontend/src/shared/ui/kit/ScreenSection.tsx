@@ -37,7 +37,7 @@ export const ScreenSection = ({
 }: ScreenSectionProps) => {
   if (variant === 'block') {
     return (
-      <Rise className={cn('px-5', className)}>
+      <Rise className={cn('px-gutter', className)}>
         <section className='border-foreground flex flex-col gap-4 border-t-[3px] pt-3'>
           <header className='flex flex-wrap items-end justify-between gap-x-3 gap-y-1'>
             <div className='flex min-w-0 items-baseline gap-2.5'>
@@ -68,9 +68,9 @@ export const ScreenSection = ({
   }
 
   return (
-    <Rise className={cn('flex flex-col gap-3', !bleed && 'px-5', className)}>
+    <Rise className={cn('flex flex-col gap-3', !bleed && 'px-gutter', className)}>
       {(title || aside || action) && (
-        <div className={cn('flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1', bleed && 'px-5')}>
+        <div className={cn('flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1', bleed && 'px-gutter')}>
           {title && (
             <Eyebrow
               as='h2'

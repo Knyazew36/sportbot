@@ -8,7 +8,7 @@ export const EveningQuestion = ({ onMissed }: { onMissed: (suggestPause: boolean
   const answer = useEveningAnswer()
 
   return (
-    <Rise className='border-primary mx-5 flex flex-col gap-3 border-[1.5px] p-4'>
+    <Rise className='border-primary mx-gutter flex flex-col gap-3 border-[1.5px] p-4'>
       <Eyebrow tone='primary'>Вопрос бота</Eyebrow>
       <Poster size='lg'>Потренировался сегодня?</Poster>
       <div className='grid grid-cols-2 gap-2'>

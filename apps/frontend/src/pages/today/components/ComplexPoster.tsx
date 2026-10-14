@@ -19,7 +19,7 @@ export const ComplexPoster = ({ complex, complexes, programName }: ComplexPoster
   const sets = complex.exercises.reduce((sum, e) => sum + e.sets, 0)
 
   return (
-    <Rise className='relative px-5'>
+    <Rise className='relative px-gutter'>
       <Eyebrow as='p'>
         Комплекс {complexLetter(Math.max(index, 0))}
         {programName && ` · ${programName}`}
@@ -42,7 +42,7 @@ export const ComplexPoster = ({ complex, complexes, programName }: ComplexPoster
           {tail.join(' ')}
         </Poster>
       )}
-      <BarbellArt className='-mx-5 mt-2 w-[calc(100%+2.5rem)]' />
+      <BarbellArt className='-mx-gutter mt-2 w-[calc(100%+2*var(--spacing-gutter))]' />
       <StatGrid
         className='mt-1'
         items={[

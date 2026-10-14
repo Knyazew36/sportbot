@@ -43,7 +43,7 @@ const ProgramEditorScreen = () => {
         />
       }
     >
-      <Rise className='flex flex-col gap-2 px-5'>
+      <Rise className='flex flex-col gap-2 px-gutter'>
         <Label htmlFor='program-title'>Название программы</Label>
         <Input
           id='program-title'
@@ -63,7 +63,7 @@ const ProgramEditorScreen = () => {
       />
 
       {source && (
-        <Rise className='px-5'>
+        <Rise className='px-gutter'>
           <ConfirmAction
             trigger={
               <Button

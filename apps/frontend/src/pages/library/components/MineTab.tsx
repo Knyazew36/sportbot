@@ -40,7 +40,7 @@ export const MineTab = () => {
   const limit = useDraftLimit()
 
   return (
-    <Rise className='flex flex-col gap-4 px-5'>
+    <Rise className='flex flex-col gap-4 px-gutter'>
       <QueryScreen
         query={entries}
         className=''

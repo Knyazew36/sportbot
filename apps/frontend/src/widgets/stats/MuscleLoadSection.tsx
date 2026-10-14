@@ -20,7 +20,7 @@ export const MuscleLoadSection = ({ userId }: { userId?: number }) => {
   return (
     <div className='flex flex-col gap-3'>
       <MuscleLoad items={load.data} />
-      <div className='px-5'>
+      <div className='px-gutter'>
         <Segmented
           options={WEEKS}
           value={weeksAgo}

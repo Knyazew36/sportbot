@@ -53,7 +53,7 @@ export const StretchForm = ({ stretch, formId, onSave }: StretchFormProps) => {
       className='contents'
       onSubmit={handleSubmit(values => onSave(values).catch(error => applyFieldErrors(error, setError)))}
     >
-      <Rise className='px-5'>
+      <Rise className='px-gutter'>
         <TextField
           label='Название'
           error={errors.name}

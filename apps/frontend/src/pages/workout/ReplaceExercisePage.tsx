@@ -45,7 +45,7 @@ const ReplaceExercisePage = () => {
           subtitle={item?.name}
         />
       }
-      className='px-5'
+      className='px-gutter'
     >
       <Rise>
         <Lead>те же мышцы{item?.limitedZones.length ? ', без зон с ограничением' : ''} —</Lead>
@@ -107,7 +107,7 @@ const ReplaceExercisePage = () => {
               Только на эту тренировку или насовсем — в комплексе «{workout?.complexName}» вместо «{item?.name}».
             </SheetDescription>
           </SheetHeader>
-          <div className='flex flex-col gap-3 px-5 pb-6'>
+          <div className='flex flex-col gap-3 px-gutter pb-6'>
             <Button
               size='lg'
               className='w-full'

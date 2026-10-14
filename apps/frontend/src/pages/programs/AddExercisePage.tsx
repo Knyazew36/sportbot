@@ -12,7 +12,7 @@ const AddExercisePage = () => {
   const navigate = useNavigate()
   const program = useProgram(programId)
   const add = useAddComplexExercises()
-  const back = `${buildPath(ROUTES.PROGRAM, { programId })}?open=${complexId}`
+  const back = buildPath(ROUTES.PROGRAM_COMPLEX, { programId, complexId })
 
   return (
     <ExercisePicker

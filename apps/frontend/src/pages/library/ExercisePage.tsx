@@ -80,7 +80,7 @@ const ExercisePage = () => {
           const limited = new Set(limitations.data?.map(l => l.jointId))
           return (
             <>
-              <Rise className='flex flex-col gap-4 px-5'>
+              <Rise className='flex flex-col gap-4 px-gutter'>
                 <CatalogImage
                   src={toAssetUrl(e.imageUrl) ?? null}
                   alt={e.name}

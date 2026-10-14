@@ -32,7 +32,7 @@ const EditSetForm = ({ set, onClose }: { set: WorkoutSet; onClose: () => void })
 
   return (
     <form
-      className='flex flex-col gap-3 px-5 pb-6'
+      className='flex flex-col gap-3 px-gutter pb-6'
       onSubmit={handleSubmit(values =>
         update
           .mutateAsync({ id: set.id, ...values })

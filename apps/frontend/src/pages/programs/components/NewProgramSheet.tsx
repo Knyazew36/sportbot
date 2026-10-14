@@ -66,7 +66,7 @@ export const NewProgramSheet = ({ open, onOpenChange }: { open: boolean; onOpenC
         <SheetTitle>Новая программа</SheetTitle>
         <SheetDescription>Возьми готовый шаблон и поправь под себя или собери с чистого листа.</SheetDescription>
       </SheetHeader>
-      <div className='flex flex-col gap-5 px-5 pt-2 pb-6'>
+      <div className='flex flex-col gap-5 px-gutter pt-2 pb-6'>
         <ButtonLink
           to={ROUTES.PROGRAM_TEMPLATES}
           size='lg'

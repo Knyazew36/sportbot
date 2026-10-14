@@ -304,7 +304,7 @@ const Limits = () => {
             {/* Дисклеймер при включении ограничения (frontend-tz, 13.4) */}
             <SheetDescription>Это подсказка для подбора упражнений, она не заменяет врача.</SheetDescription>
           </SheetHeader>
-          <div className='flex flex-col gap-4 px-5 pb-6'>
+          <div className='flex flex-col gap-4 px-gutter pb-6'>
             <div className='flex flex-col gap-2'>
               <Label>Зона</Label>
               <SelectField
@@ -509,7 +509,7 @@ const Messengers = () => {
               Отправь этот код боту в MAX — аккаунты объединятся, история останется одна.
             </SheetDescription>
           </SheetHeader>
-          <div className='flex flex-col gap-4 px-5 pb-6'>
+          <div className='flex flex-col gap-4 px-gutter pb-6'>
             <InkPanel className='py-6 text-center'>
               <Eyebrow
                 as='p'
@@ -616,7 +616,7 @@ const ProfileScreen = () => (
     }
     className='gap-12'
   >
-    <Rise className='flex items-end justify-between gap-4 px-5'>
+    <Rise className='flex items-end justify-between gap-4 px-gutter'>
       <div className='min-w-0'>
         <Lead>привет,</Lead>
         <Poster

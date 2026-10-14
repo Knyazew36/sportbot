@@ -27,7 +27,7 @@ const countExercises = (p: Program) => p.complexes.reduce((sum, c) => sum + c.ex
 // Активная программа — плакат: название, ротация билетами, сводка и правка
 const ActiveProgram = ({ program }: { program: Program }) => (
   <>
-    <Rise className='px-5'>
+    <Rise className='px-gutter'>
       <Eyebrow as='p'>Активная программа</Eyebrow>
       <Poster
         as='h1'
@@ -43,7 +43,7 @@ const ActiveProgram = ({ program }: { program: Program }) => (
       aside='следующий подсвечен'
       bleed
     >
-      <ol className='no-scrollbar flex gap-2 overflow-x-auto px-5'>
+      <ol className='no-scrollbar flex gap-2 overflow-x-auto px-gutter'>
         {program.complexes.map(c => (
           <li key={c.id}>
             <Ticket
@@ -57,7 +57,7 @@ const ActiveProgram = ({ program }: { program: Program }) => (
         ))}
       </ol>
     </ScreenSection>
-    <Rise className='flex flex-col gap-4 px-5'>
+    <Rise className='flex flex-col gap-4 px-gutter'>
       <StatGrid
         items={[
           { label: 'комплекса', value: program.complexes.length },
@@ -79,7 +79,7 @@ const ActiveProgram = ({ program }: { program: Program }) => (
 
 // Друг поменял исходную программу: обновление перезапишет свои правки, история останется (frontend-tz, 10.4)
 const FriendUpdate = ({ program }: { program: Program }) => (
-  <Rise className='px-5'>
+  <Rise className='px-gutter'>
     <div className='border-primary bg-accent flex flex-col gap-3 border-[1.5px] p-4'>
       <Eyebrow
         as='p'
@@ -121,7 +121,7 @@ const NewProgramSheet = ({ open, onOpenChange }: { open: boolean; onOpenChange: 
         <SheetTitle>Новая программа</SheetTitle>
         <SheetDescription>Возьми готовый шаблон и поправь под себя или собери с чистого листа.</SheetDescription>
       </SheetHeader>
-      <div className='flex flex-col gap-3 px-5 pt-2 pb-6'>
+      <div className='flex flex-col gap-3 px-gutter pt-2 pb-6'>
         <ButtonLink
           to={ROUTES.PREVIEW_PROGRAM_TEMPLATES}
           size='lg'

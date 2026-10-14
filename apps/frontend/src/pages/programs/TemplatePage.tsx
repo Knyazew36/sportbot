@@ -78,7 +78,7 @@ const TemplatePage = () => {
           const exercises = t.complexes.reduce((sum, c) => sum + c.exercises.length, 0)
           return (
             <>
-              <Rise className='px-5'>
+              <Rise className='px-gutter'>
                 <Poster
                   as='h1'
                   size='3xl'
@@ -97,7 +97,7 @@ const TemplatePage = () => {
                 )}
               </Rise>
 
-              <Rise className='px-5'>
+              <Rise className='px-gutter'>
                 <StatGrid
                   items={[
                     { label: 'комплексов', value: t.complexes.length },
@@ -111,7 +111,7 @@ const TemplatePage = () => {
                 aside='по кругу, с первого'
                 bleed
               >
-                <ol className='no-scrollbar flex gap-2 overflow-x-auto px-5'>
+                <ol className='no-scrollbar flex gap-2 overflow-x-auto px-gutter'>
                   {t.complexes.map((c, i) => (
                     <li key={c.id}>
                       <Ticket
@@ -154,7 +154,7 @@ const TemplatePage = () => {
                 </ScreenSection>
               ))}
 
-              <Rise className='px-5'>
+              <Rise className='px-gutter'>
                 <Text
                   size='xs'
                   tone='muted'

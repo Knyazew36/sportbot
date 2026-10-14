@@ -144,7 +144,7 @@ const CatalogItemScreen = () => {
       }
       className='gap-8'
     >
-      <Rise className='flex flex-col gap-2 px-5'>
+      <Rise className='flex flex-col gap-2 px-gutter'>
         <Label htmlFor='item-name'>Название</Label>
         <Input
           id='item-name'
@@ -173,7 +173,7 @@ const CatalogItemScreen = () => {
       {kind === 'exercise' ? (
         <>
           <ScreenSection title='Инвентарь'>
-            <div className='no-scrollbar -mx-5 overflow-x-auto px-5 pb-1'>
+            <div className='no-scrollbar -mx-gutter overflow-x-auto px-gutter pb-1'>
               <Segmented
                 options={EQUIPMENT}
                 value={equipment}

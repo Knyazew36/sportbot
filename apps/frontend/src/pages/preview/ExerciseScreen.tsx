@@ -46,7 +46,7 @@ const ExerciseScreen = () => {
             title='Упражнение'
           />
         }
-        className='px-5'
+        className='px-gutter'
       >
         <ScreenState
           state='empty'
@@ -95,7 +95,7 @@ const ExerciseScreen = () => {
       }
       className='gap-7'
     >
-      <Rise className='flex flex-col gap-4 px-5'>
+      <Rise className='flex flex-col gap-4 px-gutter'>
         <CatalogImage
           src={exercise.imageUrl}
           alt={exercise.name}

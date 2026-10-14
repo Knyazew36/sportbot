@@ -1,49 +1,38 @@
 import { PlusIcon } from 'lucide-react'
 import { Reorder } from 'motion/react'
+import { useNavigate } from 'react-router'
 
 import { useState } from 'react'
 
-import { complexLetter, type ComplexExerciseValues, type ProgramComplex } from '@/entities/program'
+import { complexLetter, type ProgramComplex } from '@/entities/program'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
+import { Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
 import { arrangeBy } from './arrange'
-import { ProgramComplexCard } from './ProgramComplexCard'
+import { ProgramComplexRow } from './ProgramComplexRow'
 
-/** Что редактор умеет делать с программой: программы пользователя (frontend-tz, 10.3) и шаблоны админа (14.2) */
-export type ComplexEditorActions = {
-  /** Возвращает комплексы после добавления: новый сразу раскрывается */
+/** Что список умеет делать с комплексами: программы пользователя (frontend-tz, 10.3) и шаблоны админа (14.2) */
+export type ComplexListActions = {
+  /** Возвращает комплексы после добавления: в новый сразу переходим собирать упражнения */
   addComplex: (name: string) => Promise<{ complexes: { id: number }[] }>
   reorderComplexes: (ids: number[]) => void
-  renameComplex: (id: number, name: string) => Promise<unknown>
-  deleteComplex: (id: number) => Promise<unknown>
-  updateExercise: (id: number, plan: ComplexExerciseValues) => Promise<unknown>
-  deleteExercise: (id: number) => void
-  reorderExercises: (complexId: number, ids: number[]) => void
 }
 
 type ProgramComplexListProps = {
   complexes: ProgramComplex[]
-  actions: ComplexEditorActions
-  /** Какой комплекс раскрыть сразу: например, тот, куда только что добавляли упражнения */
-  initialExpandedId?: number | null
-  /** Страница подбора упражнений в комплекс */
-  addExerciseTo: (complexId: number) => string
+  actions: ComplexListActions
+  /** Страница комплекса: название и упражнения */
+  complexTo: (complexId: number) => string
   /** Пока сохраняется добавление — кнопка неактивна */
   adding?: boolean
 }
 
-// Комплексы программы в порядке очереди: перетаскивание за ручку, правка состава, добавление и удаление.
-// Каждое действие сразу уходит на сервер — черновика на клиенте нет
-export const ProgramComplexList = ({
-  complexes,
-  actions,
-  initialExpandedId,
-  addExerciseTo,
-  adding,
-}: ProgramComplexListProps) => {
-  const [expandedId, setExpandedId] = useState<number | null>(initialExpandedId ?? complexes[0]?.id ?? null)
-  // Порядок под пальцем: на сервер уходит один раз, когда карточку отпустили
+// Комплексы программы в порядке очереди: перетаскивание за ручку и добавление.
+// Состав комплекса правится на его странице — здесь только очередь, чтобы экран не был перегружен
+export const ProgramComplexList = ({ complexes, actions, complexTo, adding }: ProgramComplexListProps) => {
+  const navigate = useNavigate()
+  // Порядок под пальцем: на сервер уходит один раз, когда строку отпустили
   const [dragOrder, setDragOrder] = useState<number[] | null>(null)
   const shown = arrangeBy(complexes, dragOrder ?? undefined)
 
@@ -59,7 +48,7 @@ export const ProgramComplexList = ({
       .addComplex(`Комплекс ${complexLetter(complexes.length)}`)
       .then(program => {
         const created = program.complexes.at(-1)
-        if (created) setExpandedId(created.id)
+        if (created) navigate(complexTo(created.id))
       })
       // Ошибку уже показал общий тост
       .catch(() => undefined)
@@ -67,35 +56,41 @@ export const ProgramComplexList = ({
   return (
     <ScreenSection
       title='Комплексы'
-      aside='порядок = очередь, тяни за ручку'
+      aside={complexes.length > 1 ? 'порядок — тяни за ручку' : undefined}
     >
-      <Reorder.Group
-        axis='y'
-        values={shown.map(c => c.id)}
-        onReorder={setDragOrder}
-        className='flex flex-col gap-2'
+      <Text
+        size='sm'
+        tone='muted'
       >
-        {shown.map((c, i) => (
-          <ProgramComplexCard
-            key={c.id}
-            complex={c}
-            index={i}
-            expanded={expandedId === c.id}
-            onToggle={() => setExpandedId(id => (id === c.id ? null : c.id))}
-            onDrop={drop}
-            actions={actions}
-            addExerciseTo={addExerciseTo(c.id)}
-          />
-        ))}
-      </Reorder.Group>
+        Комплекс — это одна тренировка, набор упражнений. Комплексы идут по очереди: A, потом B, потом C — и снова
+        A. Открой комплекс, чтобы собрать в нём упражнения.
+      </Text>
+      {shown.length > 0 && (
+        <Reorder.Group
+          axis='y'
+          values={shown.map(c => c.id)}
+          onReorder={setDragOrder}
+          className='flex flex-col gap-2'
+        >
+          {shown.map((c, i) => (
+            <ProgramComplexRow
+              key={c.id}
+              complex={c}
+              index={i}
+              to={complexTo(c.id)}
+              onDrop={drop}
+            />
+          ))}
+        </Reorder.Group>
+      )}
       <Button
-        variant='outline'
+        variant={shown.length ? 'outline' : 'default'}
         className='w-full'
         disabled={adding}
         onClick={() => void addComplex()}
       >
         <PlusIcon strokeWidth={2.5} />
-        Добавить комплекс
+        {shown.length ? 'Добавить комплекс' : 'Добавить первый комплекс'}
       </Button>
     </ScreenSection>
   )

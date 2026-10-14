@@ -55,7 +55,7 @@ const ReplaceExerciseScreen = () => {
         />
       }
     >
-      <Rise className='px-5'>
+      <Rise className='px-gutter'>
         <Text tone='soft'>
           Аналоги на те же мышцы: <span className='text-foreground'>{muscleNames(current.primaryMuscles)}</span>. План
           подходов и повторов перейдёт с заменяемого, история весов у аналога своя.
@@ -63,7 +63,7 @@ const ReplaceExerciseScreen = () => {
       </Rise>
 
       {limitedZones.size > 0 && (
-        <Rise className='px-5'>
+        <Rise className='px-gutter'>
           <Text
             size='sm'
             tone='danger'
@@ -145,7 +145,7 @@ const ReplaceExerciseScreen = () => {
             <SheetTitle>Заменить на «{choice?.name}»</SheetTitle>
             <SheetDescription>Насовсем — в комплексе «Грудь и трицепс» вместо «{current.name}».</SheetDescription>
           </SheetHeader>
-          <div className='flex flex-col gap-3 px-5 pb-6'>
+          <div className='flex flex-col gap-3 px-gutter pb-6'>
             <Button
               size='lg'
               className='w-full'

@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Trash2Icon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
-import { useNavigate, useParams, useSearchParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 
 import {
   type TemplateMetaValues,
@@ -9,13 +9,8 @@ import {
   useAddTemplateComplex,
   useAdminTemplate,
   useDeleteTemplate,
-  useDeleteTemplateComplex,
-  useDeleteTemplateExercise,
-  useRenameTemplateComplex,
   useReorderTemplateComplexes,
-  useReorderTemplateExercises,
   useUpdateTemplate,
-  useUpdateTemplateExercise,
 } from '@/entities/admin'
 import type { Program } from '@/entities/program'
 import { buildPath, ROUTES } from '@/shared/config/paths'
@@ -33,7 +28,7 @@ import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Label } from '@/shared/ui/shadcn/label'
 import { Textarea } from '@/shared/ui/shadcn/textarea'
 import { arrangeBy } from '@/widgets/program-editor/arrange'
-import { type ComplexEditorActions, ProgramComplexList } from '@/widgets/program-editor/ProgramComplexList'
+import { type ComplexListActions, ProgramComplexList } from '@/widgets/program-editor/ProgramComplexList'
 
 const BACK = `${ROUTES.ADMIN}?tab=templates`
 
@@ -85,32 +80,18 @@ const MetaForm = ({ template }: { template: Program }) => {
   )
 }
 
+// Пока перестановка сохраняется, показываем новый порядок, а не старый
 const useTemplateActions = (templateId: number) => {
   const addComplex = useAddTemplateComplex()
-  const renameComplex = useRenameTemplateComplex()
-  const deleteComplex = useDeleteTemplateComplex()
   const reorderComplexes = useReorderTemplateComplexes()
-  const updateExercise = useUpdateTemplateExercise()
-  const deleteExercise = useDeleteTemplateExercise()
-  const reorderExercises = useReorderTemplateExercises()
 
-  const actions: ComplexEditorActions = {
+  const actions: ComplexListActions = {
     addComplex: name => addComplex.mutateAsync({ templateId, name }),
     reorderComplexes: ids => reorderComplexes.mutate({ templateId, ids }),
-    renameComplex: (id, name) => renameComplex.mutateAsync({ id, name }),
-    deleteComplex: id => deleteComplex.mutateAsync(id),
-    updateExercise: (id, plan) => updateExercise.mutateAsync({ id, ...plan }),
-    deleteExercise: id => deleteExercise.mutate(id),
-    reorderExercises: (complexId, ids) => reorderExercises.mutate({ complexId, ids }),
   }
 
-  // Пока перестановка сохраняется, показываем новый порядок, а не старый
   const arrange = (template: Program) =>
-    arrangeBy(template.complexes, reorderComplexes.isPending ? reorderComplexes.variables.ids : undefined).map(c =>
-      reorderExercises.isPending && reorderExercises.variables.complexId === c.id
-        ? { ...c, exercises: arrangeBy(c.exercises, reorderExercises.variables.ids) }
-        : c,
-    )
+    arrangeBy(template.complexes, reorderComplexes.isPending ? reorderComplexes.variables.ids : undefined)
 
   return { actions, arrange, adding: addComplex.isPending }
 }
@@ -118,7 +99,6 @@ const useTemplateActions = (templateId: number) => {
 // Редактор шаблона: тот же, что у программ пользователя, плюс описание (frontend-tz, 14.2)
 const TemplateEditorPage = () => {
   const templateId = Number(useParams().templateId)
-  const [search] = useSearchParams()
   const navigate = useNavigate()
   const template = useAdminTemplate(templateId)
   const remove = useDeleteTemplate()
@@ -149,7 +129,7 @@ const TemplateEditorPage = () => {
       <QueryScreen query={template}>
         {t => (
           <>
-            <Rise className='px-5'>
+            <Rise className='px-gutter'>
               <MetaForm template={t} />
             </Rise>
 
@@ -157,13 +137,10 @@ const TemplateEditorPage = () => {
               complexes={arrange(t)}
               actions={actions}
               adding={adding}
-              initialExpandedId={Number(search.get('open')) || null}
-              addExerciseTo={complexId =>
-                buildPath(ROUTES.ADMIN_TEMPLATE_ADD_EXERCISE, { templateId: t.id, complexId })
-              }
+              complexTo={complexId => buildPath(ROUTES.ADMIN_TEMPLATE_COMPLEX, { templateId: t.id, complexId })}
             />
 
-            <Rise className='px-5'>
+            <Rise className='px-gutter'>
               <ConfirmAction
                 trigger={
                   <Button

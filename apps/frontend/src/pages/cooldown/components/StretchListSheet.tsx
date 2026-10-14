@@ -41,7 +41,7 @@ export const StretchListSheet = ({
           <SheetTitle>Вся заминка</SheetTitle>
           <Eyebrow tone='primary'>~{minutes} мин</Eyebrow>
         </SheetHeader>
-        <div className='flex min-h-0 flex-col gap-4 overflow-y-auto px-5 pb-5'>
+        <div className='flex min-h-0 flex-col gap-4 overflow-y-auto px-gutter pb-5'>
           {blocks.map(block => (
             <div key={block.title}>
               <Eyebrow

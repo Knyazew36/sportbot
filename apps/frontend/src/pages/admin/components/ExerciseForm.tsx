@@ -62,7 +62,7 @@ export const ExerciseForm = ({ exercise, formId, onSave }: ExerciseFormProps) =>
       className='contents'
       onSubmit={handleSubmit(values => onSave(values).catch(error => applyFieldErrors(error, setError)))}
     >
-      <Rise className='px-5'>
+      <Rise className='px-gutter'>
         <TextField
           label='Название'
           error={errors.name}
@@ -79,7 +79,7 @@ export const ExerciseForm = ({ exercise, formId, onSave }: ExerciseFormProps) =>
       </ScreenSection>
 
       <ScreenSection title='Инвентарь'>
-        <div className='no-scrollbar -mx-5 overflow-x-auto px-5 pb-1'>
+        <div className='no-scrollbar -mx-gutter overflow-x-auto px-gutter pb-1'>
           <Controller
             control={control}
             name='equipment'

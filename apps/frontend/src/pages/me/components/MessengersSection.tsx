@@ -115,7 +115,7 @@ export const MessengersSection = () => {
               Открой ссылку и нажми «Старт» у бота — аккаунты объединятся, история останется одна.
             </SheetDescription>
           </SheetHeader>
-          <div className='flex flex-col gap-3 px-5 pb-6'>
+          <div className='flex flex-col gap-3 px-gutter pb-6'>
             {code.data && (
               <ButtonLink
                 to={code.data.url}

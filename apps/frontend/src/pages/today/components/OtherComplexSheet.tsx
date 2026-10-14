@@ -31,7 +31,7 @@ export const OtherComplexSheet = ({
         <SheetTitle>Другой комплекс</SheetTitle>
         <SheetDescription>{programName}. Очередь продолжится с выбранного.</SheetDescription>
       </SheetHeader>
-      <div className='flex flex-col gap-2 px-5 pb-6'>
+      <div className='flex flex-col gap-2 px-gutter pb-6'>
         {complexes.map((c, i) => (
           <OptionButton
             key={c.id}

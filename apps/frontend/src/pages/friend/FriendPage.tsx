@@ -47,7 +47,7 @@ const FriendPage = () => {
       <QueryScreen query={friend}>
         {f => (
           <>
-            <Rise className='px-5'>
+            <Rise className='px-gutter'>
               <Poster
                 as='h1'
                 size='display'
@@ -118,7 +118,7 @@ const FriendPage = () => {
             <MuscleLoadSection userId={f.id} />
             <CalendarSection userId={f.id} />
 
-            <Rise className='px-5 pb-6'>
+            <Rise className='px-gutter pb-6'>
               <ConfirmAction
                 trigger={
                   <Button

@@ -10,7 +10,7 @@ import { moderationQueue } from '../../model/admin'
 
 // Очередь заявок на модерацию: автор, запись, сколько похожих в справочнике (frontend-tz, 14.3)
 export const ModerationTab = () => (
-  <Rise className='px-5'>
+  <Rise className='px-gutter'>
     {moderationQueue.length === 0 ? (
       <ScreenState
         state='empty'

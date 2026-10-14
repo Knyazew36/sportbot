@@ -15,7 +15,7 @@ export const RestDay = ({ day }: { day: DayToday }) => {
 
   return (
     <>
-      <Rise className='px-5'>
+      <Rise className='px-gutter'>
         <Lead>сегодня —</Lead>
         <Poster
           as='h1'
@@ -33,7 +33,7 @@ export const RestDay = ({ day }: { day: DayToday }) => {
       />
       {complex && (
         <>
-          <Rise className='px-5'>
+          <Rise className='px-gutter'>
             <List>
               <ListRow
                 title={complex.name}
@@ -50,7 +50,7 @@ export const RestDay = ({ day }: { day: DayToday }) => {
               />
             </List>
           </Rise>
-          <Rise className='px-5'>
+          <Rise className='px-gutter'>
             <ButtonLink
               to={`${buildPath(ROUTES.WORKOUT)}?complexId=${complex.id}`}
               variant='outline'

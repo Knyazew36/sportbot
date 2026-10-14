@@ -43,7 +43,7 @@ const FriendScreen = () => {
             title='Друг'
           />
         }
-        className='px-5'
+        className='px-gutter'
       >
         <ScreenState
           state='empty'
@@ -65,7 +65,7 @@ const FriendScreen = () => {
       }
       className='gap-10'
     >
-      <Rise className='px-5'>
+      <Rise className='px-gutter'>
         <Poster
           as='h1'
           size='display'
@@ -163,7 +163,7 @@ const FriendScreen = () => {
         days={calendar}
       />
 
-      <Rise className='px-5'>
+      <Rise className='px-gutter'>
         <ConfirmAction
           trigger={
             <Button

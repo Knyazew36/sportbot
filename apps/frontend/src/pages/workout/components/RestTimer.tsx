@@ -15,7 +15,7 @@ type RestTimerProps = {
 export const RestTimer = ({ timer, restSeconds, nextSet }: RestTimerProps) => {
   if (timer.status === 'idle')
     return (
-      <div className='px-5 pt-4'>
+      <div className='px-gutter pt-4'>
         <Button
           variant='paper'
           size='lg'
@@ -34,7 +34,7 @@ export const RestTimer = ({ timer, restSeconds, nextSet }: RestTimerProps) => {
   const over = timer.left <= 0
   return (
     <>
-      <div className='flex items-center gap-4 px-5 pt-4'>
+      <div className='flex items-center gap-4 px-gutter pt-4'>
         <div className='relative shrink-0'>
           <Ring
             value={timer.total ? Math.max(timer.left, 0) / timer.total : 0}
@@ -89,7 +89,7 @@ export const RestTimer = ({ timer, restSeconds, nextSet }: RestTimerProps) => {
           )}
         </div>
       </div>
-      <div className='grid grid-cols-2 gap-3 px-5 pt-4'>
+      <div className='grid grid-cols-2 gap-3 px-gutter pt-4'>
         <Button
           variant='paper'
           disabled={over}

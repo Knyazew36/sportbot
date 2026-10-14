@@ -19,7 +19,7 @@ export const ComplexQueue = ({
     aside={byQueue ? 'следующий подсвечен' : 'выбран вручную'}
     bleed
   >
-    <ol className='no-scrollbar flex gap-2 overflow-x-auto px-5'>
+    <ol className='no-scrollbar flex gap-2 overflow-x-auto px-gutter'>
       {complexes.map((c, i) => (
         <li key={c.id}>
           <Ticket

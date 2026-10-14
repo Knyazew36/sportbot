@@ -26,7 +26,7 @@ const TemplatesScreen = () => {
           subtitle={`${templates.length} готовые программы`}
         />
       }
-      className='gap-4 px-5'
+      className='gap-4 px-gutter'
     >
       <Rise>
         <Lead>возьми и поправь под себя</Lead>

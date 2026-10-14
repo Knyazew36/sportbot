@@ -34,7 +34,7 @@ export const EntryErrorScreen = ({ reason, onRetry, retrying }: EntryErrorScreen
   return (
     <Screen
       header={<ScreenHeader title='Спортбот' />}
-      className='px-5'
+      className='px-gutter'
     >
       <Rise className='flex flex-1 flex-col justify-center'>
         <Lead size='md'>{copy.lead}</Lead>

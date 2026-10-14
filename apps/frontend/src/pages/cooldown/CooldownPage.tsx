@@ -81,7 +81,7 @@ const CooldownView = ({ cooldown }: { cooldown: Cooldown }) => {
             title='Заминка'
           />
         }
-        className='px-5'
+        className='px-gutter'
       >
         <Rise>
           <Lead>растяжек под эту тренировку —</Lead>
@@ -137,7 +137,7 @@ const CooldownView = ({ cooldown }: { cooldown: Cooldown }) => {
             </Button>
           </StickyFooter>
         }
-        className='px-5'
+        className='px-gutter'
       >
         <Rise>
           <Lead>растяжка на отработавшие мышцы —</Lead>
@@ -215,7 +215,7 @@ const CooldownView = ({ cooldown }: { cooldown: Cooldown }) => {
             )}
           </StickyFooter>
         }
-        className='px-5'
+        className='px-gutter'
       >
         <Rise className='flex flex-1 flex-col justify-center'>
           <Lead>{phase.kind === 'more' ? 'есть время ещё —' : 'растянулись —'}</Lead>
@@ -272,7 +272,7 @@ const CooldownView = ({ cooldown }: { cooldown: Cooldown }) => {
               }
             />
             {/* Пройденные и текущая залиты, «если есть время» — пунктиром */}
-            <div className='flex gap-1 px-5 pt-3'>
+            <div className='flex gap-1 px-gutter pt-3'>
               {all.map((s, i) => (
                 <span
                   key={s.id}
@@ -289,7 +289,7 @@ const CooldownView = ({ cooldown }: { cooldown: Cooldown }) => {
             </div>
           </>
         }
-        className='gap-5 px-5 pt-4'
+        className='gap-5 px-gutter pt-4'
       >
         <Rise className='relative [@media(max-height:620px)]:hidden'>
           <CatalogImage
