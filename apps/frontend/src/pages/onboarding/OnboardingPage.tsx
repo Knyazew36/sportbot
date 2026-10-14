@@ -65,11 +65,10 @@ const Wizard = ({ state }: { state: OnboardingState }) => {
         </>
       }
       footer={
-        <StickyFooter className='grid grid-cols-[auto_minmax(0,1fr)] gap-2'>
+        <StickyFooter>
           <Button
             variant='outline'
             size='xl'
-            className='px-4'
             disabled={step === 0 || pending}
             onClick={() => setStep(s => s - 1)}
           >
@@ -79,7 +78,6 @@ const Wizard = ({ state }: { state: OnboardingState }) => {
             type='submit'
             form={FORM_ID}
             size='xl'
-            className='justify-between'
             disabled={pending}
           >
             {last ? 'Начать' : 'Дальше'}

@@ -35,7 +35,7 @@ export const HoldControls = ({ holdSeconds, side, back, next, onEnd }: HoldContr
   }, [over, onEnd])
 
   return (
-    <StickyFooter className='pt-3'>
+    <StickyFooter className='block pt-3'>
       <div className='flex items-baseline justify-center gap-2'>
         <Eyebrow tone={over ? 'primary' : 'muted'}>{over ? 'готово' : paused ? 'пауза' : 'держи'}</Eyebrow>
         {side && (

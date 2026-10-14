@@ -114,19 +114,17 @@ const CooldownView = ({ cooldown }: { cooldown: Cooldown }) => {
           />
         }
         footer={
-          <StickyFooter className='grid grid-cols-[auto_minmax(0,1fr)] gap-2'>
+          <StickyFooter>
             <ButtonLink
               to={ROUTES.TODAY}
               variant='outline'
               size='xl'
-              className='px-4'
               onClick={() => closeCooldown(cooldown.workoutId)}
             >
               Пропустить
             </ButtonLink>
             <Button
               size='xl'
-              className='justify-between'
               onClick={() => go(0)}
             >
               Начать
@@ -189,7 +187,7 @@ const CooldownView = ({ cooldown }: { cooldown: Cooldown }) => {
         footer={
           <StickyFooter>
             {phase.kind === 'more' ? (
-              <div className='grid grid-cols-2 gap-2'>
+              <>
                 <Button
                   variant='outline'
                   size='xl'
@@ -203,12 +201,11 @@ const CooldownView = ({ cooldown }: { cooldown: Cooldown }) => {
                 >
                   Да
                 </Button>
-              </div>
+              </>
             ) : (
               <ButtonLink
                 to={ROUTES.TODAY}
                 size='xl'
-                className='w-full'
               >
                 На «Сегодня»
               </ButtonLink>

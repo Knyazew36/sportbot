@@ -47,26 +47,26 @@ const ExercisePage = () => {
       }
       footer={
         exercise.data && (
-          <StickyFooter className='grid grid-cols-[1fr_auto] gap-2'>
+          <StickyFooter>
             <Button
-              size='lg'
+              variant='outline'
+              size='icon-lg'
+              className='size-[68px]'
+              onClick={() => setComplaintOpen(true)}
+              aria-label='Ошибка в описании'
+            >
+              <FlagIcon className='size-6' />
+            </Button>
+            <Button
+              size='xl'
               disabled={!program.data}
               onClick={() => setAddOpen(true)}
             >
               <PlusIcon
-                className='size-5'
+                className='size-6'
                 strokeWidth={2.5}
               />
               {program.data ? 'В комплекс' : 'Нет активной программы'}
-            </Button>
-            <Button
-              variant='outline'
-              size='icon-lg'
-              className='h-[60px]'
-              onClick={() => setComplaintOpen(true)}
-              aria-label='Ошибка в описании'
-            >
-              <FlagIcon className='size-5' />
             </Button>
           </StickyFooter>
         )

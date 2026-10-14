@@ -22,19 +22,18 @@ import { PermissionBanner } from './components/PermissionBanner'
 import { RestDay } from './components/RestDay'
 import { TrainingDay } from './components/TrainingDay'
 
-type Cta = { label: string; to: string; variant?: 'success'; size?: 'lg' }
+type Cta = { label: string; to: string; variant?: 'success' }
 
 // Главное действие дня у большого пальца
 const cta = (day: DayToday): Cta | null => {
   if (day.state === 'TRAINING' && day.complex)
     return { label: 'Начать', to: `${ROUTES.WORKOUT}?complexId=${day.complex.id}` }
-  // Внеплановая тренировка в день отдыха (7.2): зелёная, а надпись длинная — кнопка на ступень меньше
+  // Внеплановая тренировка в день отдыха (7.2) — зелёная
   if (day.state === 'REST' && day.complex)
     return {
-      label: 'Всё равно потренироваться',
+      label: 'Потренироваться',
       to: `${ROUTES.WORKOUT}?complexId=${day.complex.id}`,
       variant: 'success',
-      size: 'lg',
     }
   if (day.state === 'IN_PROGRESS') return { label: 'Продолжить', to: ROUTES.WORKOUT }
   if (day.state === 'DONE' && day.workout && !isCooldownClosed(day.workout.id))
@@ -73,12 +72,11 @@ const TodayPage = () => {
             <ButtonLink
               to={action.to}
               variant={action.variant}
-              size={action.size ?? 'xl'}
-              className='w-full justify-between'
+              size='xl'
             >
               {action.label}
               <ArrowRightIcon
-                className={action.size === 'lg' ? 'size-6' : 'size-7'}
+                className='size-7'
                 strokeWidth={2.5}
               />
             </ButtonLink>

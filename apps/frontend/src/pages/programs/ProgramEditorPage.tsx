@@ -90,7 +90,7 @@ const ProgramEditorPage = () => {
                 </Text>
               ) : (
                 <Button
-                  variant='outline'
+                  variant='success'
                   className='w-full'
                   disabled={activate.isPending}
                   onClick={() => activate.mutate(p.id)}

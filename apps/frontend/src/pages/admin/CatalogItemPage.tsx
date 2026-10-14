@@ -77,8 +77,7 @@ const CatalogItemPage = () => {
           <Button
             type='submit'
             form={FORM_ID}
-            size='lg'
-            className='w-full'
+            size='xl'
             disabled={saving}
           >
             Сохранить

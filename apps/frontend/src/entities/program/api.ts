@@ -85,7 +85,7 @@ export const useCreateProgram = () => {
   const apply = useApplyProgram()
   return useMutation({
     mutationFn: (name: string) => programControllerCreate({ name }),
-    meta: { successMessage: 'Программа создана', inlineFieldErrors: true },
+    meta: { successMessage: 'Программа создана' },
     onSuccess: apply,
   })
 }

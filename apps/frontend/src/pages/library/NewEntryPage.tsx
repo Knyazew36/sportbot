@@ -137,10 +137,10 @@ const Wizard = ({ kind, onDone }: { kind: CatalogKind; onDone: (name: string) =>
         </>
       }
       footer={
-        <StickyFooter className='grid grid-cols-[auto_1fr] gap-2'>
+        <StickyFooter>
           <Button
             variant='outline'
-            size='lg'
+            size='xl'
             disabled={step === 0}
             onClick={() => setStep(s => s - 1)}
           >
@@ -148,23 +148,24 @@ const Wizard = ({ kind, onDone }: { kind: CatalogKind; onDone: (name: string) =>
           </Button>
           {step < STEPS.length - 1 ? (
             <Button
-              size='lg'
-              className='justify-between'
+              size='xl'
               onClick={() => void next()}
             >
               Дальше
-              <ArrowRightIcon className='size-6' />
+              <ArrowRightIcon
+                className='size-7'
+                strokeWidth={2.5}
+              />
             </Button>
           ) : (
             <Button
-              size='lg'
-              className='justify-between'
+              size='xl'
               disabled={create.isPending}
               onClick={() => void submit()}
             >
               Создать
               <CheckIcon
-                className='size-6'
+                className='size-7'
                 strokeWidth={3}
               />
             </Button>
@@ -325,8 +326,7 @@ const NewEntryPage = () => {
           <StickyFooter>
             <ButtonLink
               to={BACK}
-              size='lg'
-              className='w-full'
+              size='xl'
             >
               К моим записям
             </ButtonLink>

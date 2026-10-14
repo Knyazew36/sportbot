@@ -8,7 +8,9 @@ import { cn } from '@/shared/lib/utils'
 //   Eyebrow — метка капсом с разрядкой: заголовок секции, подпись над значением
 //   Text    — основной гротеск: абзацы, строки списков, пояснения
 // Размер, межстрочный и цвет настроены здесь: на страницах выбирают size и tone, а не подбирают классы.
-// className остаётся для раскладки (отступы, выравнивание, ширина)
+// className остаётся для раскладки (отступы, выравнивание, ширина).
+// Кегль стоит в cn() до межстрочного: tailwind-merge считает text-[…] конфликтом с leading-* и выкидывает
+// межстрочный, если он идёт раньше
 
 type BaseProps = HTMLAttributes<HTMLElement> & {
   /** Тег: h1/h2 для заголовков, span внутри строки, dt/dd в списках определений */
@@ -161,8 +163,8 @@ type LeadProps = BaseProps & { size?: keyof typeof LEAD_SIZE; tone?: Tone }
 export const Lead = ({ as: Tag = 'p', size = 'lg', tone = 'inherit', className, ...props }: LeadProps) => (
   <Tag
     className={cn(
-      'font-serif leading-[1.05] font-light tracking-[-0.02em] italic',
       LEAD_SIZE[size],
+      'font-serif leading-[1.05] font-light tracking-[-0.02em] italic',
       TONE[tone],
       className,
     )}
@@ -184,8 +186,8 @@ type EyebrowProps = BaseProps & { size?: keyof typeof EYEBROW_SIZE; tone?: Tone 
 export const Eyebrow = ({ as: Tag = 'span', size = 'md', tone = 'muted', className, ...props }: EyebrowProps) => (
   <Tag
     className={cn(
-      'font-grotesk leading-[1.25] font-normal tracking-[0.14em] uppercase',
       EYEBROW_SIZE[size],
+      'font-grotesk leading-[1.25] font-normal tracking-[0.14em] uppercase',
       TONE[tone],
       className,
     )}
@@ -214,8 +216,8 @@ export const Text = ({ as: Tag = 'p', size = 'md', tone = 'inherit', className, 
   <Tag
     // Сброс капса и плакатного шрифта: подпись внутри кнопки наследовала бы их от родителя
     className={cn(
-      'font-grotesk leading-snug font-[350] tracking-[-0.02em] normal-case',
       TEXT_SIZE[size],
+      'font-grotesk leading-snug font-[350] tracking-[-0.02em] normal-case',
       TONE[tone],
       className,
     )}

@@ -70,7 +70,7 @@ const SummaryView = ({ summary }: { summary: WorkoutSummary }) => (
       />
     }
     footer={
-      <StickyFooter>
+      <StickyFooter className='block'>
         <Lead
           size='sm'
           tone='soft'
@@ -78,19 +78,17 @@ const SummaryView = ({ summary }: { summary: WorkoutSummary }) => (
         >
           немного растяжки — и домой
         </Lead>
-        <div className='grid grid-cols-[auto_minmax(0,1fr)] gap-2'>
+        <div className='flex flex-wrap justify-end gap-2'>
           <ButtonLink
             to={ROUTES.TODAY}
             variant='outline'
             size='xl'
-            className='px-4'
           >
             Домой
           </ButtonLink>
           <ButtonLink
             to={buildPath(ROUTES.COOLDOWN, { workoutId: summary.workoutId })}
             size='xl'
-            className='justify-between'
           >
             Заминка
             <ArrowRightIcon

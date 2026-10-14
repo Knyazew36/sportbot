@@ -38,13 +38,12 @@ const ProgramsPage = () => {
       footer={
         <StickyFooter>
           <Button
-            size='lg'
-            className='w-full justify-between'
+            size='xl'
             onClick={() => setNewOpen(true)}
           >
             Новая программа
             <PlusIcon
-              className='size-6'
+              className='size-7'
               strokeWidth={2.5}
             />
           </Button>

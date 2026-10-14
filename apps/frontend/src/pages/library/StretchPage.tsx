@@ -43,22 +43,22 @@ const StretchPage = () => {
       footer={
         s &&
         (side === 0 ? (
-          <StickyFooter className='grid grid-cols-[1fr_auto] gap-2'>
-            <Button
-              size='lg'
-              onClick={() => setSide(1)}
-            >
-              <PlayIcon className='size-5' />
-              Попробовать
-            </Button>
+          <StickyFooter>
             <Button
               variant='outline'
               size='icon-lg'
-              className='h-[60px]'
+              className='size-[68px]'
               onClick={() => setComplaintOpen(true)}
               aria-label='Ошибка в описании'
             >
-              <FlagIcon className='size-5' />
+              <FlagIcon className='size-6' />
+            </Button>
+            <Button
+              size='xl'
+              onClick={() => setSide(1)}
+            >
+              <PlayIcon className='size-6' />
+              Попробовать
             </Button>
           </StickyFooter>
         ) : (

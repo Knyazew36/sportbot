@@ -17,6 +17,8 @@ import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'
 import { CatalogRow } from '@/widgets/catalog/CatalogRow'
 
+import { ExercisePreviewSheet } from './components/ExercisePreviewSheet'
+
 // Замена упражнения (business-tz, 7.4): аналоги с теми же основными мышцами, без зон с ограничением,
 // затем «только сегодня» или «в комплексе». История весов у аналога своя
 const ReplaceExercisePage = () => {
@@ -26,6 +28,8 @@ const ReplaceExercisePage = () => {
   const analogs = useAnalogs(itemId)
   const replace = useReplaceItem()
   const [choice, setChoice] = useState<WorkoutAnalog | null>(null)
+  // Тап по строке — посмотреть упражнение; кнопка справа — сразу к выбору замены
+  const [preview, setPreview] = useState<WorkoutAnalog | null>(null)
 
   const workout = current.data?.workout
   const item = workout?.exercises.find(e => e.id === itemId)
@@ -79,6 +83,7 @@ const ReplaceExercisePage = () => {
                   imageUrl={toAssetUrl(analog.imageUrl) ?? null}
                   meta={analog.muscles}
                   draft={analog.draft}
+                  onClick={() => setPreview(analog)}
                   trail={
                     <Button
                       variant='outline'
@@ -95,6 +100,15 @@ const ReplaceExercisePage = () => {
           )}
         </QueryScreen>
       </ScreenSection>
+
+      <ExercisePreviewSheet
+        exercise={preview}
+        onOpenChange={open => !open && setPreview(null)}
+        onReplace={() => {
+          setChoice(preview)
+          setPreview(null)
+        }}
+      />
 
       <Sheet
         open={choice != null}

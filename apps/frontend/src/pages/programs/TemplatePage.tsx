@@ -37,8 +37,7 @@ const TemplatePage = () => {
         template && (
           <StickyFooter>
             <Button
-              size='lg'
-              className='w-full justify-between'
+              size='xl'
               disabled={take.isPending}
               onClick={() =>
                 take.mutate(template.id, {
@@ -48,7 +47,7 @@ const TemplatePage = () => {
             >
               Взять себе
               <PlusIcon
-                className='size-6'
+                className='size-7'
                 strokeWidth={2.5}
               />
             </Button>

@@ -87,6 +87,7 @@ export class MenuBot implements BotFeature {
 export function mainMenuMessage(user: AdminIdentity) {
   return msg('Главное меню', [
     [btn('🏋️ Тренировка сегодня', 'wo:today')],
+    [appBtn(undefined, '📱 Открыть приложение')],
     [btn('📋 Программы', 'pr:list'), btn('📚 Справочник', 'ex:menu')],
     // «История» (исправление отметок) — в настройках: в основном меню она не нужна каждый день
     [btn('📊 Статистика', 'ss:menu'), btn('⚖️ Вес тела', 'bw:menu')],

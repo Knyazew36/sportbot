@@ -144,7 +144,7 @@ export const useDiscardWorkout = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (id: number) => workoutControllerDiscard(id),
-    meta: { successMessage: 'Тренировка отменена, очередь не сдвинулась' },
+    meta: { successMessage: 'Тренировка отменена' },
     onSuccess: () => {
       queryClient.setQueryData(workoutKeys.current, { workout: null })
       void queryClient.invalidateQueries({ queryKey: dayKeys.all })

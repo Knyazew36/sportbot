@@ -24,13 +24,15 @@ export const Screen = ({ header, footer, children, className }: ScreenProps) => 
 
 type StickyFooterProps = { children: ReactNode; className?: string }
 
-// Главное действие у большого пальца: прилипает к низу экрана или над нижним меню
+// Главное действие у большого пальца: прилипает к низу экрана или над нижним меню.
+// Кнопки — размера xl (как «Начать» на «Сегодня»), по ширине надписи и прижаты вправо; не влезли — переносятся.
+// Своя раскладка (таймер, подпись над кнопками) — через className='block'
 export const StickyFooter = ({ children, className }: StickyFooterProps) => {
   const { navVisible } = useScreenChrome()
   return (
     <div
       className={cn(
-        'bg-background border-border sticky z-20 border-t-[1.5px] px-gutter pt-3',
+        'bg-background border-border sticky z-20 flex flex-wrap items-center justify-end gap-2 border-t-[1.5px] px-gutter pt-3',
         navVisible ? 'bottom-(--sb-nav-h) pb-3' : 'bottom-0 pb-[max(0.75rem,env(safe-area-inset-bottom))]',
         className,
       )}

@@ -29,7 +29,7 @@ export const RestDay = ({ day }: { day: DayToday }) => {
         streak={day.streak}
         week={day.week}
       />
-      {/* «Всё равно потренироваться» — в липком низу экрана, над меню */}
+      {/* «Потренироваться» — в липком низу экрана, над меню */}
       {complex && (
         <Rise className='px-gutter'>
           <List>
