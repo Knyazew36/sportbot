@@ -176,6 +176,7 @@ const WorkoutView = ({ workout }: { workout: Workout }) => {
         item={item}
         settings={workout.settings}
         timer={timer}
+        onSubmitStart={() => setPickedId(item.id)}
       />
       <EditSetSheet
         set={editing}

@@ -28,10 +28,12 @@ type SetInputPanelProps = {
   item: WorkoutItem
   settings: Workout['settings']
   timer: ReturnType<typeof useDeadlineTimer>
+  /** Подход отправляется — экран закрепляет упражнение за собой */
+  onSubmitStart: () => void
 }
 
 // Ввод подхода прибит к таймеру внизу, у большого пальца (frontend-tz, 8.2 и 15)
-export const SetInputPanel = ({ item, settings, timer }: SetInputPanelProps) => {
+export const SetInputPanel = ({ item, settings, timer, onSubmitStart }: SetInputPanelProps) => {
   const add = useAddSet()
   const number = item.sets.length + 1
   const hint = lastSetHint(item.last, number)
@@ -47,15 +49,17 @@ export const SetInputPanel = ({ item, settings, timer }: SetInputPanelProps) => 
     defaultValues: { weight: '', reps: '' },
   })
 
-  const submit = handleSubmit(values =>
-    add
+  const submit = handleSubmit(values => {
+    // Первый подход делает упражнение «сделанным», и без закрепления экран ушёл бы к следующему несделанному
+    onSubmitStart()
+    return add
       .mutateAsync({ itemId: item.id, ...values })
       .then(() => {
         reset({ weight: '', reps: '' })
         if (settings.showRestTimer && settings.restAutoStart) timer.start(settings.restSeconds)
       })
-      .catch(error => applyFieldErrors(error, setError)),
-  )
+      .catch(error => applyFieldErrors(error, setError))
+  })
 
   return (
     <motion.section
@@ -71,8 +75,11 @@ export const SetInputPanel = ({ item, settings, timer }: SetInputPanelProps) => 
           settings.showRestTimer ? 'pb-3' : 'pb-[max(0.75rem,env(safe-area-inset-bottom))]',
         )}
       >
-        <div className='flex items-baseline justify-between gap-2'>
-          <Eyebrow tone='primary'>Подход {number}</Eyebrow>
+        <div className='flex items-center justify-between gap-2'>
+          <Eyebrow className='bg-primary text-primary-foreground px-2 py-1'>
+            Вводим подход {number}
+            {item.plannedSets > 0 && ` из ${item.plannedSets}`}
+          </Eyebrow>
           {hint && (
             <Eyebrow>
               прошлый раз {weightText(hint.weight)} × {hint.reps}
