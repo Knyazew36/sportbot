@@ -210,6 +210,27 @@ export class WorkoutService {
       this.logger.log(`Незавершённая тренировка удалена: userId=${userId}`);
   }
 
+  /**
+   * Удалить закрытую тренировку из истории. День, который она закрыла, становится пропуском —
+   * иначе в календаре останется «тренировка» без тренировки. Очередь комплексов не откатывается.
+   */
+  public async remove(userId: number, workoutId: number): Promise<void> {
+    await this.prisma.$transaction(async (tx) => {
+      await tx.planDay.updateMany({
+        where: { userId, workoutId },
+        data: { status: 'MISSED', workoutId: null },
+      });
+      const { count } = await tx.workout.deleteMany({
+        where: { id: workoutId, userId, status: { not: 'IN_PROGRESS' } },
+      });
+      if (!count) throw new NotFoundException('Тренировка не найдена.');
+      await this.planDays.recalcStreak(userId, tx);
+    });
+    this.logger.log(
+      `Тренировка удалена: workoutId=${workoutId}, userId=${userId}`,
+    );
+  }
+
   // ── Подходы ─────────────────────────────────────────────────────────────
 
   /**

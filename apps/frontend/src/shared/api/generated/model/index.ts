@@ -479,6 +479,7 @@ export * from './workoutControllerDiscard200';
 export * from './workoutControllerFind200';
 export * from './workoutControllerFinish200';
 export * from './workoutControllerMarkDone200';
+export * from './workoutControllerRemove200';
 export * from './workoutControllerReplace200';
 export * from './workoutControllerShare200';
 export * from './workoutControllerShared200';

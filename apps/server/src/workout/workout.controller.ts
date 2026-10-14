@@ -91,6 +91,19 @@ export class WorkoutController {
     return this.workoutAppService.discard(userId, id);
   }
 
+  @Post('delete/:id')
+  @Swagger({
+    title: 'Удалить закрытую тренировку из истории',
+    param: ID_PARAM,
+    bearerAuth: true,
+  })
+  public remove(
+    @CurrentUser('id') userId: number,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.workoutAppService.remove(userId, id);
+  }
+
   // ── Подходы ─────────────────────────────────────────────────────────────
 
   @Post('set/create')

@@ -1,10 +1,10 @@
 import { ArrowRightIcon, ListIcon, SkipBackIcon, SkipForwardIcon } from 'lucide-react'
 import { useParams } from 'react-router'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import { splitSteps } from '@/entities/catalog/lib'
-import { closeCooldown, type Cooldown, useCooldown } from '@/entities/workout'
+import { type Cooldown, useCooldown } from '@/entities/workout'
 import { toAssetUrl } from '@/shared/api'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { pluralize } from '@/shared/lib/format'
@@ -38,11 +38,6 @@ const CooldownView = ({ cooldown }: { cooldown: Cooldown }) => {
   const back = buildPath(ROUTES.WORKOUT_SUMMARY, { workoutId: cooldown.workoutId })
 
   const go = (index: number) => setPhase({ kind: 'step', index, side: 1 })
-
-  // Дошёл до «Готово» (до конца или «Завершить») — на главной заминка больше не предлагается
-  useEffect(() => {
-    if (phase.kind === 'done') closeCooldown(cooldown.workoutId)
-  }, [phase.kind, cooldown.workoutId])
 
   const next = () => {
     if (phase.kind !== 'step') return
@@ -119,7 +114,6 @@ const CooldownView = ({ cooldown }: { cooldown: Cooldown }) => {
               to={ROUTES.TODAY}
               variant='outline'
               size='xl'
-              onClick={() => closeCooldown(cooldown.workoutId)}
             >
               Пропустить
             </ButtonLink>

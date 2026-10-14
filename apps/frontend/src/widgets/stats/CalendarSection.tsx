@@ -1,13 +1,15 @@
 import { addMonths, format, getDaysInMonth, parseISO } from 'date-fns'
-import { PencilIcon } from 'lucide-react'
+import { PencilIcon, Trash2Icon } from 'lucide-react'
 
 import { useState } from 'react'
 
-import { useFixDay } from '@/entities/day'
 import { type StatsDay, useCalendar, useStatsDay } from '@/entities/stats'
+import { useDeleteWorkout } from '@/entities/workout'
+import { ShareWorkoutButton } from '@/features/share-workout/ShareWorkoutButton'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
+import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
@@ -15,8 +17,6 @@ import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
 import { DAY_MARK, MARK_LABEL } from './marks'
 import { MonthCalendar } from './MonthCalendar'
-
-const FIX_LABEL = { DONE: 'Была тренировка', MISSED: 'Это пропуск' } as const
 
 // «50 × 10, 10, 9» — вес один на все подходы; иначе каждый подход «вес × повторы». Без веса — только повторы
 const setsText = (sets: { weight: number; reps: number }[]) => {
@@ -31,7 +31,7 @@ const setsText = (sets: { weight: number; reps: number }[]) => {
 }
 
 const DayDetails = ({ day, canFix }: { day: StatsDay; canFix: boolean }) => {
-  const fix = useFixDay()
+  const remove = useDeleteWorkout()
 
   return (
     <div className='border-foreground/80 mt-2 flex flex-col gap-3 border-[1.5px] p-4'>
@@ -88,29 +88,32 @@ const DayDetails = ({ day, canFix }: { day: StatsDay; canFix: boolean }) => {
               />
             ))}
           </List>
+          {/* Делиться и удалять может только хозяин */}
+          {canFix && (
+            <div className='mt-3 flex flex-wrap gap-2'>
+              <ShareWorkoutButton
+                workoutId={w.id}
+                size='xs'
+              />
+              <ConfirmAction
+                trigger={
+                  <Button
+                    variant='outline'
+                    size='xs'
+                  />
+                }
+                title='Удалить тренировку?'
+                description='Подходы пропадут из статистики, а день в календаре станет пропуском.'
+                confirmLabel='Удалить'
+                onConfirm={() => remove.mutateAsync(w.id)}
+              >
+                <Trash2Icon />
+                Удалить
+              </ConfirmAction>
+            </div>
+          )}
         </div>
       ))}
-      {canFix && day.dayId != null && day.fixTo.length > 0 && (
-        <div className='flex flex-wrap items-center gap-2'>
-          <Text
-            size='xs'
-            tone='muted'
-          >
-            Отметка неверна?
-          </Text>
-          {day.fixTo.map(status => (
-            <Button
-              key={status}
-              variant='outline'
-              size='xs'
-              disabled={fix.isPending}
-              onClick={() => fix.mutate({ dayId: day.dayId!, status })}
-            >
-              {FIX_LABEL[status]}
-            </Button>
-          ))}
-        </div>
-      )}
     </div>
   )
 }

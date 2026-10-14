@@ -16,9 +16,6 @@ import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { StatGrid } from '@/shared/ui/kit/StatGrid'
 import { Eyebrow, Lead, Poster, Text } from '@/shared/ui/kit/Typography'
 
-const duration = (minutes: number) =>
-  minutes >= 60 ? `${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, '0')}` : `${minutes} мин`
-
 // Протокол: что сделано по каждому упражнению
 const Protocol = ({ workoutId }: { workoutId: number }) => {
   const workout = useWorkout(workoutId)
@@ -79,21 +76,23 @@ const SummaryView = ({ summary }: { summary: WorkoutSummary }) => (
         >
           немного растяжки — и домой
         </Lead>
-        <div className='flex flex-wrap justify-end gap-2'>
+        <div className='grid grid-cols-2 gap-2'>
           <ButtonLink
             to={ROUTES.TODAY}
             variant='outline'
-            size='xl'
+            size='lg'
+            className='min-w-0 px-3'
           >
             Домой
           </ButtonLink>
           <ButtonLink
             to={buildPath(ROUTES.COOLDOWN, { workoutId: summary.workoutId })}
-            size='xl'
+            size='lg'
+            className='min-w-0 px-3'
           >
             Заминка
             <ArrowRightIcon
-              className='size-7'
+              className='size-6'
               strokeWidth={2.5}
             />
           </ButtonLink>
@@ -112,17 +111,7 @@ const SummaryView = ({ summary }: { summary: WorkoutSummary }) => (
       >
         {summary.status === 'IN_PROGRESS' ? 'идёт' : 'засчи­тана'}
       </Poster>
-      <div className='relative mt-2 flex items-end justify-between gap-4'>
-        <div>
-          <Eyebrow as='p'>Время</Eyebrow>
-          <Poster
-            size='5xl'
-            numeric
-            className='mt-1'
-          >
-            {duration(summary.minutes)}
-          </Poster>
-        </div>
+      <div className='relative mt-2 flex justify-end'>
         <div className='relative w-[min(118px,30vw)] shrink-0'>
           <MedalArt />
           <Poster

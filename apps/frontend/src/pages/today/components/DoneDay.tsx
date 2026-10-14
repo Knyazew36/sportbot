@@ -14,8 +14,8 @@ import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
 import { OtherComplexSheet } from './OtherComplexSheet'
 
-// Тренировка засчитана: серия крупно, до рекорда — подписью. Дальше — заминка (внизу),
-// ещё одна тренировка (внеплановая, как в боте) или статистика
+// Тренировка засчитана: серия крупно, до рекорда — подписью. Дальше — ещё одна тренировка
+// (внеплановая, как в боте) или статистика
 export const DoneDay = ({ day }: { day: DayToday }) => {
   const navigate = useNavigate()
   const [pickOpen, setPickOpen] = useState(false)

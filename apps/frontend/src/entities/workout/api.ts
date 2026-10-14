@@ -22,6 +22,7 @@ import {
   workoutControllerFind,
   workoutControllerFinish,
   workoutControllerMarkDone,
+  workoutControllerRemove,
   workoutControllerReplace,
   workoutControllerShare,
   workoutControllerShared,
@@ -145,7 +146,9 @@ export const useFinishWorkout = () => {
     onSuccess: summary => {
       queryClient.setQueryData(workoutKeys.summary(summary.workoutId), summary)
       queryClient.setQueryData(workoutKeys.current, { workout: null })
-      void queryClient.invalidateQueries({ queryKey: dayKeys.all })
+      // Главная сейчас не открыта: invalidate лишь пометил бы кэш, и по «Домой» сначала мелькнул бы
+      // старый день с «Продолжить». Сброс — главная покажет загрузку и сразу засчитанный день
+      queryClient.removeQueries({ queryKey: dayKeys.all })
       // Засчитанная тренировка меняет серию, посещаемость и веса
       void queryClient.invalidateQueries({ queryKey: statsKeys.all })
     },
@@ -159,7 +162,8 @@ export const useDiscardWorkout = () => {
     meta: { successMessage: 'Тренировка отменена' },
     onSuccess: () => {
       queryClient.setQueryData(workoutKeys.current, { workout: null })
-      void queryClient.invalidateQueries({ queryKey: dayKeys.all })
+      // Как при завершении: без сброса главная мелькнёт отменённой тренировкой
+      queryClient.removeQueries({ queryKey: dayKeys.all })
     },
   })
 }
@@ -191,6 +195,21 @@ export const useShareWorkout = () =>
     mutationFn: (id: number) => workoutControllerShare(id),
     meta: { successMessage: 'Карточка в чате с ботом — перешли её друзьям' },
   })
+
+/** Удалить прошедшую тренировку: день в календаре становится пропуском, серия пересчитывается */
+export const useDeleteWorkout = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => workoutControllerRemove(id),
+    meta: { successMessage: 'Тренировка удалена' },
+    onSuccess: (_, id) => {
+      queryClient.removeQueries({ queryKey: workoutKeys.detail(id) })
+      queryClient.removeQueries({ queryKey: workoutKeys.summary(id) })
+      void queryClient.invalidateQueries({ queryKey: statsKeys.all })
+      void queryClient.invalidateQueries({ queryKey: dayKeys.all })
+    },
+  })
+}
 
 /** Результат по ссылке из карточки: свой или чужой */
 export const useSharedWorkout = (token: string) =>

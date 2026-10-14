@@ -18,6 +18,7 @@ import type {
   WorkoutControllerFind200,
   WorkoutControllerFinish200,
   WorkoutControllerMarkDone200,
+  WorkoutControllerRemove200,
   WorkoutControllerReplace200,
   WorkoutControllerShare200,
   WorkoutControllerShared200,
@@ -73,6 +74,17 @@ export const workoutControllerDiscard = (
  ) => {
       return customInstance<WorkoutControllerDiscard200>(
       {url: `/workout/discard/${id}`, method: 'POST'
+    },
+      );
+    }
+  /**
+ * @summary Удалить закрытую тренировку из истории
+ */
+export const workoutControllerRemove = (
+    id: number,
+ ) => {
+      return customInstance<WorkoutControllerRemove200>(
+      {url: `/workout/delete/${id}`, method: 'POST'
     },
       );
     }
@@ -209,6 +221,7 @@ export const workoutControllerFind = (
 export type WorkoutControllerStartResult = NonNullable<Awaited<ReturnType<typeof workoutControllerStart>>>
 export type WorkoutControllerFinishResult = NonNullable<Awaited<ReturnType<typeof workoutControllerFinish>>>
 export type WorkoutControllerDiscardResult = NonNullable<Awaited<ReturnType<typeof workoutControllerDiscard>>>
+export type WorkoutControllerRemoveResult = NonNullable<Awaited<ReturnType<typeof workoutControllerRemove>>>
 export type WorkoutControllerAddSetResult = NonNullable<Awaited<ReturnType<typeof workoutControllerAddSet>>>
 export type WorkoutControllerUpdateSetResult = NonNullable<Awaited<ReturnType<typeof workoutControllerUpdateSet>>>
 export type WorkoutControllerDeleteSetResult = NonNullable<Awaited<ReturnType<typeof workoutControllerDeleteSet>>>

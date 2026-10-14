@@ -5,8 +5,7 @@ import { useState } from 'react'
 
 import { type DayToday, useToday } from '@/entities/day'
 import { useSportUser } from '@/entities/sport-user'
-import { isCooldownClosed } from '@/entities/workout'
-import { buildPath, ROUTES } from '@/shared/config/paths'
+import { ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
@@ -36,8 +35,7 @@ const cta = (day: DayToday): Cta | null => {
       variant: 'success',
     }
   if (day.state === 'IN_PROGRESS') return { label: 'Продолжить', to: ROUTES.WORKOUT }
-  if (day.state === 'DONE' && day.workout && !isCooldownClosed(day.workout.id))
-    return { label: 'Заминка', to: buildPath(ROUTES.COOLDOWN, { workoutId: day.workout.id }) }
+  // Заминку предлагает только итог тренировки, на главной её нет
   return null
 }
 
