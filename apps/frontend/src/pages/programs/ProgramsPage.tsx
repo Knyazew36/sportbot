@@ -1,30 +1,30 @@
 import { PlusIcon } from 'lucide-react'
-import { Link } from 'react-router'
 
 import { useState } from 'react'
 
-import { useActivateProgram, usePrograms } from '@/entities/program'
-import { buildPath, ROUTES } from '@/shared/config/paths'
+import { usePrograms } from '@/entities/program'
 import { pluralize } from '@/shared/lib/format'
-import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
+import { Rise } from '@/shared/ui/kit/Reveal'
 import { Screen, StickyFooter } from '@/shared/ui/kit/Screen'
 import { ScreenHeader } from '@/shared/ui/kit/ScreenHeader'
-import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
+import { Lead } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
-import { Badge } from '@/shared/ui/shadcn/badge'
 
 import { ActiveProgram } from './components/ActiveProgram'
-import { FriendUpdate } from './components/FriendUpdate'
+import { CatalogPicks } from './components/CatalogPicks'
+import { MyPrograms } from './components/MyPrograms'
 import { NewProgramSheet } from './components/NewProgramSheet'
+import { SourceUpdate } from './components/SourceUpdate'
 
 const PROGRAM_FORMS: [string, string, string] = ['программа', 'программы', 'программ']
-const COMPLEX_FORMS: [string, string, string] = ['комплекс', 'комплекса', 'комплексов']
+/** Сколько своих программ под плакатом; остальные — на странице «Все мои программы» */
+const MY_PROGRAMS_SHOWN = 4
 
-// Программы пользователя (frontend-tz, 10.1): активная — плакатом, остальные списком, переключение одним нажатием
+// Программы пользователя (frontend-tz, 10.1): плакат активной, под ним первые свои программы и ссылка
+// на все, ниже лента каталога. Своих программ нет — лента и есть главное на экране
 const ProgramsPage = () => {
   const programs = usePrograms()
-  const activate = useActivateProgram()
   const [newOpen, setNewOpen] = useState(false)
 
   return (
@@ -50,17 +50,18 @@ const ProgramsPage = () => {
         </StickyFooter>
       }
     >
-      <QueryScreen
-        query={programs}
-        isEmpty={list => list.length === 0}
-        empty={{
-          title: 'Программ пока нет',
-          description: 'Возьми готовый шаблон или собери свою с нуля.',
-        }}
-      >
+      <QueryScreen query={programs}>
         {list => {
+          if (!list.length)
+            return (
+              <>
+                <Rise className='px-gutter'>
+                  <Lead>Программ пока нет. Подбери готовую под себя или собери свою с нуля.</Lead>
+                </Rise>
+                <CatalogPicks title='Подобрать программу' />
+              </>
+            )
           const active = list.find(p => p.active)
-          const rest = list.filter(p => !p.active)
           return (
             <>
               {active && <ActiveProgram programId={active.id} />}
@@ -68,58 +69,20 @@ const ProgramsPage = () => {
               {list
                 .filter(p => p.sourceUpdated)
                 .map(p => (
-                  <FriendUpdate
+                  <SourceUpdate
                     key={p.id}
                     program={p}
                   />
                 ))}
 
-              {rest.length > 0 && (
-                <ScreenSection
-                  title={active ? 'Остальные' : 'Твои программы'}
-                  aside='активная — одна'
-                >
-                  <List>
-                    {rest.map(p => (
-                      // Вся строка ведёт в программу: ссылка растянута на строку, кнопка лежит поверх неё
-                      <ListRow
-                        key={p.id}
-                        className='hover:bg-accent/60 relative -mx-gutter px-gutter transition-colors'
-                        lead={String(p.complexCount).padStart(2, '0')}
-                        title={
-                          <Link
-                            to={buildPath(ROUTES.PROGRAM, { programId: p.id })}
-                            className='after:absolute after:inset-0'
-                          >
-                            {p.name}
-                          </Link>
-                        }
-                        meta={pluralize(p.complexCount, COMPLEX_FORMS)}
-                        trail={
-                          <Button
-                            variant='outline'
-                            size='xs'
-                            className='relative z-10'
-                            disabled={activate.isPending}
-                            onClick={() => activate.mutate(p.id)}
-                          >
-                            Сделать активной
-                          </Button>
-                        }
-                      >
-                        {p.fromFriend && (
-                          <Badge
-                            variant='secondary'
-                            className='mt-2'
-                          >
-                            от {p.fromFriend}
-                          </Badge>
-                        )}
-                      </ListRow>
-                    ))}
-                  </List>
-                </ScreenSection>
-              )}
+              {/* Активная уже плакатом выше — в коротком списке только остальные */}
+              <MyPrograms
+                programs={list.filter(p => !p.active)}
+                title='Мои программы'
+                limit={MY_PROGRAMS_SHOWN}
+              />
+
+              <CatalogPicks title='Другие программы' />
             </>
           )
         }}

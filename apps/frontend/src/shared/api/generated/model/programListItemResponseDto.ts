@@ -15,6 +15,8 @@ export interface ProgramListItemResponseDto {
      * @nullable
      */
   fromFriend: string | null;
-  /** Друг обновил программу после копирования */
+  /** Копия шаблона из каталога */
+  fromTemplate: boolean;
+  /** Источник копии (друг или шаблон) изменился после копирования, и «Не сейчас» ещё не нажимали */
   sourceUpdated: boolean;
 }

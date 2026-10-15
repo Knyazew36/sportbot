@@ -5,8 +5,7 @@
  * OpenAPI spec version: 0.0.1
  */
 
-export interface MaxLoginStatusUserDto {
-  id: number;
-  /** @nullable */
-  email: string | null;
+export interface UpdateProgramTagGroupDto {
+  code?: string;
+  name?: string;
 }

@@ -20,6 +20,12 @@ export class ProgramListItemResponseDto {
   })
   fromFriend: string | null;
 
-  @ApiProperty({ description: 'Друг обновил программу после копирования' })
+  @ApiProperty({ description: 'Копия шаблона из каталога' })
+  fromTemplate: boolean;
+
+  @ApiProperty({
+    description:
+      'Источник копии (друг или шаблон) изменился после копирования, и «Не сейчас» ещё не нажимали',
+  })
   sourceUpdated: boolean;
 }

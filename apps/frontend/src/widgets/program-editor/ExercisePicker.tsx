@@ -183,4 +183,3 @@ export const ExercisePicker = ({ complex, back, adding, onAdd, exerciseHref }: E
     </Screen>
   )
 }
-

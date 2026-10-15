@@ -7,8 +7,8 @@ import { useState } from 'react'
 
 import {
   type ComplexExerciseValues,
-  type ComplexNameValues,
   complexNameSchema,
+  type ComplexNameValues,
   type ProgramComplex,
 } from '@/entities/program'
 import { applyFieldErrors } from '@/shared/lib/form'
@@ -19,6 +19,7 @@ import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { TextField } from '@/shared/ui/kit/TextField'
 import { Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
+import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet'
 
 import { arrangeBy } from './arrange'
 import { ComplexExerciseRow } from './ComplexExerciseRow'
@@ -74,6 +75,8 @@ const ComplexNameForm = ({ complex, onRename }: ComplexNameFormProps) => {
 export const ComplexEditor = ({ complex, actions, addExerciseTo }: ComplexEditorProps) => {
   // Порядок под пальцем: на сервер уходит один раз, когда строку отпустили
   const [dragOrder, setDragOrder] = useState<number[] | null>(null)
+  // Упражнение, открытое в шторке: посмотреть технику, не уходя из редактора
+  const [opened, setOpened] = useState<{ id: number; name: string } | null>(null)
   const shown = arrangeBy(complex.exercises, dragOrder ?? undefined)
   const ids = shown.map(e => e.id)
 
@@ -112,6 +115,7 @@ export const ComplexEditor = ({ complex, actions, addExerciseTo }: ComplexEditor
                 onDrop={drop}
                 onPlanChange={plan => actions.updateExercise(e.id, plan)}
                 onRemove={() => actions.deleteExercise(e.id)}
+                onView={() => setOpened({ id: e.exerciseId, name: e.name })}
               />
             ))}
           </Reorder.Group>
@@ -150,6 +154,11 @@ export const ComplexEditor = ({ complex, actions, addExerciseTo }: ComplexEditor
           Удалить комплекс
         </ConfirmAction>
       </Rise>
+
+      <ExerciseSheet
+        exercise={opened}
+        onOpenChange={open => !open && setOpened(null)}
+      />
     </>
   )
 }

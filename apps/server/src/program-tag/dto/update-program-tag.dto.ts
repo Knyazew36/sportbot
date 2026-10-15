@@ -1,5 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  IsInt,
   IsOptional,
   IsString,
   Matches,
@@ -31,4 +32,11 @@ export class UpdateProgramTagDto {
     message: `Название — до ${TAG_NAME_MAX} символов`,
   })
   name?: string;
+
+  @ApiPropertyOptional({
+    description: 'Перенести в другую группу: тег встанет последним',
+  })
+  @IsOptional()
+  @IsInt()
+  groupId?: number;
 }

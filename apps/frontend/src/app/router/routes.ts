@@ -48,6 +48,7 @@ export const miniappRoutes: AppRoute[] = [
   { path: ROUTES.TODAY, lazy: () => import('@/pages/today/TodayPage') },
   { path: ROUTES.PROGRAMS, lazy: () => import('@/pages/programs/ProgramsPage') },
   { path: ROUTES.PROGRAM_TEMPLATES, lazy: () => import('@/pages/programs/TemplatesPage') },
+  { path: ROUTES.PROGRAMS_MINE, lazy: () => import('@/pages/programs/MyProgramsPage') },
   { path: ROUTES.PROGRAM_TEMPLATE, lazy: () => import('@/pages/programs/TemplatePage') },
   { path: ROUTES.PROGRAM, lazy: () => import('@/pages/programs/ProgramEditorPage') },
   { path: ROUTES.PROGRAM_COMPLEX, lazy: () => import('@/pages/programs/ComplexPage') },

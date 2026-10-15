@@ -22,8 +22,17 @@ export interface ProgramResponseDto {
      * @nullable
      */
   fromFriend: string | null;
-  /** Друг обновил программу после копирования */
+  /** Копия шаблона из каталога */
+  fromTemplate: boolean;
+  /** Источник копии (друг или шаблон) изменился после копирования, и «Не сейчас» ещё не нажимали */
   sourceUpdated: boolean;
+  /** Шаблон виден в каталоге; у программы пользователя false */
+  isPublished: boolean;
+  /**
+     * Каталог: последняя копия этого шаблона у пользователя («уже у тебя»); в остальных ответах null
+     * @nullable
+     */
+  takenProgramId: number | null;
   /** Теги шаблона по порядку чипов; у программы пользователя пусто */
   tags: ProgramTagResponseDto[];
   complexes: ProgramComplexResponseDto[];

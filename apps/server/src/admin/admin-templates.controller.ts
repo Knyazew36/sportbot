@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
+import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { Swagger } from '@/common/decorators/swagger/swagger.decorator';
 import { SportAdmin } from '@/miniapp/decorators/sport-auth.decorator';
 import { AddComplexExercisesDto } from '@/program/dto/add-complex-exercises.dto';
@@ -39,7 +40,33 @@ export class AdminTemplatesController {
     bearerAuth: true,
   })
   public list() {
-    return this.programAppService.templates();
+    return this.programAppService.adminTemplates();
+  }
+
+  @Post('reorder')
+  @Swagger({
+    title: 'Порядок шаблонов в каталоге',
+    body: ReorderDto,
+    response: ProgramResponseDto,
+    plainArray: true,
+    bearerAuth: true,
+  })
+  public reorder(@Body() dto: ReorderDto) {
+    return this.programAppService.reorderTemplates(dto.ids);
+  }
+
+  @Post('from-program/:id')
+  @Swagger({
+    title: 'Скрытый шаблон из своей программы: оригинал остаётся',
+    param: { ...ID_PARAM, description: 'Своя программа' },
+    response: ProgramResponseDto,
+    bearerAuth: true,
+  })
+  public fromProgram(
+    @CurrentUser('id') userId: number,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.programAppService.templateFromProgram(userId, id);
   }
 
   @Post('create')
@@ -55,7 +82,7 @@ export class AdminTemplatesController {
 
   @Post('update/:id')
   @Swagger({
-    title: 'Название, описание и теги шаблона',
+    title: 'Название, описание, теги и публикация шаблона',
     param: ID_PARAM,
     body: UpdateTemplateDto,
     response: ProgramResponseDto,
@@ -69,9 +96,13 @@ export class AdminTemplatesController {
   }
 
   @Post('delete/:id')
-  @Swagger({ title: 'Удалить шаблон', param: ID_PARAM, bearerAuth: true })
+  @Swagger({
+    title: 'Удалить шаблон, который ещё никто не взял',
+    param: ID_PARAM,
+    bearerAuth: true,
+  })
   public remove(@Param('id', ParseIntPipe) id: number) {
-    return this.programAppService.remove(TEMPLATES, id);
+    return this.programAppService.removeTemplate(id);
   }
 
   // ── Комплексы ───────────────────────────────────────────────────────────

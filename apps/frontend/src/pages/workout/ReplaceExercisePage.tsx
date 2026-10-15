@@ -24,8 +24,7 @@ import { Lead, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'
 import { CatalogRow } from '@/widgets/catalog/CatalogRow'
-
-import { ExercisePreviewSheet } from './components/ExercisePreviewSheet'
+import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet'
 
 // Замена упражнения (business-tz, 7.4): аналоги с теми же основными мышцами, без зон с ограничением,
 // затем «только сегодня» или «в комплексе». История весов у аналога своя
@@ -133,13 +132,22 @@ const ReplaceExercisePage = () => {
         )}
       </ScreenSection>
 
-      <ExercisePreviewSheet
+      <ExerciseSheet
         exercise={preview}
         onOpenChange={open => !open && setPreview(null)}
-        onReplace={() => {
-          setChoice(preview)
-          setPreview(null)
-        }}
+        action={
+          <Button
+            size='lg'
+            className='w-full'
+            onClick={() => {
+              setChoice(preview)
+              setPreview(null)
+            }}
+          >
+            <RepeatIcon className='size-5' />
+            Заменить на это
+          </Button>
+        }
       />
 
       <Sheet
@@ -158,7 +166,7 @@ const ReplaceExercisePage = () => {
               Только на эту тренировку или насовсем — в комплексе «{workout?.complexName}» вместо «{item?.name}».
             </SheetDescription>
           </SheetHeader>
-          <div className='flex flex-col gap-3 px-gutter pb-6'>
+          <div className='px-gutter flex flex-col gap-3 pb-6'>
             <Button
               size='lg'
               className='w-full'

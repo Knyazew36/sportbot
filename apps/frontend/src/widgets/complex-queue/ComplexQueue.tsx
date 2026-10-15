@@ -11,7 +11,7 @@ type ComplexQueueProps = {
   complexes: ProgramComplex[]
   /** Какой билет подсвечен: следующий по очереди или выбранный на сегодня */
   activeId: number | undefined
-  aside: string
+  aside?: string
 }
 
 // Очередь комплексов программы билетами. Билет открывает состав комплекса в шторке

@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 
 import {
+  APP_SCREEN,
+  appBtn,
   BACK_TO_MENU,
   BotContext,
   BotFeature,
@@ -18,12 +20,10 @@ import { MessengerButton, MessengerMessage } from '@/messengers';
 
 import { ProgramService } from './program.service';
 import {
-  byTag,
   cardioText,
   complexesCount,
   exercisesCount,
   planText,
-  tagButtons,
 } from './program.texts';
 
 /** Программы и комплексы: создание с шаблона и с нуля, редактор, активная программа. */
@@ -57,9 +57,9 @@ export class ProgramBot implements BotFeature {
         case 'v':
           return ctx.edit(await this.programScreen(ctx, id));
         case 'tpl':
-          return ctx.edit(await this.templatesScreen(id || 0));
+          return ctx.edit(await this.templatesScreen());
         case 'copy': {
-          const program = await this.programs.copy(id, userId);
+          const program = await this.programs.takeTemplate(id, userId);
           await ctx.toast('Программа добавлена');
           return ctx.edit(await this.programScreen(ctx, program.id));
         }
@@ -313,21 +313,23 @@ export class ProgramBot implements BotFeature {
     );
   }
 
-  /** tagId — выбранный чип; 0 — все шаблоны. */
-  private async templatesScreen(tagId: number): Promise<MessengerMessage> {
+  /** Шаблоны по порядку каталога; подбор по тегам и поиск — в приложении. */
+  private async templatesScreen(): Promise<MessengerMessage> {
     const templates = await this.programs.templates();
     return msg(
       templates.length
         ? 'Шаблоны. Получишь копию — её можно править под себя.'
         : 'Шаблонов пока нет: администратор ещё не загрузил справочник.',
       [
-        ...tagButtons(templates, tagId, (id) => `pr:tpl:${id}`),
-        ...byTag(templates, tagId).map((t) => [
+        ...templates.map((t) => [
           btn(
             cut(`${t.name} · ${complexesCount(t._count.complexes)}`, 48),
             `pr:copy:${t.id}`,
           ),
         ]),
+        ...(templates.length
+          ? [[appBtn(APP_SCREEN.templates, '🔎 Подобрать в приложении')]]
+          : []),
         [btn('⬅️ Программы', 'pr:list')],
       ],
     );

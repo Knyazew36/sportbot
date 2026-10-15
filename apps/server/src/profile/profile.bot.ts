@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import {
+  appBtn,
   BACK_TO_MENU,
   BOT_CHANNEL_TITLE,
   BotContext,
@@ -23,7 +24,6 @@ import {
 import { SportProfile, WeightAskFrequency } from '@/generated/prisma/client';
 import { MessengerButton, MessengerMessage } from '@/messengers';
 import { ProgramService } from '@/program/program.service';
-import { byTag, tagButtons } from '@/program/program.texts';
 
 import {
   CITY_ZONES,
@@ -132,13 +132,12 @@ export class ProfileBot implements BotFeature {
       case 'show':
         return ctx.edit(await this.stepScreen(ctx.profile));
       case 'next':
-        return this.advance(ctx, Number(args[0]), Number(args[1]) || 0);
+        return this.advance(ctx, Number(args[0]));
+      // Чипов тегов в боте больше нет: нажатие под старым сообщением просто перерисует шаг
       case 'tag':
-        return ctx.edit(
-          await this.stepScreen(ctx.profile, Number(args[0]) || 0),
-        );
+        return ctx.edit(await this.stepScreen(ctx.profile));
       case 'tpl':
-        await this.programs.copy(Number(args[0]), userId);
+        await this.programs.takeTemplate(Number(args[0]), userId);
         return this.advance(ctx, 3);
       case 'scratch':
         await this.programs.create(userId, 'Моя программа');
@@ -248,25 +247,19 @@ export class ProfileBot implements BotFeature {
 
   /**
    * «Далее» с шага fromStep. Номер шага приходит в кнопке: нажатие под старым сообщением
-   * не перескакивает через шаг. tagId — чип на шаге программы: «Далее» берёт первый шаблон под ним.
+   * не перескакивает через шаг.
    */
-  private async advance(
-    ctx: BotContext,
-    fromStep: number,
-    tagId = 0,
-  ): Promise<void> {
+  private async advance(ctx: BotContext, fromStep: number): Promise<void> {
     const userId = ctx.user.id;
     if (ctx.profile.onboardedAt || ctx.profile.onboardingStep !== fromStep) {
       await ctx.edit(await this.stepScreen(ctx.profile));
       return;
     }
-    // Шаг программы без выбора: значение по умолчанию — первый шаблон под выбранным чипом
+    // Шаг программы без выбора: значение по умолчанию — первый шаблон каталога
     if (fromStep === 3 && !ctx.profile.activeProgramId) {
       const fresh = await this.profiles.update(userId, {});
       if (!fresh.activeProgramId) {
-        const templates = await this.programs.templates();
-        const tagged = byTag(templates, tagId);
-        const [template] = tagged.length ? tagged : templates;
+        const [template] = await this.programs.templates();
         if (template) await this.programs.copy(template.id, userId);
       }
     }
@@ -345,11 +338,7 @@ export class ProfileBot implements BotFeature {
       : '';
   }
 
-  /** tagId — выбранный чип на шаге программы; 0 — все шаблоны. */
-  private async stepScreen(
-    profile: SportProfile,
-    tagId = 0,
-  ): Promise<MessengerMessage> {
+  private async stepScreen(profile: SportProfile): Promise<MessengerMessage> {
     switch (profile.onboardingStep) {
       case 1:
         return this.daysScreen(profile, 'ob');
@@ -360,12 +349,15 @@ export class ProfileBot implements BotFeature {
         return msg(
           `${this.stepTitle(3)}📋 Программа\n\n📦 Возьми готовый шаблон — потом его можно править.\n✍️ Или собери свою с нуля.${templates.length ? `\n${hint('«Далее» выберет первый шаблон из списка.')}` : ''}`,
           [
-            ...tagButtons(templates, tagId, (id) => `ob:tag:${id}`),
-            ...byTag(templates, tagId).map((t) => [
+            ...templates.map((t) => [
               btn(`📦 ${cut(t.name, 37)}`, `ob:tpl:${t.id}`),
             ]),
             [btn('✍️ С нуля', 'ob:scratch')],
-            [btn('Далее ➡️', `ob:next:3:${tagId}`)],
+            // Подбор по тегам и поиск — в приложении: в чате ряды чипов превращаются в стену кнопок
+            ...(templates.length
+              ? [[appBtn(undefined, '🔎 Подобрать в приложении')]]
+              : []),
+            [btn('Далее ➡️', 'ob:next:3')],
           ],
         );
       }

@@ -25,11 +25,16 @@ export const ActiveProgram = ({ programId }: { programId: number }) => {
         return (
           <>
             <Rise className='px-gutter'>
-              <Eyebrow as='p'>Активная программа</Eyebrow>
+              <Eyebrow
+                as='p'
+                tone='positive'
+              >
+                Активная программа
+              </Eyebrow>
               <Poster
                 as='h1'
                 size='3xl'
-                tone='primary'
+                tone='positive'
                 className='mt-3 hyphens-auto'
               >
                 {p.name}
@@ -47,10 +52,9 @@ export const ActiveProgram = ({ programId }: { programId: number }) => {
               <ComplexQueue
                 complexes={p.complexes}
                 activeId={p.complexes.find(c => c.isNext)?.id}
-                aside='следующий подсвечен'
               />
             )}
-            <Rise className='flex flex-col gap-4 px-gutter'>
+            <Rise className='px-gutter flex flex-col gap-4'>
               <StatGrid
                 items={[
                   { label: 'комплексов', value: p.complexes.length },

@@ -1,4 +1,4 @@
-import { RepeatIcon } from 'lucide-react'
+import type { ReactNode } from 'react'
 
 import { splitTechnique, useCatalogExercise } from '@/entities/catalog'
 import { toAssetUrl } from '@/shared/api'
@@ -6,18 +6,19 @@ import { CatalogImage } from '@/shared/ui/kit/CatalogImage'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { StepList } from '@/shared/ui/kit/StepList'
 import { Eyebrow } from '@/shared/ui/kit/Typography'
-import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Badge } from '@/shared/ui/shadcn/badge'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'
 
-type ExercisePreviewSheetProps = {
+type ExerciseSheetProps = {
+  /** Открытое упражнение; null — шторка закрыта. Название сразу в заголовке, пока карточка грузится */
   exercise: { id: number; name: string } | null
   onOpenChange: (open: boolean) => void
-  onReplace: () => void
+  /** Действие внизу шторки: «Заменить на это», «Подробнее» */
+  action?: ReactNode
 }
 
-// Что за упражнение, не уходя с экрана замены: фото, мышцы, техника
-const ExercisePreview = ({ id }: { id: number }) => {
+// Карточка упражнения: фото, мышцы, техника
+const ExerciseDetails = ({ id }: { id: number }) => {
   const exercise = useCatalogExercise(id)
   return (
     <QueryScreen
@@ -59,7 +60,8 @@ const ExercisePreview = ({ id }: { id: number }) => {
   )
 }
 
-export const ExercisePreviewSheet = ({ exercise, onOpenChange, onReplace }: ExercisePreviewSheetProps) => (
+// Что за упражнение, не уходя с экрана: замена на тренировке, состав шаблона
+export const ExerciseSheet = ({ exercise, onOpenChange, action }: ExerciseSheetProps) => (
   <Sheet
     open={exercise != null}
     onOpenChange={onOpenChange}
@@ -69,17 +71,10 @@ export const ExercisePreviewSheet = ({ exercise, onOpenChange, onReplace }: Exer
         <SheetTitle>{exercise?.name}</SheetTitle>
         <SheetDescription className='sr-only'>Карточка упражнения</SheetDescription>
       </SheetHeader>
-      <div className='min-h-0 flex-1 overflow-y-auto px-gutter pb-2'>{exercise && <ExercisePreview id={exercise.id} />}</div>
-      <div className='px-gutter pt-2 pb-6'>
-        <Button
-          size='lg'
-          className='w-full'
-          onClick={onReplace}
-        >
-          <RepeatIcon className='size-5' />
-          Заменить на это
-        </Button>
+      <div className='px-gutter min-h-0 flex-1 overflow-y-auto pb-2'>
+        {exercise && <ExerciseDetails id={exercise.id} />}
       </div>
+      <div className='px-gutter pt-2 pb-6'>{action}</div>
     </SheetContent>
   </Sheet>
 )

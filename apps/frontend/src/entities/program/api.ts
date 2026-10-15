@@ -1,9 +1,10 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { dayKeys } from '@/entities/day'
 import type {
   ProgramListItemResponseDto,
   ProgramResponseDto,
+  ProgramTagGroupResponseDto,
   UpdateComplexExerciseDto,
 } from '@/shared/api/generated/model'
 import {
@@ -11,6 +12,7 @@ import {
   programControllerAddComplex,
   programControllerAddExercises,
   programControllerCreate,
+  programControllerDismissUpdate,
   programControllerList,
   programControllerRemove,
   programControllerRemoveComplex,
@@ -18,6 +20,7 @@ import {
   programControllerReorderComplexes,
   programControllerReorderItems,
   programControllerResync,
+  programControllerTagGroups,
   programControllerTake,
   programControllerTemplates,
   programControllerUpdate,
@@ -30,11 +33,17 @@ export type Program = ProgramResponseDto
 export type ProgramComplex = Program['complexes'][number]
 export type ProgramExercise = ProgramComplex['exercises'][number]
 export type ProgramListItem = ProgramListItemResponseDto
+export type ProgramTagGroup = ProgramTagGroupResponseDto
+
+/** Фильтр каталога: id выбранных тегов (по одному на группу) и строка поиска */
+export type TemplateFilters = { tagIds?: number[]; search?: string }
 
 export const programKeys = {
   all: ['program'] as const,
   list: ['program', 'list'] as const,
   templates: ['program', 'templates'] as const,
+  catalog: (filters: TemplateFilters) => ['program', 'templates', filters] as const,
+  tagGroups: ['program', 'tag-groups'] as const,
   detail: (id: number) => ['program', 'detail', id] as const,
 }
 
@@ -58,11 +67,27 @@ export const useActiveProgram = () => {
   return useProgram(list.data?.find(p => p.active)?.id)
 }
 
-/** Шаблоны с составом: их немного, приходят целиком — экран шаблона берёт свой из этого же списка */
-export const useTemplates = () =>
+/**
+ * Каталог шаблонов с составом. Без фильтра — весь каталог: экран шаблона берёт свой из этого списка.
+ * Пока грузится новая выборка, на экране остаётся прежняя — чипы не мигают пустым списком
+ */
+export const useTemplates = (filters: TemplateFilters = {}) =>
   useQuery({
-    queryKey: programKeys.templates,
-    queryFn: () => programControllerTemplates(),
+    queryKey: programKeys.catalog(filters),
+    queryFn: () =>
+      programControllerTemplates({
+        filter_search: filters.search || undefined,
+        filter_tags: filters.tagIds?.length ? filters.tagIds.join(',') : undefined,
+      }),
+    placeholderData: keepPreviousData,
+    staleTime: 5 * 60_000,
+  })
+
+/** Ряды чипов каталога: группы с тегами, у которых есть опубликованные шаблоны */
+export const useTemplateTagGroups = () =>
+  useQuery({
+    queryKey: programKeys.tagGroups,
+    queryFn: () => programControllerTagGroups(),
     staleTime: 5 * 60_000,
   })
 
@@ -91,13 +116,17 @@ export const useCreateProgram = () => {
   })
 }
 
-/** «Взять» шаблон — копия в программах пользователя */
+/** «Взять» шаблон — копия в программах пользователя; в каталоге он станет «уже у тебя» */
 export const useTakeTemplate = () => {
+  const queryClient = useQueryClient()
   const apply = useApplyProgram()
   return useMutation({
     mutationFn: (templateId: number) => programControllerTake(templateId),
     meta: { successMessage: 'Шаблон в твоих программах' },
-    onSuccess: apply,
+    onSuccess: program => {
+      apply(program)
+      void queryClient.invalidateQueries({ queryKey: programKeys.templates })
+    },
   })
 }
 
@@ -137,12 +166,23 @@ export const useActivateProgram = () => {
   })
 }
 
-/** «Обновить у себя»: копия заменяется версией друга, свои правки пропадают */
+/** «Обновить у себя»: копия заменяется версией друга или шаблона, свои правки пропадают */
 export const useResyncProgram = () => {
   const apply = useApplyProgram()
   return useMutation({
     mutationFn: (id: number) => programControllerResync(id),
     meta: { successMessage: 'Программа обновлена' },
+    onSuccess: apply,
+  })
+}
+
+/** «Не сейчас» на плашке обновления: вернётся после следующей правки источника */
+export const useDismissProgramUpdate = () => {
+  const apply = useApplyProgram()
+  return useMutation({
+    mutationFn: (id: number) => programControllerDismissUpdate(id),
+    // Плашка исчезает с экрана — это и есть ответ
+    meta: { skipSuccessToast: true },
     onSuccess: apply,
   })
 }

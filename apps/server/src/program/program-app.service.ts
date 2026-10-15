@@ -1,27 +1,35 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 
+import { normalizeName } from '@/catalog/catalog.service';
 import { Prisma } from '@/generated/prisma/client';
-import { PROGRAM_TAG_SELECT } from '@/program-tag/program-tag.service';
+import {
+  PROGRAM_TAG_ORDER,
+  PROGRAM_TAG_SELECT,
+} from '@/program-tag/program-tag.service';
 
 import { ProgramListItemResponseDto } from './dto/program-list-item.response.dto';
 import { ProgramResponseDto } from './dto/program.response.dto';
+import { TemplatesQueryDto } from './dto/templates-query.dto';
 import { UpdateComplexDto } from './dto/update-complex.dto';
 import { UpdateProgramDto } from './dto/update-program.dto';
 import {
   ownerWhere,
   ProgramOwner,
   ProgramService,
+  PUBLISHED_TEMPLATE,
+  TEMPLATE_ORDER,
   TEMPLATES,
 } from './program.service';
 
 const VIEW_INCLUDE = {
-  tags: { orderBy: { position: 'asc' }, select: PROGRAM_TAG_SELECT },
+  tags: { orderBy: PROGRAM_TAG_ORDER, select: PROGRAM_TAG_SELECT },
   complexes: {
     orderBy: { position: 'asc' },
     include: {
@@ -36,6 +44,7 @@ const VIEW_INCLUDE = {
   sourceProgram: {
     select: {
       isTemplate: true,
+      isPublished: true,
       contentUpdatedAt: true,
       owner: { select: { sportProfile: { select: { displayName: true } } } },
     },
@@ -44,8 +53,11 @@ const VIEW_INCLUDE = {
 
 type ProgramView = Prisma.ProgramGetPayload<{ include: typeof VIEW_INCLUDE }>;
 
-/** Всё, что нужно, чтобы понять, копия ли это программы друга и обновил ли он её. */
-type WithSource = Pick<ProgramView, 'sourceProgram' | 'sourceSyncedAt'>;
+/** Всё, что нужно, чтобы понять, чья это копия и обновился ли источник. */
+type WithSource = Pick<
+  ProgramView,
+  'sourceProgram' | 'sourceSyncedAt' | 'sourceDismissedAt'
+>;
 
 const LIST_INCLUDE = {
   _count: { select: { complexes: true } },
@@ -58,12 +70,25 @@ const friendName = (program: WithSource): string | null =>
     ? (program.sourceProgram.owner?.sportProfile?.displayName ?? 'друга')
     : null;
 
-/** Друг поменял состав после того, как программу скопировали (business-tz, 10.1). */
-const sourceUpdated = (program: WithSource): boolean =>
-  !!program.sourceProgram &&
-  !program.sourceProgram.isTemplate &&
-  !!program.sourceSyncedAt &&
-  program.sourceProgram.contentUpdatedAt > program.sourceSyncedAt;
+const fromTemplate = (program: WithSource): boolean =>
+  !!program.sourceProgram?.isTemplate;
+
+/**
+ * Друг или админ поменял источник после копирования (business-tz, 10.1). «Не сейчас» прячет
+ * плашку до следующей правки источника.
+ */
+const sourceUpdated = (program: WithSource): boolean => {
+  const source = program.sourceProgram;
+  if (!source || !program.sourceSyncedAt) return false;
+  // Снятый с публикации шаблон админ, скорее всего, ещё правит — не зовём обновляться
+  if (source.isTemplate && !source.isPublished) return false;
+  const seen =
+    program.sourceDismissedAt &&
+    program.sourceDismissedAt > program.sourceSyncedAt
+      ? program.sourceDismissedAt
+      : program.sourceSyncedAt;
+  return source.contentUpdatedAt > seen;
+};
 
 /**
  * Программы и шаблоны в Mini App (frontend-tz, 10 и 14.2). Один код для программы пользователя
@@ -99,15 +124,57 @@ export class ProgramAppService {
       complexCount: p._count.complexes,
       active: p.id === profile?.activeProgramId,
       fromFriend: friendName(p),
+      fromTemplate: fromTemplate(p),
       sourceUpdated: sourceUpdated(p),
     }));
   }
 
-  /** Шаблоны с составом комплексов — их немного, отдаём целиком. */
-  public async templates(): Promise<ProgramResponseDto[]> {
+  /**
+   * Каталог: опубликованные шаблоны с составом в ручном порядке. Теги — внутри группы любой,
+   * между группами все. Шаблонов немного, поэтому без пагинации.
+   */
+  public async catalog(
+    userId: number,
+    query: TemplatesQueryDto,
+  ): Promise<ProgramResponseDto[]> {
+    const tagGroups = await this.groupTags(query.filter_tags ?? []);
+    const templates = await this.prisma.program.findMany({
+      where: {
+        ...PUBLISHED_TEMPLATE,
+        AND: tagGroups.map((ids) => ({ tags: { some: { id: { in: ids } } } })),
+      },
+      orderBy: TEMPLATE_ORDER,
+      include: {
+        ...VIEW_INCLUDE,
+        copies: {
+          where: { ownerId: userId },
+          orderBy: { id: 'desc' },
+          take: 1,
+          select: { id: true },
+        },
+      },
+    });
+    // Поиск без учёта регистра и ё: в SQL так не сравнить, а шаблонов немного — отбираем здесь
+    const words = normalizeName(query.filter_search ?? '')
+      .split(' ')
+      .filter(Boolean);
+    const found = words.length
+      ? templates.filter((t) => {
+          const text = normalizeName(`${t.name} ${t.description ?? ''}`);
+          return words.every((word) => text.includes(word));
+        })
+      : templates;
+    this.logger.debug(
+      `Каталог: userId=${userId}, теги=[${(query.filter_tags ?? []).join(',')}], поиск=«${query.filter_search ?? ''}», найдено=${found.length}`,
+    );
+    return found.map((t) => this.toDto(t, null, null, t.copies[0]?.id ?? null));
+  }
+
+  /** Все шаблоны для админки, скрытые тоже, в порядке каталога. */
+  public async adminTemplates(): Promise<ProgramResponseDto[]> {
     const templates = await this.prisma.program.findMany({
       where: { isTemplate: true },
-      orderBy: { id: 'asc' },
+      orderBy: TEMPLATE_ORDER,
       include: VIEW_INCLUDE,
     });
     return templates.map((t) => this.toDto(t, null, null));
@@ -144,17 +211,25 @@ export class ProgramAppService {
     return this.view(userId, program.id);
   }
 
-  /** Новый шаблон администратора: без владельца, с описанием и тегами (frontend-tz, 14.2). */
+  /**
+   * Новый шаблон администратора: без владельца, с описанием и тегами (frontend-tz, 14.2).
+   * Скрыт, пока его не опубликуют: недособранный шаблон в каталог не попадает.
+   */
   public async createTemplate(dto: {
     name: string;
     description?: string;
     tagIds?: number[];
   }) {
+    const last = await this.prisma.program.aggregate({
+      where: { isTemplate: true },
+      _max: { position: true },
+    });
     const template = await this.withKnownTags(() =>
       this.prisma.program.create({
         data: {
           name: dto.name,
           isTemplate: true,
+          position: (last._max.position ?? 0) + 1,
           description: dto.description?.trim() || null,
           tags: { connect: (dto.tagIds ?? []).map((id) => ({ id })) },
         },
@@ -168,19 +243,92 @@ export class ProgramAppService {
 
   /** «Взять» шаблон: копия в программах пользователя. */
   public async take(userId: number, templateId: number) {
-    const template = await this.prisma.program.findFirst({
-      where: { id: templateId, isTemplate: true },
+    const copy = await this.programs.takeTemplate(templateId, userId);
+    return this.view(userId, copy.id);
+  }
+
+  /** «Из моей программы» в админке: скрытый шаблон с составом своей программы. */
+  public async templateFromProgram(userId: number, programId: number) {
+    const template = await this.programs.copyToTemplate(userId, programId);
+    return this.view(TEMPLATES, template.id);
+  }
+
+  /** ids — все шаблоны, скрытые тоже, в новом порядке каталога. */
+  public async reorderTemplates(ids: number[]): Promise<ProgramResponseDto[]> {
+    const existing = await this.prisma.program.findMany({
+      where: { isTemplate: true },
       select: { id: true },
     });
-    if (!template) throw new NotFoundException('Шаблон не найден.');
-    const copy = await this.programs.copy(template.id, userId);
-    return this.view(userId, copy.id);
+    const known = new Set(existing.map((t) => t.id));
+    if (
+      ids.length !== known.size ||
+      new Set(ids).size !== ids.length ||
+      ids.some((id) => !known.has(id))
+    ) {
+      this.logger.warn(
+        `Порядок шаблонов не совпал со списком: [${ids.join(',')}]`,
+      );
+      throw new BadRequestException(
+        'Список шаблонов устарел — обнови экран и попробуй ещё раз.',
+      );
+    }
+    await this.prisma.$transaction(
+      ids.map((id, index) =>
+        this.prisma.program.update({
+          where: { id },
+          data: { position: index + 1 },
+        }),
+      ),
+    );
+    this.logger.log(`Порядок шаблонов: [${ids.join(',')}]`);
+    return this.adminTemplates();
+  }
+
+  /**
+   * Шаблон, который уже брали, не удаляется: у взявших пропали бы «уже у тебя» и обновления.
+   * Такой шаблон снимают с публикации.
+   */
+  public async removeTemplate(templateId: number): Promise<void> {
+    const { count } = await this.prisma.program.deleteMany({
+      where: { id: templateId, isTemplate: true, copies: { none: {} } },
+    });
+    if (count) {
+      this.logger.log(`Шаблон удалён: templateId=${templateId}`);
+      return;
+    }
+    // Удалить не вышло: шаблона нет или его уже брали — различаем только для текста ошибки
+    const copies = await this.prisma.program.count({
+      where: {
+        sourceProgramId: templateId,
+        sourceProgram: { isTemplate: true },
+      },
+    });
+    if (!copies) throw new NotFoundException('Шаблон не найден.');
+    this.logger.warn(
+      `Удаление шаблона с копиями: templateId=${templateId}, копий=${copies}`,
+    );
+    throw new ConflictException(
+      `Шаблон уже взяли (${copies}) — его можно только снять с публикации.`,
+    );
+  }
+
+  /** «Не сейчас» на плашке обновления: вернётся после следующей правки источника. */
+  public async dismissUpdate(userId: number, programId: number) {
+    const { count } = await this.prisma.program.updateMany({
+      where: { id: programId, ownerId: userId, sourceProgramId: { not: null } },
+      data: { sourceDismissedAt: new Date() },
+    });
+    if (!count) throw new NotFoundException('Программа не найдена.');
+    this.logger.log(
+      `Обновление источника отложено: programId=${programId}, userId=${userId}`,
+    );
+    return this.view(userId, programId);
   }
 
   public async update(
     owner: ProgramOwner,
     programId: number,
-    dto: UpdateProgramDto & { tagIds?: number[] },
+    dto: UpdateProgramDto & { tagIds?: number[]; isPublished?: boolean },
   ) {
     if (dto.name !== undefined)
       await this.programs.rename(owner, programId, dto.name);
@@ -191,6 +339,15 @@ export class ProgramAppService {
         data: { description: dto.description.trim() || null },
       });
       this.logger.log(`Описание шаблона: programId=${programId}`);
+    }
+    if (owner === TEMPLATES && dto.isPublished !== undefined) {
+      await this.prisma.program.updateMany({
+        where: { id: programId, isTemplate: true },
+        data: { isPublished: dto.isPublished },
+      });
+      this.logger.log(
+        `Публикация шаблона: programId=${programId}, опубликован=${dto.isPublished}`,
+      );
     }
     // Теги — только у шаблона: витрина, а не свойство программы пользователя
     if (owner === TEMPLATES && dto.tagIds !== undefined) {
@@ -218,7 +375,7 @@ export class ProgramAppService {
     return this.view(userId, programId);
   }
 
-  /** «Обновить у себя»: копия заменяется текущей версией друга, свои правки пропадают. */
+  /** «Обновить у себя»: копия заменяется текущей версией друга или шаблона, свои правки пропадают. */
   public async resync(userId: number, programId: number) {
     await this.programs.resync(userId, programId);
     return this.view(userId, programId);
@@ -313,6 +470,19 @@ export class ProgramAppService {
 
   // ── Внутреннее ──────────────────────────────────────────────────────────
 
+  /** Выбранные теги по группам: каждая группа — отдельное условие «И». Неизвестные id отбрасываются. */
+  private async groupTags(tagIds: number[]): Promise<number[][]> {
+    if (!tagIds.length) return [];
+    const tags = await this.prisma.programTag.findMany({
+      where: { id: { in: tagIds } },
+      select: { id: true, groupId: true },
+    });
+    const byGroup = new Map<number, number[]>();
+    for (const tag of tags)
+      byGroup.set(tag.groupId, [...(byGroup.get(tag.groupId) ?? []), tag.id]);
+    return [...byGroup.values()];
+  }
+
   /** Связь с несуществующим тегом Prisma отдаёт как P2025 — это устаревший экран админа. */
   private async withKnownTags<T>(run: () => Promise<T>): Promise<T> {
     try {
@@ -337,6 +507,7 @@ export class ProgramAppService {
     program: ProgramView,
     activeProgramId: number | null,
     nextComplexId: number | null,
+    takenProgramId: number | null = null,
   ): ProgramResponseDto {
     return {
       id: program.id,
@@ -344,7 +515,10 @@ export class ProgramAppService {
       description: program.description,
       active: program.id === activeProgramId,
       fromFriend: friendName(program),
+      fromTemplate: fromTemplate(program),
       sourceUpdated: sourceUpdated(program),
+      isPublished: program.isPublished,
+      takenProgramId,
       tags: program.tags,
       complexes: program.complexes.map((c) => ({
         id: c.id,

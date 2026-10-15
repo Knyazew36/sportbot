@@ -11,6 +11,10 @@ import {
   TAG_CODE_PATTERN,
   TAG_NAME_MAX,
 } from '@/program-tag/dto/create-program-tag.dto';
+import {
+  GROUP_NAME_MAX,
+  GROUP_RESERVED_CODE,
+} from '@/program-tag/dto/create-program-tag-group.dto';
 
 interface ImportExercise {
   code: string;
@@ -35,10 +39,19 @@ interface ImportStretch {
   kind?: StretchKind;
 }
 
+interface ImportProgramTagGroup {
+  code: string;
+  name: string;
+  /** Порядок рядов чипов; без него группа встаёт в конец в порядке файла. */
+  position?: number;
+}
+
 interface ImportProgramTag {
   code: string;
   name: string;
-  /** Порядок чипов; без него тег встаёт в конец в порядке файла. */
+  /** Код группы. Поля нет — у нового тега «Прочее», у существующего группа не меняется. */
+  group?: string;
+  /** Порядок чипа в группе; без него тег встаёт в конец группы в порядке файла. */
   position?: number;
 }
 
@@ -49,6 +62,8 @@ interface ImportProgram {
   description?: string;
   /** Коды тегов витрины. Поля нет — теги шаблона не трогаем; пустой массив снимает все. */
   tags?: string[];
+  /** Виден в каталоге. Поля нет — новый шаблон публикуется, у существующего не меняется. */
+  published?: boolean;
   complexes: {
     name: string;
     cardio?: { name: string; minutes: number };
@@ -64,6 +79,7 @@ interface ImportProgram {
 export interface ImportFile {
   exercises: ImportExercise[];
   stretches: ImportStretch[];
+  programTagGroups: ImportProgramTagGroup[];
   programTags: ImportProgramTag[];
   programs: ImportProgram[];
 }
@@ -77,6 +93,8 @@ export interface ImportReport {
 const EQUIPMENT: Equipment[] = ['BARBELL', 'DUMBBELL', 'MACHINE', 'BODYWEIGHT'];
 const STRETCH_KINDS: StretchKind[] = ['COOLDOWN', 'WARMUP'];
 const MAX_ERRORS_SHOWN = 15;
+/** Куда попадает новый тег без группы в файле. */
+const FALLBACK_GROUP = { code: 'other', name: 'Прочее' };
 
 const isText = (value: unknown): value is string =>
   typeof value === 'string' && value.trim().length > 0;
@@ -116,28 +134,37 @@ export class ImportService {
     const file: ImportFile = {
       exercises: list(json.exercises) as ImportExercise[],
       stretches: list(json.stretches) as ImportStretch[],
+      programTagGroups: list(json.programTagGroups) as ImportProgramTagGroup[],
       programTags: list(json.programTags) as ImportProgramTag[],
       programs: list(json.programs) as ImportProgram[],
     };
 
-    const [muscles, joints, dbExercises, dbStretches, dbPrograms, dbTags] =
-      await Promise.all([
-        this.prisma.muscle.findMany({ select: { code: true } }),
-        this.prisma.joint.findMany({ select: { code: true } }),
-        this.prisma.exercise.findMany({
-          where: { code: { not: null } },
-          select: { code: true },
-        }),
-        this.prisma.stretch.findMany({
-          where: { code: { not: null } },
-          select: { code: true },
-        }),
-        this.prisma.program.findMany({
-          where: { code: { not: null } },
-          select: { code: true },
-        }),
-        this.prisma.programTag.findMany({ select: { code: true } }),
-      ]);
+    const [
+      muscles,
+      joints,
+      dbExercises,
+      dbStretches,
+      dbPrograms,
+      dbTags,
+      dbGroups,
+    ] = await Promise.all([
+      this.prisma.muscle.findMany({ select: { code: true } }),
+      this.prisma.joint.findMany({ select: { code: true } }),
+      this.prisma.exercise.findMany({
+        where: { code: { not: null } },
+        select: { code: true },
+      }),
+      this.prisma.stretch.findMany({
+        where: { code: { not: null } },
+        select: { code: true },
+      }),
+      this.prisma.program.findMany({
+        where: { code: { not: null } },
+        select: { code: true },
+      }),
+      this.prisma.programTag.findMany({ select: { code: true } }),
+      this.prisma.programTagGroup.findMany({ select: { code: true } }),
+    ]);
     const muscleCodes = new Set(muscles.map((m) => m.code));
     const jointCodes = new Set(joints.map((j) => j.code));
     const errors: string[] = [];
@@ -186,6 +213,27 @@ export class ImportService {
         errors.push(`${at}: неизвестный kind ${String(item.kind)}`);
     });
 
+    const groupCodes = duplicates('programTagGroups', file.programTagGroups);
+    file.programTagGroups.forEach((item, index) => {
+      const at = `programTagGroups[${index}]${isText(item?.code) ? ` (${item.code})` : ''}`;
+      if (
+        !isText(item?.code) ||
+        !TAG_CODE_PATTERN.test(item.code) ||
+        item.code === GROUP_RESERVED_CODE
+      )
+        errors.push(
+          `${at}: code — латиница в нижнем регистре, цифры и дефис, не «${GROUP_RESERVED_CODE}»`,
+        );
+      if (!isText(item?.name) || item.name.trim().length > GROUP_NAME_MAX)
+        errors.push(`${at}: name — от 1 до ${GROUP_NAME_MAX} символов`);
+      if (item?.position !== undefined && !isCount(item.position, 1000))
+        errors.push(`${at}: position — целое от 1 до 1000`);
+    });
+    const knownGroups = new Set([
+      ...groupCodes,
+      ...dbGroups.map((g) => g.code),
+    ]);
+
     const tagCodes = duplicates('programTags', file.programTags);
     file.programTags.forEach((item, index) => {
       const at = `programTags[${index}]${isText(item?.code) ? ` (${item.code})` : ''}`;
@@ -195,6 +243,8 @@ export class ImportService {
         errors.push(`${at}: name — от 1 до ${TAG_NAME_MAX} символов`);
       if (item?.position !== undefined && !isCount(item.position, 1000))
         errors.push(`${at}: position — целое от 1 до 1000`);
+      if (item?.group !== undefined && !knownGroups.has(String(item.group)))
+        errors.push(`${at}: неизвестная группа ${String(item.group)}`);
     });
 
     duplicates('programs', file.programs);
@@ -213,6 +263,11 @@ export class ImportService {
           program.description.length > 1000)
       )
         errors.push(`${at}: description — строка до 1000 символов`);
+      if (
+        program?.published !== undefined &&
+        typeof program.published !== 'boolean'
+      )
+        errors.push(`${at}: published — true или false`);
       if (program?.tags !== undefined && !Array.isArray(program.tags))
         errors.push(`${at}: tags — массив кодов тегов`);
       for (const code of unknown(program?.tags, knownTags))
@@ -257,10 +312,12 @@ export class ImportService {
       ...dbStretches.map((s) => `s:${s.code}`),
       ...dbPrograms.map((p) => `p:${p.code}`),
       ...dbTags.map((t) => `t:${t.code}`),
+      ...dbGroups.map((g) => `g:${g.code}`),
     ]);
     const keys = [
       ...file.exercises.map((e) => `e:${e?.code}`),
       ...file.stretches.map((s) => `s:${s?.code}`),
+      ...file.programTagGroups.map((g) => `g:${g?.code}`),
       ...file.programTags.map((t) => `t:${t?.code}`),
       ...file.programs.map((p) => `p:${p?.code}`),
     ];
@@ -417,19 +474,19 @@ export class ImportService {
           });
         }
 
-        // Теги — до программ: программы ссылаются на них по коду
-        const lastTag = await tx.programTag.aggregate({
+        // Группы — до тегов, теги — до программ: ссылки идут по коду
+        const lastGroup = await tx.programTagGroup.aggregate({
           _max: { position: true },
         });
-        let nextPosition = lastTag._max.position ?? 0;
-        for (const item of file.programTags) {
+        let nextGroupPosition = lastGroup._max.position ?? 0;
+        for (const item of file.programTagGroups) {
           const name = item.name.trim();
-          await tx.programTag.upsert({
+          await tx.programTagGroup.upsert({
             where: { code: item.code },
             create: {
               code: item.code,
               name,
-              position: item.position ?? ++nextPosition,
+              position: item.position ?? ++nextGroupPosition,
             },
             update: {
               name,
@@ -439,7 +496,71 @@ export class ImportService {
             },
           });
         }
+        const groupId = new Map(
+          (
+            await tx.programTagGroup.findMany({
+              select: { id: true, code: true },
+            })
+          ).map((g) => [g.code, g.id]),
+        );
+        // Тег без группы в файле: новый уходит в «Прочее», как плоские теги при переходе на группы
+        const fallbackGroupId = async (): Promise<number> => {
+          const known = groupId.get(FALLBACK_GROUP.code);
+          if (known) return known;
+          const last = await tx.programTagGroup.aggregate({
+            _max: { position: true },
+          });
+          const created = await tx.programTagGroup.create({
+            data: {
+              ...FALLBACK_GROUP,
+              position: (last._max.position ?? 0) + 1,
+            },
+          });
+          groupId.set(created.code, created.id);
+          return created.id;
+        };
+        /** Следующее место чипа в группе: у каждой группы свой счётчик. */
+        const tagPositions = new Map<number, number>();
+        const nextTagPosition = async (id: number): Promise<number> => {
+          if (!tagPositions.has(id)) {
+            const last = await tx.programTag.aggregate({
+              where: { groupId: id },
+              _max: { position: true },
+            });
+            tagPositions.set(id, last._max.position ?? 0);
+          }
+          const next = tagPositions.get(id)! + 1;
+          tagPositions.set(id, next);
+          return next;
+        };
+        for (const item of file.programTags) {
+          const name = item.name.trim();
+          const group = item.group
+            ? groupId.get(item.group)!
+            : await fallbackGroupId();
+          await tx.programTag.upsert({
+            where: { code: item.code },
+            create: {
+              code: item.code,
+              name,
+              groupId: group,
+              position: item.position ?? (await nextTagPosition(group)),
+            },
+            update: {
+              name,
+              ...(item.group ? { groupId: group } : {}),
+              ...(item.position !== undefined
+                ? { position: item.position }
+                : {}),
+            },
+          });
+        }
 
+        const lastTemplate = await tx.program.aggregate({
+          where: { isTemplate: true },
+          _max: { position: true },
+        });
+        let nextTemplatePosition = lastTemplate._max.position ?? 0;
         const exerciseId = new Map(
           (
             await tx.exercise.findMany({
@@ -460,6 +581,9 @@ export class ImportService {
               code: item.code,
               name: item.name.trim(),
               isTemplate: true,
+              // Файл готовит админ — шаблон из него сразу в каталоге, если не сказано иначе
+              isPublished: item.published ?? true,
+              position: ++nextTemplatePosition,
               ...description,
               ...(tags ? { tags: { connect: tags } } : {}),
             },
@@ -467,6 +591,9 @@ export class ImportService {
               name: item.name.trim(),
               isTemplate: true,
               contentUpdatedAt: new Date(),
+              ...(item.published !== undefined
+                ? { isPublished: item.published }
+                : {}),
               ...description,
               ...(tags ? { tags: { set: tags } } : {}),
             },
@@ -496,7 +623,7 @@ export class ImportService {
       { timeout: 120_000, maxWait: 10_000 },
     );
     this.logger.log(
-      `Импорт применён: упражнений=${file.exercises.length}, растяжек=${file.stretches.length}, тегов=${file.programTags.length}, шаблонов=${file.programs.length}`,
+      `Импорт применён: упражнений=${file.exercises.length}, растяжек=${file.stretches.length}, групп тегов=${file.programTagGroups.length}, тегов=${file.programTags.length}, шаблонов=${file.programs.length}`,
     );
     return report;
   }

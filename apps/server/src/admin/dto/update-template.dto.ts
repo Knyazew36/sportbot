@@ -1,5 +1,11 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { ArrayUnique, IsArray, IsInt, IsOptional } from 'class-validator';
+import {
+  ArrayUnique,
+  IsArray,
+  IsBoolean,
+  IsInt,
+  IsOptional,
+} from 'class-validator';
 
 import { UpdateProgramDto } from '@/program/dto/update-program.dto';
 
@@ -13,4 +19,9 @@ export class UpdateTemplateDto extends UpdateProgramDto {
   @ArrayUnique()
   @IsInt({ each: true })
   tagIds?: number[];
+
+  @ApiPropertyOptional({ description: 'Показывать шаблон в каталоге' })
+  @IsOptional()
+  @IsBoolean()
+  isPublished?: boolean;
 }

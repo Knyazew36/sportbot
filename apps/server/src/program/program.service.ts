@@ -7,7 +7,10 @@ import {
 import { PrismaService } from 'prisma/prisma.service';
 
 import { Prisma } from '@/generated/prisma/client';
-import { PROGRAM_TAG_SELECT } from '@/program-tag/program-tag.service';
+import {
+  PROGRAM_TAG_ORDER,
+  PROGRAM_TAG_SELECT,
+} from '@/program-tag/program-tag.service';
 
 type Tx = Prisma.TransactionClient;
 
@@ -53,6 +56,18 @@ export type ProgramOwner = number | typeof TEMPLATES;
 export const ownerWhere = (owner: ProgramOwner): Prisma.ProgramWhereInput =>
   owner === TEMPLATES ? { isTemplate: true } : { ownerId: owner };
 
+/** Шаблон, который видят пользователи: каталог, онбординг, бот. */
+export const PUBLISHED_TEMPLATE = {
+  isTemplate: true,
+  isPublished: true,
+} satisfies Prisma.ProgramWhereInput;
+
+/** Порядок шаблонов в каталоге — ручной, из админки. */
+export const TEMPLATE_ORDER = [
+  { position: 'asc' },
+  { id: 'asc' },
+] satisfies Prisma.ProgramOrderByWithRelationInput[];
+
 /** Упражнение, которое можно поставить в программу: справочник и свои черновики; в шаблон — только справочник. */
 const visibleExercise = (owner: ProgramOwner): Prisma.ExerciseWhereInput =>
   owner === TEMPLATES
@@ -88,14 +103,14 @@ export class ProgramService {
     });
   }
 
-  /** Шаблоны витрины с тегами: чипы-фильтры собираются из них же. */
+  /** Опубликованные шаблоны в порядке каталога. */
   public async templates() {
     return this.prisma.program.findMany({
-      where: { isTemplate: true },
-      orderBy: { id: 'asc' },
+      where: PUBLISHED_TEMPLATE,
+      orderBy: TEMPLATE_ORDER,
       include: {
         _count: { select: { complexes: true } },
-        tags: { orderBy: { position: 'asc' }, select: PROGRAM_TAG_SELECT },
+        tags: { orderBy: PROGRAM_TAG_ORDER, select: PROGRAM_TAG_SELECT },
       },
     });
   }
@@ -188,6 +203,59 @@ export class ProgramService {
     return program;
   }
 
+  /** «Взять» опубликованный шаблон: копия в программах пользователя. */
+  public async takeTemplate(templateId: number, userId: number) {
+    const template = await this.prisma.program.findFirst({
+      where: { id: templateId, ...PUBLISHED_TEMPLATE },
+      select: { id: true },
+    });
+    if (!template) {
+      this.logger.warn(
+        `Взять скрытый или несуществующий шаблон: templateId=${templateId}, userId=${userId}`,
+      );
+      throw new NotFoundException('Шаблон не найден.');
+    }
+    return this.copy(template.id, userId);
+  }
+
+  /**
+   * «Сделать шаблоном» свою программу (админ): скрытая копия-шаблон последней в каталоге,
+   * оригинал остаётся у автора. Черновики в шаблон нельзя — его видят все, а черновик только автор.
+   */
+  public async copyToTemplate(userId: number, programId: number) {
+    const source = await this.find(userId, programId);
+    const drafts = source.complexes
+      .flatMap((c) => c.exercises)
+      .filter((item) => item.exercise.status === 'DRAFT');
+    if (drafts.length) {
+      this.logger.warn(
+        `Шаблон из программы с черновиками: programId=${programId}, черновиков=${drafts.length}`,
+      );
+      throw new BadRequestException(
+        'В программе есть черновики упражнений — дождись модерации или убери их.',
+      );
+    }
+    const template = await this.prisma.$transaction(async (tx) => {
+      const last = await tx.program.aggregate({
+        where: { isTemplate: true },
+        _max: { position: true },
+      });
+      const created = await tx.program.create({
+        data: {
+          name: source.name,
+          isTemplate: true,
+          position: (last._max.position ?? 0) + 1,
+        },
+      });
+      await this.fill(tx, created.id, source, userId);
+      return created;
+    });
+    this.logger.log(
+      `Шаблон из программы: programId=${programId} → templateId=${template.id}, userId=${userId}`,
+    );
+    return template;
+  }
+
   /**
    * «Обновить» копию версией автора: состав удаляется и копируется заново, id программы тот же.
    * История тренировок не трогается — она ссылается на упражнения, а не на комплексы.
@@ -211,6 +279,7 @@ export class ProgramService {
         data: {
           name: copy.sourceProgram.name,
           sourceSyncedAt: copy.sourceProgram.contentUpdatedAt,
+          sourceDismissedAt: null,
           contentUpdatedAt: new Date(),
         },
       });

@@ -10,6 +10,9 @@ export class ProgramTagResponseDto {
   @ApiProperty({ example: 'Дом' })
   name: string;
 
-  @ApiProperty({ description: 'Порядок чипов' })
+  @ApiProperty({ description: 'Порядок чипа внутри группы' })
   position: number;
+
+  @ApiProperty({ description: 'Группа тега' })
+  groupId: number;
 }

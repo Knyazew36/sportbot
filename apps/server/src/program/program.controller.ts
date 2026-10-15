@@ -5,12 +5,15 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { Swagger } from '@/common/decorators/swagger/swagger.decorator';
 import { SportAuth } from '@/miniapp/decorators/sport-auth.decorator';
+import { ProgramTagGroupResponseDto } from '@/program-tag/dto/program-tag-group.response.dto';
+import { ProgramTagGroupService } from '@/program-tag/program-tag-group.service';
 
 import { AddComplexExercisesDto } from './dto/add-complex-exercises.dto';
 import { CreateComplexDto } from './dto/create-complex.dto';
@@ -18,6 +21,7 @@ import { CreateProgramDto } from './dto/create-program.dto';
 import { ProgramListItemResponseDto } from './dto/program-list-item.response.dto';
 import { ProgramResponseDto } from './dto/program.response.dto';
 import { ReorderDto } from './dto/reorder.dto';
+import { TemplatesQueryDto } from './dto/templates-query.dto';
 import { UpdateComplexExerciseDto } from './dto/update-complex-exercise.dto';
 import { UpdateComplexDto } from './dto/update-complex.dto';
 import { UpdateProgramDto } from './dto/update-program.dto';
@@ -29,19 +33,38 @@ const ID_PARAM = { name: 'id', type: Number };
 @Controller('program')
 @SportAuth()
 export class ProgramController {
-  constructor(private readonly programAppService: ProgramAppService) {}
+  constructor(
+    private readonly programAppService: ProgramAppService,
+    private readonly programTagGroupService: ProgramTagGroupService,
+  ) {}
 
   // ── Шаблоны ─────────────────────────────────────────────────────────────
 
   @Get('templates')
   @Swagger({
-    title: 'Шаблоны программ с составом',
+    title:
+      'Каталог: опубликованные шаблоны с составом, фильтр по тегам и поиск',
+    query: TemplatesQueryDto,
     response: ProgramResponseDto,
     plainArray: true,
     bearerAuth: true,
   })
-  public templates() {
-    return this.programAppService.templates();
+  public templates(
+    @CurrentUser('id') userId: number,
+    @Query() query: TemplatesQueryDto,
+  ) {
+    return this.programAppService.catalog(userId, query);
+  }
+
+  @Get('tag-groups')
+  @Swagger({
+    title: 'Ряды чипов каталога: группы с тегами опубликованных шаблонов',
+    response: ProgramTagGroupResponseDto,
+    plainArray: true,
+    bearerAuth: true,
+  })
+  public tagGroups() {
+    return this.programTagGroupService.catalog();
   }
 
   @Post('take/:id')
@@ -140,6 +163,21 @@ export class ProgramController {
     @Param('id', ParseIntPipe) id: number,
   ) {
     return this.programAppService.resync(userId, id);
+  }
+
+  @Post('dismiss-update/:id')
+  @Swagger({
+    title:
+      '«Не сейчас»: спрятать плашку обновления до следующей правки источника',
+    param: ID_PARAM,
+    response: ProgramResponseDto,
+    bearerAuth: true,
+  })
+  public dismissUpdate(
+    @CurrentUser('id') userId: number,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.programAppService.dismissUpdate(userId, id);
   }
 
   // ── Комплексы ───────────────────────────────────────────────────────────

@@ -28,8 +28,27 @@ export class ProgramResponseDto {
   })
   fromFriend: string | null;
 
-  @ApiProperty({ description: 'Друг обновил программу после копирования' })
+  @ApiProperty({ description: 'Копия шаблона из каталога' })
+  fromTemplate: boolean;
+
+  @ApiProperty({
+    description:
+      'Источник копии (друг или шаблон) изменился после копирования, и «Не сейчас» ещё не нажимали',
+  })
   sourceUpdated: boolean;
+
+  @ApiProperty({
+    description: 'Шаблон виден в каталоге; у программы пользователя false',
+  })
+  isPublished: boolean;
+
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    description:
+      'Каталог: последняя копия этого шаблона у пользователя («уже у тебя»); в остальных ответах null',
+  })
+  takenProgramId: number | null;
 
   @ApiProperty({
     type: [ProgramTagResponseDto],

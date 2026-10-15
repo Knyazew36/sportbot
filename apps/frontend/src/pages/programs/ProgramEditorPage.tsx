@@ -74,7 +74,7 @@ const ProgramEditorPage = () => {
       <QueryScreen query={program}>
         {p => (
           <>
-            <Rise className='flex flex-col gap-3 px-gutter'>
+            <Rise className='px-gutter flex flex-col gap-3'>
               <ProgramNameForm program={p} />
               {p.active ? (
                 <Text

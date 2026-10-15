@@ -11,4 +11,6 @@ export interface UpdateTemplateDto {
   description?: string;
   /** Все теги шаблона: заменяют прежние */
   tagIds?: number[];
+  /** Показывать шаблон в каталоге */
+  isPublished?: boolean;
 }

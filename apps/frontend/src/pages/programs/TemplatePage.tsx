@@ -1,6 +1,8 @@
 import { PlusIcon } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router'
 
+import { useState } from 'react'
+
 import { complexLetter, planText, useTakeTemplate, useTemplates } from '@/entities/program'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
@@ -11,9 +13,10 @@ import { Screen, StickyFooter } from '@/shared/ui/kit/Screen'
 import { TopBar } from '@/shared/ui/kit/ScreenHeader'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { StatGrid } from '@/shared/ui/kit/StatGrid'
-import { Ticket } from '@/shared/ui/kit/Ticket'
-import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
+import { Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
+import { ComplexQueue } from '@/widgets/complex-queue/ComplexQueue'
+import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet'
 
 // Шаблон целиком: что за тренировки внутри, прежде чем брать себе (frontend-tz, 10.2).
 // Отдельного запроса нет — шаблоны приходят списком с составом
@@ -23,6 +26,8 @@ const TemplatePage = () => {
   const take = useTakeTemplate()
   const navigate = useNavigate()
   const template = templates.data?.find(t => t.id === templateId)
+  // Упражнение, открытое в шторке: состав видно, не уходя со страницы шаблона
+  const [opened, setOpened] = useState<{ id: number; name: string } | null>(null)
 
   return (
     <Screen
@@ -36,8 +41,18 @@ const TemplatePage = () => {
       footer={
         template && (
           <StickyFooter>
+            {/* Уже взят — главное «Открыть»; второй экземпляр берут осознанно, отсюда, а не из каталога */}
+            {template.takenProgramId != null && (
+              <ButtonLink
+                to={buildPath(ROUTES.PROGRAM, { programId: template.takenProgramId })}
+                size='xl'
+              >
+                Открыть мою
+              </ButtonLink>
+            )}
             <Button
-              size='xl'
+              size={template.takenProgramId != null ? 'lg' : 'xl'}
+              variant={template.takenProgramId != null ? 'outline' : 'default'}
               disabled={take.isPending}
               onClick={() =>
                 take.mutate(template.id, {
@@ -45,7 +60,7 @@ const TemplatePage = () => {
                 })
               }
             >
-              Взять себе
+              {template.takenProgramId != null ? 'Взять ещё раз' : 'Взять себе'}
               <PlusIcon
                 className='size-7'
                 strokeWidth={2.5}
@@ -67,7 +82,7 @@ const TemplatePage = () => {
               variant='outline'
               size='sm'
             >
-              К шаблонам
+              В каталог
             </ButtonLink>
           ),
         }}
@@ -105,25 +120,11 @@ const TemplatePage = () => {
                 />
               </Rise>
 
-              <ScreenSection
-                title='Очередь комплексов'
+              <ComplexQueue
+                complexes={t.complexes}
+                activeId={t.complexes[0]?.id}
                 aside='по кругу, с первого'
-                bleed
-              >
-                <ol className='no-scrollbar flex gap-2 overflow-x-auto px-gutter'>
-                  {t.complexes.map((c, i) => (
-                    <li key={c.id}>
-                      <Ticket
-                        mark={complexLetter(i)}
-                        title={c.name}
-                        active={i === 0}
-                      >
-                        <Eyebrow>{c.exercises.length} упр.</Eyebrow>
-                      </Ticket>
-                    </li>
-                  ))}
-                </ol>
-              </ScreenSection>
+              />
 
               {t.complexes.map((c, i) => (
                 <ScreenSection
@@ -133,10 +134,20 @@ const TemplatePage = () => {
                 >
                   <List>
                     {c.exercises.map((e, j) => (
+                      // Вся строка открывает карточку упражнения: кнопка растянута на строку
                       <ListRow
                         key={e.id}
+                        className='hover:bg-accent/60 -mx-gutter px-gutter relative transition-colors'
                         lead={String(j + 1).padStart(2, '0')}
-                        title={e.name}
+                        title={
+                          <button
+                            type='button'
+                            className='text-left after:absolute after:inset-0'
+                            onClick={() => setOpened({ id: e.exerciseId, name: e.name })}
+                          >
+                            {e.name}
+                          </button>
+                        }
                         meta={e.muscles}
                         trail={
                           <Poster
@@ -165,6 +176,23 @@ const TemplatePage = () => {
           )
         }}
       </QueryScreen>
+
+      <ExerciseSheet
+        exercise={opened}
+        onOpenChange={open => !open && setOpened(null)}
+        action={
+          opened && (
+            <ButtonLink
+              to={buildPath(ROUTES.EXERCISE, { exerciseId: opened.id })}
+              variant='outline'
+              size='lg'
+              className='w-full'
+            >
+              Подробнее в справочнике
+            </ButtonLink>
+          )
+        }
+      />
     </Screen>
   )
 }

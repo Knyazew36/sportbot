@@ -45,7 +45,7 @@ export const programTagControllerCreate = (
       );
     }
   /**
- * @summary Порядок тегов
+ * @summary Порядок тегов внутри группы
  */
 export const programTagControllerReorder = (
     reorderDto: ReorderDto,

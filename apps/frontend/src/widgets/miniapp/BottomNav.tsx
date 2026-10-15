@@ -20,7 +20,10 @@ export const BottomNav = ({ nav, isAdmin }: { nav: NavItem[]; isAdmin: boolean }
         <NavLink
           key={item.label}
           to={item.to}
-          onClick={haptic.select}
+          // selectionChanged в Telegram почти не ощущается, поэтому толчок; по уже открытому разделу — без вибрации
+          onClick={event => {
+            if (event.currentTarget.getAttribute('aria-current') !== 'page') haptic.tap()
+          }}
           className={({ isActive }) =>
             cn(
               'relative flex h-16 flex-col items-center justify-center gap-1.5 transition-colors',

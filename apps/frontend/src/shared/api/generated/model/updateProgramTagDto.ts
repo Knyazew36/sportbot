@@ -8,4 +8,6 @@
 export interface UpdateProgramTagDto {
   code?: string;
   name?: string;
+  /** Перенести в другую группу: тег встанет последним */
+  groupId?: number;
 }

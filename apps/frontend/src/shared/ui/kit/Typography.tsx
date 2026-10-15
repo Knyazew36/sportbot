@@ -20,6 +20,8 @@ type BaseProps = HTMLAttributes<HTMLElement> & {
 const TONE = {
   default: 'text-foreground',
   primary: 'text-primary',
+  /** «Активно, в работе»: активная программа */
+  positive: 'text-positive',
   /** Вторичный текст: подписи, пояснения, мета */
   muted: 'text-muted-foreground',
   /** Слегка приглушённый текст абзацев */

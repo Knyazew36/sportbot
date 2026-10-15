@@ -9,8 +9,10 @@ export interface AdminProgramTagResponseDto {
   id: number;
   code: string;
   name: string;
-  /** Порядок чипов */
+  /** Порядок чипа внутри группы */
   position: number;
+  /** Группа тега */
+  groupId: number;
   /** Сколько шаблонов с этим тегом */
   templateCount: number;
 }

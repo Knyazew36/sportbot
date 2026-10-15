@@ -35,6 +35,7 @@
   /* Семантические алиасы акцентов: в разметке статусов читается смысл, а не цвет */
   --color-success: #d1ffca;
   --color-attention: #fff100;
+  --color-positive: var(--sb-positive);
   --color-hatch: var(--hatch);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -149,6 +150,8 @@
   --card-foreground: var(--sb-ink);
   --popover: var(--sb-paper);
   --popover-foreground: var(--sb-ink);
+  /* Зелёный для текста «активно»: мятный --success на светлом фоне не читается */
+  --sb-positive: #12893a;
   --primary: var(--sb-blue);
   --primary-foreground: var(--sb-paper);
   --secondary: var(--mist);
@@ -186,6 +189,7 @@
   --sb-rule: #1b2740;
   --sb-tint: color-mix(in oklab, #4c97ff 13%, transparent);
   --sb-danger: #ff6b5e;
+  --sb-positive: #5ee08a;
 }
 
 @layer base {

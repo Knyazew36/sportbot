@@ -41,6 +41,7 @@ export const ROUTES = {
   WORKOUT_RESULT: '/result/:token',
   PROGRAM: '/programs/:programId',
   PROGRAM_TEMPLATES: '/programs/templates',
+  PROGRAMS_MINE: '/programs/mine',
   PROGRAM_TEMPLATE: '/programs/templates/:templateId',
   PROGRAM_COMPLEX: '/programs/:programId/complex/:complexId',
   PROGRAM_ADD_EXERCISE: '/programs/:programId/add/:complexId',

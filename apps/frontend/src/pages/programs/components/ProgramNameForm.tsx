@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 
-import { type Program, type ProgramNameValues, programNameSchema, useRenameProgram } from '@/entities/program'
+import { type Program, programNameSchema, type ProgramNameValues, useRenameProgram } from '@/entities/program'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { TextField } from '@/shared/ui/kit/TextField'
 

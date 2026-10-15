@@ -19,7 +19,7 @@ import { ProgramTagService } from './program-tag.service';
 
 const ID_PARAM = { name: 'id', type: Number };
 
-/** Теги шаблонов программ (админка): чипы-фильтры на онбординге и в «Шаблонах». */
+/** Теги шаблонов программ (админка): чипы-фильтры каталога и онбординга. */
 @ApiTags('admin-program-tags')
 @Controller('admin/program-tags')
 @SportAdmin()
@@ -50,7 +50,7 @@ export class ProgramTagController {
 
   @Post('reorder')
   @Swagger({
-    title: 'Порядок тегов',
+    title: 'Порядок тегов внутри группы',
     body: ReorderDto,
     response: AdminProgramTagResponseDto,
     plainArray: true,

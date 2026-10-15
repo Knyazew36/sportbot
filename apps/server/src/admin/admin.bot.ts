@@ -61,7 +61,7 @@ export class AdminBot implements BotFeature {
       case 'imp':
         return ctx.edit(
           msg(
-            'Импорт справочника и шаблонов. Пришли мне JSON-файл с полями exercises, stretches, programTags, programs — проверю его и покажу отчёт. Запись в базу — только после кнопки «Применить».\n\nЗапись ищется по code: есть — обновлю, нет — создам. Удаления импортом нет.',
+            'Импорт справочника и шаблонов. Пришли мне JSON-файл с полями exercises, stretches, programTagGroups, programTags, programs — проверю его и покажу отчёт. Запись в базу — только после кнопки «Применить».\n\nЗапись ищется по code: есть — обновлю, нет — создам. Удаления импортом нет.',
             [BACK],
           ),
         );

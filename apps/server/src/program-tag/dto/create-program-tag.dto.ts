@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, Matches, MaxLength, MinLength } from 'class-validator';
+import {
+  IsInt,
+  IsString,
+  Matches,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 import { Trim } from '@/common/decorators/trim.decorator';
 
@@ -25,4 +31,8 @@ export class CreateProgramTagDto {
     message: `Название — до ${TAG_NAME_MAX} символов`,
   })
   name: string;
+
+  @ApiProperty({ description: 'Группа тега' })
+  @IsInt()
+  groupId: number;
 }

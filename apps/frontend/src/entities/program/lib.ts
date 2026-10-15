@@ -1,19 +1,28 @@
 import type { ProgramTagResponseDto } from '@/shared/api/generated/model'
 
+import type { ProgramTagGroup } from './api'
+
 export type ProgramTag = ProgramTagResponseDto
 
-type Tagged = { tags: ProgramTag[] }
+/** Выбор в рядах чипов: код группы → код тега; группы без выбора в объекте нет */
+export type TagSelection = Record<string, string>
 
-/** Теги, которые есть хотя бы у одного шаблона, по порядку чипов: пустой тег не даст пустой список */
-export const templateTags = (templates: Tagged[]): ProgramTag[] => {
-  const tags = new Map<number, ProgramTag>()
-  for (const t of templates) for (const tag of t.tags) tags.set(tag.id, tag)
-  return [...tags.values()].sort((a, b) => a.position - b.position)
+/** Параметр поиска в ссылке каталога; коды групп с ним не совпадают — сервер не даёт завести группу «q» */
+export const SEARCH_PARAM = 'q'
+
+/** Выбор чипов из ссылки: параметр на группу. Тег из старой ссылки мог пропасть — тогда группа «все» */
+export const selectionFromParams = (groups: ProgramTagGroup[], params: URLSearchParams): TagSelection => {
+  const selection: TagSelection = {}
+  for (const g of groups) {
+    const code = params.get(g.code)
+    if (code && g.tags.some(t => t.code === code)) selection[g.code] = code
+  }
+  return selection
 }
 
-/** Шаблоны под чипом; code не задан — все */
-export const filterByTag = <T extends Tagged>(templates: T[], code: string | null | undefined): T[] =>
-  code ? templates.filter(t => t.tags.some(tag => tag.code === code)) : templates
+/** Id выбранных тегов для запроса каталога, в порядке групп — ключ кэша не зависит от порядка кликов */
+export const selectedTagIds = (groups: ProgramTagGroup[], selection: TagSelection): number[] =>
+  groups.flatMap(g => g.tags.filter(t => selection[g.code] === t.code).map(t => t.id))
 
 /** Буква комплекса по месту в очереди: A, B, C… */
 export const complexLetter = (index: number): string => String.fromCharCode(65 + (index % 26))

@@ -5,10 +5,12 @@ import {
   adminTemplatesControllerAddComplex,
   adminTemplatesControllerAddExercises,
   adminTemplatesControllerCreate,
+  adminTemplatesControllerFromProgram,
   adminTemplatesControllerList,
   adminTemplatesControllerRemove,
   adminTemplatesControllerRemoveComplex,
   adminTemplatesControllerRemoveItem,
+  adminTemplatesControllerReorder,
   adminTemplatesControllerReorderComplexes,
   adminTemplatesControllerReorderItems,
   adminTemplatesControllerUpdate,
@@ -36,13 +38,14 @@ export const useAdminTemplate = (id: number) =>
     queryFn: () => adminTemplatesControllerView(id),
   })
 
-// Шаблон целиком в ответе любой правки; пользователи видят шаблоны в «Взять» — их список тоже обновляем
+// Шаблон целиком в ответе любой правки; пользователи видят шаблоны в каталоге — его и чипы тоже обновляем
 const useApplyTemplate = () => {
   const queryClient = useQueryClient()
   return (template: Program) => {
     queryClient.setQueryData(adminTemplateKeys.detail(template.id), template)
     void queryClient.invalidateQueries({ queryKey: adminTemplateKeys.list })
     void queryClient.invalidateQueries({ queryKey: programKeys.templates })
+    void queryClient.invalidateQueries({ queryKey: programKeys.tagGroups })
   }
 }
 
@@ -64,15 +67,52 @@ export const useUpdateTemplate = () => {
   })
 }
 
+/** Показать в каталоге или убрать из него: копии у пользователей не трогаются */
+export const usePublishTemplate = () => {
+  const apply = useApplyTemplate()
+  return useMutation({
+    mutationFn: ({ id, isPublished }: { id: number; isPublished: boolean }) =>
+      adminTemplatesControllerUpdate(id, { isPublished }),
+    meta: { successMessage: 'Видимость в каталоге сохранена' },
+    onSuccess: apply,
+  })
+}
+
+/** «Из моей программы»: скрытый шаблон с составом своей программы, оригинал остаётся */
+export const useTemplateFromProgram = () => {
+  const apply = useApplyTemplate()
+  return useMutation({
+    mutationFn: (programId: number) => adminTemplatesControllerFromProgram(programId),
+    // Сразу открывается редактор нового шаблона — результат и так виден
+    meta: { skipSuccessToast: true },
+    onSuccess: apply,
+  })
+}
+
+/** ids — все шаблоны в новом порядке каталога */
+export const useReorderTemplates = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (ids: number[]) => adminTemplatesControllerReorder({ ids }),
+    // Новый порядок и так виден в списке — тост на каждую стрелку только мешал бы
+    meta: { skipSuccessToast: true },
+    onSuccess: templates => {
+      queryClient.setQueryData(adminTemplateKeys.list, templates)
+      void queryClient.invalidateQueries({ queryKey: programKeys.templates })
+    },
+  })
+}
+
 export const useDeleteTemplate = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (id: number) => adminTemplatesControllerRemove(id),
-    meta: { successMessage: 'Шаблон удалён. Копии у пользователей остались' },
+    meta: { successMessage: 'Шаблон удалён' },
     onSuccess: (_, id) => {
       queryClient.removeQueries({ queryKey: adminTemplateKeys.detail(id) })
       void queryClient.invalidateQueries({ queryKey: adminTemplateKeys.list })
       void queryClient.invalidateQueries({ queryKey: programKeys.templates })
+      void queryClient.invalidateQueries({ queryKey: programKeys.tagGroups })
     },
   })
 }

@@ -776,6 +776,8 @@ model Program {
   isTemplate  Boolean @default(false)
   code        String? @unique /// ключ шаблона для импорта
   description String? /// описание шаблона: для кого и как заниматься
+  isPublished Boolean @default(false) /// шаблон виден пользователям в каталоге
+  position    Int     @default(0) /// порядок шаблона в каталоге
 
   ownerId Int?
   owner   User? @relation(fields: [ownerId], references: [id], onDelete: Cascade)
@@ -785,6 +787,8 @@ model Program {
   sourceProgram   Program?  @relation("ProgramCopy", fields: [sourceProgramId], references: [id], onDelete: SetNull)
   copies          Program[] @relation("ProgramCopy")
   sourceSyncedAt  DateTime? /// какой версии источника соответствует копия
+  /// «Не сейчас» на плашке обновления: плашка вернётся только после новой правки источника.
+  sourceDismissedAt DateTime?
 
   /// Меняется при любой правке состава — по нему друг узнаёт об обновлении.
   contentUpdatedAt DateTime  @default(now())
@@ -800,21 +804,38 @@ model Program {
 
   @@index([ownerId])
   @@index([sourceProgramId])
+  @@index([isTemplate, isPublished, position])
 }
 
-/// Комплекс — набор упражнений одной тренировки. Комплексы программы идут по кругу по position.
-/// Тег шаблона программы: «Дом», «Зал», «Новичок» — чипы-фильтры на онбординге и в «Шаблонах».
-model ProgramTag {
+/// Группа тегов шаблонов — ось подбора: «Где», «Уровень», «Цель». Каждая группа — свой ряд чипов.
+model ProgramTagGroup {
   id       Int    @id @default(autoincrement())
-  code     String @unique /// латинский ключ для импорта: home, gym, beginner
+  code     String @unique /// латинский ключ: параметр фильтра в ссылке и импорт
   name     String
-  position Int /// порядок чипов
+  position Int /// порядок рядов чипов
 
-  programs Program[]
+  tags ProgramTag[]
 
   @@index([position])
 }
 
+/// Тег шаблона программы: «Дом», «Зал», «Новичок» — чипы-фильтры на онбординге и в каталоге.
+model ProgramTag {
+  id       Int    @id @default(autoincrement())
+  code     String @unique /// латинский ключ для импорта: home, gym, beginner
+  name     String
+  position Int /// порядок чипа внутри группы
+
+  /// Restrict: группу с тегами не удалить, сначала теги переносят или удаляют.
+  groupId Int
+  group   ProgramTagGroup @relation(fields: [groupId], references: [id], onDelete: Restrict)
+
+  programs Program[]
+
+  @@index([groupId, position])
+}
+
+/// Комплекс — набор упражнений одной тренировки. Комплексы программы идут по кругу по position.
 model Complex {
   id        Int     @id @default(autoincrement())
   programId Int

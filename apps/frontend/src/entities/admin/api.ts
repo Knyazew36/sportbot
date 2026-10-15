@@ -119,8 +119,7 @@ export const useRejectRequest = () => {
 export const useComplaints = () =>
   useInfiniteQuery({
     queryKey: adminKeys.complaints,
-    queryFn: ({ pageParam }) =>
-      adminControllerComplaints({ page: pageParam, limit: PAGE_SIZE, filter_status: 'OPEN' }),
+    queryFn: ({ pageParam }) => adminControllerComplaints({ page: pageParam, limit: PAGE_SIZE, filter_status: 'OPEN' }),
     initialPageParam: 1,
     getNextPageParam: nextPage,
     staleTime: 0,

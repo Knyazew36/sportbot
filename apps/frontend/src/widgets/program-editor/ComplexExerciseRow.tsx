@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { GripVerticalIcon, Trash2Icon } from 'lucide-react'
+import { EyeIcon, GripVerticalIcon, Trash2Icon } from 'lucide-react'
 import { Reorder, useDragControls } from 'motion/react'
 import { useForm } from 'react-hook-form'
 
@@ -36,15 +36,12 @@ type ComplexExerciseRowProps = {
   onDrop: () => void
   onPlanChange: (plan: ComplexExerciseValues) => Promise<unknown>
   onRemove: () => void
+  /** Открыть карточку упражнения: фото, мышцы, техника */
+  onView: () => void
 }
 
 // Упражнение комплекса: план «3 × 8–12» правится на месте и сохраняется, когда фокус уходит из строки
-export const ComplexExerciseRow = ({
-  exercise,
-  onDrop,
-  onPlanChange,
-  onRemove,
-}: ComplexExerciseRowProps) => {
+export const ComplexExerciseRow = ({ exercise, onDrop, onPlanChange, onRemove, onView }: ComplexExerciseRowProps) => {
   // Перетаскивание только за ручку: иначе прокрутка пальцем и ввод в поля хватали бы строку
   const drag = useDragControls()
   const {
@@ -63,8 +60,7 @@ export const ComplexExerciseRow = ({
   })
 
   const save = handleSubmit(plan => {
-    const same =
-      plan.sets === exercise.sets && plan.repsMin === exercise.repsMin && plan.repsMax === exercise.repsMax
+    const same = plan.sets === exercise.sets && plan.repsMin === exercise.repsMin && plan.repsMax === exercise.repsMax
     if (same) return
     return onPlanChange(plan).catch(error => applyFieldErrors(error, setError))
   })
@@ -167,7 +163,17 @@ export const ComplexExerciseRow = ({
             type='button'
             variant='outline'
             size='icon-sm'
-            className='text-destructive ml-auto'
+            className='ml-auto'
+            aria-label={`Посмотреть «${exercise.name}»`}
+            onClick={onView}
+          >
+            <EyeIcon />
+          </Button>
+          <Button
+            type='button'
+            variant='outline'
+            size='icon-sm'
+            className='text-destructive'
             aria-label={`Удалить «${exercise.name}» из комплекса`}
             onClick={onRemove}
           >

@@ -87,9 +87,9 @@ export const haptic = {
   warning: () => quiet(feedback()?.notificationOccurred?.('warning')),
   /** Запрос не прошёл */
   error: () => quiet(feedback()?.notificationOccurred?.('error')),
-  /** Нажатие кнопки */
+  /** Нажатие кнопки, смена раздела меню */
   tap: () => quiet(feedback()?.impactOccurred?.('light')),
-  /** Смена выбора: сегмент, тумблер, раздел меню */
+  /** Смена выбора: сегмент, тумблер */
   select: () => quiet(feedback()?.selectionChanged?.()),
   /** Вне мессенджера — через браузер, если он умеет */
   long: () => {

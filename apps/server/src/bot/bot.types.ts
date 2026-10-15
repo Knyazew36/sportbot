@@ -130,6 +130,7 @@ export const APP_SCREEN = {
   cooldown: (workoutId: number) => `cd_${workoutId}`,
   friend: (userId: number) => `fr_${userId}`,
   program: (programId: number) => `pr_${programId}`,
+  templates: 'tpl',
   mine: 'mine',
   request: (requestId: number) => `md_${requestId}`,
   complaint: (complaintId: number) => `cp_${complaintId}`,

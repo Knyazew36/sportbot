@@ -73,15 +73,25 @@ export const templateMetaSchema = z.object({
 })
 export type TemplateMetaValues = z.infer<typeof templateMetaSchema>
 
-// Тег шаблона: код — ключ импорта, название — подпись чипа
+const tagCode = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .min(1, 'Укажи код')
+  .max(40, 'Код — до 40 символов')
+  .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, 'Латиница, цифры и дефис: home, gym, full-body')
+
+// Тег шаблона: код — ключ импорта, название — подпись чипа, группа — ряд чипов
 export const programTagSchema = z.object({
-  code: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .min(1, 'Укажи код')
-    .max(40, 'Код — до 40 символов')
-    .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, 'Латиница, цифры и дефис: home, gym, full-body'),
+  code: tagCode,
   name: z.string().trim().min(1, 'Название не может быть пустым').max(24, 'Название — до 24 символов'),
+  groupId: z.number({ message: 'Выбери группу' }),
 })
 export type ProgramTagValues = z.infer<typeof programTagSchema>
+
+// Группа тегов: код — параметр фильтра в ссылке каталога, «q» там уже занят поиском
+export const programTagGroupSchema = z.object({
+  code: tagCode.refine(code => code !== 'q', 'Код «q» занят поиском'),
+  name: z.string().trim().min(1, 'Название не может быть пустым').max(24, 'Название — до 24 символов'),
+})
+export type ProgramTagGroupValues = z.infer<typeof programTagGroupSchema>

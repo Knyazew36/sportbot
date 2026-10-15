@@ -19,16 +19,34 @@ export const PROGRAM_TAG_SELECT = {
   code: true,
   name: true,
   position: true,
+  groupId: true,
 } satisfies Prisma.ProgramTagSelect;
 
-const ADMIN_SELECT = {
+/** Теги по порядку: сначала ряд группы, потом место чипа в ряду. */
+export const PROGRAM_TAG_ORDER = [
+  { group: { position: 'asc' } },
+  { position: 'asc' },
+] satisfies Prisma.ProgramTagOrderByWithRelationInput[];
+
+export const ADMIN_TAG_SELECT = {
   ...PROGRAM_TAG_SELECT,
   _count: { select: { programs: true } },
 } satisfies Prisma.ProgramTagSelect;
 
-type AdminRow = Prisma.ProgramTagGetPayload<{ select: typeof ADMIN_SELECT }>;
+type AdminRow = Prisma.ProgramTagGetPayload<{
+  select: typeof ADMIN_TAG_SELECT;
+}>;
 
-/** Теги шаблонов программ: справочник администратора для чипов-фильтров. */
+export const toAdminTag = (row: AdminRow): AdminProgramTagResponseDto => ({
+  id: row.id,
+  code: row.code,
+  name: row.name,
+  position: row.position,
+  groupId: row.groupId,
+  templateCount: row._count.programs,
+});
+
+/** Теги шаблонов программ: справочник администратора для чипов-фильтров каталога. */
 @Injectable()
 export class ProgramTagService {
   private readonly logger = new Logger(`🏷️ ${ProgramTagService.name}`);
@@ -39,59 +57,72 @@ export class ProgramTagService {
 
   public async list(): Promise<AdminProgramTagResponseDto[]> {
     const rows = await this.prisma.programTag.findMany({
-      orderBy: { position: 'asc' },
-      select: ADMIN_SELECT,
+      orderBy: PROGRAM_TAG_ORDER,
+      select: ADMIN_TAG_SELECT,
     });
     this.logger.debug(`Теги: всего=${rows.length}`);
-    return rows.map((row) => this.toDto(row));
+    return rows.map(toAdminTag);
   }
 
   public async one(id: number): Promise<AdminProgramTagResponseDto> {
     const row = await this.guard(() =>
       this.prisma.programTag.findUniqueOrThrow({
         where: { id },
-        select: ADMIN_SELECT,
+        select: ADMIN_TAG_SELECT,
       }),
     );
-    return this.toDto(row);
+    return toAdminTag(row);
   }
 
   // ── Изменение ───────────────────────────────────────────────────────────
 
-  /** Новый тег встаёт последним чипом. */
+  /** Новый тег встаёт последним чипом своей группы. */
   public async create(
     dto: CreateProgramTagDto,
   ): Promise<AdminProgramTagResponseDto> {
-    const last = await this.prisma.programTag.aggregate({
-      _max: { position: true },
-    });
+    const position = await this.nextPosition(dto.groupId);
     const row = await this.guard(() =>
       this.prisma.programTag.create({
         data: {
           code: dto.code,
           name: dto.name,
-          position: (last._max.position ?? 0) + 1,
+          groupId: dto.groupId,
+          position,
         },
-        select: ADMIN_SELECT,
+        select: ADMIN_TAG_SELECT,
       }),
     );
-    this.logger.log(`Тег создан: tagId=${row.id}, code=${row.code}`);
-    return this.toDto(row);
+    this.logger.log(
+      `Тег создан: tagId=${row.id}, code=${row.code}, groupId=${row.groupId}`,
+    );
+    return toAdminTag(row);
   }
 
   public async update(
     id: number,
     dto: UpdateProgramTagDto,
   ): Promise<AdminProgramTagResponseDto> {
+    // Перенос в другую группу: тег встаёт последним в ней; та же группа — место не меняется
+    if (dto.groupId !== undefined) {
+      const position = await this.nextPosition(dto.groupId);
+      const { count } = await this.guard(() =>
+        this.prisma.programTag.updateMany({
+          where: { id, groupId: { not: dto.groupId } },
+          data: { groupId: dto.groupId, position },
+        }),
+      );
+      if (count)
+        this.logger.log(`Тег перенесён: tagId=${id}, groupId=${dto.groupId}`);
+    }
     const row = await this.guard(() =>
       this.prisma.programTag.update({
         where: { id },
         data: { code: dto.code, name: dto.name },
-        select: ADMIN_SELECT,
+        select: ADMIN_TAG_SELECT,
       }),
     );
     this.logger.log(`Тег изменён: tagId=${id}, code=${row.code}`);
-    return this.toDto(row);
+    return toAdminTag(row);
   }
 
   /** Связи с шаблонами удаляются каскадом: шаблоны остаются, тег просто пропадает с них. */
@@ -100,20 +131,20 @@ export class ProgramTagService {
     this.logger.log(`Тег удалён: tagId=${id}`);
   }
 
-  /** ids — все теги в новом порядке. */
+  /** ids — все теги одной группы в новом порядке. */
   public async reorder(ids: number[]): Promise<AdminProgramTagResponseDto[]> {
-    const existing = await this.prisma.programTag.findMany({
+    // Соседи первого тега по группе — с ними и сверяем выборку
+    const siblings = await this.prisma.programTag.findMany({
+      where: { group: { tags: { some: { id: ids[0] } } } },
       select: { id: true },
     });
-    const known = new Set(existing.map((t) => t.id));
+    const known = new Set(siblings.map((t) => t.id));
     if (
       ids.length !== known.size ||
       new Set(ids).size !== ids.length ||
       ids.some((id) => !known.has(id))
     ) {
-      this.logger.warn(
-        `Порядок тегов не совпал со списком: [${ids.join(',')}]`,
-      );
+      this.logger.warn(`Порядок тегов не совпал с группой: [${ids.join(',')}]`);
       throw new BadRequestException(
         'Список тегов устарел — обнови экран и попробуй ещё раз.',
       );
@@ -132,14 +163,12 @@ export class ProgramTagService {
 
   // ── Внутреннее ──────────────────────────────────────────────────────────
 
-  private toDto(row: AdminRow): AdminProgramTagResponseDto {
-    return {
-      id: row.id,
-      code: row.code,
-      name: row.name,
-      position: row.position,
-      templateCount: row._count.programs,
-    };
+  private async nextPosition(groupId: number): Promise<number> {
+    const last = await this.prisma.programTag.aggregate({
+      where: { groupId },
+      _max: { position: true },
+    });
+    return (last._max.position ?? 0) + 1;
   }
 
   private async guard<T>(run: () => Promise<T>): Promise<T> {
@@ -151,6 +180,8 @@ export class ProgramTagService {
           throw new NotFoundException('Тег не найден.');
         if (error.code === 'P2002')
           throw new ConflictException('Тег с таким кодом уже есть.');
+        if (error.code === 'P2003')
+          throw new BadRequestException('Группа не найдена — обнови экран.');
       }
       throw error;
     }

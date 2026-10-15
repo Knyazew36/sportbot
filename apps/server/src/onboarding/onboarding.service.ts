@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 
 import { SportAccountService } from '@/bot/sport-account.service';
@@ -128,12 +128,7 @@ export class OnboardingService {
       return (await this.programs.create(userId, 'Моя программа')).id;
 
     if (dto.templateId) {
-      const template = await this.prisma.program.findFirst({
-        where: { id: dto.templateId, isTemplate: true },
-        select: { id: true },
-      });
-      if (!template) throw new BadRequestException('Шаблон не найден.');
-      return (await this.programs.copy(template.id, userId)).id;
+      return (await this.programs.takeTemplate(dto.templateId, userId)).id;
     }
 
     // Программа уже выбрана в боте — её и оставляем

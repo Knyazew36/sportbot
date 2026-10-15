@@ -12,6 +12,7 @@ import type {
   ProgramControllerAddComplex200,
   ProgramControllerAddExercises200,
   ProgramControllerCreate200,
+  ProgramControllerDismissUpdate200,
   ProgramControllerList200,
   ProgramControllerRemove200,
   ProgramControllerRemoveComplex200,
@@ -19,8 +20,10 @@ import type {
   ProgramControllerReorderComplexes200,
   ProgramControllerReorderItems200,
   ProgramControllerResync200,
+  ProgramControllerTagGroups200,
   ProgramControllerTake200,
   ProgramControllerTemplates200,
+  ProgramControllerTemplatesParams,
   ProgramControllerUpdate200,
   ProgramControllerUpdateComplex200,
   ProgramControllerUpdateItem200,
@@ -36,13 +39,25 @@ import { customInstance } from '../../model/orval-mutator';
 
 
   /**
- * @summary Шаблоны программ с составом
+ * @summary Каталог: опубликованные шаблоны с составом, фильтр по тегам и поиск
  */
 export const programControllerTemplates = (
-
+    params?: ProgramControllerTemplatesParams,
  ) => {
       return customInstance<ProgramControllerTemplates200>(
-      {url: `/program/templates`, method: 'GET'
+      {url: `/program/templates`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * @summary Ряды чипов каталога: группы с тегами опубликованных шаблонов
+ */
+export const programControllerTagGroups = (
+
+ ) => {
+      return customInstance<ProgramControllerTagGroups200>(
+      {url: `/program/tag-groups`, method: 'GET'
     },
       );
     }
@@ -125,6 +140,17 @@ export const programControllerResync = (
  ) => {
       return customInstance<ProgramControllerResync200>(
       {url: `/program/resync/${id}`, method: 'POST'
+    },
+      );
+    }
+  /**
+ * @summary «Не сейчас»: спрятать плашку обновления до следующей правки источника
+ */
+export const programControllerDismissUpdate = (
+    id: number,
+ ) => {
+      return customInstance<ProgramControllerDismissUpdate200>(
+      {url: `/program/dismiss-update/${id}`, method: 'POST'
     },
       );
     }
@@ -246,6 +272,7 @@ export const programControllerView = (
       );
     }
   export type ProgramControllerTemplatesResult = NonNullable<Awaited<ReturnType<typeof programControllerTemplates>>>
+export type ProgramControllerTagGroupsResult = NonNullable<Awaited<ReturnType<typeof programControllerTagGroups>>>
 export type ProgramControllerTakeResult = NonNullable<Awaited<ReturnType<typeof programControllerTake>>>
 export type ProgramControllerListResult = NonNullable<Awaited<ReturnType<typeof programControllerList>>>
 export type ProgramControllerCreateResult = NonNullable<Awaited<ReturnType<typeof programControllerCreate>>>
@@ -253,6 +280,7 @@ export type ProgramControllerUpdateResult = NonNullable<Awaited<ReturnType<typeo
 export type ProgramControllerRemoveResult = NonNullable<Awaited<ReturnType<typeof programControllerRemove>>>
 export type ProgramControllerActivateResult = NonNullable<Awaited<ReturnType<typeof programControllerActivate>>>
 export type ProgramControllerResyncResult = NonNullable<Awaited<ReturnType<typeof programControllerResync>>>
+export type ProgramControllerDismissUpdateResult = NonNullable<Awaited<ReturnType<typeof programControllerDismissUpdate>>>
 export type ProgramControllerAddComplexResult = NonNullable<Awaited<ReturnType<typeof programControllerAddComplex>>>
 export type ProgramControllerReorderComplexesResult = NonNullable<Awaited<ReturnType<typeof programControllerReorderComplexes>>>
 export type ProgramControllerUpdateComplexResult = NonNullable<Awaited<ReturnType<typeof programControllerUpdateComplex>>>

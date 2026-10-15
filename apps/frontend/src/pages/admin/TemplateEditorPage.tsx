@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Trash2Icon } from 'lucide-react'
+import { EyeIcon, EyeOffIcon, Trash2Icon } from 'lucide-react'
 import { Controller, useForm } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router'
 
@@ -9,7 +9,8 @@ import {
   useAddTemplateComplex,
   useAdminTemplate,
   useDeleteTemplate,
-  useProgramTags,
+  useProgramTagGroups,
+  usePublishTemplate,
   useReorderTemplateComplexes,
   useUpdateTemplate,
 } from '@/entities/admin'
@@ -25,6 +26,7 @@ import { Rise } from '@/shared/ui/kit/Reveal'
 import { Screen } from '@/shared/ui/kit/Screen'
 import { TopBar } from '@/shared/ui/kit/ScreenHeader'
 import { TextField } from '@/shared/ui/kit/TextField'
+import { Eyebrow, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Label } from '@/shared/ui/shadcn/label'
 import { Textarea } from '@/shared/ui/shadcn/textarea'
@@ -34,10 +36,40 @@ import { type ComplexListActions, ProgramComplexList } from '@/widgets/program-e
 
 const BACK = `${ROUTES.ADMIN}?tab=templates`
 
-// Название, описание и теги — то, что пользователь видит в «Шаблоны» перед «Взять»
+// Виден ли шаблон в каталоге. Новый скрыт: недособранную программу пользователи не увидят
+const PublishBlock = ({ template }: { template: Program }) => {
+  const publish = usePublishTemplate()
+
+  return (
+    <div className='border-foreground/80 flex flex-col gap-3 border-[1.5px] p-4'>
+      <Eyebrow
+        as='p'
+        tone={template.isPublished ? 'primary' : 'muted'}
+      >
+        {template.isPublished ? 'в каталоге' : 'скрыт'}
+      </Eyebrow>
+      <Text tone='soft'>
+        {template.isPublished
+          ? 'Шаблон видят все: каталог, онбординг, бот. Правки состава придут взявшим плашкой «Шаблон обновился».'
+          : 'Шаблон видишь только ты. Собери состав и выстави теги, потом покажи его в каталоге.'}
+      </Text>
+      <Button
+        variant={template.isPublished ? 'outline' : 'default'}
+        className='w-full'
+        disabled={publish.isPending}
+        onClick={() => publish.mutate({ id: template.id, isPublished: !template.isPublished })}
+      >
+        {template.isPublished ? <EyeOffIcon /> : <EyeIcon />}
+        {template.isPublished ? 'Снять с публикации' : 'Показать в каталоге'}
+      </Button>
+    </div>
+  )
+}
+
+// Название, описание и теги — то, что пользователь видит в каталоге перед «Взять»
 const MetaForm = ({ template }: { template: Program }) => {
   const update = useUpdateTemplate()
-  const tags = useProgramTags()
+  const groups = useProgramTagGroups()
   const {
     register,
     control,
@@ -75,32 +107,41 @@ const MetaForm = ({ template }: { template: Program }) => {
         />
         <ErrorText errors={errors.description} />
       </div>
-      {!!tags.data?.length && (
-        <div className='flex flex-col gap-2'>
-          <Label>Теги</Label>
-          <Controller
-            control={control}
-            name='tagIds'
-            render={({ field }) => (
-              <ToggleGroup
-                multiple
-                value={field.value.map(String)}
-                onValueChange={v => field.onChange(v.map(Number))}
-                className='grid w-full grid-cols-2 gap-2'
-              >
-                {tags.data.map(t => (
-                  <ToggleGroupItem
-                    key={t.id}
-                    value={String(t.id)}
-                    className='h-11 justify-start px-3'
+      {groups.data?.map(g =>
+        g.tags.length ? (
+          <div
+            key={g.id}
+            className='flex flex-col gap-2'
+          >
+            <Label>{g.name}</Label>
+            <Controller
+              control={control}
+              name='tagIds'
+              render={({ field }) => {
+                // Каждая группа правит только свои теги, теги других групп остаются как были
+                const own = new Set(g.tags.map(t => t.id))
+                return (
+                  <ToggleGroup
+                    multiple
+                    value={field.value.filter(id => own.has(id)).map(String)}
+                    onValueChange={v => field.onChange([...field.value.filter(id => !own.has(id)), ...v.map(Number)])}
+                    className='grid w-full grid-cols-2 gap-2'
                   >
-                    {t.name}
-                  </ToggleGroupItem>
-                ))}
-              </ToggleGroup>
-            )}
-          />
-        </div>
+                    {g.tags.map(t => (
+                      <ToggleGroupItem
+                        key={t.id}
+                        value={String(t.id)}
+                        className='h-11 justify-start px-3'
+                      >
+                        {t.name}
+                      </ToggleGroupItem>
+                    ))}
+                  </ToggleGroup>
+                )
+              }}
+            />
+          </div>
+        ) : null,
       )}
       {isDirty && (
         <Button
@@ -164,7 +205,8 @@ const TemplateEditorPage = () => {
       <QueryScreen query={template}>
         {t => (
           <>
-            <Rise className='px-gutter'>
+            <Rise className='px-gutter flex flex-col gap-6'>
+              <PublishBlock template={t} />
               <MetaForm template={t} />
             </Rise>
 
@@ -184,7 +226,7 @@ const TemplateEditorPage = () => {
                   />
                 }
                 title='Удалить шаблон?'
-                description='Он пропадёт из «Взять». Копии, которые пользователи уже взяли, останутся у них.'
+                description='Удалить можно только шаблон, который ещё никто не взял. Взятый — сними с публикации.'
                 confirmLabel='Удалить'
                 onConfirm={() => remove.mutateAsync(t.id).then(() => navigate(BACK, { replace: true }))}
               >

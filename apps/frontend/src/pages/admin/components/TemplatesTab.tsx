@@ -1,11 +1,19 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { PlusIcon } from 'lucide-react'
+import { ArrowDownIcon, ArrowUpIcon, CopyPlusIcon, PlusIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router'
 
 import { useState } from 'react'
 
-import { templateMetaSchema, type TemplateMetaValues, useAdminTemplates, useCreateTemplate } from '@/entities/admin'
+import {
+  templateMetaSchema,
+  type TemplateMetaValues,
+  useAdminTemplates,
+  useCreateTemplate,
+  useReorderTemplates,
+  useTemplateFromProgram,
+} from '@/entities/admin'
+import { usePrograms } from '@/entities/program'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { pluralize } from '@/shared/lib/format'
@@ -15,9 +23,12 @@ import { Rise } from '@/shared/ui/kit/Reveal'
 import { TextField } from '@/shared/ui/kit/TextField'
 import { Eyebrow } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'
+import { Badge } from '@/shared/ui/shadcn/badge'
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'
 
 import { ProgramTagsBlock } from './ProgramTagsBlock'
+
+const COMPLEX_FORMS: [string, string, string] = ['комплекс', 'комплекса', 'комплексов']
 
 // Новый шаблон: название сразу, состав — уже в редакторе
 const NewTemplateForm = () => {
@@ -61,36 +72,103 @@ const NewTemplateForm = () => {
   )
 }
 
-// Шаблоны программ: тот же редактор, что у программ пользователя, плюс описание (frontend-tz, 14.2)
+// «Из моей программы»: свою рабочую программу копией в шаблон — скрытым, оригинал остаётся
+const FromProgramList = () => {
+  const programs = usePrograms()
+  const fromProgram = useTemplateFromProgram()
+  const navigate = useNavigate()
+
+  return (
+    <QueryScreen
+      query={programs}
+      className='mx-gutter pb-6'
+      isEmpty={list => list.length === 0}
+      empty={{
+        title: 'Своих программ нет',
+        description: 'Собери программу в «Программах» — потом её можно сделать шаблоном.',
+      }}
+    >
+      {list => (
+        <List>
+          {list.map(p => (
+            <ListRow
+              key={p.id}
+              lead={String(p.complexCount).padStart(2, '0')}
+              title={p.name}
+              meta={pluralize(p.complexCount, COMPLEX_FORMS)}
+              trail={
+                <Button
+                  size='xs'
+                  variant='outline'
+                  disabled={fromProgram.isPending}
+                  onClick={() =>
+                    void fromProgram
+                      .mutateAsync(p.id)
+                      .then(t => navigate(buildPath(ROUTES.ADMIN_TEMPLATE, { templateId: t.id })))
+                  }
+                >
+                  Сделать шаблоном
+                </Button>
+              }
+            />
+          ))}
+        </List>
+      )}
+    </QueryScreen>
+  )
+}
+
+// Шаблоны программ: тот же редактор, что у программ пользователя, плюс описание (frontend-tz, 14.2).
+// Порядок здесь — порядок каталога; скрытые пользователи не видят
 export const TemplatesTab = () => {
   const templates = useAdminTemplates()
-  const [open, setOpen] = useState(false)
+  const reorder = useReorderTemplates()
+  // Какая шторка открыта: новый шаблон с нуля или из своей программы
+  const [sheet, setSheet] = useState<'new' | 'from-program' | null>(null)
+
+  const move = (ids: number[], index: number, shift: -1 | 1) => {
+    const next = [...ids]
+    const [item] = next.splice(index, 1)
+    if (item === undefined) return
+    next.splice(index + shift, 0, item)
+    reorder.mutate(next)
+  }
 
   return (
     <Rise className='px-gutter flex flex-col gap-3'>
       <ProgramTagsBlock />
       <div className='mt-4 flex items-center justify-between gap-3'>
         <Eyebrow>шаблонов: {templates.data?.length ?? '—'}</Eyebrow>
-        <Button
-          size='sm'
-          onClick={() => setOpen(true)}
-        >
-          <PlusIcon strokeWidth={2.5} />
-          Новый шаблон
-        </Button>
+        <div className='flex gap-2'>
+          <Button
+            size='sm'
+            variant='outline'
+            onClick={() => setSheet('from-program')}
+          >
+            <CopyPlusIcon />
+            Из моей
+          </Button>
+          <Button
+            size='sm'
+            onClick={() => setSheet('new')}
+          >
+            <PlusIcon strokeWidth={2.5} />
+            Новый
+          </Button>
+        </div>
       </div>
       <QueryScreen
         query={templates}
         className=''
         isEmpty={list => list.length === 0}
-        empty={{ title: 'Шаблонов нет', description: 'Создай первый — пользователи увидят его в «Взять».' }}
+        empty={{ title: 'Шаблонов нет', description: 'Создай первый и покажи его в каталоге.' }}
       >
         {list => (
           <List>
-            {list.map(t => (
+            {list.map((t, i) => (
               <ListRow
                 key={t.id}
-                lead={String(t.complexes.length).padStart(2, '0')}
+                lead={String(i + 1).padStart(2, '0')}
                 className='relative'
                 title={
                   <Link
@@ -102,26 +180,86 @@ export const TemplatesTab = () => {
                 }
                 meta={[
                   t.tags.map(tag => tag.name).join(', '),
-                  t.complexes.map(c => c.name).join(' · ') ||
-                    pluralize(t.complexes.length, ['комплекс', 'комплекса', 'комплексов']),
+                  t.complexes.map(c => c.name).join(' · ') || pluralize(t.complexes.length, COMPLEX_FORMS),
                 ]
                   .filter(Boolean)
                   .join(' — ')}
-              />
+                trail={
+                  // Поверх растянутой ссылки строки: стрелки нажимаются, а не открывают шаблон
+                  <div className='relative z-10 flex gap-1'>
+                    <Button
+                      size='icon-sm'
+                      variant='outline'
+                      aria-label={`Выше: ${t.name}`}
+                      disabled={i === 0 || reorder.isPending}
+                      onClick={() =>
+                        move(
+                          list.map(x => x.id),
+                          i,
+                          -1,
+                        )
+                      }
+                    >
+                      <ArrowUpIcon />
+                    </Button>
+                    <Button
+                      size='icon-sm'
+                      variant='outline'
+                      aria-label={`Ниже: ${t.name}`}
+                      disabled={i === list.length - 1 || reorder.isPending}
+                      onClick={() =>
+                        move(
+                          list.map(x => x.id),
+                          i,
+                          1,
+                        )
+                      }
+                    >
+                      <ArrowDownIcon />
+                    </Button>
+                  </div>
+                }
+              >
+                {!t.isPublished && (
+                  <Badge
+                    variant='outline'
+                    className='mt-2'
+                  >
+                    скрыт
+                  </Badge>
+                )}
+              </ListRow>
             ))}
           </List>
         )}
       </QueryScreen>
 
       <Sheet
-        open={open}
-        onOpenChange={setOpen}
+        open={sheet !== null}
+        onOpenChange={open => !open && setSheet(null)}
       >
         <SheetContent side='bottom'>
-          <SheetHeader>
-            <SheetTitle>Новый шаблон</SheetTitle>
-          </SheetHeader>
-          {open && <NewTemplateForm />}
+          {sheet === 'new' && (
+            <>
+              <SheetHeader>
+                <SheetTitle>Новый шаблон</SheetTitle>
+                <SheetDescription>Появится скрытым — покажешь в каталоге, когда соберёшь.</SheetDescription>
+              </SheetHeader>
+              <NewTemplateForm />
+            </>
+          )}
+          {sheet === 'from-program' && (
+            <>
+              <SheetHeader>
+                <SheetTitle>Шаблон из моей программы</SheetTitle>
+                <SheetDescription>
+                  Состав скопируется в скрытый шаблон, твоя программа останется как есть. Черновики упражнений в шаблон
+                  не попадут — сначала их должна одобрить модерация.
+                </SheetDescription>
+              </SheetHeader>
+              <FromProgramList />
+            </>
+          )}
         </SheetContent>
       </Sheet>
     </Rise>

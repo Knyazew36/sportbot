@@ -38,9 +38,10 @@ const useComplexActions = (onDeleted: () => void) => {
     const index = program.complexes.findIndex(c => c.id === complexId)
     const complex = program.complexes[index]
     if (!complex) return null
-    const exercises = reorderExercises.isPending && reorderExercises.variables.complexId === complexId
-      ? arrangeBy(complex.exercises, reorderExercises.variables.ids)
-      : complex.exercises
+    const exercises =
+      reorderExercises.isPending && reorderExercises.variables.complexId === complexId
+        ? arrangeBy(complex.exercises, reorderExercises.variables.ids)
+        : complex.exercises
     return { complex: { ...complex, exercises }, letter: complexLetter(index) }
   }
 

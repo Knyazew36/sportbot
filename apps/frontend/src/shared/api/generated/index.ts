@@ -1,5 +1,6 @@
 export * from './admin/admin';
 export * from './admin-catalog/admin-catalog';
+export * from './admin-program-tag-groups/admin-program-tag-groups';
 export * from './admin-program-tags/admin-program-tags';
 export * from './admin-templates/admin-templates';
 export * from './app/app';
@@ -14,7 +15,6 @@ export * from './invite/invite';
 export * from './join-request/join-request';
 export * from './limitation/limitation';
 export * from './link/link';
-export * from './max/max';
 export * from './miniapp/miniapp';
 export * from './notifications/notifications';
 export * from './onboarding/onboarding';

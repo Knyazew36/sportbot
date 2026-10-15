@@ -9,4 +9,6 @@ export interface CreateProgramTagDto {
   /** Латинский ключ для импорта */
   code: string;
   name: string;
+  /** Группа тега */
+  groupId: number;
 }

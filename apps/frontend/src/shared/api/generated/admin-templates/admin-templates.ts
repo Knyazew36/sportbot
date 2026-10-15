@@ -9,10 +9,12 @@ import type {
   AdminTemplatesControllerAddComplex200,
   AdminTemplatesControllerAddExercises200,
   AdminTemplatesControllerCreate200,
+  AdminTemplatesControllerFromProgram200,
   AdminTemplatesControllerList200,
   AdminTemplatesControllerRemove200,
   AdminTemplatesControllerRemoveComplex200,
   AdminTemplatesControllerRemoveItem200,
+  AdminTemplatesControllerReorder200,
   AdminTemplatesControllerReorderComplexes200,
   AdminTemplatesControllerReorderItems200,
   AdminTemplatesControllerUpdate200,
@@ -43,6 +45,30 @@ export const adminTemplatesControllerList = (
       );
     }
   /**
+ * @summary Порядок шаблонов в каталоге
+ */
+export const adminTemplatesControllerReorder = (
+    reorderDto: ReorderDto,
+ ) => {
+      return customInstance<AdminTemplatesControllerReorder200>(
+      {url: `/admin/templates/reorder`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: reorderDto
+    },
+      );
+    }
+  /**
+ * @summary Скрытый шаблон из своей программы: оригинал остаётся
+ */
+export const adminTemplatesControllerFromProgram = (
+    id: number,
+ ) => {
+      return customInstance<AdminTemplatesControllerFromProgram200>(
+      {url: `/admin/templates/from-program/${id}`, method: 'POST'
+    },
+      );
+    }
+  /**
  * @summary Новый шаблон
  */
 export const adminTemplatesControllerCreate = (
@@ -56,7 +82,7 @@ export const adminTemplatesControllerCreate = (
       );
     }
   /**
- * @summary Название, описание и теги шаблона
+ * @summary Название, описание, теги и публикация шаблона
  */
 export const adminTemplatesControllerUpdate = (
     id: number,
@@ -70,7 +96,7 @@ export const adminTemplatesControllerUpdate = (
       );
     }
   /**
- * @summary Удалить шаблон
+ * @summary Удалить шаблон, который ещё никто не взял
  */
 export const adminTemplatesControllerRemove = (
     id: number,
@@ -198,6 +224,8 @@ export const adminTemplatesControllerView = (
       );
     }
   export type AdminTemplatesControllerListResult = NonNullable<Awaited<ReturnType<typeof adminTemplatesControllerList>>>
+export type AdminTemplatesControllerReorderResult = NonNullable<Awaited<ReturnType<typeof adminTemplatesControllerReorder>>>
+export type AdminTemplatesControllerFromProgramResult = NonNullable<Awaited<ReturnType<typeof adminTemplatesControllerFromProgram>>>
 export type AdminTemplatesControllerCreateResult = NonNullable<Awaited<ReturnType<typeof adminTemplatesControllerCreate>>>
 export type AdminTemplatesControllerUpdateResult = NonNullable<Awaited<ReturnType<typeof adminTemplatesControllerUpdate>>>
 export type AdminTemplatesControllerRemoveResult = NonNullable<Awaited<ReturnType<typeof adminTemplatesControllerRemove>>>
