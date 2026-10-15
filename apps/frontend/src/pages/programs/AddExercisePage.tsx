@@ -22,6 +22,11 @@ const AddExercisePage = () => {
       onAdd={exerciseIds =>
         add.mutate({ complexId, exerciseIds }, { onSuccess: () => navigate(back, { replace: true }) })
       }
+      // Карточка знает, в какой комплекс добавлять, и после добавления ведёт на него же
+      exerciseHref={(exerciseId, from) => {
+        const search = new URLSearchParams({ from, program: String(programId), complex: String(complexId) })
+        return `${buildPath(ROUTES.EXERCISE, { exerciseId })}?${search}`
+      }}
     />
   )
 }

@@ -1,6 +1,7 @@
 import { CheckIcon, PlusIcon } from 'lucide-react'
+import { useLocation, useSearchParams } from 'react-router'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import {
   type Equipment,
@@ -28,7 +29,8 @@ const ALL = FILTER_ALL
 
 // Подбор упражнений в комплекс программы или шаблона: поиск и фильтры, как в справочнике (frontend-tz, 10.3).
 // Свои черновики приходят вместе со справочником с пометкой «не проверено».
-// Отдельная страница, а не шторка: список длинный, клавиатура съедает половину экрана
+// Отдельная страница, а не шторка: список длинный, клавиатура съедает половину экрана.
+// Поиск, фильтры и выбор живут в адресе: ушёл в карточку упражнения и вернулся «назад» — всё на месте
 type ExercisePickerProps = {
   /** Комплекс, куда добавляем: уже стоящие в нём упражнения выключены */
   complex: ProgramComplex | undefined
@@ -36,17 +38,38 @@ type ExercisePickerProps = {
   back: string
   adding: boolean
   onAdd: (exerciseIds: number[]) => void
+  /** Карточка упражнения; `from` — адрес подбора со всем состоянием, чтобы вернуться сюда же */
+  exerciseHref?: (exerciseId: number, from: string) => string
 }
 
-export const ExercisePicker = ({ complex, back, adding, onAdd }: ExercisePickerProps) => {
+export const ExercisePicker = ({ complex, back, adding, onAdd, exerciseHref }: ExercisePickerProps) => {
   const muscles = useMuscles()
+  const location = useLocation()
+  const [params, setParams] = useSearchParams()
 
-  const [query, setQuery] = useState('')
-  const [muscle, setMuscle] = useState(ALL)
-  const [equipment, setEquipment] = useState<Equipment | 'ALL'>(ALL)
-  const [picked, setPicked] = useState<number[]>([])
+  // Поле ввода — своё состояние: значение из адреса меняется переходом и сбивало бы каретку
+  const [query, setQuery] = useState(() => params.get('q') ?? '')
+  const muscle = params.get('muscle') ?? ALL
+  const equipment = (params.get('equipment') as Equipment | null) ?? ALL
+  const picked = params.get('picked')?.split(',').map(Number) ?? []
+
+  // replace: история не копит шаг на каждую букву поиска
+  const patch = (next: Record<string, string | undefined>) =>
+    setParams(
+      prev => {
+        for (const [key, value] of Object.entries(next)) {
+          if (value) prev.set(key, value)
+          else prev.delete(key)
+        }
+        return prev
+      },
+      { replace: true },
+    )
+  const setMuscle = (m: string) => patch({ muscle: m === ALL ? undefined : m })
+  const setEquipment = (e: Equipment | 'ALL') => patch({ equipment: e === ALL ? undefined : e })
 
   const search = useDebouncedValue(query.trim())
+  useEffect(() => patch({ q: search || undefined }), [search]) // eslint-disable-line react-hooks/exhaustive-deps
   const filter: ExerciseFilter = {
     search: search || undefined,
     filter_muscle: muscle === ALL ? undefined : Number(muscle),
@@ -55,13 +78,14 @@ export const ExercisePicker = ({ complex, back, adding, onAdd }: ExercisePickerP
   const exercises = useCatalogExercises(filter)
 
   const present = new Set(complex?.exercises.map(e => e.exerciseId))
-  const toggle = (id: number) => setPicked(ids => (ids.includes(id) ? ids.filter(x => x !== id) : [...ids, id]))
+  const toggle = (id: number) =>
+    patch({ picked: (picked.includes(id) ? picked.filter(x => x !== id) : [...picked, id]).join(',') })
 
   const reset = () => {
     setQuery('')
-    setMuscle(ALL)
-    setEquipment(ALL)
+    patch({ muscle: undefined, equipment: undefined })
   }
+  const from = location.pathname + location.search
 
   return (
     <Screen
@@ -134,6 +158,7 @@ export const ExercisePicker = ({ complex, back, adding, onAdd }: ExercisePickerP
                         .filter(Boolean)
                         .join(' · ')}
                       draft={e.draft}
+                      to={exerciseHref?.(e.id, from)}
                       selected={on}
                       trail={
                         <Button
