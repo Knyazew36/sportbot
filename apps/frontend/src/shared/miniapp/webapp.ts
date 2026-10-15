@@ -18,8 +18,15 @@ type BackButton = {
 export type WebApp = {
   initData?: string
   initDataUnsafe?: { start_param?: string }
+  /** ios, android, tdesktop, macos, weba… */
+  platform?: string
+  isVersionAtLeast?: (version: string) => boolean
   ready?: () => void
   expand?: () => void
+  /** Bot API 8.0: окно на весь экран, поверх — только кнопки мессенджера */
+  requestFullscreen?: () => void
+  /** Bot API 7.7: свайп вниз по контенту не сворачивает приложение */
+  disableVerticalSwipes?: () => void
   colorScheme?: 'light' | 'dark'
   setHeaderColor?: (color: string) => void
   setBackgroundColor?: (color: string) => void

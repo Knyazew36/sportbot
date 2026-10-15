@@ -25,6 +25,15 @@ let miniapp: Miniapp | null = null
 const getWebApp = (platform: SdkPlatform): WebApp | undefined =>
   platform === 'telegram' ? window.Telegram?.WebApp : window.WebApp
 
+// Телефон — на весь экран: expand только разворачивает шторку, а шапка Telegram остаётся.
+// На десктопе fullscreen растянул бы окно на монитор — там хватает expand
+const openTelegramFullscreen = (webApp: WebApp) => {
+  webApp.expand?.()
+  if (webApp.isVersionAtLeast?.('7.7')) webApp.disableVerticalSwipes?.()
+  const phone = webApp.platform === 'ios' || webApp.platform === 'android'
+  if (phone && webApp.isVersionAtLeast?.('8.0')) webApp.requestFullscreen?.()
+}
+
 const initSdkPlatform = async (platform: SdkPlatform): Promise<Miniapp | null> => {
   // Читаем до загрузки: SDK и роутер могут изменить адрес
   const fromHash = getHashParam(LAUNCH_DATA_PARAM[platform])
@@ -38,7 +47,7 @@ const initSdkPlatform = async (platform: SdkPlatform): Promise<Miniapp | null> =
 
   const webApp = getWebApp(platform)
   webApp?.ready?.()
-  if (platform === 'telegram') webApp?.expand?.()
+  if (platform === 'telegram' && webApp) openTelegramFullscreen(webApp)
 
   const initData = webApp?.initData || fromHash
   if (!initData) return null

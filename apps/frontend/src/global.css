@@ -128,6 +128,9 @@
   --sb-tint: color-mix(in oklab, #006eff 9%, transparent);
   --sb-danger: #d92d20;
   /* Высота нижнего меню: h-16 + рамка + отступ под системную полоску. По ней прилипают главные кнопки */
+  /* Верх под кнопками Telegram в полноэкранном режиме: вырез телефона + «Закрыть» и меню мессенджера.
+     Переменные --tg-* ставит SDK Telegram; вне fullscreen и вне Telegram они 0 */
+  --sb-top-inset: calc(var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px));
   --sb-nav-h: calc(65.5px + max(0.5rem, env(safe-area-inset-bottom)));
 
   --canvas: color-mix(in oklab, var(--sb-paper), var(--sb-ink) 4%);

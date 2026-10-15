@@ -67,7 +67,7 @@ export const ExercisePicker = ({ complex, back, adding, onAdd }: ExercisePickerP
     <Screen
       header={
         // Поиск и фильтры прилипают вместе с шапкой: результаты прокручиваются под ними
-        <div className='bg-background border-border sticky top-0 z-30 border-b-[1.5px]'>
+        <div className='bg-background border-border sticky top-(--sb-top-inset) z-30 border-b-[1.5px]'>
           <TopBar
             back={back}
             title='Добавить упражнение'
