@@ -1,5 +1,6 @@
 export * from './admin/admin';
 export * from './admin-catalog/admin-catalog';
+export * from './admin-program-tags/admin-program-tags';
 export * from './admin-templates/admin-templates';
 export * from './app/app';
 export * from './audit-log/audit-log';

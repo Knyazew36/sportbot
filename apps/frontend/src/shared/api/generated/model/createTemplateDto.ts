@@ -8,4 +8,6 @@
 export interface CreateTemplateDto {
   name: string;
   description?: string;
+  /** Теги шаблона */
+  tagIds?: number[];
 }

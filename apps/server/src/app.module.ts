@@ -45,6 +45,7 @@ import { PlanPollModule } from './plan/plan-poll.module';
 import { PlanModule } from './plan/plan.module';
 import { ProfileModule } from './profile/profile.module';
 import { ProgramModule } from './program/program.module';
+import { ProgramTagModule } from './program-tag/program-tag.module';
 import { SocialModule } from './social/social.module';
 import { StatsModule } from './stats/stats.module';
 import { WorkoutModule } from './workout/workout.module';
@@ -93,6 +94,7 @@ import { WorkoutModule } from './workout/workout.module';
     CatalogModule,
     ModerationModule,
     ProgramModule,
+    ProgramTagModule,
     WorkoutModule,
     PlanModule,
     PlanPollModule,

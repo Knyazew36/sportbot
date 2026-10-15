@@ -7,6 +7,7 @@ import {
 import { PrismaService } from 'prisma/prisma.service';
 
 import { Prisma } from '@/generated/prisma/client';
+import { PROGRAM_TAG_SELECT } from '@/program-tag/program-tag.service';
 
 type Tx = Prisma.TransactionClient;
 
@@ -87,11 +88,15 @@ export class ProgramService {
     });
   }
 
+  /** Шаблоны витрины с тегами: чипы-фильтры собираются из них же. */
   public async templates() {
     return this.prisma.program.findMany({
       where: { isTemplate: true },
       orderBy: { id: 'asc' },
-      include: { _count: { select: { complexes: true } } },
+      include: {
+        _count: { select: { complexes: true } },
+        tags: { orderBy: { position: 'asc' }, select: PROGRAM_TAG_SELECT },
+      },
     });
   }
 

@@ -7,6 +7,7 @@ import {
 import { PrismaService } from 'prisma/prisma.service';
 
 import { Prisma } from '@/generated/prisma/client';
+import { PROGRAM_TAG_SELECT } from '@/program-tag/program-tag.service';
 
 import { ProgramListItemResponseDto } from './dto/program-list-item.response.dto';
 import { ProgramResponseDto } from './dto/program.response.dto';
@@ -20,6 +21,7 @@ import {
 } from './program.service';
 
 const VIEW_INCLUDE = {
+  tags: { orderBy: { position: 'asc' }, select: PROGRAM_TAG_SELECT },
   complexes: {
     orderBy: { position: 'asc' },
     include: {
@@ -142,16 +144,25 @@ export class ProgramAppService {
     return this.view(userId, program.id);
   }
 
-  /** Новый шаблон администратора: без владельца, с описанием (frontend-tz, 14.2). */
-  public async createTemplate(name: string, description?: string) {
-    const template = await this.prisma.program.create({
-      data: {
-        name,
-        isTemplate: true,
-        description: description?.trim() || null,
-      },
-    });
-    this.logger.log(`Шаблон создан: programId=${template.id}`);
+  /** Новый шаблон администратора: без владельца, с описанием и тегами (frontend-tz, 14.2). */
+  public async createTemplate(dto: {
+    name: string;
+    description?: string;
+    tagIds?: number[];
+  }) {
+    const template = await this.withKnownTags(() =>
+      this.prisma.program.create({
+        data: {
+          name: dto.name,
+          isTemplate: true,
+          description: dto.description?.trim() || null,
+          tags: { connect: (dto.tagIds ?? []).map((id) => ({ id })) },
+        },
+      }),
+    );
+    this.logger.log(
+      `Шаблон создан: programId=${template.id}, теги=[${(dto.tagIds ?? []).join(',')}]`,
+    );
     return this.view(TEMPLATES, template.id);
   }
 
@@ -169,7 +180,7 @@ export class ProgramAppService {
   public async update(
     owner: ProgramOwner,
     programId: number,
-    dto: UpdateProgramDto,
+    dto: UpdateProgramDto & { tagIds?: number[] },
   ) {
     if (dto.name !== undefined)
       await this.programs.rename(owner, programId, dto.name);
@@ -180,6 +191,19 @@ export class ProgramAppService {
         data: { description: dto.description.trim() || null },
       });
       this.logger.log(`Описание шаблона: programId=${programId}`);
+    }
+    // Теги — только у шаблона: витрина, а не свойство программы пользователя
+    if (owner === TEMPLATES && dto.tagIds !== undefined) {
+      const tagIds = dto.tagIds;
+      await this.withKnownTags(() =>
+        this.prisma.program.update({
+          where: { id: programId, isTemplate: true },
+          data: { tags: { set: tagIds.map((id) => ({ id })) } },
+        }),
+      );
+      this.logger.log(
+        `Теги шаблона: programId=${programId}, [${tagIds.join(',')}]`,
+      );
     }
     return this.view(owner, programId);
   }
@@ -289,6 +313,26 @@ export class ProgramAppService {
 
   // ── Внутреннее ──────────────────────────────────────────────────────────
 
+  /** Связь с несуществующим тегом Prisma отдаёт как P2025 — это устаревший экран админа. */
+  private async withKnownTags<T>(run: () => Promise<T>): Promise<T> {
+    try {
+      return await run();
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        this.logger.warn(
+          `Привязка к несуществующему тегу или шаблону: ${error.message}`,
+        );
+        throw new BadRequestException(
+          'Тег или шаблон не найден — обнови экран.',
+        );
+      }
+      throw error;
+    }
+  }
+
   private toDto(
     program: ProgramView,
     activeProgramId: number | null,
@@ -301,6 +345,7 @@ export class ProgramAppService {
       active: program.id === activeProgramId,
       fromFriend: friendName(program),
       sourceUpdated: sourceUpdated(program),
+      tags: program.tags,
       complexes: program.complexes.map((c) => ({
         id: c.id,
         name: c.name,

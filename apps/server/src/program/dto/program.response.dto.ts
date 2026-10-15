@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+import { ProgramTagResponseDto } from '@/program-tag/dto/program-tag.response.dto';
+
 import { ProgramComplexResponseDto } from './program-complex.response.dto';
 
 export class ProgramResponseDto {
@@ -28,6 +30,13 @@ export class ProgramResponseDto {
 
   @ApiProperty({ description: 'Друг обновил программу после копирования' })
   sourceUpdated: boolean;
+
+  @ApiProperty({
+    type: [ProgramTagResponseDto],
+    description:
+      'Теги шаблона по порядку чипов; у программы пользователя пусто',
+  })
+  tags: ProgramTagResponseDto[];
 
   @ApiProperty({ type: [ProgramComplexResponseDto] })
   complexes: ProgramComplexResponseDto[];

@@ -18,10 +18,12 @@ import { MessengerButton, MessengerMessage } from '@/messengers';
 
 import { ProgramService } from './program.service';
 import {
+  byTag,
   cardioText,
   complexesCount,
   exercisesCount,
   planText,
+  tagButtons,
 } from './program.texts';
 
 /** Программы и комплексы: создание с шаблона и с нуля, редактор, активная программа. */
@@ -55,7 +57,7 @@ export class ProgramBot implements BotFeature {
         case 'v':
           return ctx.edit(await this.programScreen(ctx, id));
         case 'tpl':
-          return ctx.edit(await this.templatesScreen());
+          return ctx.edit(await this.templatesScreen(id || 0));
         case 'copy': {
           const program = await this.programs.copy(id, userId);
           await ctx.toast('Программа добавлена');
@@ -311,14 +313,16 @@ export class ProgramBot implements BotFeature {
     );
   }
 
-  private async templatesScreen(): Promise<MessengerMessage> {
+  /** tagId — выбранный чип; 0 — все шаблоны. */
+  private async templatesScreen(tagId: number): Promise<MessengerMessage> {
     const templates = await this.programs.templates();
     return msg(
       templates.length
         ? 'Шаблоны. Получишь копию — её можно править под себя.'
         : 'Шаблонов пока нет: администратор ещё не загрузил справочник.',
       [
-        ...templates.map((t) => [
+        ...tagButtons(templates, tagId, (id) => `pr:tpl:${id}`),
+        ...byTag(templates, tagId).map((t) => [
           btn(
             cut(`${t.name} · ${complexesCount(t._count.complexes)}`, 48),
             `pr:copy:${t.id}`,

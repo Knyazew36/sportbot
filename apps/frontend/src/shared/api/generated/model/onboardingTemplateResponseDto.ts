@@ -4,10 +4,13 @@
  * api
  * OpenAPI spec version: 0.0.1
  */
+import type { ProgramTagResponseDto } from './programTagResponseDto';
 
 export interface OnboardingTemplateResponseDto {
   id: number;
   name: string;
   /** Сколько комплексов в очереди */
   complexCount: number;
+  /** Теги по порядку чипов */
+  tags: ProgramTagResponseDto[];
 }

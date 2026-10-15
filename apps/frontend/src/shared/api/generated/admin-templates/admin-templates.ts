@@ -24,7 +24,7 @@ import type {
   ReorderDto,
   UpdateComplexDto,
   UpdateComplexExerciseDto,
-  UpdateProgramDto
+  UpdateTemplateDto
 } from '../model';
 
 import { customInstance } from '../../model/orval-mutator';
@@ -56,16 +56,16 @@ export const adminTemplatesControllerCreate = (
       );
     }
   /**
- * @summary Название и описание шаблона
+ * @summary Название, описание и теги шаблона
  */
 export const adminTemplatesControllerUpdate = (
     id: number,
-    updateProgramDto: UpdateProgramDto,
+    updateTemplateDto: UpdateTemplateDto,
  ) => {
       return customInstance<AdminTemplatesControllerUpdate200>(
       {url: `/admin/templates/update/${id}`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
-      data: updateProgramDto
+      data: updateTemplateDto
     },
       );
     }

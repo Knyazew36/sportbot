@@ -1,14 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Trash2Icon } from 'lucide-react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router'
 
 import {
-  type TemplateMetaValues,
   templateMetaSchema,
+  type TemplateMetaValues,
   useAddTemplateComplex,
   useAdminTemplate,
   useDeleteTemplate,
+  useProgramTags,
   useReorderTemplateComplexes,
   useUpdateTemplate,
 } from '@/entities/admin'
@@ -27,22 +28,29 @@ import { TextField } from '@/shared/ui/kit/TextField'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Label } from '@/shared/ui/shadcn/label'
 import { Textarea } from '@/shared/ui/shadcn/textarea'
+import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/shadcn/toggle-group'
 import { arrangeBy } from '@/widgets/program-editor/arrange'
 import { type ComplexListActions, ProgramComplexList } from '@/widgets/program-editor/ProgramComplexList'
 
 const BACK = `${ROUTES.ADMIN}?tab=templates`
 
-// Название и описание — то, что пользователь видит в «Шаблоны» перед «Взять»
+// Название, описание и теги — то, что пользователь видит в «Шаблоны» перед «Взять»
 const MetaForm = ({ template }: { template: Program }) => {
   const update = useUpdateTemplate()
+  const tags = useProgramTags()
   const {
     register,
+    control,
     handleSubmit,
     setError,
     formState: { errors, isDirty },
   } = useForm<TemplateMetaValues>({
     resolver: zodResolver(templateMetaSchema),
-    values: { name: template.name, description: template.description ?? '' },
+    values: {
+      name: template.name,
+      description: template.description ?? '',
+      tagIds: template.tags.map(t => t.id),
+    },
   })
 
   return (
@@ -67,13 +75,40 @@ const MetaForm = ({ template }: { template: Program }) => {
         />
         <ErrorText errors={errors.description} />
       </div>
+      {!!tags.data?.length && (
+        <div className='flex flex-col gap-2'>
+          <Label>Теги</Label>
+          <Controller
+            control={control}
+            name='tagIds'
+            render={({ field }) => (
+              <ToggleGroup
+                multiple
+                value={field.value.map(String)}
+                onValueChange={v => field.onChange(v.map(Number))}
+                className='grid w-full grid-cols-2 gap-2'
+              >
+                {tags.data.map(t => (
+                  <ToggleGroupItem
+                    key={t.id}
+                    value={String(t.id)}
+                    className='h-11 justify-start px-3'
+                  >
+                    {t.name}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
+            )}
+          />
+        </div>
+      )}
       {isDirty && (
         <Button
           type='submit'
           className='w-full'
           disabled={update.isPending}
         >
-          Сохранить название и описание
+          Сохранить
         </Button>
       )}
     </form>

@@ -69,5 +69,19 @@ export type ModerationValues = z.infer<typeof moderationSchema>
 export const templateMetaSchema = z.object({
   name: z.string().trim().min(1, 'Название не может быть пустым').max(60, 'Название — до 60 символов'),
   description: z.string().trim().max(1000, 'До 1000 символов'),
+  tagIds: z.array(z.number()),
 })
 export type TemplateMetaValues = z.infer<typeof templateMetaSchema>
+
+// Тег шаблона: код — ключ импорта, название — подпись чипа
+export const programTagSchema = z.object({
+  code: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .min(1, 'Укажи код')
+    .max(40, 'Код — до 40 символов')
+    .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, 'Латиница, цифры и дефис: home, gym, full-body'),
+  name: z.string().trim().min(1, 'Название не может быть пустым').max(24, 'Название — до 24 символов'),
+})
+export type ProgramTagValues = z.infer<typeof programTagSchema>

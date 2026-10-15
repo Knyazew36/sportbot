@@ -1,11 +1,15 @@
 import { resolve } from 'node:path';
 import swc from 'unplugin-swc';
-import { defineConfig } from 'vitest/config';
+import { defineConfig, type ViteUserConfig } from 'vitest/config';
+
+// unplugin-swc типизирован по корневому vite фронта (rolldown), у vitest свой vite —
+// объект плагина тот же, расходятся только типы
+type VitestPlugin = NonNullable<ViteUserConfig['plugins']>[number];
 
 /** Интеграционные тесты: настоящие сервисы на отдельной базе Postgres (см. test/README.md). */
 export default defineConfig({
   // swc вместо esbuild: Nest нужен emitDecoratorMetadata, esbuild его не умеет
-  plugins: [swc.vite({ module: { type: 'es6' } })],
+  plugins: [swc.vite({ module: { type: 'es6' } }) as VitestPlugin],
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),

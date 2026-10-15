@@ -795,12 +795,26 @@ model Program {
 
   complexes Complex[]
   activeFor SportProfile[] @relation("ActiveProgram")
+  /// Теги витрины: только у шаблонов, копии их не наследуют.
+  tags      ProgramTag[]
 
   @@index([ownerId])
   @@index([sourceProgramId])
 }
 
 /// Комплекс — набор упражнений одной тренировки. Комплексы программы идут по кругу по position.
+/// Тег шаблона программы: «Дом», «Зал», «Новичок» — чипы-фильтры на онбординге и в «Шаблонах».
+model ProgramTag {
+  id       Int    @id @default(autoincrement())
+  code     String @unique /// латинский ключ для импорта: home, gym, beginner
+  name     String
+  position Int /// порядок чипов
+
+  programs Program[]
+
+  @@index([position])
+}
+
 model Complex {
   id        Int     @id @default(autoincrement())
   programId Int

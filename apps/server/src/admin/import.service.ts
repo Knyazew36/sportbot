@@ -7,6 +7,10 @@ import { resolveCatalogImage } from '@/catalog/catalog-image';
 import { normalizeName, uploadRoot } from '@/catalog/catalog.service';
 import { Equipment, StretchKind } from '@/generated/prisma/client';
 import { CARDIO_MINUTES_MAX, CARDIO_NAME_MAX } from '@/program/program.service';
+import {
+  TAG_CODE_PATTERN,
+  TAG_NAME_MAX,
+} from '@/program-tag/dto/create-program-tag.dto';
 
 interface ImportExercise {
   code: string;
@@ -31,9 +35,20 @@ interface ImportStretch {
   kind?: StretchKind;
 }
 
+interface ImportProgramTag {
+  code: string;
+  name: string;
+  /** Порядок чипов; без него тег встаёт в конец в порядке файла. */
+  position?: number;
+}
+
 interface ImportProgram {
   code: string;
   name: string;
+  /** Кому подходит и что нужно из инвентаря. Поля нет — описание не трогаем. */
+  description?: string;
+  /** Коды тегов витрины. Поля нет — теги шаблона не трогаем; пустой массив снимает все. */
+  tags?: string[];
   complexes: {
     name: string;
     cardio?: { name: string; minutes: number };
@@ -49,6 +64,7 @@ interface ImportProgram {
 export interface ImportFile {
   exercises: ImportExercise[];
   stretches: ImportStretch[];
+  programTags: ImportProgramTag[];
   programs: ImportProgram[];
 }
 
@@ -100,10 +116,11 @@ export class ImportService {
     const file: ImportFile = {
       exercises: list(json.exercises) as ImportExercise[],
       stretches: list(json.stretches) as ImportStretch[],
+      programTags: list(json.programTags) as ImportProgramTag[],
       programs: list(json.programs) as ImportProgram[],
     };
 
-    const [muscles, joints, dbExercises, dbStretches, dbPrograms] =
+    const [muscles, joints, dbExercises, dbStretches, dbPrograms, dbTags] =
       await Promise.all([
         this.prisma.muscle.findMany({ select: { code: true } }),
         this.prisma.joint.findMany({ select: { code: true } }),
@@ -119,6 +136,7 @@ export class ImportService {
           where: { code: { not: null } },
           select: { code: true },
         }),
+        this.prisma.programTag.findMany({ select: { code: true } }),
       ]);
     const muscleCodes = new Set(muscles.map((m) => m.code));
     const jointCodes = new Set(joints.map((j) => j.code));
@@ -168,15 +186,37 @@ export class ImportService {
         errors.push(`${at}: неизвестный kind ${String(item.kind)}`);
     });
 
+    const tagCodes = duplicates('programTags', file.programTags);
+    file.programTags.forEach((item, index) => {
+      const at = `programTags[${index}]${isText(item?.code) ? ` (${item.code})` : ''}`;
+      if (!isText(item?.code) || !TAG_CODE_PATTERN.test(item.code))
+        errors.push(`${at}: code — латиница в нижнем регистре, цифры и дефис`);
+      if (!isText(item?.name) || item.name.trim().length > TAG_NAME_MAX)
+        errors.push(`${at}: name — от 1 до ${TAG_NAME_MAX} символов`);
+      if (item?.position !== undefined && !isCount(item.position, 1000))
+        errors.push(`${at}: position — целое от 1 до 1000`);
+    });
+
     duplicates('programs', file.programs);
     const knownExercises = new Set([
       ...exerciseCodes,
       ...dbExercises.map((e) => e.code as string),
     ]);
+    const knownTags = new Set([...tagCodes, ...dbTags.map((t) => t.code)]);
     file.programs.forEach((program, index) => {
       const at = `programs[${index}]${isText(program?.code) ? ` (${program.code})` : ''}`;
       if (!isText(program?.code)) errors.push(`${at}: нет code`);
       if (!isText(program?.name)) errors.push(`${at}: нет name`);
+      if (
+        program?.description !== undefined &&
+        (typeof program.description !== 'string' ||
+          program.description.length > 1000)
+      )
+        errors.push(`${at}: description — строка до 1000 символов`);
+      if (program?.tags !== undefined && !Array.isArray(program.tags))
+        errors.push(`${at}: tags — массив кодов тегов`);
+      for (const code of unknown(program?.tags, knownTags))
+        errors.push(`${at}: неизвестный тег ${String(code)}`);
       if (!list(program?.complexes).length)
         errors.push(`${at}: нет комплексов`);
       list(program?.complexes).forEach((raw, complexIndex) => {
@@ -216,10 +256,12 @@ export class ImportService {
       ...dbExercises.map((e) => `e:${e.code}`),
       ...dbStretches.map((s) => `s:${s.code}`),
       ...dbPrograms.map((p) => `p:${p.code}`),
+      ...dbTags.map((t) => `t:${t.code}`),
     ]);
     const keys = [
       ...file.exercises.map((e) => `e:${e?.code}`),
       ...file.stretches.map((s) => `s:${s?.code}`),
+      ...file.programTags.map((t) => `t:${t?.code}`),
       ...file.programs.map((p) => `p:${p?.code}`),
     ];
     const update = keys.filter((key) => existing.has(key)).length;
@@ -375,6 +417,29 @@ export class ImportService {
           });
         }
 
+        // Теги — до программ: программы ссылаются на них по коду
+        const lastTag = await tx.programTag.aggregate({
+          _max: { position: true },
+        });
+        let nextPosition = lastTag._max.position ?? 0;
+        for (const item of file.programTags) {
+          const name = item.name.trim();
+          await tx.programTag.upsert({
+            where: { code: item.code },
+            create: {
+              code: item.code,
+              name,
+              position: item.position ?? ++nextPosition,
+            },
+            update: {
+              name,
+              ...(item.position !== undefined
+                ? { position: item.position }
+                : {}),
+            },
+          });
+        }
+
         const exerciseId = new Map(
           (
             await tx.exercise.findMany({
@@ -384,17 +449,26 @@ export class ImportService {
           ).map((e) => [e.code as string, e.id]),
         );
         for (const item of file.programs) {
+          const tags = item.tags?.map((code) => ({ code }));
+          const description =
+            item.description !== undefined
+              ? { description: item.description.trim() || null }
+              : {};
           const program = await tx.program.upsert({
             where: { code: item.code },
             create: {
               code: item.code,
               name: item.name.trim(),
               isTemplate: true,
+              ...description,
+              ...(tags ? { tags: { connect: tags } } : {}),
             },
             update: {
               name: item.name.trim(),
               isTemplate: true,
               contentUpdatedAt: new Date(),
+              ...description,
+              ...(tags ? { tags: { set: tags } } : {}),
             },
           });
           await tx.complex.deleteMany({ where: { programId: program.id } });
@@ -422,7 +496,7 @@ export class ImportService {
       { timeout: 120_000, maxWait: 10_000 },
     );
     this.logger.log(
-      `Импорт применён: упражнений=${file.exercises.length}, растяжек=${file.stretches.length}, шаблонов=${file.programs.length}`,
+      `Импорт применён: упражнений=${file.exercises.length}, растяжек=${file.stretches.length}, тегов=${file.programTags.length}, шаблонов=${file.programs.length}`,
     );
     return report;
   }

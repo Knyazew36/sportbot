@@ -1,10 +1,11 @@
 import { EyeIcon, PlusIcon } from 'lucide-react'
-import { useNavigate } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 
-import { useTakeTemplate, useTemplates } from '@/entities/program'
+import { filterByTag, templateTags, useTakeTemplate, useTemplates } from '@/entities/program'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { pluralize } from '@/shared/lib/format'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
+import { CHIP_ALL, ChipFilter } from '@/shared/ui/kit/ChipFilter'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Screen } from '@/shared/ui/kit/Screen'
@@ -18,6 +19,11 @@ const TemplatesPage = () => {
   const templates = useTemplates()
   const take = useTakeTemplate()
   const navigate = useNavigate()
+  // Чип в ссылке, как фильтры списков: выборку можно переслать и вернуть кнопкой «назад»
+  const [params, setParams] = useSearchParams()
+  const tags = templateTags(templates.data ?? [])
+  // Тег из старой ссылки мог пропасть — тогда показываем все
+  const tag = tags.find(t => t.code === params.get('tag'))?.code ?? null
 
   return (
     <Screen
@@ -28,7 +34,7 @@ const TemplatesPage = () => {
           subtitle={templates.data ? pluralize(templates.data.length, ['шаблон', 'шаблона', 'шаблонов']) : undefined}
         />
       }
-      className='gap-4 px-gutter'
+      className='px-gutter gap-4'
     >
       <QueryScreen
         query={templates}
@@ -41,7 +47,12 @@ const TemplatesPage = () => {
             <Rise>
               <Lead>возьми и поправь под себя</Lead>
             </Rise>
-            {list.map((t, i) => {
+            <ChipFilter
+              options={tags.map(t => ({ value: t.code, label: t.name }))}
+              value={tag ?? CHIP_ALL}
+              onValueChange={next => setParams(next === CHIP_ALL ? {} : { tag: next }, { replace: true })}
+            />
+            {filterByTag(list, tag).map((t, i) => {
               const exercises = t.complexes.reduce((sum, c) => sum + c.exercises.length, 0)
               return (
                 <Rise
@@ -65,6 +76,9 @@ const TemplatesPage = () => {
                   </div>
                   {t.description && <Text tone='soft'>{t.description}</Text>}
                   <div className='flex flex-wrap gap-1.5'>
+                    {t.tags.map(tg => (
+                      <Badge key={`tag-${tg.id}`}>{tg.name}</Badge>
+                    ))}
                     <Badge variant='secondary'>
                       {pluralize(exercises, ['упражнение', 'упражнения', 'упражнений'])}
                     </Badge>

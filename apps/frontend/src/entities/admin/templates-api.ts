@@ -16,7 +16,7 @@ import {
   adminTemplatesControllerUpdateItem,
   adminTemplatesControllerView,
 } from '@/shared/api/generated/admin-templates/admin-templates'
-import type { CreateTemplateDto, UpdateComplexExerciseDto, UpdateProgramDto } from '@/shared/api/generated/model'
+import type { CreateTemplateDto, UpdateComplexExerciseDto, UpdateTemplateDto } from '@/shared/api/generated/model'
 
 export const adminTemplateKeys = {
   all: ['admin-templates'] as const,
@@ -58,7 +58,7 @@ export const useCreateTemplate = () => {
 export const useUpdateTemplate = () => {
   const apply = useApplyTemplate()
   return useMutation({
-    mutationFn: ({ id, ...body }: UpdateProgramDto & { id: number }) => adminTemplatesControllerUpdate(id, body),
+    mutationFn: ({ id, ...body }: UpdateTemplateDto & { id: number }) => adminTemplatesControllerUpdate(id, body),
     meta: { successMessage: 'Шаблон сохранён', inlineFieldErrors: true },
     onSuccess: apply,
   })

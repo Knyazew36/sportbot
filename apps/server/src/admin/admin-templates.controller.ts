@@ -16,11 +16,11 @@ import { ProgramResponseDto } from '@/program/dto/program.response.dto';
 import { ReorderDto } from '@/program/dto/reorder.dto';
 import { UpdateComplexExerciseDto } from '@/program/dto/update-complex-exercise.dto';
 import { UpdateComplexDto } from '@/program/dto/update-complex.dto';
-import { UpdateProgramDto } from '@/program/dto/update-program.dto';
 import { ProgramAppService } from '@/program/program-app.service';
 import { TEMPLATES } from '@/program/program.service';
 
 import { CreateTemplateDto } from './dto/create-template.dto';
+import { UpdateTemplateDto } from './dto/update-template.dto';
 
 const ID_PARAM = { name: 'id', type: Number };
 
@@ -50,20 +50,20 @@ export class AdminTemplatesController {
     bearerAuth: true,
   })
   public create(@Body() dto: CreateTemplateDto) {
-    return this.programAppService.createTemplate(dto.name, dto.description);
+    return this.programAppService.createTemplate(dto);
   }
 
   @Post('update/:id')
   @Swagger({
-    title: 'Название и описание шаблона',
+    title: 'Название, описание и теги шаблона',
     param: ID_PARAM,
-    body: UpdateProgramDto,
+    body: UpdateTemplateDto,
     response: ProgramResponseDto,
     bearerAuth: true,
   })
   public update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateProgramDto,
+    @Body() dto: UpdateTemplateDto,
   ) {
     return this.programAppService.update(TEMPLATES, id, dto);
   }

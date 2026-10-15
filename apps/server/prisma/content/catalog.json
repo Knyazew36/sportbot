@@ -5303,10 +5303,31 @@
       "kind": "WARMUP"
     }
   ],
+  "programTags": [
+    {
+      "code": "gym",
+      "name": "Зал",
+      "position": 1
+    },
+    {
+      "code": "home",
+      "name": "Дом",
+      "position": 2
+    },
+    {
+      "code": "beginner",
+      "name": "Новичок",
+      "position": 3
+    }
+  ],
   "programs": [
     {
       "code": "fullbody-3",
       "name": "Фулбоди на 3 дня",
+      "tags": [
+        "gym",
+        "beginner"
+      ],
       "complexes": [
         {
           "name": "День A",
@@ -5436,6 +5457,9 @@
     {
       "code": "upper-lower-4",
       "name": "Верх/низ на 4 дня",
+      "tags": [
+        "gym"
+      ],
       "complexes": [
         {
           "name": "Верх A",
@@ -5606,6 +5630,9 @@
     {
       "code": "split-3",
       "name": "Сплит на 3 дня",
+      "tags": [
+        "gym"
+      ],
       "complexes": [
         {
           "name": "Грудь и трицепс",
@@ -5729,6 +5756,10 @@
     {
       "code": "universal",
       "name": "Универсальная",
+      "tags": [
+        "gym",
+        "beginner"
+      ],
       "complexes": [
         {
           "name": "День А",

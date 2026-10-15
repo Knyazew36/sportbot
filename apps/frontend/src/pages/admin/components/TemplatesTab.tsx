@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router'
 
 import { useState } from 'react'
 
-import { type TemplateMetaValues, templateMetaSchema, useAdminTemplates, useCreateTemplate } from '@/entities/admin'
+import { templateMetaSchema, type TemplateMetaValues, useAdminTemplates, useCreateTemplate } from '@/entities/admin'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { pluralize } from '@/shared/lib/format'
@@ -16,6 +16,8 @@ import { TextField } from '@/shared/ui/kit/TextField'
 import { Eyebrow } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'
+
+import { ProgramTagsBlock } from './ProgramTagsBlock'
 
 // Новый шаблон: название сразу, состав — уже в редакторе
 const NewTemplateForm = () => {
@@ -28,12 +30,12 @@ const NewTemplateForm = () => {
     formState: { errors },
   } = useForm<TemplateMetaValues>({
     resolver: zodResolver(templateMetaSchema),
-    defaultValues: { name: '', description: '' },
+    defaultValues: { name: '', description: '', tagIds: [] },
   })
 
   return (
     <form
-      className='flex flex-col gap-3 px-gutter pb-6'
+      className='px-gutter flex flex-col gap-3 pb-6'
       onSubmit={handleSubmit(values =>
         create
           .mutateAsync({ name: values.name, description: values.description || undefined })
@@ -65,8 +67,9 @@ export const TemplatesTab = () => {
   const [open, setOpen] = useState(false)
 
   return (
-    <Rise className='flex flex-col gap-3 px-gutter'>
-      <div className='flex items-center justify-between gap-3'>
+    <Rise className='px-gutter flex flex-col gap-3'>
+      <ProgramTagsBlock />
+      <div className='mt-4 flex items-center justify-between gap-3'>
         <Eyebrow>шаблонов: {templates.data?.length ?? '—'}</Eyebrow>
         <Button
           size='sm'
@@ -97,10 +100,13 @@ export const TemplatesTab = () => {
                     {t.name}
                   </Link>
                 }
-                meta={
+                meta={[
+                  t.tags.map(tag => tag.name).join(', '),
                   t.complexes.map(c => c.name).join(' · ') ||
-                  pluralize(t.complexes.length, ['комплекс', 'комплекса', 'комплексов'])
-                }
+                    pluralize(t.complexes.length, ['комплекс', 'комплекса', 'комплексов']),
+                ]
+                  .filter(Boolean)
+                  .join(' — ')}
               />
             ))}
           </List>

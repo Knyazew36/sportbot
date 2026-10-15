@@ -42,6 +42,7 @@ export class OnboardingService {
         id: t.id,
         name: t.name,
         complexCount: t._count.complexes,
+        tags: t.tags,
       })),
     };
   }

@@ -5,6 +5,7 @@
  * OpenAPI spec version: 0.0.1
  */
 import type { ProgramComplexResponseDto } from './programComplexResponseDto';
+import type { ProgramTagResponseDto } from './programTagResponseDto';
 
 export interface ProgramResponseDto {
   id: number;
@@ -23,5 +24,7 @@ export interface ProgramResponseDto {
   fromFriend: string | null;
   /** Друг обновил программу после копирования */
   sourceUpdated: boolean;
+  /** Теги шаблона по порядку чипов; у программы пользователя пусто */
+  tags: ProgramTagResponseDto[];
   complexes: ProgramComplexResponseDto[];
 }
