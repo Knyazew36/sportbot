@@ -34,6 +34,12 @@ const openTelegramFullscreen = (webApp: WebApp) => {
   if (phone && webApp.isVersionAtLeast?.('8.0')) webApp.requestFullscreen?.()
 }
 
+// MAX открывает приложение шторкой: без запрета свайп вниз по длинному списку закрыл бы её посреди тренировки
+const openMax = (webApp: WebApp) => {
+  const result = webApp.disableVerticalSwipes?.()
+  if (result instanceof Promise) result.catch(() => undefined)
+}
+
 const initSdkPlatform = async (platform: SdkPlatform): Promise<Miniapp | null> => {
   // Читаем до загрузки: SDK и роутер могут изменить адрес
   const fromHash = getHashParam(LAUNCH_DATA_PARAM[platform])
@@ -48,6 +54,7 @@ const initSdkPlatform = async (platform: SdkPlatform): Promise<Miniapp | null> =
   const webApp = getWebApp(platform)
   webApp?.ready?.()
   if (platform === 'telegram' && webApp) openTelegramFullscreen(webApp)
+  if (platform === 'max' && webApp) openMax(webApp)
 
   const initData = webApp?.initData || fromHash
   if (!initData) return null

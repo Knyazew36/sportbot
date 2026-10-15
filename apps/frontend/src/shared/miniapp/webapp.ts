@@ -1,12 +1,19 @@
 // Возможности мессенджера, которые нужны экранам: кнопка «Назад», вибрация, тема, «Поделиться», разрешение писать.
-// Telegram и MAX отдают похожий объект WebApp; чего у площадки нет — тихо пропускаем (frontend-tz, раздел 16)
+// Telegram и MAX отдают похожий объект WebApp; чего у площадки нет — тихо пропускаем (frontend-tz, раздел 16).
+// Отличия MAX (https://dev.max.ru/docs/webapps/bridge): методы возвращают Promise и отклоняют его там, где возможности
+// нет (вибрация на десктопе и в вебе), темы и покраски окна нет вовсе, «Поделиться» принимает объект
 import { detectPlatform } from './detect-platform'
 
+/** Telegram ничего не возвращает, MAX — Promise */
+type BridgeResult = void | Promise<unknown>
+
 type Haptic = {
-  impactOccurred?: (style: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft') => void
-  notificationOccurred?: (type: 'error' | 'success' | 'warning') => void
-  selectionChanged?: () => void
+  impactOccurred?: (style: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft') => BridgeResult
+  notificationOccurred?: (type: 'error' | 'success' | 'warning') => BridgeResult
+  selectionChanged?: () => BridgeResult
 }
+
+type MaxShareParams = { text?: string; link?: string }
 
 type BackButton = {
   show?: () => void
@@ -25,8 +32,8 @@ export type WebApp = {
   expand?: () => void
   /** Bot API 8.0: окно на весь экран, поверх — только кнопки мессенджера */
   requestFullscreen?: () => void
-  /** Bot API 7.7: свайп вниз по контенту не сворачивает приложение */
-  disableVerticalSwipes?: () => void
+  /** Telegram Bot API 7.7, MAX: свайп вниз по контенту не сворачивает приложение */
+  disableVerticalSwipes?: () => BridgeResult
   colorScheme?: 'light' | 'dark'
   setHeaderColor?: (color: string) => void
   setBackgroundColor?: (color: string) => void
@@ -37,8 +44,16 @@ export type WebApp = {
   HapticFeedback?: Haptic
   openTelegramLink?: (url: string) => void
   openLink?: (url: string) => void
-  shareContent?: (text: string, link: string) => void
+  /** MAX: системный диалог «Поделиться», в вебе его нет */
+  shareContent?: (params: MaxShareParams) => Promise<unknown>
+  /** MAX: выбор чата внутри MAX — как t.me/share в Telegram */
+  shareMaxContent?: (params: MaxShareParams) => Promise<unknown>
   requestWriteAccess?: (cb?: (allowed: boolean) => void) => void
+}
+
+// Отказ MAX — не ошибка приложения: возможности просто нет, а необработанный reject засорил бы консоль
+const quiet = (result: BridgeResult) => {
+  if (result instanceof Promise) result.catch(() => undefined)
 }
 
 const webApp = (): WebApp | undefined => {
@@ -64,27 +79,29 @@ export const showBackButton = (onBack: () => void): (() => void) | false => {
 
 // ── Вибрация ─────────────────────────────────────────────────────────────────
 
+const feedback = () => webApp()?.HapticFeedback
+
 export const haptic = {
   /** Конец таймера, сохранённый подход */
-  success: () => webApp()?.HapticFeedback?.notificationOccurred?.('success'),
-  warning: () => webApp()?.HapticFeedback?.notificationOccurred?.('warning'),
+  success: () => quiet(feedback()?.notificationOccurred?.('success')),
+  warning: () => quiet(feedback()?.notificationOccurred?.('warning')),
   /** Запрос не прошёл */
-  error: () => webApp()?.HapticFeedback?.notificationOccurred?.('error'),
+  error: () => quiet(feedback()?.notificationOccurred?.('error')),
   /** Нажатие кнопки */
-  tap: () => webApp()?.HapticFeedback?.impactOccurred?.('light'),
+  tap: () => quiet(feedback()?.impactOccurred?.('light')),
   /** Смена выбора: сегмент, тумблер, раздел меню */
-  select: () => webApp()?.HapticFeedback?.selectionChanged?.(),
+  select: () => quiet(feedback()?.selectionChanged?.()),
   /** Вне мессенджера — через браузер, если он умеет */
   long: () => {
-    const feedback = webApp()?.HapticFeedback
-    if (feedback?.notificationOccurred) return feedback.notificationOccurred('success')
+    const notify = feedback()?.notificationOccurred
+    if (notify) return quiet(notify('success'))
     navigator.vibrate?.([200, 100, 200])
   },
 }
 
 // ── Тема ─────────────────────────────────────────────────────────────────────
 
-/** Тема мессенджера; null — мессенджер не сообщает, берём системную */
+/** Тема мессенджера; null — мессенджер не сообщает (MAX), берём системную */
 export const getMessengerTheme = (): 'light' | 'dark' | null => webApp()?.colorScheme ?? null
 
 export const onMessengerThemeChange = (cb: () => void): (() => void) => {
@@ -93,7 +110,10 @@ export const onMessengerThemeChange = (cb: () => void): (() => void) => {
   return () => app?.offEvent?.('themeChanged', cb)
 }
 
-/** Красит шапку, фон и нижнюю полосу окна мессенджера в цвет приложения (#RRGGBB), иначе там остаётся тема мессенджера */
+/**
+ * Красит шапку, фон и нижнюю полосу окна мессенджера в цвет приложения (#RRGGBB), иначе там остаётся тема мессенджера.
+ * В MAX методов нет — шапку он красит сам
+ */
 export const paintMessengerChrome = (color: string) => {
   const app = webApp()
   app?.setHeaderColor?.(color)
@@ -113,9 +133,17 @@ export const shareLink = async (url: string, text: string): Promise<'shared' | '
     app.openTelegramLink(share)
     return 'shared'
   }
-  if (platform === 'max' && app?.shareContent) {
-    app.shareContent(text, url)
-    return 'shared'
+  if (platform === 'max') {
+    // Сначала выбор чата в MAX, как в Telegram; не вышло — системный диалог (в вебе MAX его нет)
+    for (const share of [app?.shareMaxContent, app?.shareContent]) {
+      if (!share) continue
+      try {
+        await share.call(app, { text, link: url })
+        return 'shared'
+      } catch {
+        // площадка отказала — пробуем следующий способ
+      }
+    }
   }
   if (navigator.share) {
     try {

@@ -5897,6 +5897,445 @@
           ]
         }
       ]
+    },
+    {
+      "code": "home-fullbody-3",
+      "name": "Дом: фулбоди на 3 дня",
+      "tags": [
+        "home",
+        "beginner"
+      ],
+      "complexes": [
+        {
+          "name": "День A",
+          "exercises": [
+            {
+              "code": "bodyweight-squat",
+              "sets": 3,
+              "repsMin": 15,
+              "repsMax": 20
+            },
+            {
+              "code": "push-ups",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 15
+            },
+            {
+              "code": "chin-ups",
+              "sets": 3,
+              "repsMin": 5,
+              "repsMax": 10
+            },
+            {
+              "code": "bodyweight-glute-bridge",
+              "sets": 3,
+              "repsMin": 15,
+              "repsMax": 20
+            },
+            {
+              "code": "bench-dips",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 15
+            },
+            {
+              "code": "crunches",
+              "sets": 3,
+              "repsMin": 15,
+              "repsMax": 20
+            }
+          ]
+        },
+        {
+          "name": "День Б",
+          "exercises": [
+            {
+              "code": "single-leg-glute-bridge",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 15
+            },
+            {
+              "code": "incline-push-ups",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 15
+            },
+            {
+              "code": "pull-ups",
+              "sets": 3,
+              "repsMin": 4,
+              "repsMax": 8
+            },
+            {
+              "code": "glute-kickback",
+              "sets": 3,
+              "repsMin": 15,
+              "repsMax": 20
+            },
+            {
+              "code": "close-grip-push-ups",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "reverse-crunch",
+              "sets": 3,
+              "repsMin": 12,
+              "repsMax": 15
+            }
+          ]
+        },
+        {
+          "name": "День В",
+          "exercises": [
+            {
+              "code": "bodyweight-squat",
+              "sets": 4,
+              "repsMin": 15,
+              "repsMax": 20
+            },
+            {
+              "code": "wide-push-ups",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 15
+            },
+            {
+              "code": "neutral-grip-pull-ups",
+              "sets": 3,
+              "repsMin": 5,
+              "repsMax": 10
+            },
+            {
+              "code": "nordic-curl",
+              "sets": 3,
+              "repsMin": 3,
+              "repsMax": 6
+            },
+            {
+              "code": "bench-dips",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 15
+            },
+            {
+              "code": "dead-bug",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "home-upper-lower-4",
+      "name": "Дом: верх/низ на 4 дня",
+      "tags": [
+        "home"
+      ],
+      "complexes": [
+        {
+          "name": "Верх A",
+          "exercises": [
+            {
+              "code": "push-ups",
+              "sets": 4,
+              "repsMin": 10,
+              "repsMax": 15
+            },
+            {
+              "code": "pull-ups",
+              "sets": 4,
+              "repsMin": 5,
+              "repsMax": 10
+            },
+            {
+              "code": "feet-elevated-push-ups",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "chin-ups",
+              "sets": 3,
+              "repsMin": 5,
+              "repsMax": 10
+            },
+            {
+              "code": "close-grip-push-ups",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "hanging-leg-raise",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            }
+          ]
+        },
+        {
+          "name": "Низ A",
+          "exercises": [
+            {
+              "code": "bodyweight-squat",
+              "sets": 4,
+              "repsMin": 15,
+              "repsMax": 25
+            },
+            {
+              "code": "single-leg-glute-bridge",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 15
+            },
+            {
+              "code": "nordic-curl",
+              "sets": 3,
+              "repsMin": 3,
+              "repsMax": 6
+            },
+            {
+              "code": "glute-kickback",
+              "sets": 3,
+              "repsMin": 15,
+              "repsMax": 20
+            },
+            {
+              "code": "crunches",
+              "sets": 3,
+              "repsMin": 15,
+              "repsMax": 20
+            },
+            {
+              "code": "russian-twist",
+              "sets": 3,
+              "repsMin": 16,
+              "repsMax": 20
+            }
+          ]
+        },
+        {
+          "name": "Верх Б",
+          "exercises": [
+            {
+              "code": "wide-push-ups",
+              "sets": 4,
+              "repsMin": 10,
+              "repsMax": 15
+            },
+            {
+              "code": "neutral-grip-pull-ups",
+              "sets": 4,
+              "repsMin": 5,
+              "repsMax": 10
+            },
+            {
+              "code": "incline-push-ups",
+              "sets": 3,
+              "repsMin": 12,
+              "repsMax": 15
+            },
+            {
+              "code": "chin-ups",
+              "sets": 3,
+              "repsMin": 6,
+              "repsMax": 10
+            },
+            {
+              "code": "bench-dips",
+              "sets": 3,
+              "repsMin": 12,
+              "repsMax": 15
+            },
+            {
+              "code": "reverse-crunch",
+              "sets": 3,
+              "repsMin": 12,
+              "repsMax": 15
+            }
+          ]
+        },
+        {
+          "name": "Низ Б",
+          "exercises": [
+            {
+              "code": "bodyweight-squat",
+              "sets": 4,
+              "repsMin": 20,
+              "repsMax": 25
+            },
+            {
+              "code": "bodyweight-glute-bridge",
+              "sets": 4,
+              "repsMin": 15,
+              "repsMax": 20
+            },
+            {
+              "code": "nordic-curl",
+              "sets": 3,
+              "repsMin": 3,
+              "repsMax": 6
+            },
+            {
+              "code": "glute-kickback",
+              "sets": 3,
+              "repsMin": 15,
+              "repsMax": 20
+            },
+            {
+              "code": "bicycle-crunch",
+              "sets": 3,
+              "repsMin": 20,
+              "repsMax": 30
+            },
+            {
+              "code": "dead-bug",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "home-db-fullbody-3",
+      "name": "Дом с гантелями: фулбоди на 3 дня",
+      "tags": [
+        "home",
+        "beginner"
+      ],
+      "complexes": [
+        {
+          "name": "День A",
+          "exercises": [
+            {
+              "code": "db-squat",
+              "sets": 4,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "db-floor-press",
+              "sets": 4,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "db-bent-over-row",
+              "sets": 4,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "standing-db-press",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "db-curl",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "crunches",
+              "sets": 3,
+              "repsMin": 15,
+              "repsMax": 20
+            }
+          ]
+        },
+        {
+          "name": "День Б",
+          "exercises": [
+            {
+              "code": "db-romanian-deadlift",
+              "sets": 4,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "push-ups",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 15
+            },
+            {
+              "code": "db-row",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "lateral-raise",
+              "sets": 3,
+              "repsMin": 12,
+              "repsMax": 15
+            },
+            {
+              "code": "overhead-triceps-ext",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "reverse-crunch",
+              "sets": 3,
+              "repsMin": 12,
+              "repsMax": 15
+            }
+          ]
+        },
+        {
+          "name": "День В",
+          "exercises": [
+            {
+              "code": "lunges",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "db-floor-press",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "db-bent-over-row",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "arnold-press",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "hammer-curl",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "db-calf-raise",
+              "sets": 3,
+              "repsMin": 15,
+              "repsMax": 20
+            }
+          ]
+        }
+      ]
     }
   ]
 }

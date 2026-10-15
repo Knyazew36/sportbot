@@ -243,11 +243,14 @@ export class LinkBot implements BotFeature {
     });
     await ctx.edit(
       msg(
-        `✅ Готово: ${TITLE.TELEGRAM} и ${TITLE.MAX} теперь один аккаунт.${
-          result.onboarded
-            ? ''
-            : `\n${hint('Нажми /start, чтобы настроить бота.')}`
-        }`,
+        [
+          `✅ Готово: ${TITLE.TELEGRAM} и ${TITLE.MAX} теперь один аккаунт.`,
+          '',
+          ...this.linkedLines(),
+          ...(result.onboarded
+            ? []
+            : ['', hint('Нажми /start, чтобы настроить бота.')]),
+        ].join('\n'),
       ),
     );
     await ctx.reply(this.notifyScreen());
@@ -261,6 +264,9 @@ export class LinkBot implements BotFeature {
             keep === 'owner'
               ? `✅ ${TITLE[here]} привязан к твоему аккаунту.`
               : `✅ ${TITLE[here]} привязан. Остался аккаунт из ${TITLE[here]} — данные, которые были здесь, удалены.`,
+            '',
+            ...this.linkedLines(),
+            '',
             hint(
               `Если это был не ты — отвяжи ${TITLE[here]}: Настройки → Мессенджеры.`,
             ),
@@ -318,6 +324,11 @@ export class LinkBot implements BotFeature {
         [btn('В оба', 'ln:set:B')],
       ],
     );
+  }
+
+  /** Итог привязки в обоих чатах: старые экраны «Мессенджеры» выше в ленте не обновляются. */
+  private linkedLines(): string[] {
+    return [`${TITLE.TELEGRAM}: привязан`, `${TITLE.MAX}: привязан`];
   }
 
   private notifyTitle(channels: BotChannelKey[]): string {
