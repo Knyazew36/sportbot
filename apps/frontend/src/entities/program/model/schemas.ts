@@ -29,3 +29,45 @@ export const complexExerciseSchema = z
 
 export type ComplexExerciseInput = z.input<typeof complexExerciseSchema>
 export type ComplexExerciseValues = z.output<typeof complexExerciseSchema>
+
+// Публикация в каталог — как PublishProgramDto на бэке. Свой тег — новый, ещё без id
+const ownTag = z.object({
+  groupId: z.number(),
+  name: z.string().trim().min(2, 'Тег — от 2 символов').max(24, 'Тег — до 24 символов'),
+})
+
+/** Своих тегов на проверке у программы — не больше */
+export const OWN_TAGS_MAX = 3
+
+/**
+ * Форма публикации. Группы тегов приходят с сервера, поэтому схема собирается под них:
+ * в каждой группе — тег справочника или свой
+ */
+export const publishProgramSchema = (groups: { id: number; name: string; tagIds: number[] }[]) =>
+  z
+    .object({
+      description: z
+        .string()
+        .trim()
+        .min(20, 'Опиши программу хотя бы в 20 символов')
+        .max(1000, 'Описание — до 1000 символов'),
+      tagIds: z.array(z.number()),
+      newTags: z.array(ownTag).max(OWN_TAGS_MAX, `Своих тегов — не больше ${OWN_TAGS_MAX}`),
+    })
+    .superRefine((v, ctx) => {
+      const empty = groups.filter(
+        g => !v.tagIds.some(id => g.tagIds.includes(id)) && !v.newTags.some(t => t.groupId === g.id),
+      )
+      if (empty.length)
+        ctx.addIssue({
+          code: 'custom',
+          path: ['tagIds'],
+          message: `Выбери тег в группах: ${empty.map(g => g.name).join(', ')}`,
+        })
+    })
+
+export type PublishProgramValues = z.infer<ReturnType<typeof publishProgramSchema>>
+
+/** Поле «свой тег» в ряду группы: добавляется в форму публикации кнопкой */
+export const ownTagNameSchema = ownTag.pick({ name: true })
+export type OwnTagNameValues = z.infer<typeof ownTagNameSchema>

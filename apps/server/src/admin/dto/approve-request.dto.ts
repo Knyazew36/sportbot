@@ -6,6 +6,7 @@ import {
   IsOptional,
   IsString,
   MaxLength,
+  MinLength,
 } from 'class-validator';
 
 import { Trim } from '@/common/decorators/trim.decorator';
@@ -19,6 +20,14 @@ export class ApproveRequestDto {
   @IsString()
   @MaxLength(200)
   reason?: string;
+
+  @ApiPropertyOptional({ description: 'С правками: название записи' })
+  @IsOptional()
+  @Trim()
+  @IsString()
+  @MinLength(2, { message: 'Название — от 2 символов' })
+  @MaxLength(60, { message: 'Название — до 60 символов' })
+  name?: string;
 
   @ApiPropertyOptional({ description: 'С правками: техника или «как делать»' })
   @IsOptional()

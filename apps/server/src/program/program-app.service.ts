@@ -7,14 +7,17 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 
+import { AvatarService } from '@/avatar/avatar.service';
 import { normalizeName } from '@/catalog/catalog.service';
 import { Prisma } from '@/generated/prisma/client';
+import { PublishProgramDto } from '@/program-publication/dto/publish-program.dto';
+import { ProgramPublicationService } from '@/program-publication/program-publication.service';
 import {
   PROGRAM_TAG_ORDER,
   PROGRAM_TAG_SELECT,
 } from '@/program-tag/program-tag.service';
 
-import { ProgramComplexResponseDto } from './dto/program-complex.response.dto';
+import { COMPLEXES_INCLUDE, toComplexesDto } from './program-complexes';
 import { ProgramListItemResponseDto } from './dto/program-list-item.response.dto';
 import { ProgramResponseDto } from './dto/program.response.dto';
 import { TemplatesQueryDto } from './dto/templates-query.dto';
@@ -25,55 +28,21 @@ import {
   ProgramOwner,
   ProgramService,
   PUBLISHED_TEMPLATE,
+  PUBLISHED_USER_PROGRAM,
   TEMPLATE_ORDER,
   TEMPLATES,
 } from './program.service';
 
-/** Состав программы: комплексы и упражнения по порядку. Нужен и экрану программы, и профилю друга. */
-export const COMPLEXES_INCLUDE = {
-  orderBy: { position: 'asc' },
-  include: {
-    exercises: {
-      orderBy: { position: 'asc' },
-      include: {
-        exercise: { include: { muscles: { include: { muscle: true } } } },
-      },
-    },
-  },
-} satisfies Prisma.Program$complexesArgs;
-
-type ComplexView = Prisma.ComplexGetPayload<{
-  include: typeof COMPLEXES_INCLUDE.include;
-}>;
-
-export const toComplexesDto = (
-  complexes: ComplexView[],
-  nextComplexId: number | null,
-): ProgramComplexResponseDto[] =>
-  complexes.map((c) => ({
-    id: c.id,
-    name: c.name,
-    position: c.position,
-    cardioName: c.cardioName,
-    cardioMinutes: c.cardioMinutes,
-    isNext: c.id === nextComplexId,
-    exercises: c.exercises.map((item) => ({
-      id: item.id,
-      exerciseId: item.exerciseId,
-      name: item.exercise.name,
-      muscles: item.exercise.muscles
-        .filter((m) => m.role === 'PRIMARY')
-        .map((m) => m.muscle.name)
-        .join(' · '),
-      draft: item.exercise.status === 'DRAFT',
-      sets: item.sets,
-      repsMin: item.repsMin,
-      repsMax: item.repsMax,
-    })),
-  }));
-
 const VIEW_INCLUDE = {
   tags: { orderBy: PROGRAM_TAG_ORDER, select: PROGRAM_TAG_SELECT },
+  _count: { select: { copies: true } },
+  owner: {
+    select: {
+      id: true,
+      avatarPath: true,
+      sportProfile: { select: { displayName: true } },
+    },
+  },
   complexes: COMPLEXES_INCLUDE,
   sourceProgram: {
     select: {
@@ -135,6 +104,8 @@ export class ProgramAppService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly programs: ProgramService,
+    private readonly publication: ProgramPublicationService,
+    private readonly avatars: AvatarService,
   ) {}
 
   // ── Списки ──────────────────────────────────────────────────────────────
@@ -164,20 +135,23 @@ export class ProgramAppService {
   }
 
   /**
-   * Каталог: опубликованные шаблоны с составом в ручном порядке. Теги — внутри группы любой,
-   * между группами все. Шаблонов немного, поэтому без пагинации.
+   * Каталог: опубликованные шаблоны в ручном порядке или программы пользователей, новые сверху,
+   * с составом. Теги — внутри группы любой, между группами все. Программ немного, поэтому без пагинации.
    */
   public async catalog(
     userId: number,
     query: TemplatesQueryDto,
   ): Promise<ProgramResponseDto[]> {
+    const users = query.filter_source === 'users';
     const tagGroups = await this.groupTags(query.filter_tags ?? []);
     const templates = await this.prisma.program.findMany({
       where: {
-        ...PUBLISHED_TEMPLATE,
+        ...(users ? PUBLISHED_USER_PROGRAM : PUBLISHED_TEMPLATE),
         AND: tagGroups.map((ids) => ({ tags: { some: { id: { in: ids } } } })),
       },
-      orderBy: TEMPLATE_ORDER,
+      orderBy: users
+        ? [{ publishedAt: 'desc' }, { id: 'desc' }]
+        : TEMPLATE_ORDER,
       include: {
         ...VIEW_INCLUDE,
         copies: {
@@ -194,14 +168,20 @@ export class ProgramAppService {
       .filter(Boolean);
     const found = words.length
       ? templates.filter((t) => {
-          const text = normalizeName(`${t.name} ${t.description ?? ''}`);
+          const text = normalizeName(
+            `${t.publishedName ?? t.name} ${t.publishedDescription ?? t.description ?? ''}`,
+          );
           return words.every((word) => text.includes(word));
         })
       : templates;
     this.logger.debug(
-      `Каталог: userId=${userId}, теги=[${(query.filter_tags ?? []).join(',')}], поиск=«${query.filter_search ?? ''}», найдено=${found.length}`,
+      `Каталог: userId=${userId}, источник=${users ? 'пользователи' : 'шаблоны'}, теги=[${(query.filter_tags ?? []).join(',')}], поиск=«${query.filter_search ?? ''}», найдено=${found.length}`,
     );
-    return found.map((t) => this.toDto(t, null, null, t.copies[0]?.id ?? null));
+    return found.map((t) =>
+      users
+        ? this.toCatalogDto(t, userId, t.copies[0]?.id ?? null)
+        : this.toDto(t, null, null, t.copies[0]?.id ?? null),
+    );
   }
 
   /** Все шаблоны для админки, скрытые тоже, в порядке каталога. */
@@ -275,9 +255,9 @@ export class ProgramAppService {
     return this.view(TEMPLATES, template.id);
   }
 
-  /** «Взять» шаблон: копия в программах пользователя. */
-  public async take(userId: number, templateId: number) {
-    const copy = await this.programs.takeTemplate(templateId, userId);
+  /** «Взять» из каталога: копия шаблона или чужой опубликованной программы. */
+  public async take(userId: number, sourceId: number) {
+    const copy = await this.programs.takeFromCatalog(sourceId, userId);
     return this.view(userId, copy.id);
   }
 
@@ -364,8 +344,11 @@ export class ProgramAppService {
     programId: number,
     dto: UpdateProgramDto & { tagIds?: number[]; isPublished?: boolean },
   ) {
-    if (dto.name !== undefined)
+    if (dto.name !== undefined) {
       await this.programs.rename(owner, programId, dto.name);
+      // У опубликованной программы новое название в каталог попадёт после проверки
+      if (owner !== TEMPLATES) await this.publication.textChanged(programId);
+    }
     // Описание — только у шаблона: у программы пользователя его нет на экране
     if (owner === TEMPLATES && dto.description !== undefined) {
       await this.prisma.program.updateMany({
@@ -402,6 +385,21 @@ export class ProgramAppService {
   /** Удаление программы: история тренировок остаётся — она ссылается на упражнения. */
   public async remove(owner: ProgramOwner, programId: number): Promise<void> {
     await this.programs.remove(owner, programId);
+  }
+
+  /** Публикация в каталог «Программы пользователей»: описание, теги, проверка администратором. */
+  public async publish(
+    userId: number,
+    programId: number,
+    dto: PublishProgramDto,
+  ) {
+    await this.publication.publish(userId, programId, dto);
+    return this.view(userId, programId);
+  }
+
+  public async unpublish(userId: number, programId: number) {
+    await this.publication.unpublish(userId, programId);
+    return this.view(userId, programId);
   }
 
   public async activate(userId: number, programId: number) {
@@ -555,6 +553,36 @@ export class ProgramAppService {
       takenProgramId,
       tags: program.tags,
       complexes: toComplexesDto(program.complexes, nextComplexId),
+      addedCount: program._count.copies,
+      author: null,
+      mine: false,
+      publication: program.publication,
+      textPending: !!program.reviewRequestedAt,
+      rejectReason: program.rejectReason,
+    };
+  }
+
+  /** Программа пользователя в каталоге: одобренный текст, теги справочника и автор. */
+  private toCatalogDto(
+    program: ProgramView,
+    userId: number,
+    takenProgramId: number | null,
+  ): ProgramResponseDto {
+    const owner = program.owner;
+    return {
+      ...this.toDto(program, null, null, takenProgramId),
+      name: program.publishedName ?? program.name,
+      description: program.publishedDescription ?? program.description,
+      tags: program.tags.filter((t) => t.isApproved),
+      author: owner && {
+        id: owner.id,
+        name: owner.sportProfile?.displayName ?? 'Без имени',
+        avatarUrl: this.avatars.url(owner.avatarPath),
+      },
+      mine: owner?.id === userId,
+      // Чужому не показываем внутреннее состояние проверки
+      textPending: false,
+      rejectReason: null,
     };
   }
 }

@@ -34,9 +34,10 @@ const MiniappGate = () => {
   const me = useSportUser()
   const { pathname } = useLocation()
   useStartRoute(me.data?.onboarded ?? false)
-  // Что ждёт реакции администратора: заявки и жалобы — числом на пункте «Админ»
+  // Что ждёт реакции администратора: заявки, жалобы и программы на проверке — числом на пункте «Админ»
   const counters = useAdminCounters({ enabled: me.data?.isAdmin ?? false })
-  const adminPending = (counters.data?.requests ?? 0) + (counters.data?.complaints ?? 0)
+  const adminPending =
+    (counters.data?.requests ?? 0) + (counters.data?.complaints ?? 0) + (counters.data?.programReviews ?? 0)
 
   if (me.isPending) return <PageLoader />
 

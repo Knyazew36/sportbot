@@ -62,6 +62,12 @@ export const PUBLISHED_TEMPLATE = {
   isPublished: true,
 } satisfies Prisma.ProgramWhereInput;
 
+/** Программа пользователя, одобренная в каталог «Программы пользователей». */
+export const PUBLISHED_USER_PROGRAM = {
+  isTemplate: false,
+  publication: 'PUBLISHED',
+} satisfies Prisma.ProgramWhereInput;
+
 /** Порядок шаблонов в каталоге — ручной, из админки. */
 export const TEMPLATE_ORDER = [
   { position: 'asc' },
@@ -187,7 +193,8 @@ export class ProgramService {
       if (!source) throw new NotFoundException('Программа не найдена.');
       const created = await tx.program.create({
         data: {
-          name: source.name,
+          // У опубликованной программы новое название может ждать проверки — берём одобренное
+          name: source.publishedName ?? source.name,
           ownerId,
           sourceProgramId: source.id,
           sourceSyncedAt: source.contentUpdatedAt,
@@ -216,6 +223,27 @@ export class ProgramService {
       throw new NotFoundException('Шаблон не найден.');
     }
     return this.copy(template.id, userId);
+  }
+
+  /** «Взять» из каталога Mini App: шаблон или чужая опубликованная программа пользователя. */
+  public async takeFromCatalog(sourceId: number, userId: number) {
+    const source = await this.prisma.program.findFirst({
+      where: {
+        id: sourceId,
+        OR: [
+          PUBLISHED_TEMPLATE,
+          { ...PUBLISHED_USER_PROGRAM, ownerId: { not: userId } },
+        ],
+      },
+      select: { id: true },
+    });
+    if (!source) {
+      this.logger.warn(
+        `Взять недоступную программу каталога: sourceId=${sourceId}, userId=${userId}`,
+      );
+      throw new NotFoundException('Программа не найдена в каталоге.');
+    }
+    return this.copy(source.id, userId);
   }
 
   /**
@@ -277,7 +305,7 @@ export class ProgramService {
       await tx.program.update({
         where: { id: programId },
         data: {
-          name: copy.sourceProgram.name,
+          name: copy.sourceProgram.publishedName ?? copy.sourceProgram.name,
           sourceSyncedAt: copy.sourceProgram.contentUpdatedAt,
           sourceDismissedAt: null,
           contentUpdatedAt: new Date(),

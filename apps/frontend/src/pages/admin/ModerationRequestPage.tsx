@@ -49,7 +49,7 @@ const OUTCOMES: { value: Outcome; label: string }[] = [
 // Что получит автор и что станет с черновиком (business-tz, 5.6)
 const OUTCOME_HINT: Record<Outcome, string> = {
   approve: 'Запись попадёт в общий справочник, у автора черновик заменится на неё.',
-  edit: 'Допиши технику, картинку, инвентарь и суставы — запись попадёт в справочник уже с ними.',
+  edit: 'Поправь название, допиши технику, картинку, инвентарь и суставы — запись попадёт в справочник уже с ними.',
   duplicate: 'Черновик заменится выбранной записью во всех комплексах, история весов перенесётся.',
   reject: 'Запись останется личным черновиком автора, в справочник не попадёт.',
 }
@@ -81,6 +81,7 @@ const RequestForm = ({ request }: { request: AdminRequest }) => {
       outcome: 'approve',
       reason: '',
       targetId: null,
+      name: entry?.name ?? '',
       text: entry?.text ?? '',
       imagePath: null,
       equipment: null,
@@ -102,6 +103,7 @@ const RequestForm = ({ request }: { request: AdminRequest }) => {
               id: request.id,
               reason,
               ...(v.outcome === 'edit' && {
+                name: v.name !== entry?.name ? v.name : undefined,
                 text: v.text || undefined,
                 imagePath: v.imagePath ?? undefined,
                 equipment: v.equipment ?? undefined,

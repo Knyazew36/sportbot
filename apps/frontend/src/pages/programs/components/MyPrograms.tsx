@@ -1,17 +1,20 @@
-import { ArrowRightIcon, PencilIcon } from 'lucide-react'
+import { ArrowRightIcon, GlobeIcon, PencilIcon } from 'lucide-react'
 
 import { useState } from 'react'
 
-import { type ProgramListItem, useActivateProgram, useProgram } from '@/entities/program'
+import { type Program, type ProgramListItem, PUBLICATION_STATUS, useActivateProgram, useProgram } from '@/entities/program'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { pluralize } from '@/shared/lib/format'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
-import { Eyebrow } from '@/shared/ui/kit/Typography'
+import { StatusFromMeta } from '@/shared/ui/kit/StatusBadge'
+import { Eyebrow, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Badge } from '@/shared/ui/shadcn/badge'
 import { ProgramPreviewSheet } from '@/widgets/program-preview/ProgramPreviewSheet'
+
+import { PublishSheet } from './PublishSheet'
 
 const COMPLEX_FORMS: [string, string, string] = ['комплекс', 'комплекса', 'комплексов']
 
@@ -29,6 +32,10 @@ export const MyPrograms = ({ programs, title, aside, limit }: MyProgramsProps) =
   const activate = useActivateProgram()
   const [openedId, setOpenedId] = useState<number | null>(null)
   const opened = useProgram(openedId ?? undefined)
+  // Форма публикации открывается вместо шторки состава, а не поверх неё
+  const [publishing, setPublishing] = useState<Program | null>(null)
+  // Копии шаблона или чужой программы публиковать нельзя — у них в шторке только «Редактировать»
+  const publishable = opened.data && !opened.data.fromFriend && !opened.data.fromTemplate ? opened.data : null
   const openedItem = programs.find(p => p.id === openedId)
   const shown = limit ? programs.slice(0, limit) : programs
   if (!shown.length) return null
@@ -98,19 +105,61 @@ export const MyPrograms = ({ programs, title, aside, limit }: MyProgramsProps) =
         program={openedItem ? (opened.data ?? { name: openedItem.name, complexes: [] }) : null}
         loading={opened.isPending}
         onOpenChange={open => !open && setOpenedId(null)}
+        note={
+          publishable && (
+            <span className='flex flex-col gap-2'>
+              <StatusFromMeta meta={PUBLICATION_STATUS[publishable.publication]} />
+              {publishable.rejectReason && (
+                <Text
+                  as='span'
+                  tone='danger'
+                >
+                  Причина: {publishable.rejectReason}
+                </Text>
+              )}
+            </span>
+          )
+        }
         action={
           openedId != null && (
-            <ButtonLink
-              to={buildPath(ROUTES.PROGRAM, { programId: openedId })}
-              size='lg'
-              className='w-full'
-            >
-              Редактировать
-              <PencilIcon />
-            </ButtonLink>
+            <div className='flex flex-col gap-2'>
+              <ButtonLink
+                to={buildPath(ROUTES.PROGRAM, { programId: openedId })}
+                size='lg'
+                className='w-full'
+              >
+                Редактировать
+                <PencilIcon />
+              </ButtonLink>
+              {publishable && (
+                <Button
+                  variant='outline'
+                  size='lg'
+                  className='w-full'
+                  onClick={() => {
+                    setPublishing(publishable)
+                    setOpenedId(null)
+                  }}
+                >
+                  {publishable.publication === 'DRAFT'
+                    ? 'Опубликовать'
+                    : publishable.publication === 'REJECTED'
+                      ? 'Исправить и отправить'
+                      : 'Описание и теги'}
+                  <GlobeIcon />
+                </Button>
+              )}
+            </div>
           )
         }
       />
+      {publishing && (
+        <PublishSheet
+          program={publishing}
+          open
+          onOpenChange={open => !open && setPublishing(null)}
+        />
+      )}
     </ScreenSection>
   )
 }

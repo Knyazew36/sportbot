@@ -13,4 +13,6 @@ export interface ProgramTagResponseDto {
   position: number;
   /** Группа тега */
   groupId: number;
+  /** false — свой тег автора программы, ждёт проверки (виден только автору) */
+  isApproved: boolean;
 }

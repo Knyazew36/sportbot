@@ -58,6 +58,7 @@ export interface DraftInput {
 }
 
 export interface DraftEdits {
+  name?: string;
   text?: string;
   imagePath?: string;
   equipment?: Equipment;
@@ -265,7 +266,7 @@ export class ModerationService {
 
   /**
    * Одобрить: черновик становится записью справочника, копии у друзей заменяются на него.
-   * edits — «одобрить с правками»: администратор дописал технику, картинку, инвентарь, суставы.
+   * edits — «одобрить с правками»: администратор поправил название, дописал технику, картинку, инвентарь, суставы.
    */
   public async approve(
     requestId: number,
@@ -274,6 +275,9 @@ export class ModerationService {
   ): Promise<Decision> {
     const outcome: ModerationOutcome = edits ? 'APPROVED_EDITED' : 'APPROVED';
     const note = cleanReason(reason);
+    const renamed = edits?.name
+      ? { name: edits.name, nameNormalized: normalizeName(edits.name) }
+      : {};
     const decision = await this.prisma.$transaction(async (tx) => {
       const request = await this.decide(tx, requestId, outcome, note);
       if (request.exerciseId) {
@@ -281,6 +285,7 @@ export class ModerationService {
           where: { id: request.exerciseId },
           data: {
             status: 'CATALOG',
+            ...renamed,
             ...(edits?.text ? { technique: edits.text } : {}),
             ...(edits?.imagePath
               ? {
@@ -315,6 +320,7 @@ export class ModerationService {
         where: { id: request.stretchId! },
         data: {
           status: 'CATALOG',
+          ...renamed,
           ...(edits?.text ? { howTo: edits.text } : {}),
           ...(edits?.imagePath
             ? {

@@ -134,6 +134,7 @@ export const APP_SCREEN = {
   mine: 'mine',
   request: (requestId: number) => `md_${requestId}`,
   complaint: (complaintId: number) => `cp_${complaintId}`,
+  programReview: (programId: number) => `pv_${programId}`,
   result: (shareToken: string) => `ws_${shareToken}`,
 } as const;
 

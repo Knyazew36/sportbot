@@ -4,10 +4,7 @@ import { PrismaService } from 'prisma/prisma.service';
 import { AvatarService } from '@/avatar/avatar.service';
 import { addDays, BotChannelKey, localToday } from '@/bot';
 import { SportAccountService } from '@/bot/sport-account.service';
-import {
-  COMPLEXES_INCLUDE,
-  toComplexesDto,
-} from '@/program/program-app.service';
+import { COMPLEXES_INCLUDE, toComplexesDto } from '@/program/program-complexes';
 
 import { FriendInviteResponseDto } from './dto/friend-invite.response.dto';
 import { FriendProfileResponseDto } from './dto/friend-profile.response.dto';

@@ -14,6 +14,8 @@ export interface AdminCountersResponseDto {
   requests: number;
   /** Открытых жалоб */
   complaints: number;
+  /** Программ пользователей ждут проверки: публикация, текст, свои теги */
+  programReviews: number;
   exercises: number;
   stretches: number;
 }

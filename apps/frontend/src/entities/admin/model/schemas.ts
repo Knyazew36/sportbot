@@ -6,12 +6,15 @@ export const moderationSchema = z
     outcome: z.enum(['approve', 'edit', 'duplicate', 'reject']),
     reason: z.string().trim().max(200, 'До 200 символов'),
     targetId: z.number().int().nullable(),
-    // «Одобрить с правками»: что админ дописал
+    // «Одобрить с правками»: что админ поправил и дописал
+    name: z.string().trim(),
     text: z.string().trim().max(2000, 'До 2000 символов'),
     imagePath: z.string().nullable(),
     equipment: z.enum(['BARBELL', 'DUMBBELL', 'MACHINE', 'BODYWEIGHT']).nullable(),
     jointIds: z.array(z.number().int()),
   })
+  .refine(v => v.outcome !== 'edit' || v.name.length >= 2, { message: 'Название — от 2 символов', path: ['name'] })
+  .refine(v => v.outcome !== 'edit' || v.name.length <= 60, { message: 'Название — до 60 символов', path: ['name'] })
   .refine(v => v.outcome !== 'reject' || v.reason.length >= 2, { message: 'Напиши причину', path: ['reason'] })
   .refine(v => v.outcome !== 'duplicate' || v.targetId != null, {
     message: 'Выбери запись, которой заменить черновик',
@@ -55,3 +58,9 @@ export const rejectComplaintSchema = z.object({
   reason: z.string().trim().max(200, 'До 200 символов'),
 })
 export type RejectComplaintValues = z.infer<typeof rejectComplaintSchema>
+
+// Отказ или снятие программы пользователя: причину бот перешлёт автору (RejectProgramDto на бэке)
+export const rejectProgramSchema = z.object({
+  reason: z.string().trim().min(2, 'Напиши причину').max(200, 'До 200 символов'),
+})
+export type RejectProgramValues = z.infer<typeof rejectProgramSchema>

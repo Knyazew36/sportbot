@@ -28,6 +28,9 @@ export const ProgramNameForm = ({ program }: { program: Program }) => {
       <TextField
         label='Название программы'
         placeholder='Например, «Сила. Сплит на 3 дня»'
+        description={
+          program.publication === 'PUBLISHED' ? 'Новое название попадёт в каталог после проверки' : undefined
+        }
         error={errors.name}
         {...register('name', { onBlur: () => void save() })}
       />

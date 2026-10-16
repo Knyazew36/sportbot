@@ -9,6 +9,8 @@ import type { ApproveRequestDtoEquipment } from './approveRequestDtoEquipment';
 export interface ApproveRequestDto {
   /** Короткая причина или комментарий для автора */
   reason?: string;
+  /** С правками: название записи */
+  name?: string;
   /** С правками: техника или «как делать» */
   text?: string;
   /** С правками: картинка из POST admin/catalog/image */

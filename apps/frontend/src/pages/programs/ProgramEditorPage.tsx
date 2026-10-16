@@ -23,6 +23,7 @@ import { arrangeBy } from '@/widgets/program-editor/arrange'
 import { type ComplexListActions, ProgramComplexList } from '@/widgets/program-editor/ProgramComplexList'
 
 import { ProgramNameForm } from './components/ProgramNameForm'
+import { PublishBlock } from './components/PublishBlock'
 
 // Каждая правка сразу уходит на сервер; пока перестановка сохраняется, показываем новый порядок, а не старый
 const useListActions = (programId: number) => {
@@ -87,7 +88,7 @@ const ProgramEditorPage = () => {
                     className='size-4'
                     strokeWidth={3}
                   />
-                  Активная программа — по ней идёт очередь
+                  Активная программа
                 </Text>
               ) : (
                 <Button
@@ -108,6 +109,8 @@ const ProgramEditorPage = () => {
               complexTo={complexId => buildPath(ROUTES.PROGRAM_COMPLEX, { programId: p.id, complexId })}
             />
 
+            <PublishBlock program={p} />
+
             <Rise className='px-gutter'>
               <ConfirmAction
                 trigger={
@@ -117,7 +120,11 @@ const ProgramEditorPage = () => {
                   />
                 }
                 title='Удалить программу?'
-                description='Программа и её комплексы пропадут. История тренировок сохранится.'
+                description={
+                  p.publication === 'DRAFT'
+                    ? 'Программа и её комплексы пропадут. История тренировок сохранится.'
+                    : 'Программа пропадёт и из каталога. У тех, кто её взял, копии останутся. История тренировок сохранится.'
+                }
                 confirmLabel='Удалить'
                 onConfirm={() => remove.mutateAsync(p.id).then(() => navigate(ROUTES.PROGRAMS, { replace: true }))}
               >

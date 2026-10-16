@@ -9,12 +9,13 @@ import { CatalogTab } from './components/CatalogTab'
 import { ComplaintsTab } from './components/ComplaintsTab'
 import { ImportTab } from './components/ImportTab'
 import { ModerationTab } from './components/ModerationTab'
+import { ProgramReviewsTab } from './components/ProgramReviewsTab'
 import { TemplatesTab } from './components/TemplatesTab'
 import { UsersTab } from './components/UsersTab'
 
-type Tab = 'moderation' | 'complaints' | 'catalog' | 'templates' | 'users' | 'import'
+type Tab = 'moderation' | 'complaints' | 'programs' | 'catalog' | 'templates' | 'users' | 'import'
 
-const TAB_VALUES: Tab[] = ['moderation', 'complaints', 'catalog', 'templates', 'users', 'import']
+const TAB_VALUES: Tab[] = ['moderation', 'complaints', 'programs', 'catalog', 'templates', 'users', 'import']
 
 // Админка (frontend-tz, 14): мобильная раскладка, таблицы — списками карточек. Видна только администратору
 const AdminPage = () => {
@@ -23,10 +24,11 @@ const AdminPage = () => {
   const counters = useAdminCounters()
   const count = (n: number | undefined) => (n ? ` · ${n}` : '')
 
-  // Сначала то, что ждёт реакции: заявки и жалобы со счётчиками
+  // Сначала то, что ждёт реакции: заявки, жалобы и программы пользователей со счётчиками
   const tabs: { value: Tab; label: string }[] = [
     { value: 'moderation', label: `Модерация${count(counters.data?.requests)}` },
     { value: 'complaints', label: `Жалобы${count(counters.data?.complaints)}` },
+    { value: 'programs', label: `Публикации${count(counters.data?.programReviews)}` },
     { value: 'catalog', label: 'Справочник' },
     { value: 'templates', label: 'Шаблоны' },
     { value: 'users', label: `Пользователи${count(counters.data?.users)}` },
@@ -42,7 +44,7 @@ const AdminPage = () => {
             title='Админ'
             aside='только администратору'
           />
-          <div className='no-scrollbar overflow-x-auto px-gutter pt-4 pb-1'>
+          <div className='no-scrollbar px-gutter overflow-x-auto pt-4 pb-1'>
             <Segmented
               options={tabs}
               value={tab}
@@ -55,6 +57,7 @@ const AdminPage = () => {
     >
       {tab === 'moderation' && <ModerationTab />}
       {tab === 'complaints' && <ComplaintsTab />}
+      {tab === 'programs' && <ProgramReviewsTab />}
       {tab === 'catalog' && <CatalogTab />}
       {tab === 'templates' && <TemplatesTab />}
       {tab === 'users' && <UsersTab />}

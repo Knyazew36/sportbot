@@ -13,6 +13,8 @@ export interface AdminProgramTagResponseDto {
   position: number;
   /** Группа тега */
   groupId: number;
+  /** false — свой тег автора программы, ждёт проверки (виден только автору) */
+  isApproved: boolean;
   /** Сколько шаблонов с этим тегом */
   templateCount: number;
 }

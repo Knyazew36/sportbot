@@ -20,6 +20,7 @@ export const PROGRAM_TAG_SELECT = {
   name: true,
   position: true,
   groupId: true,
+  isApproved: true,
 } satisfies Prisma.ProgramTagSelect;
 
 /** Теги по порядку: сначала ряд группы, потом место чипа в ряду. */
@@ -27,6 +28,11 @@ export const PROGRAM_TAG_ORDER = [
   { group: { position: 'asc' } },
   { position: 'asc' },
 ] satisfies Prisma.ProgramTagOrderByWithRelationInput[];
+
+/** Тег справочника; предложенные авторами до одобрения в справочник и порядок чипов не входят. */
+export const APPROVED_TAG = {
+  isApproved: true,
+} satisfies Prisma.ProgramTagWhereInput;
 
 export const ADMIN_TAG_SELECT = {
   ...PROGRAM_TAG_SELECT,
@@ -43,6 +49,7 @@ export const toAdminTag = (row: AdminRow): AdminProgramTagResponseDto => ({
   name: row.name,
   position: row.position,
   groupId: row.groupId,
+  isApproved: row.isApproved,
   templateCount: row._count.programs,
 });
 
@@ -57,6 +64,7 @@ export class ProgramTagService {
 
   public async list(): Promise<AdminProgramTagResponseDto[]> {
     const rows = await this.prisma.programTag.findMany({
+      where: APPROVED_TAG,
       orderBy: PROGRAM_TAG_ORDER,
       select: ADMIN_TAG_SELECT,
     });
@@ -135,7 +143,7 @@ export class ProgramTagService {
   public async reorder(ids: number[]): Promise<AdminProgramTagResponseDto[]> {
     // Соседи первого тега по группе — с ними и сверяем выборку
     const siblings = await this.prisma.programTag.findMany({
-      where: { group: { tags: { some: { id: ids[0] } } } },
+      where: { ...APPROVED_TAG, group: { tags: { some: { id: ids[0] } } } },
       select: { id: true },
     });
     const known = new Set(siblings.map((t) => t.id));
@@ -165,7 +173,7 @@ export class ProgramTagService {
 
   private async nextPosition(groupId: number): Promise<number> {
     const last = await this.prisma.programTag.aggregate({
-      where: { groupId },
+      where: { groupId, ...APPROVED_TAG },
       _max: { position: true },
     });
     return (last._max.position ?? 0) + 1;

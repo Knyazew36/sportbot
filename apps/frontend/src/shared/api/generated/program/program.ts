@@ -14,6 +14,7 @@ import type {
   ProgramControllerCreate200,
   ProgramControllerDismissUpdate200,
   ProgramControllerList200,
+  ProgramControllerPublish200,
   ProgramControllerRemove200,
   ProgramControllerRemoveComplex200,
   ProgramControllerRemoveItem200,
@@ -21,13 +22,16 @@ import type {
   ProgramControllerReorderItems200,
   ProgramControllerResync200,
   ProgramControllerTagGroups200,
+  ProgramControllerTagGroupsParams,
   ProgramControllerTake200,
   ProgramControllerTemplates200,
   ProgramControllerTemplatesParams,
+  ProgramControllerUnpublish200,
   ProgramControllerUpdate200,
   ProgramControllerUpdateComplex200,
   ProgramControllerUpdateItem200,
   ProgramControllerView200,
+  PublishProgramDto,
   ReorderDto,
   UpdateComplexDto,
   UpdateComplexExerciseDto,
@@ -39,7 +43,7 @@ import { customInstance } from '../../model/orval-mutator';
 
 
   /**
- * @summary Каталог: опубликованные шаблоны с составом, фильтр по тегам и поиск
+ * @summary Каталог: опубликованные шаблоны или программы пользователей с составом, фильтр по тегам и поиск
  */
 export const programControllerTemplates = (
     params?: ProgramControllerTemplatesParams,
@@ -51,18 +55,19 @@ export const programControllerTemplates = (
       );
     }
   /**
- * @summary Ряды чипов каталога: группы с тегами опубликованных шаблонов
+ * @summary Ряды чипов: группы с тегами опубликованных шаблонов или все теги справочника
  */
 export const programControllerTagGroups = (
-
+    params?: ProgramControllerTagGroupsParams,
  ) => {
       return customInstance<ProgramControllerTagGroups200>(
-      {url: `/program/tag-groups`, method: 'GET'
+      {url: `/program/tag-groups`, method: 'GET',
+        params
     },
       );
     }
   /**
- * @summary «Взять» шаблон: копия в программы пользователя
+ * @summary «Взять» из каталога: копия шаблона или чужой опубликованной программы
  */
 export const programControllerTake = (
     id: number,
@@ -151,6 +156,31 @@ export const programControllerDismissUpdate = (
  ) => {
       return customInstance<ProgramControllerDismissUpdate200>(
       {url: `/program/dismiss-update/${id}`, method: 'POST'
+    },
+      );
+    }
+  /**
+ * @summary Опубликовать или изменить публикацию: описание и теги, проверка администратором
+ */
+export const programControllerPublish = (
+    id: number,
+    publishProgramDto: PublishProgramDto,
+ ) => {
+      return customInstance<ProgramControllerPublish200>(
+      {url: `/program/publish/${id}`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: publishProgramDto
+    },
+      );
+    }
+  /**
+ * @summary Снять с публикации: копии у взявших остаются
+ */
+export const programControllerUnpublish = (
+    id: number,
+ ) => {
+      return customInstance<ProgramControllerUnpublish200>(
+      {url: `/program/unpublish/${id}`, method: 'POST'
     },
       );
     }
@@ -281,6 +311,8 @@ export type ProgramControllerRemoveResult = NonNullable<Awaited<ReturnType<typeo
 export type ProgramControllerActivateResult = NonNullable<Awaited<ReturnType<typeof programControllerActivate>>>
 export type ProgramControllerResyncResult = NonNullable<Awaited<ReturnType<typeof programControllerResync>>>
 export type ProgramControllerDismissUpdateResult = NonNullable<Awaited<ReturnType<typeof programControllerDismissUpdate>>>
+export type ProgramControllerPublishResult = NonNullable<Awaited<ReturnType<typeof programControllerPublish>>>
+export type ProgramControllerUnpublishResult = NonNullable<Awaited<ReturnType<typeof programControllerUnpublish>>>
 export type ProgramControllerAddComplexResult = NonNullable<Awaited<ReturnType<typeof programControllerAddComplex>>>
 export type ProgramControllerReorderComplexesResult = NonNullable<Awaited<ReturnType<typeof programControllerReorderComplexes>>>
 export type ProgramControllerUpdateComplexResult = NonNullable<Awaited<ReturnType<typeof programControllerUpdateComplex>>>

@@ -4,6 +4,7 @@
  * api
  * OpenAPI spec version: 0.0.1
  */
+import type { ProgramControllerTemplatesFilterSource } from './programControllerTemplatesFilterSource';
 
 export type ProgramControllerTemplatesParams = {
 /**
@@ -14,4 +15,8 @@ filter_search?: string;
  * Id тегов через запятую: внутри группы — любой из них, между группами — все
  */
 filter_tags?: string;
+/**
+ * Таб каталога: шаблоны администратора или программы пользователей
+ */
+filter_source?: ProgramControllerTemplatesFilterSource;
 };

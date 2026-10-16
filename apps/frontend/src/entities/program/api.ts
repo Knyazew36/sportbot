@@ -5,6 +5,7 @@ import type {
   ProgramListItemResponseDto,
   ProgramResponseDto,
   ProgramTagGroupResponseDto,
+  PublishProgramDto,
   UpdateComplexExerciseDto,
 } from '@/shared/api/generated/model'
 import {
@@ -14,6 +15,7 @@ import {
   programControllerCreate,
   programControllerDismissUpdate,
   programControllerList,
+  programControllerPublish,
   programControllerRemove,
   programControllerRemoveComplex,
   programControllerRemoveItem,
@@ -23,6 +25,7 @@ import {
   programControllerTagGroups,
   programControllerTake,
   programControllerTemplates,
+  programControllerUnpublish,
   programControllerUpdate,
   programControllerUpdateComplex,
   programControllerUpdateItem,
@@ -35,8 +38,11 @@ export type ProgramExercise = ProgramComplex['exercises'][number]
 export type ProgramListItem = ProgramListItemResponseDto
 export type ProgramTagGroup = ProgramTagGroupResponseDto
 
-/** Фильтр каталога: id выбранных тегов (по одному на группу) и строка поиска */
-export type TemplateFilters = { tagIds?: number[]; search?: string }
+/** Таб каталога: шаблоны администратора или программы пользователей */
+export type CatalogSource = 'templates' | 'users'
+
+/** Фильтр каталога: таб, id выбранных тегов (по одному на группу) и строка поиска */
+export type TemplateFilters = { source?: CatalogSource; tagIds?: number[]; search?: string }
 
 export const programKeys = {
   all: ['program'] as const,
@@ -44,6 +50,7 @@ export const programKeys = {
   templates: ['program', 'templates'] as const,
   catalog: (filters: TemplateFilters) => ['program', 'templates', filters] as const,
   tagGroups: ['program', 'tag-groups'] as const,
+  allTagGroups: ['program', 'tag-groups', 'all'] as const,
   detail: (id: number) => ['program', 'detail', id] as const,
 }
 
@@ -76,6 +83,7 @@ export const useTemplates = (filters: TemplateFilters = {}) =>
     queryKey: programKeys.catalog(filters),
     queryFn: () =>
       programControllerTemplates({
+        filter_source: filters.source,
         filter_search: filters.search || undefined,
         filter_tags: filters.tagIds?.length ? filters.tagIds.join(',') : undefined,
       }),
@@ -88,6 +96,14 @@ export const useTemplateTagGroups = () =>
   useQuery({
     queryKey: programKeys.tagGroups,
     queryFn: () => programControllerTagGroups(),
+    staleTime: 5 * 60_000,
+  })
+
+/** Все теги справочника по группам: форма публикации требует тег из каждой группы */
+export const useAllTagGroups = () =>
+  useQuery({
+    queryKey: programKeys.allTagGroups,
+    queryFn: () => programControllerTagGroups({ filter_all: true }),
     staleTime: 5 * 60_000,
   })
 
@@ -116,13 +132,13 @@ export const useCreateProgram = () => {
   })
 }
 
-/** «Взять» шаблон — копия в программах пользователя; в каталоге он станет «уже у тебя» */
+/** «Взять» из каталога — копия в программах пользователя; в каталоге станет «уже у тебя» */
 export const useTakeTemplate = () => {
   const queryClient = useQueryClient()
   const apply = useApplyProgram()
   return useMutation({
     mutationFn: (templateId: number) => programControllerTake(templateId),
-    meta: { successMessage: 'Шаблон в твоих программах' },
+    meta: { successMessage: 'Программа в твоих программах' },
     onSuccess: program => {
       apply(program)
       void queryClient.invalidateQueries({ queryKey: programKeys.templates })
@@ -184,6 +200,37 @@ export const useDismissProgramUpdate = () => {
     // Плашка исчезает с экрана — это и есть ответ
     meta: { skipSuccessToast: true },
     onSuccess: apply,
+  })
+}
+
+// ── Публикация ──────────────────────────────────────────────────────────────
+
+/** «Опубликовать» или «Изменить публикацию»: описание и теги уходят на проверку администратору */
+export const usePublishProgram = () => {
+  const queryClient = useQueryClient()
+  const apply = useApplyProgram()
+  return useMutation({
+    mutationFn: ({ id, ...body }: PublishProgramDto & { id: number }) => programControllerPublish(id, body),
+    meta: { successMessage: 'Отправлено на проверку', inlineFieldErrors: true },
+    onSuccess: program => {
+      apply(program)
+      void queryClient.invalidateQueries({ queryKey: programKeys.templates })
+      // Новый свой тег мог совпасть с тегом справочника — ряды чипов формы обновятся
+      void queryClient.invalidateQueries({ queryKey: programKeys.allTagGroups })
+    },
+  })
+}
+
+export const useUnpublishProgram = () => {
+  const queryClient = useQueryClient()
+  const apply = useApplyProgram()
+  return useMutation({
+    mutationFn: (id: number) => programControllerUnpublish(id),
+    meta: { successMessage: 'Снята с публикации' },
+    onSuccess: program => {
+      apply(program)
+      void queryClient.invalidateQueries({ queryKey: programKeys.templates })
+    },
   })
 }
 

@@ -4,6 +4,7 @@ import { PrismaService } from 'prisma/prisma.service';
 import { addDays, weekStart } from '@/bot';
 import { User } from '@/generated/prisma/client';
 import { ModerationService } from '@/moderation/moderation.service';
+import { PROGRAM_REVIEW_QUEUE } from '@/program-publication/program-publication.service';
 
 @Injectable()
 export class AdminService {
@@ -18,23 +19,39 @@ export class AdminService {
 
   public async counters() {
     const monday = weekStart(new Date(new Date().setUTCHours(0, 0, 0, 0)));
-    const [users, workouts, requests, complaints, exercises, stretches] =
-      await Promise.all([
-        this.prisma.sportProfile.count({
-          where: { onboardedAt: { not: null } },
-        }),
-        this.prisma.workout.count({
-          where: {
-            status: { in: ['FINISHED', 'AUTO_CLOSED'] },
-            date: { gte: monday, lt: addDays(monday, 7) },
-          },
-        }),
-        this.prisma.moderationRequest.count({ where: { outcome: 'PENDING' } }),
-        this.prisma.complaint.count({ where: { status: 'OPEN' } }),
-        this.prisma.exercise.count({ where: { status: 'CATALOG' } }),
-        this.prisma.stretch.count({ where: { status: 'CATALOG' } }),
-      ]);
-    return { users, workouts, requests, complaints, exercises, stretches };
+    const [
+      users,
+      workouts,
+      requests,
+      complaints,
+      programReviews,
+      exercises,
+      stretches,
+    ] = await Promise.all([
+      this.prisma.sportProfile.count({
+        where: { onboardedAt: { not: null } },
+      }),
+      this.prisma.workout.count({
+        where: {
+          status: { in: ['FINISHED', 'AUTO_CLOSED'] },
+          date: { gte: monday, lt: addDays(monday, 7) },
+        },
+      }),
+      this.prisma.moderationRequest.count({ where: { outcome: 'PENDING' } }),
+      this.prisma.complaint.count({ where: { status: 'OPEN' } }),
+      this.prisma.program.count({ where: PROGRAM_REVIEW_QUEUE }),
+      this.prisma.exercise.count({ where: { status: 'CATALOG' } }),
+      this.prisma.stretch.count({ where: { status: 'CATALOG' } }),
+    ]);
+    return {
+      users,
+      workouts,
+      requests,
+      complaints,
+      programReviews,
+      exercises,
+      stretches,
+    };
   }
 
   // ── Жалобы ──────────────────────────────────────────────────────────────

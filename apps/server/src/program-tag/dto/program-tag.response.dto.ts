@@ -15,4 +15,10 @@ export class ProgramTagResponseDto {
 
   @ApiProperty({ description: 'Группа тега' })
   groupId: number;
+
+  @ApiProperty({
+    description:
+      'false — свой тег автора программы, ждёт проверки (виден только автору)',
+  })
+  isApproved: boolean;
 }

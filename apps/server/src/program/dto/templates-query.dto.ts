@@ -2,6 +2,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
   IsArray,
+  IsIn,
   IsInt,
   IsOptional,
   IsString,
@@ -38,4 +39,14 @@ export class TemplatesQueryDto {
   @IsArray()
   @IsInt({ each: true })
   filter_tags?: number[];
+
+  @ApiPropertyOptional({
+    enum: ['templates', 'users'],
+    default: 'templates',
+    description:
+      'Таб каталога: шаблоны администратора или программы пользователей',
+  })
+  @IsOptional()
+  @IsIn(['templates', 'users'])
+  filter_source?: 'templates' | 'users';
 }

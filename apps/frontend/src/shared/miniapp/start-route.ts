@@ -7,6 +7,7 @@ const BY_ID: Record<string, (id: number) => string> = {
   fr: friendId => buildPath(ROUTES.FRIEND, { friendId }),
   pr: programId => buildPath(ROUTES.PROGRAM, { programId }),
   md: requestId => buildPath(ROUTES.ADMIN_REQUEST, { requestId }),
+  pv: programId => buildPath(ROUTES.ADMIN_PROGRAM_REVIEW, { programId }),
   // Отдельной карточки жалобы нет — список открытых жалоб
   cp: () => `${ROUTES.ADMIN}?tab=complaints`,
 }

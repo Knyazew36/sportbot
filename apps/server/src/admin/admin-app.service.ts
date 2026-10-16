@@ -100,7 +100,7 @@ export class AdminAppService {
     return this.requestView(await this.moderation.find(requestId));
   }
 
-  /** Одобрить; с правками — техника, картинка, инвентарь, суставы. Автору — сообщение в бот. */
+  /** Одобрить; с правками — название, техника, картинка, инвентарь, суставы. Автору — сообщение в бот. */
   public async approve(requestId: number, dto: ApproveRequestDto) {
     const { reason, ...edits } = dto;
     const edited = Object.values(edits).some((v) => v !== undefined);

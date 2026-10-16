@@ -13,6 +13,7 @@ import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { Swagger } from '@/common/decorators/swagger/swagger.decorator';
 import { SportAuth } from '@/miniapp/decorators/sport-auth.decorator';
 import { ProgramTagGroupResponseDto } from '@/program-tag/dto/program-tag-group.response.dto';
+import { PublishProgramDto } from '@/program-publication/dto/publish-program.dto';
 import { ProgramTagGroupService } from '@/program-tag/program-tag-group.service';
 
 import { AddComplexExercisesDto } from './dto/add-complex-exercises.dto';
@@ -21,6 +22,7 @@ import { CreateProgramDto } from './dto/create-program.dto';
 import { ProgramListItemResponseDto } from './dto/program-list-item.response.dto';
 import { ProgramResponseDto } from './dto/program.response.dto';
 import { ReorderDto } from './dto/reorder.dto';
+import { TagGroupsQueryDto } from './dto/tag-groups-query.dto';
 import { TemplatesQueryDto } from './dto/templates-query.dto';
 import { UpdateComplexExerciseDto } from './dto/update-complex-exercise.dto';
 import { UpdateComplexDto } from './dto/update-complex.dto';
@@ -43,7 +45,7 @@ export class ProgramController {
   @Get('templates')
   @Swagger({
     title:
-      'Каталог: опубликованные шаблоны с составом, фильтр по тегам и поиск',
+      'Каталог: опубликованные шаблоны или программы пользователей с составом, фильтр по тегам и поиск',
     query: TemplatesQueryDto,
     response: ProgramResponseDto,
     plainArray: true,
@@ -58,19 +60,24 @@ export class ProgramController {
 
   @Get('tag-groups')
   @Swagger({
-    title: 'Ряды чипов каталога: группы с тегами опубликованных шаблонов',
+    title:
+      'Ряды чипов: группы с тегами опубликованных шаблонов или все теги справочника',
+    query: TagGroupsQueryDto,
     response: ProgramTagGroupResponseDto,
     plainArray: true,
     bearerAuth: true,
   })
-  public tagGroups() {
-    return this.programTagGroupService.catalog();
+  public tagGroups(@Query() query: TagGroupsQueryDto) {
+    return query.filter_all
+      ? this.programTagGroupService.all()
+      : this.programTagGroupService.catalog();
   }
 
   @Post('take/:id')
   @Swagger({
-    title: '«Взять» шаблон: копия в программы пользователя',
-    param: { ...ID_PARAM, description: 'Шаблон' },
+    title:
+      '«Взять» из каталога: копия шаблона или чужой опубликованной программы',
+    param: { ...ID_PARAM, description: 'Шаблон или программа каталога' },
     response: ProgramResponseDto,
     bearerAuth: true,
   })
@@ -178,6 +185,37 @@ export class ProgramController {
     @Param('id', ParseIntPipe) id: number,
   ) {
     return this.programAppService.dismissUpdate(userId, id);
+  }
+
+  @Post('publish/:id')
+  @Swagger({
+    title:
+      'Опубликовать или изменить публикацию: описание и теги, проверка администратором',
+    param: ID_PARAM,
+    body: PublishProgramDto,
+    response: ProgramResponseDto,
+    bearerAuth: true,
+  })
+  public publish(
+    @CurrentUser('id') userId: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: PublishProgramDto,
+  ) {
+    return this.programAppService.publish(userId, id, dto);
+  }
+
+  @Post('unpublish/:id')
+  @Swagger({
+    title: 'Снять с публикации: копии у взявших остаются',
+    param: ID_PARAM,
+    response: ProgramResponseDto,
+    bearerAuth: true,
+  })
+  public unpublish(
+    @CurrentUser('id') userId: number,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.programAppService.unpublish(userId, id);
   }
 
   // ── Комплексы ───────────────────────────────────────────────────────────

@@ -50,6 +50,7 @@ export const ROUTES = {
   STRETCH: '/library/stretches/:stretchId',
   FRIEND: '/friends/:friendId',
   ADMIN_REQUEST: '/admin/moderation/:requestId',
+  ADMIN_PROGRAM_REVIEW: '/admin/program-reviews/:programId',
   ADMIN_CATALOG_ITEM: '/admin/catalog/:kind/:itemId',
   ADMIN_TEMPLATE: '/admin/templates/:templateId',
   ADMIN_TEMPLATE_COMPLEX: '/admin/templates/:templateId/complex/:complexId',

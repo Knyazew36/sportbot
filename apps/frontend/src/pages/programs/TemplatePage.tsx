@@ -1,28 +1,40 @@
 import { PlusIcon } from 'lucide-react'
-import { useNavigate, useParams } from 'react-router'
+import { useNavigate, useParams, useSearchParams } from 'react-router'
 
 import { useState } from 'react'
 
-import { complexLetter, planText, useTakeTemplate, useTemplates } from '@/entities/program'
+import {
+  addedText,
+  type CatalogSource,
+  complexLetter,
+  planText,
+  SOURCE_PARAM,
+  useTakeTemplate,
+  useTemplates,
+} from '@/entities/program'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
+import { PersonAvatar } from '@/shared/ui/kit/PersonAvatar'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Screen, StickyFooter } from '@/shared/ui/kit/Screen'
 import { TopBar } from '@/shared/ui/kit/ScreenHeader'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { StatGrid } from '@/shared/ui/kit/StatGrid'
-import { Poster, Text } from '@/shared/ui/kit/Typography'
+import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { ComplexQueue } from '@/widgets/complex-queue/ComplexQueue'
 import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet'
 
-// Шаблон целиком: что за тренировки внутри, прежде чем брать себе (frontend-tz, 10.2).
-// Отдельного запроса нет — шаблоны приходят списком с составом
+// Шаблон или программа пользователя целиком: что за тренировки внутри, прежде чем брать себе (frontend-tz, 10.2).
+// Отдельного запроса нет — каталог приходит списком с составом, таб берём из ссылки
 const TemplatePage = () => {
   const templateId = Number(useParams().templateId)
-  const templates = useTemplates()
+  const [params] = useSearchParams()
+  const source: CatalogSource = params.get(SOURCE_PARAM) === 'users' ? 'users' : 'templates'
+  const users = source === 'users'
+  const templates = useTemplates({ source })
   const take = useTakeTemplate()
   const navigate = useNavigate()
   const template = templates.data?.find(t => t.id === templateId)
@@ -33,13 +45,25 @@ const TemplatePage = () => {
     <Screen
       header={
         <TopBar
-          back={ROUTES.PROGRAM_TEMPLATES}
-          title={template?.name ?? 'Шаблон'}
-          subtitle='шаблон'
+          back={users ? `${ROUTES.PROGRAM_TEMPLATES}?${SOURCE_PARAM}=users` : ROUTES.PROGRAM_TEMPLATES}
+          title={template?.name ?? (users ? 'Программа' : 'Шаблон')}
+          subtitle={users ? 'программа пользователя' : 'шаблон'}
         />
       }
       footer={
-        template && (
+        template &&
+        (template.mine ? (
+          // Своя программа: брать копию у себя незачем — открываем её редактор
+          <StickyFooter>
+            <ButtonLink
+              to={buildPath(ROUTES.PROGRAM, { programId: template.id })}
+              size='xl'
+              className='w-full'
+            >
+              Открыть мою
+            </ButtonLink>
+          </StickyFooter>
+        ) : (
           // Две кнопки держим в одну строку: обе lg и короткие подписи, чтобы влезали от 375px
           <StickyFooter className='flex-nowrap'>
             {/* Уже взят — главное «Открыть»; второй экземпляр берут осознанно, отсюда, а не из каталога */}
@@ -69,18 +93,18 @@ const TemplatePage = () => {
               />
             </Button>
           </StickyFooter>
-        )
+        ))
       }
     >
       <QueryScreen
         query={templates}
         isEmpty={list => !list.some(t => t.id === templateId)}
         empty={{
-          title: 'Шаблон не найден',
+          title: users ? 'Программа не найдена' : 'Шаблон не найден',
           description: 'Возможно, его убрали из каталога.',
           action: (
             <ButtonLink
-              to={ROUTES.PROGRAM_TEMPLATES}
+              to={users ? `${ROUTES.PROGRAM_TEMPLATES}?${SOURCE_PARAM}=users` : ROUTES.PROGRAM_TEMPLATES}
               variant='outline'
               size='sm'
             >
@@ -103,6 +127,21 @@ const TemplatePage = () => {
                 >
                   {t.name}
                 </Poster>
+                {t.author && (
+                  <div className='mt-3 flex items-center gap-2'>
+                    <PersonAvatar
+                      name={t.author.name}
+                      src={t.author.avatarUrl ?? undefined}
+                      size='sm'
+                    />
+                    <Text
+                      size='sm'
+                      tone='muted'
+                    >
+                      {t.mine ? 'Твоя программа' : t.author.name}
+                    </Text>
+                  </div>
+                )}
                 {t.description && (
                   <Text
                     tone='soft'
@@ -111,6 +150,12 @@ const TemplatePage = () => {
                     {t.description}
                   </Text>
                 )}
+                <Eyebrow
+                  as='p'
+                  className='mt-3'
+                >
+                  {addedText(t.addedCount)}
+                </Eyebrow>
               </Rise>
 
               <Rise className='px-gutter'>
@@ -171,7 +216,7 @@ const TemplatePage = () => {
                   size='xs'
                   tone='muted'
                 >
-                  После «Взять» шаблон становится твоей программой — его можно править.
+                  После «Взять» копия становится твоей программой — её можно править.
                 </Text>
               </Rise>
             </>

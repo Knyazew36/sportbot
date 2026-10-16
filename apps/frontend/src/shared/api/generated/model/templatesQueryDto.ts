@@ -4,10 +4,13 @@
  * api
  * OpenAPI spec version: 0.0.1
  */
+import type { TemplatesQueryDtoFilterSource } from './templatesQueryDtoFilterSource';
 
 export interface TemplatesQueryDto {
   /** Поиск по названию и описанию: регистр и ё не важны */
   filter_search?: string;
   /** Id тегов через запятую: внутри группы — любой из них, между группами — все */
   filter_tags?: string;
+  /** Таб каталога: шаблоны администратора или программы пользователей */
+  filter_source?: TemplatesQueryDtoFilterSource;
 }

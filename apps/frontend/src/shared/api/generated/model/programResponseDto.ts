@@ -4,7 +4,9 @@
  * api
  * OpenAPI spec version: 0.0.1
  */
+import type { ProgramAuthorResponseDto } from './programAuthorResponseDto';
 import type { ProgramComplexResponseDto } from './programComplexResponseDto';
+import type { ProgramPublication } from './programPublication';
 import type { ProgramTagResponseDto } from './programTagResponseDto';
 
 export interface ProgramResponseDto {
@@ -33,7 +35,25 @@ export interface ProgramResponseDto {
      * @nullable
      */
   takenProgramId: number | null;
-  /** Теги шаблона по порядку чипов; у программы пользователя пусто */
+  /** Теги по порядку чипов: у шаблона и опубликованной программы; своя программа — со своими тегами на проверке */
   tags: ProgramTagResponseDto[];
   complexes: ProgramComplexResponseDto[];
+  /** Сколько раз программу взяли себе (живые копии) */
+  addedCount: number;
+  /**
+     * Каталог «Программы пользователей»: автор; в остальных ответах null
+     * @nullable
+     */
+  author: ProgramAuthorResponseDto | null;
+  /** Каталог: это программа самого пользователя */
+  mine: boolean;
+  /** Публикация в каталоге «Программы пользователей» */
+  publication: ProgramPublication;
+  /** Публикация или правка названия/описания ждёт проверки администратора */
+  textPending: boolean;
+  /**
+     * Причина отказа или снятия — видна только автору
+     * @nullable
+     */
+  rejectReason: string | null;
 }

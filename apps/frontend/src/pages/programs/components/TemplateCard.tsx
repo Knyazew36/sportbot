@@ -1,21 +1,25 @@
 import { ArrowRightIcon, EyeIcon, PlusIcon } from 'lucide-react'
 import { useNavigate } from 'react-router'
 
-import { type Program, useTakeTemplate } from '@/entities/program'
+import { addedText, catalogItemPath, type CatalogSource, type Program, useTakeTemplate } from '@/entities/program'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { pluralize } from '@/shared/lib/format'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
+import { PersonAvatar } from '@/shared/ui/kit/PersonAvatar'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Badge } from '@/shared/ui/shadcn/badge'
 
+type TemplateCardProps = { template: Program; index: number; source: CatalogSource }
+
 // Карточка каталога: состав одним взглядом и «Взять». Уже взятый шаблон открывает свою копию —
-// взять второй раз можно со страницы шаблона, а не случайным нажатием здесь
-export const TemplateCard = ({ template: t, index }: { template: Program; index: number }) => {
+// взять второй раз можно со страницы шаблона, а не случайным нажатием здесь. Свою программу не берут — её открывают
+export const TemplateCard = ({ template: t, index, source }: TemplateCardProps) => {
   const take = useTakeTemplate()
   const navigate = useNavigate()
   const exercises = t.complexes.reduce((sum, c) => sum + c.exercises.length, 0)
+  const openId = t.mine ? t.id : t.takenProgramId
 
   return (
     <Rise className='border-foreground/80 flex flex-col gap-3 border-[1.5px] p-4'>
@@ -34,11 +38,28 @@ export const TemplateCard = ({ template: t, index }: { template: Program; index:
           {String(index + 1).padStart(2, '0')}
         </Poster>
       </div>
+      {t.author && (
+        <div className='flex items-center gap-2'>
+          <PersonAvatar
+            name={t.author.name}
+            src={t.author.avatarUrl ?? undefined}
+            size='xs'
+          />
+          <Text
+            size='sm'
+            tone='muted'
+            className='truncate'
+          >
+            {t.author.name}
+          </Text>
+        </div>
+      )}
       {t.description && <Text tone='soft'>{t.description}</Text>}
       {/* Бейджи — только теги подбора; состав — обычной подписью, чтобы «День А» не путали с тегами */}
-      {(t.takenProgramId != null || t.tags.length > 0) && (
+      {(t.mine || t.takenProgramId != null || t.tags.length > 0) && (
         <div className='flex flex-wrap gap-1.5'>
-          {t.takenProgramId != null && <Badge variant='secondary'>уже у тебя</Badge>}
+          {t.mine && <Badge variant='secondary'>твоя</Badge>}
+          {!t.mine && t.takenProgramId != null && <Badge variant='secondary'>уже у тебя</Badge>}
           {t.tags.map(tg => (
             <Badge key={tg.id}>{tg.name}</Badge>
           ))}
@@ -46,11 +67,11 @@ export const TemplateCard = ({ template: t, index }: { template: Program; index:
       )}
       <Eyebrow as='p'>
         {pluralize(t.complexes.length, ['комплекс', 'комплекса', 'комплексов'])} ·{' '}
-        {pluralize(exercises, ['упражнение', 'упражнения', 'упражнений'])}
+        {pluralize(exercises, ['упражнение', 'упражнения', 'упражнений'])} · {addedText(t.addedCount)}
       </Eyebrow>
       <div className='mt-1 grid grid-cols-2 gap-2'>
         <ButtonLink
-          to={buildPath(ROUTES.PROGRAM_TEMPLATE, { templateId: t.id })}
+          to={catalogItemPath(t.id, source)}
           variant='outline'
           size='sm'
           className='h-11'
@@ -58,9 +79,9 @@ export const TemplateCard = ({ template: t, index }: { template: Program; index:
           <EyeIcon />
           Посмотреть
         </ButtonLink>
-        {t.takenProgramId != null ? (
+        {openId != null ? (
           <ButtonLink
-            to={buildPath(ROUTES.PROGRAM, { programId: t.takenProgramId })}
+            to={buildPath(ROUTES.PROGRAM, { programId: openId })}
             size='sm'
             className='h-11'
           >

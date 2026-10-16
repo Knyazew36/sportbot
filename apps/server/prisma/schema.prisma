@@ -69,6 +69,7 @@ model User {
   moderationRequests ModerationRequest[]
   complaints         Complaint[]
   programs           Program[]
+  proposedTags       ProgramTag[]        @relation("ProgramTagAuthor")
   planDays           PlanDay[]
   workouts           Workout[]
   friendInvites      FriendInvite[]
@@ -805,17 +806,35 @@ model Program {
   contentUpdatedAt DateTime  @default(now())
   updateNotifiedAt DateTime? /// когда владельцу копии последний раз предлагали обновиться (не чаще раза в сутки)
 
+  /// Публикация программы пользователя в каталоге «Программы пользователей». У шаблонов всегда DRAFT.
+  publication          ProgramPublication @default(DRAFT)
+  /// Одобренные название и описание: их видит каталог, пока правка текста ждёт проверки.
+  publishedName        String?
+  publishedDescription String?
+  publishedAt          DateTime? /// первое одобрение — порядок в каталоге
+  /// Ждёт проверки администратора: первая публикация или правка названия/описания. null — проверять нечего.
+  reviewRequestedAt    DateTime?
+  rejectReason         String? /// причина отказа или снятия — видна автору в редакторе
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   complexes Complex[]
   activeFor SportProfile[] @relation("ActiveProgram")
-  /// Теги витрины: только у шаблонов, копии их не наследуют.
+  /// Теги витрины: у шаблонов и опубликованных программ пользователей, копии их не наследуют.
   tags      ProgramTag[]
 
   @@index([ownerId])
   @@index([sourceProgramId])
   @@index([isTemplate, isPublished, position])
+  @@index([publication, publishedAt])
+}
+
+enum ProgramPublication {
+  DRAFT /// только у автора
+  PENDING /// отправлена, ждёт первой проверки
+  PUBLISHED /// в каталоге
+  REJECTED /// отклонена или снята администратором — причина в rejectReason
 }
 
 /// Группа тегов шаблонов — ось подбора: «Где», «Уровень», «Цель». Каждая группа — свой ряд чипов.
@@ -841,9 +860,15 @@ model ProgramTag {
   groupId Int
   group   ProgramTagGroup @relation(fields: [groupId], references: [id], onDelete: Restrict)
 
+  /// Тег, предложенный автором программы: до одобрения виден только ему и администратору.
+  isApproved Boolean @default(true)
+  authorId   Int?
+  author     User?   @relation("ProgramTagAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+
   programs Program[]
 
   @@index([groupId, position])
+  @@index([isApproved])
 }
 
 /// Комплекс — набор упражнений одной тренировки. Комплексы программы идут по кругу по position.

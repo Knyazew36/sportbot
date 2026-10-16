@@ -15,6 +15,7 @@ import { ProgramTagGroupResponseDto } from './dto/program-tag-group.response.dto
 import { UpdateProgramTagGroupDto } from './dto/update-program-tag-group.dto';
 import {
   ADMIN_TAG_SELECT,
+  APPROVED_TAG,
   PROGRAM_TAG_SELECT,
   toAdminTag,
 } from './program-tag.service';
@@ -24,7 +25,11 @@ const ADMIN_SELECT = {
   code: true,
   name: true,
   position: true,
-  tags: { orderBy: { position: 'asc' }, select: ADMIN_TAG_SELECT },
+  tags: {
+    where: APPROVED_TAG,
+    orderBy: { position: 'asc' },
+    select: ADMIN_TAG_SELECT,
+  },
 } satisfies Prisma.ProgramTagGroupSelect;
 
 type AdminRow = Prisma.ProgramTagGroupGetPayload<{
@@ -63,6 +68,26 @@ export class ProgramTagGroupService {
       },
     });
     this.logger.debug(`Группы каталога: всего=${groups.length}`);
+    return groups;
+  }
+
+  /** Все теги справочника по группам: форма публикации программы, где нужен тег из каждой группы. */
+  public async all(): Promise<ProgramTagGroupResponseDto[]> {
+    const groups = await this.prisma.programTagGroup.findMany({
+      orderBy: { position: 'asc' },
+      select: {
+        id: true,
+        code: true,
+        name: true,
+        position: true,
+        tags: {
+          where: APPROVED_TAG,
+          orderBy: { position: 'asc' },
+          select: PROGRAM_TAG_SELECT,
+        },
+      },
+    });
+    this.logger.debug(`Все группы тегов: всего=${groups.length}`);
     return groups;
   }
 

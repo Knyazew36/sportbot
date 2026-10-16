@@ -13,6 +13,12 @@ export class AdminCountersResponseDto {
   @ApiProperty({ description: 'Открытых жалоб' })
   complaints: number;
 
+  @ApiProperty({
+    description:
+      'Программ пользователей ждут проверки: публикация, текст, свои теги',
+  })
+  programReviews: number;
+
   @ApiProperty()
   exercises: number;
 

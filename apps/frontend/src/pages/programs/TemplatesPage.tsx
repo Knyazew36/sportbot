@@ -4,9 +4,11 @@ import { useSearchParams } from 'react-router'
 import { useEffect, useState } from 'react'
 
 import {
+  type CatalogSource,
   SEARCH_PARAM,
   selectedTagIds,
   selectionFromParams,
+  SOURCE_PARAM,
   type TagSelection,
   useTemplates,
   useTemplateTagGroups,
@@ -19,23 +21,33 @@ import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Screen } from '@/shared/ui/kit/Screen'
 import { TopBar } from '@/shared/ui/kit/ScreenHeader'
+import { Segmented } from '@/shared/ui/kit/Segmented'
 import { Lead } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { TemplateFilter } from '@/widgets/template-filter/TemplateFilter'
 
 import { TemplateCard } from './components/TemplateCard'
 
-// Каталог программ: подбор под себя по группам тегов и поиску, «Взять» — копия у себя (frontend-tz, 10.2)
+const SOURCE_TABS: { value: CatalogSource; label: string }[] = [
+  { value: 'templates', label: 'Программы' },
+  { value: 'users', label: 'Программы пользователей' },
+]
+
+// Каталог программ: подбор под себя по группам тегов и поиску, «Взять» — копия у себя (frontend-tz, 10.2).
+// Второй таб — программы, которые опубликовали пользователи: пока без фильтров, новые сверху
 const TemplatesPage = () => {
   const groups = useTemplateTagGroups()
   const blank = useCreateBlankProgram()
-  // Фильтры в ссылке: выборку можно переслать и вернуть кнопкой «назад»
+  // Фильтры и таб в ссылке: выборку можно переслать и вернуть кнопкой «назад»
   const [params, setParams] = useSearchParams()
-  const selection = selectionFromParams(groups.data ?? [], params)
+  const source: CatalogSource = params.get(SOURCE_PARAM) === 'users' ? 'users' : 'templates'
+  const users = source === 'users'
+  const selection = users ? {} : selectionFromParams(groups.data ?? [], params)
   const [query, setQuery] = useState(params.get(SEARCH_PARAM) ?? '')
-  const search = useDebouncedValue(query.trim())
+  const debounced = useDebouncedValue(query.trim())
+  const search = users ? '' : debounced
   const filtered = Object.keys(selection).length > 0 || search !== ''
-  const templates = useTemplates({ tagIds: selectedTagIds(groups.data ?? [], selection), search })
+  const templates = useTemplates({ source, tagIds: selectedTagIds(groups.data ?? [], selection), search })
 
   // Поиск попадает в ссылку после паузы, как и в запрос — история не копит каждую букву
   useEffect(() => {
@@ -58,6 +70,12 @@ const TemplatesPage = () => {
     setParams({}, { replace: true })
   }
 
+  // Смена таба сбрасывает фильтры: у программ пользователей их пока нет
+  const switchSource = (next: CatalogSource) => {
+    setQuery('')
+    setParams(next === 'users' ? { [SOURCE_PARAM]: next } : {}, { replace: true })
+  }
+
   return (
     <Screen
       header={
@@ -71,37 +89,67 @@ const TemplatesPage = () => {
       }
       className='px-gutter gap-4'
     >
-      <Rise>
-        <Lead>подбери под себя</Lead>
-      </Rise>
-      <Rise>
-        <TemplateFilter
-          groups={groups.data ?? []}
-          selection={selection}
-          onSelectionChange={select}
-          search={query}
-          onSearchChange={setQuery}
+      <Rise className='-mx-gutter px-gutter no-scrollbar overflow-x-auto'>
+        <Segmented
+          options={SOURCE_TABS}
+          value={source}
+          onValueChange={switchSource}
+          className='w-max'
         />
       </Rise>
+      <Rise>
+        <Lead>{users ? 'собрали другие — бери и правь под себя' : 'подбери под себя'}</Lead>
+      </Rise>
+      {!users && (
+        <Rise>
+          <TemplateFilter
+            groups={groups.data ?? []}
+            selection={selection}
+            onSelectionChange={select}
+            search={query}
+            onSearchChange={setQuery}
+          />
+        </Rise>
+      )}
       <QueryScreen
         query={templates}
         className=''
         isEmpty={list => list.length === 0}
         empty={
-          filtered
+          users
             ? {
-                title: 'Ничего не нашлось',
-                description: 'Сбрось фильтры или собери программу сам.',
-                action: (
-                  <div className='flex flex-wrap justify-center gap-2'>
-                    <Button
-                      variant='outline'
-                      size='sm'
-                      onClick={reset}
-                    >
-                      <RotateCcwIcon />
-                      Сбросить фильтры
-                    </Button>
+                title: 'Пока пусто',
+                description: 'Опубликуй свою программу: в её редакторе — блок «Каталог».',
+              }
+            : filtered
+              ? {
+                  title: 'Ничего не нашлось',
+                  description: 'Сбрось фильтры или собери программу сам.',
+                  action: (
+                    <div className='flex flex-wrap justify-center gap-2'>
+                      <Button
+                        variant='outline'
+                        size='sm'
+                        onClick={reset}
+                      >
+                        <RotateCcwIcon />
+                        Сбросить фильтры
+                      </Button>
+                      <Button
+                        size='sm'
+                        disabled={blank.isPending}
+                        onClick={() => void blank.create()}
+                      >
+                        Собрать свою
+                        <ArrowRightIcon />
+                      </Button>
+                    </div>
+                  ),
+                }
+              : {
+                  title: 'Каталог пока пуст',
+                  description: 'Собери программу с нуля.',
+                  action: (
                     <Button
                       size='sm'
                       disabled={blank.isPending}
@@ -110,23 +158,8 @@ const TemplatesPage = () => {
                       Собрать свою
                       <ArrowRightIcon />
                     </Button>
-                  </div>
-                ),
-              }
-            : {
-                title: 'Каталог пока пуст',
-                description: 'Собери программу с нуля.',
-                action: (
-                  <Button
-                    size='sm'
-                    disabled={blank.isPending}
-                    onClick={() => void blank.create()}
-                  >
-                    Собрать свою
-                    <ArrowRightIcon />
-                  </Button>
-                ),
-              }
+                  ),
+                }
         }
       >
         {list =>
@@ -135,6 +168,7 @@ const TemplatesPage = () => {
               key={t.id}
               template={t}
               index={i}
+              source={source}
             />
           ))
         }

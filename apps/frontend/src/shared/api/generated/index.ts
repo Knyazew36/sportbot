@@ -1,5 +1,6 @@
 export * from './admin/admin';
 export * from './admin-catalog/admin-catalog';
+export * from './admin-program-reviews/admin-program-reviews';
 export * from './admin-program-tag-groups/admin-program-tag-groups';
 export * from './admin-program-tags/admin-program-tags';
 export * from './admin-templates/admin-templates';
