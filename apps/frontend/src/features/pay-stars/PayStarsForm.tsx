@@ -20,7 +20,7 @@ type PayStarsFormProps = {
   purpose: StarPaymentPurpose
   /** Готовые суммы; caption — повод под числом */
   presets?: StarsPreset[]
-  /** Текст кнопки перед суммой: «Передать 100 ⭐» */
+  /** Текст кнопки перед суммой: «Спасибо · 100 ⭐» */
   actionLabel?: string
   /** Звёзды списаны — потребитель показывает благодарность или открывает купленное */
   onPaid: (amount: number) => void
@@ -28,7 +28,7 @@ type PayStarsFormProps = {
 
 // Выбор суммы и оплата звёздами под любое назначение. Пресет кладёт число в то же поле, что и ручной ввод,
 // поэтому сумма одна и проверяется одной схемой. Вне Telegram звёзд нет — форма не рисуется
-export const PayStarsForm = ({ purpose, presets = DEFAULT_PRESETS, actionLabel = 'Передать', onPaid }: PayStarsFormProps) => {
+export const PayStarsForm = ({ purpose, presets = DEFAULT_PRESETS, actionLabel = 'Спасибо', onPaid }: PayStarsFormProps) => {
   const pay = usePayStars(purpose)
   const {
     register,
@@ -80,7 +80,8 @@ export const PayStarsForm = ({ purpose, presets = DEFAULT_PRESETS, actionLabel =
         size='lg'
         disabled={pay.isPending}
       >
-        {actionLabel} {/^\d+$/.test(amount.trim()) ? amount.trim() : ''}
+        {actionLabel}
+        {/^\d+$/.test(amount.trim()) && ` · ${amount.trim()}`}
         <StarIcon
           className='size-5 fill-current'
           strokeWidth={2.5}

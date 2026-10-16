@@ -5,7 +5,6 @@ import { ROUTES } from '@/shared/config/paths'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Screen } from '@/shared/ui/kit/Screen'
 import { TopBar } from '@/shared/ui/kit/ScreenHeader'
-import { Text } from '@/shared/ui/kit/Typography'
 
 import { ThanksHero } from './components/ThanksHero'
 import { ThanksPanel } from './components/ThanksPanel'
@@ -34,18 +33,12 @@ const SupportPage = () => {
     >
       <ThanksHero />
       {paid === null ? (
-        <Rise className='px-gutter flex flex-col gap-3'>
+        <Rise className='px-gutter'>
           <PayStarsForm
             purpose='donation'
             presets={PRESETS}
             onPaid={setPaid}
           />
-          <Text
-            size='2xs'
-            tone='muted'
-          >
-            Одно списание, без подписки. Ошиблись суммой — /paysupport в боте.
-          </Text>
         </Rise>
       ) : (
         <ThanksPanel amount={paid} />
