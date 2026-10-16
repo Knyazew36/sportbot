@@ -1,7 +1,14 @@
 import type { ComponentType } from 'react'
 
 import type { AppAction, AppSubject } from '@/entities/session'
+import LibraryPage from '@/pages/library/LibraryPage'
+import MePage from '@/pages/me/MePage'
 import NotFoundPage from '@/pages/not-found/NotFoundPage'
+import OnboardingPage from '@/pages/onboarding/OnboardingPage'
+import ProgramsPage from '@/pages/programs/ProgramsPage'
+import StatsPage from '@/pages/stats/StatsPage'
+import TodayPage from '@/pages/today/TodayPage'
+import WorkoutPage from '@/pages/workout/WorkoutPage'
 import { ROUTES } from '@/shared/config/paths'
 
 // Либо страница грузится сразу (Component), либо отдельным чанком при первом переходе (lazy)
@@ -44,21 +51,23 @@ export const guestRoutes: AppRoute[] = [
 ]
 
 // ── Mini App: внутри MiniappRoute (вход из бота, нижнее меню) ──────────────
+// Разделы нижнего меню, первый запуск и тренировка — в основном бандле: на них попадают сразу после входа,
+// переход не должен ждать чанк. Остальное — вложенные экраны, их догружаем по требованию
 export const miniappRoutes: AppRoute[] = [
-  { path: ROUTES.TODAY, lazy: () => import('@/pages/today/TodayPage') },
-  { path: ROUTES.PROGRAMS, lazy: () => import('@/pages/programs/ProgramsPage') },
+  { path: ROUTES.TODAY, Component: TodayPage },
+  { path: ROUTES.PROGRAMS, Component: ProgramsPage },
   { path: ROUTES.PROGRAM_TEMPLATES, lazy: () => import('@/pages/programs/TemplatesPage') },
   { path: ROUTES.PROGRAMS_MINE, lazy: () => import('@/pages/programs/MyProgramsPage') },
   { path: ROUTES.PROGRAM_TEMPLATE, lazy: () => import('@/pages/programs/TemplatePage') },
   { path: ROUTES.PROGRAM, lazy: () => import('@/pages/programs/ProgramEditorPage') },
   { path: ROUTES.PROGRAM_COMPLEX, lazy: () => import('@/pages/programs/ComplexPage') },
   { path: ROUTES.PROGRAM_ADD_EXERCISE, lazy: () => import('@/pages/programs/AddExercisePage') },
-  { path: ROUTES.LIBRARY, lazy: () => import('@/pages/library/LibraryPage') },
+  { path: ROUTES.LIBRARY, Component: LibraryPage },
   { path: ROUTES.EXERCISE, lazy: () => import('@/pages/library/ExercisePage') },
   { path: ROUTES.STRETCH, lazy: () => import('@/pages/library/StretchPage') },
-  { path: ROUTES.STATS, lazy: () => import('@/pages/stats/StatsPage') },
+  { path: ROUTES.STATS, Component: StatsPage },
   { path: ROUTES.STATS_MUSCLE, lazy: () => import('@/pages/stats-muscle/MuscleProgressPage') },
-  { path: ROUTES.ME, lazy: () => import('@/pages/me/MePage') },
+  { path: ROUTES.ME, Component: MePage },
   { path: ROUTES.ME_SECTION, lazy: () => import('@/pages/me/MeSectionPage') },
   { path: ROUTES.FRIEND, lazy: () => import('@/pages/friend/FriendPage') },
   { path: ROUTES.ADMIN, lazy: () => import('@/pages/admin/AdminPage') },
@@ -67,8 +76,8 @@ export const miniappRoutes: AppRoute[] = [
   { path: ROUTES.ADMIN_TEMPLATE, lazy: () => import('@/pages/admin/TemplateEditorPage') },
   { path: ROUTES.ADMIN_TEMPLATE_COMPLEX, lazy: () => import('@/pages/admin/TemplateComplexPage') },
   { path: ROUTES.ADMIN_TEMPLATE_ADD_EXERCISE, lazy: () => import('@/pages/admin/TemplateAddExercisePage') },
-  { path: ROUTES.ONBOARDING, lazy: () => import('@/pages/onboarding/OnboardingPage') },
-  { path: ROUTES.WORKOUT, lazy: () => import('@/pages/workout/WorkoutPage') },
+  { path: ROUTES.ONBOARDING, Component: OnboardingPage },
+  { path: ROUTES.WORKOUT, Component: WorkoutPage },
   { path: ROUTES.WORKOUT_REPLACE, lazy: () => import('@/pages/workout/ReplaceExercisePage') },
   { path: ROUTES.WORKOUT_SUMMARY, lazy: () => import('@/pages/workout/SummaryPage') },
   { path: ROUTES.WORKOUT_EDIT, lazy: () => import('@/pages/workout-edit/WorkoutEditPage') },

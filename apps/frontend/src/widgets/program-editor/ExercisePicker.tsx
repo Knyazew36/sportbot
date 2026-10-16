@@ -24,6 +24,7 @@ import { TopBar } from '@/shared/ui/kit/ScreenHeader'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { CatalogFilters } from '@/widgets/catalog/CatalogFilters'
 import { CatalogRow } from '@/widgets/catalog/CatalogRow'
+import { type CreatedExercise, ExerciseCreateSheet } from '@/widgets/catalog/ExerciseCreateSheet'
 
 const ALL = FILTER_ALL
 
@@ -52,6 +53,7 @@ export const ExercisePicker = ({ complex, back, adding, onAdd, exerciseHref }: E
   const muscle = params.get('muscle') ?? ALL
   const equipment = (params.get('equipment') as Equipment | null) ?? ALL
   const picked = params.get('picked')?.split(',').map(Number) ?? []
+  const [createOpen, setCreateOpen] = useState(false)
 
   // replace: история не копит шаг на каждую букву поиска
   const patch = (next: Record<string, string | undefined>) =>
@@ -87,6 +89,12 @@ export const ExercisePicker = ({ complex, back, adding, onAdd, exerciseHref }: E
   }
   const from = location.pathname + location.search
 
+  // Нужного нет в справочнике — создаём своё и сразу добавляем в комплекс вместе с уже выбранными
+  const addCreated = (created: CreatedExercise) => {
+    const ids = [...new Set([...picked, created.id])].filter(id => !present.has(id))
+    if (ids.length) onAdd(ids)
+  }
+
   return (
     <Screen
       header={
@@ -96,6 +104,15 @@ export const ExercisePicker = ({ complex, back, adding, onAdd, exerciseHref }: E
             back={back}
             title='Добавить упражнение'
             subtitle={complex ? `в «${complex.name}»` : undefined}
+            action={
+              <Button
+                size='sm'
+                onClick={() => setCreateOpen(true)}
+              >
+                <PlusIcon strokeWidth={2.5} />
+                Новое
+              </Button>
+            }
           />
           <div className='px-gutter pt-3 pb-3'>
             <CatalogFilters
@@ -180,6 +197,12 @@ export const ExercisePicker = ({ complex, back, adding, onAdd, exerciseHref }: E
           </Rise>
         )}
       </QueryScreen>
+
+      <ExerciseCreateSheet
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onCreated={addCreated}
+      />
     </Screen>
   )
 }
