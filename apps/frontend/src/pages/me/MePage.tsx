@@ -22,6 +22,7 @@ import { Eyebrow, Lead, Poster } from '@/shared/ui/kit/Typography'
 import { BodyWeightSection } from './components/BodyWeightSection'
 import { DeleteDataSection } from './components/DeleteDataSection'
 import { FriendsSection } from './components/FriendsSection'
+import { GenderField } from './components/GenderField'
 import { LimitsSection } from './components/LimitsSection'
 import { MessengersSection } from './components/MessengersSection'
 import { PauseSection } from './components/PauseSection'
@@ -101,6 +102,7 @@ const MePage = () => {
                 )}
               </div>
               <NameForm profile={p} />
+              <GenderField profile={p} />
             </Rise>
 
             <ScheduleSection profile={p} />
@@ -110,7 +112,7 @@ const MePage = () => {
             <BodyWeightSection profile={p} />
             <FriendsSection />
             <MessengersSection />
-            <ThemeSection profile={p} />
+            <ThemeSection />
             <DeleteDataSection />
           </>
         )}

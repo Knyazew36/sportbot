@@ -2,8 +2,10 @@ import type { ReactNode } from 'react'
 
 import { complexLetter, planText, type ProgramComplex } from '@/entities/program'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
-import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
+import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
+import { Poster, Text } from '@/shared/ui/kit/Typography'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'
+import { Spinner } from '@/shared/ui/shadcn/spinner'
 
 export type PreviewProgram = {
   name: string
@@ -16,11 +18,13 @@ type ProgramPreviewSheetProps = {
   onOpenChange: (open: boolean) => void
   note?: ReactNode
   action?: ReactNode
+  /** Состав ещё грузится: шторка уже открыта по строке списка, комплексы подъедут */
+  loading?: boolean
 }
 
 // Состав программы без ухода с экрана: шаблон на шаге онбординга, программа друга в его профиле.
 // Данные приносит вызывающий — шторка ничего не запрашивает
-export const ProgramPreviewSheet = ({ program, onOpenChange, note, action }: ProgramPreviewSheetProps) => (
+export const ProgramPreviewSheet = ({ program, onOpenChange, note, action, loading }: ProgramPreviewSheetProps) => (
   <Sheet
     open={program != null}
     onOpenChange={onOpenChange}
@@ -30,16 +34,27 @@ export const ProgramPreviewSheet = ({ program, onOpenChange, note, action }: Pro
         <SheetTitle>{program?.name ?? 'Программа'}</SheetTitle>
         <SheetDescription>{program?.description || 'Комплексы идут по очереди, по кругу.'}</SheetDescription>
       </SheetHeader>
-      <div className='px-gutter flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto pb-2'>
-        {program && program.complexes.length === 0 && <Text tone='muted'>Комплексов пока нет.</Text>}
-        {program?.complexes.map((c, i) => (
-          <section
-            key={c.id}
-            className='flex flex-col gap-1'
+      <div className='px-gutter flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto pb-2'>
+        {loading && (
+          <div
+            className='flex justify-center py-10'
+            aria-busy='true'
+            aria-label='Загрузка'
           >
-            <Eyebrow>
-              {complexLetter(i)} · {c.name}
-            </Eyebrow>
+            <Spinner className='text-smoke size-6' />
+          </div>
+        )}
+        {!loading && program && program.complexes.length === 0 && <Text tone='muted'>Комплексов пока нет.</Text>}
+        {program?.complexes.map((c, i) => (
+          // Дни идут подряд и однотипны — без жирной шапки сливаются в один список.
+          // Поля уже даёт шторка, поэтому у секции свои отключены
+          <ScreenSection
+            key={c.id}
+            variant='block'
+            className='px-0'
+            title={`${complexLetter(i)} · ${c.name}`}
+            aside={`${c.exercises.reduce((sum, e) => sum + e.sets, 0)} подходов`}
+          >
             <List>
               {c.exercises.map(e => (
                 <ListRow
@@ -58,7 +73,7 @@ export const ProgramPreviewSheet = ({ program, onOpenChange, note, action }: Pro
                 />
               ))}
             </List>
-          </section>
+          </ScreenSection>
         ))}
         {note && (
           <Text

@@ -4,7 +4,7 @@
 import { detectPlatform, getHashParam, LAUNCH_DATA_PARAM, type MiniappPlatform } from './detect-platform'
 import { devTelegramInitData } from './dev-launch'
 import { loadSdk, type SdkPlatform } from './load-sdk'
-import type { WebApp } from './webapp'
+import { paintMessengerChrome, type WebApp } from './webapp'
 
 export type { MiniappPlatform }
 export * from './webapp'
@@ -52,6 +52,10 @@ const initSdkPlatform = async (platform: SdkPlatform): Promise<Miniapp | null> =
   }
 
   const webApp = getWebApp(platform)
+  // Окно мессенджера — в цвет бумаги сразу, а не после монтирования React: иначе пока грузится бандл,
+  // вокруг и под приложением видна заливка темы мессенджера. Тему к этому моменту уже выставил index.html
+  const paper = getComputedStyle(document.documentElement).getPropertyValue('--sb-paper').trim()
+  if (paper) paintMessengerChrome(paper)
   webApp?.ready?.()
   if (platform === 'telegram' && webApp) openTelegramFullscreen(webApp)
   if (platform === 'max' && webApp) openMax(webApp)

@@ -18,6 +18,42 @@
         if (localStorage.getItem('sb-palette') === 'rose') document.documentElement.dataset.palette = 'rose'
       } catch (e) {}
     </script>
+    <!-- Тёмная тема до первого кадра: next-themes ставит .dark только после монтирования React,
+         до этого на тёмной теме мелькала светлая бумага. Логика выбора — use-messenger-theme.ts -->
+    <script>
+      ;(function () {
+        var read = function (key) {
+          try {
+            return localStorage.getItem(key)
+          } catch (e) {
+            return null
+          }
+        }
+        // Тема Telegram приходит в адресе раньше SDK: светлая или тёмная — по яркости фона
+        var fromTelegram = function () {
+          try {
+            var raw = new URLSearchParams(location.hash.slice(1)).get('tgWebAppThemeParams')
+            var bg = raw && JSON.parse(raw).bg_color
+            if (!/^#[0-9a-f]{6}$/i.test(bg || '')) return null
+            var n = parseInt(bg.slice(1), 16)
+            var luma = 0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)
+            return luma < 128 ? 'dark' : 'light'
+          } catch (e) {
+            return null
+          }
+        }
+        var choice = read('sb-theme-choice')
+        var stored = read('theme')
+        var theme =
+          choice === 'light' || choice === 'dark'
+            ? choice
+            : fromTelegram() || (stored === 'light' || stored === 'dark' ? stored : null)
+        if (!theme) theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        var root = document.documentElement
+        if (theme === 'dark') root.classList.add('dark')
+        root.style.colorScheme = theme
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>
