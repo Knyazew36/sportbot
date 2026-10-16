@@ -17,4 +17,9 @@ export interface ProgramExerciseResponseDto {
   sets: number;
   repsMin: number;
   repsMax: number;
+  /**
+     * Номер суперсета в комплексе; участники идут подряд
+     * @nullable
+     */
+  superset: number | null;
 }

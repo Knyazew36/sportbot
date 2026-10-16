@@ -3,6 +3,9 @@ import { Navigate, useNavigate, useSearchParams } from 'react-router'
 import { useEffect, useRef, useState } from 'react'
 
 import {
+  afterNewSet,
+  currentItem,
+  roundInfo,
   useCurrentWorkout,
   useDiscardWorkout,
   useFinishWorkout,
@@ -70,8 +73,7 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
   if (finishing) return <FinishPending />
 
   const items = workout.exercises
-  const fallback = items.find(e => !e.done) ?? items[0]
-  const item = items.find(e => e.id === pickedId) ?? fallback
+  const item = items.find(e => e.id === pickedId) ?? currentItem(items)
   const doneCount = items.filter(e => e.done).length
   const allDone = items.length > 0 && doneCount === items.length
 
@@ -107,6 +109,7 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
   const index = items.indexOf(item)
   const { settings } = workout
   const setNumber = item.sets.length + 1
+  const round = roundInfo(items, item)
 
   // Дальше — следующее несделанное по порядку, иначе первое несделанное. Пропуск ничего не отмечает:
   // упражнение без подходов остаётся несделанным и в итогах
@@ -154,10 +157,13 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
     stopwatch.start()
   }
 
+  // В суперсете после подхода сразу следующее упражнение круга; отдых — только когда круг замкнулся
   const onSaved = () => {
+    const step = afterNewSet(items, item.id)
     setEntryOpen(false)
     stopwatch.stop()
-    if (settings.showRestTimer && settings.restAutoStart) timer.start(settings.restSeconds)
+    setPickedId(step.nextId)
+    if (step.rest && settings.showRestTimer && settings.restAutoStart) timer.start(settings.restSeconds)
   }
 
   return (
@@ -223,7 +229,10 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
         }
         className='gap-6 px-gutter'
       >
-        <ExerciseCard item={item} />
+        <ExerciseCard
+          item={item}
+          round={round}
+        />
         <SetList
           item={item}
           onEdit={setEditing}
@@ -252,6 +261,7 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
             startedAt={workout.startedAt}
             nextSet={setNumber}
             plannedSets={item.plannedSets}
+            round={round}
             onToSet={startSet}
             onClose={timer.stop}
             planDone={planDone}

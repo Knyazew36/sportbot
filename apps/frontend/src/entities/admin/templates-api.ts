@@ -13,12 +13,19 @@ import {
   adminTemplatesControllerReorder,
   adminTemplatesControllerReorderComplexes,
   adminTemplatesControllerReorderItems,
+  adminTemplatesControllerUngroupItem,
+  adminTemplatesControllerUngroupSuperset,
   adminTemplatesControllerUpdate,
   adminTemplatesControllerUpdateComplex,
   adminTemplatesControllerUpdateItem,
   adminTemplatesControllerView,
 } from '@/shared/api/generated/admin-templates/admin-templates'
-import type { CreateTemplateDto, UpdateComplexExerciseDto, UpdateTemplateDto } from '@/shared/api/generated/model'
+import type {
+  AddComplexExercisesDto,
+  CreateTemplateDto,
+  UpdateComplexExerciseDto,
+  UpdateTemplateDto,
+} from '@/shared/api/generated/model'
 
 export const adminTemplateKeys = {
   all: ['admin-templates'] as const,
@@ -161,9 +168,28 @@ export const useReorderTemplateComplexes = () => {
 export const useAddTemplateExercises = () => {
   const apply = useApplyTemplate()
   return useMutation({
-    mutationFn: ({ complexId, exerciseIds }: { complexId: number; exerciseIds: number[] }) =>
-      adminTemplatesControllerAddExercises(complexId, { exerciseIds }),
+    mutationFn: ({ complexId, ...dto }: AddComplexExercisesDto & { complexId: number }) =>
+      adminTemplatesControllerAddExercises(complexId, dto),
     meta: { successMessage: 'Упражнения добавлены' },
+    onSuccess: apply,
+  })
+}
+
+export const useUngroupTemplateExercise = () => {
+  const apply = useApplyTemplate()
+  return useMutation({
+    mutationFn: (id: number) => adminTemplatesControllerUngroupItem(id),
+    meta: { successMessage: 'Упражнение вынесено из суперсета' },
+    onSuccess: apply,
+  })
+}
+
+export const useUngroupTemplateSuperset = () => {
+  const apply = useApplyTemplate()
+  return useMutation({
+    mutationFn: ({ complexId, superset }: { complexId: number; superset: number }) =>
+      adminTemplatesControllerUngroupSuperset(complexId, { superset }),
+    meta: { successMessage: 'Суперсет разгруппирован' },
     onSuccess: apply,
   })
 }

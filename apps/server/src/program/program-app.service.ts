@@ -18,6 +18,7 @@ import {
 } from '@/program-tag/program-tag.service';
 
 import { COMPLEXES_INCLUDE, toComplexesDto } from './program-complexes';
+import { AddComplexExercisesDto } from './dto/add-complex-exercises.dto';
 import { ProgramListItemResponseDto } from './dto/program-list-item.response.dto';
 import { ProgramResponseDto } from './dto/program.response.dto';
 import { TemplatesQueryDto } from './dto/templates-query.dto';
@@ -460,20 +461,36 @@ export class ProgramAppService {
 
   // ── Упражнения комплекса ────────────────────────────────────────────────
 
-  /** Подбор из справочника: несколько упражнений сразу; уже стоящие в комплексе пропускаются. */
   public async addExercises(
     owner: ProgramOwner,
     complexId: number,
-    exerciseIds: number[],
+    dto: AddComplexExercisesDto,
   ) {
-    const complex = await this.programs.findComplex(owner, complexId);
-    const present = new Set(complex.exercises.map((e) => e.exerciseId));
-    const fresh = [...new Set(exerciseIds)].filter((id) => !present.has(id));
-    if (!fresh.length)
-      throw new BadRequestException('Эти упражнения уже есть в комплексе.');
-    for (const exerciseId of fresh)
-      await this.programs.addExercise(owner, complexId, exerciseId);
-    return this.view(owner, complex.programId);
+    const programId = await this.programs.addExercises(
+      owner,
+      complexId,
+      dto.exerciseIds,
+      { joinItemId: dto.joinItemId, newSuperset: dto.newSuperset },
+    );
+    return this.view(owner, programId);
+  }
+
+  public async ungroupItem(owner: ProgramOwner, itemId: number) {
+    const programId = await this.programs.ungroupItem(owner, itemId);
+    return this.view(owner, programId);
+  }
+
+  public async ungroupSuperset(
+    owner: ProgramOwner,
+    complexId: number,
+    superset: number,
+  ) {
+    const programId = await this.programs.ungroupSuperset(
+      owner,
+      complexId,
+      superset,
+    );
+    return this.view(owner, programId);
   }
 
   public async updateItem(

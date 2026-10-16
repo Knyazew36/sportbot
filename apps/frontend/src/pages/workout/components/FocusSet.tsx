@@ -3,6 +3,7 @@ import { CheckIcon, PauseIcon, PlayIcon, TimerResetIcon, XIcon } from 'lucide-re
 import { formatSeconds } from '@/shared/lib/hooks/use-deadline-timer'
 import type { useStopwatch } from '@/shared/lib/hooks/use-stopwatch'
 import { cn } from '@/shared/lib/utils'
+import { haptic } from '@/shared/miniapp'
 import { Ring } from '@/shared/ui/kit/Ring'
 import { Digits, Poster } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
@@ -90,7 +91,11 @@ export const FocusSet = ({ stopwatch, title, startedAt, setNumber, plannedSets, 
       />
       <button
         type='button'
-        onClick={stopwatch.paused ? stopwatch.resume : stopwatch.pause}
+        onClick={() => {
+          haptic.tap()
+          if (stopwatch.paused) stopwatch.resume()
+          else stopwatch.pause()
+        }}
         aria-label={stopwatch.paused ? 'Продолжить подход' : 'Поставить подход на паузу'}
         className={cn(
           'focus-visible:ring-ring/25 absolute inset-[14%] flex flex-col items-center justify-center rounded-full outline-none transition-[scale,background-color] duration-100 focus-visible:ring-4 active:scale-95',

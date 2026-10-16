@@ -7,6 +7,8 @@ import type { StatusMeta } from '@/shared/ui/kit/StatusBadge'
 
 import type { CatalogSource, Program, ProgramTagGroup } from './api'
 
+export { supersetLabels, supersetLetter } from '@/shared/lib/superset'
+
 export type ProgramTag = ProgramTagResponseDto
 
 /** Выбор в рядах чипов: код группы → код тега; группы без выбора в объекте нет */
@@ -43,6 +45,44 @@ export const selectedTagIds = (groups: ProgramTagGroup[], selection: TagSelectio
 
 /** Буква комплекса по месту в очереди: A, B, C… */
 export const complexLetter = (index: number): string => String.fromCharCode(65 + (index % 26))
+
+/** Упражнение одиночное или суперсет: подряд идущие участники с одним номером */
+export type ExerciseBlock<T> = {
+  /** Ключ для React и перетаскивания: s<номер> у суперсета, e<id> у одиночного */
+  key: string
+  superset: number | null
+  items: T[]
+}
+
+/** Плоский список упражнений → блоки по порядку */
+export const toBlocks = <T extends { id: number; superset: number | null }>(items: T[]): ExerciseBlock<T>[] => {
+  const blocks: ExerciseBlock<T>[] = []
+  for (const item of items) {
+    const last = blocks.at(-1)
+    if (last && item.superset !== null && last.superset === item.superset) last.items.push(item)
+    else blocks.push({ key: item.superset === null ? `e${item.id}` : `s${item.superset}`, superset: item.superset, items: [item] })
+  }
+  return blocks
+}
+
+/** Куда добавить выбранные упражнения: к суперсету упражнения или новым суперсетом */
+export type SupersetTarget = { joinItemId?: number; newSuperset?: boolean }
+
+const JOIN_PARAM = 'join'
+const NEW_SUPERSET_PARAM = 'superset'
+
+/** Ссылка на подбор упражнений с целью-суперсетом; без цели — обычное добавление в конец */
+export const withSupersetTarget = (path: string, target?: SupersetTarget): string => {
+  if (target?.joinItemId) return `${path}?${JOIN_PARAM}=${target.joinItemId}`
+  if (target?.newSuperset) return `${path}?${NEW_SUPERSET_PARAM}=new`
+  return path
+}
+
+export const supersetTargetFromParams = (params: URLSearchParams): SupersetTarget => {
+  const join = Number(params.get(JOIN_PARAM))
+  if (join) return { joinItemId: join }
+  return params.get(NEW_SUPERSET_PARAM) === 'new' ? { newSuperset: true } : {}
+}
 
 /** План подходов: «3 × 8–12» или «3 × 10» */
 export const planText = (sets: number, repsMin: number, repsMax: number): string =>

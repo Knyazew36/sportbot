@@ -297,6 +297,7 @@ export class DayService {
         sets: item.sets,
         repsMin: item.repsMin,
         repsMax: item.repsMax,
+        superset: item.superset,
         limitedZones: item.exercise.joints
           .filter((j) => limited.has(j.jointId))
           .map((j) => j.joint.name.toLowerCase()),

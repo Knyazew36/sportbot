@@ -33,6 +33,7 @@ const Protocol = ({ workoutId }: { workoutId: number }) => {
             {w.exercises.map(e => (
               <ListRow
                 key={e.id}
+                linked={e.superset !== null}
                 lead={
                   e.done ? (
                     <CheckIcon

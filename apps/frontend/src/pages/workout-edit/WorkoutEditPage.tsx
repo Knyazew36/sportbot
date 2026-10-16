@@ -4,6 +4,7 @@ import { useParams } from 'react-router'
 import { useQueuedWorkout, useWorkout, type WorkoutSet } from '@/entities/workout'
 import { ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
+import { supersetLabels } from '@/shared/lib/superset'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Screen } from '@/shared/ui/kit/Screen'
 import { TopBar } from '@/shared/ui/kit/ScreenHeader'
@@ -44,10 +45,11 @@ const WorkoutEditPage = () => {
             >
               Нажми на карандаш, чтобы исправить или удалить подход. Забытый подход допиши под списком.
             </Text>
-            {queued.workout?.exercises.map(item => (
+            {queued.workout?.exercises.map((item, i, all) => (
               <ScreenSection
                 key={item.id}
                 title={item.name}
+                aside={item.superset !== null ? `суперсет ${supersetLabels(all)[i]}` : undefined}
               >
                 <SetList
                   item={item}

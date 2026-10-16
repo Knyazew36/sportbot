@@ -12,6 +12,7 @@ export const ResultExercises = ({ workout }: { workout: SharedWorkout }) => (
       {workout.exercises.map((e, index) => (
         <ListRow
           key={index}
+          linked={e.superset !== null}
           lead={
             e.done ? (
               <CheckIcon

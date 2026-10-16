@@ -51,6 +51,13 @@ export class WorkoutItemResponseDto {
   repsMax: number;
 
   @ApiProperty({
+    type: Number,
+    nullable: true,
+    description: 'Номер суперсета: участники идут подряд и делаются по кругу',
+  })
+  superset: number | null;
+
+  @ApiProperty({
     type: [String],
     description: 'Зоны с активным ограничением, которые нагружает упражнение',
   })

@@ -274,6 +274,7 @@ export class StatsAppService {
           name: e.exercise.name,
           done: e.done,
           sets: e.sets.map((s) => ({ weight: Number(s.weight), reps: s.reps })),
+          superset: e.superset,
         })),
       })),
     };

@@ -15,6 +15,7 @@ import { AddComplexExercisesDto } from '@/program/dto/add-complex-exercises.dto'
 import { CreateComplexDto } from '@/program/dto/create-complex.dto';
 import { ProgramResponseDto } from '@/program/dto/program.response.dto';
 import { ReorderDto } from '@/program/dto/reorder.dto';
+import { UngroupSupersetDto } from '@/program/dto/ungroup-superset.dto';
 import { UpdateComplexExerciseDto } from '@/program/dto/update-complex-exercise.dto';
 import { UpdateComplexDto } from '@/program/dto/update-complex.dto';
 import { ProgramAppService } from '@/program/program-app.service';
@@ -177,7 +178,37 @@ export class AdminTemplatesController {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: AddComplexExercisesDto,
   ) {
-    return this.programAppService.addExercises(TEMPLATES, id, dto.exerciseIds);
+    return this.programAppService.addExercises(TEMPLATES, id, dto);
+  }
+
+  @Post('complex/:id/superset/ungroup')
+  @Swagger({
+    title: 'Разгруппировать суперсет комплекса шаблона',
+    param: ID_PARAM,
+    body: UngroupSupersetDto,
+    response: ProgramResponseDto,
+    bearerAuth: true,
+  })
+  public ungroupSuperset(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UngroupSupersetDto,
+  ) {
+    return this.programAppService.ungroupSuperset(
+      TEMPLATES,
+      id,
+      dto.superset,
+    );
+  }
+
+  @Post('exercise/ungroup/:id')
+  @Swagger({
+    title: 'Вынести упражнение шаблона из суперсета',
+    param: ID_PARAM,
+    response: ProgramResponseDto,
+    bearerAuth: true,
+  })
+  public ungroupItem(@Param('id', ParseIntPipe) id: number) {
+    return this.programAppService.ungroupItem(TEMPLATES, id);
   }
 
   @Post('complex/:id/exercise/reorder')

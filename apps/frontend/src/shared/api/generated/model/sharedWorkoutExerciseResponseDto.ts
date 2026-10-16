@@ -11,4 +11,9 @@ export interface SharedWorkoutExerciseResponseDto {
   /** Сделано: записан подход или нажато «Готово» */
   done: boolean;
   sets: SharedWorkoutSetResponseDto[];
+  /**
+     * Номер суперсета: участники идут подряд и делаются по кругу
+     * @nullable
+     */
+  superset: number | null;
 }

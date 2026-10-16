@@ -906,6 +906,8 @@ model ComplexExercise {
   sets     Int
   repsMin  Int
   repsMax  Int
+  /// Номер суперсета внутри комплекса: участники идут подряд по position, их не меньше двух. null — одиночное.
+  superset Int?
 
   @@index([complexId, position])
   @@index([exerciseId])
@@ -1027,6 +1029,8 @@ model WorkoutExercise {
   plannedSets Int
   repsMin     Int
   repsMax     Int
+  /// Снимок суперсета комплекса на старте: участники выполняются по кругу, отдых — после круга.
+  superset    Int?
 
   /// Упражнение комплекса, вместо которого сделано это (замена «только сегодня» или «в комплексе»).
   replacedExerciseId Int?

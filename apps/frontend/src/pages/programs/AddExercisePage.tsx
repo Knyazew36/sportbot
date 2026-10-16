@@ -1,6 +1,6 @@
-import { useNavigate, useParams } from 'react-router'
+import { useNavigate, useParams, useSearchParams } from 'react-router'
 
-import { useAddComplexExercises, useProgram } from '@/entities/program'
+import { supersetTargetFromParams, useAddComplexExercises, useProgram } from '@/entities/program'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { ExercisePicker } from '@/widgets/program-editor/ExercisePicker'
 
@@ -10,6 +10,8 @@ const AddExercisePage = () => {
   const programId = Number(params.programId)
   const complexId = Number(params.complexId)
   const navigate = useNavigate()
+  const [search] = useSearchParams()
+  const target = supersetTargetFromParams(search)
   const program = useProgram(programId)
   const add = useAddComplexExercises()
   const back = buildPath(ROUTES.PROGRAM_COMPLEX, { programId, complexId })
@@ -18,9 +20,10 @@ const AddExercisePage = () => {
     <ExercisePicker
       complex={program.data?.complexes.find(c => c.id === complexId)}
       back={back}
+      target={target}
       adding={add.isPending}
       onAdd={exerciseIds =>
-        add.mutate({ complexId, exerciseIds }, { onSuccess: () => navigate(back, { replace: true }) })
+        add.mutate({ complexId, exerciseIds, ...target }, { onSuccess: () => navigate(back, { replace: true }) })
       }
     />
   )

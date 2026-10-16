@@ -1,5 +1,6 @@
 import { ArrowRightIcon, PlayIcon, PlusIcon } from 'lucide-react'
 
+import type { RoundInfo } from '@/entities/workout'
 import { formatSeconds, type useDeadlineTimer } from '@/shared/lib/hooks/use-deadline-timer'
 import { Ring } from '@/shared/ui/kit/Ring'
 import { Digits, Eyebrow, Poster } from '@/shared/ui/kit/Typography'
@@ -14,6 +15,8 @@ type FocusRestProps = {
   startedAt: string
   nextSet: number
   plannedSets: number
+  /** Суперсет: отдых между кругами, дальше — упражнение, с которого круг начинается */
+  round: RoundInfo | null
   /** Отдых закончен или пропущен — сразу следующий подход */
   onToSet: () => void
   /** Подходов больше не будет — к экрану упражнения */
@@ -25,7 +28,19 @@ type FocusRestProps = {
 }
 
 // Отдых между подходами (frontend-tz, 8.3): обратный отсчёт на весь экран, «+30 с», «К подходу»
-export const FocusRest = ({ timer, title, startedAt, nextSet, plannedSets, onToSet, onClose, planDone, next, onNext }: FocusRestProps) => {
+export const FocusRest = ({
+  timer,
+  title,
+  startedAt,
+  nextSet,
+  plannedSets,
+  round,
+  onToSet,
+  onClose,
+  planDone,
+  next,
+  onNext,
+}: FocusRestProps) => {
   const over = timer.left <= 0
   // total растёт с каждым «+30 с», поэтому прошедшее считаем от него: видно, сколько отдыхали всего, с добавками
   const rested = Math.max(0, timer.total - timer.left)
@@ -33,7 +48,15 @@ export const FocusRest = ({ timer, title, startedAt, nextSet, plannedSets, onToS
     <FocusShell
       title={title}
       startedAt={startedAt}
-      status={over ? 'отдых закончился' : planDone ? 'отдых · план выполнен' : 'отдых · дальше подход'}
+      status={
+        over
+          ? 'отдых закончился'
+          : planDone
+            ? 'отдых · план выполнен'
+            : round
+              ? `суперсет ${round.letter} · дальше круг ${round.round} из ${round.rounds}`
+              : 'отдых · дальше подход'
+      }
       alert={over}
       // План выполнен — на табло сделанное «3/3», а не несуществующий четвёртый подход
       sets={{ number: planDone ? nextSet - 1 : nextSet, done: nextSet - 1, planned: plannedSets }}

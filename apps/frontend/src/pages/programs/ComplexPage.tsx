@@ -8,6 +8,8 @@ import {
   useProgram,
   useRenameComplex,
   useReorderComplexExercises,
+  useUngroupComplexExercise,
+  useUngroupSuperset,
   useUpdateComplexExercise,
 } from '@/entities/program'
 import { buildPath, ROUTES } from '@/shared/config/paths'
@@ -25,6 +27,8 @@ const useComplexActions = (onDeleted: () => void) => {
   const updateExercise = useUpdateComplexExercise()
   const deleteExercise = useDeleteComplexExercise()
   const reorderExercises = useReorderComplexExercises()
+  const ungroupExercise = useUngroupComplexExercise()
+  const ungroupSuperset = useUngroupSuperset()
 
   const actions: ComplexActions = {
     renameComplex: (id, name) => renameComplex.mutateAsync({ id, name }),
@@ -32,6 +36,8 @@ const useComplexActions = (onDeleted: () => void) => {
     updateExercise: (id, plan) => updateExercise.mutateAsync({ id, ...plan }),
     deleteExercise: id => deleteExercise.mutate(id),
     reorderExercises: (complexId, ids) => reorderExercises.mutate({ complexId, ids }),
+    ungroupExercise: id => ungroupExercise.mutate(id),
+    ungroupSuperset: (complexId, superset) => ungroupSuperset.mutate({ complexId, superset }),
   }
 
   const pick = (program: Program, complexId: number) => {

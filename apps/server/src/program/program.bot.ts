@@ -25,6 +25,7 @@ import {
   exercisesCount,
   planText,
 } from './program.texts';
+import { supersetMark } from './superset';
 
 /** Программы и комплексы: создание с шаблона и с нуля, редактор, активная программа. */
 @Injectable()
@@ -378,7 +379,7 @@ export class ProgramBot implements BotFeature {
     const complex = await this.programs.findComplex(ctx.user.id, complexId);
     const lines = complex.exercises.map(
       (item, index) =>
-        `${index + 1}. ${item.exercise.name} — ${planText(item.sets, item.repsMin, item.repsMax)}`,
+        `${index + 1}. ${supersetMark(item.superset)}${item.exercise.name} — ${planText(item.sets, item.repsMin, item.repsMax)}`,
     );
     const cardio = cardioText(complex);
     return msg(

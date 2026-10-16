@@ -12,6 +12,8 @@ import {
   PROGRAM_TAG_SELECT,
 } from '@/program-tag/program-tag.service';
 
+import { normalizeSupersets, SupersetSlot } from './superset';
+
 type Tx = Prisma.TransactionClient;
 
 export const PROGRAM_INCLUDE = {
@@ -458,6 +460,124 @@ export class ProgramService {
     );
   }
 
+  /**
+   * Подбор из справочника: несколько упражнений сразу, уже стоящие в комплексе пропускаются.
+   * joinItemId — встать в суперсет этого упражнения сразу за его участниками,
+   * newSuperset — собрать выбранные в новый суперсет в конце комплекса.
+   * @returns id программы.
+   */
+  public async addExercises(
+    owner: ProgramOwner,
+    complexId: number,
+    exerciseIds: number[],
+    target: { joinItemId?: number; newSuperset?: boolean } = {},
+  ): Promise<number> {
+    const complex = await this.findComplex(owner, complexId);
+    const present = new Set(complex.exercises.map((e) => e.exerciseId));
+    const fresh = [...new Set(exerciseIds)].filter((id) => !present.has(id));
+    if (!fresh.length)
+      throw new BadRequestException('Эти упражнения уже есть в комплексе.');
+    if (target.newSuperset && fresh.length < 2)
+      throw new BadRequestException(
+        'Для суперсета выбери хотя бы два новых упражнения.',
+      );
+    const visible = await this.prisma.exercise.count({
+      where: { id: { in: fresh }, ...visibleExercise(owner) },
+    });
+    if (visible !== fresh.length)
+      throw new NotFoundException('Упражнение не найдено.');
+
+    const order: SupersetSlot[] = complex.exercises.map((e) => ({
+      id: e.id,
+      superset: e.superset,
+    }));
+    // Номер больше всех: applyOrder всё равно перенумерует суперсеты сверху вниз
+    const newNo = Math.max(0, ...order.map((e) => e.superset ?? 0)) + 1;
+    let insertAt = order.length;
+    let superset: number | null = target.newSuperset ? newNo : null;
+    if (target.joinItemId !== undefined) {
+      const anchorIndex = order.findIndex((e) => e.id === target.joinItemId);
+      if (anchorIndex < 0)
+        throw new NotFoundException('Упражнение комплекса не найдено.');
+      const anchor = order[anchorIndex];
+      anchor.superset ??= newNo;
+      superset = anchor.superset;
+      insertAt = anchorIndex + 1;
+      while (order[insertAt]?.superset === superset) insertAt++;
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      const created: SupersetSlot[] = [];
+      for (const exerciseId of fresh) {
+        const item = await tx.complexExercise.create({
+          data: { complexId, exerciseId, position: 0, ...DEFAULT_PLAN },
+          select: { id: true },
+        });
+        created.push({ id: item.id, superset });
+      }
+      order.splice(insertAt, 0, ...created);
+      await this.applyOrder(tx, complex.exercises, order);
+    });
+    await this.touch(complex.programId);
+    this.logger.log(
+      `Упражнения добавлены в комплекс: complexId=${complexId}, exerciseIds=[${fresh.join(',')}], суперсет=${superset ?? 'нет'}`,
+    );
+    return complex.programId;
+  }
+
+  /** Вынести упражнение из суперсета: встаёт сразу за блоком. @returns id программы. */
+  public async ungroupItem(
+    owner: ProgramOwner,
+    itemId: number,
+  ): Promise<number> {
+    const item = await this.findItem(owner, itemId);
+    if (item.superset === null)
+      throw new BadRequestException('Упражнение не в суперсете.');
+    const siblings = await this.prisma.complexExercise.findMany({
+      where: { complexId: item.complexId },
+      orderBy: { position: 'asc' },
+    });
+    const order: SupersetSlot[] = siblings
+      .filter((e) => e.id !== itemId)
+      .map((e) => ({ id: e.id, superset: e.superset }));
+    const lastMember = order.findLastIndex((e) => e.superset === item.superset);
+    order.splice(lastMember + 1, 0, { id: itemId, superset: null });
+    await this.prisma.$transaction((tx) =>
+      this.applyOrder(tx, siblings, order),
+    );
+    await this.touch(item.complex.programId);
+    this.logger.log(
+      `Упражнение вынесено из суперсета: itemId=${itemId}, complexId=${item.complexId}, суперсет=${item.superset}`,
+    );
+    return item.complex.programId;
+  }
+
+  /** Разгруппировать суперсет целиком: упражнения остаются на своих местах. @returns id программы. */
+  public async ungroupSuperset(
+    owner: ProgramOwner,
+    complexId: number,
+    superset: number,
+  ): Promise<number> {
+    const complex = await this.findComplex(owner, complexId);
+    if (!complex.exercises.some((e) => e.superset === superset))
+      throw new NotFoundException('Суперсет не найден.');
+    await this.prisma.$transaction((tx) =>
+      this.applyOrder(
+        tx,
+        complex.exercises,
+        complex.exercises.map((e) => ({
+          id: e.id,
+          superset: e.superset === superset ? null : e.superset,
+        })),
+      ),
+    );
+    await this.touch(complex.programId);
+    this.logger.log(
+      `Суперсет разгруппирован: complexId=${complexId}, суперсет=${superset}`,
+    );
+    return complex.programId;
+  }
+
   public async findItem(owner: ProgramOwner, itemId: number) {
     const item = await this.prisma.complexExercise.findFirst({
       where: { id: itemId, complex: { program: ownerWhere(owner) } },
@@ -473,7 +593,11 @@ export class ProgramService {
     itemId: number,
   ): Promise<number> {
     const item = await this.findItem(owner, itemId);
-    await this.prisma.complexExercise.delete({ where: { id: itemId } });
+    await this.prisma.$transaction(async (tx) => {
+      await tx.complexExercise.delete({ where: { id: itemId } });
+      // Из суперсета на двоих остаётся одиночное упражнение
+      if (item.superset !== null) await this.normalize(tx, item.complexId);
+    });
     await this.touch(item.complex.programId);
     this.logger.log(`Упражнение убрано из комплекса: itemId=${itemId}`);
     return item.complexId;
@@ -492,6 +616,8 @@ export class ProgramService {
     await this.swap(siblings, itemId, direction, (id, position) =>
       this.prisma.complexExercise.update({ where: { id }, data: { position } }),
     );
+    // В боте суперсеты не собирают: шаг за границу блока выводит упражнение из группы
+    await this.prisma.$transaction((tx) => this.normalize(tx, item.complexId));
     await this.touch(item.complex.programId);
     return item.complexId;
   }
@@ -625,12 +751,14 @@ export class ProgramService {
       complex.exercises.map((e) => e.id),
       ids,
     );
-    await this.prisma.$transaction(
-      ids.map((id, index) =>
-        this.prisma.complexExercise.update({
-          where: { id },
-          data: { position: index + 1 },
-        }),
+    const supersets = new Map(
+      complex.exercises.map((e) => [e.id, e.superset]),
+    );
+    await this.prisma.$transaction((tx) =>
+      this.applyOrder(
+        tx,
+        complex.exercises,
+        ids.map((id) => ({ id, superset: supersets.get(id) ?? null })),
       ),
     );
     await this.touch(complex.programId);
@@ -804,9 +932,38 @@ export class ProgramService {
             sets: item.sets,
             repsMin: item.repsMin,
             repsMax: item.repsMax,
+            superset: item.superset,
           },
         });
       }
+    }
+  }
+
+  /** Тот же порядок упражнений комплекса, только с починкой суперсетов. */
+  private async normalize(tx: Tx, complexId: number): Promise<void> {
+    const items = await tx.complexExercise.findMany({
+      where: { complexId },
+      orderBy: { position: 'asc' },
+    });
+    await this.applyOrder(tx, items, items);
+  }
+
+  /** Пишет позиции 1..n и исправленные суперсеты; строки без изменений не трогает. */
+  private async applyOrder(
+    tx: Tx,
+    current: { id: number; position: number; superset: number | null }[],
+    order: SupersetSlot[],
+  ): Promise<void> {
+    const before = new Map(current.map((e) => [e.id, e]));
+    for (const [index, item] of normalizeSupersets(order).entries()) {
+      const position = index + 1;
+      const old = before.get(item.id);
+      if (old?.position === position && old.superset === item.superset)
+        continue;
+      await tx.complexExercise.update({
+        where: { id: item.id },
+        data: { position, superset: item.superset },
+      });
     }
   }
 

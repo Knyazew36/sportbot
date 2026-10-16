@@ -2,6 +2,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 
 import { dayKeys } from '@/entities/day'
 import type {
+  AddComplexExercisesDto,
   ProgramListItemResponseDto,
   ProgramResponseDto,
   ProgramTagGroupResponseDto,
@@ -25,6 +26,8 @@ import {
   programControllerTagGroups,
   programControllerTake,
   programControllerTemplates,
+  programControllerUngroupItem,
+  programControllerUngroupSuperset,
   programControllerUnpublish,
   programControllerUpdate,
   programControllerUpdateComplex,
@@ -281,9 +284,28 @@ export const useReorderComplexes = () => {
 export const useAddComplexExercises = () => {
   const apply = useApplyProgram()
   return useMutation({
-    mutationFn: ({ complexId, exerciseIds }: { complexId: number; exerciseIds: number[] }) =>
-      programControllerAddExercises(complexId, { exerciseIds }),
+    mutationFn: ({ complexId, ...dto }: AddComplexExercisesDto & { complexId: number }) =>
+      programControllerAddExercises(complexId, dto),
     meta: { successMessage: 'Упражнения добавлены' },
+    onSuccess: apply,
+  })
+}
+
+export const useUngroupComplexExercise = () => {
+  const apply = useApplyProgram()
+  return useMutation({
+    mutationFn: (id: number) => programControllerUngroupItem(id),
+    meta: { successMessage: 'Упражнение вынесено из суперсета' },
+    onSuccess: apply,
+  })
+}
+
+export const useUngroupSuperset = () => {
+  const apply = useApplyProgram()
+  return useMutation({
+    mutationFn: ({ complexId, superset }: { complexId: number; superset: number }) =>
+      programControllerUngroupSuperset(complexId, { superset }),
+    meta: { successMessage: 'Суперсет разгруппирован' },
     onSuccess: apply,
   })
 }

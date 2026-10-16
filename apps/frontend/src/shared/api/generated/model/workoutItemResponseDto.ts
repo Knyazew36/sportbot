@@ -34,6 +34,11 @@ export interface WorkoutItemResponseDto {
   plannedSets: number;
   repsMin: number;
   repsMax: number;
+  /**
+     * Номер суперсета: участники идут подряд и делаются по кругу
+     * @nullable
+     */
+  superset: number | null;
   /** Зоны с активным ограничением, которые нагружает упражнение */
   limitedZones: string[];
   sets: WorkoutSetResponseDto[];

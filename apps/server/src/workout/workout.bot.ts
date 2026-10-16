@@ -12,6 +12,7 @@ import {
   msg,
 } from '@/bot';
 
+import { afterSet } from './superset-round';
 import { swapChoiceMessage } from './swap.texts';
 import { WorkoutFlow } from './workout-flow.service';
 import { WorkoutShareService } from './workout-share.service';
@@ -150,7 +151,9 @@ export class WorkoutBot implements BotFeature {
       ctx.text ?? '',
     );
     const workout = await this.workouts.find(ctx.user.id, workoutId);
-    await ctx.reply(await this.flow.show(ctx, workout, itemId));
+    // В суперсете следующий подход — у следующего упражнения круга
+    const { nextId } = afterSet(workout.exercises, itemId);
+    await ctx.reply(await this.flow.show(ctx, workout, nextId));
   }
 
   // ── Переход между упражнениями ─────────────────────────────────────────

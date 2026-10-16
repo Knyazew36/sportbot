@@ -120,6 +120,7 @@ export class WorkoutShareService {
           weight: Number(s.weight),
           reps: s.reps,
         })),
+        superset: item.superset,
       })),
     };
   }

@@ -11,4 +11,11 @@ export class SharedWorkoutExerciseResponseDto {
 
   @ApiProperty({ type: [SharedWorkoutSetResponseDto] })
   sets: SharedWorkoutSetResponseDto[];
+
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    description: 'Номер суперсета: участники идут подряд и делаются по кругу',
+  })
+  superset: number | null;
 }

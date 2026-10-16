@@ -42,5 +42,6 @@ export const toComplexesDto = (
       sets: item.sets,
       repsMin: item.repsMin,
       repsMax: item.repsMax,
+      superset: item.superset,
     })),
   }));

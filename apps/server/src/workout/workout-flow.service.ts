@@ -15,6 +15,7 @@ import { PlanDayService } from '@/plan/plan-day.service';
 import { ProgramService } from '@/program/program.service';
 import { exercisesCount } from '@/program/program.texts';
 
+import { currentItem } from './superset-round';
 import {
   countedMessage,
   finishedMessage,
@@ -137,8 +138,7 @@ export class WorkoutFlow {
     const limited = await this.limitations.activeJointIds(ctx.profile);
     const item =
       workout.exercises.find((e) => e.id === itemId) ??
-      workout.exercises.find((e) => !isDone(e)) ??
-      workout.exercises.at(-1);
+      currentItem(workout.exercises);
     if (!item)
       return msg(`В тренировке «${workout.complexName}» нет упражнений.`, [
         [btn('Отменить тренировку', `wo:cancel:${workout.id}`)],

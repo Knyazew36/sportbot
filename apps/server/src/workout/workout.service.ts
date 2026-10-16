@@ -684,6 +684,7 @@ export class WorkoutService {
             plannedSets: item.sets,
             repsMin: item.repsMin,
             repsMax: item.repsMax,
+            superset: item.superset,
           })),
         },
       },

@@ -342,6 +342,7 @@ export class WorkoutAppService {
       plannedSets: item.plannedSets,
       repsMin: item.repsMin,
       repsMax: item.repsMax,
+      superset: item.superset,
       limitedZones: exercise.joints
         .filter((j) => limited.has(j.jointId))
         .map((j) => j.joint.name.toLowerCase()),

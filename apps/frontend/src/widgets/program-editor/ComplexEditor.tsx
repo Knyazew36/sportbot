@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { PlusIcon, Trash2Icon } from 'lucide-react'
+import { Link2Icon, PlusIcon, Trash2Icon } from 'lucide-react'
 import { Reorder } from 'motion/react'
 import { useForm } from 'react-hook-form'
 
@@ -10,6 +10,8 @@ import {
   complexNameSchema,
   type ComplexNameValues,
   type ProgramComplex,
+  toBlocks,
+  withSupersetTarget,
 } from '@/entities/program'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
@@ -21,8 +23,8 @@ import { Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet'
 
-import { arrangeBy } from './arrange'
 import { ComplexExerciseRow } from './ComplexExerciseRow'
+import { SupersetBlock } from './SupersetBlock'
 
 /** Что страница комплекса умеет с ним делать: программы пользователя (frontend-tz, 10.3) и шаблоны админа (14.2) */
 export type ComplexActions = {
@@ -32,6 +34,8 @@ export type ComplexActions = {
   updateExercise: (id: number, plan: ComplexExerciseValues) => Promise<unknown>
   deleteExercise: (id: number) => void
   reorderExercises: (complexId: number, ids: number[]) => void
+  ungroupExercise: (id: number) => void
+  ungroupSuperset: (complexId: number, superset: number) => void
 }
 
 type ComplexEditorProps = {
@@ -73,19 +77,29 @@ const ComplexNameForm = ({ complex, onRename }: ComplexNameFormProps) => {
 
 // Комплекс целиком: название, упражнения с планом, добавление и удаление. Каждая правка сразу уходит на сервер
 export const ComplexEditor = ({ complex, actions, addExerciseTo }: ComplexEditorProps) => {
-  // Порядок под пальцем: на сервер уходит один раз, когда строку отпустили
-  const [dragOrder, setDragOrder] = useState<number[] | null>(null)
+  // Порядок блоков под пальцем: на сервер уходит один раз, когда блок отпустили.
+  // Суперсет тянется целиком, поэтому двигаем блоки, а серверу отдаём плоский список
+  const [dragOrder, setDragOrder] = useState<string[] | null>(null)
   // Упражнение, открытое в шторке: посмотреть технику, не уходя из редактора
   const [opened, setOpened] = useState<{ id: number; name: string } | null>(null)
-  const shown = arrangeBy(complex.exercises, dragOrder ?? undefined)
-  const ids = shown.map(e => e.id)
+  const blocks = toBlocks(complex.exercises)
+  const at = new Map(dragOrder?.map((key, i) => [key, i]))
+  const shown = dragOrder ? [...blocks].sort((a, b) => (at.get(a.key) ?? 0) - (at.get(b.key) ?? 0)) : blocks
+  const ids = complex.exercises.map(e => e.id)
+
+  const save = (next: number[]) => {
+    if (next.some((id, i) => id !== ids[i])) actions.reorderExercises(complex.id, next)
+  }
 
   const drop = () => {
     if (!dragOrder) return
-    const changed = dragOrder.some((id, i) => id !== complex.exercises[i]?.id)
-    if (changed) actions.reorderExercises(complex.id, dragOrder)
+    save(shown.flatMap(b => b.items.map(e => e.id)))
     setDragOrder(null)
   }
+
+  // Новый порядок внутри суперсета встаёт на место его участников
+  const reorderInside = (blockKey: string, inside: number[]) =>
+    save(shown.flatMap(b => (b.key === blockKey ? inside : b.items.map(e => e.id))))
 
   return (
     <>
@@ -104,20 +118,40 @@ export const ComplexEditor = ({ complex, actions, addExerciseTo }: ComplexEditor
           <Reorder.Group
             as='ol'
             axis='y'
-            values={ids}
+            values={shown.map(b => b.key)}
             onReorder={setDragOrder}
             className='border-border border-t-[1.5px]'
           >
-            {shown.map(e => (
-              <ComplexExerciseRow
-                key={e.id}
-                exercise={e}
-                onDrop={drop}
-                onPlanChange={plan => actions.updateExercise(e.id, plan)}
-                onRemove={() => actions.deleteExercise(e.id)}
-                onView={() => setOpened({ id: e.exerciseId, name: e.name })}
-              />
-            ))}
+            {shown.map(block => {
+              const { superset } = block
+              if (superset !== null)
+                return (
+                  <SupersetBlock
+                    key={block.key}
+                    block={{ ...block, superset }}
+                    onDrop={drop}
+                    onReorder={inside => reorderInside(block.key, inside)}
+                    onPlanChange={actions.updateExercise}
+                    onRemove={actions.deleteExercise}
+                    onUngroupExercise={actions.ungroupExercise}
+                    onUngroup={() => actions.ungroupSuperset(complex.id, superset)}
+                    addTo={withSupersetTarget(addExerciseTo, { joinItemId: block.items[0]!.id })}
+                  />
+                )
+              const e = block.items[0]!
+              return (
+                <ComplexExerciseRow
+                  key={block.key}
+                  value={block.key}
+                  exercise={e}
+                  onDrop={drop}
+                  onPlanChange={plan => actions.updateExercise(e.id, plan)}
+                  onRemove={() => actions.deleteExercise(e.id)}
+                  onView={() => setOpened({ id: e.exerciseId, name: e.name })}
+                  supersetTo={withSupersetTarget(addExerciseTo, { joinItemId: e.id })}
+                />
+              )
+            })}
           </Reorder.Group>
         ) : (
           <Text
@@ -127,14 +161,22 @@ export const ComplexEditor = ({ complex, actions, addExerciseTo }: ComplexEditor
             Пока пусто. Добавь упражнения — у каждого задашь подходы и повторы, например 3 × 8–12.
           </Text>
         )}
-        <ButtonLink
-          to={addExerciseTo}
-          variant={ids.length ? 'outline' : 'default'}
-          className='w-full'
-        >
-          <PlusIcon strokeWidth={2.5} />
-          Добавить упражнения
-        </ButtonLink>
+        <div className='grid grid-cols-2 gap-2'>
+          <ButtonLink
+            to={addExerciseTo}
+            variant={ids.length ? 'outline' : 'default'}
+          >
+            <PlusIcon strokeWidth={2.5} />
+            Упражнения
+          </ButtonLink>
+          <ButtonLink
+            to={withSupersetTarget(addExerciseTo, { newSuperset: true })}
+            variant='outline'
+          >
+            <Link2Icon />
+            Суперсет
+          </ButtonLink>
+        </div>
       </ScreenSection>
 
       <Rise className='px-gutter'>

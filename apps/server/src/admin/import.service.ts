@@ -7,6 +7,7 @@ import { resolveCatalogImage } from '@/catalog/catalog-image';
 import { normalizeName, uploadRoot } from '@/catalog/catalog.service';
 import { Equipment, StretchKind } from '@/generated/prisma/client';
 import { CARDIO_MINUTES_MAX, CARDIO_NAME_MAX } from '@/program/program.service';
+import { normalizeSupersets, supersetError } from '@/program/superset';
 import {
   TAG_CODE_PATTERN,
   TAG_NAME_MAX,
@@ -72,6 +73,8 @@ interface ImportProgram {
       sets: number;
       repsMin: number;
       repsMax: number;
+      /** Номер суперсета в комплексе: участники подряд, не меньше двух. Поля нет — одиночное. */
+      superset?: number;
     }[];
   }[];
 }
@@ -303,7 +306,15 @@ export class ImportService {
             errors.push(
               `${where}, ${String(item?.code)}: проверь sets / repsMin / repsMax`,
             );
+          if (item?.superset !== undefined && !isCount(item.superset, 30))
+            errors.push(
+              `${where}, ${String(item?.code)}: superset — номер от 1 до 30`,
+            );
         }
+        const superset = supersetError(
+          list(complex?.exercises) as ImportProgram['complexes'][number]['exercises'],
+        );
+        if (superset) errors.push(`${where}: ${superset}`);
       });
     });
 
@@ -599,7 +610,14 @@ export class ImportService {
             },
           });
           await tx.complex.deleteMany({ where: { programId: program.id } });
-          for (const [index, complex] of item.complexes.entries())
+          for (const [index, complex] of item.complexes.entries()) {
+            // Номера из файла приводим к 1..n сверху вниз, как в редакторе
+            const supersets = normalizeSupersets(
+              complex.exercises.map((exercise, id) => ({
+                id,
+                superset: exercise.superset ?? null,
+              })),
+            );
             await tx.complex.create({
               data: {
                 programId: program.id,
@@ -614,10 +632,12 @@ export class ImportService {
                     sets: exercise.sets,
                     repsMin: exercise.repsMin,
                     repsMax: exercise.repsMax,
+                    superset: supersets[position].superset,
                   })),
                 },
               },
             });
+          }
         }
       },
       { timeout: 120_000, maxWait: 10_000 },

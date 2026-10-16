@@ -10,4 +10,9 @@ export interface StatsDayExerciseResponseDto {
   name: string;
   done: boolean;
   sets: StatsDaySetResponseDto[];
+  /**
+     * Номер суперсета: участники идут подряд и делаются по кругу
+     * @nullable
+     */
+  superset: number | null;
 }

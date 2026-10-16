@@ -13,8 +13,10 @@ import { holdText } from '@/catalog/catalog.texts';
 import { MessengerButton, MessengerMessage } from '@/messengers';
 import { ComplexFull } from '@/program/program.service';
 import { cardioText, exercisesCount, planText } from '@/program/program.texts';
+import { supersetMark } from '@/program/superset';
 
 import { CooldownView } from './cooldown.service';
+import { roundInfo } from './superset-round';
 import {
   CompleteResult,
   isDone,
@@ -68,7 +70,7 @@ export function previewMessage(
       `«${complex.name}» — ${exercisesCount(complex.exercises.length)}`,
       ...complex.exercises.map(
         (item, index) =>
-          `${index + 1}. ${item.exercise.name}${warn(item.exercise, limited)} — ${planText(item.sets, item.repsMin, item.repsMax)}`,
+          `${index + 1}. ${supersetMark(item.superset)}${item.exercise.name}${warn(item.exercise, limited)} — ${planText(item.sets, item.repsMin, item.repsMax)}`,
       ),
       ...(cardio ? [cardio] : []),
     ].join('\n'),
@@ -95,6 +97,13 @@ export function stepMessage(
   const lines = [
     `${index + 1} из ${workout.exercises.length}. ${item.exercise.name} — ${planText(item.plannedSets, item.repsMin, item.repsMax)}${isDone(item) && item.done ? ' ✅' : ''}`,
   ];
+  const round = roundInfo(workout.exercises, item.id);
+  if (round) {
+    const next = workout.exercises.find((e) => e.id === round.nextId);
+    lines.push(
+      `🔗 Суперсет ${round.letter} · круг ${round.round} из ${round.rounds}${next ? ` · дальше: ${next.exercise.name}` : ''}`,
+    );
+  }
   if (zones) lines.push(`⚠️ Нагружает: ${zones} — заменить?`);
   // Прошлого результата нет — строку не показываем вовсе
   // Прошлый раз и сегодня — два одинаковых блока: подход на строку, сравнивать глазами
@@ -150,7 +159,9 @@ export function leftoversMessage(workout: WorkoutFull): MessengerMessage {
       `Упражнения по порядку закончились. Сделано ${done} из ${workout.exercises.length}.`,
       '',
       'Не сделано:',
-      ...pending.map((item) => `• ${item.exercise.name}`),
+      ...pending.map(
+        (item) => `• ${supersetMark(item.superset)}${item.exercise.name}`,
+      ),
       hint('Заверши тренировку или вернись к пропущенному упражнению.'),
     ].join('\n'),
     [
@@ -244,11 +255,12 @@ const kg = (value: number): string => `${value.toLocaleString('ru-RU')} кг`;
 
 /** Упражнение в карточке: подходы через запятую; засчитанное без записи — просто галочкой. */
 const shareExerciseText = (item: WorkoutExerciseFull): string => {
-  if (!item.sets.length) return `✅ ${item.exercise.name}`;
+  const name = `${supersetMark(item.superset)}${item.exercise.name}`;
+  if (!item.sets.length) return `✅ ${name}`;
   const sets = item.sets.map((s) =>
     setText({ weight: Number(s.weight), reps: s.reps }),
   );
-  return `✅ ${item.exercise.name}: ${sets.join(', ')}`;
+  return `✅ ${name}: ${sets.join(', ')}`;
 };
 
 /**

@@ -24,4 +24,11 @@ export class ProgramExerciseResponseDto {
 
   @ApiProperty()
   repsMax: number;
+
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    description: 'Номер суперсета в комплексе; участники идут подряд',
+  })
+  superset: number | null;
 }

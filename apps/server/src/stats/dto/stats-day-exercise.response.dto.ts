@@ -11,4 +11,11 @@ export class StatsDayExerciseResponseDto {
 
   @ApiProperty({ type: [StatsDaySetResponseDto] })
   sets: StatsDaySetResponseDto[];
+
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    description: 'Номер суперсета: участники идут подряд и делаются по кругу',
+  })
+  superset: number | null;
 }

@@ -17,6 +17,8 @@ import type {
   AdminTemplatesControllerReorder200,
   AdminTemplatesControllerReorderComplexes200,
   AdminTemplatesControllerReorderItems200,
+  AdminTemplatesControllerUngroupItem200,
+  AdminTemplatesControllerUngroupSuperset200,
   AdminTemplatesControllerUpdate200,
   AdminTemplatesControllerUpdateComplex200,
   AdminTemplatesControllerUpdateItem200,
@@ -24,6 +26,7 @@ import type {
   CreateComplexDto,
   CreateTemplateDto,
   ReorderDto,
+  UngroupSupersetDto,
   UpdateComplexDto,
   UpdateComplexExerciseDto,
   UpdateTemplateDto
@@ -174,6 +177,31 @@ export const adminTemplatesControllerAddExercises = (
       );
     }
   /**
+ * @summary Разгруппировать суперсет комплекса шаблона
+ */
+export const adminTemplatesControllerUngroupSuperset = (
+    id: number,
+    ungroupSupersetDto: UngroupSupersetDto,
+ ) => {
+      return customInstance<AdminTemplatesControllerUngroupSuperset200>(
+      {url: `/admin/templates/complex/${id}/superset/ungroup`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: ungroupSupersetDto
+    },
+      );
+    }
+  /**
+ * @summary Вынести упражнение шаблона из суперсета
+ */
+export const adminTemplatesControllerUngroupItem = (
+    id: number,
+ ) => {
+      return customInstance<AdminTemplatesControllerUngroupItem200>(
+      {url: `/admin/templates/exercise/ungroup/${id}`, method: 'POST'
+    },
+      );
+    }
+  /**
  * @summary Порядок упражнений комплекса шаблона
  */
 export const adminTemplatesControllerReorderItems = (
@@ -234,6 +262,8 @@ export type AdminTemplatesControllerReorderComplexesResult = NonNullable<Awaited
 export type AdminTemplatesControllerUpdateComplexResult = NonNullable<Awaited<ReturnType<typeof adminTemplatesControllerUpdateComplex>>>
 export type AdminTemplatesControllerRemoveComplexResult = NonNullable<Awaited<ReturnType<typeof adminTemplatesControllerRemoveComplex>>>
 export type AdminTemplatesControllerAddExercisesResult = NonNullable<Awaited<ReturnType<typeof adminTemplatesControllerAddExercises>>>
+export type AdminTemplatesControllerUngroupSupersetResult = NonNullable<Awaited<ReturnType<typeof adminTemplatesControllerUngroupSuperset>>>
+export type AdminTemplatesControllerUngroupItemResult = NonNullable<Awaited<ReturnType<typeof adminTemplatesControllerUngroupItem>>>
 export type AdminTemplatesControllerReorderItemsResult = NonNullable<Awaited<ReturnType<typeof adminTemplatesControllerReorderItems>>>
 export type AdminTemplatesControllerUpdateItemResult = NonNullable<Awaited<ReturnType<typeof adminTemplatesControllerUpdateItem>>>
 export type AdminTemplatesControllerRemoveItemResult = NonNullable<Awaited<ReturnType<typeof adminTemplatesControllerRemoveItem>>>

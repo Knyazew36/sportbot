@@ -15,6 +15,11 @@ export interface DayExerciseResponseDto {
   sets: number;
   repsMin: number;
   repsMax: number;
+  /**
+     * Номер суперсета в комплексе; участники идут подряд
+     * @nullable
+     */
+  superset: number | null;
   /** Зоны с активным ограничением, которые нагружает упражнение */
   limitedZones: string[];
 }

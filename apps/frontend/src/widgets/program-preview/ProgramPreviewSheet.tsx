@@ -1,11 +1,13 @@
 import type { ReactNode } from 'react'
 
 import { complexLetter, planText, type ProgramComplex } from '@/entities/program'
+import { supersetLabels } from '@/shared/lib/superset'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Poster, Text } from '@/shared/ui/kit/Typography'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'
-import { Spinner } from '@/shared/ui/shadcn/spinner'
+import { Spinner } from '@/shared/ui/shadcn/spinner'
+
 import { pluralize } from '@front-cmdt/utils/pluralize'
 import { SET_FORMS } from '@/shared/lib/plural-forms'
 
@@ -61,11 +63,12 @@ export const ProgramPreviewSheet = ({ program, onOpenChange, note, action, loadi
             )}
           >
             <List>
-              {c.exercises.map(e => (
+              {c.exercises.map((e, i) => (
                 <ListRow
                   key={e.id}
                   title={e.name}
-                  meta={e.muscles}
+                  meta={e.superset !== null ? `суперсет ${supersetLabels(c.exercises)[i]} · ${e.muscles}` : e.muscles}
+                  linked={e.superset !== null}
                   trail={
                     <Poster
                       as='span'

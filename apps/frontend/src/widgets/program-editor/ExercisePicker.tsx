@@ -12,7 +12,7 @@ import {
   useCatalogExercises,
   useMuscles,
 } from '@/entities/catalog'
-import type { ProgramComplex } from '@/entities/program'
+import type { ProgramComplex, SupersetTarget } from '@/entities/program'
 import { toAssetUrl } from '@/shared/api'
 import { useDebouncedValue } from '@/shared/lib/hooks/use-debounced-value'
 import { List } from '@/shared/ui/kit/ListRow'
@@ -39,11 +39,13 @@ type ExercisePickerProps = {
   complex: ProgramComplex | undefined
   /** Назад — на страницу комплекса */
   back: string
+  /** Добавить в суперсет: к упражнению комплекса или новым суперсетом (тогда выбрать хотя бы два) */
+  target?: SupersetTarget
   adding: boolean
   onAdd: (exerciseIds: number[]) => void
 }
 
-export const ExercisePicker = ({ complex, back, adding, onAdd }: ExercisePickerProps) => {
+export const ExercisePicker = ({ complex, back, target, adding, onAdd }: ExercisePickerProps) => {
   const muscles = useMuscles()
   const [params, setParams] = useSearchParams()
 
@@ -53,6 +55,7 @@ export const ExercisePicker = ({ complex, back, adding, onAdd }: ExercisePickerP
   const equipment = (params.get('equipment') as Equipment | null) ?? ALL
   const picked = params.get('picked')?.split(',').map(Number) ?? []
   const [createOpen, setCreateOpen] = useState(false)
+  const [typing, setTyping] = useState(false)
   const [preview, setPreview] = useState<{ id: number; name: string } | null>(null)
 
   // replace: история не копит шаг на каждую букву поиска.
@@ -81,6 +84,15 @@ export const ExercisePicker = ({ complex, back, adding, onAdd }: ExercisePickerP
   const exercises = useCatalogExercises(filter)
 
   const present = new Set(complex?.exercises.map(e => e.exerciseId))
+  const minPicked = target?.newSuperset ? 2 : 1
+  const joined = complex?.exercises.find(e => e.id === target?.joinItemId)
+  const subtitle = !complex
+    ? undefined
+    : target?.newSuperset
+      ? `новый суперсет в «${complex.name}»`
+      : joined
+        ? `в суперсет с «${joined.name}»`
+        : `в «${complex.name}»`
   const toggle = (id: number) =>
     patch({ picked: (picked.includes(id) ? picked.filter(x => x !== id) : [...picked, id]).join(',') })
 
@@ -103,7 +115,7 @@ export const ExercisePicker = ({ complex, back, adding, onAdd }: ExercisePickerP
           <TopBar
             back={back}
             title='Добавить упражнение'
-            subtitle={complex ? `в «${complex.name}»` : undefined}
+            subtitle={subtitle}
             action={
               <Button
                 size='sm'
@@ -114,7 +126,12 @@ export const ExercisePicker = ({ complex, back, adding, onAdd }: ExercisePickerP
               </Button>
             }
           />
-          <div className='px-gutter pt-3 pb-3'>
+          {/* Пока печатаем в поиске, футер прячем: клавиатура и так съедает пол-экрана */}
+          <div
+            className='px-gutter pt-3 pb-3'
+            onFocus={e => e.target instanceof HTMLInputElement && setTyping(true)}
+            onBlur={e => e.target instanceof HTMLInputElement && setTyping(false)}
+          >
             <CatalogFilters
               query={query}
               onQueryChange={setQuery}
@@ -128,15 +145,21 @@ export const ExercisePicker = ({ complex, back, adding, onAdd }: ExercisePickerP
         </div>
       }
       footer={
+        !typing && (
         <StickyFooter>
           <Button
             size='lg'
-            disabled={picked.length === 0 || adding}
+            disabled={picked.length < minPicked || adding}
             onClick={() => onAdd(picked)}
           >
-            {picked.length === 0 ? 'Выбери упражнения' : `Добавить · ${picked.length}`}
+            {picked.length === 0
+              ? 'Выбери упражнения'
+              : picked.length < minPicked
+                ? 'Для суперсета нужно хотя бы два'
+                : `Добавить · ${picked.length}`}
           </Button>
         </StickyFooter>
+        )
       }
       className='px-gutter pt-4'
     >

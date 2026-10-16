@@ -24,6 +24,7 @@ import { ProgramResponseDto } from './dto/program.response.dto';
 import { ReorderDto } from './dto/reorder.dto';
 import { TagGroupsQueryDto } from './dto/tag-groups-query.dto';
 import { TemplatesQueryDto } from './dto/templates-query.dto';
+import { UngroupSupersetDto } from './dto/ungroup-superset.dto';
 import { UpdateComplexExerciseDto } from './dto/update-complex-exercise.dto';
 import { UpdateComplexDto } from './dto/update-complex.dto';
 import { UpdateProgramDto } from './dto/update-program.dto';
@@ -297,7 +298,37 @@ export class ProgramController {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: AddComplexExercisesDto,
   ) {
-    return this.programAppService.addExercises(userId, id, dto.exerciseIds);
+    return this.programAppService.addExercises(userId, id, dto);
+  }
+
+  @Post('complex/:id/superset/ungroup')
+  @Swagger({
+    title: 'Разгруппировать суперсет комплекса',
+    param: ID_PARAM,
+    body: UngroupSupersetDto,
+    response: ProgramResponseDto,
+    bearerAuth: true,
+  })
+  public ungroupSuperset(
+    @CurrentUser('id') userId: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UngroupSupersetDto,
+  ) {
+    return this.programAppService.ungroupSuperset(userId, id, dto.superset);
+  }
+
+  @Post('exercise/ungroup/:id')
+  @Swagger({
+    title: 'Вынести упражнение из суперсета',
+    param: ID_PARAM,
+    response: ProgramResponseDto,
+    bearerAuth: true,
+  })
+  public ungroupItem(
+    @CurrentUser('id') userId: number,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.programAppService.ungroupItem(userId, id);
   }
 
   @Post('complex/:id/exercise/reorder')

@@ -26,6 +26,8 @@ import type {
   ProgramControllerTake200,
   ProgramControllerTemplates200,
   ProgramControllerTemplatesParams,
+  ProgramControllerUngroupItem200,
+  ProgramControllerUngroupSuperset200,
   ProgramControllerUnpublish200,
   ProgramControllerUpdate200,
   ProgramControllerUpdateComplex200,
@@ -33,6 +35,7 @@ import type {
   ProgramControllerView200,
   PublishProgramDto,
   ReorderDto,
+  UngroupSupersetDto,
   UpdateComplexDto,
   UpdateComplexExerciseDto,
   UpdateProgramDto
@@ -252,6 +255,31 @@ export const programControllerAddExercises = (
       );
     }
   /**
+ * @summary Разгруппировать суперсет комплекса
+ */
+export const programControllerUngroupSuperset = (
+    id: number,
+    ungroupSupersetDto: UngroupSupersetDto,
+ ) => {
+      return customInstance<ProgramControllerUngroupSuperset200>(
+      {url: `/program/complex/${id}/superset/ungroup`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: ungroupSupersetDto
+    },
+      );
+    }
+  /**
+ * @summary Вынести упражнение из суперсета
+ */
+export const programControllerUngroupItem = (
+    id: number,
+ ) => {
+      return customInstance<ProgramControllerUngroupItem200>(
+      {url: `/program/exercise/ungroup/${id}`, method: 'POST'
+    },
+      );
+    }
+  /**
  * @summary Порядок упражнений в комплексе
  */
 export const programControllerReorderItems = (
@@ -318,6 +346,8 @@ export type ProgramControllerReorderComplexesResult = NonNullable<Awaited<Return
 export type ProgramControllerUpdateComplexResult = NonNullable<Awaited<ReturnType<typeof programControllerUpdateComplex>>>
 export type ProgramControllerRemoveComplexResult = NonNullable<Awaited<ReturnType<typeof programControllerRemoveComplex>>>
 export type ProgramControllerAddExercisesResult = NonNullable<Awaited<ReturnType<typeof programControllerAddExercises>>>
+export type ProgramControllerUngroupSupersetResult = NonNullable<Awaited<ReturnType<typeof programControllerUngroupSuperset>>>
+export type ProgramControllerUngroupItemResult = NonNullable<Awaited<ReturnType<typeof programControllerUngroupItem>>>
 export type ProgramControllerReorderItemsResult = NonNullable<Awaited<ReturnType<typeof programControllerReorderItems>>>
 export type ProgramControllerUpdateItemResult = NonNullable<Awaited<ReturnType<typeof programControllerUpdateItem>>>
 export type ProgramControllerRemoveItemResult = NonNullable<Awaited<ReturnType<typeof programControllerRemoveItem>>>

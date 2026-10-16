@@ -23,6 +23,13 @@ export class DayExerciseResponseDto {
   repsMax: number;
 
   @ApiProperty({
+    type: Number,
+    nullable: true,
+    description: 'Номер суперсета в комплексе; участники идут подряд',
+  })
+  superset: number | null;
+
+  @ApiProperty({
     type: [String],
     description: 'Зоны с активным ограничением, которые нагружает упражнение',
   })

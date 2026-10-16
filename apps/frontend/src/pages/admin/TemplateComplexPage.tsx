@@ -6,6 +6,8 @@ import {
   useDeleteTemplateExercise,
   useRenameTemplateComplex,
   useReorderTemplateExercises,
+  useUngroupTemplateExercise,
+  useUngroupTemplateSuperset,
   useUpdateTemplateExercise,
 } from '@/entities/admin'
 import { complexLetter, type Program } from '@/entities/program'
@@ -24,6 +26,8 @@ const useComplexActions = (onDeleted: () => void) => {
   const updateExercise = useUpdateTemplateExercise()
   const deleteExercise = useDeleteTemplateExercise()
   const reorderExercises = useReorderTemplateExercises()
+  const ungroupExercise = useUngroupTemplateExercise()
+  const ungroupSuperset = useUngroupTemplateSuperset()
 
   const actions: ComplexActions = {
     renameComplex: (id, name) => renameComplex.mutateAsync({ id, name }),
@@ -31,6 +35,8 @@ const useComplexActions = (onDeleted: () => void) => {
     updateExercise: (id, plan) => updateExercise.mutateAsync({ id, ...plan }),
     deleteExercise: id => deleteExercise.mutate(id),
     reorderExercises: (complexId, ids) => reorderExercises.mutate({ complexId, ids }),
+    ungroupExercise: id => ungroupExercise.mutate(id),
+    ungroupSuperset: (complexId, superset) => ungroupSuperset.mutate({ complexId, superset }),
   }
 
   const pick = (template: Program, complexId: number) => {

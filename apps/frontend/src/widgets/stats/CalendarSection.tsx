@@ -65,6 +65,7 @@ const DayDetails = ({ day, canFix }: { day: StatsDay; canFix: boolean }) => {
             {w.exercises.map(e => (
               <ListRow
                 key={e.name}
+                linked={e.superset !== null}
                 title={
                   <Text
                     as='span'
