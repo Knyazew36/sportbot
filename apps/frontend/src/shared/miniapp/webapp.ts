@@ -157,6 +157,23 @@ export const shareLink = async (url: string, text: string): Promise<'shared' | '
   return 'copied'
 }
 
+// ── Внешние ссылки ───────────────────────────────────────────────────────────
+
+/**
+ * Открывает адрес средствами мессенджера: t.me в Telegram — его же чатом, без закрытия приложения,
+ * остальное — встроенным браузером. false — площадка не умеет, пусть откроет обычная ссылка
+ */
+export const openExternalLink = (url: string): boolean => {
+  const app = webApp()
+  if (detectPlatform() === 'telegram' && /^https:\/\/t\.me\//.test(url) && app?.openTelegramLink) {
+    app.openTelegramLink(url)
+    return true
+  }
+  if (!app?.openLink) return false
+  app.openLink(url)
+  return true
+}
+
 // ── Разрешение писать ────────────────────────────────────────────────────────
 
 /** Есть ли у площадки штатный запрос разрешения. Где нет — подсказка написать боту /start */

@@ -16,6 +16,8 @@ import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
 import { templates } from './model/mock'
 import { takeTemplate, useTakenTemplates } from './model/preview-settings'
+import { pluralize } from '@front-cmdt/utils/pluralize'
+import { EXERCISE_FORMS, SET_FORMS } from '@/shared/lib/plural-forms'
 
 const LETTERS = 'ABCDEFGHIJ'
 
@@ -124,7 +126,7 @@ const TemplateScreen = () => {
           items={[
             { label: 'в неделю', value: template.days },
             { label: 'комплекса', value: template.complexes.length },
-            { label: 'упражнений', value: exercises },
+            { label: pluralize(exercises, EXERCISE_FORMS, { withCount: false }), value: exercises },
           ]}
         />
       </Rise>
@@ -153,7 +155,10 @@ const TemplateScreen = () => {
         <ScreenSection
           key={c.title}
           title={`${LETTERS[i]} · ${c.title}`}
-          aside={`${c.exercises.reduce((sum, e) => sum + e.sets, 0)} подходов`}
+          aside={pluralize(
+            c.exercises.reduce((sum, e) => sum + e.sets, 0),
+            SET_FORMS,
+          )}
         >
           <List>
             {c.exercises.map((e, j) => (

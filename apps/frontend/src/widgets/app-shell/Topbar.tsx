@@ -8,7 +8,7 @@ import { UserDropdown } from '@/widgets/user-dropdown/UserDropdown'
 import { NotificationsBell } from './NotificationsBell'
 
 export const Topbar = () => (
-  <header className='bg-background/85 sticky top-0 z-20 flex items-center gap-2 px-4 py-3 backdrop-blur-md md:px-6 md:py-4'>
+  <header className='bg-background/85 sticky top-0 z-20 flex items-center gap-2 px-4 py-3 backdrop-blur-glass md:px-6 md:py-4'>
     <SidebarTrigger
       className='bg-card hidden size-11 rounded-full md:flex'
       aria-label='Свернуть меню'

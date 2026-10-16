@@ -32,6 +32,7 @@ export const ROUTES = {
   STATS_MUSCLE: '/stats/muscle/:muscleId',
   ME: '/me',
   ME_SECTION: '/me/:section',
+  ME_DEVELOPER: '/me/developer',
   ADMIN: '/admin',
   ONBOARDING: '/onboarding',
   WORKOUT: '/workout',

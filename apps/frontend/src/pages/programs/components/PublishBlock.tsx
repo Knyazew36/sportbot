@@ -2,8 +2,8 @@ import { GlobeIcon, PencilIcon } from 'lucide-react'
 
 import { useState } from 'react'
 
-import { type Program, PUBLICATION_STATUS, useUnpublishProgram } from '@/entities/program'
-import { pluralize } from '@/shared/lib/format'
+import { isPublishable, type Program, publishLabel, PUBLICATION_STATUS, useUnpublishProgram } from '@/entities/program'
+import { pluralize } from '@front-cmdt/utils/pluralize'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { StatusFromMeta } from '@/shared/ui/kit/StatusBadge'
@@ -17,7 +17,7 @@ import { PublishSheet } from './PublishSheet'
 export const PublishBlock = ({ program: p }: { program: Program }) => {
   const [open, setOpen] = useState(false)
   const unpublish = useUnpublishProgram()
-  if (p.fromFriend || p.fromTemplate) return null
+  if (!isPublishable(p)) return null
 
   const listed = p.publication === 'PENDING' || p.publication === 'PUBLISHED'
 
@@ -41,14 +41,13 @@ export const PublishBlock = ({ program: p }: { program: Program }) => {
         {p.rejectReason && <Text tone='danger'>Причина: {p.rejectReason}</Text>}
 
         <Button
-          variant={listed ? 'outline' : 'default'}
+          // Уже отправленную только правят — это не выход наружу, поэтому без жёлтого
+          variant={listed ? 'outline' : 'share'}
           className='w-full'
           onClick={() => setOpen(true)}
         >
           {listed ? <PencilIcon /> : <GlobeIcon />}
-          {p.publication === 'DRAFT' && 'Опубликовать'}
-          {p.publication === 'REJECTED' && 'Исправить и отправить'}
-          {listed && 'Описание и теги'}
+          {publishLabel(p.publication)}
         </Button>
 
         {listed && (

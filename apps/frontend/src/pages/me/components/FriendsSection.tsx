@@ -27,7 +27,7 @@ export const FriendsSection = () => {
 
   return (
     <ScreenSection
-      aside={friends.data ? `${friends.data.length} в списке` : undefined}
+      aside={friends.data?.length ? `${friends.data.length} в списке` : undefined}
     >
       {friends.data?.length ? (
         <List>
@@ -61,6 +61,7 @@ export const FriendsSection = () => {
         <Text tone='muted'>Друзей пока нет. Пригласи — будете видеть тренировки и серии друг друга.</Text>
       )}
       <Button
+        variant='share'
         className='w-full'
         disabled={invite.isPending}
         onClick={share}

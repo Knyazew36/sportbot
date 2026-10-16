@@ -15,8 +15,8 @@ import {
   type WorkoutSetValues,
 } from '@/entities/workout'
 import { applyFieldErrors } from '@/shared/lib/form'
-import { cn } from '@/shared/lib/utils'
 import type { useDeadlineTimer } from '@/shared/lib/hooks/use-deadline-timer'
+import type { useStopwatch } from '@/shared/lib/hooks/use-stopwatch'
 import { BoxInput } from '@/shared/ui/kit/BoxInput'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'
 import { InkPanel } from '@/shared/ui/kit/InkPanel'
@@ -24,17 +24,19 @@ import { Eyebrow } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
 import { RestTimer } from './RestTimer'
+import { SetTimer } from './SetTimer'
 
 type SetInputPanelProps = {
   item: WorkoutItem
   settings: Workout['settings']
   timer: ReturnType<typeof useDeadlineTimer>
+  stopwatch: ReturnType<typeof useStopwatch>
   /** Подход отправляется — экран закрепляет упражнение за собой */
   onSubmitStart: () => void
 }
 
 // Ввод подхода прибит к таймеру внизу, у большого пальца (frontend-tz, 8.2 и 15)
-export const SetInputPanel = ({ item, settings, timer, onSubmitStart }: SetInputPanelProps) => {
+export const SetInputPanel = ({ item, settings, timer, stopwatch, onSubmitStart }: SetInputPanelProps) => {
   const add = useAddSet()
   // Короткая галочка на кнопке: подход записан, поля уже пустые под следующий
   const [saved, setSaved] = useState(false)
@@ -66,6 +68,7 @@ export const SetInputPanel = ({ item, settings, timer, onSubmitStart }: SetInput
         // React Compiler мемоизирует register(): без keepFieldsRef поля не перерегистрируются и инпуты не чистятся
         reset({ weight: '', reps: '' }, { keepFieldsRef: true })
         setSaved(true)
+        stopwatch.stop()
         if (settings.showRestTimer && settings.restAutoStart) timer.start(settings.restSeconds)
       })
       .catch(error => applyFieldErrors(error, setError))
@@ -81,10 +84,7 @@ export const SetInputPanel = ({ item, settings, timer, onSubmitStart }: SetInput
       <form
         onSubmit={submit}
         autoComplete='off'
-        className={cn(
-          'border-primary relative border-t-2 bg-[color-mix(in_oklab,var(--sb-blue)_9%,var(--sb-paper))] px-gutter pt-2.5',
-          settings.showRestTimer ? 'pb-3' : 'pb-[max(0.75rem,env(safe-area-inset-bottom))]',
-        )}
+        className='border-primary relative border-t-2 bg-[color-mix(in_oklab,var(--sb-blue)_9%,var(--sb-paper))] px-gutter pt-2.5 pb-3'
       >
         <div className='flex items-center justify-between gap-2'>
           <Eyebrow className='bg-primary text-primary-foreground px-2 py-1'>
@@ -158,16 +158,29 @@ export const SetInputPanel = ({ item, settings, timer, onSubmitStart }: SetInput
           errors={[errors.weight, errors.reps]}
         />
       </form>
-      {/* Таймер выключен в профиле — внизу остаётся только ввод подхода */}
-      {settings.showRestTimer && (
-        <InkPanel className='pb-[max(1rem,env(safe-area-inset-bottom))]'>
+      <InkPanel className='pb-[max(1rem,env(safe-area-inset-bottom))]'>
+        {settings.showRestTimer && timer.status !== 'idle' ? (
           <RestTimer
             timer={timer}
-            restSeconds={settings.restSeconds}
             nextSet={number}
+            onToSet={() => {
+              timer.stop()
+              stopwatch.start()
+            }}
           />
-        </InkPanel>
-      )}
+        ) : (
+          // Секундомер подхода есть всегда; кнопка «Отдых» — только если таймер отдыха включён в профиле
+          <SetTimer
+            stopwatch={stopwatch}
+            setNumber={number}
+            restSeconds={settings.showRestTimer ? settings.restSeconds : null}
+            onRest={() => {
+              stopwatch.stop()
+              timer.start(settings.restSeconds)
+            }}
+          />
+        )}
+      </InkPanel>
     </motion.section>
   )
 }

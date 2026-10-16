@@ -67,7 +67,3 @@ export const publishProgramSchema = (groups: { id: number; name: string; tagIds:
     })
 
 export type PublishProgramValues = z.infer<ReturnType<typeof publishProgramSchema>>
-
-/** Поле «свой тег» в ряду группы: добавляется в форму публикации кнопкой */
-export const ownTagNameSchema = ownTag.pick({ name: true })
-export type OwnTagNameValues = z.infer<typeof ownTagNameSchema>

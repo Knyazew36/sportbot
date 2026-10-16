@@ -12,7 +12,7 @@ export const BottomNav = ({ nav, isAdmin, badges }: { nav: NavItem[]; isAdmin: b
     <nav
       aria-label='Разделы'
       className={cn(
-        'border-border bg-background/85 sticky bottom-0 z-30 grid border-t-[1.5px] px-1 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur-xl',
+        'border-border bg-background/85 sticky bottom-0 z-30 grid border-t-[1.5px] px-1 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur-glass',
         items.length > 5 ? 'grid-cols-6' : 'grid-cols-5',
       )}
     >

@@ -3,10 +3,11 @@ import { Reorder, useDragControls } from 'motion/react'
 import { Link } from 'react-router'
 
 import { complexLetter, type ProgramComplex } from '@/entities/program'
-import { pluralize } from '@/shared/lib/format'
+import { pluralize } from '@front-cmdt/utils/pluralize'
 import { cn } from '@/shared/lib/utils'
 import { Poster, Text } from '@/shared/ui/kit/Typography'
 import { Badge } from '@/shared/ui/shadcn/badge'
+import { EXERCISE_FORMS } from '@/shared/lib/plural-forms'
 
 type ProgramComplexRowProps = {
   complex: ProgramComplex
@@ -69,7 +70,7 @@ export const ProgramComplexRow = ({ complex, index, to, onDrop }: ProgramComplex
             className='mt-0.5 flex items-center gap-2'
           >
             {complex.exercises.length
-              ? pluralize(complex.exercises.length, ['упражнение', 'упражнения', 'упражнений'])
+              ? pluralize(complex.exercises.length, EXERCISE_FORMS)
               : 'пусто — добавь упражнения'}
             {complex.isNext && <Badge className='h-5'>следующий</Badge>}
           </Text>

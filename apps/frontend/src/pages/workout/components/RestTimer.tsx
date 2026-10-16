@@ -7,30 +7,13 @@ import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
 type RestTimerProps = {
   timer: ReturnType<typeof useDeadlineTimer>
-  restSeconds: number
   nextSet: number
+  /** Отдых закончен или пропущен — к следующему подходу */
+  onToSet: () => void
 }
 
-// Таймер отдыха (frontend-tz, 8.3): обратный отсчёт, «+30 с», «Пропустить». Без автостарта — кнопка «Отдых»
-export const RestTimer = ({ timer, restSeconds, nextSet }: RestTimerProps) => {
-  if (timer.status === 'idle')
-    return (
-      <div className='px-gutter pt-4'>
-        <Button
-          variant='paper'
-          size='lg'
-          className='w-full justify-between'
-          onClick={() => timer.start(restSeconds)}
-        >
-          <span className='flex items-center gap-2'>
-            <TimerIcon className='size-5' />
-            Отдых
-          </span>
-          <span className='tabular-nums'>{formatSeconds(restSeconds)}</span>
-        </Button>
-      </div>
-    )
-
+// Таймер отдыха (frontend-tz, 8.3): обратный отсчёт, «+30 с», «К подходу». Запускается с секундомера подхода или сам после подхода
+export const RestTimer = ({ timer, nextSet, onToSet }: RestTimerProps) => {
   const over = timer.left <= 0
   return (
     <>
@@ -100,9 +83,9 @@ export const RestTimer = ({ timer, restSeconds, nextSet }: RestTimerProps) => {
         </Button>
         <Button
           variant='paper'
-          onClick={timer.stop}
+          onClick={onToSet}
         >
-          {over ? 'Закрыть' : 'Пропустить'}
+          {over ? 'Начать подход' : 'К подходу'}
         </Button>
       </div>
     </>

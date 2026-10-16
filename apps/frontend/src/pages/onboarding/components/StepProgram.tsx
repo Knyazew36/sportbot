@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 
 import { onboardingProgramSchema, type OnboardingProgramValues, type OnboardingState } from '@/entities/onboarding'
 import { selectedTagIds, type TagSelection, useTemplates, useTemplateTagGroups } from '@/entities/program'
-import { pluralize } from '@/shared/lib/format'
+import { pluralize } from '@front-cmdt/utils/pluralize'
 import { useDebouncedValue } from '@/shared/lib/hooks/use-debounced-value'
 import { OptionButton } from '@/shared/ui/kit/OptionButton'
 import { Rise } from '@/shared/ui/kit/Reveal'

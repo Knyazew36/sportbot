@@ -14,6 +14,7 @@ import {
 } from '@/entities/workout'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { useDeadlineTimer } from '@/shared/lib/hooks/use-deadline-timer'
+import { useStopwatch } from '@/shared/lib/hooks/use-stopwatch'
 import { timerEndSignal } from '@/shared/lib/signal'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
@@ -30,10 +31,12 @@ import { SetList } from '@/widgets/workout/SetList'
 import { ExerciseCard } from './components/ExerciseCard'
 import { SetInputPanel } from './components/SetInputPanel'
 import { WorkoutLanes } from './components/WorkoutLanes'
+import { pluralize } from '@front-cmdt/utils/pluralize'
+import { EXERCISE_OF_FORMS } from '@/shared/lib/plural-forms'
 
 const minutesSince = (iso: string | Date) => Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 60_000))
 
-// Экран идущей тренировки (frontend-tz, 8): упражнения, ввод подходов, таймер отдыха, завершение
+// Экран идущей тренировки (frontend-tz, 8): упражнения, ввод подходов, секундомер подхода и таймер отдыха, завершение
 const WorkoutView = ({ workout }: { workout: Workout }) => {
   const navigate = useNavigate()
   const markDone = useMarkDone()
@@ -45,6 +48,7 @@ const WorkoutView = ({ workout }: { workout: Workout }) => {
     storageKey: `rest-timer-${workout.id}`,
     onEnd: () => timerEndSignal(workout.settings),
   })
+  const stopwatch = useStopwatch({ storageKey: `set-stopwatch-${workout.id}` })
 
   const items = workout.exercises
   const fallback = items.find(e => !e.done) ?? items[0]
@@ -91,12 +95,14 @@ const WorkoutView = ({ workout }: { workout: Workout }) => {
   const onFinish = () =>
     finish.mutateAsync(workout.id).then(summary => {
       timer.stop()
+      stopwatch.stop()
       navigate(buildPath(ROUTES.WORKOUT_SUMMARY, { workoutId: summary.workoutId }), { replace: true })
     })
 
   const onDiscard = () =>
     discard.mutateAsync(workout.id).then(() => {
       timer.stop()
+      stopwatch.stop()
       navigate(ROUTES.TODAY, { replace: true })
     })
 
@@ -120,14 +126,14 @@ const WorkoutView = ({ workout }: { workout: Workout }) => {
                 <ConfirmAction
                   trigger={
                     <Button
-                      variant='ink'
+                      variant='success'
                       size='sm'
                     />
                   }
                   title={doneCount ? 'Завершить тренировку?' : 'Засчитывать нечего'}
                   description={
                     doneCount
-                      ? `Сделано ${doneCount} из ${items.length} упражнений. Тренировка засчитается.`
+                      ? `Сделано ${doneCount} из ${pluralize(items.length, EXERCISE_OF_FORMS)}. Тренировка засчитается.`
                       : 'Пока не сделано ни одного упражнения. Можно отменить тренировку — очередь комплексов не сдвинется.'
                   }
                   confirmLabel={doneCount ? 'Завершить' : 'Отменить тренировку'}
@@ -176,6 +182,7 @@ const WorkoutView = ({ workout }: { workout: Workout }) => {
         item={item}
         settings={workout.settings}
         timer={timer}
+        stopwatch={stopwatch}
         onSubmitStart={() => setPickedId(item.id)}
       />
       <EditSetSheet

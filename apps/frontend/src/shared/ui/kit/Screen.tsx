@@ -32,7 +32,7 @@ export const StickyFooter = ({ children, className }: StickyFooterProps) => {
   return (
     <div
       className={cn(
-        'bg-background/85 border-border sticky backdrop-blur-xl z-20 flex flex-wrap items-center justify-end gap-2 border-t-[1.5px] px-gutter pt-3',
+        'bg-background/85 border-border sticky backdrop-blur-glass z-20 flex flex-wrap items-center justify-end gap-2 border-t-[1.5px] px-gutter pt-3',
         navVisible ? 'bottom-(--sb-nav-h) pb-3' : 'bottom-0 pb-[max(0.75rem,env(safe-area-inset-bottom))]',
         className,
       )}

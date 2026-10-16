@@ -10,6 +10,7 @@ import {
   localToday,
   monthStart,
   msg,
+  plural,
   weekStart,
 } from '@/bot';
 import { uploadRoot } from '@/catalog/catalog.service';
@@ -369,7 +370,7 @@ export class StatsService {
     const delta = last - first;
     return {
       file,
-      caption: `📈 ${name}: ${num(first)} → ${num(last)} ${UNIT_SHORT[unit]} (${delta >= 0 ? '+' : '−'}${num(Math.abs(delta))}) за ${points.length} тренировок`,
+      caption: `📈 ${name}: ${num(first)} → ${num(last)} ${UNIT_SHORT[unit]} (${delta >= 0 ? '+' : '−'}${num(Math.abs(delta))}) за ${points.length} ${plural(points.length, 'тренировку', 'тренировки', 'тренировок')}`,
     };
   }
 }

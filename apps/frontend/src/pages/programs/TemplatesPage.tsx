@@ -15,7 +15,7 @@ import {
 } from '@/entities/program'
 import { useCreateBlankProgram } from '@/features/create-program/useCreateBlankProgram'
 import { ROUTES } from '@/shared/config/paths'
-import { pluralize } from '@/shared/lib/format'
+import { pluralize } from '@front-cmdt/utils/pluralize'
 import { useDebouncedValue } from '@/shared/lib/hooks/use-debounced-value'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Rise } from '@/shared/ui/kit/Reveal'

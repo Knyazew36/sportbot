@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 
 import { useTemplates } from '@/entities/program'
 import { buildPath, ROUTES } from '@/shared/config/paths'
-import { pluralize } from '@/shared/lib/format'
+import { pluralize } from '@front-cmdt/utils/pluralize'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'

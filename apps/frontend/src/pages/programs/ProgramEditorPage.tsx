@@ -10,7 +10,7 @@ import {
   useReorderComplexes,
 } from '@/entities/program'
 import { buildPath, ROUTES } from '@/shared/config/paths'
-import { pluralize } from '@/shared/lib/format'
+import { pluralize } from '@front-cmdt/utils/pluralize'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'

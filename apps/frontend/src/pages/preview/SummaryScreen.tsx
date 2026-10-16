@@ -12,6 +12,8 @@ import { StatGrid } from '@/shared/ui/kit/StatGrid'
 import { Eyebrow, Lead, Poster } from '@/shared/ui/kit/Typography'
 
 import { summary } from './model/mock'
+import { pluralize } from '@front-cmdt/utils/pluralize'
+import { EXERCISE_FORMS, SET_FORMS } from '@/shared/lib/plural-forms'
 
 // Итог тренировки: финишный плакат — время, подходы, серия, кнопка «Заминка» (frontend-tz, 8.6)
 const SummaryScreen = () => (
@@ -85,8 +87,8 @@ const SummaryScreen = () => (
       <StatGrid
         framed
         items={[
-          { label: 'подходов', value: summary.sets },
-          { label: 'упражнений', value: `${summary.exercises.done}/${summary.exercises.total}` },
+          { label: pluralize(summary.sets, SET_FORMS, { withCount: false }), value: summary.sets },
+          { label: pluralize(summary.exercises.total, EXERCISE_FORMS, { withCount: false }), value: `${summary.exercises.done}/${summary.exercises.total}` },
           { label: 'серия', value: `${summary.streak} дн` },
         ]}
       />

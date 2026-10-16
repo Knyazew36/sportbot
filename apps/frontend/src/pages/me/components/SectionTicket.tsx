@@ -6,7 +6,8 @@ import { Poster, Text } from '@/shared/ui/kit/Typography'
 
 type SectionTicketProps = {
   to: string
-  index: number
+  /** Номер раздела в корешке; без него — только значок (билет вне списка разделов) */
+  index?: number
   icon: LucideIcon
   title: string
   meta?: string
@@ -39,16 +40,19 @@ export const SectionTicket = ({ to, index, icon: Icon, title, meta, marked }: Se
         marked && 'hatch',
       )}
     >
-      <Poster
-        as='span'
-        size='md'
-        tone='primary'
-        numeric
-        className={cn(marked && 'bg-background px-1')}
-      >
-        {String(index).padStart(2, '0')}
-      </Poster>
-      <Icon className={cn('size-5', marked && 'bg-background')} />
+      {index != null && (
+        <Poster
+          as='span'
+          size='md'
+          tone='primary'
+          numeric
+          className={cn(marked && 'bg-background px-1')}
+        >
+          {String(index).padStart(2, '0')}
+        </Poster>
+      )}
+      {/* Без номера значок один держит корешок — крупнее */}
+      <Icon className={cn(index != null ? 'size-5' : 'size-7', marked && 'bg-background')} />
     </span>
 
     <span className='relative w-0 border-l-[1.5px] border-dashed border-current/45'>

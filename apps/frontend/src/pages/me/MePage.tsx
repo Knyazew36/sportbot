@@ -4,7 +4,8 @@ import { MESSENGER_LABEL, useLinkState } from '@/entities/link'
 import { type Profile, useProfile } from '@/entities/profile'
 import { useFriends } from '@/entities/social'
 import { buildPath, ROUTES } from '@/shared/config/paths'
-import { formatDate, pluralize } from '@/shared/lib/format'
+import { formatDate } from '@/shared/lib/format'
+import { pluralize } from '@front-cmdt/utils/pluralize'
 import { useThemeChoice } from '@/shared/lib/hooks/use-messenger-theme'
 import { usePaletteChoice } from '@/shared/lib/hooks/use-palette'
 import { WEEKDAYS } from '@/shared/lib/weekdays'
@@ -14,6 +15,7 @@ import { Screen } from '@/shared/ui/kit/Screen'
 import { ScreenHeader } from '@/shared/ui/kit/ScreenHeader'
 
 import { AccountCard } from './components/AccountCard'
+import { DeveloperTicket } from './components/DeveloperTicket'
 import { SectionTicket } from './components/SectionTicket'
 import { PALETTES, THEME_OPTIONS } from './components/ThemeSection'
 import { ME_SECTIONS, type MeSectionSlug } from './sections'
@@ -88,6 +90,7 @@ const MePage = () => {
           <>
             <AccountCard profile={p} />
             <SectionButtons profile={p} />
+            <DeveloperTicket />
           </>
         )}
       </QueryScreen>

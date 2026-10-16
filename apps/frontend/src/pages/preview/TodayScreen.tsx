@@ -21,6 +21,8 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/shadcn/toggle-group'
 
 import { plan, programs, today } from './model/mock'
+import { pluralize } from '@front-cmdt/utils/pluralize'
+import { EXERCISE_FORMS, SET_FORMS } from '@/shared/lib/plural-forms'
 
 type DayState = 'training' | 'rest' | 'done' | 'pause'
 
@@ -195,8 +197,8 @@ const TrainingDay = () => {
         <StatGrid
           className='mt-1'
           items={[
-            { label: 'упражнений', value: exercisesOfDay.length },
-            { label: 'подходов', value: sets },
+            { label: pluralize(exercisesOfDay.length, EXERCISE_FORMS, { withCount: false }), value: exercisesOfDay.length },
+            { label: pluralize(sets, SET_FORMS, { withCount: false }), value: sets },
             { label: 'минут', value: `~${today.durationMin}` },
           ]}
         />

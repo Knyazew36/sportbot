@@ -2,9 +2,17 @@ import { ArrowRightIcon, GlobeIcon, PencilIcon } from 'lucide-react'
 
 import { useState } from 'react'
 
-import { type Program, type ProgramListItem, PUBLICATION_STATUS, useActivateProgram, useProgram } from '@/entities/program'
+import {
+  isPublishable,
+  type Program,
+  type ProgramListItem,
+  publishLabel,
+  PUBLICATION_STATUS,
+  useActivateProgram,
+  useProgram,
+} from '@/entities/program'
 import { buildPath, ROUTES } from '@/shared/config/paths'
-import { pluralize } from '@/shared/lib/format'
+import { pluralize } from '@front-cmdt/utils/pluralize'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
@@ -35,7 +43,7 @@ export const MyPrograms = ({ programs, title, aside, limit }: MyProgramsProps) =
   // Форма публикации открывается вместо шторки состава, а не поверх неё
   const [publishing, setPublishing] = useState<Program | null>(null)
   // Копии шаблона или чужой программы публиковать нельзя — у них в шторке только «Редактировать»
-  const publishable = opened.data && !opened.data.fromFriend && !opened.data.fromTemplate ? opened.data : null
+  const publishable = opened.data && isPublishable(opened.data) ? opened.data : null
   const openedItem = programs.find(p => p.id === openedId)
   const shown = limit ? programs.slice(0, limit) : programs
   if (!shown.length) return null
@@ -133,7 +141,8 @@ export const MyPrograms = ({ programs, title, aside, limit }: MyProgramsProps) =
               </ButtonLink>
               {publishable && (
                 <Button
-                  variant='outline'
+                  // Уже отправленную только правят — это не выход наружу, поэтому без жёлтого
+                  variant={publishable.publication === 'DRAFT' || publishable.publication === 'REJECTED' ? 'share' : 'outline'}
                   size='lg'
                   className='w-full'
                   onClick={() => {
@@ -141,11 +150,7 @@ export const MyPrograms = ({ programs, title, aside, limit }: MyProgramsProps) =
                     setOpenedId(null)
                   }}
                 >
-                  {publishable.publication === 'DRAFT'
-                    ? 'Опубликовать'
-                    : publishable.publication === 'REJECTED'
-                      ? 'Исправить и отправить'
-                      : 'Описание и теги'}
+                  {publishLabel(publishable.publication)}
                   <GlobeIcon />
                 </Button>
               )}

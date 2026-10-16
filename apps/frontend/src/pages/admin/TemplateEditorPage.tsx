@@ -17,7 +17,7 @@ import {
 import type { Program } from '@/entities/program'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { applyFieldErrors } from '@/shared/lib/form'
-import { pluralize } from '@/shared/lib/format'
+import { pluralize } from '@front-cmdt/utils/pluralize'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'

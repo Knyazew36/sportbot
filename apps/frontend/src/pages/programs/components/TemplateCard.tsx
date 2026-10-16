@@ -3,13 +3,14 @@ import { useNavigate } from 'react-router'
 
 import { addedText, catalogItemPath, type CatalogSource, type Program, useTakeTemplate } from '@/entities/program'
 import { buildPath, ROUTES } from '@/shared/config/paths'
-import { pluralize } from '@/shared/lib/format'
+import { pluralize } from '@front-cmdt/utils/pluralize'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { PersonAvatar } from '@/shared/ui/kit/PersonAvatar'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Badge } from '@/shared/ui/shadcn/badge'
+import { EXERCISE_FORMS } from '@/shared/lib/plural-forms'
 
 type TemplateCardProps = { template: Program; index: number; source: CatalogSource }
 
@@ -67,7 +68,7 @@ export const TemplateCard = ({ template: t, index, source }: TemplateCardProps) 
       )}
       <Eyebrow as='p'>
         {pluralize(t.complexes.length, ['комплекс', 'комплекса', 'комплексов'])} ·{' '}
-        {pluralize(exercises, ['упражнение', 'упражнения', 'упражнений'])} · {addedText(t.addedCount)}
+        {pluralize(exercises, EXERCISE_FORMS)} · {addedText(t.addedCount)}
       </Eyebrow>
       <div className='mt-1 grid grid-cols-2 gap-2'>
         <ButtonLink

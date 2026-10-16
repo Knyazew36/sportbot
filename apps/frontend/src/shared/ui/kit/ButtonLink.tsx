@@ -4,7 +4,7 @@ import { Link } from 'react-router'
 import type { ComponentProps, MouseEvent } from 'react'
 
 import { cn } from '@/shared/lib/utils'
-import { haptic } from '@/shared/miniapp'
+import { haptic, openExternalLink } from '@/shared/miniapp'
 import { buttonVariants } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
 // Переход — тоже действие, поэтому у ссылки та же рамка и тень, что у кнопки.
@@ -25,13 +25,18 @@ export const ButtonLink = ({
   }
 
   if (typeof to === 'string' && /^https?:\/\//.test(to)) {
+    // Внутри мессенджера target=_blank ведёт себя по-разному: открываем его средствами, а ссылка — запасной путь
+    const handleExternalClick = (event: MouseEvent<HTMLAnchorElement>) => {
+      handleClick(event)
+      if (!event.defaultPrevented && openExternalLink(to)) event.preventDefault()
+    }
     return (
       <a
         href={to}
         target='_blank'
         rel='noopener noreferrer'
         className={classes}
-        onClick={handleClick}
+        onClick={handleExternalClick}
         {...props}
       />
     )

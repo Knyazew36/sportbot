@@ -5,7 +5,7 @@ import { useState } from 'react'
 
 import type { DayToday } from '@/entities/day'
 import { ROUTES } from '@/shared/config/paths'
-import { pluralize } from '@/shared/lib/format'
+import { pluralize } from '@front-cmdt/utils/pluralize'
 import { MedalArt } from '@/shared/ui/kit/Art'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { Rise } from '@/shared/ui/kit/Reveal'

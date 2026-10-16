@@ -22,7 +22,7 @@ import {
   useUpdateProgramTagGroup,
 } from '@/entities/admin'
 import { applyFieldErrors } from '@/shared/lib/form'
-import { pluralize } from '@/shared/lib/format'
+import { pluralize } from '@front-cmdt/utils/pluralize'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'

@@ -8,7 +8,9 @@ import { StatGrid } from '@/shared/ui/kit/StatGrid'
 import { Eyebrow, Lead, Poster } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
-import { WeekStreak } from './WeekStreak'
+import { WeekStreak } from './WeekStreak'
+import { pluralize } from '@front-cmdt/utils/pluralize'
+import { EXERCISE_OF_FORMS } from '@/shared/lib/plural-forms'
 
 // Тренировка идёт: начата в боте или приложении, продолжается где удобно (frontend-tz, 4.1)
 export const InProgressDay = ({ day }: { day: DayToday }) => {
@@ -58,7 +60,7 @@ export const InProgressDay = ({ day }: { day: DayToday }) => {
           title='Отменить тренировку?'
           description={
             workout.done
-              ? `Записанные подходы (${workout.done} из ${workout.total} упражнений) удалятся. Очередь комплексов не сдвинется.`
+              ? `Записанные подходы (${workout.done} из ${pluralize(workout.total, EXERCISE_OF_FORMS)}) удалятся. Очередь комплексов не сдвинется.`
               : 'Тренировка удалится, очередь комплексов не сдвинется.'
           }
           confirmLabel='Отменить тренировку'

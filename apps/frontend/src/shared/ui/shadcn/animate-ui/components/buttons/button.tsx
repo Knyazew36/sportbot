@@ -30,6 +30,8 @@ const buttonVariants = cva(
         destructive: 'border-destructive bg-background text-destructive [--press:var(--sb-danger)]',
         // Зелёный «можно»: тренировка вне очереди, подтверждённый успех
         success: 'border-foreground bg-success text-black [--press:var(--sb-ink)]',
+        // Жёлтый «наружу»: публикация в каталог и «Поделиться» — всё, что увидят другие люди
+        share: 'border-foreground bg-attention text-black [--press:var(--sb-ink)]',
         // Шаблонные варианты кабинета сведены к тем же голосам
         secondary: 'border-foreground bg-background text-foreground [--press:var(--sb-ink)]',
         accent: 'border-foreground bg-primary text-primary-foreground [--press:var(--sb-ink)]',

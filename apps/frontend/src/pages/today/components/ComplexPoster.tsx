@@ -5,6 +5,8 @@ import { StatGrid } from '@/shared/ui/kit/StatGrid'
 import { Eyebrow, Lead, Poster } from '@/shared/ui/kit/Typography'
 
 import { complexLetter } from '@/entities/program'
+import { pluralize } from '@front-cmdt/utils/pluralize'
+import { EXERCISE_FORMS, SET_FORMS } from '@/shared/lib/plural-forms'
 
 type ComplexPosterProps = {
   complex: NonNullable<DayToday['complex']>
@@ -46,8 +48,8 @@ export const ComplexPoster = ({ complex, complexes, programName }: ComplexPoster
       <StatGrid
         className='mt-1'
         items={[
-          { label: 'упражнений', value: complex.exercises.length },
-          { label: 'подходов', value: sets },
+          { label: pluralize(complex.exercises.length, EXERCISE_FORMS, { withCount: false }), value: complex.exercises.length },
+          { label: pluralize(sets, SET_FORMS, { withCount: false }), value: sets },
           { label: 'в очереди', value: `${index + 1}/${complexes.length}` },
         ]}
       />

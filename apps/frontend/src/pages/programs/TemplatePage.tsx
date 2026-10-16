@@ -26,6 +26,8 @@ import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { ComplexQueue } from '@/widgets/complex-queue/ComplexQueue'
 import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet'
+import { pluralize } from '@front-cmdt/utils/pluralize'
+import { EXERCISE_FORMS, SET_FORMS } from '@/shared/lib/plural-forms'
 
 // Шаблон или программа пользователя целиком: что за тренировки внутри, прежде чем брать себе (frontend-tz, 10.2).
 // Отдельного запроса нет — каталог приходит списком с составом, таб берём из ссылки
@@ -162,7 +164,7 @@ const TemplatePage = () => {
                 <StatGrid
                   items={[
                     { label: 'комплексов', value: t.complexes.length },
-                    { label: 'упражнений', value: exercises },
+                    { label: pluralize(exercises, EXERCISE_FORMS, { withCount: false }), value: exercises },
                   ]}
                 />
               </Rise>
@@ -177,7 +179,10 @@ const TemplatePage = () => {
                 <ScreenSection
                   key={c.id}
                   title={`${complexLetter(i)} · ${c.name}`}
-                  aside={`${c.exercises.reduce((sum, e) => sum + e.sets, 0)} подходов`}
+                  aside={pluralize(
+                    c.exercises.reduce((sum, e) => sum + e.sets, 0),
+                    SET_FORMS,
+                  )}
                 >
                   <List>
                     {c.exercises.map((e, j) => (

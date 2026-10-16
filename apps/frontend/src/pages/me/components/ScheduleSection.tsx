@@ -12,7 +12,7 @@ import {
   useUpdateProfile,
 } from '@/entities/profile'
 import { applyFieldErrors } from '@/shared/lib/form'
-import { pluralize } from '@/shared/lib/format'
+import { pluralize } from '@front-cmdt/utils/pluralize'
 import { WEEKDAYS } from '@/shared/lib/weekdays'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'

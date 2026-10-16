@@ -5,7 +5,9 @@ import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Poster, Text } from '@/shared/ui/kit/Typography'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'
-import { Spinner } from '@/shared/ui/shadcn/spinner'
+import { Spinner } from '@/shared/ui/shadcn/spinner'
+import { pluralize } from '@front-cmdt/utils/pluralize'
+import { SET_FORMS } from '@/shared/lib/plural-forms'
 
 export type PreviewProgram = {
   name: string
@@ -53,7 +55,10 @@ export const ProgramPreviewSheet = ({ program, onOpenChange, note, action, loadi
             variant='block'
             className='px-0'
             title={`${complexLetter(i)} · ${c.name}`}
-            aside={`${c.exercises.reduce((sum, e) => sum + e.sets, 0)} подходов`}
+            aside={pluralize(
+              c.exercises.reduce((sum, e) => sum + e.sets, 0),
+              SET_FORMS,
+            )}
           >
             <List>
               {c.exercises.map(e => (

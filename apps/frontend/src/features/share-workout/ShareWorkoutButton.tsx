@@ -14,7 +14,7 @@ export const ShareWorkoutButton = ({ workoutId, size, className }: ShareWorkoutB
   const share = useShareWorkout()
   return (
     <Button
-      variant='outline'
+      variant='share'
       size={size}
       className={className}
       disabled={share.isPending}

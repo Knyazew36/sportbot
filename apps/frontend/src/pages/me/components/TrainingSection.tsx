@@ -27,7 +27,7 @@ export const TrainingSection = ({ profile }: { profile: Profile }) => {
         hint={
           profile.showRestTimer
             ? 'Показывается после каждого подхода'
-            : 'Скрыт: на экране тренировки только запись подходов'
+            : 'Скрыт: на экране тренировки только запись подходов и секундомер'
         }
         htmlFor='rest-timer'
         className='border-t-[1.5px]'

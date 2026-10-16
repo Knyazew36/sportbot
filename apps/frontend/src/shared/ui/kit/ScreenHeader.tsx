@@ -26,7 +26,7 @@ type TopBarProps = {
 
 // Шапка вложенного экрана: назад, заголовок, одно действие. Прилипает к верху при прокрутке
 export const TopBar = ({ back, title, subtitle, action }: TopBarProps) => (
-  <header className='border-border bg-background/90 sticky top-(--sb-top-inset) z-30 grid grid-cols-[40px_1fr_auto] items-center gap-3 border-b-[1.5px] px-gutter pt-2.5 pb-3 backdrop-blur-xl'>
+  <header className='border-border bg-background/90 sticky top-(--sb-top-inset) z-30 grid grid-cols-[40px_1fr_auto] items-center gap-3 border-b-[1.5px] px-gutter pt-2.5 pb-3 backdrop-blur-glass'>
     <ButtonLink
       to={back}
       variant='outline'

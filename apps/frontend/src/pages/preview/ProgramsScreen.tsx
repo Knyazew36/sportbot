@@ -19,6 +19,8 @@ import { Badge } from '@/shared/ui/shadcn/badge'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'
 
 import { type Program, programs } from './model/mock'
+import { pluralize } from '@front-cmdt/utils/pluralize'
+import { EXERCISE_FORMS } from '@/shared/lib/plural-forms'
 
 const editPath = (id: number | string) => buildPath(ROUTES.PREVIEW_PROGRAM, { programId: id })
 
@@ -61,7 +63,7 @@ const ActiveProgram = ({ program }: { program: Program }) => (
       <StatGrid
         items={[
           { label: 'комплекса', value: program.complexes.length },
-          { label: 'упражнений', value: countExercises(program) },
+          { label: pluralize(countExercises(program), EXERCISE_FORMS, { withCount: false }), value: countExercises(program) },
           { label: 'в неделю', value: 3 },
         ]}
       />

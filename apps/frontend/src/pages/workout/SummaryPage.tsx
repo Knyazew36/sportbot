@@ -4,7 +4,7 @@ import { useParams } from 'react-router'
 import { lastText, useWorkout, useWorkoutSummary, type WorkoutSummary } from '@/entities/workout'
 import { ShareWorkoutButton } from '@/features/share-workout/ShareWorkoutButton'
 import { buildPath, ROUTES } from '@/shared/config/paths'
-import { pluralize } from '@/shared/lib/format'
+import { pluralize } from '@front-cmdt/utils/pluralize'
 import { MedalArt } from '@/shared/ui/kit/Art'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
@@ -15,6 +15,7 @@ import { ScreenHeader } from '@/shared/ui/kit/ScreenHeader'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { StatGrid } from '@/shared/ui/kit/StatGrid'
 import { Lead, Poster, Text } from '@/shared/ui/kit/Typography'
+import { EXERCISE_FORMS, SET_FORMS } from '@/shared/lib/plural-forms'
 
 // Протокол: что сделано по каждому упражнению
 const Protocol = ({ workoutId }: { workoutId: number }) => {
@@ -130,8 +131,8 @@ const SummaryView = ({ summary }: { summary: WorkoutSummary }) => (
       <StatGrid
         framed
         items={[
-          { label: 'подходов', value: summary.sets },
-          { label: 'упражнений', value: `${summary.exercisesDone}/${summary.exercisesTotal}` },
+          { label: pluralize(summary.sets, SET_FORMS, { withCount: false }), value: summary.sets },
+          { label: pluralize(summary.exercisesTotal, EXERCISE_FORMS, { withCount: false }), value: `${summary.exercisesDone}/${summary.exercisesTotal}` },
           { label: 'серия', value: pluralize(summary.currentStreak, ['день', 'дня', 'дней']) },
         ]}
       />

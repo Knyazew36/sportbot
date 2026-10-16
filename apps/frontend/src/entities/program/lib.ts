@@ -2,10 +2,10 @@ import { EyeOffIcon, GlobeIcon, HourglassIcon, XIcon } from 'lucide-react'
 
 import type { ProgramPublication, ProgramTagResponseDto } from '@/shared/api/generated/model'
 import { buildPath, ROUTES } from '@/shared/config/paths'
-import { pluralize } from '@/shared/lib/format'
+import { pluralize } from '@front-cmdt/utils/pluralize'
 import type { StatusMeta } from '@/shared/ui/kit/StatusBadge'
 
-import type { CatalogSource, ProgramTagGroup } from './api'
+import type { CatalogSource, Program, ProgramTagGroup } from './api'
 
 export type ProgramTag = ProgramTagResponseDto
 
@@ -48,13 +48,24 @@ export const complexLetter = (index: number): string => String.fromCharCode(65 +
 export const planText = (sets: number, repsMin: number, repsMax: number): string =>
   `${sets} × ${repsMin === repsMax ? repsMin : `${repsMin}–${repsMax}`}`
 
-/** Статус публикации программы в каталоге «Программы пользователей» — для автора */
+/**
+ * Статус публикации программы в каталоге «Программы пользователей» — для автора. Жёлтый — цвет «видят другие»,
+ * как у кнопки публикации; на проверке программа ещё не наружу — без цвета
+ */
 export const PUBLICATION_STATUS: Record<ProgramPublication, StatusMeta> = {
   DRAFT: { tone: 'neutral', icon: EyeOffIcon, label: 'только у тебя' },
-  PENDING: { tone: 'attention', icon: HourglassIcon, label: 'на проверке' },
-  PUBLISHED: { tone: 'success', icon: GlobeIcon, label: 'в каталоге' },
+  PENDING: { tone: 'outline', icon: HourglassIcon, label: 'на проверке' },
+  PUBLISHED: { tone: 'attention', icon: GlobeIcon, label: 'в каталоге' },
   REJECTED: { tone: 'danger', icon: XIcon, label: 'не прошла проверку' },
 }
+
+/** Опубликовать можно только свою программу: копию шаблона или чужой каталог превратил бы в клоны */
+export const isPublishable = (p: Pick<Program, 'fromFriend' | 'fromTemplate'>): boolean =>
+  !p.fromFriend && !p.fromTemplate
+
+/** Подпись кнопки публикации по статусу */
+export const publishLabel = (publication: ProgramPublication): string =>
+  publication === 'DRAFT' ? 'Опубликовать' : publication === 'REJECTED' ? 'Исправить и отправить' : 'Описание и теги'
 
 /** Название тега для сравнения: регистр, ё и знаки не важны — как normalizeName на бэке */
 export const normalizeTagName = (name: string): string =>

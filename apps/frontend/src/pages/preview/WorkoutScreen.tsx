@@ -32,6 +32,8 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '
 import { exercises } from './model/catalog'
 import { plan, workout } from './model/mock'
 import { useTrainingSettings } from './model/preview-settings'
+import { pluralize } from '@front-cmdt/utils/pluralize'
+import { EXERCISE_OF_FORMS } from '@/shared/lib/plural-forms'
 
 type WorkoutSet = (typeof workout.sets)[number]
 
@@ -381,7 +383,7 @@ const WorkoutScreen = () => {
                   title='Завершить тренировку?'
                   description={
                     done.length > 0
-                      ? `Сделано ${done.length} из ${plan.length} упражнений. Тренировка засчитается.`
+                      ? `Сделано ${done.length} из ${pluralize(plan.length, EXERCISE_OF_FORMS)}. Тренировка засчитается.`
                       : 'Ни одно упражнение не отмечено сделанным — тренировка не засчитается.'
                   }
                   confirmLabel='Завершить'

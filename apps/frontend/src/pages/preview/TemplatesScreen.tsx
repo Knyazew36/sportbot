@@ -12,6 +12,8 @@ import { Badge } from '@/shared/ui/shadcn/badge'
 
 import { templates } from './model/mock'
 import { takeTemplate, useTakenTemplates } from './model/preview-settings'
+import { pluralize } from '@front-cmdt/utils/pluralize'
+import { EXERCISE_FORMS } from '@/shared/lib/plural-forms'
 
 // Шаблоны программ: посмотреть состав или сразу «Взять» — копия в программах пользователя (frontend-tz, 10.2)
 const TemplatesScreen = () => {
@@ -57,7 +59,7 @@ const TemplatesScreen = () => {
             <Text tone='soft'>{t.description}</Text>
             <div className='flex flex-wrap gap-1.5'>
               <Badge>{t.days} дня в неделю</Badge>
-              <Badge variant='secondary'>{exercises} упражнений</Badge>
+              <Badge variant='secondary'>{pluralize(exercises, EXERCISE_FORMS)}</Badge>
               {t.complexes.map(c => (
                 <Badge
                   key={c.title}

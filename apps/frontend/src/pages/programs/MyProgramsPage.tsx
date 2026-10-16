@@ -1,6 +1,6 @@
 import { usePrograms } from '@/entities/program'
 import { ROUTES } from '@/shared/config/paths'
-import { pluralize } from '@/shared/lib/format'
+import { pluralize } from '@front-cmdt/utils/pluralize'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Screen } from '@/shared/ui/kit/Screen'
 import { TopBar } from '@/shared/ui/kit/ScreenHeader'
