@@ -3,8 +3,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { dayKeys } from '@/entities/day'
 import { statsKeys } from '@/entities/stats'
 import { bodyWeightControllerCreate } from '@/shared/api/generated/body-weight/body-weight'
-import type { ProfileResponseDto, SetTimezoneDto, UpdateProfileDto } from '@/shared/api/generated/model'
+import type {
+  AvatarFromMessengerDto,
+  ProfileResponseDto,
+  SetTimezoneDto,
+  UpdateProfileDto,
+} from '@/shared/api/generated/model'
 import {
+  profileControllerAvatarFromMessenger,
   profileControllerCities,
   profileControllerRemoveAvatar,
   profileControllerSetTimezone,
@@ -75,6 +81,15 @@ export const useUploadAvatar = () => {
   return useMutation({
     mutationFn: (file: File) => profileControllerUploadAvatar({ file }),
     meta: { successMessage: 'Фото обновлено' },
+    onSuccess: apply,
+  })
+}
+
+export const useAvatarFromMessenger = () => {
+  const apply = useApplyAvatar()
+  return useMutation({
+    mutationFn: (messenger: AvatarFromMessengerDto['messenger']) => profileControllerAvatarFromMessenger({ messenger }),
+    meta: { successMessage: 'Фото взято из мессенджера' },
     onSuccess: apply,
   })
 }

@@ -11,7 +11,7 @@ export * from './webapp'
 
 declare global {
   interface Window {
-    Telegram?: { WebApp?: WebApp }
+    Telegram?: { WebApp?: WebApp; WebView?: { postEvent?: (event: string) => void } }
     WebApp?: WebApp
   }
 }
@@ -32,6 +32,22 @@ const openTelegramFullscreen = (webApp: WebApp) => {
   if (webApp.isVersionAtLeast?.('7.7')) webApp.disableVerticalSwipes?.()
   const phone = webApp.platform === 'ios' || webApp.platform === 'android'
   if (phone && webApp.isVersionAtLeast?.('8.0')) webApp.requestFullscreen?.()
+}
+
+// После разворачивания из свёрнутого вида WebView Telegram мог показать только фон: слои не перерисованы,
+// а отступы под кнопками мессенджера остались устаревшими. Сам SDK на activated их не перезапрашивает
+const refreshTelegramOnActivate = (webApp: WebApp) => {
+  webApp.onEvent?.('activated', () => {
+    const postEvent = window.Telegram?.WebView?.postEvent
+    postEvent?.('web_app_request_viewport')
+    postEvent?.('web_app_request_safe_area')
+    postEvent?.('web_app_request_content_safe_area')
+    // Скрыть и показать body с чтением размеров между ними — WebView пересобирает слои и рисует экран заново
+    const { body } = document
+    body.style.display = 'none'
+    void body.offsetHeight
+    body.style.display = ''
+  })
 }
 
 // MAX открывает приложение шторкой: без запрета свайп вниз по длинному списку закрыл бы её посреди тренировки
@@ -57,7 +73,10 @@ const initSdkPlatform = async (platform: SdkPlatform): Promise<Miniapp | null> =
   const paper = getComputedStyle(document.documentElement).getPropertyValue('--sb-paper').trim()
   if (paper) paintMessengerChrome(paper)
   webApp?.ready?.()
-  if (platform === 'telegram' && webApp) openTelegramFullscreen(webApp)
+  if (platform === 'telegram' && webApp) {
+    openTelegramFullscreen(webApp)
+    refreshTelegramOnActivate(webApp)
+  }
   if (platform === 'max' && webApp) openMax(webApp)
 
   const initData = webApp?.initData || fromHash

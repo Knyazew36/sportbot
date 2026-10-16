@@ -7,6 +7,10 @@ export { TelegramAppAdapter } from './telegram-app.adapter';
 export type {
   TelegramIntegrationOptions,
   TelegramLinkButton,
+  TelegramPreCheckout,
+  TelegramPreCheckoutResult,
+  TelegramStarsInvoice,
+  TelegramSuccessfulPayment,
   TelegramUserInfo,
   TelegramWebSession,
 } from './telegram.types';

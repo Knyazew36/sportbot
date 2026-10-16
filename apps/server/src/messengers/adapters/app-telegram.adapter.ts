@@ -15,9 +15,13 @@ import {
   TelegramAppAdapter,
   TelegramBotService,
   TelegramMessengerChannel,
+  TelegramPreCheckout,
+  TelegramPreCheckoutResult,
+  TelegramSuccessfulPayment,
   TelegramUserInfo,
   TelegramWebSession,
 } from '@/messengers/telegram';
+import { StarsService } from '@/stars/stars.service';
 
 import { AppMessengerAccountsService } from './app-messenger-accounts.service';
 
@@ -39,13 +43,19 @@ export class AppTelegramAdapter
     private readonly sender: BotSender,
     private readonly botService: TelegramBotService,
     private readonly channel: TelegramMessengerChannel,
+    private readonly stars: StarsService,
   ) {
     super();
   }
 
   public onApplicationBootstrap(): void {
     this.botService
-      .setCommands([...BOT_COMMANDS])
+      // /paysupport и /terms — только в меню Telegram: звёзды есть только здесь, а правила Telegram требуют обе команды
+      .setCommands([
+        ...BOT_COMMANDS,
+        { name: 'paysupport', description: 'Помощь с оплатой звёздами' },
+        { name: 'terms', description: 'Условия использования' },
+      ])
       .catch((error: Error) =>
         this.logger.warn(`Меню команд не обновлено: ${error.message}`),
       );
@@ -134,6 +144,18 @@ export class AppTelegramAdapter
     const text = message && 'text' in message ? message.text : '';
     await this.run(ctx, user, { kind: 'text', text });
     return true;
+  }
+
+  // ── Оплата звёздами ─────────────────────────────────────────────────────
+
+  public onPreCheckout(
+    query: TelegramPreCheckout,
+  ): Promise<TelegramPreCheckoutResult> {
+    return this.stars.checkPreCheckout(query);
+  }
+
+  public onSuccessfulPayment(payment: TelegramSuccessfulPayment): Promise<void> {
+    return this.stars.markPaid(payment);
   }
 
   // ── BotContext ──────────────────────────────────────────────────────────

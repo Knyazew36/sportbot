@@ -5,7 +5,9 @@
  * OpenAPI spec version: 0.0.1
  */
 import type {
+  AvatarFromMessengerDto,
   DeleteProfileDto,
+  ProfileControllerAvatarFromMessenger200,
   ProfileControllerCities200,
   ProfileControllerRemove200,
   ProfileControllerRemoveAvatar200,
@@ -62,6 +64,19 @@ formData.append(`file`, uploadAvatarDto.file);
       );
     }
   /**
+ * @summary Взять фото профиля из привязанного мессенджера
+ */
+export const profileControllerAvatarFromMessenger = (
+    avatarFromMessengerDto: AvatarFromMessengerDto,
+ ) => {
+      return customInstance<ProfileControllerAvatarFromMessenger200>(
+      {url: `/profile/avatar/messenger`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: avatarFromMessengerDto
+    },
+      );
+    }
+  /**
  * @summary Удалить фото профиля — останутся инициалы
  */
 export const profileControllerRemoveAvatar = (
@@ -112,6 +127,7 @@ export const profileControllerRemove = (
   export type ProfileControllerViewResult = NonNullable<Awaited<ReturnType<typeof profileControllerView>>>
 export type ProfileControllerUpdateResult = NonNullable<Awaited<ReturnType<typeof profileControllerUpdate>>>
 export type ProfileControllerUploadAvatarResult = NonNullable<Awaited<ReturnType<typeof profileControllerUploadAvatar>>>
+export type ProfileControllerAvatarFromMessengerResult = NonNullable<Awaited<ReturnType<typeof profileControllerAvatarFromMessenger>>>
 export type ProfileControllerRemoveAvatarResult = NonNullable<Awaited<ReturnType<typeof profileControllerRemoveAvatar>>>
 export type ProfileControllerCitiesResult = NonNullable<Awaited<ReturnType<typeof profileControllerCities>>>
 export type ProfileControllerSetTimezoneResult = NonNullable<Awaited<ReturnType<typeof profileControllerSetTimezone>>>

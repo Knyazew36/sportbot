@@ -2,7 +2,7 @@ import { CameraIcon, CheckIcon } from 'lucide-react'
 import { useRef } from 'react'
 
 import { MESSENGER_LABEL, useLinkState } from '@/entities/link'
-import { type Profile, useRemoveAvatar, useUploadAvatar } from '@/entities/profile'
+import { type Profile, useAvatarFromMessenger, useRemoveAvatar, useUploadAvatar } from '@/entities/profile'
 import { useSportUser } from '@/entities/sport-user'
 import { useStatsSummary } from '@/entities/stats'
 import { toAssetUrl } from '@/shared/api'
@@ -87,6 +87,7 @@ export const AccountCard = ({ profile }: { profile: Profile }) => {
   const summary = useStatsSummary()
   const links = useLinkState()
   const remove = useRemoveAvatar()
+  const fromMessenger = useAvatarFromMessenger()
   const linked = links.data?.linked ?? []
 
   return (
@@ -178,7 +179,7 @@ export const AccountCard = ({ profile }: { profile: Profile }) => {
         </div>
       </InkPanel>
 
-      {profile.avatarUrl && (
+      {profile.avatarUrl ? (
         <Button
           variant='link'
           size='xs'
@@ -188,6 +189,20 @@ export const AccountCard = ({ profile }: { profile: Profile }) => {
         >
           Убрать фото — останутся буквы
         </Button>
+      ) : (
+        // Фото нет — сам убрал или в мессенджере его не нашлось при входе: предлагаем забрать оттуда
+        linked.map(m => (
+          <Button
+            key={m}
+            variant='link'
+            size='xs'
+            className='self-end'
+            disabled={fromMessenger.isPending}
+            onClick={() => fromMessenger.mutate(m)}
+          >
+            Взять фото из {MESSENGER_LABEL[m]}
+          </Button>
+        ))
       )}
     </Rise>
   )

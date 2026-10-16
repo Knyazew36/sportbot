@@ -30,6 +30,38 @@ export interface TelegramLinkButton {
   url: string;
 }
 
+/** Счёт в звёздах Telegram (валюта XTR) — для WebApp.openInvoice в мини-приложении. */
+export interface TelegramStarsInvoice {
+  /** Название товара, 1–32 символа */
+  title: string;
+  /** Описание, 1–255 символов */
+  description: string;
+  /** Внутренний идентификатор платежа, до 128 байт: вернётся в pre_checkout_query и successful_payment */
+  payload: string;
+  /** Сумма в звёздах */
+  amount: number;
+}
+
+/** Запрос подтверждения перед списанием: ответить нужно за 10 секунд. */
+export interface TelegramPreCheckout {
+  telegramId: number;
+  payload: string;
+  currency: string;
+  amount: number;
+}
+
+/** Ответ на pre_checkout_query: error — текст, который Telegram покажет пользователю. */
+export type TelegramPreCheckoutResult = { ok: true } | { ok: false; error: string };
+
+/** Оплата прошла. chargeId — telegram_payment_charge_id, по нему делается возврат. */
+export interface TelegramSuccessfulPayment {
+  telegramId: number;
+  payload: string;
+  currency: string;
+  amount: number;
+  chargeId: string;
+}
+
 export interface TelegramIntegrationOptions {
   /** Токен бота от @BotFather. */
   token: string;

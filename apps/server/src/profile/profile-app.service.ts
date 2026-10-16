@@ -4,6 +4,7 @@ import { PrismaService } from 'prisma/prisma.service';
 import { AvatarService } from '@/avatar/avatar.service';
 import { localToday } from '@/bot';
 import { SportAccountService } from '@/bot/sport-account.service';
+import { BotChannel } from '@/generated/prisma/client';
 
 import { CityResponseDto } from './dto/city.response.dto';
 import { ProfileResponseDto } from './dto/profile.response.dto';
@@ -86,6 +87,14 @@ export class ProfileAppService {
     file: Express.Multer.File,
   ): Promise<ProfileResponseDto> {
     await this.avatars.upload(userId, file);
+    return this.view(userId);
+  }
+
+  public async avatarFromMessenger(
+    userId: number,
+    channel: BotChannel,
+  ): Promise<ProfileResponseDto> {
+    await this.avatars.fromMessenger(userId, channel);
     return this.view(userId);
   }
 

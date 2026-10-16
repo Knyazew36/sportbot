@@ -1,6 +1,13 @@
-import { Injectable, Logger, Optional } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  Optional,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 
+import { BOT_CHANNEL_TITLE } from '@/bot/bot.types';
 import { BotChannel, Prisma, User } from '@/generated/prisma/client';
 import { TelegramBotService } from '@/messengers/telegram';
 import { UploadService } from '@/upload/upload.service';
@@ -61,6 +68,49 @@ export class AvatarService {
       .finally(() => this.inFlight.delete(user.id));
   }
 
+  /**
+   * По кнопке «Взять из мессенджера»: в отличие от входа ждём результат и снимаем отметку
+   * «фото убрано» — человек сам попросил фото обратно.
+   */
+  public async fromMessenger(
+    userId: number,
+    channel: BotChannel,
+  ): Promise<void> {
+    const user = await this.prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+    });
+    const title = BOT_CHANNEL_TITLE[channel];
+
+    let avatarPath: string | null;
+    try {
+      avatarPath = await this.grab(user, channel);
+    } catch (error) {
+      const { message, stack } = error as Error;
+      this.logger.error(
+        `Фото из ${channel} по кнопке не загружено: userId=${userId}: ${message}`,
+        stack,
+      );
+      throw new ServiceUnavailableException(
+        `${title} не отдал фото. Попробуй позже.`,
+      );
+    }
+    if (!avatarPath)
+      throw new NotFoundException(
+        `В ${title} нет фото, которое можно взять: его нет или оно скрыто настройками приватности.`,
+      );
+
+    const data = asRecord(user.data);
+    delete data[REMOVED_FLAG];
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { avatarPath, data: data as Prisma.InputJsonValue },
+    });
+    this.uploads.deleteByRelativePath(user.avatarPath);
+    this.logger.log(
+      `Фото взято из ${channel} по кнопке: userId=${userId}, ${avatarPath}`,
+    );
+  }
+
   // ── Своё фото ───────────────────────────────────────────────────────────
 
   /**
@@ -108,20 +158,8 @@ export class AvatarService {
   // ── Внутреннее ──────────────────────────────────────────────────────────
 
   private async fill(user: User, channel: BotChannel): Promise<void> {
-    const sourceUrl = await this.sourceUrl(user, channel);
-    if (!sourceUrl) {
-      this.logger.debug(`В ${channel} фото нет: userId=${user.id}`);
-      return;
-    }
-
-    const buffer = await this.download(sourceUrl);
-    const avatarPath = this.uploads.saveImageBuffer(buffer, CATEGORY);
-    if (!avatarPath) {
-      this.logger.warn(
-        `Фото из ${channel} не jpeg/png/webp: userId=${user.id}`,
-      );
-      return;
-    }
+    const avatarPath = await this.grab(user, channel);
+    if (!avatarPath) return;
 
     // Пока качали, могли загрузить своё фото — тогда наше не нужно
     const { count } = await this.prisma.user.updateMany({
@@ -138,6 +176,23 @@ export class AvatarService {
     this.logger.log(
       `Фото взято из ${channel}: userId=${user.id}, ${avatarPath}`,
     );
+  }
+
+  /** Скачать фото из мессенджера в аватары. null — фото нет или формат не подходит. */
+  private async grab(user: User, channel: BotChannel): Promise<string | null> {
+    const sourceUrl = await this.sourceUrl(user, channel);
+    if (!sourceUrl) {
+      this.logger.debug(`В ${channel} фото нет: userId=${user.id}`);
+      return null;
+    }
+
+    const buffer = await this.download(sourceUrl);
+    const avatarPath = this.uploads.saveImageBuffer(buffer, CATEGORY);
+    if (!avatarPath)
+      this.logger.warn(
+        `Фото из ${channel} не jpeg/png/webp: userId=${user.id}`,
+      );
+    return avatarPath;
   }
 
   private async sourceUrl(

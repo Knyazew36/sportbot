@@ -15,7 +15,10 @@ import {
   TELEGRAM_POLLING_RETRY_BASE_MS,
   TELEGRAM_POLLING_RETRY_MAX_MS,
 } from '../telegram.constants';
-import { TelegramIntegrationOptions } from '../telegram.types';
+import {
+  TelegramIntegrationOptions,
+  TelegramStarsInvoice,
+} from '../telegram.types';
 
 /** Ряд inline-клавиатуры Telegram. */
 export type TelegramKeyboardRow = InlineKeyboardButton[];
@@ -190,6 +193,59 @@ export class TelegramBotService implements OnApplicationBootstrap {
     return this.getFileUrl(size.file_id);
   }
 
+  // ── Оплата звёздами ─────────────────────────────────────────────────────
+
+  /**
+   * Ссылка на счёт в звёздах для WebApp.openInvoice. Для XTR provider_token пустой,
+   * цена — одна позиция: Telegram не даёт делить счёт в звёздах на несколько строк.
+   */
+  public async createStarsInvoiceLink(
+    invoice: TelegramStarsInvoice,
+  ): Promise<string> {
+    try {
+      const url = await this.bot.telegram.createInvoiceLink({
+        title: invoice.title,
+        description: invoice.description,
+        payload: invoice.payload,
+        provider_token: '',
+        currency: 'XTR',
+        prices: [{ label: invoice.title, amount: invoice.amount }],
+      });
+      this.logger.log(
+        `Счёт в звёздах выставлен: payload=${invoice.payload}, amount=${invoice.amount}`,
+      );
+      return url;
+    } catch (error) {
+      const message = this.describeError(error);
+      this.logger.error(
+        `Счёт в звёздах не выставлен: payload=${invoice.payload}: ${message}`,
+      );
+      throw new Error(message);
+    }
+  }
+
+  /** Вернуть звёзды пользователю. В telegraf 4.16 обёртки нет — вызываем метод Bot API напрямую. */
+  public async refundStarPayment(
+    telegramId: string | number,
+    chargeId: string,
+  ): Promise<void> {
+    try {
+      await this.bot.telegram.callApi('refundStarPayment' as never, {
+        user_id: Number(telegramId),
+        telegram_payment_charge_id: chargeId,
+      } as never);
+      this.logger.log(
+        `Звёзды возвращены: telegramId=${telegramId}, chargeId=${chargeId}`,
+      );
+    } catch (error) {
+      const message = this.describeError(error);
+      this.logger.error(
+        `Возврат звёзд не прошёл: telegramId=${telegramId}, chargeId=${chargeId}: ${message}`,
+      );
+      throw new Error(message);
+    }
+  }
+
   // ── Клавиатуры ──────────────────────────────────────────────────────────
 
   /** Обёртка inline-клавиатуры для extra. */
@@ -250,5 +306,13 @@ export class TelegramBotService implements OnApplicationBootstrap {
         }
         setTimeout(() => this.startPolling(attempt + 1), delayMs);
       });
+  }
+
+  // ── Вспомогательное ─────────────────────────────────────────────────────
+
+  private describeError(error: unknown): string {
+    return error instanceof TelegramError
+      ? `Telegram[${error.code}]: ${error.description}`
+      : String(error);
   }
 }

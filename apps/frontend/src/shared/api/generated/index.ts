@@ -24,6 +24,7 @@ export * from './pause/pause';
 export * from './profile/profile';
 export * from './program/program';
 export * from './social/social';
+export * from './stars/stars';
 export * from './stats/stats';
 export * from './telegram/telegram';
 export * from './user/user';

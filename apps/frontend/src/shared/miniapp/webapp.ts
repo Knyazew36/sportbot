@@ -15,6 +15,9 @@ type Haptic = {
 
 type MaxShareParams = { text?: string; link?: string }
 
+/** Чем закрылось окно оплаты Telegram. pending — оплата ещё идёт, результат придёт позже */
+export type InvoiceStatus = 'paid' | 'cancelled' | 'failed' | 'pending'
+
 type BackButton = {
   show?: () => void
   hide?: () => void
@@ -49,6 +52,8 @@ export type WebApp = {
   /** MAX: выбор чата внутри MAX — как t.me/share в Telegram */
   shareMaxContent?: (params: MaxShareParams) => Promise<unknown>
   requestWriteAccess?: (cb?: (allowed: boolean) => void) => void
+  /** Telegram Bot API 6.1: окно оплаты счёта по ссылке createInvoiceLink */
+  openInvoice?: (url: string, cb?: (status: InvoiceStatus) => void) => void
 }
 
 // Отказ MAX — не ошибка приложения: возможности просто нет, а необработанный reject засорил бы консоль
@@ -184,4 +189,17 @@ export const requestWriteAccess = (): Promise<boolean> =>
     const request = webApp()?.requestWriteAccess
     if (!request) return resolve(false)
     request(allowed => resolve(Boolean(allowed)))
+  })
+
+// ── Оплата звёздами ──────────────────────────────────────────────────────────
+
+/** Звёзды есть только в Telegram: в MAX, VK и браузере окна оплаты нет */
+export const canPayStars = (): boolean => detectPlatform() === 'telegram' && Boolean(webApp()?.openInvoice)
+
+/** Открывает окно оплаты счёта и ждёт, чем оно закроется */
+export const openStarsInvoice = (url: string): Promise<InvoiceStatus> =>
+  new Promise((resolve, reject) => {
+    const open = webApp()?.openInvoice
+    if (!open) return reject(new Error('Оплата звёздами доступна только в Telegram'))
+    open(url, status => resolve(status))
   })

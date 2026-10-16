@@ -9,7 +9,10 @@ import { TelegramLoginService } from '../deeplink/telegram-login.service';
 import { TelegramDialogService } from '../dialog/telegram-dialog.service';
 import { TelegramAppAdapter } from '../telegram-app.adapter';
 import { TELEGRAM_CALLBACK, TELEGRAM_LOG_EMOJI } from '../telegram.constants';
-import { TelegramUserInfo } from '../telegram.types';
+import {
+  TelegramPreCheckoutResult,
+  TelegramUserInfo,
+} from '../telegram.types';
 
 import {
   TelegramBotService,
@@ -167,6 +170,70 @@ export class TelegramBotUpdate {
       await ctx
         .answerCbQuery('Что-то пошло не так, попробуйте ещё раз')
         .catch(() => undefined);
+    }
+  }
+
+  // ── Оплата звёздами ─────────────────────────────────────────────────────
+
+  /** Перед списанием Telegram ждёт ответ до 10 секунд: без ответа платёж отменится. */
+  @On('pre_checkout_query')
+  public async onPreCheckout(@Ctx() ctx: Context): Promise<void> {
+    const query = ctx.preCheckoutQuery;
+    if (!query) return;
+    this.logger.log(
+      `pre_checkout_query от telegramId=${query.from.id}, payload=${query.invoice_payload}, amount=${query.total_amount} ${query.currency}`,
+    );
+
+    let result: TelegramPreCheckoutResult;
+    try {
+      result = await this.adapter.onPreCheckout({
+        telegramId: query.from.id,
+        payload: query.invoice_payload,
+        currency: query.currency,
+        amount: query.total_amount,
+      });
+    } catch (error) {
+      this.logger.error(
+        `Ошибка проверки счёта payload=${query.invoice_payload}`,
+        (error as Error).stack,
+      );
+      result = { ok: false, error: 'Не удалось проверить счёт, попробуйте ещё раз' };
+    }
+
+    if (result.ok) await ctx.answerPreCheckoutQuery(true);
+    else await ctx.answerPreCheckoutQuery(false, result.error);
+    this.logger.log(
+      `pre_checkout_query payload=${query.invoice_payload}: ${result.ok ? 'принят' : `отклонён — ${result.error}`}`,
+    );
+  }
+
+  /**
+   * Оплата прошла — Telegram присылает её сообщением в чат. Обработчик стоит выше @On('message'):
+   * иначе сообщение об оплате ушло бы в обработчик обычных сообщений.
+   */
+  @On('successful_payment')
+  public async onSuccessfulPayment(@Ctx() ctx: Context): Promise<void> {
+    const message = ctx.message;
+    if (!message || !('successful_payment' in message) || !ctx.from) return;
+    const payment = message.successful_payment;
+    this.logger.log(
+      `successful_payment от telegramId=${ctx.from.id}, payload=${payment.invoice_payload}, amount=${payment.total_amount} ${payment.currency}`,
+    );
+
+    try {
+      await this.adapter.onSuccessfulPayment({
+        telegramId: ctx.from.id,
+        payload: payment.invoice_payload,
+        currency: payment.currency,
+        amount: payment.total_amount,
+        chargeId: payment.telegram_payment_charge_id,
+      });
+    } catch (error) {
+      // Деньги уже списаны: потерять запись нельзя — chargeId в логе, по нему платёж восстанавливается вручную
+      this.logger.error(
+        `Оплата не записана: payload=${payment.invoice_payload}, chargeId=${payment.telegram_payment_charge_id}`,
+        (error as Error).stack,
+      );
     }
   }
 

@@ -47,6 +47,7 @@ import { ProfileModule } from './profile/profile.module';
 import { ProgramModule } from './program/program.module';
 import { ProgramTagModule } from './program-tag/program-tag.module';
 import { SocialModule } from './social/social.module';
+import { StarsModule } from './stars/stars.module';
 import { StatsModule } from './stats/stats.module';
 import { WorkoutModule } from './workout/workout.module';
 
@@ -101,6 +102,7 @@ import { WorkoutModule } from './workout/workout.module';
     PauseModule,
     LimitationModule,
     BodyWeightModule,
+    StarsModule,
     StatsModule,
     SocialModule,
     LinkModule,

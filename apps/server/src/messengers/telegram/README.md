@@ -91,6 +91,20 @@ TelegramIntegrationModule.forRoot({
 - **payload диплинка** — до 64 символов из `[A-Za-z0-9_-]`, иначе Telegram откроет чат без payload. **callback_data** кнопок — до 64 байт.
 - **Один обработчик на апдейт.** Обработчики `nestjs-telegraf` не вызывают `next()`. Не вешайте свой `@On('callback_query')` / `@On('text')`: модуль или ваш код перестанет получать события. Свои кнопки и сообщения — через `TelegramAppAdapter.onCallback` / `onMessage`.
 
+## Оплата звёздами (Telegram Stars, `XTR`)
+
+Модуль умеет выставить счёт и принять оплату; за что платят и где это хранится, решает проект.
+
+1. Проект создаёт свою запись платежа и вызывает `TelegramBotService.createStarsInvoiceLink({ title, description, payload, amount })` — `provider_token` пустой, цена одной позицией. `payload` (до 128 байт) — id записи проекта.
+2. Мини-приложение открывает ссылку `WebApp.openInvoice(url, cb)`.
+3. Перед списанием приходит `pre_checkout_query` → `adapter.onPreCheckout(...)` → `{ ok: true }` или `{ ok: false, error }`. Ответить нужно за 10 с, иначе Telegram отменит платёж. По умолчанию адаптер отклоняет любой счёт.
+4. После списания — сообщение `successful_payment` → `adapter.onSuccessfulPayment(...)` с `chargeId` (`telegram_payment_charge_id`). Его нужно сохранить: без него не сделать возврат. Апдейт может прийти повторно — обработка идемпотентная.
+5. Возврат — `TelegramBotService.refundStarPayment(telegramId, chargeId)`.
+
+Включать платежи в @BotFather для звёзд не нужно. Обработчик `successful_payment` стоит выше `@On('message')`, иначе сообщение об оплате ушло бы в обработчик сообщений.
+
+В проекте: `src/stars` (запись `StarPayment`, счёт, возврат), связка — `AppTelegramAdapter.onPreCheckout / onSuccessfulPayment`.
+
 ## HTTP API
 
 | Метод  | Путь                                | Доступ      | Что делает                                                                                    |

@@ -1,6 +1,7 @@
 import { DynamicModule, Logger } from '@nestjs/common';
 
 import { MultiAuthGuard } from '@/common/guards/multi-auth.guard';
+import { StarsModule } from '@/stars/stars.module';
 
 import { AppMaxAdapter } from './adapters/app-max.adapter';
 import { AppMessengersSupportModule } from './adapters/app-messengers-support.module';
@@ -86,7 +87,8 @@ export function messengerIntegrations(): DynamicModule[] {
         webAppUrl: telegramWebAppUrl(),
         adapter: AppTelegramAdapter,
         authGuard: MultiAuthGuard,
-        imports: [AppMessengersSupportModule],
+        // StarsModule — адаптер передаёт ему события оплаты звёздами
+        imports: [AppMessengersSupportModule, StarsModule],
       }),
     );
     logger.log(

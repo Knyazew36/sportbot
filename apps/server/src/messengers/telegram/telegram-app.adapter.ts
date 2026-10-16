@@ -3,6 +3,9 @@ import type { Context } from 'telegraf';
 import type { MessengerUser } from '../messenger.types';
 import {
   TelegramLinkButton,
+  TelegramPreCheckout,
+  TelegramPreCheckoutResult,
+  TelegramSuccessfulPayment,
   TelegramUserInfo,
   TelegramWebSession,
 } from './telegram.types';
@@ -121,4 +124,23 @@ export abstract class TelegramAppAdapter {
   ): Promise<boolean> {
     return false;
   }
+
+  // ── Оплата звёздами ─────────────────────────────────────────────────────
+
+  /**
+   * Telegram спрашивает перед списанием звёзд: можно ли принять этот счёт (payload выдал проект).
+   * Проект без платежей не переопределяет — любой счёт отклоняется.
+   */
+
+  public async onPreCheckout(
+    _query: TelegramPreCheckout,
+  ): Promise<TelegramPreCheckoutResult> {
+    return { ok: false, error: 'Оплата недоступна' };
+  }
+
+  /** Звёзды списаны. Вызывается и при повторной доставке апдейта — обработка должна быть идемпотентной. */
+
+  public async onSuccessfulPayment(
+    _payment: TelegramSuccessfulPayment,
+  ): Promise<void> {}
 }

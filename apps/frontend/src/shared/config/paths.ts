@@ -33,6 +33,7 @@ export const ROUTES = {
   ME: '/me',
   ME_SECTION: '/me/:section',
   ME_DEVELOPER: '/me/developer',
+  ME_SUPPORT: '/me/support',
   ADMIN: '/admin',
   ONBOARDING: '/onboarding',
   WORKOUT: '/workout',

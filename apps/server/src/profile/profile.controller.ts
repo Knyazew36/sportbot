@@ -17,6 +17,7 @@ import { CleanupStagedUploadsInterceptor } from '@/upload/cleanup-staged-uploads
 import { imageUploadInterceptorOptions } from '@/upload/upload.utils';
 import { UploadService } from '@/upload/upload.service';
 
+import { AvatarFromMessengerDto } from './dto/avatar-from-messenger.dto';
 import { CityResponseDto } from './dto/city.response.dto';
 import { DeleteProfileDto } from './dto/delete-profile.dto';
 import { ProfileResponseDto } from './dto/profile.response.dto';
@@ -77,6 +78,20 @@ export class ProfileController {
     if (!file) throw new BadRequestException('Файл не передан');
     this.uploadService.verifyImageSignatureOrThrow(file);
     return this.profileAppService.uploadAvatar(userId, file);
+  }
+
+  @Post('avatar/messenger')
+  @Swagger({
+    title: 'Взять фото профиля из привязанного мессенджера',
+    body: AvatarFromMessengerDto,
+    response: ProfileResponseDto,
+    bearerAuth: true,
+  })
+  public avatarFromMessenger(
+    @CurrentUser('id') userId: number,
+    @Body() dto: AvatarFromMessengerDto,
+  ) {
+    return this.profileAppService.avatarFromMessenger(userId, dto.messenger);
   }
 
   @Post('avatar/delete')

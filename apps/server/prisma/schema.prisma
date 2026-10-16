@@ -77,6 +77,7 @@ model User {
   friendshipsB       Friendship[]        @relation("FriendshipB")
   groupMemberships   BotGroupMember[]
   accountLinkCodes   AccountLinkCode[]
+  starPayments       StarPayment[]
 
   @@index([telegramId])
   @@index([maxId])
@@ -1124,4 +1125,29 @@ model BotGroupMember {
 
   @@id([groupId, userId])
   @@index([userId])
+}
+
+enum StarPaymentStatus {
+  PENDING /// счёт выставлен, оплаты ещё нет
+  PAID
+  REFUNDED
+}
+
+/// Оплата звёздами Telegram (XTR). Запись создаётся до счёта: её id уходит в payload счёта,
+/// и по нему бот подтверждает pre_checkout_query и отмечает successful_payment.
+model StarPayment {
+  id               Int               @id @default(autoincrement())
+  userId           Int
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount           Int /// звёзды
+  purpose          String /// назначение платежа: donation и т.п.
+  status           StarPaymentStatus @default(PENDING)
+  telegramChargeId String?           @unique /// telegram_payment_charge_id — без него возврат невозможен
+
+  createdAt  DateTime  @default(now())
+  paidAt     DateTime?
+  refundedAt DateTime?
+
+  @@index([userId])
+  @@index([status, createdAt])
 }
