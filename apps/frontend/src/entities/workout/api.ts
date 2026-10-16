@@ -190,8 +190,9 @@ export const useDiscardWorkout = () => {
     meta: { successMessage: 'Тренировка отменена' },
     onSuccess: () => {
       queryClient.setQueryData(workoutKeys.current, { workout: null })
-      // Как при завершении: без сброса главная мелькнёт отменённой тренировкой
-      queryClient.removeQueries({ queryKey: dayKeys.all })
+      // Отменяют и с главной: remove оставил бы открытому экрану старый день «Тренировка идёт».
+      // reset открытую главную перезапросит, а закрытую просто сбросит — без мелькания отменённой тренировки
+      void queryClient.resetQueries({ queryKey: dayKeys.all })
     },
   })
 }
