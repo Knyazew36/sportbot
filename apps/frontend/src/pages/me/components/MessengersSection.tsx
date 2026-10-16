@@ -1,8 +1,8 @@
 import { CheckIcon, LinkIcon } from 'lucide-react'
 
 import {
-  MESSENGER_LABEL,
   type Messenger,
+  MESSENGER_LABEL,
   useCreateLinkCode,
   useLinkState,
   useSetNotify,
@@ -115,7 +115,7 @@ export const MessengersSection = () => {
               Открой ссылку и нажми «Старт» у бота — аккаунты объединятся, история останется одна.
             </SheetDescription>
           </SheetHeader>
-          <div className='flex flex-col gap-3 px-gutter pb-6'>
+          <div className='px-gutter flex flex-col gap-3 pb-6'>
             {code.data && (
               <ButtonLink
                 to={code.data.url}

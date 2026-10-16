@@ -1,9 +1,9 @@
-import { CirclePlayIcon, FlagIcon, PlusIcon, TriangleAlertIcon, XIcon } from 'lucide-react'
+import { CirclePlayIcon, PencilLineIcon, PlusIcon, TriangleAlertIcon, XIcon } from 'lucide-react'
 import { useNavigate, useParams, useSearchParams } from 'react-router'
 
 import { useState } from 'react'
 
-import { EQUIPMENT_LABEL, splitTechnique, useCatalogExercise, useComplain } from '@/entities/catalog'
+import { EQUIPMENT_LABEL, splitTechnique, useCatalogExercise } from '@/entities/catalog'
 import { useLimitations } from '@/entities/limitation'
 import { complexLetter, useActiveProgram, useAddComplexExercises, useProgram } from '@/entities/program'
 import { toAssetUrl } from '@/shared/api'
@@ -20,7 +20,7 @@ import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Badge } from '@/shared/ui/shadcn/badge'
 import { AddToComplexSheet } from '@/widgets/catalog/AddToComplexSheet'
-import { ComplaintSheet } from '@/widgets/catalog/ComplaintSheet'
+import { ExerciseEditSheet } from '@/widgets/catalog/ExerciseEditSheet'
 
 // Карточка упражнения (frontend-tz, 11.2). Открывается и из справочника, и кнопкой «Техника» на тренировке —
 // тогда ?from= возвращает туда же. Из подбора в комплекс приходят ещё ?program=&complex=: кнопка сразу
@@ -40,9 +40,8 @@ const ExercisePage = () => {
   const targetComplex = targetProgram.data?.complexes.find(c => c.id === target?.complexId)
   const inTarget = targetComplex?.exercises.some(x => x.exerciseId === exerciseId) ?? false
   const add = useAddComplexExercises()
-  const complain = useComplain()
   const [addOpen, setAddOpen] = useState(false)
-  const [complaintOpen, setComplaintOpen] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
 
   return (
     <Screen
@@ -60,10 +59,10 @@ const ExercisePage = () => {
               variant='outline'
               size='icon-lg'
               className='size-[68px]'
-              onClick={() => setComplaintOpen(true)}
-              aria-label='Ошибка в описании'
+              onClick={() => setEditOpen(true)}
+              aria-label='Предложить правку'
             >
-              <FlagIcon className='size-6' />
+              <PencilLineIcon className='size-6' />
             </Button>
             {target ? (
               <Button
@@ -107,7 +106,7 @@ const ExercisePage = () => {
           const limited = new Set(limitations.data?.map(l => l.jointId))
           return (
             <>
-              <Rise className='flex flex-col gap-4 px-gutter'>
+              <Rise className='px-gutter flex flex-col gap-4'>
                 <CatalogImage
                   src={toAssetUrl(e.imageUrl) ?? null}
                   alt={e.name}
@@ -162,7 +161,7 @@ const ExercisePage = () => {
                   )}
                   {e.joints.length > 0 && (
                     <>
-                      <Eyebrow as='dt'>Суставы</Eyebrow>
+                      <Eyebrow as='dt'>Суставы под нагрузкой</Eyebrow>
                       <dd className='flex flex-wrap gap-1.5'>
                         {e.joints.map(j => (
                           <Badge
@@ -235,11 +234,10 @@ const ExercisePage = () => {
                   onPick={complexId => add.mutateAsync({ complexId, exerciseIds: [e.id] })}
                 />
               )}
-              <ComplaintSheet
-                open={complaintOpen}
-                onOpenChange={setComplaintOpen}
-                subject={e.name}
-                onSubmit={text => complain.mutateAsync({ kind: 'exercise', id: e.id, text })}
+              <ExerciseEditSheet
+                open={editOpen}
+                onOpenChange={setEditOpen}
+                exercise={e}
               />
             </>
           )

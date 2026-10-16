@@ -9,14 +9,20 @@ import type {
   CatalogControllerExercise200,
   CatalogControllerExercises200,
   CatalogControllerExercisesParams,
+  CatalogControllerImage200,
   CatalogControllerJoints200,
   CatalogControllerMuscles200,
+  CatalogControllerProposeExercise200,
+  CatalogControllerProposeStretch200,
   CatalogControllerSimilar200,
   CatalogControllerSimilarParams,
   CatalogControllerStretch200,
   CatalogControllerStretches200,
   CatalogControllerStretchesParams,
-  CreateComplaintDto
+  CatalogImageDto,
+  CreateComplaintDto,
+  CreateExerciseProposalDto,
+  CreateStretchProposalDto
 } from '../model';
 
 import { customInstance } from '../../model/orval-mutator';
@@ -71,6 +77,47 @@ export const catalogControllerComplain = (
       );
     }
   /**
+ * @summary Загрузить картинку к правке упражнения
+ */
+export const catalogControllerImage = (
+    catalogImageDto: CatalogImageDto,
+ ) => {const formData = new FormData();
+formData.append(`file`, catalogImageDto.file);
+
+      return customInstance<CatalogControllerImage200>(
+      {url: `/catalog/image`, method: 'POST',
+      headers: {'Content-Type': 'multipart/form-data', },
+       data: formData
+    },
+      );
+    }
+  /**
+ * @summary Предложить правку упражнения — уходит на модерацию
+ */
+export const catalogControllerProposeExercise = (
+    createExerciseProposalDto: CreateExerciseProposalDto,
+ ) => {
+      return customInstance<CatalogControllerProposeExercise200>(
+      {url: `/catalog/proposal/exercise/create`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createExerciseProposalDto
+    },
+      );
+    }
+  /**
+ * @summary Предложить правку растяжки — уходит на модерацию
+ */
+export const catalogControllerProposeStretch = (
+    createStretchProposalDto: CreateStretchProposalDto,
+ ) => {
+      return customInstance<CatalogControllerProposeStretch200>(
+      {url: `/catalog/proposal/stretch/create`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createStretchProposalDto
+    },
+      );
+    }
+  /**
  * @summary Упражнения: поиск, мышца, инвентарь
  */
 export const catalogControllerExercises = (
@@ -120,6 +167,9 @@ export const catalogControllerStretch = (
 export type CatalogControllerJointsResult = NonNullable<Awaited<ReturnType<typeof catalogControllerJoints>>>
 export type CatalogControllerSimilarResult = NonNullable<Awaited<ReturnType<typeof catalogControllerSimilar>>>
 export type CatalogControllerComplainResult = NonNullable<Awaited<ReturnType<typeof catalogControllerComplain>>>
+export type CatalogControllerImageResult = NonNullable<Awaited<ReturnType<typeof catalogControllerImage>>>
+export type CatalogControllerProposeExerciseResult = NonNullable<Awaited<ReturnType<typeof catalogControllerProposeExercise>>>
+export type CatalogControllerProposeStretchResult = NonNullable<Awaited<ReturnType<typeof catalogControllerProposeStretch>>>
 export type CatalogControllerExercisesResult = NonNullable<Awaited<ReturnType<typeof catalogControllerExercises>>>
 export type CatalogControllerExerciseResult = NonNullable<Awaited<ReturnType<typeof catalogControllerExercise>>>
 export type CatalogControllerStretchesResult = NonNullable<Awaited<ReturnType<typeof catalogControllerStretches>>>

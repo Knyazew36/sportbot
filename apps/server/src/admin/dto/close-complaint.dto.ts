@@ -1,5 +1,7 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsIn } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsIn, IsOptional, IsString, MaxLength } from 'class-validator';
+
+import { Trim } from '@/common/decorators/trim.decorator';
 
 export class CloseComplaintDto {
   @ApiProperty({
@@ -8,4 +10,11 @@ export class CloseComplaintDto {
   })
   @IsIn(['RESOLVED', 'REJECTED'])
   status: 'RESOLVED' | 'REJECTED';
+
+  @ApiPropertyOptional({ description: 'Причина отказа — уйдёт автору' })
+  @IsOptional()
+  @Trim()
+  @IsString()
+  @MaxLength(200, { message: 'До 200 символов' })
+  reason?: string;
 }

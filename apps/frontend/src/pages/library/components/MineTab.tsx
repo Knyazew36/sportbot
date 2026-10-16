@@ -11,8 +11,6 @@ import { Rise } from '@/shared/ui/kit/Reveal'
 import { Text } from '@/shared/ui/kit/Typography'
 import { Badge } from '@/shared/ui/shadcn/badge'
 
-import { NewEntryLinks } from './NewEntryLinks'
-
 const OUTCOME_TONE: Record<ModerationOutcome, 'default' | 'secondary' | 'outline' | 'destructive'> = {
   PENDING: 'outline',
   APPROVED: 'default',
@@ -40,15 +38,15 @@ export const MineTab = () => {
   const limit = useDraftLimit()
 
   return (
-    <Rise className='flex flex-col gap-4 px-gutter'>
+    <Rise className='px-gutter flex flex-col gap-4'>
       <QueryScreen
         query={entries}
         className=''
         isEmpty={data => !data.pages[0]?.items?.length}
         empty={{
           title: 'Своих записей нет',
-          description: 'Не нашёл упражнение или растяжку в справочнике — добавь своё.',
-          action: <NewEntryLinks />,
+          // Кнопки добавления — в подвале вкладки, здесь их не дублируем
+          description: 'Не нашёл упражнение или растяжку в справочнике — добавь своё кнопками ниже.',
         }}
       >
         {data => (

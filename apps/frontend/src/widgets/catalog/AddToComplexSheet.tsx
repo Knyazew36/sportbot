@@ -47,7 +47,7 @@ export const AddToComplexSheet = ({
               : program}
           </SheetDescription>
         </SheetHeader>
-        <div className='flex flex-col gap-2 px-gutter pb-6'>
+        <div className='px-gutter flex flex-col gap-2 pb-6'>
           {target ? (
             <Button
               variant='outline'

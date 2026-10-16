@@ -17,7 +17,7 @@ export const DeleteDataSection = () => {
       title='Удаление данных'
     >
       <div className='border-destructive/60 flex flex-col gap-3 border-[1.5px] border-dashed p-4'>
-        <div className='grid grid-cols-2 gap-3'>
+        <div className='flex flex-col gap-4'>
           <div>
             <Eyebrow
               as='p'

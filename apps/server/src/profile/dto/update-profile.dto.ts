@@ -29,6 +29,11 @@ export class UpdateProfileDto {
   @MaxLength(64, { message: 'Имя — до 64 символов' })
   displayName?: string;
 
+  @ApiPropertyOptional({ enum: ['MALE', 'FEMALE'], description: 'Пол' })
+  @IsOptional()
+  @IsIn(['MALE', 'FEMALE'], { message: 'Выбери пол' })
+  gender?: 'MALE' | 'FEMALE';
+
   @ApiPropertyOptional({ type: [Number], description: '0..6, 0 — воскресенье' })
   @IsOptional()
   @IsArray()

@@ -6,7 +6,6 @@ import { type AdminCatalogKind, useAdminCatalog } from '@/entities/admin'
 import { toAssetUrl } from '@/shared/api'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { useDebouncedValue } from '@/shared/lib/hooks/use-debounced-value'
-import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { List } from '@/shared/ui/kit/ListRow'
 import { LoadMore } from '@/shared/ui/kit/LoadMore'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
@@ -14,8 +13,11 @@ import { Rise } from '@/shared/ui/kit/Reveal'
 import { SearchField } from '@/shared/ui/kit/SearchField'
 import { Segmented } from '@/shared/ui/kit/Segmented'
 import { Eyebrow } from '@/shared/ui/kit/Typography'
+import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Badge } from '@/shared/ui/shadcn/badge'
 import { CatalogRow } from '@/widgets/catalog/CatalogRow'
+import { ExerciseCreateSheet } from '@/widgets/catalog/ExerciseCreateSheet'
+import { StretchCreateSheet } from '@/widgets/catalog/StretchCreateSheet'
 
 type Gap = 'all' | 'no-image' | 'no-muscles'
 
@@ -35,6 +37,7 @@ export const CatalogTab = () => {
   const [kind, setKind] = useState<AdminCatalogKind>('exercise')
   const [gap, setGap] = useState<Gap>('all')
   const [query, setQuery] = useState('')
+  const [createOpen, setCreateOpen] = useState(false)
   const search = useDebouncedValue(query.trim())
   const catalog = useAdminCatalog(kind, {
     search: search || undefined,
@@ -44,7 +47,7 @@ export const CatalogTab = () => {
 
   return (
     <>
-      <Rise className='flex flex-col gap-3 px-gutter'>
+      <Rise className='px-gutter flex flex-col gap-3'>
         <Segmented
           options={KINDS}
           value={kind}
@@ -57,7 +60,7 @@ export const CatalogTab = () => {
           onValueChange={setQuery}
           placeholder='Название записи'
         />
-        <div className='no-scrollbar -mx-gutter overflow-x-auto px-gutter pb-1'>
+        <div className='no-scrollbar -mx-gutter px-gutter overflow-x-auto pb-1'>
           <Segmented
             options={GAPS}
             value={gap}
@@ -66,16 +69,16 @@ export const CatalogTab = () => {
         </div>
       </Rise>
 
-      <Rise className='flex flex-col gap-3 px-gutter'>
+      <Rise className='px-gutter flex flex-col gap-3'>
         <div className='flex items-center justify-between gap-3'>
           <Eyebrow>найдено: {catalog.data?.pages[0]?.meta?.total ?? '—'}</Eyebrow>
-          <ButtonLink
-            to={buildPath(ROUTES.ADMIN_CATALOG_ITEM, { kind, itemId: 'new' })}
+          <Button
             size='sm'
+            onClick={() => setCreateOpen(true)}
           >
             <PlusIcon strokeWidth={2.5} />
             Создать
-          </ButtonLink>
+          </Button>
         </div>
         <QueryScreen
           query={catalog}
@@ -116,6 +119,15 @@ export const CatalogTab = () => {
         </QueryScreen>
         <LoadMore query={catalog} />
       </Rise>
+      {/* Те же шторки, что в справочнике: у админа запись сразу попадает в справочник */}
+      <ExerciseCreateSheet
+        open={createOpen && kind === 'exercise'}
+        onOpenChange={setCreateOpen}
+      />
+      <StretchCreateSheet
+        open={createOpen && kind === 'stretch'}
+        onOpenChange={setCreateOpen}
+      />
     </>
   )
 }

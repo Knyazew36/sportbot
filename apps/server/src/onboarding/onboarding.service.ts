@@ -7,6 +7,7 @@ import { ONBOARDING_STEPS } from '@/profile/profile.service';
 import { ProgramService } from '@/program/program.service';
 
 import { OnboardingDaysDto } from './dto/onboarding-days.dto';
+import { OnboardingGenderDto } from './dto/onboarding-gender.dto';
 import { OnboardingProgramDto } from './dto/onboarding-program.dto';
 import { OnboardingStateResponseDto } from './dto/onboarding-state.response.dto';
 import { OnboardingTimesDto } from './dto/onboarding-times.dto';
@@ -35,6 +36,7 @@ export class OnboardingService {
     return {
       step: profile.onboardingStep,
       onboarded: !!profile.onboardedAt,
+      gender: profile.gender,
       trainingDays: profile.trainingDays,
       morningTime: profile.morningTime,
       eveningTime: profile.eveningTime,
@@ -48,6 +50,19 @@ export class OnboardingService {
   }
 
   // ── Шаги ────────────────────────────────────────────────────────────────
+
+  /** Шаг только приложения: бот пол не спрашивает, поэтому счётчик шагов не двигаем. */
+  public async saveGender(
+    userId: number,
+    dto: OnboardingGenderDto,
+  ): Promise<OnboardingStateResponseDto> {
+    await this.prisma.sportProfile.update({
+      where: { userId },
+      data: { gender: dto.gender },
+    });
+    this.logger.log(`Шаг 0, пол: userId=${userId}, ${dto.gender}`);
+    return this.state(userId);
+  }
 
   public async saveDays(
     userId: number,

@@ -78,7 +78,7 @@ export const ComplaintSheet = ({ open, onOpenChange, subject, onSubmit }: Compla
             {sent ? 'Жалоба у администратора. Поправим описание после проверки.' : `«${subject}»`}
           </SheetDescription>
         </SheetHeader>
-        <div className='flex flex-col gap-3 px-gutter pb-6'>
+        <div className='px-gutter flex flex-col gap-3 pb-6'>
           {sent ? (
             <Button
               variant='outline'

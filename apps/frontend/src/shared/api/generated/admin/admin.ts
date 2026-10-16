@@ -5,6 +5,7 @@
  * OpenAPI spec version: 0.0.1
  */
 import type {
+  AdminControllerApplyComplaint200,
   AdminControllerApprove200,
   AdminControllerBlock200,
   AdminControllerCloseComplaint200,
@@ -135,6 +136,17 @@ export const adminControllerCloseComplaint = (
       );
     }
   /**
+ * @summary Применить правку упражнения как есть и закрыть жалобу
+ */
+export const adminControllerApplyComplaint = (
+    id: number,
+ ) => {
+      return customInstance<AdminControllerApplyComplaint200>(
+      {url: `/admin/complaints/apply/${id}`, method: 'POST'
+    },
+      );
+    }
+  /**
  * @summary Пользователи с поиском
  */
 export const adminControllerUsers = (
@@ -206,6 +218,7 @@ export type AdminControllerDuplicateResult = NonNullable<Awaited<ReturnType<type
 export type AdminControllerRejectResult = NonNullable<Awaited<ReturnType<typeof adminControllerReject>>>
 export type AdminControllerComplaintsResult = NonNullable<Awaited<ReturnType<typeof adminControllerComplaints>>>
 export type AdminControllerCloseComplaintResult = NonNullable<Awaited<ReturnType<typeof adminControllerCloseComplaint>>>
+export type AdminControllerApplyComplaintResult = NonNullable<Awaited<ReturnType<typeof adminControllerApplyComplaint>>>
 export type AdminControllerUsersResult = NonNullable<Awaited<ReturnType<typeof adminControllerUsers>>>
 export type AdminControllerBlockResult = NonNullable<Awaited<ReturnType<typeof adminControllerBlock>>>
 export type AdminControllerUnblockResult = NonNullable<Awaited<ReturnType<typeof adminControllerUnblock>>>

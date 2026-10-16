@@ -9,4 +9,6 @@ import type { CloseComplaintDtoStatus } from './closeComplaintDtoStatus';
 export interface CloseComplaintDto {
   /** Исправлено или отклонено */
   status: CloseComplaintDtoStatus;
+  /** Причина отказа — уйдёт автору */
+  reason?: string;
 }

@@ -1,5 +1,6 @@
+import { GENDERS, type Profile, useUpdateProfile } from '@/entities/profile'
 import { type ThemeChoice, useThemeChoice } from '@/shared/lib/hooks/use-messenger-theme'
-import { type Palette, usePaletteChoice } from '@/shared/lib/hooks/use-palette'
+import { type Gender, type Palette, paletteForGender, usePaletteChoice } from '@/shared/lib/hooks/use-palette'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Segmented } from '@/shared/ui/kit/Segmented'
 import { Text } from '@/shared/ui/kit/Typography'
@@ -15,10 +16,15 @@ const OPTIONS: { value: ThemeChoice; label: string }[] = [
   { value: 'dark', label: 'Тёмная' },
 ]
 
-// Оформление: расцветка и тема — две независимые настройки. По умолчанию синяя и как в мессенджере. Применяется сразу
-export const ThemeSection = () => {
+// Оформление: пол подбирает расцветку, расцветку можно сменить вручную; тема от них независима.
+// По умолчанию синяя и как в мессенджере. Применяется сразу
+export const ThemeSection = ({ profile }: { profile: Profile }) => {
   const [palette, setPalette] = usePaletteChoice()
   const [choice, setChoice] = useThemeChoice()
+  const update = useUpdateProfile()
+
+  const changeGender = (gender: Gender) =>
+    update.mutate({ gender }, { onSuccess: () => setPalette(paletteForGender(gender)) })
 
   return (
     <ScreenSection
@@ -26,6 +32,14 @@ export const ThemeSection = () => {
       index={8}
       title='Оформление'
     >
+      <Segmented
+        options={GENDERS}
+        // Старые пользователи пол не выбирали — тогда ни один сегмент не нажат
+        value={(profile.gender ?? '') as Gender}
+        onValueChange={changeGender}
+        size='default'
+        stretch
+      />
       <Segmented
         options={PALETTES}
         value={palette}

@@ -2,7 +2,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 
 import { addDays, weekStart } from '@/bot';
-import { ComplaintStatus, User } from '@/generated/prisma/client';
+import { User } from '@/generated/prisma/client';
 import { ModerationService } from '@/moderation/moderation.service';
 
 @Injectable()
@@ -50,22 +50,6 @@ export class AdminService {
         user: { select: { sportProfile: { select: { displayName: true } } } },
       },
     });
-  }
-
-  /** Жалоба меняется только из OPEN: повторное нажатие получает «уже обработано». */
-  public async closeComplaint(
-    complaintId: number,
-    status: Exclude<ComplaintStatus, 'OPEN'>,
-  ): Promise<boolean> {
-    const { count } = await this.prisma.complaint.updateMany({
-      where: { id: complaintId, status: 'OPEN' },
-      data: { status },
-    });
-    if (count)
-      this.logger.log(
-        `Жалоба закрыта: complaintId=${complaintId}, статус=${status}`,
-      );
-    return count > 0;
   }
 
   // ── Блокировка ──────────────────────────────────────────────────────────

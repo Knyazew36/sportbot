@@ -14,8 +14,7 @@ type MuscleRolesProps = {
 // Два отдельных списка по 16 мышц заняли бы два экрана
 export const MuscleRoles = ({ muscles, primary, secondary, onChange }: MuscleRolesProps) => {
   const cycle = (id: number) => {
-    if (primary.includes(id))
-      onChange({ primary: primary.filter(x => x !== id), secondary: [...secondary, id] })
+    if (primary.includes(id)) onChange({ primary: primary.filter(x => x !== id), secondary: [...secondary, id] })
     else if (secondary.includes(id)) onChange({ primary, secondary: secondary.filter(x => x !== id) })
     else onChange({ primary: [...primary, id], secondary })
   }
@@ -31,16 +30,20 @@ export const MuscleRoles = ({ muscles, primary, secondary, onChange }: MuscleRol
             variant={role === 'PRIMARY' ? 'default' : role === 'SECONDARY' ? 'alert' : 'outline'}
             size='sm'
             onClick={() => cycle(m.id)}
-            aria-label={`${m.name}: ${role === 'PRIMARY' ? 'основная' : role === 'SECONDARY' ? 'вспомогательная' : 'не участвует'}`}
-            className={cn('h-11 justify-between px-3', !role && 'text-foreground/60')}
+            aria-label={`${m.name}: ${role === 'PRIMARY' ? 'основная' : role === 'SECONDARY' ? 'помогает' : 'не участвует'}`}
+            // Роль — второй строкой: в одну строку с ней длинное название мышцы обрезалось
+            className={cn(
+              'h-auto min-h-11 flex-col items-start justify-center gap-0 px-3 py-1.5',
+              !role && 'text-foreground/60',
+            )}
           >
-            <span className='truncate'>{m.name}</span>
+            <span className='max-w-full truncate'>{m.name}</span>
             {role && (
               <Eyebrow
                 size='sm'
                 tone='inherit'
               >
-                {role === 'PRIMARY' ? 'осн' : 'всп'}
+                {role === 'PRIMARY' ? 'основная' : 'помогает'}
               </Eyebrow>
             )}
           </Button>

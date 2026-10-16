@@ -6,6 +6,7 @@ import { Swagger } from '@/common/decorators/swagger/swagger.decorator';
 import { SportAuth } from '@/miniapp/decorators/sport-auth.decorator';
 
 import { OnboardingDaysDto } from './dto/onboarding-days.dto';
+import { OnboardingGenderDto } from './dto/onboarding-gender.dto';
 import { OnboardingProgramDto } from './dto/onboarding-program.dto';
 import { OnboardingStateResponseDto } from './dto/onboarding-state.response.dto';
 import { OnboardingTimesDto } from './dto/onboarding-times.dto';
@@ -25,6 +26,20 @@ export class OnboardingController {
   })
   public state(@CurrentUser('id') userId: number) {
     return this.onboardingService.state(userId);
+  }
+
+  @Post('gender')
+  @Swagger({
+    title: 'Шаг 0 (только приложение): пол',
+    body: OnboardingGenderDto,
+    response: OnboardingStateResponseDto,
+    bearerAuth: true,
+  })
+  public saveGender(
+    @CurrentUser('id') userId: number,
+    @Body() dto: OnboardingGenderDto,
+  ) {
+    return this.onboardingService.saveGender(userId, dto);
   }
 
   @Post('days')

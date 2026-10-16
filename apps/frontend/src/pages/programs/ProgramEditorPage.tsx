@@ -63,6 +63,7 @@ const ProgramEditorPage = () => {
           action={
             <ButtonLink
               to={ROUTES.PROGRAMS}
+              variant='success'
               size='sm'
             >
               Готово
@@ -79,7 +80,7 @@ const ProgramEditorPage = () => {
               {p.active ? (
                 <Text
                   size='sm'
-                  tone='primary'
+                  tone='positive'
                   className='flex items-center gap-1.5'
                 >
                   <CheckIcon

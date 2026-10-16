@@ -7,9 +7,11 @@
 import type {
   OnboardingControllerFinish200,
   OnboardingControllerSaveDays200,
+  OnboardingControllerSaveGender200,
   OnboardingControllerSaveTimes200,
   OnboardingControllerState200,
   OnboardingDaysDto,
+  OnboardingGenderDto,
   OnboardingProgramDto,
   OnboardingTimesDto
 } from '../model';
@@ -26,6 +28,19 @@ export const onboardingControllerState = (
  ) => {
       return customInstance<OnboardingControllerState200>(
       {url: `/onboarding`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @summary Шаг 0 (только приложение): пол
+ */
+export const onboardingControllerSaveGender = (
+    onboardingGenderDto: OnboardingGenderDto,
+ ) => {
+      return customInstance<OnboardingControllerSaveGender200>(
+      {url: `/onboarding/gender`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: onboardingGenderDto
     },
       );
     }
@@ -69,6 +84,7 @@ export const onboardingControllerFinish = (
       );
     }
   export type OnboardingControllerStateResult = NonNullable<Awaited<ReturnType<typeof onboardingControllerState>>>
+export type OnboardingControllerSaveGenderResult = NonNullable<Awaited<ReturnType<typeof onboardingControllerSaveGender>>>
 export type OnboardingControllerSaveDaysResult = NonNullable<Awaited<ReturnType<typeof onboardingControllerSaveDays>>>
 export type OnboardingControllerSaveTimesResult = NonNullable<Awaited<ReturnType<typeof onboardingControllerSaveTimes>>>
 export type OnboardingControllerFinishResult = NonNullable<Awaited<ReturnType<typeof onboardingControllerFinish>>>

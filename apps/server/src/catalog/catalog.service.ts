@@ -8,6 +8,8 @@ import { paginatePrisma } from '@/common/prisma';
 import { Joint, Muscle, Prisma } from '@/generated/prisma/client';
 import { MessengerMessage } from '@/messengers';
 
+import type { CatalogProposal, ProposalChange } from './catalog-proposal';
+
 export const EXERCISE_INCLUDE = {
   muscles: { include: { muscle: true } },
   joints: { include: { joint: true } },
@@ -25,6 +27,16 @@ export type StretchFull = Prisma.StretchGetPayload<{
 }>;
 
 export type CatalogKind = 'exercise' | 'stretch';
+
+export const COMPLAINT_MESSAGE_INCLUDE = {
+  exercise: { select: { name: true } },
+  stretch: { select: { name: true } },
+  user: { select: { sportProfile: { select: { displayName: true } } } },
+} satisfies Prisma.ComplaintInclude;
+
+type ComplaintForMessage = Prisma.ComplaintGetPayload<{
+  include: typeof COMPLAINT_MESSAGE_INCLUDE;
+}>;
 
 const PAGE_SIZE = 8;
 const COMPLAINT_MAX = 500;
@@ -255,14 +267,18 @@ export class CatalogService {
 
   // ── Жалобы ──────────────────────────────────────────────────────────────
 
-  public async createComplaint(
-    userId: number,
-    kind: CatalogKind,
-    id: number,
-    text: string,
-  ) {
-    const trimmed = text.trim();
-    if (!trimmed) throw new BadRequestException('Напиши, что не так.');
+  /** Жалоба текстом или правка упражнения (proposal — только изменённые поля). */
+  public async createComplaint(input: {
+    userId: number;
+    kind: CatalogKind;
+    id: number;
+    text: string;
+    proposal?: CatalogProposal;
+  }) {
+    const { userId, kind, id, proposal } = input;
+    const trimmed = input.text.trim();
+    if (!trimmed && !proposal)
+      throw new BadRequestException('Напиши, что не так.');
     if (trimmed.length > COMPLAINT_MAX)
       throw new BadRequestException(
         `Слишком длинно: до ${COMPLAINT_MAX} символов.`,
@@ -271,39 +287,61 @@ export class CatalogService {
       data: {
         userId,
         text: trimmed,
+        proposal,
         ...(kind === 'exercise' ? { exerciseId: id } : { stretchId: id }),
       },
-      include: {
-        exercise: { select: { name: true } },
-        stretch: { select: { name: true } },
-        user: { select: { sportProfile: { select: { displayName: true } } } },
-      },
+      include: COMPLAINT_MESSAGE_INCLUDE,
     });
     this.logger.log(
-      `Жалоба создана: complaintId=${complaint.id}, ${kind} id=${id}, userId=${userId}`,
+      `${proposal ? 'Правка' : 'Жалоба'} создана: complaintId=${complaint.id}, ${kind} id=${id}, userId=${userId}${proposal ? `, поля: ${Object.keys(proposal).join(',')}` : ''}`,
     );
     return complaint;
   }
 
+  /** Названия мышц и суставов для «было → стало». */
+  public async refNames() {
+    const [muscles, joints] = await Promise.all([
+      this.muscles(),
+      this.joints(),
+    ]);
+    return {
+      muscles: new Map(muscles.map((m) => [m.id, m.name])),
+      joints: new Map(joints.map((j) => [j.id, j.name])),
+    };
+  }
+
   /** Жалоба администратору с кнопками исхода — одинаковая из бота и приложения. */
-  public complaintMessage(complaint: {
-    id: number;
-    text: string;
-    exercise: { name: string } | null;
-    stretch: { name: string } | null;
-    user: { sportProfile: { displayName: string } | null } | null;
-  }): MessengerMessage {
+  public complaintMessage(
+    complaint: ComplaintForMessage,
+    changes: ProposalChange[] = [],
+  ): MessengerMessage {
     const title = complaint.exercise?.name ?? complaint.stretch?.name ?? '';
     const author = complaint.user?.sportProfile?.displayName ?? 'пользователя';
+    const lines = changes.map((c) =>
+      c.field === 'imagePath'
+        ? `• ${c.title}: ${c.after ? 'новая' : 'убрать'}`
+        : `• ${c.title}: ${c.before ?? '—'} → ${c.after ?? '—'}`,
+    );
     return msg(
-      `Жалоба на описание: «${title}» от ${author}
-
-${complaint.text}`,
       [
-        [
-          btn('Исправлено', `cp:ok:${complaint.id}`),
-          btn('Отклонить', `cp:no:${complaint.id}`),
-        ],
+        changes.length
+          ? `Правка ${complaint.exercise ? 'упражнения' : 'растяжки'} «${title}» от ${author}`
+          : `Жалоба на описание: «${title}» от ${author}`,
+        lines.join('\n'),
+        complaint.text,
+      ]
+        .filter(Boolean)
+        .join('\n\n'),
+      [
+        changes.length
+          ? [
+              btn('Применить', `cp:apply:${complaint.id}`),
+              btn('Отклонить', `cp:no:${complaint.id}`),
+            ]
+          : [
+              btn('Исправлено', `cp:ok:${complaint.id}`),
+              btn('Отклонить', `cp:no:${complaint.id}`),
+            ],
         [appBtn(APP_SCREEN.complaint(complaint.id))],
       ],
     );

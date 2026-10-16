@@ -39,6 +39,7 @@ export class ProfileAppService {
     ]);
     return {
       displayName: profile.displayName,
+      gender: profile.gender,
       timeZone: profile.timeZone,
       timeZoneTitle: zoneTitle(profile.timeZone),
       trainingDays: profile.trainingDays,

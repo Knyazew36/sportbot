@@ -27,7 +27,7 @@ export const TemplatePreviewSheet = ({ templateId, onOpenChange, onPick }: Templ
           <SheetTitle>{template?.name ?? 'Шаблон'}</SheetTitle>
           <SheetDescription>{template?.description ?? 'Комплексы идут по очереди, по кругу.'}</SheetDescription>
         </SheetHeader>
-        <div className='min-h-0 flex-1 overflow-y-auto px-gutter pb-2'>
+        <div className='px-gutter min-h-0 flex-1 overflow-y-auto pb-2'>
           <QueryScreen
             query={templates}
             className=''

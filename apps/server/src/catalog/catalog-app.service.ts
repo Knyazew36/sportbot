@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 
 import { BotSender } from '@/bot';
@@ -14,12 +19,21 @@ import {
   STRETCH_INCLUDE,
 } from './catalog.service';
 import { CatalogExerciseResponseDto } from './dto/catalog-exercise.response.dto';
+import { CatalogImageResponseDto } from './dto/catalog-image.response.dto';
 import { CatalogListItemResponseDto } from './dto/catalog-list-item.response.dto';
 import { CatalogQueryDto } from './dto/catalog-query.dto';
 import { CatalogRefResponseDto } from './dto/catalog-ref.response.dto';
 import { CatalogStretchResponseDto } from './dto/catalog-stretch.response.dto';
 import { ComplaintCreatedResponseDto } from './dto/complaint-created.response.dto';
 import { CreateComplaintDto } from './dto/create-complaint.dto';
+import { CreateExerciseProposalDto } from './dto/create-exercise-proposal.dto';
+import { CreateStretchProposalDto } from './dto/create-stretch-proposal.dto';
+import {
+  exerciseForm,
+  proposalChanges,
+  proposalDiff,
+  stretchForm,
+} from './catalog-proposal';
 
 const LIST_EXERCISE_INCLUDE = {
   muscles: { include: { muscle: true } },
@@ -221,13 +235,84 @@ export class CatalogAppService {
         ? await this.catalog.findExercise(userId, dto.id)
         : await this.catalog.findStretch(userId, dto.id);
     if (!target) throw new NotFoundException('Запись не найдена.');
-    const complaint = await this.catalog.createComplaint(
+    const complaint = await this.catalog.createComplaint({
       userId,
-      dto.kind,
-      dto.id,
-      dto.text,
-    );
+      kind: dto.kind,
+      id: dto.id,
+      text: dto.text,
+    });
     await this.sender.sendToAdmins(this.catalog.complaintMessage(complaint));
+    return { id: complaint.id };
+  }
+
+  // ── Правка упражнения ───────────────────────────────────────────────────
+
+  /** Картинка к правке: файл уже проверен и лежит в стейджинге — переносим к картинкам справочника. */
+  public image(file: Express.Multer.File): CatalogImageResponseDto {
+    this.uploads.verifyImageSignatureOrThrow(file);
+    const imagePath = this.uploads.commitToCategory(file.path, 'catalog');
+    this.logger.log(`Картинка к правке загружена: ${imagePath}`);
+    return { imagePath, imageUrl: this.uploads.toPublicUrl(imagePath)! };
+  }
+
+  /** Правка упражнения уходит администраторам: в базе — только реально изменённые поля. */
+  public async proposeExercise(
+    userId: number,
+    dto: CreateExerciseProposalDto,
+  ): Promise<ComplaintCreatedResponseDto> {
+    const { exerciseId, comment, ...fields } = dto;
+    const exercise = await this.catalog.findExercise(userId, exerciseId);
+    if (!exercise) throw new NotFoundException('Упражнение не найдено.');
+    return this.propose(userId, 'exercise', exerciseId, comment, {
+      current: exerciseForm(exercise),
+      fields,
+    });
+  }
+
+  /** Правка растяжки — так же, как упражнения. */
+  public async proposeStretch(
+    userId: number,
+    dto: CreateStretchProposalDto,
+  ): Promise<ComplaintCreatedResponseDto> {
+    const { stretchId, comment, ...fields } = dto;
+    const stretch = await this.catalog.findStretch(userId, stretchId);
+    if (!stretch) throw new NotFoundException('Растяжка не найдена.');
+    return this.propose(userId, 'stretch', stretchId, comment, {
+      current: stretchForm(stretch),
+      fields,
+    });
+  }
+
+  // ── Внутреннее ──────────────────────────────────────────────────────────
+
+  private async propose<T extends object>(
+    userId: number,
+    kind: CatalogKind,
+    id: number,
+    comment: string | undefined,
+    form: { current: T; fields: Partial<T> },
+  ): Promise<ComplaintCreatedResponseDto> {
+    const proposal = proposalDiff(kind, form.current, form.fields);
+    if (!Object.keys(proposal).length)
+      throw new BadRequestException(
+        'Ничего не изменено — поправь хотя бы одно поле.',
+      );
+    const complaint = await this.catalog.createComplaint({
+      userId,
+      kind,
+      id,
+      text: comment ?? '',
+      proposal,
+    });
+    const changes = proposalChanges(
+      kind,
+      form.current,
+      proposal,
+      await this.catalog.refNames(),
+    );
+    await this.sender.sendToAdmins(
+      this.catalog.complaintMessage(complaint, changes),
+    );
     return { id: complaint.id };
   }
 }

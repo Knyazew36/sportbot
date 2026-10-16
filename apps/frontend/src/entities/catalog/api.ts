@@ -1,11 +1,13 @@
 import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import {
-  catalogControllerComplain,
   catalogControllerExercise,
   catalogControllerExercises,
+  catalogControllerImage,
   catalogControllerJoints,
   catalogControllerMuscles,
+  catalogControllerProposeExercise,
+  catalogControllerProposeStretch,
   catalogControllerSimilar,
   catalogControllerStretch,
   catalogControllerStretches,
@@ -17,8 +19,9 @@ import type {
   CatalogListItemResponseDto,
   CatalogRefResponseDto,
   CatalogStretchResponseDto,
-  CreateComplaintDto,
   CreateDraftDto,
+  CreateExerciseProposalDto,
+  CreateStretchProposalDto,
   MyEntryResponseDto,
 } from '@/shared/api/generated/model'
 
@@ -112,21 +115,41 @@ export const useSimilar = (kind: CatalogKind, name: string) =>
     placeholderData: keepPreviousData,
   })
 
-/** «Ошибка в описании» — жалоба уходит администратору */
-export const useComplain = () =>
+// ── Правки ──────────────────────────────────────────────────────────────────
+
+/** Картинка своей записи или правки: файл сразу уходит на сервер, в форму попадает только его путь */
+export const useUploadEntryImage = () =>
   useMutation({
-    mutationFn: (body: CreateComplaintDto) => catalogControllerComplain(body),
-    meta: { successMessage: 'Жалоба у администратора', inlineFieldErrors: true },
+    mutationFn: (file: File) => catalogControllerImage({ file }),
+    // Картинка сразу появляется в превью формы
+    meta: { skipSuccessToast: true },
+  })
+
+/** «Предложить правку»: изменённые поля упражнения уходят администратору на модерацию */
+export const useProposeExercise = () =>
+  useMutation({
+    mutationFn: (body: CreateExerciseProposalDto) => catalogControllerProposeExercise(body),
+    // Итог показывает сама шторка правки экраном «Спасибо!» — тост бы его дублировал
+    meta: { skipSuccessToast: true, inlineFieldErrors: true },
+  })
+
+/** «Предложить правку» растяжки — так же, как упражнения */
+export const useProposeStretch = () =>
+  useMutation({
+    mutationFn: (body: CreateStretchProposalDto) => catalogControllerProposeStretch(body),
+    // Итог показывает сама шторка правки экраном «Спасибо!» — тост бы его дублировал
+    meta: { skipSuccessToast: true, inlineFieldErrors: true },
   })
 
 // ── Свои записи ─────────────────────────────────────────────────────────────
 
 /** Сколько заявок осталось на сегодня: при нуле мастер не открывается */
-export const useDraftLimit = () =>
+export const useDraftLimit = ({ enabled = true }: { enabled?: boolean } = {}) =>
   useQuery({
     queryKey: draftKeys.limit,
     queryFn: () => draftControllerLimit(),
     staleTime: 0,
+    enabled,
   })
 
 /** Вкладка «Мои»: свои записи и исход модерации */
@@ -144,7 +167,8 @@ export const useCreateDraft = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (body: CreateDraftDto) => draftControllerCreate(body),
-    meta: { successMessage: 'Черновик создан, заявка у администратора', inlineFieldErrors: true },
+    // Итог показывает шторка создания экраном «Отправлено» — тост бы его дублировал
+    meta: { skipSuccessToast: true, inlineFieldErrors: true },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: draftKeys.all })
       // Черновик сразу виден в выдаче справочника с пометкой «не проверено»

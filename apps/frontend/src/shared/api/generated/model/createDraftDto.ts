@@ -4,6 +4,7 @@
  * api
  * OpenAPI spec version: 0.0.1
  */
+import type { CreateDraftDtoEquipment } from './createDraftDtoEquipment';
 import type { CreateDraftDtoKind } from './createDraftDtoKind';
 
 export interface CreateDraftDto {
@@ -16,6 +17,12 @@ export interface CreateDraftDto {
   /** Техника (упражнение) или «как делать» (растяжка) */
   technique?: string;
   videoUrl?: string;
+  /** Картинка из POST catalog/image */
+  imagePath?: string;
+  /** Упражнение: инвентарь */
+  equipment?: CreateDraftDtoEquipment;
+  /** Упражнение: нагружаемые суставы */
+  jointIds?: number[];
   /** Растяжка: удержание, с */
   holdSeconds?: number;
   /** Растяжка: на каждую сторону */

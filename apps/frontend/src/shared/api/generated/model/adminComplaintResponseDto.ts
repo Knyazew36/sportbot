@@ -4,12 +4,16 @@
  * api
  * OpenAPI spec version: 0.0.1
  */
+import type { AdminComplaintChangeResponseDto } from './adminComplaintChangeResponseDto';
 import type { AdminComplaintResponseDtoKind } from './adminComplaintResponseDtoKind';
 import type { AdminComplaintResponseDtoStatus } from './adminComplaintResponseDtoStatus';
 
 export interface AdminComplaintResponseDto {
   id: number;
+  /** Текст жалобы или комментарий к правке */
   text: string;
+  /** Предложенная правка; пусто — жалоба текстом */
+  changes: AdminComplaintChangeResponseDto[];
   status: AdminComplaintResponseDtoStatus;
   kind: AdminComplaintResponseDtoKind;
   /** @nullable */

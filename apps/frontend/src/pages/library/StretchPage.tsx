@@ -1,9 +1,9 @@
-import { CheckIcon, FlagIcon, PlayIcon, RotateCcwIcon, SkipForwardIcon } from 'lucide-react'
+import { CheckIcon, PencilLineIcon, PlayIcon, RotateCcwIcon, SkipForwardIcon } from 'lucide-react'
 import { useParams } from 'react-router'
 
 import { useState } from 'react'
 
-import { muscleNames, useCatalogStretch, useComplain } from '@/entities/catalog'
+import { muscleNames, useCatalogStretch } from '@/entities/catalog'
 import { toAssetUrl } from '@/shared/api'
 import { ROUTES } from '@/shared/config/paths'
 import { CatalogImage } from '@/shared/ui/kit/CatalogImage'
@@ -16,8 +16,8 @@ import { StatGrid } from '@/shared/ui/kit/StatGrid'
 import { Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Badge } from '@/shared/ui/shadcn/badge'
-import { ComplaintSheet } from '@/widgets/catalog/ComplaintSheet'
 import { HoldControls } from '@/widgets/catalog/HoldControls'
+import { StretchEditSheet } from '@/widgets/catalog/StretchEditSheet'
 
 const BACK = `${ROUTES.LIBRARY}?tab=stretches`
 
@@ -25,10 +25,9 @@ const BACK = `${ROUTES.LIBRARY}?tab=stretches`
 const StretchPage = () => {
   const stretchId = Number(useParams().stretchId)
   const stretch = useCatalogStretch(stretchId)
-  const complain = useComplain()
   // 0 — таймер не запущен, 1 и 2 — сторона
   const [side, setSide] = useState<0 | 1 | 2>(0)
-  const [complaintOpen, setComplaintOpen] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
   const s = stretch.data
 
   return (
@@ -48,10 +47,10 @@ const StretchPage = () => {
               variant='outline'
               size='icon-lg'
               className='size-[68px]'
-              onClick={() => setComplaintOpen(true)}
-              aria-label='Ошибка в описании'
+              onClick={() => setEditOpen(true)}
+              aria-label='Предложить правку'
             >
-              <FlagIcon className='size-6' />
+              <PencilLineIcon className='size-6' />
             </Button>
             <Button
               size='xl'
@@ -80,7 +79,7 @@ const StretchPage = () => {
       <QueryScreen query={stretch}>
         {st => (
           <>
-            <Rise className='flex flex-col gap-4 px-gutter'>
+            <Rise className='px-gutter flex flex-col gap-4'>
               <CatalogImage
                 src={toAssetUrl(st.imageUrl) ?? null}
                 alt={st.name}
@@ -132,11 +131,10 @@ const StretchPage = () => {
               </ScreenSection>
             )}
 
-            <ComplaintSheet
-              open={complaintOpen}
-              onOpenChange={setComplaintOpen}
-              subject={st.name}
-              onSubmit={text => complain.mutateAsync({ kind: 'stretch', id: st.id, text })}
+            <StretchEditSheet
+              open={editOpen}
+              onOpenChange={setEditOpen}
+              stretch={st}
             />
           </>
         )}

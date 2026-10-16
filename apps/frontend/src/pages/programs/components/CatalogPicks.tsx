@@ -13,10 +13,11 @@ import { Badge } from '@/shared/ui/shadcn/badge'
 const PICKS = 6
 
 // «Подобрать программу»: первые шаблоны каталога лентой, чтобы было видно — программ много и можно
-// выбрать под себя. Фильтры живут в каталоге: ряды чипов здесь превратили бы страницу в простыню
+// выбрать под себя. Фильтры живут в каталоге: ряды чипов здесь превратили бы страницу в простыню.
+// Уже взятые шаблоны не показываем: они и так в «Моих программах» выше
 export const CatalogPicks = ({ title }: { title: string }) => {
   const templates = useTemplates()
-  const picks = templates.data?.slice(0, PICKS) ?? []
+  const picks = templates.data?.filter(t => t.takenProgramId == null).slice(0, PICKS) ?? []
   if (!picks.length) return null
 
   return (
@@ -62,7 +63,6 @@ export const CatalogPicks = ({ title }: { title: string }) => {
                 </Text>
               )}
               <div className='mt-auto flex flex-wrap gap-1.5 pt-1'>
-                {t.takenProgramId != null && <Badge variant='secondary'>уже у тебя</Badge>}
                 {t.tags.slice(0, 3).map(tg => (
                   <Badge key={tg.id}>{tg.name}</Badge>
                 ))}

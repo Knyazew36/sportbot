@@ -1,32 +1,33 @@
 import { PlusIcon } from 'lucide-react'
 
-import { ROUTES } from '@/shared/config/paths'
-import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
+import type { CatalogKind } from '@/entities/catalog'
+import { cn } from '@/shared/lib/utils'
+import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
-// Нет нужного в справочнике — своя запись (frontend-tz, 11.4)
-export const NewEntryLinks = () => (
-  <>
-    <ButtonLink
-      to={`${ROUTES.LIBRARY_NEW}?kind=exercise`}
+type NewEntryLinksProps = {
+  /** Шторки создания живут на странице справочника: кнопки бывают в пустом состоянии, которое исчезает с первой записью */
+  onCreate: (kind: CatalogKind) => void
+  className?: string
+}
+
+// Нет нужного в справочнике — своя запись (frontend-tz, 11.4). Две кнопки в одну строку
+export const NewEntryLinks = ({ onCreate, className }: NewEntryLinksProps) => (
+  <div className={cn('grid w-full grid-cols-2 gap-2', className)}>
+    <Button
       variant='outline'
-      size='xl'
+      size='lg'
+      onClick={() => onCreate('exercise')}
     >
-      <PlusIcon
-        className='size-6'
-        strokeWidth={2.5}
-      />
+      <PlusIcon strokeWidth={2.5} />
       Упражнение
-    </ButtonLink>
-    <ButtonLink
-      to={`${ROUTES.LIBRARY_NEW}?kind=stretch`}
+    </Button>
+    <Button
       variant='outline'
-      size='xl'
+      size='lg'
+      onClick={() => onCreate('stretch')}
     >
-      <PlusIcon
-        className='size-6'
-        strokeWidth={2.5}
-      />
+      <PlusIcon strokeWidth={2.5} />
       Растяжку
-    </ButtonLink>
-  </>
+    </Button>
+  </div>
 )

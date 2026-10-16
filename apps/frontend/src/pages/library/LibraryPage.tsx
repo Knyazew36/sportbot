@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router'
 import { useState } from 'react'
 
 import {
+  type CatalogKind,
   type Equipment,
   FILTER_ALL,
   muscleFilterOptions,
@@ -18,6 +19,8 @@ import { ScreenHeader } from '@/shared/ui/kit/ScreenHeader'
 import { Segmented } from '@/shared/ui/kit/Segmented'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { CatalogFilters } from '@/widgets/catalog/CatalogFilters'
+import { ExerciseCreateSheet } from '@/widgets/catalog/ExerciseCreateSheet'
+import { StretchCreateSheet } from '@/widgets/catalog/StretchCreateSheet'
 
 import { CatalogResults } from './components/CatalogResults'
 import { MineTab } from './components/MineTab'
@@ -39,6 +42,8 @@ const LibraryPage = () => {
   const [query, setQuery] = useState('')
   const [muscle, setMuscle] = useState(FILTER_ALL)
   const [equipment, setEquipment] = useState<Equipment | 'ALL'>(FILTER_ALL)
+  // Какую запись создаём: шторки живут здесь, а не в кнопках — кнопки из пустого состояния пропадают с первой записью
+  const [creating, setCreating] = useState<CatalogKind | null>(null)
 
   const search = useDebouncedValue(query.trim()) || undefined
   const filterMuscle = muscle === FILTER_ALL ? undefined : Number(muscle)
@@ -65,7 +70,7 @@ const LibraryPage = () => {
       >
         Сбросить фильтры
       </Button>
-      <NewEntryLinks />
+      <NewEntryLinks onCreate={setCreating} />
     </div>
   )
 
@@ -74,7 +79,7 @@ const LibraryPage = () => {
       header={
         <>
           <ScreenHeader title='Справочник' />
-          <div className='flex flex-col gap-3 px-gutter pt-4'>
+          <div className='px-gutter flex flex-col gap-3 pt-4'>
             <Segmented
               options={TABS}
               value={tab}
@@ -88,7 +93,7 @@ const LibraryPage = () => {
       footer={
         tab === 'mine' && (
           <StickyFooter>
-            <NewEntryLinks />
+            <NewEntryLinks onCreate={setCreating} />
           </StickyFooter>
         )
       }
@@ -127,6 +132,14 @@ const LibraryPage = () => {
           </Rise>
         </>
       )}
+      <ExerciseCreateSheet
+        open={creating === 'exercise'}
+        onOpenChange={open => !open && setCreating(null)}
+      />
+      <StretchCreateSheet
+        open={creating === 'stretch'}
+        onOpenChange={open => !open && setCreating(null)}
+      />
     </Screen>
   )
 }

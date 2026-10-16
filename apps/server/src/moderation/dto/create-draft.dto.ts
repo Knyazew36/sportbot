@@ -9,6 +9,7 @@ import {
   IsOptional,
   IsString,
   IsUrl,
+  Matches,
   Max,
   MaxLength,
   Min,
@@ -16,6 +17,8 @@ import {
 } from 'class-validator';
 
 import { Trim } from '@/common/decorators/trim.decorator';
+
+const EQUIPMENT = ['BARBELL', 'DUMBBELL', 'MACHINE', 'BODYWEIGHT'] as const;
 
 export class CreateDraftDto {
   @ApiProperty({ enum: ['exercise', 'stretch'] })
@@ -62,6 +65,33 @@ export class CreateDraftDto {
   @IsOptional()
   @IsUrl({}, { message: 'Ссылка на видео — полный адрес https://…' })
   videoUrl?: string;
+
+  @ApiPropertyOptional({
+    description: 'Картинка из POST catalog/image',
+  })
+  @IsOptional()
+  @IsString()
+  // Только файл, загруженный через catalog/image: чужой путь в черновик не подставить
+  @Matches(/^catalog\/[\w-]+\.\w+$/, { message: 'Загрузи картинку заново' })
+  imagePath?: string;
+
+  @ApiPropertyOptional({
+    enum: EQUIPMENT,
+    description: 'Упражнение: инвентарь',
+  })
+  @IsOptional()
+  @IsIn(EQUIPMENT)
+  equipment?: (typeof EQUIPMENT)[number];
+
+  @ApiPropertyOptional({
+    type: [Number],
+    description: 'Упражнение: нагружаемые суставы',
+  })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(20)
+  @IsInt({ each: true })
+  jointIds?: number[];
 
   @ApiPropertyOptional({ description: 'Растяжка: удержание, с' })
   @IsOptional()

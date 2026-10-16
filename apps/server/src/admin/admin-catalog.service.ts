@@ -16,7 +16,7 @@ import { AdminCatalogItemResponseDto } from './dto/admin-catalog-item.response.d
 import { AdminCatalogQueryDto } from './dto/admin-catalog-query.dto';
 import { AdminExerciseResponseDto } from './dto/admin-exercise.response.dto';
 import { AdminStretchResponseDto } from './dto/admin-stretch.response.dto';
-import { CatalogImageResponseDto } from './dto/catalog-image.response.dto';
+import { CatalogImageResponseDto } from '@/catalog/dto/catalog-image.response.dto';
 import { SaveExerciseDto } from './dto/save-exercise.dto';
 import { SaveStretchDto } from './dto/save-stretch.dto';
 

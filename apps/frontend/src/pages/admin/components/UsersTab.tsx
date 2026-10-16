@@ -28,7 +28,7 @@ export const UsersTab = () => {
   const unblock = useUnblockUser()
 
   return (
-    <Rise className='flex flex-col gap-3 px-gutter'>
+    <Rise className='px-gutter flex flex-col gap-3'>
       <SearchField
         value={query}
         onValueChange={setQuery}

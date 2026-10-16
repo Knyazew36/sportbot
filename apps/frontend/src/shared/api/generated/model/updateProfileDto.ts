@@ -4,11 +4,14 @@
  * api
  * OpenAPI spec version: 0.0.1
  */
+import type { UpdateProfileDtoGender } from './updateProfileDtoGender';
 import type { UpdateProfileDtoWeightAskFrequency } from './updateProfileDtoWeightAskFrequency';
 
 export interface UpdateProfileDto {
   /** Имя для друзей */
   displayName?: string;
+  /** Пол */
+  gender?: UpdateProfileDtoGender;
   /** 0..6, 0 — воскресенье */
   trainingDays?: number[];
   morningTime?: string;

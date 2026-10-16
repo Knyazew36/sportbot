@@ -3,6 +3,7 @@ import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClie
 import { catalogKeys } from '@/entities/catalog'
 import { programKeys } from '@/entities/program'
 import {
+  adminControllerApplyComplaint,
   adminControllerApprove,
   adminControllerBlock,
   adminControllerCloseComplaint,
@@ -129,11 +130,25 @@ export const useComplaints = () =>
 export const useCloseComplaint = () => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, status }: CloseComplaintDto & { id: number }) => adminControllerCloseComplaint(id, { status }),
-    meta: { successMessage: 'Жалоба закрыта' },
+    mutationFn: ({ id, ...body }: CloseComplaintDto & { id: number }) => adminControllerCloseComplaint(id, body),
+    meta: { successMessage: 'Жалоба закрыта', inlineFieldErrors: true },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: adminKeys.complaints })
       void queryClient.invalidateQueries({ queryKey: adminKeys.counters })
+    },
+  })
+}
+
+/** Правка пользователя применяется как есть: упражнение обновляется, жалоба закрывается */
+export const useApplyComplaint = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => adminControllerApplyComplaint(id),
+    meta: { successMessage: 'Правка применена' },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: adminKeys.complaints })
+      void queryClient.invalidateQueries({ queryKey: adminKeys.counters })
+      void queryClient.invalidateQueries({ queryKey: catalogKeys.all })
     },
   })
 }

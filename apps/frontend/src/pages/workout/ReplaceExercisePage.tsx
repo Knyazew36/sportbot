@@ -1,19 +1,11 @@
 import { PlusIcon, RepeatIcon } from 'lucide-react'
-import { useLocation, useNavigate, useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 
 import { useState } from 'react'
 
-import {
-  newEntryForReplacePath,
-  type ReplaceLocationState,
-  useAnalogs,
-  useCurrentWorkout,
-  useReplaceItem,
-  type WorkoutAnalog,
-} from '@/entities/workout'
+import { useAnalogs, useCurrentWorkout, useReplaceItem, type WorkoutAnalog } from '@/entities/workout'
 import { toAssetUrl } from '@/shared/api'
 import { ROUTES } from '@/shared/config/paths'
-import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { List } from '@/shared/ui/kit/ListRow'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Rise } from '@/shared/ui/kit/Reveal'
@@ -24,6 +16,7 @@ import { Lead, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'
 import { CatalogRow } from '@/widgets/catalog/CatalogRow'
+import { ExerciseCreateSheet } from '@/widgets/catalog/ExerciseCreateSheet'
 import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet'
 
 // Замена упражнения (business-tz, 7.4): аналоги с теми же основными мышцами, без зон с ограничением,
@@ -31,16 +24,15 @@ import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet'
 const ReplaceExercisePage = () => {
   const itemId = Number(useParams().itemId)
   const navigate = useNavigate()
-  const location = useLocation()
   const current = useCurrentWorkout()
   const analogs = useAnalogs(itemId)
   const replace = useReplaceItem()
-  // Вернулись из мастера своего упражнения — выбор «сегодня / в комплексе» открыт сразу
-  const [choice, setChoice] = useState<Pick<WorkoutAnalog, 'id' | 'name'> | null>(
-    () => (location.state as ReplaceLocationState | null)?.created ?? null,
-  )
+  // draft — своё упражнение, которое только что ушло на модерацию из шторки создания
+  const [choice, setChoice] = useState<(Pick<WorkoutAnalog, 'id' | 'name'> & { draft?: boolean }) | null>(null)
   // Тап по строке — посмотреть упражнение; кнопка справа — сразу к выбору замены
   const [preview, setPreview] = useState<WorkoutAnalog | null>(null)
+  // Своё упражнение создаётся шторкой прямо здесь и сразу открывает выбор замены
+  const [createOpen, setCreateOpen] = useState(false)
 
   const workout = current.data?.workout
   const item = workout?.exercises.find(e => e.id === itemId)
@@ -84,14 +76,14 @@ const ReplaceExercisePage = () => {
             title: 'Подходящих аналогов нет',
             description: 'Все упражнения на эти мышцы уже в тренировке или нагружают сустав с ограничением.',
             action: (
-              <ButtonLink
-                to={newEntryForReplacePath(itemId)}
+              <Button
                 variant='outline'
                 size='sm'
+                onClick={() => setCreateOpen(true)}
               >
                 <PlusIcon />
                 Создать своё упражнение
-              </ButtonLink>
+              </Button>
             ),
           }}
         >
@@ -121,14 +113,14 @@ const ReplaceExercisePage = () => {
           )}
         </QueryScreen>
         {!!analogs.data?.length && (
-          <ButtonLink
-            to={newEntryForReplacePath(itemId)}
+          <Button
             variant='outline'
             className='w-full'
+            onClick={() => setCreateOpen(true)}
           >
             <PlusIcon />
             Нет нужного — создать своё
-          </ButtonLink>
+          </Button>
         )}
       </ScreenSection>
 
@@ -153,10 +145,7 @@ const ReplaceExercisePage = () => {
       <Sheet
         open={choice != null}
         onOpenChange={open => {
-          if (open) return
-          setChoice(null)
-          // Иначе созданное из state снова откроет выбор при возврате на экран
-          if (location.state) void navigate(location.pathname, { replace: true, state: null })
+          if (!open) setChoice(null)
         }}
       >
         <SheetContent>
@@ -167,6 +156,15 @@ const ReplaceExercisePage = () => {
             </SheetDescription>
           </SheetHeader>
           <div className='px-gutter flex flex-col gap-3 pb-6'>
+            {choice?.draft && (
+              <Text
+                size='sm'
+                tone='muted'
+                className='border-primary/60 border-l-2 pl-3'
+              >
+                Черновик ушёл администратору на проверку — пока с пометкой «не проверено». Бот напишет исход.
+              </Text>
+            )}
             <Button
               size='lg'
               className='w-full'
@@ -187,6 +185,12 @@ const ReplaceExercisePage = () => {
           </div>
         </SheetContent>
       </Sheet>
+
+      <ExerciseCreateSheet
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        onCreated={setChoice}
+      />
     </Screen>
   )
 }

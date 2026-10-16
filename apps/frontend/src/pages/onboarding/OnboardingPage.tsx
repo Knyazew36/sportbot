@@ -7,8 +7,10 @@ import {
   useFinishOnboarding,
   useOnboarding,
   useSaveOnboardingDays,
+  useSaveOnboardingGender,
   useSaveOnboardingTimes,
 } from '@/entities/onboarding'
+import { paletteForGender, usePaletteChoice } from '@/shared/lib/hooks/use-palette'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Screen, StickyFooter } from '@/shared/ui/kit/Screen'
@@ -18,12 +20,18 @@ import { Lead, Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
 import { StepDays } from './components/StepDays'
+import { StepGender } from './components/StepGender'
 import { StepProgram } from './components/StepProgram'
 import { StepTimes } from './components/StepTimes'
 
 const FORM_ID = 'onboarding-step'
 
 const STEPS = [
+  {
+    lead: 'кто тренируется —',
+    title: 'Пол',
+    hint: 'От него зависит расцветка приложения. Потом можно поменять в профиле.',
+  },
   {
     lead: 'когда тренируемся —',
     title: 'Дни',
@@ -37,14 +45,19 @@ const STEPS = [
   },
 ]
 
-// Первый запуск (business-tz, 13): три шага с значениями по умолчанию. Продолжается с того шага,
+// Серверный шаг 1..3 совпадает с индексом экрана: экран 0 — пол, его спрашивает только приложение
+const resumeStep = (state: OnboardingState) => Math.min(Math.max(state.step, 1), STEPS.length - 1)
+
+// Первый запуск (business-tz, 13): пол и три шага с значениями по умолчанию. Продолжается с того шага,
 // где остановились в боте или приложении; часовой пояс тут не спрашивается — Москва
 const Wizard = ({ state }: { state: OnboardingState }) => {
-  const [step, setStep] = useState(Math.min(Math.max(state.step, 1), STEPS.length) - 1)
+  const [step, setStep] = useState(state.gender ? resumeStep(state) : 0)
+  const [, setPalette] = usePaletteChoice()
+  const saveGender = useSaveOnboardingGender()
   const saveDays = useSaveOnboardingDays()
   const saveTimes = useSaveOnboardingTimes()
   const finish = useFinishOnboarding()
-  const pending = saveDays.isPending || saveTimes.isPending || finish.isPending
+  const pending = saveGender.isPending || saveDays.isPending || saveTimes.isPending || finish.isPending
   const current = STEPS[step]!
   const last = step === STEPS.length - 1
 
@@ -117,21 +130,34 @@ const Wizard = ({ state }: { state: OnboardingState }) => {
       </Rise>
 
       {step === 0 && (
-        <StepDays
+        <StepGender
           formId={FORM_ID}
-          defaultValues={{ trainingDays: state.trainingDays }}
-          onSubmit={values => saveDays.mutateAsync(values).then(() => setStep(1))}
+          defaultValues={{ gender: state.gender ?? undefined }}
+          // Начавший настройку в боте продолжит со своего шага, а не с «Дней»
+          onSubmit={values =>
+            saveGender.mutateAsync(values).then(saved => {
+              setPalette(paletteForGender(values.gender))
+              setStep(resumeStep(saved))
+            })
+          }
         />
       )}
       {step === 1 && (
+        <StepDays
+          formId={FORM_ID}
+          defaultValues={{ trainingDays: state.trainingDays }}
+          onSubmit={values => saveDays.mutateAsync(values).then(() => setStep(2))}
+        />
+      )}
+      {step === 2 && (
         <StepTimes
           formId={FORM_ID}
           defaultValues={{ morningTime: state.morningTime, eveningTime: state.eveningTime }}
-          onSubmit={values => saveTimes.mutateAsync(values).then(() => setStep(2))}
+          onSubmit={values => saveTimes.mutateAsync(values).then(() => setStep(3))}
         />
       )}
       {/* После конца настройки гард сам уведёт на «Сегодня» */}
-      {step === 2 && (
+      {step === 3 && (
         <StepProgram
           formId={FORM_ID}
           templates={state.templates}

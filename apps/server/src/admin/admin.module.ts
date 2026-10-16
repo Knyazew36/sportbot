@@ -12,6 +12,7 @@ import { AdminTemplatesController } from './admin-templates.controller';
 import { AdminBot } from './admin.bot';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
+import { ComplaintService } from './complaint.service';
 import { ImportService } from './import.service';
 
 @Module({
@@ -25,6 +26,7 @@ import { ImportService } from './import.service';
     AdminService,
     AdminAppService,
     AdminCatalogService,
+    ComplaintService,
     ImportService,
     AdminBot,
   ],

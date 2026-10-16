@@ -12,6 +12,7 @@ import {
   useDuplicateRequest,
   useModerationRequest,
   useRejectRequest,
+  useUploadCatalogImage,
 } from '@/entities/admin'
 import { type Equipment, EQUIPMENT_LABEL, useJoints } from '@/entities/catalog'
 import { ROUTES } from '@/shared/config/paths'
@@ -33,9 +34,8 @@ import { Label } from '@/shared/ui/shadcn/label'
 import { Textarea } from '@/shared/ui/shadcn/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/shadcn/toggle-group'
 import { CatalogRow } from '@/widgets/catalog/CatalogRow'
+import { ImageField } from '@/widgets/catalog/ImageField'
 import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet'
-
-import { ImageField } from './components/ImageField'
 
 type Outcome = ModerationValues['outcome']
 
@@ -64,6 +64,7 @@ const RequestForm = ({ request }: { request: AdminRequest }) => {
   const approve = useApproveRequest()
   const duplicate = useDuplicateRequest()
   const reject = useRejectRequest()
+  const upload = useUploadCatalogImage()
   const entry = request.entry
   // Похожая запись в шторке: сравнить с заявкой, не уходя с экрана
   const [preview, setPreview] = useState<AdminRequest['similar'][number] | null>(null)
@@ -247,6 +248,7 @@ const RequestForm = ({ request }: { request: AdminRequest }) => {
               <ImageField
                 initialUrl={null}
                 alt={entry?.name ?? ''}
+                upload={upload}
                 onUploaded={path => setValue('imagePath', path)}
               />
             </ScreenSection>
@@ -268,7 +270,7 @@ const RequestForm = ({ request }: { request: AdminRequest }) => {
                   </div>
                 </ScreenSection>
                 <ScreenSection
-                  title='Суставы'
+                  title='Суставы под нагрузкой'
                   aside='для ограничений'
                 >
                   <Controller

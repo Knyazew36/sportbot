@@ -38,7 +38,7 @@ const LimitationForm = ({ onDone }: { onDone: () => void }) => {
 
   return (
     <form
-      className='flex flex-col gap-4 px-gutter pb-6'
+      className='px-gutter flex flex-col gap-4 pb-6'
       onSubmit={handleSubmit(values =>
         create
           .mutateAsync(values)

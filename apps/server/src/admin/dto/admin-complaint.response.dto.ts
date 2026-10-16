@@ -1,11 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+import { AdminComplaintChangeResponseDto } from './admin-complaint-change.response.dto';
+
 export class AdminComplaintResponseDto {
   @ApiProperty()
   id: number;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Текст жалобы или комментарий к правке' })
   text: string;
+
+  @ApiProperty({
+    type: [AdminComplaintChangeResponseDto],
+    description: 'Предложенная правка; пусто — жалоба текстом',
+  })
+  changes: AdminComplaintChangeResponseDto[];
 
   @ApiProperty({ enum: ['OPEN', 'RESOLVED', 'REJECTED'] })
   status: 'OPEN' | 'RESOLVED' | 'REJECTED';

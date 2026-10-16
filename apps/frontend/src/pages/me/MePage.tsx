@@ -3,8 +3,8 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 
 import {
-  type DisplayNameValues,
   displayNameSchema,
+  type DisplayNameValues,
   type Profile,
   useProfile,
   useUpdateProfile,
@@ -75,7 +75,7 @@ const MePage = () => {
       <QueryScreen query={profile}>
         {p => (
           <>
-            <Rise className='flex flex-col gap-4 px-gutter'>
+            <Rise className='px-gutter flex flex-col gap-4'>
               <div className='flex items-end justify-between gap-4'>
                 <div className='min-w-0'>
                   <Lead>привет,</Lead>
@@ -110,7 +110,7 @@ const MePage = () => {
             <BodyWeightSection profile={p} />
             <FriendsSection />
             <MessengersSection />
-            <ThemeSection />
+            <ThemeSection profile={p} />
             <DeleteDataSection />
           </>
         )}

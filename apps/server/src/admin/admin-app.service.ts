@@ -2,10 +2,21 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 
 import { APP_SCREEN, appBtn, BotSender, isAdmin, msg } from '@/bot';
-import { CatalogService } from '@/catalog/catalog.service';
+import {
+  CatalogService,
+  EXERCISE_INCLUDE,
+  STRETCH_INCLUDE,
+} from '@/catalog/catalog.service';
+import {
+  exerciseForm,
+  proposalChanges,
+  readProposal,
+  stretchForm,
+} from '@/catalog/catalog-proposal';
 import { paginatePrisma } from '@/common/prisma';
 import { PaginationQueryDto } from '@/common/type/pagination-query.dto';
 import { Prisma } from '@/generated/prisma/client';
+import { UploadService } from '@/upload/upload.service';
 import {
   Decision,
   ModerationService,
@@ -14,6 +25,7 @@ import {
 } from '@/moderation/moderation.service';
 
 import { AdminService } from './admin.service';
+import { ComplaintService } from './complaint.service';
 import { AdminComplaintResponseDto } from './dto/admin-complaint.response.dto';
 import { AdminComplaintsQueryDto } from './dto/admin-complaints-query.dto';
 import { AdminRequestResponseDto } from './dto/admin-request.response.dto';
@@ -23,8 +35,8 @@ import { ImportReportResponseDto } from './dto/import-report.response.dto';
 import { ImportService } from './import.service';
 
 const COMPLAINT_INCLUDE = {
-  exercise: { select: { id: true, name: true } },
-  stretch: { select: { id: true, name: true } },
+  exercise: { include: EXERCISE_INCLUDE },
+  stretch: { include: STRETCH_INCLUDE },
   user: { select: { sportProfile: { select: { displayName: true } } } },
 } satisfies Prisma.ComplaintInclude;
 
@@ -55,6 +67,8 @@ export class AdminAppService {
     private readonly catalog: CatalogService,
     private readonly imports: ImportService,
     private readonly sender: BotSender,
+    private readonly complaintService: ComplaintService,
+    private readonly uploads: UploadService,
   ) {}
 
   public counters() {
@@ -125,9 +139,10 @@ export class AdminAppService {
       orderBy: { id: 'desc' },
       include: COMPLAINT_INCLUDE,
     });
+    const names = await this.catalog.refNames();
     return {
       items: (page.items as unknown as ComplaintRow[]).map((c) =>
-        this.complaintView(c),
+        this.complaintView(c, names),
       ),
       meta: page.meta,
     };
@@ -136,8 +151,14 @@ export class AdminAppService {
   public async closeComplaint(
     complaintId: number,
     status: 'RESOLVED' | 'REJECTED',
+    reason?: string,
   ): Promise<void> {
-    if (!(await this.admin.closeComplaint(complaintId, status)))
+    if (!(await this.complaintService.close(complaintId, status, reason)))
+      throw new BadRequestException('Жалоба уже обработана.');
+  }
+
+  public async applyComplaint(complaintId: number): Promise<void> {
+    if (!(await this.complaintService.apply(complaintId)))
       throw new BadRequestException('Жалоба уже обработана.');
   }
 
@@ -295,11 +316,42 @@ export class AdminAppService {
     };
   }
 
-  private complaintView(complaint: ComplaintRow): AdminComplaintResponseDto {
+  private complaintView(
+    complaint: ComplaintRow,
+    names: Awaited<ReturnType<CatalogService['refNames']>>,
+  ): AdminComplaintResponseDto {
     const entry = complaint.exercise ?? complaint.stretch;
+    const proposal = readProposal(complaint.proposal);
+    const changes = !proposal
+      ? []
+      : complaint.exercise
+        ? proposalChanges(
+            'exercise',
+            exerciseForm(complaint.exercise),
+            proposal,
+            names,
+          )
+        : complaint.stretch
+          ? proposalChanges(
+              'stretch',
+              stretchForm(complaint.stretch),
+              proposal,
+              names,
+            )
+          : [];
     return {
       id: complaint.id,
       text: complaint.text,
+      // Админке картинку показываем, поэтому вместо путей — адреса файлов
+      changes: changes.map((c) =>
+        c.field === 'imagePath'
+          ? {
+              ...c,
+              before: this.uploads.toPublicUrl(c.before),
+              after: this.uploads.toPublicUrl(c.after),
+            }
+          : c,
+      ),
       status: complaint.status,
       kind: complaint.exercise ? 'exercise' : 'stretch',
       entryId: entry?.id ?? null,

@@ -191,7 +191,7 @@ const CatalogItemScreen = () => {
             />
           </ScreenSection>
           <ScreenSection
-            title='Суставы'
+            title='Суставы под нагрузкой'
             aside='для ограничений'
           >
             <ToggleGroup

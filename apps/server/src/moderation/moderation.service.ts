@@ -50,6 +50,11 @@ export interface DraftInput {
   videoUrl?: string;
   holdSeconds?: number;
   perSide?: boolean;
+  /** Картинка из формы приложения. */
+  imagePath?: string;
+  /** Только упражнение: инвентарь и суставы. */
+  equipment?: Equipment;
+  jointIds?: number[];
 }
 
 export interface DraftEdits {
@@ -114,6 +119,11 @@ export class ModerationService {
             ...common,
             technique: input.technique,
             videoUrl: input.videoUrl,
+            imagePath: input.imagePath,
+            equipment: input.equipment,
+            joints: {
+              create: (input.jointIds ?? []).map((jointId) => ({ jointId })),
+            },
             muscles: {
               create: [
                 ...input.primary.map((muscleId) => ({
@@ -139,6 +149,7 @@ export class ModerationService {
         data: {
           ...common,
           howTo: input.technique,
+          imagePath: input.imagePath,
           holdSeconds: input.holdSeconds ?? 30,
           perSide: input.perSide ?? false,
           muscles: { create: input.primary.map((muscleId) => ({ muscleId })) },

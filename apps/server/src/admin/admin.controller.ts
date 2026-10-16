@@ -153,7 +153,17 @@ export class AdminController {
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: CloseComplaintDto,
   ) {
-    return this.adminAppService.closeComplaint(id, dto.status);
+    return this.adminAppService.closeComplaint(id, dto.status, dto.reason);
+  }
+
+  @Post('complaints/apply/:id')
+  @Swagger({
+    title: 'Применить правку упражнения как есть и закрыть жалобу',
+    param: ID_PARAM,
+    bearerAuth: true,
+  })
+  public applyComplaint(@Param('id', ParseIntPipe) id: number) {
+    return this.adminAppService.applyComplaint(id);
   }
 
   // ── Пользователи ────────────────────────────────────────────────────────

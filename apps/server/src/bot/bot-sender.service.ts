@@ -62,20 +62,14 @@ export class BotSender {
   /**
    * Сообщение от бота по его инициативе. Привязаны оба мессенджера — в выбранные пользователем
    * (SportProfile.notifyChannels; не выбирал — Telegram); туда не дошло — в оставшийся, чтобы
-   * вопрос не потерялся. `all` — во все привязанные, мимо выбора.
+   * вопрос не потерялся.
    * Не бросает: недоставка пишется в лог. @returns ушло ли хотя бы в один мессенджер.
    */
-  public async send(
-    user: User,
-    message: MessengerMessage,
-    options: { all?: boolean } = {},
-  ): Promise<boolean> {
+  public async send(user: User, message: MessengerMessage): Promise<boolean> {
     const deliverable = CHANNELS.filter((channel) =>
       this.registry.get(channel)?.canDeliver(user),
     );
-    const chosen = options.all
-      ? deliverable
-      : await this.chosenChannels(user.id, deliverable);
+    const chosen = await this.chosenChannels(user.id, deliverable);
 
     let delivered = false;
     for (const channel of chosen)
@@ -101,7 +95,7 @@ export class BotSender {
     return this.send(user, message);
   }
 
-  /** Администраторам: заявки и жалобы приходят во все их мессенджеры. */
+  /** Администраторам: заявки и жалобы — в мессенджеры, выбранные в настройках уведомлений. */
   public async sendToAdmins(message: MessengerMessage): Promise<void> {
     if (!adminConfigured()) {
       this.logger.warn(
@@ -119,7 +113,7 @@ export class BotSender {
       this.logger.warn(
         'Администратор ещё не запускал бота — сообщение не ушло',
       );
-    for (const admin of admins) await this.send(admin, message, { all: true });
+    for (const admin of admins) await this.send(admin, message);
   }
 
   // ── Выбор мессенджера ───────────────────────────────────────────────────

@@ -33,17 +33,27 @@ export class DraftAppService {
     const muscles = [...dto.primary, ...(dto.secondary ?? [])];
     if (muscles.some((id) => !known.has(id)))
       throw new BadRequestException('Неизвестная мышца — обнови экран.');
+    const joints = new Set((await this.catalog.joints()).map((j) => j.id));
+    if (dto.jointIds?.some((id) => !joints.has(id)))
+      throw new BadRequestException('Неизвестный сустав — обнови экран.');
+    const isExercise = dto.kind === 'exercise';
 
     const request = await this.moderation.submit(userId, {
       kind: dto.kind,
       name: dto.name,
       primary: dto.primary,
       // У растяжки мышцы одного вида — все в primary
-      secondary: dto.kind === 'exercise' ? (dto.secondary ?? []) : [],
+      secondary: isExercise ? (dto.secondary ?? []) : [],
       technique: dto.technique || undefined,
       videoUrl: dto.videoUrl || undefined,
       holdSeconds: dto.holdSeconds,
       perSide: dto.perSide,
+      imagePath: dto.imagePath,
+      // У растяжки инвентаря и суставов нет
+      ...(isExercise && {
+        equipment: dto.equipment,
+        jointIds: dto.jointIds,
+      }),
     });
     await this.sender.sendToAdmins(this.moderation.requestMessage(request));
     this.logger.log(

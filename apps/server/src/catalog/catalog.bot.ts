@@ -117,12 +117,12 @@ export class CatalogBot implements BotFeature {
     }
 
     const id = Number(session.state.split(':')[1]);
-    const complaint = await this.catalog.createComplaint(
-      ctx.user.id,
+    const complaint = await this.catalog.createComplaint({
+      userId: ctx.user.id,
       kind,
       id,
       text,
-    );
+    });
     const fromWorkout = 'back' in session.data;
     if (fromWorkout) await this.restoreSession(ctx, session);
     else await this.sessions.clear(ctx);

@@ -62,7 +62,7 @@ export const ImportTab = () => {
 
   return (
     <>
-      <Rise className='flex flex-col gap-3 px-gutter'>
+      <Rise className='px-gutter flex flex-col gap-3'>
         <Text tone='soft'>
           Файл с упражнениями, растяжками и шаблонами. Повторный импорт обновляет записи по коду, дублей не создаёт.
         </Text>

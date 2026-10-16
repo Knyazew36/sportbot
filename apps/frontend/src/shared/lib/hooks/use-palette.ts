@@ -5,6 +5,11 @@ import { repaintMessengerChrome } from './use-messenger-theme'
 /** classic — синяя расцветка Спортбота; rose — розовая. Ось независима от светлой/тёмной темы */
 export type Palette = 'classic' | 'rose'
 
+export type Gender = 'MALE' | 'FEMALE'
+
+/** Расцветка по полу: выбор пола сразу перекрашивает, ручной выбор расцветки потом её переопределяет */
+export const paletteForGender = (gender: Gender): Palette => (gender === 'FEMALE' ? 'rose' : 'classic')
+
 // Ключ читает и inline-скрипт в index.html — менять вместе
 const STORAGE_KEY = 'sb-palette'
 

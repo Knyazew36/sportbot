@@ -5,10 +5,16 @@
  * OpenAPI spec version: 0.0.1
  */
 import type { ProfilePauseResponseDto } from './profilePauseResponseDto';
+import type { ProfileResponseDtoGender } from './profileResponseDtoGender';
 import type { ProfileResponseDtoWeightAskFrequency } from './profileResponseDtoWeightAskFrequency';
 
 export interface ProfileResponseDto {
   displayName: string;
+  /**
+     * Пол; null — не выбран
+     * @nullable
+     */
+  gender: ProfileResponseDtoGender;
   timeZone: string;
   /** Город или UTC±N */
   timeZoneTitle: string;

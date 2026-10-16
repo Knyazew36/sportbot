@@ -21,11 +21,7 @@ type CatalogResultsProps = {
 }
 
 const meta = (item: CatalogListItem) =>
-  [
-    item.muscles,
-    item.equipment && EQUIPMENT_LABEL[item.equipment],
-    item.holdSeconds != null && `${item.holdSeconds} с`,
-  ]
+  [item.muscles, item.equipment && EQUIPMENT_LABEL[item.equipment], item.holdSeconds != null && `${item.holdSeconds} с`]
     .filter(Boolean)
     .join(' · ')
 

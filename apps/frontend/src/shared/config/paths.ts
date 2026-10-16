@@ -45,7 +45,6 @@ export const ROUTES = {
   PROGRAM_TEMPLATE: '/programs/templates/:templateId',
   PROGRAM_COMPLEX: '/programs/:programId/complex/:complexId',
   PROGRAM_ADD_EXERCISE: '/programs/:programId/add/:complexId',
-  LIBRARY_NEW: '/library/new',
   EXERCISE: '/library/exercises/:exerciseId',
   STRETCH: '/library/stretches/:stretchId',
   FRIEND: '/friends/:friendId',

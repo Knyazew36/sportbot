@@ -150,7 +150,7 @@ const ExerciseScreen = () => {
           )}
           {exercise.joints.length > 0 && (
             <>
-              <Eyebrow as='dt'>Суставы</Eyebrow>
+              <Eyebrow as='dt'>Суставы под нагрузкой</Eyebrow>
               <dd className='flex flex-wrap gap-1.5'>
                 {exercise.joints.map(j => (
                   <Badge

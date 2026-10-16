@@ -11,12 +11,20 @@ type CatalogImageProps = {
   alt: string
   /** Миниатюра в списке или крупная картинка карточки */
   size?: 'thumb' | 'cover'
+  /** Подпись заглушки на крупной картинке: в форме загрузки картинку можно добавить самому */
+  emptyLabel?: string
   className?: string
 }
 
 // Картинка упражнения или растяжки. Картинки добавляет админ при модерации, поэтому у черновиков
 // и части записей её нет — тогда растровая заглушка, а не пустое место (frontend-tz, 11.4)
-export const CatalogImage = ({ src, alt, size = 'thumb', className }: CatalogImageProps) => {
+export const CatalogImage = ({
+  src,
+  alt,
+  size = 'thumb',
+  emptyLabel = 'картинку добавит админ',
+  className,
+}: CatalogImageProps) => {
   const [failed, setFailed] = useState(false)
   const showImage = src && !failed
 
@@ -40,7 +48,7 @@ export const CatalogImage = ({ src, alt, size = 'thumb', className }: CatalogIma
         <div className='bg-background sb-halftone flex size-full items-center justify-center opacity-90'>
           <span className='bg-background text-foreground/45 flex items-center gap-1.5 px-1.5 py-1'>
             <ImageOffIcon className={size === 'thumb' ? 'size-4' : 'size-5'} />
-            {size === 'cover' && <Eyebrow tone='inherit'>картинку добавит админ</Eyebrow>}
+            {size === 'cover' && <Eyebrow tone='inherit'>{emptyLabel}</Eyebrow>}
           </span>
         </div>
       )}

@@ -380,6 +380,12 @@ enum TrackingMode {
   DETAILED /// подходы, повторы, веса
 }
 
+/// Пол пользователя: от него Mini App подбирает расцветку.
+enum Gender {
+  MALE
+  FEMALE
+}
+
 /// Как часто бот сам спрашивает вес тела.
 enum WeightAskFrequency {
   OFF
@@ -401,6 +407,7 @@ model SportProfile {
 
   displayName String /// имя для друзей и групп; по умолчанию из профиля мессенджера
   timeZone    String @default("Europe/Moscow") /// IANA: Europe/Moscow, Etc/GMT-5
+  gender      Gender? /// пол; задаёт расцветку Mini App, null — не выбран
 
   trainingDays Int[] /// 0..6, 0 — воскресенье, как Date.getDay()
   morningTime  String @default("08:00") /// "HH:mm" в поясе пользователя
@@ -745,7 +752,7 @@ model ModerationRequest {
   @@index([authorId, createdAt])
 }
 
-/// Жалоба «ошибка в описании» на запись справочника.
+/// Жалоба «ошибка в описании» или предложенная правка записи справочника.
 model Complaint {
   id Int @id @default(autoincrement())
 
@@ -757,8 +764,12 @@ model Complaint {
   userId Int?
   user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
-  text   String
+  text   String /// комментарий автора; у правки может быть пустым
   status ComplaintStatus @default(OPEN)
+  /// Предложенная правка упражнения: только изменённые поля формы (name, technique, videoUrl,
+  /// equipment, imagePath, primary, secondary, jointIds). null — обычная жалоба текстом.
+  proposal Json?
+  reason   String? /// причина отказа для автора
 
   createdAt DateTime @default(now())
 

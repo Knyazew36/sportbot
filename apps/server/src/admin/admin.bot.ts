@@ -15,6 +15,7 @@ import {
 import { MessengerButton, MessengerMessage } from '@/messengers';
 
 import { AdminService } from './admin.service';
+import { ComplaintService } from './complaint.service';
 import { ImportService } from './import.service';
 
 const BACK = [btn('⬅️ Админ', 'ad:menu')];
@@ -27,6 +28,7 @@ const IMPORT_MAX_BYTES = 2 * 1024 * 1024;
 export class AdminBot implements BotFeature {
   constructor(
     private readonly admin: AdminService,
+    private readonly complaints: ComplaintService,
     private readonly imports: ImportService,
     private readonly sessions: BotSessionService,
   ) {}
@@ -45,8 +47,12 @@ export class AdminBot implements BotFeature {
     await this.sessions.clear(ctx);
 
     if (prefix === 'cp') {
+      if (action === 'apply') {
+        const applied = await this.complaints.apply(id);
+        await ctx.toast(applied ? 'Правка применена' : 'Жалоба уже обработана');
+      }
       if (action === 'ok' || action === 'no') {
-        const closed = await this.admin.closeComplaint(
+        const closed = await this.complaints.close(
           id,
           action === 'ok' ? 'RESOLVED' : 'REJECTED',
         );
@@ -174,15 +180,17 @@ export class AdminBot implements BotFeature {
     if (!complaints.length) return msg('Открытых жалоб нет.', [BACK]);
     return msg(
       [
-        'Открытые жалобы на описание. Саму запись правь импортом.',
+        'Открытые жалобы и правки. Правку можно применить как есть, остальное правь в приложении или импортом.',
         ...complaints.map(
           (c, index) =>
-            `${index + 1}. «${c.exercise?.name ?? c.stretch?.name}» от ${c.user?.sportProfile?.displayName ?? 'удалённого пользователя'}:\n${c.text}`,
+            `${index + 1}. ${c.proposal ? 'Правка' : 'Жалоба'} «${c.exercise?.name ?? c.stretch?.name}» от ${c.user?.sportProfile?.displayName ?? 'удалённого пользователя'}:\n${[c.proposal && `поля: ${Object.keys(c.proposal).join(', ')}`, c.text].filter(Boolean).join('\n')}`,
         ),
       ].join('\n\n'),
       [
         ...complaints.map((c, index) => [
-          btn(`✅ ${index + 1} исправлено`, `cp:ok:${c.id}`),
+          c.proposal
+            ? btn(`✅ ${index + 1} применить`, `cp:apply:${c.id}`)
+            : btn(`✅ ${index + 1} исправлено`, `cp:ok:${c.id}`),
           btn(`❌ ${index + 1} отклонить`, `cp:no:${c.id}`),
         ]),
         BACK,

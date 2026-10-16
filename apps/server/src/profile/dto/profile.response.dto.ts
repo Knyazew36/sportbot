@@ -6,6 +6,13 @@ export class ProfileResponseDto {
   @ApiProperty()
   displayName: string;
 
+  @ApiProperty({
+    enum: ['MALE', 'FEMALE'],
+    nullable: true,
+    description: 'Пол; null — не выбран',
+  })
+  gender: 'MALE' | 'FEMALE' | null;
+
   @ApiProperty({ example: 'Europe/Moscow' })
   timeZone: string;
 

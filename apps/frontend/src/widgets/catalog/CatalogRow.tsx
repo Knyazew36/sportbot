@@ -24,7 +24,17 @@ type CatalogRowProps = {
 }
 
 // Строка справочника: миниатюра, название, мышцы. Общая для справочника, подбора в комплекс и админки
-export const CatalogRow = ({ name, imageUrl, meta, draft, to, onClick, trail, selected, children }: CatalogRowProps) => (
+export const CatalogRow = ({
+  name,
+  imageUrl,
+  meta,
+  draft,
+  to,
+  onClick,
+  trail,
+  selected,
+  children,
+}: CatalogRowProps) => (
   <ListRow
     lead={
       <CatalogImage
@@ -55,7 +65,11 @@ export const CatalogRow = ({ name, imageUrl, meta, draft, to, onClick, trail, se
     meta={meta}
     // Ссылка растянута на всю строку, поэтому действия справа поднимаем над ней
     trail={trail && <div className='relative z-10'>{trail}</div>}
-    className={cn('relative -mx-gutter px-gutter transition-colors', selected && 'bg-accent', (to || onClick) && 'hover:bg-accent/60')}
+    className={cn(
+      '-mx-gutter px-gutter relative transition-colors',
+      selected && 'bg-accent',
+      (to || onClick) && 'hover:bg-accent/60',
+    )}
   >
     {draft && (
       <Badge

@@ -9,6 +9,13 @@ export class OnboardingStateResponseDto {
   @ApiProperty()
   onboarded: boolean;
 
+  @ApiProperty({
+    enum: ['MALE', 'FEMALE'],
+    nullable: true,
+    description: 'Пол; null — не выбран, приложение спросит первым шагом',
+  })
+  gender: 'MALE' | 'FEMALE' | null;
+
   @ApiProperty({ type: [Number], description: '0..6, 0 — воскресенье' })
   trainingDays: number[];
 

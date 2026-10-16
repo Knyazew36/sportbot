@@ -42,7 +42,7 @@ export const CatalogFilters = ({
       placeholder={placeholder}
     />
     {/* Ленты фильтров прокручиваются вбок: на 320px шесть групп в строку не влезают */}
-    <div className='no-scrollbar -mx-gutter overflow-x-auto px-gutter pb-1'>
+    <div className='no-scrollbar -mx-gutter px-gutter overflow-x-auto pb-1'>
       <Segmented
         options={groups}
         value={group}
@@ -52,7 +52,7 @@ export const CatalogFilters = ({
       />
     </div>
     {equipment && onEquipmentChange && (
-      <div className='no-scrollbar -mx-gutter overflow-x-auto px-gutter pb-1'>
+      <div className='no-scrollbar -mx-gutter px-gutter overflow-x-auto pb-1'>
         <Segmented
           options={EQUIPMENT}
           value={equipment}

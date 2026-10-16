@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { sportUserKeys } from '@/entities/sport-user'
 import type {
   OnboardingDaysDto,
+  OnboardingGenderDto,
   OnboardingProgramDto,
   OnboardingStateResponseDto,
   OnboardingTimesDto,
@@ -10,6 +11,7 @@ import type {
 import {
   onboardingControllerFinish,
   onboardingControllerSaveDays,
+  onboardingControllerSaveGender,
   onboardingControllerSaveTimes,
   onboardingControllerState,
 } from '@/shared/api/generated/onboarding/onboarding'
@@ -37,6 +39,9 @@ const useSaveStep = <T>(save: (body: T) => Promise<OnboardingState>) => {
     onSuccess: state => queryClient.setQueryData(onboardingKeys.state, state),
   })
 }
+
+export const useSaveOnboardingGender = () =>
+  useSaveStep((body: OnboardingGenderDto) => onboardingControllerSaveGender(body))
 
 export const useSaveOnboardingDays = () => useSaveStep((body: OnboardingDaysDto) => onboardingControllerSaveDays(body))
 
