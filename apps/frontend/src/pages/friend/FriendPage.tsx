@@ -16,6 +16,7 @@ import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Badge } from '@/shared/ui/shadcn/badge'
+import { ProgramPreviewSheet } from '@/widgets/program-preview/ProgramPreviewSheet'
 import { AttendanceSection } from '@/widgets/stats/AttendanceSection'
 import { CalendarSection } from '@/widgets/stats/CalendarSection'
 import { MuscleLoadSection } from '@/widgets/stats/MuscleLoadSection'
@@ -33,6 +34,25 @@ const FriendPage = () => {
   const copy = useCopyFriendProgram()
   const unfriend = useUnfriend()
   const [copied, setCopied] = useState<number[]>([])
+  // Программа, чей состав открыт в шторке
+  const [preview, setPreview] = useState<number | null>(null)
+
+  // Одна кнопка и в строке, и в шторке: «У тебя» после копирования видно в обоих местах
+  const copyButton = (programId: number, size: 'xs' | 'lg', className?: string) => {
+    const isCopied = copied.includes(programId)
+    return (
+      <Button
+        variant={isCopied ? 'outline' : 'default'}
+        size={size}
+        className={className}
+        disabled={isCopied || copy.isPending}
+        onClick={() => copy.mutate(programId, { onSuccess: () => setCopied(ids => [...ids, programId]) })}
+      >
+        {isCopied ? <CheckIcon /> : <CopyIcon />}
+        {isCopied ? 'У тебя' : 'Себе'}
+      </Button>
+    )
+  }
 
   return (
     <Screen
@@ -75,33 +95,27 @@ const FriendPage = () => {
                 aside='можно забрать себе'
               >
                 <List>
-                  {f.programs.map(p => {
-                    const isCopied = copied.includes(p.id)
-                    return (
-                      <ListRow
-                        key={p.id}
-                        lead={String(p.complexCount).padStart(2, '0')}
-                        title={p.name}
-                        meta={[
-                          pluralize(p.complexCount, ['комплекс', 'комплекса', 'комплексов']),
-                          p.active && 'активная',
-                        ]
-                          .filter(Boolean)
-                          .join(' · ')}
-                        trail={
-                          <Button
-                            variant={isCopied ? 'outline' : 'default'}
-                            size='xs'
-                            disabled={isCopied || copy.isPending}
-                            onClick={() => copy.mutate(p.id, { onSuccess: () => setCopied(ids => [...ids, p.id]) })}
-                          >
-                            {isCopied ? <CheckIcon /> : <CopyIcon />}
-                            {isCopied ? 'У тебя' : 'Себе'}
-                          </Button>
-                        }
-                      />
-                    )
-                  })}
+                  {f.programs.map(p => (
+                    // Вся строка открывает состав: кнопка растянута на строку, «Себе» лежит поверх неё
+                    <ListRow
+                      key={p.id}
+                      className='hover:bg-accent/60 -mx-gutter px-gutter relative transition-colors'
+                      lead={String(p.complexCount).padStart(2, '0')}
+                      title={
+                        <button
+                          type='button'
+                          className='text-left after:absolute after:inset-0'
+                          onClick={() => setPreview(p.id)}
+                        >
+                          {p.name}
+                        </button>
+                      }
+                      meta={[pluralize(p.complexCount, ['комплекс', 'комплекса', 'комплексов']), p.active && 'активная']
+                        .filter(Boolean)
+                        .join(' · ')}
+                      trail={copyButton(p.id, 'xs', 'relative z-10')}
+                    />
+                  ))}
                 </List>
                 <Text
                   size='xs'
@@ -112,6 +126,13 @@ const FriendPage = () => {
                 </Text>
               </ScreenSection>
             )}
+
+            <ProgramPreviewSheet
+              program={f.programs.find(p => p.id === preview) ?? null}
+              onOpenChange={open => !open && setPreview(null)}
+              note={`Копия появится у тебя в программах с пометкой «от ${f.displayName}».`}
+              action={preview != null && copyButton(preview, 'lg', 'w-full')}
+            />
 
             <ProgressSection userId={f.id} />
             <AttendanceSection userId={f.id} />

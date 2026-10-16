@@ -14,6 +14,7 @@ import {
   PROGRAM_TAG_SELECT,
 } from '@/program-tag/program-tag.service';
 
+import { ProgramComplexResponseDto } from './dto/program-complex.response.dto';
 import { ProgramListItemResponseDto } from './dto/program-list-item.response.dto';
 import { ProgramResponseDto } from './dto/program.response.dto';
 import { TemplatesQueryDto } from './dto/templates-query.dto';
@@ -41,7 +42,7 @@ export const COMPLEXES_INCLUDE = {
   },
 } satisfies Prisma.Program$complexesArgs;
 
-type ComplexView = Prisma.ProgramComplexGetPayload<{
+type ComplexView = Prisma.ComplexGetPayload<{
   include: typeof COMPLEXES_INCLUDE.include;
 }>;
 

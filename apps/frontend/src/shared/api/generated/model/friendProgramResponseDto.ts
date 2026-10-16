@@ -4,6 +4,7 @@
  * api
  * OpenAPI spec version: 0.0.1
  */
+import type { ProgramComplexResponseDto } from './programComplexResponseDto';
 
 export interface FriendProgramResponseDto {
   id: number;
@@ -11,4 +12,6 @@ export interface FriendProgramResponseDto {
   complexCount: number;
   /** Активная программа друга */
   active: boolean;
+  /** Состав программы для просмотра перед копированием */
+  complexes: ProgramComplexResponseDto[];
 }

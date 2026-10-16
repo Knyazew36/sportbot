@@ -3,6 +3,10 @@ import { PrismaService } from 'prisma/prisma.service';
 
 import { addDays, BotChannelKey, localToday } from '@/bot';
 import { SportAccountService } from '@/bot/sport-account.service';
+import {
+  COMPLEXES_INCLUDE,
+  toComplexesDto,
+} from '@/program/program-app.service';
 
 import { FriendInviteResponseDto } from './dto/friend-invite.response.dto';
 import { FriendProfileResponseDto } from './dto/friend-profile.response.dto';
@@ -81,7 +85,7 @@ export class SocialAppService {
       this.prisma.program.findMany({
         where: { ownerId: friendId },
         orderBy: { id: 'asc' },
-        include: { _count: { select: { complexes: true } } },
+        include: { complexes: COMPLEXES_INCLUDE },
       }),
     ]);
     this.logger.debug(`Профиль друга: userId=${userId}, friendId=${friendId}`);
@@ -97,8 +101,10 @@ export class SocialAppService {
       programs: programs.map((p) => ({
         id: p.id,
         name: p.name,
-        complexCount: p._count.complexes,
+        complexCount: p.complexes.length,
         active: p.id === profile.activeProgramId,
+        // Очередь друга чужому не показываем — «следующего» комплекса нет
+        complexes: toComplexesDto(p.complexes, null),
       })),
     };
   }
