@@ -48,7 +48,7 @@ export const CatalogFilters = ({
         value={group}
         onValueChange={onGroupChange}
         // Первая кнопка — «Все»: повторное нажатие на мышцу снимает фильтр
-        emptyValue={optionValue(groups[0])}
+        emptyValue={groups[0] && optionValue(groups[0])}
       />
     </div>
     {equipment && onEquipmentChange && (
