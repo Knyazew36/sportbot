@@ -1,6 +1,6 @@
 import { BookOpenIcon, RepeatIcon, TriangleAlertIcon } from 'lucide-react'
 
-import { lastText, planText, type RoundInfo, type WorkoutItem } from '@/entities/workout'
+import { lastText, planText, type WorkoutItem } from '@/entities/workout'
 import { useIsOnline } from '@/shared/api'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { cn } from '@/shared/lib/utils'
@@ -10,12 +10,12 @@ import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
 
 type ExerciseCardProps = {
   item: WorkoutItem
-  /** Упражнение в суперсете: место в круге и кто дальше */
-  round: RoundInfo | null
+  /** Карточка в ленте суперсета: «A1 из 2» */
+  label?: string
 }
 
 // Текущее упражнение: название, ⚠️ при ограничении, план, прошлый результат, «Техника» и «Заменить» (frontend-tz, 8.1)
-export const ExerciseCard = ({ item, round }: ExerciseCardProps) => {
+export const ExerciseCard = ({ item, label }: ExerciseCardProps) => {
   const last = lastText(item.last)
   // Аналоги и замена — только с сервера: без сети ссылка гасится, чтобы не вести на вечную загрузку
   const online = useIsOnline()
@@ -29,7 +29,7 @@ export const ExerciseCard = ({ item, round }: ExerciseCardProps) => {
           tone='primary'
         >
           {item.done ? 'Сделано' : item.replaced ? 'Замена на сегодня' : 'Текущее'}
-          {round && ` · суперсет ${round.letter}${round.index} из ${round.size}`}
+          {label && ` · ${label}`}
           {item.draft && ' · не проверено'}
         </Eyebrow>
         <Poster
@@ -48,14 +48,7 @@ export const ExerciseCard = ({ item, round }: ExerciseCardProps) => {
             {item.muscles}
           </Text>
         )}
-        {round?.next && (
-          <Text
-            size='sm'
-            className='mt-2'
-          >
-            Круг {round.round} из {round.rounds} · без отдыха дальше «{round.next.name}»
-          </Text>
-        )}
+
         {item.limitedZones.length > 0 && (
           <ButtonLink
             to={buildPath(ROUTES.WORKOUT_REPLACE, { itemId: item.id })}

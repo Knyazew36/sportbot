@@ -9,6 +9,8 @@ export type FocusSets = {
   number: number
   done: number
   planned: number
+  /** Что считаем: подход или круг суперсета */
+  unit?: 'подход' | 'круг'
 }
 
 // Больше полос не влезает в половину табло на 375px — дальше хватает одной цифры
@@ -40,7 +42,7 @@ export const FocusScoreboard = ({ sets, startedAt }: { sets: FocusSets; startedA
     <dl className='border-border grid grid-cols-2 divide-x-[1.5px] divide-border border-[1.5px]'>
       <div className='flex flex-col gap-2 p-3'>
         <dt className='flex h-3 items-center justify-between gap-2'>
-          <Eyebrow tone={over ? 'primary' : 'muted'}>{over ? 'сверх плана' : 'подход'}</Eyebrow>
+          <Eyebrow tone={over ? 'primary' : 'muted'}>{over ? 'сверх плана' : (sets.unit ?? 'подход')}</Eyebrow>
           {!over && sets.planned > 0 && sets.planned <= MAX_PIPS && <SetPips {...sets} />}
         </dt>
         <dd>
@@ -48,7 +50,7 @@ export const FocusScoreboard = ({ sets, startedAt }: { sets: FocusSets; startedA
             size='xl'
             numeric
             tone={over ? 'primary' : 'inherit'}
-            aria-label={sets.planned > 0 ? `подход ${sets.number} из ${sets.planned}` : `подход ${sets.number}`}
+            aria-label={`${sets.unit ?? 'подход'} ${sets.number}${sets.planned > 0 ? ` из ${sets.planned}` : ''}`}
           >
             <Digits>{String(sets.number)}</Digits>
             {sets.planned > 0 && (

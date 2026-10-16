@@ -3,9 +3,10 @@ import { Navigate, useNavigate, useSearchParams } from 'react-router'
 import { useEffect, useRef, useState } from 'react'
 
 import {
-  afterNewSet,
   currentItem,
-  roundInfo,
+  supersetDoneWith,
+  supersetLabels,
+  supersetRound,
   useCurrentWorkout,
   useDiscardWorkout,
   useFinishWorkout,
@@ -20,6 +21,8 @@ import { useDeadlineTimer } from '@/shared/lib/hooks/use-deadline-timer'
 import { useStopwatch } from '@/shared/lib/hooks/use-stopwatch'
 import { useWorkoutElapsed } from '@/shared/lib/hooks/use-workout-elapsed'
 import { timerEndSignal } from '@/shared/lib/signal'
+import { local } from '@/shared/lib/storage'
+import { haptic } from '@/shared/miniapp'
 import { LiveDot } from '@/shared/ui/kit/LiveDot'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
@@ -28,6 +31,7 @@ import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Screen } from '@/shared/ui/kit/Screen'
 import { TopBar } from '@/shared/ui/kit/ScreenHeader'
 import { ScreenState } from '@/shared/ui/kit/ScreenState'
+import { Stamp } from '@/shared/ui/kit/Stamp'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { EditSetSheet } from '@/widgets/workout/EditSetSheet'
 import { SetList } from '@/widgets/workout/SetList'
@@ -35,8 +39,11 @@ import { SetList } from '@/widgets/workout/SetList'
 import { ExerciseCard } from './components/ExerciseCard'
 import { FocusRest } from './components/FocusRest'
 import { FinishPending } from './components/FinishPending'
+import { FocusRound } from './components/FocusRound'
 import { FocusSet } from './components/FocusSet'
+import { RoundEntrySheet } from './components/RoundEntrySheet'
 import { SetEntrySheet } from './components/SetEntrySheet'
+import { SupersetScreen } from './components/SupersetScreen'
 import { SyncStatus } from './components/SyncStatus'
 import { type NextMode, WorkoutActions } from './components/WorkoutActions'
 import { WorkoutLanes } from './components/WorkoutLanes'
@@ -68,6 +75,29 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
     onEnd: () => timerEndSignal(workout.settings),
   })
   const stopwatch = useStopwatch({ storageKey: `set-stopwatch-${workout.id}` })
+  // Шаг круга суперсета в фокусе: переживает перезагрузку вместе с секундомером круга
+  const stepKey = `round-step-${workout.id}`
+  const [roundStep, setRoundStepState] = useState<number | null>(() => {
+    const saved = local.get(stepKey)
+    return saved === null ? null : Number(saved)
+  })
+  const setRoundStep = (next: number | null) => {
+    setRoundStepState(next)
+    if (next === null) local.remove(stepKey)
+    else local.set(stepKey, String(next))
+  }
+  // Подход одному участнику суперсета: забытый подход или круг из одного упражнения
+  const [entryFor, setEntryFor] = useState<number | null>(null)
+  const [roundOpen, setRoundOpen] = useState(false)
+  const [stamp, setStamp] = useState<string | null>(null)
+  const [burstKey, setBurstKey] = useState(0)
+  const stampTimer = useRef<number | undefined>(undefined)
+  useEffect(() => () => window.clearTimeout(stampTimer.current), [])
+  const flashStamp = (text: string) => {
+    window.clearTimeout(stampTimer.current)
+    setStamp(text)
+    stampTimer.current = window.setTimeout(() => setStamp(null), 900)
+  }
 
   // Завершение в очереди: тренировки для человека уже нет, ждём сервер или уходим на «Сегодня»
   if (finishing) return <FinishPending />
@@ -108,15 +138,25 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
 
   const index = items.indexOf(item)
   const { settings } = workout
-  const setNumber = item.sets.length + 1
-  const round = roundInfo(items, item)
+  // Суперсет — один экран и один круг на всех участников; одиночное упражнение — как раньше
+  const superset = supersetRound(items, item)
+  const block = superset?.members ?? [item]
+  const labels = superset ? supersetLabels(superset.members) : []
+  const labelOf = (id: number) => labels[block.findIndex(e => e.id === id)]
+  const entryItem = block.find(e => e.id === entryFor) ?? item
+  const setNumber = entryItem.sets.length + 1
+  // Подход в суперсете подписан «A1 ·»: видно, что это часть круга, а не одно упражнение
+  const focusTitle = superset ? `${labelOf(entryItem.id)} · ${entryItem.name}` : entryItem.name
+  const step = superset && roundStep !== null ? Math.min(roundStep, superset.round.length - 1) : null
+  const inRound = superset !== null && step !== null && superset.round.length > 1 && stopwatch.running
 
-  // Дальше — следующее несделанное по порядку, иначе первое несделанное. Пропуск ничего не отмечает:
+  // Дальше — следующий несделанный блок по порядку, иначе первый несделанный. Пропуск ничего не отмечает:
   // упражнение без подходов остаётся несделанным и в итогах
-  const others = items.filter((e, i) => i !== index && !e.done)
-  const nextId = (others.find(e => items.indexOf(e) > index) ?? others[0])?.id
+  const lastIndex = items.indexOf(block.at(-1)!)
+  const others = items.filter(e => !block.includes(e) && !e.done)
+  const nextId = (others.find(e => items.indexOf(e) > lastIndex) ?? others[0])?.id
   const nextMode: NextMode | null = others.length
-    ? item.sets.length
+    ? block.some(e => e.sets.length)
       ? 'next'
       : 'skip'
     : doneCount
@@ -124,7 +164,7 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
       : null
 
   const forward = allDone ? 'finish' : nextMode
-  const planDone = item.plannedSets > 0 && item.sets.length >= item.plannedSets
+  const planDone = superset ? superset.done : item.plannedSets > 0 && item.sets.length >= item.plannedSets
 
   // Завершение встаёт в очередь со временем нажатия: без сети засчитается позже, а длительность не исказится.
   // Колбэк mutate срабатывает, только пока экран открыт: после ухода на «Сегодня» итог туда уже не уведёт
@@ -152,24 +192,69 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
     else if (nextId) setPickedId(nextId)
   }
 
+  const rest = () => {
+    if (settings.showRestTimer && settings.restAutoStart) timer.start(settings.restSeconds)
+  }
+
+  // Суперсет закрыт: штамп и сразу следующий блок — отдыхать перед ним или нет, решает человек
+  const finishSuperset = (letter: string) => {
+    haptic.success()
+    flashStamp(`Суперсет ${letter} готов`)
+    if (nextId) setPickedId(nextId)
+  }
+
+  // Круг из нескольких упражнений идёт фокусом круга; из одного — обычным подходом
   const startSet = () => {
     timer.stop()
+    if (superset) {
+      const [first, second] = superset.round
+      if (!first) return
+      if (second) setRoundStep(0)
+      else setEntryFor(first.id)
+    }
     stopwatch.start()
   }
 
-  // В суперсете после подхода сразу следующее упражнение круга; отдых — только когда круг замкнулся
+  const nextInRound = () => {
+    haptic.tap()
+    setRoundStep((step ?? 0) + 1)
+  }
+
+  // Конец круга: вспышка цепочки и штамп, потом шторка ввода — пока шторка едет, штамп успевает прочитаться
+  const finishRound = (number: number) => {
+    haptic.success()
+    stopwatch.pause()
+    setBurstKey(k => k + 1)
+    flashStamp(`Круг ${number} ✓`)
+    window.setTimeout(() => setRoundOpen(true), 550)
+  }
+
+  const cancelRound = () => {
+    stopwatch.stop()
+    setRoundStep(null)
+  }
+
+  const onRoundSaved = (addedIds: number[]) => {
+    setRoundOpen(false)
+    stopwatch.stop()
+    setRoundStep(null)
+    if (superset && supersetDoneWith(superset.members, addedIds)) finishSuperset(superset.letter)
+    else rest()
+  }
+
   const onSaved = () => {
-    const step = afterNewSet(items, item.id)
     setEntryOpen(false)
     stopwatch.stop()
-    setPickedId(step.nextId)
-    if (step.rest && settings.showRestTimer && settings.restAutoStart) timer.start(settings.restSeconds)
+    setEntryFor(null)
+    if (superset && supersetDoneWith(superset.members, [entryItem.id])) finishSuperset(superset.letter)
+    else rest()
   }
 
   return (
     <div className='flex min-h-svh flex-1 flex-col'>
       <Screen
-        key={item.id}
+        // Внутри суперсета экран не пересоздаётся: лента карточек и её прокрутка живут, пока идёт суперсет
+        key={superset ? `s${superset.superset}` : item.id}
         header={
           <>
             <TopBar
@@ -220,8 +305,12 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
             nextPending={finish.isPending}
             // Отдых сам стартует после подхода — тогда ручная кнопка лишняя
             restSeconds={
-              settings.showRestTimer && !settings.restAutoStart && item.sets.length ? settings.restSeconds : null
+              settings.showRestTimer && !settings.restAutoStart && block.some(e => e.sets.length)
+                ? settings.restSeconds
+                : null
             }
+            round={superset ? (superset.done ? null : superset.number) : undefined}
+            onRecordRound={() => setRoundOpen(true)}
             onStartSet={startSet}
             onRest={() => timer.start(settings.restSeconds)}
             onNext={onNext}
@@ -229,23 +318,48 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
         }
         className='gap-6 px-gutter'
       >
-        <ExerciseCard
-          item={item}
-          round={round}
-        />
-        <SetList
-          item={item}
-          onEdit={setEditing}
-          onAdd={() => setEntryOpen(true)}
-        />
+        {superset ? (
+          <SupersetScreen
+            round={superset}
+            onEdit={setEditing}
+            onAddSet={member => {
+              setEntryFor(member.id)
+              setEntryOpen(true)
+            }}
+          />
+        ) : (
+          <>
+            <ExerciseCard item={item} />
+            <SetList
+              item={item}
+              onEdit={setEditing}
+              onAdd={() => setEntryOpen(true)}
+            />
+          </>
+        )}
       </Screen>
-      {stopwatch.running ? (
+      {inRound ? (
+        <FocusRound
+          stopwatch={stopwatch}
+          round={superset}
+          step={step}
+          startedAt={workout.startedAt}
+          burstKey={burstKey || undefined}
+          onNext={nextInRound}
+          onFinish={() => finishRound(superset.number)}
+          onRestart={() => {
+            setRoundStep(0)
+            stopwatch.start()
+          }}
+          onCancel={cancelRound}
+        />
+      ) : stopwatch.running ? (
         <FocusSet
           stopwatch={stopwatch}
-          title={item.name}
+          title={focusTitle}
           startedAt={workout.startedAt}
           setNumber={setNumber}
-          plannedSets={item.plannedSets}
+          plannedSets={entryItem.plannedSets}
           // Подход закончен — время стоит, пока вводятся вес и повторы
           onDone={() => {
             stopwatch.pause()
@@ -257,11 +371,21 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
         timer.status !== 'idle' && (
           <FocusRest
             timer={timer}
-            title={item.name}
+            title={superset ? `Суперсет ${superset.letter}` : focusTitle}
             startedAt={workout.startedAt}
             nextSet={setNumber}
             plannedSets={item.plannedSets}
-            round={round}
+            round={
+              superset && !superset.done
+                ? {
+                    letter: superset.letter,
+                    number: superset.number,
+                    rounds: superset.rounds,
+                    // Следующий круг ещё не заряжен: цепочка пустая, заряжаться начнёт по «К кругу»
+                    links: superset.round.map(e => ({ label: labelOf(e.id)!, charge: 0, state: 'idle' as const })),
+                  }
+                : null
+            }
             onToSet={startSet}
             onClose={timer.stop}
             planDone={planDone}
@@ -280,10 +404,21 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
           setEntryOpen(false)
           stopwatch.resume()
         }}
-        item={item}
-        onSubmitStart={() => setPickedId(item.id)}
+        item={entryItem}
+        onSubmitStart={() => setPickedId(entryItem.id)}
         onSaved={onSaved}
       />
+      <RoundEntrySheet
+        open={roundOpen}
+        round={superset}
+        // Закрыл без записи — круг продолжается с последнего упражнения с того же времени
+        onClose={() => {
+          setRoundOpen(false)
+          stopwatch.resume()
+        }}
+        onSaved={onRoundSaved}
+      />
+      <Stamp text={stamp} />
       <EditSetSheet
         set={editing}
         onClose={() => setEditing(null)}

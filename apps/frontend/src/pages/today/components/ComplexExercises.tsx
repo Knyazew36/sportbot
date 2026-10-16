@@ -1,7 +1,7 @@
 import { TriangleAlertIcon } from 'lucide-react'
 
 import type { DayToday } from '@/entities/day'
-import { supersetLabels } from '@/shared/lib/superset'
+import { ExerciseBlocks } from '@/shared/ui/kit/ExerciseBlocks'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Poster, Text } from '@/shared/ui/kit/Typography'
@@ -10,11 +10,8 @@ import { planText } from '@/entities/program'
 
 type Complex = NonNullable<DayToday['complex']>
 
-// Состав комплекса с планом подходов. Упражнение на зону с ограничением помечено ⚠️ (business-tz, 11).
-// Суперсет — «A1», «A2» с общей линией слева
-export const ComplexExercises = ({ complex }: { complex: Complex }) => {
-  const labels = supersetLabels(complex.exercises)
-  return (
+// Состав комплекса с планом подходов. Упражнение на зону с ограничением помечено ⚠️ (business-tz, 11)
+export const ComplexExercises = ({ complex }: { complex: Complex }) => (
   <ScreenSection
     title='Состав'
     aside={`${complex.exercises.length} упр.`}
@@ -23,11 +20,11 @@ export const ComplexExercises = ({ complex }: { complex: Complex }) => {
       <Text tone='soft'>В комплексе пока нет упражнений — добавь их в программе.</Text>
     ) : (
       <List>
-        {complex.exercises.map((e, i) => (
+        <ExerciseBlocks items={complex.exercises}>
+          {(e, i, label) => (
           <ListRow
             key={e.id}
-            lead={labels[i] ?? String(i + 1).padStart(2, '0')}
-            linked={labels[i] !== null}
+            lead={label ?? String(i + 1).padStart(2, '0')}
             title={e.name}
             meta={e.muscles || undefined}
             trail={
@@ -54,7 +51,8 @@ export const ComplexExercises = ({ complex }: { complex: Complex }) => {
               </Text>
             )}
           </ListRow>
-        ))}
+          )}
+        </ExerciseBlocks>
         {complex.cardioName && (
           <ListRow
             lead='+'
@@ -76,4 +74,3 @@ export const ComplexExercises = ({ complex }: { complex: Complex }) => {
     )}
   </ScreenSection>
 )
-}

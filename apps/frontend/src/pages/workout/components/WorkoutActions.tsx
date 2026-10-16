@@ -1,4 +1,4 @@
-import { ArrowRightIcon, PlayIcon, PlusIcon, SkipForwardIcon, TimerIcon } from 'lucide-react'
+import { ArrowRightIcon, ClipboardPenIcon, PlayIcon, PlusIcon, SkipForwardIcon, TimerIcon } from 'lucide-react'
 
 import { formatSeconds } from '@/shared/lib/hooks/use-deadline-timer'
 import { StickyFooter } from '@/shared/ui/kit/Screen'
@@ -15,6 +15,10 @@ type WorkoutActionsProps = {
   nextPending: boolean
   /** Отдых вручную — когда он не стартует сам после подхода; null — кнопки нет */
   restSeconds: number | null
+  /** Суперсет: номер следующего круга; null — суперсет закончен, круг не начать */
+  round?: number | null
+  /** Записать круг без секундомера — сразу шторка ввода */
+  onRecordRound?: () => void
   onStartSet: () => void
   onRest: () => void
   onNext: () => void
@@ -32,11 +36,47 @@ export const WorkoutActions = ({
   next,
   nextPending,
   restSeconds,
+  round,
+  onRecordRound,
   onStartSet,
   onRest,
   onNext,
 }: WorkoutActionsProps) => {
-  const start = (
+  const superset = round !== undefined
+  const start = superset ? (
+    round !== null && (
+      // На 360px «Начать круг» и «Записать» с подписями не влезали и давали боковой скролл — «Записать» значком
+      <div className='flex gap-3'>
+        <Button
+          size='lg'
+          className='min-w-0 flex-1 shrink'
+          onClick={onStartSet}
+        >
+          <PlayIcon className='size-6' />
+          Начать круг {round}
+        </Button>
+        <Button
+          variant='outline'
+          size='lg'
+          onClick={onRecordRound}
+          aria-label='Записать круг без секундомера'
+        >
+          <ClipboardPenIcon className='size-5' />
+        </Button>
+        {restSeconds !== null && (
+          <Button
+            variant='outline'
+            size='lg'
+            onClick={onRest}
+            aria-label='Начать отдых'
+          >
+            <TimerIcon className='size-5' />
+            <Digits>{formatSeconds(restSeconds)}</Digits>
+          </Button>
+        )}
+      </div>
+    )
+  ) : (
     <div className='flex gap-3'>
       {/* План выполнен — подход не главный: лишний подход только осознанно, а не по привычке нажать синюю */}
       <Button

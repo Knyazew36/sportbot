@@ -20,17 +20,14 @@ type ListRowProps = {
   trail?: ReactNode
   /** Доп. содержимое под подписью: предупреждения, кнопки */
   children?: ReactNode
-  /** Строка суперсета: участников подряд связывает общая линия слева */
-  linked?: boolean
   className?: string
 }
 
 // Строка списка между линейками: упражнения, программы, друзья, растяжки
-export const ListRow = ({ lead, title, meta, trail, children, linked, className }: ListRowProps) => (
+export const ListRow = ({ lead, title, meta, trail, children, className }: ListRowProps) => (
   <li
     className={cn(
       'border-border grid items-start gap-x-3 border-b-[1.5px] py-3.5',
-      linked && 'border-l-primary border-l-[3px] pl-2',
       lead != null ? 'grid-cols-[minmax(28px,auto)_1fr_auto]' : 'grid-cols-[1fr_auto]',
       className,
     )}

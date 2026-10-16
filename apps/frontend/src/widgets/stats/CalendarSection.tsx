@@ -10,6 +10,7 @@ import { buildPath, ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
+import { ExerciseBlocks } from '@/shared/ui/kit/ExerciseBlocks'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
@@ -62,10 +63,10 @@ const DayDetails = ({ day, canFix }: { day: StatsDay; canFix: boolean }) => {
             )}
           </div>
           <List>
-            {w.exercises.map(e => (
+            <ExerciseBlocks items={w.exercises}>
+              {e => (
               <ListRow
                 key={e.name}
-                linked={e.superset !== null}
                 title={
                   <Text
                     as='span'
@@ -87,7 +88,8 @@ const DayDetails = ({ day, canFix }: { day: StatsDay; canFix: boolean }) => {
                 }
                 className='py-2'
               />
-            ))}
+              )}
+            </ExerciseBlocks>
           </List>
           {/* Делиться и удалять может только хозяин */}
           {canFix && (

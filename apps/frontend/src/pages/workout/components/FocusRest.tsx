@@ -1,7 +1,7 @@
 import { ArrowRightIcon, PlayIcon, PlusIcon } from 'lucide-react'
 
-import type { RoundInfo } from '@/entities/workout'
 import { formatSeconds, type useDeadlineTimer } from '@/shared/lib/hooks/use-deadline-timer'
+import { type ChargeLink, ChargeChain } from '@/shared/ui/kit/ChargeChain'
 import { Ring } from '@/shared/ui/kit/Ring'
 import { Digits, Eyebrow, Poster } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
@@ -15,8 +15,8 @@ type FocusRestProps = {
   startedAt: string
   nextSet: number
   plannedSets: number
-  /** Суперсет: отдых между кругами, дальше — упражнение, с которого круг начинается */
-  round: RoundInfo | null
+  /** Отдых между кругами суперсета: табло считает круги, под кольцом пустая цепочка следующего круга */
+  round: { letter: string; number: number; rounds: number; links: ChargeLink[] } | null
   /** Отдых закончен или пропущен — сразу следующий подход */
   onToSet: () => void
   /** Подходов больше не будет — к экрану упражнения */
@@ -54,12 +54,16 @@ export const FocusRest = ({
           : planDone
             ? 'отдых · план выполнен'
             : round
-              ? `суперсет ${round.letter} · дальше круг ${round.round} из ${round.rounds}`
+              ? `суперсет ${round.letter} · дальше круг ${round.number} из ${round.rounds}`
               : 'отдых · дальше подход'
       }
       alert={over}
       // План выполнен — на табло сделанное «3/3», а не несуществующий четвёртый подход
-      sets={{ number: planDone ? nextSet - 1 : nextSet, done: nextSet - 1, planned: plannedSets }}
+      sets={
+        round
+          ? { number: round.number, done: round.number - 1, planned: round.rounds, unit: 'круг' }
+          : { number: planDone ? nextSet - 1 : nextSet, done: nextSet - 1, planned: plannedSets }
+      }
       actions={
         <>
           {planDone ? (
@@ -84,7 +88,7 @@ export const FocusRest = ({
               onClick={onToSet}
             >
               <PlayIcon className='size-7' />
-              {over ? 'Начать подход' : 'К подходу'}
+              {round ? (over ? 'Начать круг' : 'К кругу') : over ? 'Начать подход' : 'К подходу'}
             </Button>
           )}
           <div className='grid grid-cols-2 gap-3'>
@@ -165,6 +169,12 @@ export const FocusRest = ({
           )}
         </div>
       </div>
+      {round && (
+        <ChargeChain
+          links={round.links}
+          className='w-full'
+        />
+      )}
     </FocusShell>
   )
 }

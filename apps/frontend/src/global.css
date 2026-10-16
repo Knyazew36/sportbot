@@ -361,6 +361,21 @@
   background-image: repeating-linear-gradient(90deg, var(--sb-blue) 0 1.5px, transparent 1.5px 14px);
 }
 
+/* Дорожки едут во время круга суперсета — как разметка под бегущим: круг идёт без остановки */
+@keyframes sb-lanes-run {
+  to {
+    background-position: 14px 0;
+  }
+}
+
+@utility sb-lanes-run {
+  animation: sb-lanes-run 0.9s linear infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
 /* Блик по карте участника: один проход при открытии, как свет по ламинату */
 @keyframes sb-sheen {
   from {

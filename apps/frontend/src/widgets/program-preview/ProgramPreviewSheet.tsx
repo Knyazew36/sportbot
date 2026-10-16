@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 
 import { complexLetter, planText, type ProgramComplex } from '@/entities/program'
-import { supersetLabels } from '@/shared/lib/superset'
+import { ExerciseBlocks } from '@/shared/ui/kit/ExerciseBlocks'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Poster, Text } from '@/shared/ui/kit/Typography'
@@ -63,12 +63,12 @@ export const ProgramPreviewSheet = ({ program, onOpenChange, note, action, loadi
             )}
           >
             <List>
-              {c.exercises.map((e, i) => (
+              <ExerciseBlocks items={c.exercises}>
+                {e => (
                 <ListRow
                   key={e.id}
                   title={e.name}
-                  meta={e.superset !== null ? `суперсет ${supersetLabels(c.exercises)[i]} · ${e.muscles}` : e.muscles}
-                  linked={e.superset !== null}
+                  meta={e.muscles}
                   trail={
                     <Poster
                       as='span'
@@ -79,7 +79,8 @@ export const ProgramPreviewSheet = ({ program, onOpenChange, note, action, loadi
                     </Poster>
                   }
                 />
-              ))}
+                )}
+              </ExerciseBlocks>
             </List>
           </ScreenSection>
         ))}

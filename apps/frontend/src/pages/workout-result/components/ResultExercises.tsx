@@ -1,6 +1,7 @@
 import { CheckIcon, MinusIcon } from 'lucide-react'
 
 import { lastText, type SharedWorkout } from '@/entities/workout'
+import { ExerciseBlocks } from '@/shared/ui/kit/ExerciseBlocks'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Poster } from '@/shared/ui/kit/Typography'
@@ -9,10 +10,10 @@ import { Poster } from '@/shared/ui/kit/Typography'
 export const ResultExercises = ({ workout }: { workout: SharedWorkout }) => (
   <ScreenSection title='Протокол'>
     <List>
-      {workout.exercises.map((e, index) => (
+      <ExerciseBlocks items={workout.exercises}>
+        {(e, index) => (
         <ListRow
           key={index}
-          linked={e.superset !== null}
           lead={
             e.done ? (
               <CheckIcon
@@ -33,7 +34,8 @@ export const ResultExercises = ({ workout }: { workout: SharedWorkout }) => (
             {lastText({ date: workout.date, sets: e.sets }) ?? (e.done ? 'без записи подходов' : 'пропущено')}
           </Poster>
         </ListRow>
-      ))}
+        )}
+      </ExerciseBlocks>
     </List>
   </ScreenSection>
 )

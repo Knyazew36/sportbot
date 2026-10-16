@@ -7,7 +7,7 @@ import type { StatusMeta } from '@/shared/ui/kit/StatusBadge'
 
 import type { CatalogSource, Program, ProgramTagGroup } from './api'
 
-export { supersetLabels, supersetLetter } from '@/shared/lib/superset'
+export { type ExerciseBlock, supersetLabels, supersetLetter, toBlocks } from '@/shared/lib/superset'
 
 export type ProgramTag = ProgramTagResponseDto
 
@@ -45,25 +45,6 @@ export const selectedTagIds = (groups: ProgramTagGroup[], selection: TagSelectio
 
 /** Буква комплекса по месту в очереди: A, B, C… */
 export const complexLetter = (index: number): string => String.fromCharCode(65 + (index % 26))
-
-/** Упражнение одиночное или суперсет: подряд идущие участники с одним номером */
-export type ExerciseBlock<T> = {
-  /** Ключ для React и перетаскивания: s<номер> у суперсета, e<id> у одиночного */
-  key: string
-  superset: number | null
-  items: T[]
-}
-
-/** Плоский список упражнений → блоки по порядку */
-export const toBlocks = <T extends { id: number; superset: number | null }>(items: T[]): ExerciseBlock<T>[] => {
-  const blocks: ExerciseBlock<T>[] = []
-  for (const item of items) {
-    const last = blocks.at(-1)
-    if (last && item.superset !== null && last.superset === item.superset) last.items.push(item)
-    else blocks.push({ key: item.superset === null ? `e${item.id}` : `s${item.superset}`, superset: item.superset, items: [item] })
-  }
-  return blocks
-}
 
 /** Куда добавить выбранные упражнения: к суперсету упражнения или новым суперсетом */
 export type SupersetTarget = { joinItemId?: number; newSuperset?: boolean }

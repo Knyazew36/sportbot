@@ -7,6 +7,7 @@ import { buildPath, ROUTES } from '@/shared/config/paths'
 import { pluralize } from '@front-cmdt/utils/pluralize'
 import { MedalArt } from '@/shared/ui/kit/Art'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
+import { ExerciseBlocks } from '@/shared/ui/kit/ExerciseBlocks'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Rise } from '@/shared/ui/kit/Reveal'
@@ -30,10 +31,10 @@ const Protocol = ({ workoutId }: { workoutId: number }) => {
       >
         {w => (
           <List>
-            {w.exercises.map(e => (
+            <ExerciseBlocks items={w.exercises}>
+              {e => (
               <ListRow
                 key={e.id}
-                linked={e.superset !== null}
                 lead={
                   e.done ? (
                     <CheckIcon
@@ -54,7 +55,8 @@ const Protocol = ({ workoutId }: { workoutId: number }) => {
                   {lastText({ date: w.date, sets: e.sets }) ?? (e.done ? 'без записи подходов' : 'не делал')}
                 </Poster>
               </ListRow>
-            ))}
+              )}
+            </ExerciseBlocks>
           </List>
         )}
       </QueryScreen>

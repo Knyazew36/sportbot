@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 
+import { cn } from '@/shared/lib/utils'
 import { Eyebrow, Poster } from '@/shared/ui/kit/Typography'
 
 import { FocusScoreboard, type FocusSets } from './FocusScoreboard'
@@ -9,7 +10,14 @@ type FocusShellProps = {
   status: string
   /** Акцентом, когда статус требует действия: пауза, отдых закончился */
   alert?: boolean
-  title: string
+  /** Название упражнения; в круге суперсета — с анимацией смены */
+  title: ReactNode
+  /** Под названием: что будет дальше в круге суперсета */
+  subtitle?: ReactNode
+  /** Над названием: цепочка круга суперсета */
+  above?: ReactNode
+  /** Фон-дорожки едут: идёт круг суперсета */
+  running?: boolean
   sets: FocusSets
   /** Начало тренировки — общее время на табло, пока шапка экрана упражнения закрыта */
   startedAt: string
@@ -21,11 +29,23 @@ type FocusShellProps = {
 // Полный экран на время подхода и отдыха: только время и пара крупных кнопок — после подхода дрожат руки.
 // Фон темы, а не чёрная плашка: в тёмной теме плашка светлая и слепила бы весь экран.
 // Выше полоски под шапку мессенджера (z-40), ниже шторки ввода (z-50), чтобы «Закончил подход» открывал её поверх
-export const FocusShell = ({ status, alert, title, sets, startedAt, children, actions }: FocusShellProps) => (
+export const FocusShell = ({
+  status,
+  alert,
+  title,
+  subtitle,
+  above,
+  running,
+  sets,
+  startedAt,
+  children,
+  actions,
+}: FocusShellProps) => (
   <div className='bg-background fixed inset-0 z-[45] mx-auto flex max-w-[440px] flex-col'>
-    <div className='sb-lanes pointer-events-none absolute inset-0 opacity-[0.06]' />
+    <div className={cn('sb-lanes pointer-events-none absolute inset-0 opacity-[0.06]', running && 'sb-lanes-run opacity-[0.1]')} />
     {/* Название целиком, до двух строк: «Жим гантелей на наклонной…» с многоточием не отличить от соседнего упражнения */}
     <div className='relative flex flex-col gap-3 px-gutter pt-[calc(var(--sb-top-inset,0px)+1rem)]'>
+      {above}
       <div>
         <Eyebrow
           as='p'
@@ -40,6 +60,7 @@ export const FocusShell = ({ status, alert, title, sets, startedAt, children, ac
         >
           {title}
         </Poster>
+        {subtitle}
       </div>
       <FocusScoreboard
         sets={sets}

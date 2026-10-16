@@ -1,5 +1,5 @@
 import { complexLetter, planText, type ProgramComplex } from '@/entities/program'
-import { supersetLabels } from '@/shared/lib/superset'
+import { ExerciseBlocks } from '@/shared/ui/kit/ExerciseBlocks'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { Poster, Text } from '@/shared/ui/kit/Typography'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'
@@ -34,11 +34,11 @@ export const ComplexSheet = ({ complex, onClose }: ComplexSheetProps) => {
                 <Text tone='soft'>В комплексе пока нет упражнений — добавь их в редакторе программы.</Text>
               ) : (
                 <List>
-                  {c.exercises.map((e, i) => (
+                  <ExerciseBlocks items={c.exercises}>
+                    {(e, i, label) => (
                     <ListRow
                       key={e.id}
-                      lead={supersetLabels(c.exercises)[i] ?? String(i + 1).padStart(2, '0')}
-                      linked={e.superset !== null}
+                      lead={label ?? String(i + 1).padStart(2, '0')}
                       title={e.name}
                       meta={e.muscles || undefined}
                       trail={
@@ -50,7 +50,8 @@ export const ComplexSheet = ({ complex, onClose }: ComplexSheetProps) => {
                         </Poster>
                       }
                     />
-                  ))}
+                    )}
+                  </ExerciseBlocks>
                   {c.cardioName && (
                     <ListRow
                       lead='+'

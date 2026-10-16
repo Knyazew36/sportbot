@@ -8,3 +8,22 @@ export const supersetLabels = <T extends { superset?: number | null }>(items: T[
     const index = items.slice(0, i).filter(e => e.superset === item.superset).length
     return `${supersetLetter(item.superset)}${index + 1}`
   })
+
+/** Упражнение одиночное или суперсет: подряд идущие участники с одним номером */
+export type ExerciseBlock<T> = {
+  /** Ключ для React и перетаскивания: s<номер> у суперсета, e<id> у одиночного */
+  key: string
+  superset: number | null
+  items: T[]
+}
+
+/** Плоский список упражнений → блоки по порядку */
+export const toBlocks = <T extends { id: number; superset: number | null }>(items: T[]): ExerciseBlock<T>[] => {
+  const blocks: ExerciseBlock<T>[] = []
+  for (const item of items) {
+    const last = blocks.at(-1)
+    if (last && item.superset !== null && last.superset === item.superset) last.items.push(item)
+    else blocks.push({ key: item.superset === null ? `e${item.id}` : `s${item.superset}`, superset: item.superset, items: [item] })
+  }
+  return blocks
+}

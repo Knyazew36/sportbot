@@ -14,7 +14,9 @@ import {
 } from '@/entities/program'
 import { toAssetUrl } from '@/shared/api'
 import { buildPath, ROUTES } from '@/shared/config/paths'
+import { cn } from '@/shared/lib/utils'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
+import { ExerciseBlocks } from '@/shared/ui/kit/ExerciseBlocks'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { PersonAvatar } from '@/shared/ui/kit/PersonAvatar'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
@@ -186,12 +188,17 @@ const TemplatePage = () => {
                   )}
                 >
                   <List>
-                    {c.exercises.map((e, j) => (
+                    <ExerciseBlocks items={c.exercises}>
+                      {(e, j, label) => (
                       // Вся строка открывает карточку упражнения: кнопка растянута на строку
                       <ListRow
                         key={e.id}
-                        className='hover:bg-accent/60 -mx-gutter px-gutter relative transition-colors'
-                        lead={String(j + 1).padStart(2, '0')}
+                        // В суперсете строка внутри рамки: на всю ширину экрана подсветка её перекрыла бы
+                        className={cn(
+                          'hover:bg-accent/60 relative transition-colors',
+                          !label && '-mx-gutter px-gutter',
+                        )}
+                        lead={label ?? String(j + 1).padStart(2, '0')}
                         title={
                           <button
                             type='button'
@@ -212,7 +219,8 @@ const TemplatePage = () => {
                           </Poster>
                         }
                       />
-                    ))}
+                      )}
+                    </ExerciseBlocks>
                   </List>
                 </ScreenSection>
               ))}

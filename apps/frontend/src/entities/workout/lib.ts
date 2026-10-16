@@ -1,6 +1,6 @@
 import { supersetLetter } from '@/shared/lib/superset'
 
-import type { WorkoutItem, WorkoutSet } from './api'
+import type { WorkoutItem } from './api'
 
 const num = (value: number) => String(Number(value.toFixed(2)))
 
@@ -23,61 +23,69 @@ export const lastSetHint = (last: WorkoutItem['last'], number: number) => last?.
 export const weightText = (weight: number) => (weight === 0 ? 'свой' : num(weight))
 
 // ── Суперсет ────────────────────────────────────────────────────────────────
-// Та же логика, что в боте (server workout/superset-round.ts): считаем по очереди, а не по серверу,
-// иначе без сети круг не шёл бы дальше
+// Круг считаем по очереди подходов, а не по серверу: без сети круг тоже идёт дальше.
+// Порядок участников и «осталось ли» — те же, что в боте (server workout/superset-round.ts)
 
-export { supersetLabels, supersetLetter } from '@/shared/lib/superset'
-
-export type RoundInfo = {
-  letter: string
-  /** Место упражнения в суперсете, с 1 */
-  index: number
-  size: number
-  /** Круг, который сейчас делается, с 1 */
-  round: number
-  rounds: number
-  /** Следующее упражнение круга; null — дальше снова это же или суперсет закончен */
-  next: WorkoutItem | null
-}
+export { type ExerciseBlock, supersetLabels, supersetLetter, toBlocks } from '@/shared/lib/superset'
 
 const hasLeft = (item: WorkoutItem) => item.sets.length < item.plannedSets
 
-const membersOf = (items: WorkoutItem[], item: WorkoutItem) =>
-  item.superset === null ? [item] : items.filter(e => e.superset === item.superset)
-
-/** Следующий по кругу участник с оставшимися подходами, не считая текущего */
-const nextMember = (members: WorkoutItem[], item: WorkoutItem) => {
-  const index = members.indexOf(item)
-  for (let step = 1; step < members.length; step++) {
-    const next = members[(index + step) % members.length]!
-    if (hasLeft(next)) return { next, wrapped: index + step >= members.length }
-  }
-  return null
+export type SupersetRound = {
+  superset: number
+  letter: string
+  /** Все участники суперсета по порядку */
+  members: WorkoutItem[]
+  /** Участники текущего круга: у кого остались подходы. Пропущенный в прошлом круге идёт в этом */
+  round: WorkoutItem[]
+  /** Круг, который сейчас делается, с 1 */
+  number: number
+  rounds: number
+  /** Все подходы суперсета сделаны */
+  done: boolean
 }
 
+/** Круг суперсета, в котором стоит упражнение; null — упражнение одиночное */
+export const supersetRound = (items: WorkoutItem[], item: WorkoutItem): SupersetRound | null => {
+  if (item.superset === null) return null
+  const members = items.filter(e => e.superset === item.superset)
+  const round = members.filter(hasLeft)
+  const rounds = Math.max(...members.map(e => e.plannedSets), 1)
+  return {
+    superset: item.superset,
+    letter: supersetLetter(item.superset),
+    members,
+    round,
+    // По самому продвинутому участнику: после «не делал» у одного номер круга не откатывается назад
+    number: round.length ? Math.max(...round.map(e => e.sets.length)) + 1 : rounds,
+    rounds,
+    done: round.length === 0,
+  }
+}
+
+/** Доля сделанных подходов суперсета — заливка его дорожки */
+export const supersetCharge = (members: WorkoutItem[]): number => {
+  const planned = members.reduce((sum, e) => sum + e.plannedSets, 0)
+  if (!planned) return 0
+  return members.reduce((sum, e) => sum + Math.min(e.sets.length, e.plannedSets), 0) / planned
+}
+
+/** Суперсет закончится, если в круг запишутся подходы этих упражнений */
+export const supersetDoneWith = (members: WorkoutItem[], addedIds: number[]): boolean =>
+  members.every(e => e.sets.length + (addedIds.includes(e.id) ? 1 : 0) >= e.plannedSets)
+
 /**
- * Куда идти после подхода, который сейчас записывается (в items его ещё нет). В суперсете — к следующему
- * участнику без отдыха, отдых только когда круг замкнулся. Одиночное остаётся на месте с отдыхом
+ * Что подставить в строку ввода круга: прошлый круг этой тренировки, иначе тот же подход прошлой тренировки,
+ * иначе план — нижняя граница повторов: прибавить легче, чем убавить. Вес без истории не угадываем
  */
-export const afterNewSet = (items: WorkoutItem[], itemId: number): { nextId: number; rest: boolean } => {
-  // Вес и повторы для круга не важны — только сколько подходов уже есть
-  const draft = (e: WorkoutItem): WorkoutSet => ({ id: 0, clientId: null, number: e.sets.length + 1, weight: 0, reps: 0 })
-  const withSet = items.map(e => (e.id === itemId ? { ...e, done: true, sets: [...e.sets, draft(e)] } : e))
-  const item = withSet.find(e => e.id === itemId)
-  if (!item || item.superset === null) return { nextId: itemId, rest: true }
-  const members = membersOf(withSet, item)
-  const found = nextMember(members, item)
-  if (found) return { nextId: found.next.id, rest: found.wrapped }
-  if (hasLeft(item)) return { nextId: itemId, rest: true }
-  // Суперсет закончен — следующий несделанный блок, иначе остаёмся
-  const after = withSet.indexOf(members.at(-1)!)
-  const next = withSet.find((e, i) => i > after && !e.done) ?? withSet.find(e => !e.done)
-  return { nextId: next?.id ?? itemId, rest: true }
+export const roundPrefill = (item: WorkoutItem): { weight: string; reps: string } => {
+  const source = item.sets.at(-1) ?? lastSetHint(item.last, item.sets.length + 1)
+  if (source) return { weight: source.weight === 0 ? '' : num(source.weight), reps: String(source.reps) }
+  return { weight: '', reps: String(item.repsMin) }
 }
 
 /**
  * Текущее упражнение без явного выбора: первое несделанное, но начатый суперсет с оставшимися подходами
- * держит круг — иначе после первого подхода у всех участников его бы пропустило
+ * держит экран — иначе после первого круга его бы пропустило
  */
 export const currentItem = (items: WorkoutItem[]): WorkoutItem | undefined => {
   for (const item of items) {
@@ -85,29 +93,10 @@ export const currentItem = (items: WorkoutItem[]): WorkoutItem | undefined => {
       if (!item.done) return item
       continue
     }
-    const members = membersOf(items, item)
+    const round = supersetRound(items, item)!
     // Суперсет проверяем один раз — на первом участнике
-    if (members[0] !== item) continue
-    const left = members.filter(hasLeft)
-    if (left.length && members.some(e => e.sets.length > 0))
-      return left.reduce((min, e) => (e.sets.length < min.sets.length ? e : min))
-    const fresh = members.find(e => !e.done)
-    if (fresh) return fresh
+    if (round.members[0] !== item) continue
+    if (round.round.length) return round.round[0]
   }
   return items[0]
-}
-
-/** Подпись круга для экрана упражнения; null — упражнение не в суперсете */
-export const roundInfo = (items: WorkoutItem[], item: WorkoutItem): RoundInfo | null => {
-  if (item.superset === null) return null
-  const members = membersOf(items, item)
-  const rounds = Math.max(...members.map(e => e.plannedSets))
-  return {
-    letter: supersetLetter(item.superset),
-    index: members.indexOf(item) + 1,
-    size: members.length,
-    round: Math.min(item.sets.length + 1, Math.max(rounds, 1)),
-    rounds,
-    next: nextMember(members, item)?.next ?? null,
-  }
 }
