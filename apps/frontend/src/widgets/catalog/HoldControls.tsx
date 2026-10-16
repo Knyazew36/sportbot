@@ -16,14 +16,18 @@ type HoldControlsProps = {
   side?: 1 | 2
   back: SideAction
   next: SideAction
-  /** Время удержания вышло — один раз: звук, вибрация, автопереход (frontend-tz, 9.1) */
+  /** Время удержания вышло — один раз: звук и вибрация. Дальше человек переходит сам */
   onEnd?: () => void
+  /** Отсчёт сразу, без нажатия: «Попробовать» в карточке растяжки — человек уже нажал старт */
+  autoStart?: boolean
 }
 
 // Низ экрана удержания растяжки: таймер вокруг кнопки паузы и два перехода по бокам.
-// Общий для заминки и «Попробовать» в карточке растяжки. Отсчёт перезапускается сменой key снаружи
-export const HoldControls = ({ holdSeconds, side, back, next, onEnd }: HoldControlsProps) => {
-  const [paused, setPaused] = useState(false)
+// Общий для заминки и «Попробовать» в карточке растяжки. Отсчёт перезапускается сменой key снаружи.
+// В заминке отсчёт ждёт нажатия: сначала прочитать, как встать, и только потом держать
+export const HoldControls = ({ holdSeconds, side, back, next, onEnd, autoStart = false }: HoldControlsProps) => {
+  const [started, setStarted] = useState(autoStart)
+  const [paused, setPaused] = useState(!autoStart)
   const [left] = useCountdown(holdSeconds, { paused })
   const over = left <= 0
   const endedRef = useRef(false)
@@ -37,7 +41,9 @@ export const HoldControls = ({ holdSeconds, side, back, next, onEnd }: HoldContr
   return (
     <StickyFooter className='block pt-3'>
       <div className='flex items-baseline justify-center gap-2'>
-        <Eyebrow tone={over ? 'primary' : 'muted'}>{over ? 'готово' : paused ? 'пауза' : 'держи'}</Eyebrow>
+        <Eyebrow tone={over || !started ? 'primary' : 'muted'}>
+          {over ? 'готово' : !started ? 'жми старт' : paused ? 'пауза' : 'держи'}
+        </Eyebrow>
         {side && (
           <Lead
             as='span'
@@ -63,7 +69,10 @@ export const HoldControls = ({ holdSeconds, side, back, next, onEnd }: HoldContr
           left={left}
           total={holdSeconds}
           paused={paused}
-          onToggle={() => setPaused(p => !p)}
+          onToggle={() => {
+            setStarted(true)
+            setPaused(p => !p)
+          }}
         />
         {/* Когда время вышло, переход дальше становится главным действием */}
         <Button

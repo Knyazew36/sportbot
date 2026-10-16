@@ -6,14 +6,18 @@ import {
   useCurrentWorkout,
   useDiscardWorkout,
   useFinishWorkout,
+  useQueuedWorkout,
   useStartWorkout,
   type Workout,
   type WorkoutSet,
 } from '@/entities/workout'
+import { useIsOnline } from '@/shared/api'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { useDeadlineTimer } from '@/shared/lib/hooks/use-deadline-timer'
 import { useStopwatch } from '@/shared/lib/hooks/use-stopwatch'
+import { useWorkoutElapsed } from '@/shared/lib/hooks/use-workout-elapsed'
 import { timerEndSignal } from '@/shared/lib/signal'
+import { LiveDot } from '@/shared/ui/kit/LiveDot'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
 import { PageLoader } from '@/shared/ui/kit/PageLoader'
@@ -27,18 +31,30 @@ import { SetList } from '@/widgets/workout/SetList'
 
 import { ExerciseCard } from './components/ExerciseCard'
 import { FocusRest } from './components/FocusRest'
+import { FinishPending } from './components/FinishPending'
 import { FocusSet } from './components/FocusSet'
 import { SetEntrySheet } from './components/SetEntrySheet'
+import { SyncStatus } from './components/SyncStatus'
 import { type NextMode, WorkoutActions } from './components/WorkoutActions'
 import { WorkoutLanes } from './components/WorkoutLanes'
 import { pluralize } from '@front-cmdt/utils/pluralize'
 import { EXERCISE_OF_FORMS } from '@/shared/lib/plural-forms'
 
-const minutesSince = (iso: string | Date) => Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 60_000))
+// Время в подписи шапки: без разрядки капса и с равной шириной цифр, иначе строка подрагивает каждую секунду.
+// Отдельный компонент, чтобы ежесекундный тик перерисовывал только его, а не весь экран
+const ElapsedInline = ({ startedAt }: { startedAt: string }) => (
+  <span className='text-foreground inline-flex items-center gap-1.5 align-middle tracking-normal tabular-nums'>
+    <LiveDot />
+    {useWorkoutElapsed(startedAt)}
+  </span>
+)
 
 // Экран идущей тренировки (frontend-tz, 8): спокойный экран упражнения, а подход и отдых — на весь экран поверх него
-const WorkoutView = ({ workout }: { workout: Workout }) => {
+const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
   const navigate = useNavigate()
+  // Сервер плюс неотправленные подходы: в зале без сети экран живёт очередью
+  const { workout, finishing } = useQueuedWorkout(saved)
+  const online = useIsOnline()
   const finish = useFinishWorkout()
   const discard = useDiscardWorkout()
   const [pickedId, setPickedId] = useState<number | null>(null)
@@ -49,6 +65,9 @@ const WorkoutView = ({ workout }: { workout: Workout }) => {
     onEnd: () => timerEndSignal(workout.settings),
   })
   const stopwatch = useStopwatch({ storageKey: `set-stopwatch-${workout.id}` })
+
+  // Завершение в очереди: тренировки для человека уже нет, ждём сервер или уходим на «Сегодня»
+  if (finishing) return <FinishPending />
 
   const items = workout.exercises
   const fallback = items.find(e => !e.done) ?? items[0]
@@ -74,9 +93,11 @@ const WorkoutView = ({ workout }: { workout: Workout }) => {
           action={
             <Button
               variant='outline'
+              // Отмена удаляет тренировку на сервере — без сети её не сделать
+              disabled={!online}
               onClick={() => discard.mutateAsync(workout.id).then(() => navigate(ROUTES.TODAY))}
             >
-              Отменить тренировку
+              {online ? 'Отменить тренировку' : 'Отменить · нужна сеть'}
             </Button>
           }
         />
@@ -102,12 +123,19 @@ const WorkoutView = ({ workout }: { workout: Workout }) => {
   const forward = allDone ? 'finish' : nextMode
   const planDone = item.plannedSets > 0 && item.sets.length >= item.plannedSets
 
-  const onFinish = () =>
-    finish.mutateAsync(workout.id).then(summary => {
-      timer.stop()
-      stopwatch.stop()
-      navigate(buildPath(ROUTES.WORKOUT_SUMMARY, { workoutId: summary.workoutId }), { replace: true })
-    })
+  // Завершение встаёт в очередь со временем нажатия: без сети засчитается позже, а длительность не исказится.
+  // Колбэк mutate срабатывает, только пока экран открыт: после ухода на «Сегодня» итог туда уже не уведёт
+  const onFinish = () => {
+    timer.stop()
+    stopwatch.stop()
+    finish.mutate(
+      { id: workout.id, finishedAt: new Date().toISOString() },
+      {
+        onSuccess: summary =>
+          navigate(buildPath(ROUTES.WORKOUT_FINISHED, { workoutId: summary.workoutId }), { replace: true }),
+      },
+    )
+  }
 
   const onDiscard = () =>
     discard.mutateAsync(workout.id).then(() => {
@@ -143,8 +171,7 @@ const WorkoutView = ({ workout }: { workout: Workout }) => {
               title={workout.complexName}
               subtitle={
                 <>
-                  упр. {index + 1} из {items.length} ·{' '}
-                  <span className='text-primary'>{minutesSince(workout.startedAt)} мин</span>
+                  упр. {index + 1} из {items.length} · <ElapsedInline startedAt={workout.startedAt} />
                 </>
               }
               action={
@@ -154,6 +181,8 @@ const WorkoutView = ({ workout }: { workout: Workout }) => {
                     <Button
                       variant='success'
                       size='sm'
+                      // Засчитывать нечего — остаётся только отмена, а она без сети невозможна
+                      disabled={!doneCount && !online}
                     />
                   }
                   title={doneCount ? 'Завершить тренировку?' : 'Засчитывать нечего'}
@@ -170,6 +199,7 @@ const WorkoutView = ({ workout }: { workout: Workout }) => {
                 </ConfirmAction>
               }
             />
+            <SyncStatus />
             <WorkoutLanes
               items={items}
               currentId={item.id}
@@ -187,7 +217,6 @@ const WorkoutView = ({ workout }: { workout: Workout }) => {
               settings.showRestTimer && !settings.restAutoStart && item.sets.length ? settings.restSeconds : null
             }
             onStartSet={startSet}
-            onManualSet={() => setEntryOpen(true)}
             onRest={() => timer.start(settings.restSeconds)}
             onNext={onNext}
           />
@@ -198,15 +227,21 @@ const WorkoutView = ({ workout }: { workout: Workout }) => {
         <SetList
           item={item}
           onEdit={setEditing}
+          onAdd={() => setEntryOpen(true)}
         />
       </Screen>
       {stopwatch.running ? (
         <FocusSet
           stopwatch={stopwatch}
           title={item.name}
+          startedAt={workout.startedAt}
           setNumber={setNumber}
           plannedSets={item.plannedSets}
-          onDone={() => setEntryOpen(true)}
+          // Подход закончен — время стоит, пока вводятся вес и повторы
+          onDone={() => {
+            stopwatch.pause()
+            setEntryOpen(true)
+          }}
         />
       ) : (
         settings.showRestTimer &&
@@ -214,7 +249,9 @@ const WorkoutView = ({ workout }: { workout: Workout }) => {
           <FocusRest
             timer={timer}
             title={item.name}
+            startedAt={workout.startedAt}
             nextSet={setNumber}
+            plannedSets={item.plannedSets}
             onToSet={startSet}
             onClose={timer.stop}
             planDone={planDone}
@@ -228,11 +265,14 @@ const WorkoutView = ({ workout }: { workout: Workout }) => {
       )}
       <SetEntrySheet
         open={entryOpen}
-        onClose={() => setEntryOpen(false)}
+        // Закрыл без записи — подход продолжается с того же времени; ручной ввод без секундомера это не трогает
+        onClose={() => {
+          setEntryOpen(false)
+          stopwatch.resume()
+        }}
         item={item}
         onSubmitStart={() => setPickedId(item.id)}
         onSaved={onSaved}
-        onFailed={() => setEntryOpen(true)}
       />
       <EditSetSheet
         set={editing}
@@ -252,6 +292,26 @@ const StartWorkout = ({ complexId }: { complexId?: number }) => {
     started.current = true
     start.mutate(complexId)
   }, [complexId, start])
+
+  // Старт создаёт тренировку на сервере: без сети мутация стоит на паузе и сама уйдёт, когда сеть появится
+  if (start.isPaused)
+    return (
+      <Screen
+        header={
+          <TopBar
+            back={ROUTES.TODAY}
+            title='Тренировка'
+          />
+        }
+        className='px-gutter'
+      >
+        <ScreenState
+          state='error'
+          title='Нет сети'
+          description='Начнём тренировку, как только появится связь. Экран можно не закрывать.'
+        />
+      </Screen>
+    )
 
   if (start.isError)
     return (

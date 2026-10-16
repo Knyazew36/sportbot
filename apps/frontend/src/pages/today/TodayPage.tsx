@@ -5,6 +5,7 @@ import { useState } from 'react'
 
 import { type DayToday, useToday } from '@/entities/day'
 import { useSportUser } from '@/entities/sport-user'
+import { useFinishQueued } from '@/entities/workout'
 import { ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
@@ -13,6 +14,7 @@ import { Screen, StickyFooter } from '@/shared/ui/kit/Screen'
 import { ScreenHeader } from '@/shared/ui/kit/ScreenHeader'
 
 import { DoneDay } from './components/DoneDay'
+import { FinishQueuedDay } from './components/FinishQueuedDay'
 import { InProgressDay } from './components/InProgressDay'
 import { MissedDay } from './components/MissedDay'
 import { NoProgramDay } from './components/NoProgramDay'
@@ -53,17 +55,23 @@ const TodayPage = () => {
   // Три пропуска подряд — ответ на «не буду» один раз предлагает паузу
   const [suggestPause, setSuggestPause] = useState(false)
 
+  // Завершение ждёт сети: сервер ещё говорит «идёт», но продолжать уже нечего
+  const finishQueued = useFinishQueued(today.data?.workout?.id)
+
   const pickComplex = (id: number) => setParams({ complexId: String(id) }, { replace: true })
-  const action = today.data ? cta(today.data) : null
+  const action = today.data && !finishQueued ? cta(today.data) : null
 
   return (
     <Screen
       header={
         <>
-          <ScreenHeader
-            title={today.data ? capitalize(formatDate(today.data.date, 'EEEE · d MMMM')) : 'Сегодня'}
-            aside={today.data?.programName ?? undefined}
-          />
+          {/* Тренировка идёт — место даты и программы занимает живая полоса оболочки */}
+          {!(today.data?.state === 'IN_PROGRESS' && !finishQueued) && (
+            <ScreenHeader
+              title={today.data ? capitalize(formatDate(today.data.date, 'EEEE · d MMMM')) : 'Сегодня'}
+              aside={today.data?.programName ?? undefined}
+            />
+          )}
           {me.data && !me.data.canMessage && <PermissionBanner />}
         </>
       }
@@ -96,7 +104,9 @@ const TodayPage = () => {
               />
             )}
             {day.state === 'REST' && <RestDay day={day} />}
-            {day.state === 'IN_PROGRESS' && day.workout && <InProgressDay day={day} />}
+            {day.state === 'IN_PROGRESS' &&
+              day.workout &&
+              (finishQueued ? <FinishQueuedDay day={day} /> : <InProgressDay day={day} />)}
             {day.state === 'DONE' && <DoneDay day={day} />}
             {day.state === 'MISSED' && (
               <MissedDay

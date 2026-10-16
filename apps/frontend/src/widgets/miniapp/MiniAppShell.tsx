@@ -1,24 +1,26 @@
 import { Outlet, useLocation, useNavigate } from 'react-router'
 
-import { useEffect, useState } from 'react'
+import { type ReactNode, useEffect, useState } from 'react'
 
 import { cn } from '@/shared/lib/utils'
 import { showBackButton } from '@/shared/miniapp'
 import { ScreenChromeProvider } from '@/shared/ui/kit/screen-chrome'
 
 import { BottomNav } from './BottomNav'
-import { isFocusRoute, isSectionRoot, type NavBadges, type ShellNav } from './nav'
+import { isFocusRoute, isLiveHidden, isSectionRoot, type NavBadges, type ShellNav } from './nav'
 
 type MiniAppShellProps = {
   nav: ShellNav
   isAdmin?: boolean
   /** Счётчики на пунктах меню по их `to` */
   badges?: NavBadges
+  /** Живая полоса идущей тренировки (LiveWorkoutBar). Слотом: превью макетов обходится без запросов */
+  liveBar?: ReactNode
   className?: string
 }
 
 // Оболочка Mini App: телефонная колонка на бумаге с зерном, экран и нижнее меню
-export const MiniAppShell = ({ nav, isAdmin = false, badges, className }: MiniAppShellProps) => {
+export const MiniAppShell = ({ nav, isAdmin = false, badges, liveBar, className }: MiniAppShellProps) => {
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const [searchFocused, setSearchFocused] = useState(false)
@@ -35,12 +37,13 @@ export const MiniAppShell = ({ nav, isAdmin = false, badges, className }: MiniAp
   return (
     <div
       className={cn(
-        'sb bg-background text-foreground relative mx-auto flex min-h-svh w-full max-w-[440px] flex-col pt-(--sb-top-inset)',
+        'sb bg-background text-foreground relative mx-auto flex min-h-svh w-full max-w-[440px] flex-col pt-(--sb-top-inset) transition-[padding-top] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',
         className,
       )}
     >
       {/* Полоса под кнопками Telegram в fullscreen: контент уезжает под неё, а не под «Закрыть» */}
       <div className='bg-background fixed inset-x-0 top-0 z-40 mx-auto h-(--sb-top-inset) max-w-[440px]' />
+      {!isLiveHidden(nav, pathname) && liveBar}
       {/* Зерно бумаги */}
       <div className='sb-grain pointer-events-none fixed inset-0 z-50 mx-auto max-w-[440px] opacity-[0.07] mix-blend-multiply dark:opacity-[0.12] dark:mix-blend-screen' />
       <ScreenChromeProvider value={{ navVisible, setSearchFocused }}>

@@ -6,6 +6,7 @@
  */
 import type {
   CreateWorkoutSetDto,
+  FinishWorkoutDto,
   ReplaceWorkoutItemDto,
   StartWorkoutDto,
   UpdateWorkoutSetDto,
@@ -56,13 +57,16 @@ export const workoutControllerStart = (
       );
     }
   /**
- * @summary Завершить тренировку — итог
+ * @summary Завершить тренировку — итог; повтор возвращает тот же итог
  */
 export const workoutControllerFinish = (
     id: number,
+    finishWorkoutDto: FinishWorkoutDto,
  ) => {
       return customInstance<WorkoutControllerFinish200>(
-      {url: `/workout/finish/${id}`, method: 'POST'
+      {url: `/workout/finish/${id}`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: finishWorkoutDto
     },
       );
     }

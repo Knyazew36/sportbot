@@ -8,7 +8,8 @@ import { apiDomain, ORGANIZATION_HEADER } from './constants'
 import { getOrganizationId } from './organization-id'
 import type { ApiErrorBody } from './type'
 
-const $api = axios.create({ baseURL: apiDomain })
+// Без таймаута запрос в зале с плохой сетью висит минутами: лучше упасть и уйти в повтор
+const $api = axios.create({ baseURL: apiDomain, timeout: 15_000 })
 
 // Лог запросов в консоль браузера и на проде: по нему разбираем проблемы у пользователей в мессенджере
 const logName = (config?: InternalAxiosRequestConfig) => `${config?.method?.toUpperCase()} ${config?.url}`

@@ -2,25 +2,13 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { dayKeys } from '@/entities/day'
 import { statsKeys } from '@/entities/stats'
-import type {
-  CooldownResponseDto,
-  CreateWorkoutSetDto,
-  ReplaceWorkoutItemDto,
-  SharedWorkoutResponseDto,
-  UpdateWorkoutSetDto,
-  WorkoutAnalogResponseDto,
-  WorkoutResponseDto,
-  WorkoutSummaryResponseDto,
-} from '@/shared/api/generated/model'
+import type { ReplaceWorkoutItemDto } from '@/shared/api/generated/model'
 import {
-  workoutControllerAddSet,
   workoutControllerAnalogs,
   workoutControllerCooldown,
   workoutControllerCurrent,
-  workoutControllerDeleteSet,
   workoutControllerDiscard,
   workoutControllerFind,
-  workoutControllerFinish,
   workoutControllerMarkDone,
   workoutControllerRemove,
   workoutControllerReplace,
@@ -28,26 +16,20 @@ import {
   workoutControllerShared,
   workoutControllerStart,
   workoutControllerSummary,
-  workoutControllerUpdateSet,
 } from '@/shared/api/generated/workout/workout'
 
-export type Workout = WorkoutResponseDto
-export type WorkoutItem = Workout['exercises'][number]
-export type WorkoutSet = WorkoutItem['sets'][number]
-export type WorkoutAnalog = WorkoutAnalogResponseDto
-export type WorkoutSummary = WorkoutSummaryResponseDto
-export type Cooldown = CooldownResponseDto
-export type SharedWorkout = SharedWorkoutResponseDto
-export type CooldownStretch = Cooldown['main'][number]
+import {
+  type AddSetVars,
+  applyWorkout,
+  type DeleteSetVars,
+  type FinishVars,
+  queueKeys,
+  type UpdateSetVars,
+  WORKOUT_QUEUE_SCOPE,
+} from './model/queue'
+import { type Workout, type WorkoutSummary, workoutKeys } from './model/types'
 
-export const workoutKeys = {
-  current: ['workout', 'current'] as const,
-  analogs: (itemId: number) => ['workout', 'analogs', itemId] as const,
-  detail: (id: number) => ['workout', 'detail', id] as const,
-  summary: (id: number) => ['workout', 'summary', id] as const,
-  cooldown: (id: number) => ['workout', 'cooldown', id] as const,
-  shared: (token: string) => ['workout', 'shared', token] as const,
-}
+export * from './model/types'
 
 /** Незавершённая тренировка: начатая в боте видна и тут (frontend-tz, 4.1) */
 export const useCurrentWorkout = () =>
@@ -58,87 +40,29 @@ export const useCurrentWorkout = () =>
     staleTime: 0,
   })
 
-/** Любой ответ с тренировкой обновляет экран сразу, без повторного запроса */
 const useApplyWorkout = () => {
   const queryClient = useQueryClient()
-  return (workout: Workout) => {
-    if (workout.status === 'IN_PROGRESS') {
-      queryClient.setQueryData(workoutKeys.current, { workout })
-    } else {
-      // Правка прошедшей тренировки из статистики: идущая не тронута, зато меняются графики, мышцы и итог
-      queryClient.setQueryData(workoutKeys.detail(workout.id), workout)
-      void queryClient.invalidateQueries({ queryKey: workoutKeys.summary(workout.id) })
-      void queryClient.invalidateQueries({ queryKey: statsKeys.all })
-    }
-    void queryClient.invalidateQueries({ queryKey: dayKeys.all })
-  }
+  return (workout: Workout) => applyWorkout(queryClient, workout)
 }
 
 export const useStartWorkout = () => {
   const apply = useApplyWorkout()
   return useMutation({
     mutationFn: (complexId?: number) => workoutControllerStart(complexId ? { complexId } : {}),
+    scope: WORKOUT_QUEUE_SCOPE,
     // Экран тренировки открывается сам — он и есть подтверждение
     meta: { skipSuccessToast: true },
     onSuccess: apply,
   })
 }
 
-type CurrentWorkout = Awaited<ReturnType<typeof workoutControllerCurrent>>
+// Подход, правка и удаление — через офлайн-очередь (model/queue.ts): mutationFn, ретраи и тосты там.
+// Экран показывает их сразу через useQueuedWorkout, не дожидаясь сервера
+export const useAddSet = () => useMutation<Workout, Error, AddSetVars>({ mutationKey: queueKeys.addSet })
 
-// Подход записывается оптимистично: в спортзале сеть медленная, и ждать ответа с трясущимися руками незачем
-export const useAddSet = () => {
-  const queryClient = useQueryClient()
-  const apply = useApplyWorkout()
-  return useMutation({
-    mutationFn: (body: CreateWorkoutSetDto) => workoutControllerAddSet(body),
-    // Подряд записанные подходы уходят по очереди: номер подхода сервер считает по уже сохранённым
-    scope: { id: 'workout-add-set' },
-    onMutate: async body => {
-      await queryClient.cancelQueries({ queryKey: workoutKeys.current })
-      const previous = queryClient.getQueryData<CurrentWorkout>(workoutKeys.current)
-      const workout = previous?.workout
-      if (workout) {
-        const exercises = workout.exercises.map(e =>
-          e.id === body.itemId
-            ? {
-                ...e,
-                done: true,
-                // Отрицательный id — подход ещё не сохранён, править его рано
-                sets: [...e.sets, { id: -Date.now(), number: e.sets.length + 1, weight: body.weight ?? 0, reps: body.reps }],
-              }
-            : e,
-        )
-        queryClient.setQueryData<CurrentWorkout>(workoutKeys.current, { ...previous, workout: { ...workout, exercises } })
-      }
-      return { previous }
-    },
-    onError: (_error, _body, context) => {
-      if (context?.previous) queryClient.setQueryData(workoutKeys.current, context.previous)
-    },
-    // Подход сразу появляется в списке и запускается таймер отдыха — тост лишний
-    meta: { skipSuccessToast: true, inlineFieldErrors: true },
-    onSuccess: apply,
-  })
-}
+export const useUpdateSet = () => useMutation<Workout, Error, UpdateSetVars>({ mutationKey: queueKeys.updateSet })
 
-export const useUpdateSet = () => {
-  const apply = useApplyWorkout()
-  return useMutation({
-    mutationFn: ({ id, ...body }: UpdateWorkoutSetDto & { id: number }) => workoutControllerUpdateSet(id, body),
-    meta: { successMessage: 'Подход исправлен', inlineFieldErrors: true },
-    onSuccess: apply,
-  })
-}
-
-export const useDeleteSet = () => {
-  const apply = useApplyWorkout()
-  return useMutation({
-    mutationFn: (id: number) => workoutControllerDeleteSet(id),
-    meta: { successMessage: 'Подход удалён' },
-    onSuccess: apply,
-  })
-}
+export const useDeleteSet = () => useMutation<Workout | null, Error, DeleteSetVars>({ mutationKey: queueKeys.deleteSet })
 
 export const useMarkDone = () => {
   const apply = useApplyWorkout()
@@ -161,32 +85,20 @@ export const useReplaceItem = () => {
   return useMutation({
     mutationFn: ({ itemId, ...body }: ReplaceWorkoutItemDto & { itemId: number }) =>
       workoutControllerReplace(itemId, body),
+    scope: WORKOUT_QUEUE_SCOPE,
     meta: { successMessage: 'Упражнение заменено' },
     onSuccess: apply,
   })
 }
 
-export const useFinishWorkout = () => {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (id: number) => workoutControllerFinish(id),
-    meta: { successMessage: 'Тренировка засчитана ✅' },
-    onSuccess: summary => {
-      queryClient.setQueryData(workoutKeys.summary(summary.workoutId), summary)
-      queryClient.setQueryData(workoutKeys.current, { workout: null })
-      // Главная сейчас не открыта: invalidate лишь пометил бы кэш, и по «Домой» сначала мелькнул бы
-      // старый день с «Продолжить». Сброс — главная покажет загрузку и сразу засчитанный день
-      queryClient.removeQueries({ queryKey: dayKeys.all })
-      // Засчитанная тренировка меняет серию, посещаемость и веса
-      void queryClient.invalidateQueries({ queryKey: statsKeys.all })
-    },
-  })
-}
+/** Завершение тоже в очереди: без сети засчитается, когда она появится, со временем нажатия */
+export const useFinishWorkout = () => useMutation<WorkoutSummary, Error, FinishVars>({ mutationKey: queueKeys.finish })
 
 export const useDiscardWorkout = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (id: number) => workoutControllerDiscard(id),
+    scope: WORKOUT_QUEUE_SCOPE,
     meta: { successMessage: 'Тренировка отменена' },
     onSuccess: () => {
       queryClient.setQueryData(workoutKeys.current, { workout: null })

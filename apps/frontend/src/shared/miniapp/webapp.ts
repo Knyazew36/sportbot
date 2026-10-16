@@ -115,13 +115,22 @@ export const onMessengerThemeChange = (cb: () => void): (() => void) => {
   return () => app?.offEvent?.('themeChanged', cb)
 }
 
+// Шапка в цвет живой полосы, пока тренировка идёт. Живёт здесь, а не у полосы: перекраска при смене темы
+// иначе вернула бы шапке цвет бумаги поверх зелёного
+let headerAccent: string | null = null
+
+/** Цвет шапки поверх бумаги (#RRGGBB); null — снова как бумага. Применится при следующей перекраске */
+export const setMessengerHeaderAccent = (color: string | null) => {
+  headerAccent = color
+}
+
 /**
  * Красит шапку, фон и нижнюю полосу окна мессенджера в цвет приложения (#RRGGBB), иначе там остаётся тема мессенджера.
  * В MAX методов нет — шапку он красит сам
  */
 export const paintMessengerChrome = (color: string) => {
   const app = webApp()
-  app?.setHeaderColor?.(color)
+  app?.setHeaderColor?.(headerAccent ?? color)
   app?.setBackgroundColor?.(color)
   app?.setBottomBarColor?.(color)
 }

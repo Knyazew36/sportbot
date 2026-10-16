@@ -274,6 +274,7 @@ export class WorkoutService {
     itemId: number,
     weight: number,
     reps: number,
+    clientId?: string,
   ): Promise<number> {
     if (!isValidSet(weight, reps))
       throw new BadRequestException('Вес до 999 кг, повторы от 1 до 999.');
@@ -282,7 +283,7 @@ export class WorkoutService {
       throw new BadRequestException(
         'В простом режиме подходы не записываются.',
       );
-    return this.createSet(item, weight, reps);
+    return this.createSet(item, weight, reps, clientId);
   }
 
   /** Исправить сохранённый подход — в идущей или прошедшей тренировке (frontend-tz, 8.2). */
@@ -348,7 +349,7 @@ export class WorkoutService {
   public async complete(
     profile: SportProfile,
     workoutId: number,
-    options: { auto?: boolean; forDayId?: number } = {},
+    options: { auto?: boolean; forDayId?: number; finishedAt?: Date } = {},
   ): Promise<CompleteResult> {
     const userId = profile.userId;
     const status: WorkoutStatus = options.auto ? 'AUTO_CLOSED' : 'FINISHED';
@@ -356,7 +357,7 @@ export class WorkoutService {
       async (tx) => {
         const { count } = await tx.workout.updateMany({
           where: { id: workoutId, userId, status: 'IN_PROGRESS' },
-          data: { status, finishedAt: new Date() },
+          data: { status, finishedAt: options.finishedAt ?? new Date() },
         });
         if (!count) throw new BadRequestException('Тренировка уже закрыта.');
         const workout = await tx.workout.findUniqueOrThrow({
@@ -602,27 +603,52 @@ export class WorkoutService {
     item: Awaited<ReturnType<WorkoutService['findItem']>>,
     weight: number,
     reps: number,
+    clientId?: string,
   ): Promise<number> {
     const closed = item.workout.status !== 'IN_PROGRESS';
-    await this.prisma.$transaction([
-      this.prisma.workoutSet.create({
-        data: {
-          workoutExerciseId: item.id,
-          number: (item.sets.at(-1)?.number ?? 0) + 1,
-          weight,
-          reps,
-        },
-      }),
-      // В прошедшей тренировке «сделано» уже не нажать, а нагрузка по мышцам считает только сделанные
-      ...(closed && !item.done
-        ? [
-            this.prisma.workoutExercise.update({
-              where: { id: item.id },
-              data: { done: true },
-            }),
-          ]
-        : []),
-    ]);
+    // Повтор из офлайн-очереди: первый запрос дошёл, ответ потерялся
+    if (clientId && item.sets.some((s) => s.clientId === clientId)) {
+      this.logger.debug(
+        `Повтор подхода: clientId=${clientId}, workoutExerciseId=${item.id}, userId=${item.workout.userId}`,
+      );
+      return item.workoutId;
+    }
+    try {
+      await this.prisma.$transaction([
+        this.prisma.workoutSet.create({
+          data: {
+            workoutExerciseId: item.id,
+            number: (item.sets.at(-1)?.number ?? 0) + 1,
+            weight,
+            reps,
+            clientId,
+          },
+        }),
+        // В прошедшей тренировке «сделано» уже не нажать, а нагрузка по мышцам считает только сделанные
+        ...(closed && !item.done
+          ? [
+              this.prisma.workoutExercise.update({
+                where: { id: item.id },
+                data: { done: true },
+              }),
+            ]
+          : []),
+      ]);
+    } catch (error) {
+      // Тот же подход пришёл дважды одновременно (ретрай по таймауту, пока первый ещё пишется)
+      if (
+        clientId &&
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002' &&
+        JSON.stringify(error.meta ?? {}).includes('clientId')
+      ) {
+        this.logger.warn(
+          `Параллельный повтор подхода: clientId=${clientId}, workoutExerciseId=${item.id}, userId=${item.workout.userId}`,
+        );
+        return item.workoutId;
+      }
+      throw error;
+    }
     if (closed)
       this.logger.log(
         `Подход добавлен в прошедшую тренировку: workoutId=${item.workoutId}, workoutExerciseId=${item.id}, userId=${item.workout.userId}`,

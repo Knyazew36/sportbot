@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 
-import { useAddSet, type WorkoutItem, type WorkoutSetInput, workoutSetSchema, type WorkoutSetValues } from '@/entities/workout'
+import { newClientId, useAddSet, type WorkoutItem, type WorkoutSetInput, workoutSetSchema, type WorkoutSetValues } from '@/entities/workout'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { BoxInput } from '@/shared/ui/kit/BoxInput'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'
@@ -27,7 +27,7 @@ export const AddSetForm = ({ item }: { item: WorkoutItem }) => {
       className='mt-3 flex flex-col gap-2'
       onSubmit={handleSubmit(values =>
         add
-          .mutateAsync({ itemId: item.id, ...values })
+          .mutateAsync({ itemId: item.id, ...values, clientId: newClientId() })
           .then(() => reset({ weight: '', reps: '' }, { keepFieldsRef: true }))
           .catch(error => applyFieldErrors(error, setError)),
       )}

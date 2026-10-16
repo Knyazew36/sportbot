@@ -12,4 +12,11 @@ export class WorkoutSetResponseDto {
 
   @ApiProperty()
   reps: number;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: 'uuid с клиента; null — подход записан не из офлайн-очереди',
+  })
+  clientId: string | null;
 }

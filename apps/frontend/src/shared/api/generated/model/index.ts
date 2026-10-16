@@ -230,6 +230,7 @@ export * from './draftControllerMineOrder';
 export * from './draftControllerMineParams';
 export * from './draftLimitResponseDto';
 export * from './duplicateRequestDto';
+export * from './finishWorkoutDto';
 export * from './forgotPasswordDto';
 export * from './friendInviteResponseDto';
 export * from './friendProfileResponseDto';

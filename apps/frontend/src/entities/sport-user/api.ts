@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
+import { PERSIST_GC_TIME } from '@/shared/api'
 import { miniappControllerAllowWriteAccess, miniappControllerMe } from '@/shared/api/generated/miniapp/miniapp'
 import type { MiniappMeResponseDto } from '@/shared/api/generated/model'
 
@@ -16,6 +17,9 @@ export const useSportUser = () =>
     queryFn: () => miniappControllerMe(),
     // Блокировка и плохие данные запуска повтором не лечатся; сеть — повторит кнопка «Повторить»
     retry: false,
+    // Открыть приложение в зале без сети: гард входа пускает по сохранённому профилю
+    meta: { persist: true },
+    gcTime: PERSIST_GC_TIME,
   })
 
 /** Пользователь разрешил боту писать штатным запросом мессенджера */

@@ -1,5 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, IsNumber, IsOptional, Max, Min } from 'class-validator';
+import {
+  IsInt,
+  IsNumber,
+  IsOptional,
+  IsUUID,
+  Max,
+  Min,
+} from 'class-validator';
 
 export class CreateWorkoutSetDto {
   @ApiProperty({ description: 'Упражнение тренировки (WorkoutExercise)' })
@@ -23,4 +30,12 @@ export class CreateWorkoutSetDto {
   @Min(1, { message: 'Хотя бы 1 повтор' })
   @Max(999, { message: 'Повторов до 999' })
   reps: number;
+
+  @ApiPropertyOptional({
+    description:
+      'uuid подхода с клиента: повтор того же запроса не создаёт второй подход',
+  })
+  @IsOptional()
+  @IsUUID()
+  clientId?: string;
 }

@@ -117,5 +117,17 @@ export const getMiniappPlatform = (): MiniappPlatform | null => miniapp?.platfor
 
 export const getMiniappAuthorization = (): string | null => miniapp?.authorization ?? null
 
+/** Аккаунт, открывший приложение: «telegram:123». На одном телефоне бывает несколько аккаунтов мессенджера */
+export const getMiniappUserKey = (): string | null => {
+  if (!miniapp) return null
+  const params = new URLSearchParams(miniapp.authorization.slice(miniapp.authorization.indexOf(' ') + 1))
+  try {
+    const id = params.get('vk_user_id') ?? (JSON.parse(params.get('user') ?? 'null') as { id?: number } | null)?.id
+    return id ? `${miniapp.platform}:${id}` : null
+  } catch {
+    return null
+  }
+}
+
 /** Параметр запуска из кнопки бота (startapp): по нему приложение открывает нужный экран */
 export const getMiniappStartParam = (): string | null => miniapp?.startParam ?? null

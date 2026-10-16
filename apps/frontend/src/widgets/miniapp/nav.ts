@@ -20,6 +20,8 @@ export type ShellNav = {
   items: NavItem[]
   /** Экраны без нижнего меню */
   focus: string[]
+  /** Экраны без живой полосы тренировки: сама тренировка и то, что сразу после неё */
+  liveHidden?: string[]
 }
 
 // Пять разделов нижнего меню, у администратора шестой (frontend-tz, раздел 6)
@@ -38,6 +40,7 @@ export const MINIAPP_NAV: ShellNav = {
     ROUTES.WORKOUT,
     ROUTES.WORKOUT_REPLACE,
     ROUTES.WORKOUT_SUMMARY,
+    ROUTES.WORKOUT_FINISHED,
     ROUTES.COOLDOWN,
     ROUTES.PROGRAM,
     ROUTES.PROGRAM_TEMPLATES,
@@ -55,6 +58,14 @@ export const MINIAPP_NAV: ShellNav = {
     ROUTES.ADMIN_TEMPLATE,
     ROUTES.ADMIN_TEMPLATE_COMPLEX,
     ROUTES.ADMIN_TEMPLATE_ADD_EXERCISE,
+  ],
+  liveHidden: [
+    ROUTES.ONBOARDING,
+    ROUTES.WORKOUT,
+    ROUTES.WORKOUT_REPLACE,
+    ROUTES.WORKOUT_SUMMARY,
+    ROUTES.WORKOUT_FINISHED,
+    ROUTES.COOLDOWN,
   ],
 }
 
@@ -86,6 +97,9 @@ export const PREVIEW_NAV: ShellNav = {
     ROUTES.PREVIEW_ADMIN_MODERATION,
   ],
 }
+
+export const isLiveHidden = (nav: ShellNav, pathname: string) =>
+  (nav.liveHidden ?? []).some(pattern => matchPath(pattern, pathname))
 
 export const isFocusRoute = (nav: ShellNav, pathname: string) => nav.focus.some(pattern => matchPath(pattern, pathname))
 

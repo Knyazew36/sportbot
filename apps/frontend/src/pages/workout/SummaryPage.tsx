@@ -70,29 +70,23 @@ const SummaryView = ({ summary }: { summary: WorkoutSummary }) => (
       />
     }
     footer={
+      // Заминку предлагали до итога; здесь она запасным путём для тех, кто пропустил
       <StickyFooter className='block'>
-        <Lead
-          size='sm'
-          tone='soft'
-          className='mb-3 text-center'
-        >
-          немного растяжки — и домой
-        </Lead>
         <div className='grid grid-cols-2 gap-2'>
           <ButtonLink
-            to={ROUTES.TODAY}
+            to={buildPath(ROUTES.COOLDOWN, { workoutId: summary.workoutId })}
             variant='outline'
             size='lg'
             className='min-w-0 px-3'
           >
-            Домой
+            Заминка
           </ButtonLink>
           <ButtonLink
-            to={buildPath(ROUTES.COOLDOWN, { workoutId: summary.workoutId })}
+            to={ROUTES.TODAY}
             size='lg'
             className='min-w-0 px-3'
           >
-            Заминка
+            Домой
             <ArrowRightIcon
               className='size-6'
               strokeWidth={2.5}

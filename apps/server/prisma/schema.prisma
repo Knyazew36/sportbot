@@ -1047,6 +1047,8 @@ model WorkoutSet {
   number Int
   weight Decimal @db.Decimal(6, 2) /// кг; 0 — упражнение без веса
   reps   Int
+  /// uuid с клиента: повтор запроса из офлайн-очереди не создаёт второй подход
+  clientId String? @unique @db.Uuid
 
   @@unique([workoutExerciseId, number])
 }

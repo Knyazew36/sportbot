@@ -65,10 +65,11 @@ const StretchPage = () => {
             key={side}
             holdSeconds={s.holdSeconds}
             side={s.perSide ? side : undefined}
+            autoStart
             back={{ label: 'Сбросить', icon: RotateCcwIcon, onClick: () => setSide(0) }}
             next={
               s.perSide && side === 1
-                ? { label: 'Сторона', icon: SkipForwardIcon, onClick: () => setSide(2) }
+                ? { label: 'Левая', icon: SkipForwardIcon, onClick: () => setSide(2) }
                 : { label: 'Готово', icon: CheckIcon, onClick: () => setSide(0) }
             }
           />

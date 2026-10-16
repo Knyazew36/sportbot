@@ -10,7 +10,6 @@ import {
   workoutSetSchema,
   type WorkoutSetValues,
 } from '@/entities/workout'
-import { applyFieldErrors } from '@/shared/lib/form'
 import { BoxInput } from '@/shared/ui/kit/BoxInput'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'
@@ -20,10 +19,10 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '
 const EditSetForm = ({ set, onClose }: { set: WorkoutSet; onClose: () => void }) => {
   const update = useUpdateSet()
   const remove = useDeleteSet()
+  const ref = { id: set.id, clientId: set.clientId }
   const {
     register,
     handleSubmit,
-    setError,
     formState: { errors },
   } = useForm<WorkoutSetInput, unknown, WorkoutSetValues>({
     resolver: zodResolver(workoutSetSchema),
@@ -33,12 +32,11 @@ const EditSetForm = ({ set, onClose }: { set: WorkoutSet; onClose: () => void })
   return (
     <form
       className='flex flex-col gap-3 px-gutter pb-6'
-      onSubmit={handleSubmit(values =>
-        update
-          .mutateAsync({ id: set.id, ...values })
-          .then(onClose)
-          .catch(error => applyFieldErrors(error, setError)),
-      )}
+      // Правка встаёт в офлайн-очередь и видна в списке сразу — шторка не ждёт сервер
+      onSubmit={handleSubmit(values => {
+        update.mutate({ ...ref, ...values })
+        onClose()
+      })}
     >
       <div className='grid grid-cols-2 gap-2'>
         <BoxInput
@@ -57,7 +55,6 @@ const EditSetForm = ({ set, onClose }: { set: WorkoutSet; onClose: () => void })
         type='submit'
         size='lg'
         className='w-full'
-        disabled={update.isPending}
       >
         Сохранить
       </Button>
@@ -71,7 +68,10 @@ const EditSetForm = ({ set, onClose }: { set: WorkoutSet; onClose: () => void })
         }
         title={`Удалить подход ${set.number}?`}
         confirmLabel='Удалить'
-        onConfirm={() => remove.mutateAsync(set.id).then(onClose)}
+        onConfirm={() => {
+          remove.mutate(ref)
+          onClose()
+        }}
       >
         <Trash2Icon />
         Удалить подход
@@ -93,7 +93,7 @@ export const EditSetSheet = ({ set, onClose }: { set: WorkoutSet | null; onClose
       </SheetHeader>
       {set && (
         <EditSetForm
-          key={set.id}
+          key={set.clientId ?? set.id}
           set={set}
           onClose={onClose}
         />

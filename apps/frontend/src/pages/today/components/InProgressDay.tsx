@@ -2,13 +2,15 @@ import { XIcon } from 'lucide-react'
 
 import type { DayToday } from '@/entities/day'
 import { useDiscardWorkout } from '@/entities/workout'
+import { useIsOnline } from '@/shared/api'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { StatGrid } from '@/shared/ui/kit/StatGrid'
 import { Eyebrow, Lead, Poster } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
-import { WeekStreak } from './WeekStreak'
+import { WeekStreak } from './WeekStreak'
+
 import { pluralize } from '@front-cmdt/utils/pluralize'
 import { EXERCISE_OF_FORMS } from '@/shared/lib/plural-forms'
 
@@ -16,6 +18,8 @@ import { EXERCISE_OF_FORMS } from '@/shared/lib/plural-forms'
 export const InProgressDay = ({ day }: { day: DayToday }) => {
   const workout = day.workout!
   const discard = useDiscardWorkout()
+  // Отмена удаляет тренировку на сервере — без сети её не сделать
+  const online = useIsOnline()
 
   return (
     <>
@@ -55,6 +59,7 @@ export const InProgressDay = ({ day }: { day: DayToday }) => {
             <Button
               variant='destructive'
               className='w-full'
+              disabled={!online}
             />
           }
           title='Отменить тренировку?'
@@ -67,7 +72,7 @@ export const InProgressDay = ({ day }: { day: DayToday }) => {
           onConfirm={() => discard.mutateAsync(workout.id)}
         >
           <XIcon />
-          Отменить тренировку
+          {online ? 'Отменить тренировку' : 'Отменить · нужна сеть'}
         </ConfirmAction>
       </Rise>
     </>

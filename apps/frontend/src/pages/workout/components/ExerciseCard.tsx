@@ -1,7 +1,9 @@
 import { BookOpenIcon, RepeatIcon, TriangleAlertIcon } from 'lucide-react'
 
 import { lastText, planText, type WorkoutItem } from '@/entities/workout'
+import { useIsOnline } from '@/shared/api'
 import { buildPath, ROUTES } from '@/shared/config/paths'
+import { cn } from '@/shared/lib/utils'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
@@ -11,6 +13,9 @@ type ExerciseCardProps = { item: WorkoutItem }
 // Текущее упражнение: название, ⚠️ при ограничении, план, прошлый результат, «Техника» и «Заменить» (frontend-tz, 8.1)
 export const ExerciseCard = ({ item }: ExerciseCardProps) => {
   const last = lastText(item.last)
+  // Аналоги и замена — только с сервера: без сети ссылка гасится, чтобы не вести на вечную загрузку
+  const online = useIsOnline()
+  const offlineLink = online ? undefined : 'pointer-events-none opacity-50'
 
   return (
     <>
@@ -43,10 +48,12 @@ export const ExerciseCard = ({ item }: ExerciseCardProps) => {
             to={buildPath(ROUTES.WORKOUT_REPLACE, { itemId: item.id })}
             variant='alert'
             size='sm'
-            className='mt-4 h-auto py-1.5 text-[12.5px]'
+            className={cn('mt-4 h-auto py-1.5 text-[12.5px]', offlineLink)}
+            aria-disabled={!online}
+            tabIndex={online ? undefined : -1}
           >
             <TriangleAlertIcon className='size-3.5' />
-            нагружает {item.limitedZones.join(', ')} — заменить?
+            нагружает {item.limitedZones.join(', ')} — {online ? 'заменить?' : 'заменить можно при сети'}
           </ButtonLink>
         )}
       </Rise>
@@ -80,9 +87,12 @@ export const ExerciseCard = ({ item }: ExerciseCardProps) => {
           to={buildPath(ROUTES.WORKOUT_REPLACE, { itemId: item.id })}
           variant='outline'
           size='sm'
+          className={offlineLink}
+          aria-disabled={!online}
+          tabIndex={online ? undefined : -1}
         >
           <RepeatIcon className='size-3.5' />
-          Заменить
+          {online ? 'Заменить' : 'Нужна сеть'}
         </ButtonLink>
       </Rise>
     </>

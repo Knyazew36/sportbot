@@ -4,15 +4,15 @@ import { formatSeconds } from '@/shared/lib/hooks/use-deadline-timer'
 import type { useStopwatch } from '@/shared/lib/hooks/use-stopwatch'
 import { cn } from '@/shared/lib/utils'
 import { Ring } from '@/shared/ui/kit/Ring'
-import { Digits, Eyebrow, Poster } from '@/shared/ui/kit/Typography'
+import { Digits, Poster } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
 import { FocusShell } from './FocusShell'
-import { setCaption } from './set-caption'
 
 type FocusSetProps = {
   stopwatch: ReturnType<typeof useStopwatch>
   title: string
+  startedAt: string
   setNumber: number
   plannedSets: number
   /** Подход закончен — открыть ввод веса и повторов */
@@ -20,10 +20,13 @@ type FocusSetProps = {
 }
 
 // Идёт подход: секундомер на весь экран. Пауза — если отвлекли посреди подхода, её время в подход не идёт
-export const FocusSet = ({ stopwatch, title, setNumber, plannedSets, onDone }: FocusSetProps) => (
+export const FocusSet = ({ stopwatch, title, startedAt, setNumber, plannedSets, onDone }: FocusSetProps) => (
   <FocusShell
     title={title}
-    caption={`${stopwatch.paused ? 'пауза · ' : ''}${setCaption(setNumber, plannedSets)}`}
+    startedAt={startedAt}
+    status={stopwatch.paused ? 'пауза — время подхода стоит' : 'идёт подход'}
+    alert={stopwatch.paused}
+    sets={{ number: setNumber, done: setNumber - 1, planned: plannedSets }}
     actions={
       <>
         <Button
@@ -65,8 +68,16 @@ export const FocusSet = ({ stopwatch, title, setNumber, plannedSets, onDone }: F
     >
       <Digits>{formatSeconds(stopwatch.elapsed)}</Digits>
     </Poster>
+    {/* На паузе гасим всё, кроме кнопки «дальше»: взгляд сразу на ней, а случайный тап по тёмному не жмёт «Закончил» или «Отменить» */}
+    <div
+      aria-hidden
+      className={cn(
+        'bg-background/85 fixed inset-0 z-10 transition-opacity duration-200',
+        stopwatch.paused ? 'opacity-100' : 'pointer-events-none opacity-0',
+      )}
+    />
     {/* Кольцо делает оборот за минуту — как секундная стрелка; в центре пауза, палец и взгляд в одной точке */}
-    <div className='relative'>
+    <div className='relative z-20'>
       <Ring
         // Новая минута — новое кольцо: иначе переход с почти полного на пустое крутил бы его назад
         key={Math.floor(stopwatch.elapsedMs / 60_000)}
@@ -86,14 +97,26 @@ export const FocusSet = ({ stopwatch, title, setNumber, plannedSets, onDone }: F
           stopwatch.paused ? 'bg-primary text-primary-foreground' : 'bg-foreground text-background',
         )}
       >
-        {stopwatch.paused ? <PlayIcon className='size-7' /> : <PauseIcon className='size-7' />}
-        <Eyebrow
-          size='sm'
+        {/* Залитая иконка и плакатная подпись: на плотном круге тонкий капс терялся */}
+        {stopwatch.paused ? (
+          <PlayIcon
+            className='size-7'
+            fill='currentColor'
+          />
+        ) : (
+          <PauseIcon
+            className='size-7'
+            fill='currentColor'
+          />
+        )}
+        <Poster
+          as='span'
+          size='xs'
           tone='inherit'
-          className='mt-1'
+          className='mt-1.5'
         >
           {stopwatch.paused ? 'дальше' : 'пауза'}
-        </Eyebrow>
+        </Poster>
       </button>
     </div>
   </FocusShell>

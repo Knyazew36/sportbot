@@ -1,10 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CheckIcon } from 'lucide-react'
-import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import {
   lastSetHint,
+  newClientId,
   useAddSet,
   weightText,
   type WorkoutItem,
@@ -12,7 +12,6 @@ import {
   workoutSetSchema,
   type WorkoutSetValues,
 } from '@/entities/workout'
-import { applyFieldErrors } from '@/shared/lib/form'
 import { BoxInput } from '@/shared/ui/kit/BoxInput'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
@@ -20,36 +19,26 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '
 
 import { setCaption } from './set-caption'
 
-/** Отправка не прошла: поля открываются снова с тем, что ввёл человек, и с ошибкой сервера под полем */
-type Retry = { values: WorkoutSetInput; error: unknown }
-
 type SetEntryFormProps = {
   item: WorkoutItem
-  retry: Retry | null
-  onSubmit: (values: WorkoutSetValues, input: WorkoutSetInput) => void
+  onSubmit: (values: WorkoutSetValues) => void
 }
 
-const SetEntryForm = ({ item, retry, onSubmit }: SetEntryFormProps) => {
+const SetEntryForm = ({ item, onSubmit }: SetEntryFormProps) => {
   const hint = lastSetHint(item.last, item.sets.length + 1)
   const {
     register,
     handleSubmit,
-    getValues,
-    setError,
     formState: { errors },
   } = useForm<WorkoutSetInput, unknown, WorkoutSetValues>({
     resolver: zodResolver(workoutSetSchema),
     // Поля открываются пустыми — прошлое значение только подсказкой
-    defaultValues: retry?.values ?? { weight: '', reps: '' },
+    defaultValues: { weight: '', reps: '' },
   })
-
-  useEffect(() => {
-    if (retry) applyFieldErrors(retry.error, setError)
-  }, [retry, setError])
 
   return (
     <form
-      onSubmit={handleSubmit(values => onSubmit(values, getValues()))}
+      onSubmit={handleSubmit(onSubmit)}
       autoComplete='off'
       className='flex flex-col gap-3 px-gutter pb-6'
     >
@@ -94,35 +83,23 @@ type SetEntrySheetProps = {
   onSubmitStart: () => void
   /** Подход принят к отправке: экран идёт дальше (отдых), не дожидаясь сервера */
   onSaved: () => void
-  /** Сервер не принял подход — открыть ввод снова */
-  onFailed: () => void
 }
 
 // Ввод подхода после «Закончил подход»: два крупных поля и одна кнопка (frontend-tz, 8.2).
-// Отправка не держит экран: шторка закрывается сразу, подход виден в списке до ответа сервера.
-// Мутация живёт здесь, а не в форме: форма размонтируется вместе с закрытой шторкой раньше ответа
-export const SetEntrySheet = ({ open, item, onClose, onSubmitStart, onSaved, onFailed }: SetEntrySheetProps) => {
+// Отправка не держит экран: подход встаёт в офлайн-очередь, шторка закрывается сразу,
+// подход виден в списке с меткой «ждёт отправки», пока сервер его не принял
+export const SetEntrySheet = ({ open, item, onClose, onSubmitStart, onSaved }: SetEntrySheetProps) => {
   const add = useAddSet()
-  const [retry, setRetry] = useState<Retry | null>(null)
   const hint = lastSetHint(item.last, item.sets.length + 1)
   const number = item.sets.length + 1
 
-  const submit = (values: WorkoutSetValues, input: WorkoutSetInput) => {
+  const submit = (values: WorkoutSetValues) => {
     // Первый подход делает упражнение «сделанным», и без закрепления экран ушёл бы к следующему несделанному
     onSubmitStart()
-    setRetry(null)
     // Клавиатура уходит вместе со шторкой, а не после неё
     if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
     onSaved()
-    add.mutate(
-      { itemId: item.id, ...values },
-      {
-        onError: error => {
-          setRetry({ values: input, error })
-          onFailed()
-        },
-      },
-    )
+    add.mutate({ itemId: item.id, ...values, clientId: newClientId() })
   }
 
   return (
@@ -134,18 +111,13 @@ export const SetEntrySheet = ({ open, item, onClose, onSubmitStart, onSaved, onF
         <SheetHeader>
           <SheetTitle className='first-letter:uppercase'>{setCaption(number, item.plannedSets)}</SheetTitle>
           <SheetDescription>
-            {retry
-              ? 'Подход не сохранился — проверь и отправь ещё раз'
-              : hint
-                ? `Прошлый раз ${weightText(hint.weight)} × ${hint.reps}`
-                : 'Сколько поднял и сколько раз'}
+            {hint ? `Прошлый раз ${weightText(hint.weight)} × ${hint.reps}` : 'Сколько поднял и сколько раз'}
           </SheetDescription>
         </SheetHeader>
         {open && (
           <SetEntryForm
             key={number}
             item={item}
-            retry={retry}
             onSubmit={submit}
           />
         )}

@@ -16,6 +16,7 @@ import { SportAuth } from '@/miniapp/decorators/sport-auth.decorator';
 
 import { CooldownResponseDto } from './dto/cooldown.response.dto';
 import { CreateWorkoutSetDto } from './dto/create-workout-set.dto';
+import { FinishWorkoutDto } from './dto/finish-workout.dto';
 import { ReplaceWorkoutItemDto } from './dto/replace-workout-item.dto';
 import { SharedWorkoutResponseDto } from './dto/shared-workout.response.dto';
 import { StartWorkoutDto } from './dto/start-workout.dto';
@@ -66,16 +67,22 @@ export class WorkoutController {
 
   @Post('finish/:id')
   @Swagger({
-    title: 'Завершить тренировку — итог',
+    title: 'Завершить тренировку — итог; повтор возвращает тот же итог',
     param: ID_PARAM,
+    body: FinishWorkoutDto,
     response: WorkoutSummaryResponseDto,
     bearerAuth: true,
   })
   public finish(
     @CurrentUser('id') userId: number,
     @Param('id', ParseIntPipe) id: number,
+    @Body() dto: FinishWorkoutDto,
   ) {
-    return this.workoutAppService.finish(userId, id);
+    return this.workoutAppService.finish(
+      userId,
+      id,
+      dto.finishedAt ? new Date(dto.finishedAt) : undefined,
+    );
   }
 
   @Post('discard/:id')

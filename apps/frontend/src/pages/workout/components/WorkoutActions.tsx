@@ -16,7 +16,6 @@ type WorkoutActionsProps = {
   /** Отдых вручную — когда он не стартует сам после подхода; null — кнопки нет */
   restSeconds: number | null
   onStartSet: () => void
-  onManualSet: () => void
   onRest: () => void
   onNext: () => void
 }
@@ -34,7 +33,6 @@ export const WorkoutActions = ({
   nextPending,
   restSeconds,
   onStartSet,
-  onManualSet,
   onRest,
   onNext,
 }: WorkoutActionsProps) => {
@@ -89,14 +87,6 @@ export const WorkoutActions = ({
     <StickyFooter className='flex flex-col items-stretch gap-3'>
       {planDone ? forward : start}
       {planDone ? start : forward}
-      <Button
-        variant='link'
-        size='sm'
-        className='self-center'
-        onClick={onManualSet}
-      >
-        Записать подход без таймера
-      </Button>
     </StickyFooter>
   )
 }

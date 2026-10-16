@@ -1,6 +1,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { statsKeys } from '@/entities/stats'
+import { PERSIST_GC_TIME } from '@/shared/api'
 import {
   dayControllerEvening,
   dayControllerFix,
@@ -24,6 +25,9 @@ export const useToday = (complexId?: number) =>
     queryFn: () => dayControllerToday(complexId ? { complexId } : undefined),
     // Смена комплекса не мигает пустым экраном
     placeholderData: keepPreviousData,
+    // Без сети «Сегодня» показывает сохранённое состояние: оттуда «Продолжить» ведёт в тренировку
+    meta: { persist: true },
+    gcTime: PERSIST_GC_TIME,
   })
 
 const useInvalidateDay = () => {

@@ -11,6 +11,7 @@ import { useMessengerTheme } from '@/shared/lib/hooks/use-messenger-theme'
 import { getMiniappAuthorization, getMiniappStartParam } from '@/shared/miniapp'
 import { startRoute } from '@/shared/miniapp/start-route'
 import { PageLoader } from '@/shared/ui/kit/PageLoader'
+import { LiveWorkoutBar } from '@/widgets/miniapp/LiveWorkoutBar'
 import { MiniAppShell } from '@/widgets/miniapp/MiniAppShell'
 import { MINIAPP_NAV } from '@/widgets/miniapp/nav'
 
@@ -83,6 +84,7 @@ const MiniappGate = () => {
       nav={MINIAPP_NAV}
       isAdmin={isAdmin}
       badges={{ [ROUTES.ADMIN]: adminPending }}
+      liveBar={onboarded && <LiveWorkoutBar />}
     />
   )
 }

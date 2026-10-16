@@ -22,7 +22,7 @@ function ToastViewport({ className, ...props }: ToastPrimitive.Viewport.Props) {
       className={cn(
         // Сверху: снизу тост закрывают липкая кнопка экрана и меню.
         // В полноэкранном Telegram опускаем под его «Закрыть» и меню (--sb-top-inset), иначе тост ляжет на них
-        "pointer-events-none fixed inset-x-4 top-[max(1rem,env(safe-area-inset-top),calc(var(--sb-top-inset)+0.5rem))] z-100 mx-auto w-auto max-w-sm outline-none",
+        "pointer-events-none fixed inset-x-4 top-(--toast-top) z-100 [--toast-top:max(1rem,env(safe-area-inset-top),calc(var(--sb-top-inset)+0.5rem))] mx-auto w-auto max-w-sm outline-none",
         className
       )}
       {...props}
@@ -30,7 +30,9 @@ function ToastViewport({ className, ...props }: ToastPrimitive.Viewport.Props) {
   )
 }
 
-// Карточка в стиле кнопок проекта: рамка и жёсткая тень, у ошибки — красные. Стопка растёт вниз от верха экрана
+// Карточка в стиле кнопок проекта: рамка и жёсткая тень, у ошибки — красные. Стопка растёт вниз от верха экрана.
+// Уходит на свою высоту плюс отступ вьюпорта (--exit-y): фиксированные -150% в полноэкранном Telegram
+// не дотягивали до края, и тост застывал у верха экрана
 function Toast({ className, ...props }: ToastPrimitive.Root.Props) {
   return (
     <ToastPrimitive.Root
@@ -41,15 +43,15 @@ function Toast({ className, ...props }: ToastPrimitive.Root.Props) {
         "data-[type=error]:border-destructive data-[type=error]:shadow-[4px_4px_0_var(--sb-danger)]",
         // Успех — мятная заливка, как у кнопки success; текст чёрный и в тёмной теме
         "data-[type=success]:bg-success data-[type=success]:text-black",
-        "[--gap:0.75rem] [--height:var(--toast-frontmost-height,var(--toast-height))] [--offset-y:calc(var(--toast-offset-y)+calc(var(--toast-index)*var(--gap))+var(--toast-swipe-movement-y))] [--peek:0.75rem] [--scale:calc(max(0,1-(var(--toast-index)*0.1)))] [--shrink:calc(1-var(--scale))]",
+        "[--gap:0.75rem] [--height:var(--toast-frontmost-height,var(--toast-height))] [--offset-y:calc(var(--toast-offset-y)+calc(var(--toast-index)*var(--gap))+var(--toast-swipe-movement-y))] [--peek:0.75rem] [--exit-y:calc(-100%-var(--toast-top)-8px)] [--scale:calc(max(0,1-(var(--toast-index)*0.1)))] [--shrink:calc(1-var(--scale))]",
         "h-(--height) [transform:translateX(var(--toast-swipe-movement-x))_translateY(calc(var(--toast-swipe-movement-y)+(var(--toast-index)*var(--peek))+(var(--shrink)*var(--height))))_scale(var(--scale))] [transition:transform_500ms_cubic-bezier(0.22,1,0.36,1),opacity_500ms,height_150ms]",
         "after:absolute after:bottom-full after:left-0 after:h-[calc(var(--gap)+1px)] after:w-full after:content-['']",
         "data-expanded:h-(--toast-height) data-expanded:[transform:translateX(var(--toast-swipe-movement-x))_translateY(var(--offset-y))]",
-        "data-limited:opacity-0 data-starting-style:[transform:translateY(-150%)]",
-        "[&[data-ending-style]:not([data-limited]):not([data-swipe-direction])]:[transform:translateY(-150%)]",
-        "data-ending-style:data-[swipe-direction=up]:[transform:translateY(calc(var(--toast-swipe-movement-y)-150%))]",
+        "data-limited:opacity-0 data-starting-style:[transform:translateY(var(--exit-y))]",
+        "[&[data-ending-style]:not([data-limited]):not([data-swipe-direction])]:[transform:translateY(var(--exit-y))]",
+        "data-ending-style:data-[swipe-direction=up]:[transform:translateY(calc(var(--toast-swipe-movement-y)+var(--exit-y)))]",
         "data-ending-style:data-[swipe-direction=right]:[transform:translateX(calc(var(--toast-swipe-movement-x)+150%))_translateY(var(--offset-y))]",
-        "data-expanded:data-ending-style:data-[swipe-direction=up]:[transform:translateY(calc(var(--toast-swipe-movement-y)-150%))]",
+        "data-expanded:data-ending-style:data-[swipe-direction=up]:[transform:translateY(calc(var(--toast-swipe-movement-y)+var(--exit-y)))]",
         "data-expanded:data-ending-style:data-[swipe-direction=right]:[transform:translateX(calc(var(--toast-swipe-movement-x)+150%))_translateY(var(--offset-y))]",
         className
       )}

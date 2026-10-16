@@ -11,4 +11,6 @@ export interface CreateWorkoutSetDto {
   /** Вес, кг; без веса — 0 или не передавать */
   weight?: number;
   reps: number;
+  /** uuid подхода с клиента: повтор того же запроса не создаёт второй подход */
+  clientId?: string;
 }

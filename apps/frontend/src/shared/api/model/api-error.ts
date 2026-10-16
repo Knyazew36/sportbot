@@ -25,6 +25,13 @@ export function getApiErrorMessage(error: unknown, fallback: string = DEFAULT_ME
 export const getApiErrorStatus = (error: unknown): number | undefined =>
   isAxiosError(error) ? error.response?.status : undefined
 
+/** Повтор может помочь: ответа нет (сеть, таймаут), сервер перегружен или упал. Ошибка не запроса — нет */
+export const isRetryableError = (error: unknown): boolean => {
+  if (!isAxiosError(error)) return false
+  const status = error.response?.status
+  return status === undefined || status === 408 || status === 429 || status >= 500
+}
+
 export const getApiErrorCode = (error: unknown): string | undefined => getBody(error)?.code
 
 /** Ошибки полей формы из 422 валидации DTO; пусто — ошибка не про поля */

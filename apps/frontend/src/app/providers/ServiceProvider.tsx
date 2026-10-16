@@ -1,13 +1,18 @@
-import { QueryClientProvider } from '@tanstack/react-query'
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { ThemeProvider } from 'next-themes'
 
-import type { ReactNode } from 'react'
+import { type ReactNode, useState } from 'react'
 
-import { queryClient } from '@/shared/api/query-client'
+import { registerWorkoutQueue } from '@/entities/workout'
+import { getPersistOptions, queryClient, resumePersistedMutations } from '@/shared/api/query-client'
 import { TooltipProvider } from '@/shared/ui/shadcn/animate-ui/components/animate/tooltip'
 import { Toaster } from '@/shared/ui/shadcn/toast'
 
+// До восстановления кеша: восстановленной из хранилища мутации нужен mutationFn
+registerWorkoutQueue(queryClient)
+
 const ServiceProvider = ({ children }: { children: ReactNode }) => {
+  const [persistOptions] = useState(getPersistOptions)
   return (
     // attribute="class": тёмная тема в global.css завязана на класс .dark; обе темы поддерживаются на всех экранах
     <ThemeProvider
@@ -16,12 +21,16 @@ const ServiceProvider = ({ children }: { children: ReactNode }) => {
       enableSystem
       disableTransitionOnChange
     >
-      <QueryClientProvider client={queryClient}>
+      <PersistQueryClientProvider
+        client={queryClient}
+        persistOptions={persistOptions}
+        onSuccess={resumePersistedMutations}
+      >
         <TooltipProvider>
           {children}
           <Toaster />
         </TooltipProvider>
-      </QueryClientProvider>
+      </PersistQueryClientProvider>
     </ThemeProvider>
   )
 }

@@ -139,10 +139,13 @@
   /* Верх под кнопками Telegram в полноэкранном режиме: вырез телефона + «Закрыть» и меню мессенджера.
      Переменные --tg-* ставит SDK Telegram; вне fullscreen и вне Telegram они 0.
      Потолок — на случай кривых отступов от клиента: полоса цвета фона под ними не должна закрыть весь экран */
-  --sb-top-inset: min(
+  --sb-safe-top: min(
     160px,
     calc(var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px))
   );
+  /* Над экраном может стоять живая полоса тренировки: её высоту (--sb-live-h) ставит сама полоса,
+     и всё, что прилипает к верху, опускается под неё без своих правил */
+  --sb-top-inset: calc(var(--sb-safe-top) + var(--sb-live-h, 0px));
   /* Низ под системной навигацией: Android WebView Telegram не отдаёт env(safe-area-inset-bottom),
      и при навигации кнопками «назад/домой» отступ под ними приходит только в --tg-*. Берём больший */
   --sb-bottom-inset: max(
@@ -169,6 +172,11 @@
   --popover-foreground: var(--sb-ink);
   /* Зелёный для текста «активно»: мятный --success на светлом фоне не читается */
   --sb-positive: #12893a;
+  /* Живая полоса «тренировка идёт» и шапка мессенджера под ней — мятный bg-success, как у зелёной кнопки.
+     Одинаков в любой теме и палитре, текст всегда чёрный. Итог — #RRGGBB: этот же цвет уходит в Telegram */
+  --sb-live: #d1ffca;
+  --sb-live-deep: #b4f5a8;
+  --sb-live-ink: #0a0a0a;
   --primary: var(--sb-blue);
   --primary-foreground: var(--sb-paper);
   --secondary: var(--mist);
@@ -371,6 +379,77 @@
     transparent 66%
   );
   animation: sb-sheen 1.6s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
+}
+
+/* Живая полоса тренировки: два мятных медленно переливаются — полоса «дышит», а не мигает.
+   Градиент строго горизонтальный: тело полосы и волна под ним — разные блоки, и только так они совпадают */
+@keyframes sb-live-breath {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 100% 50%;
+  }
+}
+
+@utility sb-live-breath {
+  background-image: linear-gradient(90deg, var(--sb-live), var(--sb-live-deep) 45%, var(--sb-live));
+  background-size: 220% 100%;
+  animation: sb-live-breath 9s ease-in-out infinite alternate;
+}
+
+/* Нижний край живой полосы — бегущая волна: блок высотой с гребень, маска повторяется по x и сдвигается
+   ровно на свой период, поэтому шов не виден. Одна маска на блок: две сложенные давали светлую нитку на стыке */
+@keyframes sb-wave-front {
+  to {
+    -webkit-mask-position: 80px 0;
+    mask-position: 80px 0;
+  }
+}
+
+@keyframes sb-wave-back {
+  to {
+    -webkit-mask-position: -120px 0;
+    mask-position: -120px 0;
+  }
+}
+
+@utility sb-wave-front {
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='10'%3E%3Cpath d='M0 0H80V3C60 3 60 9 40 9S20 3 0 3Z'/%3E%3C/svg%3E")
+    0 0 / 80px 100% repeat-x;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='10'%3E%3Cpath d='M0 0H80V3C60 3 60 9 40 9S20 3 0 3Z'/%3E%3C/svg%3E")
+    0 0 / 80px 100% repeat-x;
+  animation: sb-wave-front 4.5s linear infinite;
+}
+
+@utility sb-wave-back {
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='12'%3E%3Cpath d='M0 0H120V4C90 4 90 12 60 12S30 4 0 4Z'/%3E%3C/svg%3E")
+    0 0 / 120px 100% repeat-x;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='12'%3E%3Cpath d='M0 0H120V4C90 4 90 12 60 12S30 4 0 4Z'/%3E%3C/svg%3E")
+    0 0 / 120px 100% repeat-x;
+  animation: sb-wave-back 7.5s linear infinite;
+}
+
+/* Свет по живой полосе: короткий проход и долгая пауза, чтобы блик не утомлял.
+   Полоса света вертикальная: так она одинаково идёт по телу и по волне */
+@keyframes sb-live-sheen {
+  0% {
+    translate: -120% 0;
+  }
+  45%,
+  100% {
+    translate: 320% 0;
+  }
+}
+
+@utility sb-live-sheen {
+  background-image: linear-gradient(
+    90deg,
+    transparent 25%,
+    color-mix(in oklab, #ffffff, transparent 50%) 50%,
+    transparent 75%
+  );
+  animation: sb-live-sheen 6s cubic-bezier(0.45, 0, 0.25, 1) 0.8s infinite;
 }
 
 /* Зерно бумаги поверх всего экрана */

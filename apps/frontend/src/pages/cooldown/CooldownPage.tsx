@@ -1,5 +1,5 @@
 import { ArrowRightIcon, ListIcon, SkipBackIcon, SkipForwardIcon } from 'lucide-react'
-import { useParams } from 'react-router'
+import { useParams, useSearchParams } from 'react-router'
 
 import { useState } from 'react'
 
@@ -21,18 +21,19 @@ import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { StepList } from '@/shared/ui/kit/StepList'
 import { Eyebrow, Lead, Poster } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
-import { Badge } from '@/shared/ui/shadcn/badge'
 import { CatalogRow } from '@/widgets/catalog/CatalogRow'
 import { HoldControls } from '@/widgets/catalog/HoldControls'
 
+import { SideTrack } from './components/SideTrack'
 import { StretchListSheet } from './components/StretchListSheet'
 
 type Phase = { kind: 'overview' } | { kind: 'step'; index: number; side: 1 | 2 } | { kind: 'more' } | { kind: 'done' }
 
 // Заминка тренировки (frontend-tz, 9): состав и порядок — с сервера, при повторном открытии не меняется.
 // Прохождение ничего не записывает в статистику
-const CooldownView = ({ cooldown }: { cooldown: Cooldown }) => {
-  const [phase, setPhase] = useState<Phase>({ kind: 'overview' })
+// start — пришли с предложения после финиша: список уже не показываем, сразу первая растяжка
+const CooldownView = ({ cooldown, start }: { cooldown: Cooldown; start: boolean }) => {
+  const [phase, setPhase] = useState<Phase>(start ? { kind: 'step', index: 0, side: 1 } : { kind: 'overview' })
   const [listOpen, setListOpen] = useState(false)
   const all = [...cooldown.main, ...cooldown.optional]
   const back = buildPath(ROUTES.WORKOUT_SUMMARY, { workoutId: cooldown.workoutId })
@@ -111,7 +112,7 @@ const CooldownView = ({ cooldown }: { cooldown: Cooldown }) => {
         footer={
           <StickyFooter>
             <ButtonLink
-              to={ROUTES.TODAY}
+              to={back}
               variant='outline'
               size='lg'
             >
@@ -198,10 +199,15 @@ const CooldownView = ({ cooldown }: { cooldown: Cooldown }) => {
               </>
             ) : (
               <ButtonLink
-                to={ROUTES.TODAY}
+                to={back}
+                replace
                 size='lg'
               >
-                На «Сегодня»
+                К итогу тренировки
+                <ArrowRightIcon
+                  className='size-7'
+                  strokeWidth={2.5}
+                />
               </ButtonLink>
             )}
           </StickyFooter>
@@ -282,14 +288,13 @@ const CooldownView = ({ cooldown }: { cooldown: Cooldown }) => {
         }
         className='gap-5 px-gutter pt-4'
       >
-        <Rise className='relative [@media(max-height:620px)]:hidden'>
+        <Rise className='[@media(max-height:620px)]:hidden'>
           <CatalogImage
             src={toAssetUrl(stretch.imageUrl) ?? null}
             alt={stretch.name}
             size='cover'
             className='aspect-[16/10] max-h-[30svh]'
           />
-          {stretch.perSide && <Badge className='absolute right-2 bottom-2'>сторона {phase.side} из 2</Badge>}
         </Rise>
         <Rise>
           <Eyebrow
@@ -306,6 +311,11 @@ const CooldownView = ({ cooldown }: { cooldown: Cooldown }) => {
             {stretch.name}
           </Poster>
         </Rise>
+        {stretch.perSide && (
+          <Rise>
+            <SideTrack side={phase.side} />
+          </Rise>
+        )}
         {stretch.howTo && (
           <Rise>
             <StepList
@@ -323,14 +333,12 @@ const CooldownView = ({ cooldown }: { cooldown: Cooldown }) => {
         side={stretch.perSide ? phase.side : undefined}
         back={{ label: 'Назад', icon: SkipBackIcon, onClick: prev }}
         next={{
-          label: stretch.perSide && phase.side === 1 ? 'Сторона' : isLast ? 'Готово' : 'Дальше',
+          label: stretch.perSide && phase.side === 1 ? 'Левая' : isLast ? 'Готово' : 'Дальше',
           icon: SkipForwardIcon,
           onClick: next,
         }}
-        onEnd={() => {
-          timerEndSignal(cooldown)
-          next()
-        }}
+        // Без автоперехода: следующую растяжку человек открывает сам, когда прочитал и готов
+        onEnd={() => timerEndSignal(cooldown)}
       />
       {listSheet}
     </div>
@@ -339,8 +347,18 @@ const CooldownView = ({ cooldown }: { cooldown: Cooldown }) => {
 
 const CooldownPage = () => {
   const workoutId = Number(useParams().workoutId)
+  const [params] = useSearchParams()
   const cooldown = useCooldown(workoutId)
-  return <QueryScreen query={cooldown}>{data => <CooldownView cooldown={data} />}</QueryScreen>
+  return (
+    <QueryScreen query={cooldown}>
+      {data => (
+        <CooldownView
+          cooldown={data}
+          start={params.has('start')}
+        />
+      )}
+    </QueryScreen>
+  )
 }
 
 export default CooldownPage

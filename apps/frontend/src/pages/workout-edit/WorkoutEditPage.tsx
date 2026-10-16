@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useParams } from 'react-router'
 
-import { useWorkout, type WorkoutSet } from '@/entities/workout'
+import { useQueuedWorkout, useWorkout, type WorkoutSet } from '@/entities/workout'
 import { ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
@@ -19,6 +19,8 @@ import { AddSetForm } from './components/AddSetForm'
 const WorkoutEditPage = () => {
   const workoutId = Number(useParams().workoutId)
   const workout = useWorkout(workoutId)
+  // Правки уходят через офлайн-очередь: список показывает их сразу, не дожидаясь сервера
+  const queued = useQueuedWorkout(workout.data)
   const [editing, setEditing] = useState<WorkoutSet | null>(null)
 
   return (
@@ -33,7 +35,7 @@ const WorkoutEditPage = () => {
       className='gap-8 pb-10'
     >
       <QueryScreen query={workout}>
-        {w => (
+        {() => (
           <>
             <Text
               size='sm'
@@ -42,7 +44,7 @@ const WorkoutEditPage = () => {
             >
               Нажми на карандаш, чтобы исправить или удалить подход. Забытый подход допиши под списком.
             </Text>
-            {w.exercises.map(item => (
+            {queued.workout?.exercises.map(item => (
               <ScreenSection
                 key={item.id}
                 title={item.name}

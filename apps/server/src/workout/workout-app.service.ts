@@ -118,16 +118,29 @@ export class WorkoutAppService {
   public async finish(
     userId: number,
     workoutId: number,
+    finishedAt?: Date,
   ): Promise<WorkoutSummaryResponseDto> {
     const profile = await this.accounts.profile(userId);
     const workout = await this.workouts.find(userId, workoutId);
-    if (workout.status !== 'IN_PROGRESS')
-      throw new BadRequestException('Тренировка уже закрыта.');
+    // Повтор из офлайн-очереди: первый запрос дошёл, ответ потерялся — отдаём тот же итог
+    if (workout.status !== 'IN_PROGRESS') {
+      this.logger.warn(
+        `Повторное завершение: workoutId=${workoutId}, userId=${userId}, статус=${workout.status}`,
+      );
+      return this.summary(userId, workoutId);
+    }
     if (!canComplete(workout))
       throw new BadRequestException(
         'Пока не сделано ни одного упражнения — засчитывать нечего.',
       );
-    await this.workouts.complete(profile, workoutId);
+    // Время с клиента не раньше старта и не из будущего
+    const now = Date.now();
+    const at = finishedAt
+      ? new Date(
+          Math.min(now, Math.max(workout.startedAt.getTime(), +finishedAt)),
+        )
+      : undefined;
+    await this.workouts.complete(profile, workoutId, { finishedAt: at });
     return this.summary(userId, workoutId);
   }
 
@@ -153,6 +166,7 @@ export class WorkoutAppService {
       dto.itemId,
       dto.weight ?? 0,
       dto.reps,
+      dto.clientId,
     );
     return this.find(userId, workoutId);
   }
@@ -336,6 +350,7 @@ export class WorkoutAppService {
         number: s.number,
         weight: Number(s.weight),
         reps: s.reps,
+        clientId: s.clientId,
       })),
       last: last
         ? {
