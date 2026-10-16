@@ -2,6 +2,7 @@ import { ArrowRightIcon, EyeIcon, PlusIcon } from 'lucide-react'
 import { useNavigate } from 'react-router'
 
 import { addedText, catalogItemPath, type CatalogSource, type Program, useTakeTemplate } from '@/entities/program'
+import { toAssetUrl } from '@/shared/api'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { pluralize } from '@front-cmdt/utils/pluralize'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
@@ -43,7 +44,7 @@ export const TemplateCard = ({ template: t, index, source }: TemplateCardProps) 
         <div className='flex items-center gap-2'>
           <PersonAvatar
             name={t.author.name}
-            src={t.author.avatarUrl ?? undefined}
+            src={toAssetUrl(t.author.avatarUrl)}
             size='xs'
           />
           <Text

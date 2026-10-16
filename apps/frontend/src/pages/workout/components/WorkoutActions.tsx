@@ -72,7 +72,8 @@ export const WorkoutActions = ({
       onClick={onNext}
       disabled={nextPending}
     >
-      {NEXT_LABEL[next]}
+      {/* Капсом «Следующее упражнение» шире узкого экрана — переносим на вторую строку, а не режем */}
+      <span className='text-left whitespace-normal'>{NEXT_LABEL[next]}</span>
       {next === 'skip' ? (
         <SkipForwardIcon className='size-6' />
       ) : (

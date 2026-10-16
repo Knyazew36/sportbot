@@ -38,7 +38,8 @@ export const FocusRest = ({ timer, title, nextSet, onToSet, onClose, planDone, n
               className='h-24 w-full'
               onClick={next ? onNext : onClose}
             >
-              {next ? NEXT_LABEL[next] : 'К упражнению'}
+              {/* Длинная подпись в две строки: высота h-24 под это и рассчитана */}
+              <span className='text-balance whitespace-normal'>{next ? NEXT_LABEL[next] : 'К упражнению'}</span>
               <ArrowRightIcon
                 className='size-7'
                 strokeWidth={2.5}
@@ -84,6 +85,16 @@ export const FocusRest = ({ timer, title, nextSet, onToSet, onClose, planDone, n
         </>
       }
     >
+      {/* Заголовок не пропадает по окончании: иначе кольцо прыгает вверх */}
+      <Poster
+        as='h2'
+        size='4xl'
+        tone={over ? 'muted' : 'primary'}
+        fit
+        className='w-full text-center'
+      >
+        {over ? 'Отдых окончен' : 'Отдых'}
+      </Poster>
       <div className='relative flex items-center justify-center'>
         <Ring
           value={timer.fraction}
@@ -91,7 +102,7 @@ export const FocusRest = ({ timer, title, nextSet, onToSet, onClose, planDone, n
           size={300}
           stroke={6}
           track='color-mix(in oklab, var(--foreground) 14%, transparent)'
-          className='h-auto w-[min(300px,80vw,42svh)]'
+          className='h-auto w-[min(300px,80vw,36svh)]'
         />
         <div className='absolute inset-0 flex flex-col items-center justify-center'>
           {over ? (

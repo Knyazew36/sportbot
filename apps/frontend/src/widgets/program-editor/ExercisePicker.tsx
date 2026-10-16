@@ -55,7 +55,8 @@ export const ExercisePicker = ({ complex, back, adding, onAdd }: ExercisePickerP
   const [createOpen, setCreateOpen] = useState(false)
   const [preview, setPreview] = useState<{ id: number; name: string } | null>(null)
 
-  // replace: история не копит шаг на каждую букву поиска
+  // replace: история не копит шаг на каждую букву поиска.
+  // preventScrollReset: каждый «+» меняет адрес, и ScrollRestoration иначе кидал бы список наверх
   const patch = (next: Record<string, string | undefined>) =>
     setParams(
       prev => {
@@ -65,7 +66,7 @@ export const ExercisePicker = ({ complex, back, adding, onAdd }: ExercisePickerP
         }
         return prev
       },
-      { replace: true },
+      { replace: true, preventScrollReset: true },
     )
   const setMuscle = (m: string) => patch({ muscle: m === ALL ? undefined : m })
   const setEquipment = (e: Equipment | 'ALL') => patch({ equipment: e === ALL ? undefined : e })

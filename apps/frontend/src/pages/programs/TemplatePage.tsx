@@ -12,6 +12,7 @@ import {
   useTakeTemplate,
   useTemplates,
 } from '@/entities/program'
+import { toAssetUrl } from '@/shared/api'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
@@ -133,7 +134,7 @@ const TemplatePage = () => {
                   <div className='mt-3 flex items-center gap-2'>
                     <PersonAvatar
                       name={t.author.name}
-                      src={t.author.avatarUrl ?? undefined}
+                      src={toAssetUrl(t.author.avatarUrl)}
                       size='sm'
                     />
                     <Text
