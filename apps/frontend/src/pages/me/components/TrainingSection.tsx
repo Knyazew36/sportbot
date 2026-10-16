@@ -21,11 +21,7 @@ export const TrainingSection = ({ profile }: { profile: Profile }) => {
   const options = REST.some(r => r.value === rest) ? REST : [...REST, { value: rest, label: custom }]
 
   return (
-    <ScreenSection
-      variant='block'
-      index={2}
-      title='Тренировка'
-    >
+    <ScreenSection>
       <SettingRow
         title='Таймер отдыха'
         hint={

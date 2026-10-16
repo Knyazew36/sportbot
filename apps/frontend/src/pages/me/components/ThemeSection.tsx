@@ -4,12 +4,12 @@ import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Segmented } from '@/shared/ui/kit/Segmented'
 import { Text } from '@/shared/ui/kit/Typography'
 
-const PALETTES: { value: Palette; label: string }[] = [
+export const PALETTES: { value: Palette; label: string }[] = [
   { value: 'classic', label: 'Синяя' },
   { value: 'rose', label: 'Розовая' },
 ]
 
-const OPTIONS: { value: ThemeChoice; label: string }[] = [
+export const THEME_OPTIONS: { value: ThemeChoice; label: string }[] = [
   { value: 'auto', label: 'Авто' },
   { value: 'light', label: 'Светлая' },
   { value: 'dark', label: 'Тёмная' },
@@ -22,11 +22,7 @@ export const ThemeSection = () => {
   const [choice, setChoice] = useThemeChoice()
 
   return (
-    <ScreenSection
-      variant='block'
-      index={8}
-      title='Оформление'
-    >
+    <ScreenSection>
       <Segmented
         options={PALETTES}
         value={palette}
@@ -35,7 +31,7 @@ export const ThemeSection = () => {
         stretch
       />
       <Segmented
-        options={OPTIONS}
+        options={THEME_OPTIONS}
         value={choice}
         onValueChange={setChoice}
         size='default'

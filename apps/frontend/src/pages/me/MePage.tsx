@@ -1,119 +1,93 @@
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useQueryClient } from '@tanstack/react-query'
-import { useForm } from 'react-hook-form'
 
-import {
-  displayNameSchema,
-  type DisplayNameValues,
-  type Profile,
-  useProfile,
-  useUpdateProfile,
-} from '@/entities/profile'
-import { sportUserKeys } from '@/entities/sport-user'
-import { useStatsSummary } from '@/entities/stats'
-import { applyFieldErrors } from '@/shared/lib/form'
+import { useLimitations } from '@/entities/limitation'
+import { MESSENGER_LABEL, useLinkState } from '@/entities/link'
+import { type Profile, useProfile } from '@/entities/profile'
+import { useFriends } from '@/entities/social'
+import { buildPath, ROUTES } from '@/shared/config/paths'
+import { formatDate, pluralize } from '@/shared/lib/format'
+import { useThemeChoice } from '@/shared/lib/hooks/use-messenger-theme'
+import { usePaletteChoice } from '@/shared/lib/hooks/use-palette'
+import { WEEKDAYS } from '@/shared/lib/weekdays'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Screen } from '@/shared/ui/kit/Screen'
 import { ScreenHeader } from '@/shared/ui/kit/ScreenHeader'
-import { TextField } from '@/shared/ui/kit/TextField'
-import { Eyebrow, Lead, Poster } from '@/shared/ui/kit/Typography'
 
-import { BodyWeightSection } from './components/BodyWeightSection'
-import { DeleteDataSection } from './components/DeleteDataSection'
-import { FriendsSection } from './components/FriendsSection'
-import { GenderField } from './components/GenderField'
-import { LimitsSection } from './components/LimitsSection'
-import { MessengersSection } from './components/MessengersSection'
-import { PauseSection } from './components/PauseSection'
-import { ScheduleSection } from './components/ScheduleSection'
-import { ThemeSection } from './components/ThemeSection'
-import { TrainingSection } from './components/TrainingSection'
+import { AccountCard } from './components/AccountCard'
+import { SectionTicket } from './components/SectionTicket'
+import { PALETTES, THEME_OPTIONS } from './components/ThemeSection'
+import { ME_SECTIONS, type MeSectionSlug } from './sections'
 
-// Имя, которое видят друзья: сохраняется при уходе из поля
-const NameForm = ({ profile }: { profile: Profile }) => {
-  const update = useUpdateProfile()
-  const queryClient = useQueryClient()
-  const {
-    register,
-    handleSubmit,
-    setError,
-    formState: { errors },
-  } = useForm<DisplayNameValues>({
-    resolver: zodResolver(displayNameSchema),
-    values: { displayName: profile.displayName },
-  })
+// Строка под кнопкой раздела: главное из него видно, не заходя внутрь
+const useSectionMeta = (profile: Profile): Partial<Record<MeSectionSlug, string>> => {
+  const limitations = useLimitations()
+  const friends = useFriends()
+  const links = useLinkState()
+  const [palette] = usePaletteChoice()
+  const [theme] = useThemeChoice()
 
-  const save = handleSubmit(({ displayName }) => {
-    if (displayName === profile.displayName) return
-    return update
-      .mutateAsync({ displayName })
-      .then(() => queryClient.invalidateQueries({ queryKey: sportUserKeys.me }))
-      .catch(error => applyFieldErrors(error, setError))
-  })
+  const days = WEEKDAYS.filter(d => profile.trainingDays.includes(d.value))
+    .map(d => d.short)
+    .join(' ')
+  const pause = profile.pause && !profile.pause.expired ? profile.pause : null
+  const limits = limitations.data?.length
+
+  return {
+    training: pause
+      ? `на паузе ${pause.endDate ? `до ${formatDate(pause.endDate, 'd MMMM')}` : 'до отмены'}`
+      : `${days || 'дни не выбраны'} · ${profile.morningTime} / ${profile.eveningTime}`,
+    body:
+      [
+        profile.lastBodyWeight != null && `${profile.lastBodyWeight} кг`,
+        limits && pluralize(limits, ['ограничение', 'ограничения', 'ограничений']),
+      ]
+        .filter(Boolean)
+        .join(' · ') || 'вес и ограничения',
+    friends: friends.data?.length ? pluralize(friends.data.length, ['друг', 'друга', 'друзей']) : 'пригласи друзей',
+    account: ['имя и пол', ...(links.data?.linked.map(m => MESSENGER_LABEL[m]) ?? [])].join(' · '),
+    app: [PALETTES.find(p => p.value === palette)?.label, THEME_OPTIONS.find(o => o.value === theme)?.label]
+      .filter(Boolean)
+      .join(' · '),
+  }
+}
+
+// Разделы — билеты под палец: каждый открывает экран со своими пунктами.
+// На паузе билет тренировок синий — это состояние, о котором стоит помнить
+const SectionButtons = ({ profile }: { profile: Profile }) => {
+  const meta = useSectionMeta(profile)
+  const paused = !!profile.pause && !profile.pause.expired
 
   return (
-    <form onSubmit={save}>
-      <TextField
-        label='Имя для друзей'
-        error={errors.displayName}
-        {...register('displayName', { onBlur: () => void save() })}
-      />
-    </form>
+    <Rise className='px-gutter flex flex-col gap-4'>
+      {ME_SECTIONS.map(({ slug, title, icon }, i) => (
+        <SectionTicket
+          key={slug}
+          to={buildPath(ROUTES.ME_SECTION, { section: slug })}
+          index={i + 1}
+          icon={icon}
+          title={title}
+          meta={meta[slug]}
+          marked={slug === 'training' && paused}
+        />
+      ))}
+    </Rise>
   )
 }
 
-// Профиль: все настройки на одном экране секциями (frontend-tz, 13)
+// Профиль (frontend-tz, 13): карта участника и кнопки разделов, пункты — на экранах разделов
 const MePage = () => {
   const profile = useProfile()
-  const summary = useStatsSummary()
 
   return (
     <Screen
       header={<ScreenHeader title='Профиль' />}
-      className='gap-12'
+      className='gap-10'
     >
       <QueryScreen query={profile}>
         {p => (
           <>
-            <Rise className='px-gutter flex flex-col gap-4'>
-              <div className='flex items-end justify-between gap-4'>
-                <div className='min-w-0'>
-                  <Lead>привет,</Lead>
-                  <Poster
-                    as='h1'
-                    size='4xl'
-                    tone='primary'
-                    fit
-                  >
-                    {p.displayName}
-                  </Poster>
-                </div>
-                {summary.data && (
-                  <div className='border-foreground/80 shrink-0 border-[1.5px] px-3 py-2 text-center'>
-                    <Eyebrow as='p'>серия</Eyebrow>
-                    <Poster
-                      size='2xl'
-                      tone='primary'
-                    >
-                      {summary.data.currentStreak}
-                    </Poster>
-                  </div>
-                )}
-              </div>
-              <NameForm profile={p} />
-              <GenderField profile={p} />
-            </Rise>
-
-            <ScheduleSection profile={p} />
-            <TrainingSection profile={p} />
-            <PauseSection profile={p} />
-            <LimitsSection />
-            <BodyWeightSection profile={p} />
-            <FriendsSection />
-            <MessengersSection />
-            <ThemeSection />
-            <DeleteDataSection />
+            <AccountCard profile={p} />
+            <SectionButtons profile={p} />
           </>
         )}
       </QueryScreen>

@@ -11,6 +11,11 @@ import type { ProfileResponseDtoWeightAskFrequency } from './profileResponseDtoW
 export interface ProfileResponseDto {
   displayName: string;
   /**
+     * Фото профиля; null — показываем инициалы
+     * @nullable
+     */
+  avatarUrl: string | null;
+  /**
      * Пол; null — не выбран
      * @nullable
      */

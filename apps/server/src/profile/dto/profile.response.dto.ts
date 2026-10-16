@@ -7,6 +7,13 @@ export class ProfileResponseDto {
   displayName: string;
 
   @ApiProperty({
+    type: String,
+    nullable: true,
+    description: 'Фото профиля; null — показываем инициалы',
+  })
+  avatarUrl: string | null;
+
+  @ApiProperty({
     enum: ['MALE', 'FEMALE'],
     nullable: true,
     description: 'Пол; null — не выбран',

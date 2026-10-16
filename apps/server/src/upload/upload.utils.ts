@@ -58,6 +58,14 @@ export function matchesImageSignature(
   }
 }
 
+// Тип картинки по magic bytes — для файлов, пришедших не от клиента (фото из мессенджера)
+export function detectImageMime(header: Buffer): AllowedImageMimeType | null {
+  return (
+    IMAGE_MIME_WHITELIST.find((mime) => matchesImageSignature(header, mime)) ??
+    null
+  );
+}
+
 // Стейджинг вне upload root (и вне globalPrefix статики) — файл никогда не отдаётся публично,
 // пока не подтверждён commitToCategory в UploadService после успешной записи в БД
 const stagingDir = path.join(os.tmpdir(), 'app-staged-uploads');

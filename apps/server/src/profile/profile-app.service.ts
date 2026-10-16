@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 
+import { AvatarService } from '@/avatar/avatar.service';
 import { localToday } from '@/bot';
 import { SportAccountService } from '@/bot/sport-account.service';
 
@@ -21,12 +22,13 @@ export class ProfileAppService {
     private readonly prisma: PrismaService,
     private readonly accounts: SportAccountService,
     private readonly profiles: ProfileService,
+    private readonly avatars: AvatarService,
   ) {}
 
   public async view(userId: number): Promise<ProfileResponseDto> {
     const profile = await this.accounts.profile(userId);
     const today = localToday(profile.timeZone);
-    const [pause, weight] = await Promise.all([
+    const [pause, weight, user] = await Promise.all([
       this.prisma.pause.findFirst({
         where: { userId, endedAt: null, startDate: { lte: today } },
         orderBy: { id: 'desc' },
@@ -36,9 +38,14 @@ export class ProfileAppService {
         orderBy: { date: 'desc' },
         select: { value: true },
       }),
+      this.prisma.user.findUniqueOrThrow({
+        where: { id: userId },
+        select: { avatarPath: true },
+      }),
     ]);
     return {
       displayName: profile.displayName,
+      avatarUrl: this.avatars.url(user.avatarPath),
       gender: profile.gender,
       timeZone: profile.timeZone,
       timeZoneTitle: zoneTitle(profile.timeZone),
@@ -71,6 +78,19 @@ export class ProfileAppService {
         trainingDays: [...dto.trainingDays].sort((a, b) => a - b),
       }),
     });
+    return this.view(userId);
+  }
+
+  public async uploadAvatar(
+    userId: number,
+    file: Express.Multer.File,
+  ): Promise<ProfileResponseDto> {
+    await this.avatars.upload(userId, file);
+    return this.view(userId);
+  }
+
+  public async removeAvatar(userId: number): Promise<ProfileResponseDto> {
+    await this.avatars.remove(userId);
     return this.view(userId);
   }
 

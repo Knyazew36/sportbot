@@ -6,5 +6,6 @@
  */
 
 export interface UploadAvatarDto {
+  /** jpeg, png или webp */
   file: Blob | File;
 }

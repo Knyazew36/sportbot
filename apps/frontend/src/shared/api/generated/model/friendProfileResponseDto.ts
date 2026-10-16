@@ -9,6 +9,11 @@ import type { FriendProgramResponseDto } from './friendProgramResponseDto';
 export interface FriendProfileResponseDto {
   id: number;
   displayName: string;
+  /**
+     * Фото профиля; null — инициалы
+     * @nullable
+     */
+  avatarUrl: string | null;
   currentStreak: number;
   bestStreak: number;
   paused: boolean;

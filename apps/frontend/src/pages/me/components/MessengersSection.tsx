@@ -32,11 +32,7 @@ export const MessengersSection = () => {
   const notifyValue = state.data?.notify.length === 2 ? BOTH : (state.data?.notify[0] ?? '')
 
   return (
-    <ScreenSection
-      variant='block'
-      index={7}
-      title='Мессенджеры'
-    >
+    <ScreenSection>
       <List>
         {ALL.map(m => {
           const isLinked = linked.includes(m)

@@ -1,6 +1,6 @@
 import type { DayToday } from '@/entities/day'
 import { useEndPause } from '@/entities/pause'
-import { ROUTES } from '@/shared/config/paths'
+import { buildPath, ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { Rise } from '@/shared/ui/kit/Reveal'
@@ -33,7 +33,7 @@ export const PauseDay = ({ pause }: { pause: NonNullable<DayToday['pause']> }) =
             Да
           </Button>
           <ButtonLink
-            to={ROUTES.ME}
+            to={buildPath(ROUTES.ME_SECTION, { section: 'training' })}
             variant='outline'
           >
             Продлить

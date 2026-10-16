@@ -7,6 +7,13 @@ export class FriendResponseDto {
   @ApiProperty()
   displayName: string;
 
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: 'Фото профиля; null — инициалы',
+  })
+  avatarUrl: string | null;
+
   @ApiProperty()
   currentStreak: number;
 

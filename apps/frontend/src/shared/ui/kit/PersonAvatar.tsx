@@ -18,13 +18,12 @@ const SIZE: Record<NonNullable<PersonAvatarProps['size']>, string> = {
   xl: 'size-20 text-heading-sm',
 }
 
-export const initials = (name: string) =>
-  name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map(part => part[0]?.toUpperCase())
-    .join('')
+// Имя и фамилия — по первой букве; одно слово — две первые буквы («Серёжа» → «СЕ»)
+export const initials = (name: string) => {
+  const words = name.split(/\s+/).filter(Boolean)
+  const letters = words.length > 1 ? words.slice(0, 2).map(word => word[0]).join('') : (words[0]?.slice(0, 2) ?? '')
+  return letters.toUpperCase()
+}
 
 // Без фото — инициалы на монохромной подложке: цветом людей не различаем, акцент только у «я»
 export const PersonAvatar = ({ name, src, size = 'default', tone = 'default', className }: PersonAvatarProps) => (

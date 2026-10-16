@@ -335,6 +335,26 @@
   background-image: repeating-linear-gradient(90deg, var(--sb-blue) 0 1.5px, transparent 1.5px 14px);
 }
 
+/* Блик по карте участника: один проход при открытии, как свет по ламинату */
+@keyframes sb-sheen {
+  from {
+    translate: -120% 0;
+  }
+  to {
+    translate: 220% 0;
+  }
+}
+
+@utility sb-sheen {
+  background-image: linear-gradient(
+    105deg,
+    transparent 30%,
+    color-mix(in oklab, var(--sb-paper), transparent 82%) 48%,
+    transparent 66%
+  );
+  animation: sb-sheen 1.6s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both;
+}
+
 /* Зерно бумаги поверх всего экрана */
 @utility sb-grain {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");

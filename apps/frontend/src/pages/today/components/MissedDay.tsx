@@ -1,5 +1,5 @@
 import { type DayToday, useFixDay, useRescheduleAnswer } from '@/entities/day'
-import { ROUTES } from '@/shared/config/paths'
+import { buildPath, ROUTES } from '@/shared/config/paths'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
 import { Rise } from '@/shared/ui/kit/Reveal'
@@ -94,7 +94,7 @@ export const MissedDay = ({ day, suggestPause }: MissedDayProps) => {
             Можно поставить паузу — серия сохранится, бот помолчит.
           </Text>
           <ButtonLink
-            to={ROUTES.ME}
+            to={buildPath(ROUTES.ME_SECTION, { section: 'training' })}
             variant='outline'
           >
             Поставить паузу

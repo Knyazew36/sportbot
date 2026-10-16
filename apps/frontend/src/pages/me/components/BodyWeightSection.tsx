@@ -47,9 +47,6 @@ export const BodyWeightSection = ({ profile }: { profile: Profile }) => {
 
   return (
     <ScreenSection
-      variant='block'
-      index={5}
-      title='Вес тела'
       aside={last ? `последний ${last} кг` : undefined}
     >
       <form

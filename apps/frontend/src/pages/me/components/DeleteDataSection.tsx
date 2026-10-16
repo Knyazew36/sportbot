@@ -11,11 +11,7 @@ export const DeleteDataSection = () => {
   const remove = useDeleteAccount()
 
   return (
-    <ScreenSection
-      variant='block'
-      index={9}
-      title='Удаление данных'
-    >
+    <ScreenSection>
       <div className='border-destructive/60 flex flex-col gap-3 border-[1.5px] border-dashed p-4'>
         <div className='flex flex-col gap-4'>
           <div>

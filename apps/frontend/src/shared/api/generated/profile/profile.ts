@@ -8,11 +8,14 @@ import type {
   DeleteProfileDto,
   ProfileControllerCities200,
   ProfileControllerRemove200,
+  ProfileControllerRemoveAvatar200,
   ProfileControllerSetTimezone200,
   ProfileControllerUpdate200,
+  ProfileControllerUploadAvatar200,
   ProfileControllerView200,
   SetTimezoneDto,
-  UpdateProfileDto
+  UpdateProfileDto,
+  UploadAvatarDto
 } from '../model';
 
 import { customInstance } from '../../model/orval-mutator';
@@ -40,6 +43,32 @@ export const profileControllerUpdate = (
       {url: `/profile/update`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: updateProfileDto
+    },
+      );
+    }
+  /**
+ * @summary Загрузить своё фото профиля
+ */
+export const profileControllerUploadAvatar = (
+    uploadAvatarDto: UploadAvatarDto,
+ ) => {const formData = new FormData();
+formData.append(`file`, uploadAvatarDto.file);
+
+      return customInstance<ProfileControllerUploadAvatar200>(
+      {url: `/profile/avatar`, method: 'POST',
+      headers: {'Content-Type': 'multipart/form-data', },
+       data: formData
+    },
+      );
+    }
+  /**
+ * @summary Удалить фото профиля — останутся инициалы
+ */
+export const profileControllerRemoveAvatar = (
+
+ ) => {
+      return customInstance<ProfileControllerRemoveAvatar200>(
+      {url: `/profile/avatar/delete`, method: 'POST'
     },
       );
     }
@@ -82,6 +111,8 @@ export const profileControllerRemove = (
     }
   export type ProfileControllerViewResult = NonNullable<Awaited<ReturnType<typeof profileControllerView>>>
 export type ProfileControllerUpdateResult = NonNullable<Awaited<ReturnType<typeof profileControllerUpdate>>>
+export type ProfileControllerUploadAvatarResult = NonNullable<Awaited<ReturnType<typeof profileControllerUploadAvatar>>>
+export type ProfileControllerRemoveAvatarResult = NonNullable<Awaited<ReturnType<typeof profileControllerRemoveAvatar>>>
 export type ProfileControllerCitiesResult = NonNullable<Awaited<ReturnType<typeof profileControllerCities>>>
 export type ProfileControllerSetTimezoneResult = NonNullable<Awaited<ReturnType<typeof profileControllerSetTimezone>>>
 export type ProfileControllerRemoveResult = NonNullable<Awaited<ReturnType<typeof profileControllerRemove>>>

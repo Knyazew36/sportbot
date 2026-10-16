@@ -59,9 +59,6 @@ export const PauseSection = ({ profile }: { profile: Profile }) => {
 
   return (
     <ScreenSection
-      variant='block'
-      index={3}
-      title='Пауза'
       aside='серия сохраняется'
     >
       {profile.pause ? (

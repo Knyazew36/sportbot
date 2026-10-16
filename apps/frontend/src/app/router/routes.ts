@@ -59,6 +59,7 @@ export const miniappRoutes: AppRoute[] = [
   { path: ROUTES.STATS, lazy: () => import('@/pages/stats/StatsPage') },
   { path: ROUTES.STATS_MUSCLE, lazy: () => import('@/pages/stats-muscle/MuscleProgressPage') },
   { path: ROUTES.ME, lazy: () => import('@/pages/me/MePage') },
+  { path: ROUTES.ME_SECTION, lazy: () => import('@/pages/me/MeSectionPage') },
   { path: ROUTES.FRIEND, lazy: () => import('@/pages/friend/FriendPage') },
   { path: ROUTES.ADMIN, lazy: () => import('@/pages/admin/AdminPage') },
   { path: ROUTES.ADMIN_REQUEST, lazy: () => import('@/pages/admin/ModerationRequestPage') },

@@ -168,6 +168,28 @@ export class TelegramBotService implements OnApplicationBootstrap {
     return (await this.bot.telegram.getFileLink(fileId)).toString();
   }
 
+  /**
+   * Ссылка на текущее фото профиля пользователя (jpeg) или null, если фото нет или оно скрыто
+   * настройками приватности. photo_url из initData не подходит: Telegram отдаёт там svg-обёртку.
+   */
+  public async getProfilePhotoUrl(
+    telegramId: string | number,
+  ): Promise<string | null> {
+    const { photos } = await this.bot.telegram.getUserProfilePhotos(
+      Number(telegramId),
+      0,
+      1,
+    );
+    // Размеры идут по возрастанию: берём наибольший не крупнее 640px — аватару больше не нужно
+    const sizes = photos[0] ?? [];
+    const size = sizes.filter((s) => s.width <= 640).at(-1) ?? sizes[0];
+    if (!size) {
+      this.logger.debug(`Фото профиля нет: telegramId=${telegramId}`);
+      return null;
+    }
+    return this.getFileUrl(size.file_id);
+  }
+
   // ── Клавиатуры ──────────────────────────────────────────────────────────
 
   /** Обёртка inline-клавиатуры для extra. */

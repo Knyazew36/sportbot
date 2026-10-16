@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 
+import { AvatarModule } from '@/avatar/avatar.module';
 import { PlanModule } from '@/plan/plan.module';
 import { ProgramModule } from '@/program/program.module';
 import { StatsModule } from '@/stats/stats.module';
@@ -11,7 +12,7 @@ import { SocialService } from './social.service';
 
 /** Друзья и обмен программой. Групповые чаты отложены (раздел 29 ТЗ). */
 @Module({
-  imports: [ProgramModule, StatsModule, PlanModule],
+  imports: [ProgramModule, StatsModule, PlanModule, AvatarModule],
   controllers: [SocialController],
   providers: [SocialService, SocialAppService, SocialBot],
 })

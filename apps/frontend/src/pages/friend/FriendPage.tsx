@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router'
 import { useState } from 'react'
 
 import { useCopyFriendProgram, useFriend, useUnfriend } from '@/entities/social'
-import { ROUTES } from '@/shared/config/paths'
+import { buildPath, ROUTES } from '@/shared/config/paths'
 import { formatDate, pluralize } from '@/shared/lib/format'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
@@ -23,7 +23,7 @@ import { MuscleLoadSection } from '@/widgets/stats/MuscleLoadSection'
 import { ProgressSection } from '@/widgets/stats/ProgressSection'
 import { StatsSummarySection } from '@/widgets/stats/StatsSummarySection'
 
-const BACK = ROUTES.ME
+const BACK = buildPath(ROUTES.ME_SECTION, { section: 'friends' })
 
 // Профиль друга (frontend-tz, 13.6): его статистика строго по таблице видимости — без веса тела и ограничений,
 // пауза только статусом, программы с «Скопировать себе». Что можно показывать, решает бэк по userId

@@ -1,3 +1,6 @@
+import { ChevronRightIcon } from 'lucide-react'
+import { Link } from 'react-router'
+
 import type { ReactNode } from 'react'
 
 import { cn } from '@/shared/lib/utils'
@@ -58,4 +61,24 @@ export const ListRow = ({ lead, title, meta, trail, children, className }: ListR
     </div>
     {trail != null ? <div className='self-center'>{trail}</div> : <span />}
   </li>
+)
+
+type ListLinkRowProps = Omit<ListRowProps, 'trail'> & { to: string }
+
+// Строка-переход: кликабельна целиком, справа стрелка. Ссылка — только заголовок, чтобы кнопки
+// в children оставались отдельными целями
+export const ListLinkRow = ({ to, title, className, ...rest }: ListLinkRowProps) => (
+  <ListRow
+    {...rest}
+    className={cn('relative', className)}
+    title={
+      <Link
+        to={to}
+        className='underline-offset-4 after:absolute after:inset-0 hover:underline'
+      >
+        {title}
+      </Link>
+    }
+    trail={<ChevronRightIcon className='text-foreground/40 size-5' />}
+  />
 )

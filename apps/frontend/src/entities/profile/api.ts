@@ -6,8 +6,10 @@ import { bodyWeightControllerCreate } from '@/shared/api/generated/body-weight/b
 import type { ProfileResponseDto, SetTimezoneDto, UpdateProfileDto } from '@/shared/api/generated/model'
 import {
   profileControllerCities,
+  profileControllerRemoveAvatar,
   profileControllerSetTimezone,
   profileControllerUpdate,
+  profileControllerUploadAvatar,
   profileControllerView,
 } from '@/shared/api/generated/profile/profile'
 
@@ -56,6 +58,32 @@ export const useSetTimezone = () => {
   return useMutation({
     mutationFn: (body: SetTimezoneDto) => profileControllerSetTimezone(body),
     meta: { successMessage: 'Часовой пояс сохранён', inlineFieldErrors: true },
+    onSuccess: apply,
+  })
+}
+
+// ── Фото профиля ────────────────────────────────────────────────────────────
+
+// Фото «Сегодня» не меняет — в отличие от расписания, достаточно положить профиль в кэш
+const useApplyAvatar = () => {
+  const queryClient = useQueryClient()
+  return (profile: Profile) => queryClient.setQueryData(profileKeys.profile, profile)
+}
+
+export const useUploadAvatar = () => {
+  const apply = useApplyAvatar()
+  return useMutation({
+    mutationFn: (file: File) => profileControllerUploadAvatar({ file }),
+    meta: { successMessage: 'Фото обновлено' },
+    onSuccess: apply,
+  })
+}
+
+export const useRemoveAvatar = () => {
+  const apply = useApplyAvatar()
+  return useMutation({
+    mutationFn: () => profileControllerRemoveAvatar(),
+    meta: { successMessage: 'Фото удалено' },
     onSuccess: apply,
   })
 }

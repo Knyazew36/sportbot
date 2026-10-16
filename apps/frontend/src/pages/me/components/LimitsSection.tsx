@@ -92,9 +92,6 @@ export const LimitsSection = () => {
 
   return (
     <ScreenSection
-      variant='block'
-      index={4}
-      title='Ограничения по суставам'
       aside='бот предупредит в тренировке'
     >
       {limitations.data?.length ? (

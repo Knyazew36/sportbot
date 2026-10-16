@@ -140,14 +140,14 @@ export class SocialService {
   public async friendProfile(
     userId: number,
     friendId: number,
-  ): Promise<SportProfile> {
+  ): Promise<SportProfile & { avatarPath: string | null }> {
     const friend = await this.prisma.user.findFirst({
       where: { id: friendId, ...friendOf(userId) },
       include: { sportProfile: true },
     });
     if (!friend?.sportProfile)
       throw new NotFoundException('Вы больше не друзья.');
-    return friend.sportProfile;
+    return { ...friend.sportProfile, avatarPath: friend.avatarPath };
   }
 
   /** Что друг видит: факт тренировок, серию, посещаемость, комплексы, нагрузку. Вес тела — нет. */

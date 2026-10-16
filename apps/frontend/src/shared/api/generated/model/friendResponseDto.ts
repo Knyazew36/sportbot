@@ -8,6 +8,11 @@
 export interface FriendResponseDto {
   id: number;
   displayName: string;
+  /**
+     * Фото профиля; null — инициалы
+     * @nullable
+     */
+  avatarUrl: string | null;
   currentStreak: number;
   /** Сегодня (по его часовому поясу) есть засчитанная тренировка */
   trainedToday: boolean;

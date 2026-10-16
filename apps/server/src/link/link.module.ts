@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 
 import { ProfileModule } from '@/profile/profile.module';
+import { UploadModule } from '@/upload/upload.module';
 
 import { LinkAppService } from './link-app.service';
 import { LinkBot } from './link.bot';
@@ -9,7 +10,7 @@ import { LinkService } from './link.service';
 
 /** Привязка второго мессенджера к аккаунту (Б15а). */
 @Module({
-  imports: [ProfileModule],
+  imports: [ProfileModule, UploadModule],
   controllers: [LinkController],
   providers: [LinkService, LinkAppService, LinkBot],
 })

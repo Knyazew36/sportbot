@@ -3,6 +3,7 @@ import { PrismaService } from 'prisma/prisma.service';
 
 import { parseUserTime } from '@/bot';
 import { Prisma, SportProfile } from '@/generated/prisma/client';
+import { UploadService } from '@/upload/upload.service';
 
 export const CITY_ZONES: { title: string; zone: string }[] = [
   { title: 'Калининград', zone: 'Europe/Kaliningrad' },
@@ -34,7 +35,10 @@ export const ONBOARDING_STEPS = 3;
 export class ProfileService {
   private readonly logger = new Logger(`👤 ${ProfileService.name}`);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly uploads: UploadService,
+  ) {}
 
   // ── Настройки ───────────────────────────────────────────────────────────
 
@@ -84,18 +88,23 @@ export class ProfileService {
    * остаются без автора, копии программ у друзей — без источника.
    */
   public async deleteAccount(userId: number): Promise<void> {
-    await this.prisma.$transaction((tx) => this.eraseUser(tx, userId));
+    const avatarPath = await this.prisma.$transaction((tx) =>
+      this.eraseUser(tx, userId),
+    );
+    // Файл — только после коммита: откат транзакции не должен оставить запись без фото
+    this.uploads.deleteByRelativePath(avatarPath);
     this.logger.log(`Данные пользователя удалены: userId=${userId}`);
   }
 
   /**
    * Стереть пользователя внутри чужой транзакции — так же уходит аккаунт, проигравший при
    * привязке второго мессенджера (LinkService).
+   * @returns путь к файлу аватара: файлы вне транзакции, удаляет вызывающий после коммита.
    */
   public async eraseUser(
     tx: Prisma.TransactionClient,
     userId: number,
-  ): Promise<void> {
+  ): Promise<string | null> {
     // Сначала свои программы и тренировки: они держат черновики через Restrict
     await tx.program.deleteMany({ where: { ownerId: userId } });
     await tx.workout.deleteMany({ where: { userId } });
@@ -144,6 +153,10 @@ export class ProfileService {
         workoutStretches: { none: {} },
       },
     });
-    await tx.user.delete({ where: { id: userId } });
+    const { avatarPath } = await tx.user.delete({
+      where: { id: userId },
+      select: { avatarPath: true },
+    });
+    return avatarPath;
   }
 }

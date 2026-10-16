@@ -1,11 +1,12 @@
-import { CheckIcon, ChevronRightIcon, Share2Icon } from 'lucide-react'
-import { Link } from 'react-router'
+import { CheckIcon, Share2Icon } from 'lucide-react'
 
 import { useCreateInvite, useFriends } from '@/entities/social'
+import { toAssetUrl } from '@/shared/api'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { notifySuccess } from '@/shared/lib/notify'
 import { shareLink } from '@/shared/miniapp'
-import { List, ListRow } from '@/shared/ui/kit/ListRow'
+import { List, ListLinkRow } from '@/shared/ui/kit/ListRow'
+import { PersonAvatar } from '@/shared/ui/kit/PersonAvatar'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
@@ -26,28 +27,23 @@ export const FriendsSection = () => {
 
   return (
     <ScreenSection
-      variant='block'
-      index={6}
-      title='Друзья'
       aside={friends.data ? `${friends.data.length} в списке` : undefined}
     >
       {friends.data?.length ? (
         <List>
           {friends.data.map(f => (
-            <ListRow
+            <ListLinkRow
               key={f.id}
-              lead={f.currentStreak}
-              title={
-                <Link
-                  to={buildPath(ROUTES.FRIEND, { friendId: f.id })}
-                  className='underline-offset-4 after:absolute after:inset-0 hover:underline'
-                >
-                  {f.displayName}
-                </Link>
+              to={buildPath(ROUTES.FRIEND, { friendId: f.id })}
+              lead={
+                <PersonAvatar
+                  name={f.displayName}
+                  src={toAssetUrl(f.avatarUrl)}
+                  size='sm'
+                />
               }
-              className='relative'
+              title={f.displayName}
               meta={f.paused ? 'на паузе' : `серия ${f.currentStreak}`}
-              trail={<ChevronRightIcon className='text-foreground/40 size-5' />}
             >
               {f.trainedToday && (
                 <Badge
@@ -58,7 +54,7 @@ export const FriendsSection = () => {
                   сегодня тренировался
                 </Badge>
               )}
-            </ListRow>
+            </ListLinkRow>
           ))}
         </List>
       ) : (

@@ -15,6 +15,7 @@ import {
 } from '@/bot';
 import { AccountLinkCode, Prisma, User } from '@/generated/prisma/client';
 import { ProfileService } from '@/profile/profile.service';
+import { UploadService } from '@/upload/upload.service';
 
 const CODE_TTL_MS = 15 * 60 * 1000;
 
@@ -77,6 +78,7 @@ export class LinkService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly profiles: ProfileService,
+    private readonly uploads: UploadService,
   ) {}
 
   // ── Код привязки ────────────────────────────────────────────────────────
@@ -212,7 +214,7 @@ export class LinkService {
       // К выжившему переезжает мессенджер, которого у него нет
       const moved =
         keep === 'owner' ? link.channel : otherBotChannel(link.channel);
-      await this.profiles.eraseUser(tx, loser.id);
+      const loserAvatar = await this.profiles.eraseUser(tx, loser.id);
       const identity: Prisma.UserUncheckedUpdateInput =
         moved === 'TELEGRAM'
           ? {
@@ -224,6 +226,8 @@ export class LinkService {
         where: { id: keeper.id },
         data: {
           ...identity,
+          // Фото проигравшего достаётся выжившему, только если своего у того нет
+          ...(!keeper.avatarPath && loserAvatar && { avatarPath: loserAvatar }),
           // «Может ли бот писать» в переехавший мессенджер знает только проигравший
           data: {
             ...pickData(keeper.data, moved, false),
@@ -243,9 +247,14 @@ export class LinkService {
       this.logger.log(
         `Мессенджеры связаны: остался userId=${keeper.id}, стёрт userId=${loser.id}, переехал ${moved}`,
       );
-      return { keeper: merged, onboarded: !!profile?.onboardedAt };
+      return {
+        keeper: merged,
+        onboarded: !!profile?.onboardedAt,
+        orphanAvatar: keeper.avatarPath ? loserAvatar : null,
+      };
     });
-    return result;
+    this.uploads.deleteByRelativePath(result.orphanAvatar);
+    return { keeper: result.keeper, onboarded: result.onboarded };
   }
 
   // ── Приложение ──────────────────────────────────────────────────────────

@@ -5,7 +5,11 @@ import * as path from 'path';
 
 import { ENTITY_EMOJI } from '@/common/utils';
 
-import { matchesImageSignature } from './upload.utils';
+import {
+  detectImageMime,
+  generateSafeFilename,
+  matchesImageSignature,
+} from './upload.utils';
 
 @Injectable()
 export class UploadService {
@@ -84,6 +88,25 @@ export class UploadService {
         throw error;
       }
     }
+    this.logger.log(`Файл сохранён ${category}/${filename}`);
+    return `${category}/${filename}`;
+  }
+
+  /**
+   * Сохраняет картинку из памяти сразу в категорию. Тип определяется по содержимому, а не по
+   * заголовкам источника; не jpeg/png/webp (например svg) — null, файл не пишется.
+   */
+  public saveImageBuffer(buffer: Buffer, category: string): string | null {
+    const mime = detectImageMime(buffer.subarray(0, 12));
+    if (!mime) {
+      this.logger.warn(`Не картинка jpeg/png/webp, не сохраняю в ${category}`);
+      return null;
+    }
+    const filename = generateSafeFilename(mime);
+    fs.writeFileSync(
+      path.join(this.getCategoryDir(category), filename),
+      buffer,
+    );
     this.logger.log(`Файл сохранён ${category}/${filename}`);
     return `${category}/${filename}`;
   }

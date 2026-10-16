@@ -1,5 +1,6 @@
 import { Injectable, Logger, Optional } from '@nestjs/common';
 
+import { AvatarService } from '@/avatar/avatar.service';
 import { isAdmin } from '@/bot/bot.types';
 import { SportAccountService } from '@/bot/sport-account.service';
 import { BotChannel, User } from '@/generated/prisma/client';
@@ -18,6 +19,7 @@ export class MiniappService {
 
   constructor(
     private readonly accounts: SportAccountService,
+    private readonly avatars: AvatarService,
     // Мессенджер без env не подключается — тогда и его сервиса нет
     @Optional() private readonly telegramDialog?: TelegramDialogService,
     @Optional() private readonly maxDialog?: MaxDialogService,
@@ -34,6 +36,7 @@ export class MiniappService {
       user,
       channel ?? 'TELEGRAM',
     );
+    this.avatars.fillFromMessenger(user, channel);
     const result: MiniappMeResponseDto = {
       userId: user.id,
       displayName: profile.displayName,

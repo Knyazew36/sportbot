@@ -24,6 +24,34 @@ type ScreenSectionProps = {
   className?: string
 }
 
+type BlockHeadingProps = Pick<ScreenSectionProps, 'title' | 'aside' | 'action' | 'index'>
+
+// Плакатная шапка блока с номером. Отдельно — для экранов, где блоками идут готовые секции со своими полями
+export const BlockHeading = ({ index, title, aside, action }: BlockHeadingProps) => (
+  <header className='flex flex-wrap items-end justify-between gap-x-3 gap-y-1'>
+    <div className='flex min-w-0 items-baseline gap-2.5'>
+      {index != null && (
+        <Poster
+          as='span'
+          size='lg'
+          tone='primary'
+          numeric
+        >
+          {String(index).padStart(2, '0')}
+        </Poster>
+      )}
+      <Poster
+        as='h2'
+        size='lg'
+      >
+        {title}
+      </Poster>
+    </div>
+    {aside && <Eyebrow className='pb-0.5 text-right'>{aside}</Eyebrow>}
+    {action}
+  </header>
+)
+
 // Секция экрана: заголовок и содержимое с полями экрана. Сама участвует во входной анимации Screen
 export const ScreenSection = ({
   title,
@@ -39,28 +67,12 @@ export const ScreenSection = ({
     return (
       <Rise className={cn('px-gutter', className)}>
         <section className='border-foreground flex flex-col gap-4 border-t-[3px] pt-3'>
-          <header className='flex flex-wrap items-end justify-between gap-x-3 gap-y-1'>
-            <div className='flex min-w-0 items-baseline gap-2.5'>
-              {index != null && (
-                <Poster
-                  as='span'
-                  size='lg'
-                  tone='primary'
-                  numeric
-                >
-                  {String(index).padStart(2, '0')}
-                </Poster>
-              )}
-              <Poster
-                as='h2'
-                size='lg'
-              >
-                {title}
-              </Poster>
-            </div>
-            {aside && <Eyebrow className='pb-0.5 text-right'>{aside}</Eyebrow>}
-            {action}
-          </header>
+          <BlockHeading
+            index={index}
+            title={title}
+            aside={aside}
+            action={action}
+          />
           {children}
         </section>
       </Rise>

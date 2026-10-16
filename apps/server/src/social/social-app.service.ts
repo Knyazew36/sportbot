@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 
+import { AvatarService } from '@/avatar/avatar.service';
 import { addDays, BotChannelKey, localToday } from '@/bot';
 import { SportAccountService } from '@/bot/sport-account.service';
 import {
@@ -28,6 +29,7 @@ export class SocialAppService {
     private readonly prisma: PrismaService,
     private readonly accounts: SportAccountService,
     private readonly social: SocialService,
+    private readonly avatars: AvatarService,
   ) {}
 
   /** Список друзей: имя, серия, тренировался ли сегодня. */
@@ -61,6 +63,7 @@ export class SocialAppService {
         return {
           id: f.id,
           displayName: f.sportProfile!.displayName,
+          avatarUrl: this.avatars.url(f.avatarPath),
           currentStreak: f.sportProfile!.currentStreak,
           trainedToday: workouts.some(
             (w) => w.userId === f.id && w.date.getTime() === today.getTime(),
@@ -92,6 +95,7 @@ export class SocialAppService {
     return {
       id: friendId,
       displayName: profile.displayName,
+      avatarUrl: this.avatars.url(profile.avatarPath),
       currentStreak: profile.currentStreak,
       bestStreak: profile.bestStreak,
       paused: !!pause,

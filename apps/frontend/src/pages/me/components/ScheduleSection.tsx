@@ -181,9 +181,6 @@ const TimezoneForm = ({ profile }: { profile: Profile }) => {
 // Расписание (frontend-tz, 13.1): дни, время вопросов, часовой пояс как в боте
 export const ScheduleSection = ({ profile }: { profile: Profile }) => (
   <ScreenSection
-    variant='block'
-    index={1}
-    title='Расписание'
     aside={`${pluralize(profile.trainingDays.length, DAY_FORMS)} в неделю`}
   >
     <ScheduleForm profile={profile} />
