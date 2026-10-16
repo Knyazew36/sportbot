@@ -91,7 +91,6 @@ export const MobileNav = () => {
         onOpenChange={setMoreOpen}
       >
         <SheetContent
-          side='bottom'
           className='max-h-[85svh] gap-0 overflow-y-auto pb-[max(1rem,env(safe-area-inset-bottom))]'
         >
           <SheetHeader className='pb-2'>

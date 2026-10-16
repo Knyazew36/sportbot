@@ -36,7 +36,7 @@ export const StretchListSheet = ({
       open={open}
       onOpenChange={onOpenChange}
     >
-      <SheetContent side='bottom'>
+      <SheetContent>
         <SheetHeader>
           <SheetTitle>Вся заминка</SheetTitle>
           <Eyebrow tone='primary'>~{minutes} мин</Eyebrow>

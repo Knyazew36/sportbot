@@ -108,7 +108,7 @@ export const MessengersSection = () => {
         open={code.data != null}
         onOpenChange={open => !open && code.reset()}
       >
-        <SheetContent side='bottom'>
+        <SheetContent>
           <SheetHeader>
             <SheetTitle>Привязать {code.data && MESSENGER_LABEL[code.data.channel]}</SheetTitle>
             <SheetDescription>

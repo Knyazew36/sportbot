@@ -2,6 +2,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router'
 
+import { useState } from 'react'
+
 import {
   type AdminRequest,
   moderationSchema,
@@ -31,6 +33,7 @@ import { Label } from '@/shared/ui/shadcn/label'
 import { Textarea } from '@/shared/ui/shadcn/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/shadcn/toggle-group'
 import { CatalogRow } from '@/widgets/catalog/CatalogRow'
+import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet'
 
 import { ImageField } from './components/ImageField'
 
@@ -62,6 +65,8 @@ const RequestForm = ({ request }: { request: AdminRequest }) => {
   const duplicate = useDuplicateRequest()
   const reject = useRejectRequest()
   const entry = request.entry
+  // Похожая запись в шторке: сравнить с заявкой, не уходя с экрана
+  const [preview, setPreview] = useState<AdminRequest['similar'][number] | null>(null)
   const {
     control,
     register,
@@ -160,6 +165,7 @@ const RequestForm = ({ request }: { request: AdminRequest }) => {
                 name={x.name}
                 imageUrl={null}
                 meta='запись справочника'
+                onClick={() => setPreview(x)}
                 selected={outcome === 'duplicate' && targetId === x.id}
                 trail={
                   outcome === 'duplicate' && (
@@ -180,13 +186,35 @@ const RequestForm = ({ request }: { request: AdminRequest }) => {
         )}
       </ScreenSection>
 
+      <ExerciseSheet
+        exercise={preview}
+        kind={request.kind}
+        onOpenChange={open => !open && setPreview(null)}
+        action={
+          preview && (
+            <Button
+              size='lg'
+              className='w-full'
+              disabled={request.outcome !== 'PENDING'}
+              onClick={() => {
+                setValue('outcome', 'duplicate')
+                setValue('targetId', preview.id, { shouldValidate: true })
+                setPreview(null)
+              }}
+            >
+              {outcome === 'duplicate' && targetId === preview.id ? 'Уже выбрана дублем' : 'Это она — дубль'}
+            </Button>
+          )
+        }
+      />
+
       <form
         id={FORM_ID}
         className='contents'
         onSubmit={submit}
       >
         <ScreenSection title='Исход'>
-          <div className='no-scrollbar -mx-gutter overflow-x-auto px-gutter pb-1'>
+          <div className='no-scrollbar -mx-gutter px-gutter overflow-x-auto pb-1'>
             <Controller
               control={control}
               name='outcome'
@@ -225,7 +253,7 @@ const RequestForm = ({ request }: { request: AdminRequest }) => {
             {request.kind === 'exercise' && (
               <>
                 <ScreenSection title='Инвентарь'>
-                  <div className='no-scrollbar -mx-gutter overflow-x-auto px-gutter pb-1'>
+                  <div className='no-scrollbar -mx-gutter px-gutter overflow-x-auto pb-1'>
                     <Controller
                       control={control}
                       name='equipment'

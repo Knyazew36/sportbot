@@ -1,4 +1,4 @@
-import { CirclePlayIcon, FlagIcon, PlusIcon, TriangleAlertIcon } from 'lucide-react'
+import { CirclePlayIcon, FlagIcon, PlusIcon, TriangleAlertIcon, XIcon } from 'lucide-react'
 import { useNavigate, useParams, useSearchParams } from 'react-router'
 
 import { useState } from 'react'
@@ -195,15 +195,26 @@ const ExercisePage = () => {
 
               {mistakes.length > 0 && (
                 <ScreenSection title='Типичные ошибки'>
-                  <ul className='border-destructive/50 flex flex-col gap-2 border-l-2 pl-3'>
+                  {/* Сетка как у StepList: крестики встают в колонку цифр техники, и два списка читаются одной лесенкой */}
+                  <ul className='flex flex-col gap-1.5'>
                     {mistakes.map(m => (
-                      <Text
-                        as='li'
+                      <li
                         key={m}
-                        tone='soft'
+                        className='grid grid-cols-[24px_1fr] items-start gap-2'
                       >
-                        {m}
-                      </Text>
+                        <XIcon
+                          className='text-destructive mt-[3px] size-3.5'
+                          strokeWidth={3.5}
+                          aria-hidden
+                        />
+                        <Text
+                          as='span'
+                          tone='soft'
+                          className='first-letter:uppercase'
+                        >
+                          {m}
+                        </Text>
+                      </li>
                     ))}
                   </ul>
                 </ScreenSection>

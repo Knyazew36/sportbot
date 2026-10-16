@@ -2,6 +2,7 @@ import { Navigate, useLocation, useNavigate } from 'react-router'
 
 import { useEffect, useRef } from 'react'
 
+import { useAdminCounters } from '@/entities/admin'
 import { useSportUser } from '@/entities/sport-user'
 import { EntryErrorScreen } from '@/pages/entry/EntryErrorScreen'
 import { getApiErrorCode, getApiErrorStatus } from '@/shared/api'
@@ -33,6 +34,9 @@ const MiniappGate = () => {
   const me = useSportUser()
   const { pathname } = useLocation()
   useStartRoute(me.data?.onboarded ?? false)
+  // Что ждёт реакции администратора: заявки и жалобы — числом на пункте «Админ»
+  const counters = useAdminCounters({ enabled: me.data?.isAdmin ?? false })
+  const adminPending = (counters.data?.requests ?? 0) + (counters.data?.complaints ?? 0)
 
   if (me.isPending) return <PageLoader />
 
@@ -77,6 +81,7 @@ const MiniappGate = () => {
     <MiniAppShell
       nav={MINIAPP_NAV}
       isAdmin={isAdmin}
+      badges={{ [ROUTES.ADMIN]: adminPending }}
     />
   )
 }

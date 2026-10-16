@@ -71,7 +71,7 @@ export const ComplaintSheet = ({ open, onOpenChange, subject, onSubmit }: Compla
       open={open}
       onOpenChange={close}
     >
-      <SheetContent side='bottom'>
+      <SheetContent>
         <SheetHeader>
           <SheetTitle>{sent ? 'Спасибо!' : 'Ошибка в описании'}</SheetTitle>
           <SheetDescription>

@@ -238,7 +238,7 @@ export const TemplatesTab = () => {
         open={sheet !== null}
         onOpenChange={open => !open && setSheet(null)}
       >
-        <SheetContent side='bottom'>
+        <SheetContent>
           {sheet === 'new' && (
             <>
               <SheetHeader>

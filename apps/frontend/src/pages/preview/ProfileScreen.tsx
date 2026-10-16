@@ -298,7 +298,7 @@ const Limits = () => {
         open={open}
         onOpenChange={setOpen}
       >
-        <SheetContent side='bottom'>
+        <SheetContent>
           <SheetHeader>
             <SheetTitle>Ограничение</SheetTitle>
             {/* Дисклеймер при включении ограничения (frontend-tz, 13.4) */}
@@ -502,7 +502,7 @@ const Messengers = () => {
         open={codeOpen}
         onOpenChange={setCodeOpen}
       >
-        <SheetContent side='bottom'>
+        <SheetContent>
           <SheetHeader>
             <SheetTitle>Привязать MAX</SheetTitle>
             <SheetDescription>

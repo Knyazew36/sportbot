@@ -4,6 +4,8 @@ import { Segmented } from '@/shared/ui/kit/Segmented'
 
 const GROUPS = ['Все', ...MUSCLE_GROUPS.map(g => g.label)]
 
+const optionValue = (o: string | { value: string }) => (typeof o === 'string' ? o : o.value)
+
 const EQUIPMENT = [
   { value: 'ALL' as const, label: 'Любой' },
   ...(Object.keys(EQUIPMENT_LABEL) as Equipment[]).map(value => ({ value, label: EQUIPMENT_LABEL[value] })),
@@ -45,6 +47,8 @@ export const CatalogFilters = ({
         options={groups}
         value={group}
         onValueChange={onGroupChange}
+        // Первая кнопка — «Все»: повторное нажатие на мышцу снимает фильтр
+        emptyValue={optionValue(groups[0])}
       />
     </div>
     {equipment && onEquipmentChange && (
@@ -53,6 +57,7 @@ export const CatalogFilters = ({
           options={EQUIPMENT}
           value={equipment}
           onValueChange={onEquipmentChange}
+          emptyValue='ALL'
         />
       </div>
     )}

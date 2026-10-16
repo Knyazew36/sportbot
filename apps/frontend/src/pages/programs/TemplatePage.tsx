@@ -40,12 +40,14 @@ const TemplatePage = () => {
       }
       footer={
         template && (
-          <StickyFooter>
+          // Две кнопки держим в одну строку: обе lg и короткие подписи, чтобы влезали от 375px
+          <StickyFooter className='flex-nowrap'>
             {/* Уже взят — главное «Открыть»; второй экземпляр берут осознанно, отсюда, а не из каталога */}
             {template.takenProgramId != null && (
               <ButtonLink
                 to={buildPath(ROUTES.PROGRAM, { programId: template.takenProgramId })}
-                size='xl'
+                size='lg'
+                className='flex-1'
               >
                 Открыть мою
               </ButtonLink>
@@ -60,9 +62,9 @@ const TemplatePage = () => {
                 })
               }
             >
-              {template.takenProgramId != null ? 'Взять ещё раз' : 'Взять себе'}
+              {template.takenProgramId != null ? 'Ещё раз' : 'Взять себе'}
               <PlusIcon
-                className='size-7'
+                className={template.takenProgramId != null ? 'size-5' : 'size-7'}
                 strokeWidth={2.5}
               />
             </Button>

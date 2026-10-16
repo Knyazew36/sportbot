@@ -15,7 +15,7 @@ export const NewProgramSheet = ({ open, onOpenChange }: { open: boolean; onOpenC
       open={open}
       onOpenChange={onOpenChange}
     >
-      <SheetContent side='bottom'>
+      <SheetContent>
         <SheetHeader>
           <SheetTitle>Новая программа</SheetTitle>
           <SheetDescription>Подбери готовую в каталоге и поправь под себя или собери с чистого листа.</SheetDescription>

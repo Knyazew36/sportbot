@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 
-import { localToday } from '@/bot';
+import { addDays, localToday } from '@/bot';
 import {
   Prisma,
   SportProfile,
@@ -211,14 +211,23 @@ export class WorkoutService {
   }
 
   /**
-   * Удалить закрытую тренировку из истории. День, который она закрыла, становится пропуском —
-   * иначе в календаре останется «тренировка» без тренировки. Очередь комплексов не откатывается.
+   * Удалить закрытую тренировку из истории. День, который она закрыла, освобождается — иначе
+   * в календаре останется «тренировка» без тренировки. Пропуском он становится, только если срок
+   * ответа уже вышел; сегодняшний, вчерашний и будущий (его закрывает внеплановая) снова ждут
+   * тренировки, а пропуск им при необходимости поставит крон. Очередь комплексов не откатывается.
    */
-  public async remove(userId: number, workoutId: number): Promise<void> {
+  public async remove(profile: SportProfile, workoutId: number): Promise<void> {
+    const { userId } = profile;
+    // Та же граница, что у крона просроченных дней
+    const answerFrom = addDays(localToday(profile.timeZone), -1);
     await this.prisma.$transaction(async (tx) => {
       await tx.planDay.updateMany({
-        where: { userId, workoutId },
+        where: { userId, workoutId, date: { lt: answerFrom } },
         data: { status: 'MISSED', workoutId: null },
+      });
+      await tx.planDay.updateMany({
+        where: { userId, workoutId, date: { gte: answerFrom } },
+        data: { status: 'PENDING', workoutId: null },
       });
       const { count } = await tx.workout.deleteMany({
         where: { id: workoutId, userId, status: { not: 'IN_PROGRESS' } },

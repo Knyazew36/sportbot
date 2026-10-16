@@ -38,7 +38,7 @@ export const AddToComplexSheet = ({
         if (!next) setAdded(null)
       }}
     >
-      <SheetContent side='bottom'>
+      <SheetContent>
         <SheetHeader>
           <SheetTitle>{target ? 'Добавлено' : 'В какой комплекс?'}</SheetTitle>
           <SheetDescription>

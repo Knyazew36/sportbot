@@ -192,6 +192,30 @@
   --sb-positive: #5ee08a;
 }
 
+/* Розовая расцветка — отдельная ось от светлой/тёмной: меняем только опорные цвета, производные пересчитываются сами.
+   --sb-blue здесь «голос палитры» (малиновый), имя не трогаем, чтобы не переписывать разметку.
+   Опасное уведено в оранжево-красный: рядом с малиновым акцентом чистый красный не читается как ошибка */
+[data-palette='rose'] {
+  --sb-paper: #fff5f8;
+  --sb-sheet: #fffafc;
+  --sb-ink: #1f0a14;
+  --sb-blue: #d6246e;
+  --sb-rule: #f3dbe5;
+  --sb-tint: color-mix(in oklab, #d6246e 9%, transparent);
+  --sb-danger: #c2410c;
+}
+
+/* Розовая тёмная — «сливовая ночь» */
+.dark[data-palette='rose'] {
+  --sb-paper: #1a0b14;
+  --sb-sheet: #241020;
+  --sb-ink: #fff5f8;
+  --sb-blue: #ff6fa8;
+  --sb-rule: #3a1e2f;
+  --sb-tint: color-mix(in oklab, #ff6fa8 13%, transparent);
+  --sb-danger: #ff8a5b;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

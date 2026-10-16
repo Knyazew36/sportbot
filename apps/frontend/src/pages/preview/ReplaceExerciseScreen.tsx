@@ -140,7 +140,7 @@ const ReplaceExerciseScreen = () => {
         open={choice != null}
         onOpenChange={open => !open && setChoice(null)}
       >
-        <SheetContent side='bottom'>
+        <SheetContent>
           <SheetHeader>
             <SheetTitle>Заменить на «{choice?.name}»</SheetTitle>
             <SheetDescription>Насовсем — в комплексе «Грудь и трицепс» вместо «{current.name}».</SheetDescription>

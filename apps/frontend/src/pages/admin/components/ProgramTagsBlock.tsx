@@ -371,7 +371,7 @@ export const ProgramTagsBlock = () => {
         open={editing !== null}
         onOpenChange={open => !open && setEditing(null)}
       >
-        <SheetContent side='bottom'>
+        <SheetContent>
           {editing?.kind === 'tag' && (
             <>
               <SheetHeader>

@@ -1,21 +1,28 @@
 import { Outlet, useLocation, useNavigate } from 'react-router'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 import { cn } from '@/shared/lib/utils'
 import { showBackButton } from '@/shared/miniapp'
 import { ScreenChromeProvider } from '@/shared/ui/kit/screen-chrome'
 
 import { BottomNav } from './BottomNav'
-import { isFocusRoute, isSectionRoot, type ShellNav } from './nav'
+import { isFocusRoute, isSectionRoot, type NavBadges, type ShellNav } from './nav'
 
-type MiniAppShellProps = { nav: ShellNav; isAdmin?: boolean; className?: string }
+type MiniAppShellProps = {
+  nav: ShellNav
+  isAdmin?: boolean
+  /** Счётчики на пунктах меню по их `to` */
+  badges?: NavBadges
+  className?: string
+}
 
 // Оболочка Mini App: телефонная колонка на бумаге с зерном, экран и нижнее меню
-export const MiniAppShell = ({ nav, isAdmin = false, className }: MiniAppShellProps) => {
+export const MiniAppShell = ({ nav, isAdmin = false, badges, className }: MiniAppShellProps) => {
   const { pathname } = useLocation()
   const navigate = useNavigate()
-  const navVisible = !isFocusRoute(nav, pathname)
+  const [searchFocused, setSearchFocused] = useState(false)
+  const navVisible = !isFocusRoute(nav, pathname) && !searchFocused
   const sectionRoot = isSectionRoot(nav, pathname)
 
   // Системная «Назад» мессенджера — шаг назад внутри приложения (frontend-tz, раздел 6). На корне раздела её нет
@@ -36,7 +43,7 @@ export const MiniAppShell = ({ nav, isAdmin = false, className }: MiniAppShellPr
       <div className='bg-background fixed inset-x-0 top-0 z-40 mx-auto h-(--sb-top-inset) max-w-[440px]' />
       {/* Зерно бумаги */}
       <div className='sb-grain pointer-events-none fixed inset-0 z-50 mx-auto max-w-[440px] opacity-[0.07] mix-blend-multiply dark:opacity-[0.12] dark:mix-blend-screen' />
-      <ScreenChromeProvider value={{ navVisible }}>
+      <ScreenChromeProvider value={{ navVisible, setSearchFocused }}>
         <div className='flex flex-1 flex-col'>
           <Outlet />
         </div>
@@ -45,6 +52,7 @@ export const MiniAppShell = ({ nav, isAdmin = false, className }: MiniAppShellPr
         <BottomNav
           nav={nav.items}
           isAdmin={isAdmin}
+          badges={badges}
         />
       )}
     </div>

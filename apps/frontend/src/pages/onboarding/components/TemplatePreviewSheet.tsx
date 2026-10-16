@@ -22,7 +22,7 @@ export const TemplatePreviewSheet = ({ templateId, onOpenChange, onPick }: Templ
       open={templateId != null}
       onOpenChange={onOpenChange}
     >
-      <SheetContent side='bottom'>
+      <SheetContent>
         <SheetHeader>
           <SheetTitle>{template?.name ?? 'Шаблон'}</SheetTitle>
           <SheetDescription>{template?.description ?? 'Комплексы идут по очереди, по кругу.'}</SheetDescription>

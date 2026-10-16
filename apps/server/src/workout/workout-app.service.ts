@@ -132,9 +132,10 @@ export class WorkoutAppService {
     await this.workouts.discard(userId, workoutId);
   }
 
-  /** Удалить закрытую тренировку: день становится пропуском, серия пересчитывается. */
+  /** Удалить закрытую тренировку: день освобождается, серия пересчитывается. */
   public async remove(userId: number, workoutId: number): Promise<void> {
-    await this.workouts.remove(userId, workoutId);
+    const profile = await this.accounts.profile(userId);
+    await this.workouts.remove(profile, workoutId);
   }
 
   // ── Подходы и упражнения ────────────────────────────────────────────────

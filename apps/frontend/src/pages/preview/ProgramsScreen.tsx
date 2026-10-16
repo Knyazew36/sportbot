@@ -116,7 +116,7 @@ const NewProgramSheet = ({ open, onOpenChange }: { open: boolean; onOpenChange: 
     open={open}
     onOpenChange={onOpenChange}
   >
-    <SheetContent side='bottom'>
+    <SheetContent>
       <SheetHeader>
         <SheetTitle>Новая программа</SheetTitle>
         <SheetDescription>Возьми готовый шаблон и поправь под себя или собери с чистого листа.</SheetDescription>

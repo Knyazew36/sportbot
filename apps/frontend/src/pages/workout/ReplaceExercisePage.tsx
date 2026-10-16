@@ -159,7 +159,7 @@ const ReplaceExercisePage = () => {
           if (location.state) void navigate(location.pathname, { replace: true, state: null })
         }}
       >
-        <SheetContent side='bottom'>
+        <SheetContent>
           <SheetHeader>
             <SheetTitle>Заменить на «{choice?.name}»</SheetTitle>
             <SheetDescription>

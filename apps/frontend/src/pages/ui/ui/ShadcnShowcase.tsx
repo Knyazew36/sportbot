@@ -262,7 +262,7 @@ const ShadcnShowcase = () => {
           </AlertDialogContent>
         </AlertDialog>
 
-        <Sheet>
+        <Sheet side='right'>
           <SheetTrigger render={<Button variant='outline' />}>Sheet</SheetTrigger>
           <SheetContent>
             <SheetHeader>

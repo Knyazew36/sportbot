@@ -134,7 +134,7 @@ export const LimitsSection = () => {
         open={open}
         onOpenChange={setOpen}
       >
-        <SheetContent side='bottom'>
+        <SheetContent>
           <SheetHeader>
             <SheetTitle>Ограничение</SheetTitle>
             {/* Дисклеймер при включении ограничения (frontend-tz, 13.4) */}

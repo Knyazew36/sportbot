@@ -1,7 +1,13 @@
 import { type ThemeChoice, useThemeChoice } from '@/shared/lib/hooks/use-messenger-theme'
+import { type Palette, usePaletteChoice } from '@/shared/lib/hooks/use-palette'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Segmented } from '@/shared/ui/kit/Segmented'
 import { Text } from '@/shared/ui/kit/Typography'
+
+const PALETTES: { value: Palette; label: string }[] = [
+  { value: 'classic', label: 'Синяя' },
+  { value: 'rose', label: 'Розовая' },
+]
 
 const OPTIONS: { value: ThemeChoice; label: string }[] = [
   { value: 'auto', label: 'Авто' },
@@ -9,8 +15,9 @@ const OPTIONS: { value: ThemeChoice; label: string }[] = [
   { value: 'dark', label: 'Тёмная' },
 ]
 
-// Тема оформления: по умолчанию как в мессенджере, можно закрепить свою. Применяется сразу
+// Оформление: расцветка и тема — две независимые настройки. По умолчанию синяя и как в мессенджере. Применяется сразу
 export const ThemeSection = () => {
+  const [palette, setPalette] = usePaletteChoice()
   const [choice, setChoice] = useThemeChoice()
 
   return (
@@ -19,6 +26,13 @@ export const ThemeSection = () => {
       index={8}
       title='Оформление'
     >
+      <Segmented
+        options={PALETTES}
+        value={palette}
+        onValueChange={setPalette}
+        size='default'
+        stretch
+      />
       <Segmented
         options={OPTIONS}
         value={choice}

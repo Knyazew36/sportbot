@@ -1,12 +1,35 @@
 import * as React from "react"
-import { Dialog as SheetPrimitive } from "@base-ui/react/dialog"
+import { Drawer as SheetPrimitive } from "@base-ui/react/drawer"
 import { cn } from "@/shared/lib/utils"
 
 import { Button } from "@/shared/ui/shadcn/animate-ui/components/buttons/button"
 import { XIcon } from "lucide-react"
 
-function Sheet({ ...props }: SheetPrimitive.Root.Props) {
-  return <SheetPrimitive.Root data-slot="sheet" {...props} />
+type SheetSide = "top" | "right" | "bottom" | "left"
+
+// Шторка закрывается свайпом в ту сторону, откуда выехала
+const SWIPE_DIRECTION = {
+  top: "up",
+  right: "right",
+  bottom: "down",
+  left: "left",
+} as const satisfies Record<SheetSide, SheetPrimitive.Root.Props["swipeDirection"]>
+
+const SheetSideContext = React.createContext<SheetSide>("bottom")
+
+function Sheet({
+  side = "bottom",
+  ...props
+}: Omit<SheetPrimitive.Root.Props, "swipeDirection"> & { side?: SheetSide }) {
+  return (
+    <SheetSideContext.Provider value={side}>
+      <SheetPrimitive.Root
+        data-slot="sheet"
+        swipeDirection={SWIPE_DIRECTION[side]}
+        {...props}
+      />
+    </SheetSideContext.Provider>
+  )
 }
 
 function SheetTrigger({ ...props }: SheetPrimitive.Trigger.Props) {
@@ -26,7 +49,8 @@ function SheetOverlay({ className, ...props }: SheetPrimitive.Backdrop.Props) {
     <SheetPrimitive.Backdrop
       data-slot="sheet-overlay"
       className={cn(
-        "fixed inset-0 z-50 bg-black/30 transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0 supports-backdrop-filter:backdrop-blur-sm",
+        // Затемнение светлеет вслед за пальцем, пока шторку тянут
+        "fixed inset-0 z-50 bg-black/30 opacity-[calc(1-var(--drawer-swipe-progress,0))] transition-opacity duration-200 data-ending-style:opacity-0 data-starting-style:opacity-0 data-swiping:duration-0 supports-backdrop-filter:backdrop-blur-sm",
         className
       )}
       {...props}
@@ -37,43 +61,61 @@ function SheetOverlay({ className, ...props }: SheetPrimitive.Backdrop.Props) {
 function SheetContent({
   className,
   children,
-  side = "right",
   showCloseButton = true,
   ...props
 }: SheetPrimitive.Popup.Props & {
-  side?: "top" | "right" | "bottom" | "left"
   showCloseButton?: boolean
 }) {
+  const side = React.useContext(SheetSideContext)
+
   return (
     <SheetPortal>
       <SheetOverlay />
-      <SheetPrimitive.Popup
-        data-slot="sheet-content"
-        data-side={side}
-        className={cn(
-          "fixed z-50 flex flex-col border-foreground/80 bg-popover bg-clip-padding text-sm text-popover-foreground transition duration-200 ease-in-out data-ending-style:opacity-0 data-starting-style:opacity-0 data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:mx-auto data-[side=bottom]:h-auto data-[side=bottom]:max-h-[88svh] data-[side=bottom]:max-w-[440px] data-[side=bottom]:border-t-2 data-[side=bottom]:pb-[env(safe-area-inset-bottom)] data-[side=bottom]:data-ending-style:translate-y-[2.5rem] data-[side=bottom]:data-starting-style:translate-y-[2.5rem] data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:rounded-r-card data-[side=left]:data-ending-style:translate-x-[-2.5rem] data-[side=left]:data-starting-style:translate-x-[-2.5rem] data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-3/4 data-[side=right]:rounded-l-card data-[side=right]:data-ending-style:translate-x-[2.5rem] data-[side=right]:data-starting-style:translate-x-[2.5rem] data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:rounded-b-card data-[side=top]:data-ending-style:translate-y-[-2.5rem] data-[side=top]:data-starting-style:translate-y-[-2.5rem] data-[side=left]:sm:max-w-sm data-[side=right]:w-full data-[side=right]:sm:max-w-lg",
-          className
-        )}
-        {...props}
+      <SheetPrimitive.Viewport
+        data-slot="sheet-viewport"
+        className="fixed inset-0 z-50"
       >
-        {children}
-        {showCloseButton && (
-          <SheetPrimitive.Close
-            data-slot="sheet-close"
-            render={
-              <Button
-                variant="outline"
-                className="absolute top-4 right-gutter"
-                size="icon-sm"
-              />
-            }
-          >
-            <XIcon
+        <SheetPrimitive.Popup
+          data-slot="sheet-content"
+          data-side={side}
+          className={cn(
+            // Во время свайпа шторка идёт за пальцем без задержки, на отпускании доезжает с анимацией
+            "fixed z-50 flex flex-col border-foreground/80 bg-popover bg-clip-padding text-sm text-popover-foreground outline-none transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform data-swiping:duration-0 data-ending-style:duration-[calc(var(--drawer-swipe-strength,1)*300ms)]",
+            "data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:mx-auto data-[side=bottom]:h-auto data-[side=bottom]:max-h-[88svh] data-[side=bottom]:max-w-[440px] data-[side=bottom]:border-t-2 data-[side=bottom]:pb-[env(safe-area-inset-bottom)] data-[side=bottom]:transform-[translate3d(0,var(--drawer-swipe-movement-y,0px),0)] data-[side=bottom]:data-starting-style:transform-[translate3d(0,100%,0)] data-[side=bottom]:data-ending-style:transform-[translate3d(0,100%,0)]",
+            "data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:rounded-b-card data-[side=top]:transform-[translate3d(0,var(--drawer-swipe-movement-y,0px),0)] data-[side=top]:data-starting-style:transform-[translate3d(0,-100%,0)] data-[side=top]:data-ending-style:transform-[translate3d(0,-100%,0)]",
+            "data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:rounded-r-card data-[side=left]:sm:max-w-sm data-[side=left]:transform-[translate3d(var(--drawer-swipe-movement-x,0px),0,0)] data-[side=left]:data-starting-style:transform-[translate3d(-100%,0,0)] data-[side=left]:data-ending-style:transform-[translate3d(-100%,0,0)]",
+            "data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-full data-[side=right]:rounded-l-card data-[side=right]:sm:max-w-lg data-[side=right]:transform-[translate3d(var(--drawer-swipe-movement-x,0px),0,0)] data-[side=right]:data-starting-style:transform-[translate3d(100%,0,0)] data-[side=right]:data-ending-style:transform-[translate3d(100%,0,0)]",
+            className
+          )}
+          {...props}
+        >
+          {side === "bottom" && (
+            // Ручка подсказывает, что шторку можно смахнуть вниз; тянуть можно за любое место
+            <div
+              data-slot="sheet-handle"
+              aria-hidden="true"
+              className="absolute top-1.5 left-1/2 h-1.5 w-12 -translate-x-1/2 rounded-full bg-muted-foreground/40"
             />
-            <span className="sr-only">Закрыть</span>
-          </SheetPrimitive.Close>
-        )}
-      </SheetPrimitive.Popup>
+          )}
+          {children}
+          {showCloseButton && (
+            <SheetPrimitive.Close
+              data-slot="sheet-close"
+              render={
+                <Button
+                  variant="outline"
+                  className="absolute top-4 right-gutter"
+                  size="icon-sm"
+                />
+              }
+            >
+              <XIcon
+              />
+              <span className="sr-only">Закрыть</span>
+            </SheetPrimitive.Close>
+          )}
+        </SheetPrimitive.Popup>
+      </SheetPrimitive.Viewport>
     </SheetPortal>
   )
 }

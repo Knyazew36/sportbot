@@ -525,7 +525,7 @@ const UiKitScreen = () => {
             open={sheetOpen}
             onOpenChange={setSheetOpen}
           >
-            <SheetContent side='bottom'>
+            <SheetContent>
               <SheetHeader>
                 <SheetTitle>Шторка</SheetTitle>
                 <SheetDescription>Снизу у большого пальца: списки, выбор, короткие формы.</SheetDescription>

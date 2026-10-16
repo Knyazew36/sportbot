@@ -17,7 +17,7 @@ export const ComplexSheet = ({ complex, onClose }: ComplexSheetProps) => {
       open={complex !== null}
       onOpenChange={open => !open && onClose()}
     >
-      <SheetContent side='bottom'>
+      <SheetContent>
         {c && complex && (
           <>
             <SheetHeader>

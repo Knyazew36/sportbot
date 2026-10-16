@@ -133,7 +133,7 @@ const OtherComplexSheet = ({
     open={open}
     onOpenChange={onOpenChange}
   >
-    <SheetContent side='bottom'>
+    <SheetContent>
       <SheetHeader>
         <SheetTitle>Другой комплекс</SheetTitle>
         <SheetDescription>{activeProgram.title}. Очередь продолжится с выбранного.</SheetDescription>

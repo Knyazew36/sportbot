@@ -13,6 +13,9 @@ import { ROUTES } from '@/shared/config/paths'
 
 export type NavItem = { label: string; to: string; icon: LucideIcon; adminOnly?: boolean }
 
+/** Число на пункте меню по его `to`; ноль не показываем */
+export type NavBadges = Partial<Record<string, number>>
+
 export type ShellNav = {
   items: NavItem[]
   /** Экраны без нижнего меню */

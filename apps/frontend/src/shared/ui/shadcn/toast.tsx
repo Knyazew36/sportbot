@@ -20,8 +20,9 @@ function ToastViewport({ className, ...props }: ToastPrimitive.Viewport.Props) {
     <ToastPrimitive.Viewport
       data-slot="toast-viewport"
       className={cn(
-        // Сверху: снизу тост закрывают липкая кнопка экрана и меню
-        "pointer-events-none fixed inset-x-4 top-[max(1rem,env(safe-area-inset-top))] z-100 mx-auto w-auto max-w-sm outline-none",
+        // Сверху: снизу тост закрывают липкая кнопка экрана и меню.
+        // В полноэкранном Telegram опускаем под его «Закрыть» и меню (--sb-top-inset), иначе тост ляжет на них
+        "pointer-events-none fixed inset-x-4 top-[max(1rem,env(safe-area-inset-top),calc(var(--sb-top-inset)+0.5rem))] z-100 mx-auto w-auto max-w-sm outline-none",
         className
       )}
       {...props}

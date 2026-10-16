@@ -86,7 +86,7 @@ export const EditSetSheet = ({ set, onClose }: { set: WorkoutSet | null; onClose
     open={set != null}
     onOpenChange={open => !open && onClose()}
   >
-    <SheetContent side='bottom'>
+    <SheetContent>
       <SheetHeader>
         <SheetTitle>Подход {set?.number}</SheetTitle>
         <SheetDescription>Исправь вес или повторы. Пустой вес — свой вес.</SheetDescription>

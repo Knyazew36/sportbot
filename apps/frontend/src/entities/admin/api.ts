@@ -48,12 +48,13 @@ export const adminKeys = {
   users: (search: string) => ['admin', 'users', search] as const,
 }
 
-/** Счётчики на вкладках: заявки и жалобы ждут реакции */
-export const useAdminCounters = () =>
+/** Счётчики на вкладках и в нижнем меню: заявки и жалобы ждут реакции */
+export const useAdminCounters = ({ enabled = true }: { enabled?: boolean } = {}) =>
   useQuery({
     queryKey: adminKeys.counters,
     queryFn: () => adminControllerCounters(),
     staleTime: 0,
+    enabled,
   })
 
 // ── Модерация ───────────────────────────────────────────────────────────────

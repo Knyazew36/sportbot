@@ -137,7 +137,7 @@ const EditSetSheet = ({ set, onClose }: { set: WorkoutSet | null; onClose: () =>
     open={set != null}
     onOpenChange={open => !open && onClose()}
   >
-    <SheetContent side='bottom'>
+    <SheetContent>
       <SheetHeader>
         <SheetTitle>Подход {set?.n}</SheetTitle>
         <SheetDescription>Исправь вес или повторы.</SheetDescription>

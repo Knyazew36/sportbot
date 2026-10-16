@@ -42,16 +42,21 @@ export const useMessengerTheme = () => {
     return onMessengerThemeChange(sync)
   }, [setTheme])
 
-  // Окно мессенджера в цвет бумаги приложения. Цвет берём из CSS, чтобы палитра жила в одном месте (global.css);
-  // кадр ждём, потому что next-themes вешает класс .dark в своём эффекте — он может отработать позже нашего
   useEffect(() => {
     if (!resolvedTheme) return
-    const frame = requestAnimationFrame(() => {
-      const paper = getComputedStyle(document.documentElement).getPropertyValue('--sb-paper').trim()
-      if (paper) paintMessengerChrome(paper)
-    })
-    return () => cancelAnimationFrame(frame)
+    return repaintMessengerChrome()
   }, [resolvedTheme])
+}
+
+// Окно мессенджера в цвет бумаги приложения. Цвет берём из CSS, чтобы палитра жила в одном месте (global.css);
+// кадр ждём, потому что next-themes вешает класс .dark в своём эффекте — он может отработать позже нашего
+/** Перекрасить шапку и фон мессенджера под текущую бумагу. Возвращает отмену */
+export const repaintMessengerChrome = () => {
+  const frame = requestAnimationFrame(() => {
+    const paper = getComputedStyle(document.documentElement).getPropertyValue('--sb-paper').trim()
+    if (paper) paintMessengerChrome(paper)
+  })
+  return () => cancelAnimationFrame(frame)
 }
 
 /** Выбор темы для профиля: применяется сразу и запоминается на устройстве */

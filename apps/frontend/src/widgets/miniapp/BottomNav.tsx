@@ -3,10 +3,10 @@ import { NavLink } from 'react-router'
 import { cn } from '@/shared/lib/utils'
 import { haptic } from '@/shared/miniapp'
 
-import type { NavItem } from './nav'
+import type { NavBadges, NavItem } from './nav'
 
 // Нижнее меню: активный раздел отмечен отрезком беговой дорожки сверху. У администратора шестой пункт
-export const BottomNav = ({ nav, isAdmin }: { nav: NavItem[]; isAdmin: boolean }) => {
+export const BottomNav = ({ nav, isAdmin, badges }: { nav: NavItem[]; isAdmin: boolean; badges?: NavBadges }) => {
   const items = nav.filter(item => isAdmin || !item.adminOnly)
   return (
     <nav
@@ -31,30 +31,43 @@ export const BottomNav = ({ nav, isAdmin }: { nav: NavItem[]; isAdmin: boolean }
             )
           }
         >
-          {({ isActive }) => (
-            <>
-              <span
-                className={cn(
-                  'bg-primary absolute -top-[1.5px] h-[3px] rounded-full transition-all duration-300',
-                  isActive ? 'w-10' : 'w-0',
-                )}
-              />
-              <item.icon
-                className='size-[22px]'
-                strokeWidth={isActive ? 2.2 : 1.6}
-                aria-hidden
-              />
-              {/* В шесть колонок «Справочник» на 320px помещается только мельче */}
-              <span
-                className={cn(
-                  'leading-none whitespace-nowrap',
-                  items.length > 5 ? 'text-[min(10.5px,2.75vw)]' : 'text-[min(10.5px,3.1vw)]',
-                )}
-              >
-                {item.label}
-              </span>
-            </>
-          )}
+          {({ isActive }) => {
+            const badge = badges?.[item.to]
+            return (
+              <>
+                <span
+                  className={cn(
+                    'bg-primary absolute -top-[1.5px] h-[3px] rounded-full transition-all duration-300',
+                    isActive ? 'w-10' : 'w-0',
+                  )}
+                />
+                <span className='relative'>
+                  <item.icon
+                    className='size-[22px]'
+                    strokeWidth={isActive ? 2.2 : 1.6}
+                    aria-hidden
+                  />
+                  {!!badge && (
+                    <span
+                      aria-label={`ждут: ${badge}`}
+                      className='bg-primary text-primary-foreground border-background absolute -top-1.5 left-[calc(100%-8px)] flex h-[18px] min-w-[18px] items-center justify-center rounded-full border-2 px-1 text-[10px] leading-none font-semibold tabular-nums'
+                    >
+                      {badge > 99 ? '99+' : badge}
+                    </span>
+                  )}
+                </span>
+                {/* В шесть колонок «Справочник» на 320px помещается только мельче */}
+                <span
+                  className={cn(
+                    'leading-none whitespace-nowrap',
+                    items.length > 5 ? 'text-[min(10.5px,2.75vw)]' : 'text-[min(10.5px,3.1vw)]',
+                  )}
+                >
+                  {item.label}
+                </span>
+              </>
+            )
+          }}
         </NavLink>
       ))}
     </nav>
