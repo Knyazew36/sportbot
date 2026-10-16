@@ -8,7 +8,7 @@ import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 type SetListProps = {
   item: WorkoutItem
   onEdit: (set: WorkoutSet) => void
-  /** Идущая тренировка: строка «вводим внизу» под панель ввода. В прошедшей подход добавляется формой под списком */
+  /** Идущая тренировка: подсказка, с чего начать. В прошедшей подход добавляется формой под списком */
   live?: boolean
 }
 
@@ -58,25 +58,6 @@ export const SetList = ({ item, onEdit, live = true }: SetListProps) => (
             </Button>
           </li>
         ))}
-        {/* Следующий подход — тот, что сейчас вводится в панели внизу */}
-        {live && (
-          <li className='border-primary bg-accent -mx-2 grid grid-cols-[32px_1fr] items-center border-b-[1.5px] px-2 py-3'>
-            <Poster
-              as='span'
-              size='sm'
-              tone='primary'
-            >
-              {item.sets.length + 1}
-            </Poster>
-            <Text
-              as='span'
-              size='sm'
-              tone='primary'
-            >
-              вводим внизу ↓
-            </Text>
-          </li>
-        )}
       </ol>
     ) : (
       <Text
@@ -84,7 +65,7 @@ export const SetList = ({ item, onEdit, live = true }: SetListProps) => (
         tone='muted'
         className='py-4'
       >
-        {live ? 'Подходов ещё нет — первый вводится внизу.' : 'Подходов не записано.'}
+        {live ? 'Подходов ещё нет — жми «Начать подход».' : 'Подходов не записано.'}
       </Text>
     )}
   </Rise>

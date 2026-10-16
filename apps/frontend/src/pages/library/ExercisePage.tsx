@@ -1,13 +1,13 @@
 import { CirclePlayIcon, PencilLineIcon, PlusIcon, TriangleAlertIcon, XIcon } from 'lucide-react'
-import { useNavigate, useParams, useSearchParams } from 'react-router'
+import { useParams, useSearchParams } from 'react-router'
 
 import { useState } from 'react'
 
 import { EQUIPMENT_LABEL, splitTechnique, useCatalogExercise } from '@/entities/catalog'
 import { useLimitations } from '@/entities/limitation'
-import { complexLetter, useActiveProgram, useAddComplexExercises, useProgram } from '@/entities/program'
+import { complexLetter, useActiveProgram, useAddComplexExercises } from '@/entities/program'
 import { toAssetUrl } from '@/shared/api'
-import { buildPath, ROUTES } from '@/shared/config/paths'
+import { ROUTES } from '@/shared/config/paths'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { CatalogImage } from '@/shared/ui/kit/CatalogImage'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
@@ -23,22 +23,14 @@ import { AddToComplexSheet } from '@/widgets/catalog/AddToComplexSheet'
 import { ExerciseEditSheet } from '@/widgets/catalog/ExerciseEditSheet'
 
 // Карточка упражнения (frontend-tz, 11.2). Открывается и из справочника, и кнопкой «Техника» на тренировке —
-// тогда ?from= возвращает туда же. Из подбора в комплекс приходят ещё ?program=&complex=: кнопка сразу
-// добавляет в этот комплекс и возвращает на его страницу
+// тогда ?from= возвращает туда же
 const ExercisePage = () => {
   const exerciseId = Number(useParams().exerciseId)
   const [search] = useSearchParams()
-  const navigate = useNavigate()
   const back = search.get('from') ?? ROUTES.LIBRARY
-  const target = search.has('complex')
-    ? { programId: Number(search.get('program')), complexId: Number(search.get('complex')) }
-    : undefined
   const exercise = useCatalogExercise(exerciseId)
   const limitations = useLimitations()
   const program = useActiveProgram()
-  const targetProgram = useProgram(target?.programId)
-  const targetComplex = targetProgram.data?.complexes.find(c => c.id === target?.complexId)
-  const inTarget = targetComplex?.exercises.some(x => x.exerciseId === exerciseId) ?? false
   const add = useAddComplexExercises()
   const [addOpen, setAddOpen] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
@@ -64,36 +56,17 @@ const ExercisePage = () => {
             >
               <PencilLineIcon className='size-6' />
             </Button>
-            {target ? (
-              <Button
-                size='xl'
-                disabled={!targetComplex || inTarget || add.isPending}
-                onClick={() =>
-                  add.mutate(
-                    { complexId: target.complexId, exerciseIds: [exerciseId] },
-                    { onSuccess: () => navigate(buildPath(ROUTES.PROGRAM_COMPLEX, target), { replace: true }) },
-                  )
-                }
-              >
-                <PlusIcon
-                  className='size-6'
-                  strokeWidth={2.5}
-                />
-                {inTarget ? 'Уже в комплексе' : 'В комплекс'}
-              </Button>
-            ) : (
-              <Button
-                size='xl'
-                disabled={!program.data}
-                onClick={() => setAddOpen(true)}
-              >
-                <PlusIcon
-                  className='size-6'
-                  strokeWidth={2.5}
-                />
-                {program.data ? 'В комплекс' : 'Нет активной программы'}
-              </Button>
-            )}
+            <Button
+              size='xl'
+              disabled={!program.data}
+              onClick={() => setAddOpen(true)}
+            >
+              <PlusIcon
+                className='size-6'
+                strokeWidth={2.5}
+              />
+              {program.data ? 'В комплекс' : 'Нет активной программы'}
+            </Button>
           </StickyFooter>
         )
       }
@@ -219,7 +192,7 @@ const ExercisePage = () => {
                 </ScreenSection>
               )}
 
-              {!target && program.data && (
+              {program.data && (
                 <AddToComplexSheet
                   open={addOpen}
                   onOpenChange={setAddOpen}

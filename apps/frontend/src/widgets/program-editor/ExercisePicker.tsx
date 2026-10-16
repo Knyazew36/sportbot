@@ -1,5 +1,5 @@
 import { CheckIcon, PlusIcon } from 'lucide-react'
-import { useLocation, useSearchParams } from 'react-router'
+import { useSearchParams } from 'react-router'
 
 import { useEffect, useState } from 'react'
 
@@ -25,13 +25,15 @@ import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { CatalogFilters } from '@/widgets/catalog/CatalogFilters'
 import { CatalogRow } from '@/widgets/catalog/CatalogRow'
 import { type CreatedExercise, ExerciseCreateSheet } from '@/widgets/catalog/ExerciseCreateSheet'
+import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet'
 
 const ALL = FILTER_ALL
 
 // Подбор упражнений в комплекс программы или шаблона: поиск и фильтры, как в справочнике (frontend-tz, 10.3).
 // Свои черновики приходят вместе со справочником с пометкой «не проверено».
 // Отдельная страница, а не шторка: список длинный, клавиатура съедает половину экрана.
-// Поиск, фильтры и выбор живут в адресе: ушёл в карточку упражнения и вернулся «назад» — всё на месте
+// Поиск, фильтры и выбор живут в адресе: перезагрузка или «назад» из создания не сбрасывают подбор.
+// Тап по строке открывает карточку в шторке, не уводя со страницы подбора
 type ExercisePickerProps = {
   /** Комплекс, куда добавляем: уже стоящие в нём упражнения выключены */
   complex: ProgramComplex | undefined
@@ -39,13 +41,10 @@ type ExercisePickerProps = {
   back: string
   adding: boolean
   onAdd: (exerciseIds: number[]) => void
-  /** Карточка упражнения; `from` — адрес подбора со всем состоянием, чтобы вернуться сюда же */
-  exerciseHref?: (exerciseId: number, from: string) => string
 }
 
-export const ExercisePicker = ({ complex, back, adding, onAdd, exerciseHref }: ExercisePickerProps) => {
+export const ExercisePicker = ({ complex, back, adding, onAdd }: ExercisePickerProps) => {
   const muscles = useMuscles()
-  const location = useLocation()
   const [params, setParams] = useSearchParams()
 
   // Поле ввода — своё состояние: значение из адреса меняется переходом и сбивало бы каретку
@@ -54,6 +53,7 @@ export const ExercisePicker = ({ complex, back, adding, onAdd, exerciseHref }: E
   const equipment = (params.get('equipment') as Equipment | null) ?? ALL
   const picked = params.get('picked')?.split(',').map(Number) ?? []
   const [createOpen, setCreateOpen] = useState(false)
+  const [preview, setPreview] = useState<{ id: number; name: string } | null>(null)
 
   // replace: история не копит шаг на каждую букву поиска
   const patch = (next: Record<string, string | undefined>) =>
@@ -87,7 +87,6 @@ export const ExercisePicker = ({ complex, back, adding, onAdd, exerciseHref }: E
     setQuery('')
     patch({ muscle: undefined, equipment: undefined })
   }
-  const from = location.pathname + location.search
 
   // Нужного нет в справочнике — создаём своё и сразу добавляем в комплекс вместе с уже выбранными
   const addCreated = (created: CreatedExercise) => {
@@ -175,7 +174,7 @@ export const ExercisePicker = ({ complex, back, adding, onAdd, exerciseHref }: E
                         .filter(Boolean)
                         .join(' · ')}
                       draft={e.draft}
-                      to={exerciseHref?.(e.id, from)}
+                      onClick={() => setPreview(e)}
                       selected={on}
                       trail={
                         <Button
@@ -197,6 +196,37 @@ export const ExercisePicker = ({ complex, back, adding, onAdd, exerciseHref }: E
           </Rise>
         )}
       </QueryScreen>
+
+      <ExerciseSheet
+        exercise={preview}
+        onOpenChange={open => !open && setPreview(null)}
+        action={
+          preview &&
+          (present.has(preview.id) ? (
+            <Button
+              size='lg'
+              variant='outline'
+              className='w-full'
+              disabled
+            >
+              <CheckIcon strokeWidth={3} />
+              Уже в комплексе
+            </Button>
+          ) : (
+            <Button
+              size='lg'
+              variant={picked.includes(preview.id) ? 'outline' : 'default'}
+              className='w-full'
+              onClick={() => {
+                toggle(preview.id)
+                setPreview(null)
+              }}
+            >
+              {picked.includes(preview.id) ? 'Убрать из выбора' : 'Выбрать'}
+            </Button>
+          ))
+        }
+      />
 
       <ExerciseCreateSheet
         open={createOpen}

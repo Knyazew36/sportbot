@@ -1,4 +1,3 @@
-import { ArrowRightIcon } from 'lucide-react'
 import { Navigate, useNavigate, useSearchParams } from 'react-router'
 
 import { useEffect, useRef, useState } from 'react'
@@ -7,7 +6,6 @@ import {
   useCurrentWorkout,
   useDiscardWorkout,
   useFinishWorkout,
-  useMarkDone,
   useStartWorkout,
   type Workout,
   type WorkoutSet,
@@ -20,7 +18,6 @@ import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
 import { PageLoader } from '@/shared/ui/kit/PageLoader'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
-import { Rise } from '@/shared/ui/kit/Reveal'
 import { Screen } from '@/shared/ui/kit/Screen'
 import { TopBar } from '@/shared/ui/kit/ScreenHeader'
 import { ScreenState } from '@/shared/ui/kit/ScreenState'
@@ -29,21 +26,24 @@ import { EditSetSheet } from '@/widgets/workout/EditSetSheet'
 import { SetList } from '@/widgets/workout/SetList'
 
 import { ExerciseCard } from './components/ExerciseCard'
-import { SetInputPanel } from './components/SetInputPanel'
+import { FocusRest } from './components/FocusRest'
+import { FocusSet } from './components/FocusSet'
+import { SetEntrySheet } from './components/SetEntrySheet'
+import { type NextMode, WorkoutActions } from './components/WorkoutActions'
 import { WorkoutLanes } from './components/WorkoutLanes'
 import { pluralize } from '@front-cmdt/utils/pluralize'
 import { EXERCISE_OF_FORMS } from '@/shared/lib/plural-forms'
 
 const minutesSince = (iso: string | Date) => Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 60_000))
 
-// Экран идущей тренировки (frontend-tz, 8): упражнения, ввод подходов, секундомер подхода и таймер отдыха, завершение
+// Экран идущей тренировки (frontend-tz, 8): спокойный экран упражнения, а подход и отдых — на весь экран поверх него
 const WorkoutView = ({ workout }: { workout: Workout }) => {
   const navigate = useNavigate()
-  const markDone = useMarkDone()
   const finish = useFinishWorkout()
   const discard = useDiscardWorkout()
   const [pickedId, setPickedId] = useState<number | null>(null)
   const [editing, setEditing] = useState<WorkoutSet | null>(null)
+  const [entryOpen, setEntryOpen] = useState(false)
   const timer = useDeadlineTimer({
     storageKey: `rest-timer-${workout.id}`,
     onEnd: () => timerEndSignal(workout.settings),
@@ -54,6 +54,7 @@ const WorkoutView = ({ workout }: { workout: Workout }) => {
   const fallback = items.find(e => !e.done) ?? items[0]
   const item = items.find(e => e.id === pickedId) ?? fallback
   const doneCount = items.filter(e => e.done).length
+  const allDone = items.length > 0 && doneCount === items.length
 
   if (!item)
     return (
@@ -83,14 +84,20 @@ const WorkoutView = ({ workout }: { workout: Workout }) => {
     )
 
   const index = items.indexOf(item)
+  const { settings } = workout
+  const setNumber = item.sets.length + 1
 
-  // «Упражнение сделано» — к следующему несделанному по порядку, иначе к первому несделанному
-  const onDone = () =>
-    markDone.mutateAsync(item.id).then(updated => {
-      const rest = updated.exercises.filter(e => !e.done)
-      const next = rest.find(e => updated.exercises.indexOf(e) > index) ?? rest[0]
-      if (next) setPickedId(next.id)
-    })
+  // Дальше — следующее несделанное по порядку, иначе первое несделанное. Пропуск ничего не отмечает:
+  // упражнение без подходов остаётся несделанным и в итогах
+  const others = items.filter((e, i) => i !== index && !e.done)
+  const nextId = (others.find(e => items.indexOf(e) > index) ?? others[0])?.id
+  const nextMode: NextMode | null = others.length
+    ? item.sets.length
+      ? 'next'
+      : 'skip'
+    : doneCount
+      ? 'finish'
+      : null
 
   const onFinish = () =>
     finish.mutateAsync(workout.id).then(summary => {
@@ -105,6 +112,22 @@ const WorkoutView = ({ workout }: { workout: Workout }) => {
       stopwatch.stop()
       navigate(ROUTES.TODAY, { replace: true })
     })
+
+  const onNext = () => {
+    if (nextMode === 'finish') void onFinish()
+    else if (nextId) setPickedId(nextId)
+  }
+
+  const startSet = () => {
+    timer.stop()
+    stopwatch.start()
+  }
+
+  const onSaved = () => {
+    setEntryOpen(false)
+    stopwatch.stop()
+    if (settings.showRestTimer && settings.restAutoStart) timer.start(settings.restSeconds)
+  }
 
   return (
     <div className='flex min-h-svh flex-1 flex-col'>
@@ -151,39 +174,55 @@ const WorkoutView = ({ workout }: { workout: Workout }) => {
             />
           </>
         }
+        footer={
+          <WorkoutActions
+            planDone={item.plannedSets > 0 && item.sets.length >= item.plannedSets}
+            next={allDone ? 'finish' : nextMode}
+            nextPending={finish.isPending}
+            // Отдых сам стартует после подхода — тогда ручная кнопка лишняя
+            restSeconds={
+              settings.showRestTimer && !settings.restAutoStart && item.sets.length ? settings.restSeconds : null
+            }
+            onStartSet={startSet}
+            onManualSet={() => setEntryOpen(true)}
+            onRest={() => timer.start(settings.restSeconds)}
+            onNext={onNext}
+          />
+        }
         className='gap-6 px-gutter'
       >
-        <ExerciseCard
-          item={item}
-          index={index}
-        />
+        <ExerciseCard item={item} />
         <SetList
           item={item}
           onEdit={setEditing}
         />
-        <Rise>
-          <Button
-            variant='ink'
-            size='lg'
-            className='w-full justify-between'
-            onClick={() => void onDone()}
-            disabled={item.done || markDone.isPending}
-          >
-            Упражнение сделано
-            <ArrowRightIcon
-              className='size-6'
-              strokeWidth={2.5}
-            />
-          </Button>
-        </Rise>
       </Screen>
-      <SetInputPanel
-        key={`input-${item.id}`}
+      {stopwatch.running ? (
+        <FocusSet
+          stopwatch={stopwatch}
+          title={item.name}
+          setNumber={setNumber}
+          plannedSets={item.plannedSets}
+          onDone={() => setEntryOpen(true)}
+        />
+      ) : (
+        settings.showRestTimer &&
+        timer.status !== 'idle' && (
+          <FocusRest
+            timer={timer}
+            title={item.name}
+            nextSet={setNumber}
+            onToSet={startSet}
+            onClose={timer.stop}
+          />
+        )
+      )}
+      <SetEntrySheet
+        open={entryOpen}
+        onClose={() => setEntryOpen(false)}
         item={item}
-        settings={workout.settings}
-        timer={timer}
-        stopwatch={stopwatch}
         onSubmitStart={() => setPickedId(item.id)}
+        onSaved={onSaved}
       />
       <EditSetSheet
         set={editing}

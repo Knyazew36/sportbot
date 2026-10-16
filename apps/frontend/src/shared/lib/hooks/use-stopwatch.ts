@@ -1,20 +1,27 @@
 import { useEffect, useState } from 'react'
 
-const read = (key?: string): number | null => {
+/** pausedAt — момент паузы; на продолжении startedAt сдвигается на длину паузы, и она не идёт в зачёт */
+type StopwatchState = { startedAt: number; pausedAt: number | null } | null
+
+const read = (key?: string): StopwatchState => {
   if (!key) return null
   try {
     const raw = localStorage.getItem(key)
-    return raw ? Number(raw) || null : null
+    if (!raw) return null
+    const parsed: unknown = JSON.parse(raw)
+    // Старый формат — голое число startedAt: идущий подход не теряется после обновления
+    if (typeof parsed === 'number') return parsed ? { startedAt: parsed, pausedAt: null } : null
+    return parsed as StopwatchState
   } catch {
     return null
   }
 }
 
-const write = (key: string | undefined, startedAt: number | null) => {
+const write = (key: string | undefined, state: StopwatchState) => {
   if (!key) return
   try {
-    if (startedAt === null) localStorage.removeItem(key)
-    else localStorage.setItem(key, String(startedAt))
+    if (state === null) localStorage.removeItem(key)
+    else localStorage.setItem(key, JSON.stringify(state))
   } catch {
     // хранилище недоступно — секундомер живёт до перезагрузки страницы
   }
@@ -22,28 +29,36 @@ const write = (key: string | undefined, startedAt: number | null) => {
 
 /**
  * Секундомер от момента старта, а не по тикам: свёрнутое приложение или погасший экран отсчёт не сбивают.
- * С storageKey переживает перезагрузку
+ * С storageKey переживает перезагрузку, в том числе на паузе
  */
 export const useStopwatch = ({ storageKey }: { storageKey?: string } = {}) => {
-  const [startedAt, setStartedAt] = useState<number | null>(() => read(storageKey))
+  const [state, setState] = useState<StopwatchState>(() => read(storageKey))
   const [now, setNow] = useState(() => Date.now())
+  const ticking = state !== null && state.pausedAt === null
 
   useEffect(() => {
-    if (startedAt === null) return
+    if (!ticking) return
     const id = window.setInterval(() => setNow(Date.now()), 250)
     return () => window.clearInterval(id)
-  }, [startedAt])
+  }, [ticking])
 
-  const update = (next: number | null) => {
-    setStartedAt(next)
+  const update = (next: StopwatchState) => {
+    setState(next)
     setNow(Date.now())
     write(storageKey, next)
   }
 
   return {
-    running: startedAt !== null,
-    elapsed: startedAt === null ? 0 : Math.max(0, Math.floor((now - startedAt) / 1000)),
-    start: () => update(Date.now()),
+    running: state !== null,
+    paused: state?.pausedAt != null,
+    elapsed: state === null ? 0 : Math.max(0, Math.floor(((state.pausedAt ?? now) - state.startedAt) / 1000)),
+    start: () => update({ startedAt: Date.now(), pausedAt: null }),
+    pause: () => {
+      if (state && state.pausedAt === null) update({ ...state, pausedAt: Date.now() })
+    },
+    resume: () => {
+      if (state?.pausedAt != null) update({ startedAt: state.startedAt + Date.now() - state.pausedAt, pausedAt: null })
+    },
     stop: () => update(null),
   }
 }

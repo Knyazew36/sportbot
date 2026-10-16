@@ -88,6 +88,22 @@ const useFitText = (enabled: boolean, content: unknown) => {
   return ref
 }
 
+// В Oswald нет табличных цифр (tnum): tabular-nums не действует, «1» уже «0», и идущее время дёргается.
+// Каждая цифра — в ячейке шириной самой широкой. Для таймеров подхода и отдыха
+export const Digits = ({ children }: { children: string }) =>
+  children.split(/(\d)/).map((part, i) =>
+    /\d/.test(part) ? (
+      <span
+        key={i}
+        className='inline-block w-[0.56em] text-center'
+      >
+        {part}
+      </span>
+    ) : (
+      part
+    ),
+  )
+
 type PosterProps = BaseProps & {
   size?: PosterSize
   tone?: Tone

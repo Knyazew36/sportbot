@@ -17,7 +17,7 @@ import { WEEKDAYS } from '@/shared/lib/weekdays'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Segmented } from '@/shared/ui/kit/Segmented'
-import { SelectField } from '@/shared/ui/kit/SelectField'
+import { SheetSelectField } from '@/shared/ui/kit/SheetSelectField'
 import { TextField } from '@/shared/ui/kit/TextField'
 import { Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
@@ -150,11 +150,11 @@ const TimezoneForm = ({ profile }: { profile: Profile }) => {
           control={control}
           name='zone'
           render={({ field }) => (
-            <SelectField
+            <SheetSelectField
               options={(cities.data ?? []).map(c => ({ value: c.zone, label: c.title }))}
               value={field.value ?? ''}
               onValueChange={field.onChange}
-              ariaLabel='Город'
+              title='Город'
             />
           )}
         />
