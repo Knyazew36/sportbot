@@ -113,12 +113,12 @@ const CooldownView = ({ cooldown }: { cooldown: Cooldown }) => {
             <ButtonLink
               to={ROUTES.TODAY}
               variant='outline'
-              size='xl'
+              size='lg'
             >
               Пропустить
             </ButtonLink>
             <Button
-              size='xl'
+              size='lg'
               onClick={() => go(0)}
             >
               Начать
@@ -184,13 +184,13 @@ const CooldownView = ({ cooldown }: { cooldown: Cooldown }) => {
               <>
                 <Button
                   variant='outline'
-                  size='xl'
+                  size='lg'
                   onClick={() => setPhase({ kind: 'done' })}
                 >
                   Нет
                 </Button>
                 <Button
-                  size='xl'
+                  size='lg'
                   onClick={() => go(cooldown.main.length)}
                 >
                   Да
@@ -199,7 +199,7 @@ const CooldownView = ({ cooldown }: { cooldown: Cooldown }) => {
             ) : (
               <ButtonLink
                 to={ROUTES.TODAY}
-                size='xl'
+                size='lg'
               >
                 На «Сегодня»
               </ButtonLink>

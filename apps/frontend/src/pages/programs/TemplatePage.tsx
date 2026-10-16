@@ -59,7 +59,7 @@ const TemplatePage = () => {
           <StickyFooter>
             <ButtonLink
               to={buildPath(ROUTES.PROGRAM, { programId: template.id })}
-              size='xl'
+              size='lg'
               className='w-full'
             >
               Открыть мою
@@ -79,7 +79,7 @@ const TemplatePage = () => {
               </ButtonLink>
             )}
             <Button
-              size={template.takenProgramId != null ? 'lg' : 'xl'}
+              size='lg'
               variant={template.takenProgramId != null ? 'outline' : 'default'}
               disabled={take.isPending}
               onClick={() =>

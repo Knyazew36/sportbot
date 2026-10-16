@@ -8,6 +8,8 @@ type RingProps = {
   track?: string
   bar?: string
   ticks?: boolean
+  /** Длительность перехода между значениями — под частоту обновления, иначе кольцо отстаёт от цифр */
+  transitionMs?: number
   className?: string
 }
 
@@ -19,6 +21,7 @@ export const Ring = ({
   track = 'var(--sb-rule)',
   bar = 'var(--sb-blue)',
   ticks = true,
+  transitionMs = 1000,
   className,
 }: RingProps) => {
   const r = size / 2 - stroke - 10
@@ -67,7 +70,8 @@ export const Ring = ({
         strokeWidth={stroke}
         strokeDasharray={c}
         strokeDashoffset={c * (1 - value)}
-        className='transition-[stroke-dashoffset] duration-1000 ease-linear'
+        className='transition-[stroke-dashoffset] ease-linear'
+        style={{ transitionDuration: `${transitionMs}ms` }}
       />
     </svg>
   )

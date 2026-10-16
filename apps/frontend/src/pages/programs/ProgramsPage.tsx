@@ -1,9 +1,9 @@
+import { pluralize } from '@front-cmdt/utils/pluralize'
 import { PlusIcon } from 'lucide-react'
 
 import { useState } from 'react'
 
 import { usePrograms } from '@/entities/program'
-import { pluralize } from '@front-cmdt/utils/pluralize'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Screen, StickyFooter } from '@/shared/ui/kit/Screen'
@@ -38,7 +38,7 @@ const ProgramsPage = () => {
       footer={
         <StickyFooter>
           <Button
-            size='xl'
+            size='lg'
             onClick={() => setNewOpen(true)}
           >
             Новая программа

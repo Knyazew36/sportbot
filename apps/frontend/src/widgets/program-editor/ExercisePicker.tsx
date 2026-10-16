@@ -129,7 +129,7 @@ export const ExercisePicker = ({ complex, back, adding, onAdd }: ExercisePickerP
       footer={
         <StickyFooter>
           <Button
-            size='xl'
+            size='lg'
             disabled={picked.length === 0 || adding}
             onClick={() => onAdd(picked)}
           >

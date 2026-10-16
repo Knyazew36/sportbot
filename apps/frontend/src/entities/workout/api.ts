@@ -84,11 +84,39 @@ export const useStartWorkout = () => {
   })
 }
 
+type CurrentWorkout = Awaited<ReturnType<typeof workoutControllerCurrent>>
+
+// Подход записывается оптимистично: в спортзале сеть медленная, и ждать ответа с трясущимися руками незачем
 export const useAddSet = () => {
+  const queryClient = useQueryClient()
   const apply = useApplyWorkout()
   return useMutation({
     mutationFn: (body: CreateWorkoutSetDto) => workoutControllerAddSet(body),
-    // Подход сразу появляется в списке, кнопка мигает галочкой, запускается таймер отдыха — тост лишний
+    // Подряд записанные подходы уходят по очереди: номер подхода сервер считает по уже сохранённым
+    scope: { id: 'workout-add-set' },
+    onMutate: async body => {
+      await queryClient.cancelQueries({ queryKey: workoutKeys.current })
+      const previous = queryClient.getQueryData<CurrentWorkout>(workoutKeys.current)
+      const workout = previous?.workout
+      if (workout) {
+        const exercises = workout.exercises.map(e =>
+          e.id === body.itemId
+            ? {
+                ...e,
+                done: true,
+                // Отрицательный id — подход ещё не сохранён, править его рано
+                sets: [...e.sets, { id: -Date.now(), number: e.sets.length + 1, weight: body.weight ?? 0, reps: body.reps }],
+              }
+            : e,
+        )
+        queryClient.setQueryData<CurrentWorkout>(workoutKeys.current, { ...previous, workout: { ...workout, exercises } })
+      }
+      return { previous }
+    },
+    onError: (_error, _body, context) => {
+      if (context?.previous) queryClient.setQueryData(workoutKeys.current, context.previous)
+    },
+    // Подход сразу появляется в списке и запускается таймер отдыха — тост лишний
     meta: { skipSuccessToast: true, inlineFieldErrors: true },
     onSuccess: apply,
   })

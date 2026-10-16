@@ -462,7 +462,7 @@ const TodayScreen = () => {
           <StickyFooter>
             <ButtonLink
               to={cta.to}
-              size='xl'
+              size='lg'
               className='w-full justify-between'
             >
               {cta.label}

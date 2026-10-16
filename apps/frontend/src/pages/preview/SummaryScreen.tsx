@@ -35,7 +35,7 @@ const SummaryScreen = () => (
         </Lead>
         <ButtonLink
           to={ROUTES.PREVIEW_COOLDOWN}
-          size='xl'
+          size='lg'
           className='w-full justify-between'
         >
           Заминка

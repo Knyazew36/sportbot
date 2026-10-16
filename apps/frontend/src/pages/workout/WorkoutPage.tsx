@@ -99,6 +99,9 @@ const WorkoutView = ({ workout }: { workout: Workout }) => {
       ? 'finish'
       : null
 
+  const forward = allDone ? 'finish' : nextMode
+  const planDone = item.plannedSets > 0 && item.sets.length >= item.plannedSets
+
   const onFinish = () =>
     finish.mutateAsync(workout.id).then(summary => {
       timer.stop()
@@ -114,7 +117,7 @@ const WorkoutView = ({ workout }: { workout: Workout }) => {
     })
 
   const onNext = () => {
-    if (nextMode === 'finish') void onFinish()
+    if (forward === 'finish') void onFinish()
     else if (nextId) setPickedId(nextId)
   }
 
@@ -176,8 +179,8 @@ const WorkoutView = ({ workout }: { workout: Workout }) => {
         }
         footer={
           <WorkoutActions
-            planDone={item.plannedSets > 0 && item.sets.length >= item.plannedSets}
-            next={allDone ? 'finish' : nextMode}
+            planDone={planDone}
+            next={forward}
             nextPending={finish.isPending}
             // Отдых сам стартует после подхода — тогда ручная кнопка лишняя
             restSeconds={
@@ -214,6 +217,12 @@ const WorkoutView = ({ workout }: { workout: Workout }) => {
             nextSet={setNumber}
             onToSet={startSet}
             onClose={timer.stop}
+            planDone={planDone}
+            next={forward}
+            onNext={() => {
+              timer.stop()
+              onNext()
+            }}
           />
         )
       )}
@@ -223,6 +232,7 @@ const WorkoutView = ({ workout }: { workout: Workout }) => {
         item={item}
         onSubmitStart={() => setPickedId(item.id)}
         onSaved={onSaved}
+        onFailed={() => setEntryOpen(true)}
       />
       <EditSetSheet
         set={editing}

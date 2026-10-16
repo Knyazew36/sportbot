@@ -81,7 +81,7 @@ const Wizard = ({ state }: { state: OnboardingState }) => {
         <StickyFooter>
           <Button
             variant='outline'
-            size='xl'
+            size='lg'
             disabled={step === 0 || pending}
             onClick={() => setStep(s => s - 1)}
           >
@@ -90,7 +90,7 @@ const Wizard = ({ state }: { state: OnboardingState }) => {
           <Button
             type='submit'
             form={FORM_ID}
-            size='xl'
+            size='lg'
             disabled={pending}
           >
             {last ? 'Начать' : 'Дальше'}

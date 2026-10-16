@@ -1,4 +1,4 @@
-import { PlayIcon, PlusIcon } from 'lucide-react'
+import { ArrowRightIcon, PlayIcon, PlusIcon } from 'lucide-react'
 
 import { formatSeconds, type useDeadlineTimer } from '@/shared/lib/hooks/use-deadline-timer'
 import { Ring } from '@/shared/ui/kit/Ring'
@@ -6,6 +6,7 @@ import { Digits, Eyebrow, Poster } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
 import { FocusShell } from './FocusShell'
+import { NEXT_LABEL, type NextMode } from './WorkoutActions'
 
 type FocusRestProps = {
   timer: ReturnType<typeof useDeadlineTimer>
@@ -13,28 +14,47 @@ type FocusRestProps = {
   nextSet: number
   /** Отдых закончен или пропущен — сразу следующий подход */
   onToSet: () => void
-  /** Подходов больше не будет — к экрану упражнения, где «Следующее упражнение» */
+  /** Подходов больше не будет — к экрану упражнения */
   onClose: () => void
+  /** План по подходам выполнен — главная кнопка ведёт дальше, а не в лишний подход */
+  planDone: boolean
+  next: NextMode | null
+  onNext: () => void
 }
 
 // Отдых между подходами (frontend-tz, 8.3): обратный отсчёт на весь экран, «+30 с», «К подходу»
-export const FocusRest = ({ timer, title, nextSet, onToSet, onClose }: FocusRestProps) => {
+export const FocusRest = ({ timer, title, nextSet, onToSet, onClose, planDone, next, onNext }: FocusRestProps) => {
   const over = timer.left <= 0
   return (
     <FocusShell
       title={title}
-      caption={over ? 'отдых закончился' : `отдых · до подхода ${nextSet}`}
+      caption={over ? 'отдых закончился' : planDone ? 'отдых · план выполнен' : `отдых · до подхода ${nextSet}`}
       actions={
         <>
-          <Button
-            variant={over ? 'success' : 'default'}
-            size='xl'
-            className='h-24 w-full'
-            onClick={onToSet}
-          >
-            <PlayIcon className='size-7' />
-            {over ? 'Начать подход' : 'К подходу'}
-          </Button>
+          {planDone ? (
+            <Button
+              variant={next === 'finish' ? 'success' : 'default'}
+              size='xl'
+              className='h-24 w-full'
+              onClick={next ? onNext : onClose}
+            >
+              {next ? NEXT_LABEL[next] : 'К упражнению'}
+              <ArrowRightIcon
+                className='size-7'
+                strokeWidth={2.5}
+              />
+            </Button>
+          ) : (
+            <Button
+              variant={over ? 'success' : 'default'}
+              size='xl'
+              className='h-24 w-full'
+              onClick={onToSet}
+            >
+              <PlayIcon className='size-7' />
+              {over ? 'Начать подход' : 'К подходу'}
+            </Button>
+          )}
           <div className='grid grid-cols-2 gap-3'>
             <Button
               variant='outline'
@@ -44,19 +64,30 @@ export const FocusRest = ({ timer, title, nextSet, onToSet, onClose }: FocusRest
               <PlusIcon strokeWidth={3} />
               30 с
             </Button>
-            <Button
-              variant='outline'
-              onClick={onClose}
-            >
-              К упражнению
-            </Button>
+            {planDone ? (
+              <Button
+                variant='outline'
+                onClick={onToSet}
+              >
+                <PlusIcon strokeWidth={3} />
+                Ещё подход
+              </Button>
+            ) : (
+              <Button
+                variant='outline'
+                onClick={onClose}
+              >
+                К упражнению
+              </Button>
+            )}
           </div>
         </>
       }
     >
       <div className='relative flex items-center justify-center'>
         <Ring
-          value={timer.total ? Math.max(timer.left, 0) / timer.total : 0}
+          value={timer.fraction}
+          transitionMs={250}
           size={300}
           stroke={6}
           track='color-mix(in oklab, var(--foreground) 14%, transparent)'

@@ -52,6 +52,8 @@ export const SetList = ({ item, onEdit, live = true }: SetListProps) => (
               variant='outline'
               size='icon-sm'
               onClick={() => onEdit(set)}
+              // Подход ещё летит на сервер — исправить можно, когда он сохранится
+              disabled={set.id < 0}
               aria-label={`Исправить подход ${set.number}`}
             >
               <PencilIcon />

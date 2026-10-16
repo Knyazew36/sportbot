@@ -31,7 +31,7 @@ export const FocusShell = ({ title, caption, children, actions }: FocusShellProp
       </Eyebrow>
     </div>
     <div className='relative flex flex-1 flex-col items-center justify-center gap-6 px-gutter'>{children}</div>
-    <div className='relative flex flex-col gap-3 px-gutter pb-[max(1.25rem,env(safe-area-inset-bottom))]'>
+    <div className='relative flex flex-col gap-3 px-gutter pb-[max(1.25rem,var(--sb-bottom-inset))]'>
       {actions}
     </div>
   </div>

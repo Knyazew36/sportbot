@@ -48,10 +48,14 @@ export const useStopwatch = ({ storageKey }: { storageKey?: string } = {}) => {
     write(storageKey, next)
   }
 
+  const elapsedMs = state === null ? 0 : Math.max(0, (state.pausedAt ?? now) - state.startedAt)
+
   return {
     running: state !== null,
     paused: state?.pausedAt != null,
-    elapsed: state === null ? 0 : Math.max(0, Math.floor(((state.pausedAt ?? now) - state.startedAt) / 1000)),
+    elapsed: Math.floor(elapsedMs / 1000),
+    /** Для плавного кольца: секунды целиком дают ему шаги */
+    elapsedMs,
     start: () => update({ startedAt: Date.now(), pausedAt: null }),
     pause: () => {
       if (state && state.pausedAt === null) update({ ...state, pausedAt: Date.now() })

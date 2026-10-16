@@ -143,7 +143,13 @@
     160px,
     calc(var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px))
   );
-  --sb-nav-h: calc(65.5px + max(0.5rem, env(safe-area-inset-bottom)));
+  /* Низ под системной навигацией: Android WebView Telegram не отдаёт env(safe-area-inset-bottom),
+     и при навигации кнопками «назад/домой» отступ под ними приходит только в --tg-*. Берём больший */
+  --sb-bottom-inset: max(
+    env(safe-area-inset-bottom),
+    min(120px, calc(var(--tg-safe-area-inset-bottom, 0px) + var(--tg-content-safe-area-inset-bottom, 0px)))
+  );
+  --sb-nav-h: calc(65.5px + max(0.5rem, var(--sb-bottom-inset)));
 
   --canvas: color-mix(in oklab, var(--sb-paper), var(--sb-ink) 4%);
   --paper: var(--sb-sheet);

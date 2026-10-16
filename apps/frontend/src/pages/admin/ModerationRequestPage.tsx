@@ -320,7 +320,7 @@ const RequestForm = ({ request }: { request: AdminRequest }) => {
           type='submit'
           form={FORM_ID}
           variant={outcome === 'reject' ? 'destructive' : 'default'}
-          size='xl'
+          size='lg'
           disabled={pending || request.outcome !== 'PENDING'}
         >
           {request.outcome !== 'PENDING' ? 'Заявка уже разобрана' : OUTCOMES.find(o => o.value === outcome)?.label}

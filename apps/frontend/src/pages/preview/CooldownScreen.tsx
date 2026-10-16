@@ -137,7 +137,7 @@ const CooldownScreen = () => {
           <StickyFooter>
             <ButtonLink
               to={ROUTES.PREVIEW_TODAY}
-              size='xl'
+              size='lg'
               className='w-full'
             >
               На «Сегодня»

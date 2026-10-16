@@ -52,7 +52,7 @@ export const MobileNav = () => {
     <>
       <nav
         aria-label='Основное меню'
-        className='rounded-pill bg-card/70 ring-foreground/5 dark:bg-card/60 fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-30 flex items-center gap-1 p-1.5 ring-1 backdrop-blur-glass backdrop-saturate-150 md:hidden'
+        className='rounded-pill bg-card/70 ring-foreground/5 dark:bg-card/60 fixed inset-x-3 bottom-[max(0.75rem,var(--sb-bottom-inset))] z-30 flex items-center gap-1 p-1.5 ring-1 backdrop-blur-glass backdrop-saturate-150 md:hidden'
       >
         {primary.map(item => {
           const href = navHref(item, orgId)
@@ -91,7 +91,7 @@ export const MobileNav = () => {
         onOpenChange={setMoreOpen}
       >
         <SheetContent
-          className='max-h-[85svh] gap-0 overflow-y-auto pb-[max(1rem,env(safe-area-inset-bottom))]'
+          className='max-h-[85svh] gap-0 overflow-y-auto pb-[max(1rem,var(--sb-bottom-inset))]'
         >
           <SheetHeader className='pb-2'>
             <SheetTitle>Ещё</SheetTitle>

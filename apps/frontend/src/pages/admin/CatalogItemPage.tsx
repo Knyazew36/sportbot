@@ -77,7 +77,7 @@ const CatalogItemPage = () => {
           <Button
             type='submit'
             form={FORM_ID}
-            size='xl'
+            size='lg'
             disabled={saving}
           >
             Сохранить

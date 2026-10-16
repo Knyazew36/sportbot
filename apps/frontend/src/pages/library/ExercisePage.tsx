@@ -57,7 +57,7 @@ const ExercisePage = () => {
               <PencilLineIcon className='size-6' />
             </Button>
             <Button
-              size='xl'
+              size='lg'
               disabled={!program.data}
               onClick={() => setAddOpen(true)}
             >

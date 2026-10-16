@@ -307,7 +307,7 @@ const RestPanel = () => {
       {current && <CurrentSet set={current} />}
       {/* Таймер можно выключить в профиле: тогда внизу остаётся только ввод подхода */}
       {showRestTimer && (
-        <InkPanel className='pb-[max(1rem,env(safe-area-inset-bottom))]'>
+        <InkPanel className='pb-[max(1rem,var(--sb-bottom-inset))]'>
           {started ? (
             <RestTimer total={Number(restSeconds)} />
           ) : (

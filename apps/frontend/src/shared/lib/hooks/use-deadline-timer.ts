@@ -74,9 +74,18 @@ export const useDeadlineTimer = ({ storageKey, onEnd }: Options = {}) => {
     onEndRef.current?.()
   }, [left, state.status])
 
+  // Доля оставшегося по миллисекундам: left округлён до секунды вверх, и кольцо по нему шагало бы с отставанием
+  const fraction =
+    state.status === 'running'
+      ? Math.min(1, Math.max(0, (state.endsAt - now) / (state.total * 1000)))
+      : state.status === 'paused' && state.total
+        ? state.left / state.total
+        : 0
+
   return {
     status: state.status,
     left,
+    fraction,
     total: state.status === 'idle' ? 0 : state.total,
     start: (seconds: number) => update({ status: 'running', endsAt: Date.now() + seconds * 1000, total: seconds }),
     add: (seconds: number) => {

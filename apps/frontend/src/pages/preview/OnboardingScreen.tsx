@@ -61,7 +61,7 @@ const OnboardingScreen = () => {
         <StickyFooter className='grid grid-cols-[auto_minmax(0,1fr)] gap-2'>
           <Button
             variant='outline'
-            size='xl'
+            size='lg'
             className='px-4'
             disabled={step === 0}
             onClick={() => setStep(s => s - 1)}
@@ -69,7 +69,7 @@ const OnboardingScreen = () => {
             Назад
           </Button>
           <Button
-            size='xl'
+            size='lg'
             className='justify-between'
             disabled={step === 0 && days.length === 0}
             onClick={() => (last ? navigate(ROUTES.PREVIEW_TODAY) : setStep(s => s + 1))}

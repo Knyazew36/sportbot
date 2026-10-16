@@ -53,7 +53,7 @@ const StretchPage = () => {
               <PencilLineIcon className='size-6' />
             </Button>
             <Button
-              size='xl'
+              size='lg'
               onClick={() => setSide(1)}
             >
               <PlayIcon className='size-6' />

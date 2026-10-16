@@ -73,7 +73,7 @@ const TodayPage = () => {
             <ButtonLink
               to={action.to}
               variant={action.variant}
-              size='xl'
+              size='lg'
             >
               {action.label}
               <ArrowRightIcon

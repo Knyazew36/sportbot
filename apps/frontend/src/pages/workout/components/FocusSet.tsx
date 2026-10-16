@@ -8,6 +8,7 @@ import { Digits, Eyebrow, Poster } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
 import { FocusShell } from './FocusShell'
+import { setCaption } from './set-caption'
 
 type FocusSetProps = {
   stopwatch: ReturnType<typeof useStopwatch>
@@ -22,7 +23,7 @@ type FocusSetProps = {
 export const FocusSet = ({ stopwatch, title, setNumber, plannedSets, onDone }: FocusSetProps) => (
   <FocusShell
     title={title}
-    caption={`${stopwatch.paused ? 'пауза · ' : ''}подход ${setNumber}${plannedSets > 0 ? ` из ${plannedSets}` : ''}`}
+    caption={`${stopwatch.paused ? 'пауза · ' : ''}${setCaption(setNumber, plannedSets)}`}
     actions={
       <>
         <Button
@@ -67,7 +68,10 @@ export const FocusSet = ({ stopwatch, title, setNumber, plannedSets, onDone }: F
     {/* Кольцо делает оборот за минуту — как секундная стрелка; в центре пауза, палец и взгляд в одной точке */}
     <div className='relative'>
       <Ring
-        value={(stopwatch.elapsed % 60) / 60}
+        // Новая минута — новое кольцо: иначе переход с почти полного на пустое крутил бы его назад
+        key={Math.floor(stopwatch.elapsedMs / 60_000)}
+        value={(stopwatch.elapsedMs % 60_000) / 60_000}
+        transitionMs={250}
         size={140}
         stroke={5}
         track='color-mix(in oklab, var(--foreground) 14%, transparent)'

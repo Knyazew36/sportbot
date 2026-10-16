@@ -30,20 +30,20 @@ const ResultView = ({ workout }: { workout: SharedWorkout }) => (
             <ButtonLink
               to={ROUTES.TODAY}
               variant='outline'
-              size='xl'
+              size='lg'
             >
               Домой
             </ButtonLink>
             <ShareWorkoutButton
               workoutId={workout.workoutId}
-              size='xl'
+              size='lg'
             />
           </>
         ) : (
           // Чужой результат открывают из пересланной карточки — зовём тренироваться самому
           <ButtonLink
             to={ROUTES.TODAY}
-            size='xl'
+            size='lg'
           >
             Тренироваться
             <ArrowRightIcon
