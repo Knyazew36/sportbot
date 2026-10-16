@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { DayComplexBriefResponseDto } from './day-complex-brief.response.dto';
 import { DayComplexResponseDto } from './day-complex.response.dto';
+import { DayNextResponseDto } from './day-next.response.dto';
 import { DayPauseResponseDto } from './day-pause.response.dto';
 import { DayStreakResponseDto } from './day-streak.response.dto';
 import { DayWeekCellResponseDto } from './day-week-cell.response.dto';
@@ -76,6 +77,20 @@ export class DayTodayResponseDto {
       'Начатая (IN_PROGRESS) или засчитанная сегодня (DONE) тренировка',
   })
   workout: DayWorkoutResponseDto | null;
+
+  @ApiProperty({
+    description:
+      'Засчитано тренировок сегодня: больше одной — была ещё и внеплановая',
+  })
+  workoutsToday: number;
+
+  @ApiProperty({
+    type: DayNextResponseDto,
+    nullable: true,
+    description:
+      'Что дальше: ближайший тренировочный день и комплекс по очереди (DONE, REST, MISSED, PAUSE)',
+  })
+  next: DayNextResponseDto | null;
 
   @ApiProperty({ type: DayPauseResponseDto, nullable: true })
   pause: DayPauseResponseDto | null;

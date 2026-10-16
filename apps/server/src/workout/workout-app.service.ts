@@ -6,6 +6,7 @@ import { SportProfile } from '@/generated/prisma/client';
 import { LimitationService } from '@/limitation/limitation.service';
 import { PlanDayService } from '@/plan/plan-day.service';
 import { ProgramService } from '@/program/program.service';
+import { StatsService } from '@/stats/stats.service';
 import { UploadService } from '@/upload/upload.service';
 
 import { StretchFull } from '@/catalog/catalog.service';
@@ -49,6 +50,7 @@ export class WorkoutAppService {
     private readonly planDays: PlanDayService,
     private readonly limitations: LimitationService,
     private readonly uploads: UploadService,
+    private readonly stats: StatsService,
   ) {}
 
   // ── Чтение ──────────────────────────────────────────────────────────────
@@ -67,7 +69,7 @@ export class WorkoutAppService {
     return this.view(profile, await this.workouts.find(userId, workoutId));
   }
 
-  /** Итог тренировки: время, подходы, серия (frontend-tz, 8.6). */
+  /** Итог тренировки: время, подходы, серия и личные рекорды (frontend-tz, 8.6). */
   public async summary(
     userId: number,
     workoutId: number,
@@ -76,6 +78,7 @@ export class WorkoutAppService {
       this.accounts.profile(userId),
       this.workouts.find(userId, workoutId),
     ]);
+    const records = await this.stats.records(userId, workout);
     return {
       workoutId: workout.id,
       complexName: workout.complexName,
@@ -84,6 +87,7 @@ export class WorkoutAppService {
       currentStreak: profile.currentStreak,
       cardioName: workout.cardioName,
       cardioMinutes: workout.cardioMinutes,
+      records,
     };
   }
 

@@ -30,6 +30,8 @@ const buttonVariants = cva(
         destructive: 'border-destructive bg-background text-destructive [--press:var(--sb-danger)]',
         // Зелёный «можно»: тренировка вне очереди, подтверждённый успех
         success: 'border-foreground bg-success text-black [--press:var(--sb-ink)]',
+        // Золото — «спасибо» звёздами: тихое, не спорит с синими действиями. Выбранное — с золотой подложкой
+        gold: 'border-sb-gold bg-background text-sb-gold [--press:var(--sb-gold)] aria-pressed:bg-sb-gold-tint',
         // Жёлтый «наружу»: публикация в каталог и «Поделиться» — всё, что увидят другие люди
         share: 'border-foreground bg-attention text-black [--press:var(--sb-ink)]',
         // Шаблонные варианты кабинета сведены к тем же голосам

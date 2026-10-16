@@ -373,6 +373,95 @@ export class StatsService {
       caption: `📈 ${name}: ${num(first)} → ${num(last)} ${UNIT_SHORT[unit]} (${delta >= 0 ? '+' : '−'}${num(Math.abs(delta))}) за ${points.length} ${plural(points.length, 'тренировку', 'тренировки', 'тренировок')}`,
     };
   }
+
+  // ── Рекорды ─────────────────────────────────────────────────────────────
+
+  /**
+   * Личные рекорды тренировки: лучший вес (или повторы — у упражнений без веса) выше, чем во всех
+   * более ранних тренировках. Первый раз — не рекорд, иначе первая тренировка целиком из «рекордов».
+   */
+  public async records(
+    userId: number,
+    workout: {
+      id: number;
+      startedAt: Date;
+      exercises: {
+        exerciseId: number;
+        exercise: { name: string };
+        sets: { weight: unknown; reps: number }[];
+      }[];
+    },
+  ): Promise<PersonalRecord[]> {
+    const today = new Map<number, { name: string; sets: SetRow[] }>();
+    for (const item of workout.exercises) {
+      if (!item.sets.length) continue;
+      const entry = today.get(item.exerciseId) ?? {
+        name: item.exercise.name,
+        sets: [],
+      };
+      entry.sets.push(...item.sets);
+      today.set(item.exerciseId, entry);
+    }
+    if (!today.size) return [];
+
+    const history = await this.prisma.workoutExercise.findMany({
+      where: {
+        exerciseId: { in: [...today.keys()] },
+        sets: { some: {} },
+        workout: {
+          userId,
+          id: { not: workout.id },
+          status: { in: [...DONE_STATUSES] },
+          startedAt: { lt: workout.startedAt },
+        },
+      },
+      select: {
+        exerciseId: true,
+        sets: { select: { weight: true, reps: true } },
+      },
+    });
+
+    const records: PersonalRecord[] = [];
+    for (const [exerciseId, { name, sets }] of today) {
+      const before = history
+        .filter((h) => h.exerciseId === exerciseId)
+        .flatMap((h) => h.sets);
+      if (!before.length) continue;
+      const unit: ProgressUnit = [...before, ...sets].some(
+        (s) => Number(s.weight) > 0,
+      )
+        ? 'kg'
+        : 'reps';
+      const value = bestOf(sets, unit);
+      const previous = bestOf(before, unit);
+      // Подходов с весом раньше не было — сравнивать не с чем
+      if (previous === null || value === null || value <= previous) continue;
+      records.push({ exerciseId, name, unit, value, previous });
+    }
+    this.logger.debug(
+      `Рекорды тренировки: userId=${userId}, workoutId=${workout.id}, рекордов=${records.length}`,
+    );
+    return records;
+  }
+}
+
+type SetRow = { weight: unknown; reps: number };
+
+export interface PersonalRecord {
+  exerciseId: number;
+  name: string;
+  unit: ProgressUnit;
+  value: number;
+  previous: number;
+}
+
+/** Лучший подход: максимальный вес (без нулевых) или максимум повторов. null — сравнивать не с чем. */
+function bestOf(sets: SetRow[], unit: ProgressUnit): number | null {
+  const values =
+    unit === 'kg'
+      ? sets.map((s) => Number(s.weight)).filter((w) => w > 0)
+      : sets.map((s) => s.reps);
+  return values.length ? Math.max(...values) : null;
 }
 
 /**

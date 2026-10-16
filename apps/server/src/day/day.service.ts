@@ -14,6 +14,7 @@ import { DayComplexBriefResponseDto } from './dto/day-complex-brief.response.dto
 import { DayComplexResponseDto } from './dto/day-complex.response.dto';
 import { DayEveningResponseDto } from './dto/day-evening.response.dto';
 import { DayFixResponseDto } from './dto/day-fix.response.dto';
+import { DayNextResponseDto } from './dto/day-next.response.dto';
 import { DaySkipResponseDto } from './dto/day-skip.response.dto';
 import { DayState, DayTodayResponseDto } from './dto/day-today.response.dto';
 import {
@@ -23,6 +24,10 @@ import {
 import { DayWorkoutResponseDto } from './dto/day-workout.response.dto';
 
 const isoDate = (date: Date): string => date.toISOString().slice(0, 10);
+
+/** Насколько вперёд искать следующий тренировочный день: дальше — расписание фактически пустое. */
+const NEXT_HORIZON_DAYS = 60;
+const NEXT_STATES: DayState[] = ['DONE', 'REST', 'MISSED', 'PAUSE'];
 
 /** Экран «Сегодня» Mini App: состояние дня и ответы, которые в боте даются кнопками опроса. */
 @Injectable()
@@ -55,8 +60,17 @@ export class DayService {
     await this.workouts.autoCloseStale(before, today);
     const profile = await this.accounts.profile(userId);
 
-    const [current, finished, day, pause, complexes, next, weekDays] =
-      await Promise.all([
+    const [
+      current,
+      finished,
+      day,
+      pause,
+      complexes,
+      next,
+      weekDays,
+      aheadDays,
+      workoutsToday,
+    ] = await Promise.all([
         this.workouts.current(userId),
         this.workouts.finishedOn(userId, today),
         this.planDays.find(userId, today),
@@ -67,6 +81,20 @@ export class DayService {
           where: {
             userId,
             date: { gte: weekStart(today), lt: addDays(weekStart(today), 7) },
+          },
+        }),
+        this.prisma.planDay.findMany({
+          where: {
+            userId,
+            date: { gt: today, lte: addDays(today, NEXT_HORIZON_DAYS) },
+          },
+          select: { date: true, status: true },
+        }),
+        this.prisma.workout.count({
+          where: {
+            userId,
+            date: today,
+            status: { in: ['FINISHED', 'AUTO_CLOSED'] },
           },
         }),
       ]);
@@ -124,6 +152,16 @@ export class DayService {
       })),
       complex,
       workout,
+      workoutsToday,
+      next:
+        next && NEXT_STATES.includes(state)
+          ? {
+              date: this.nextTrainingDate(profile, today, aheadDays, pause),
+              complexId: next.id,
+              complexName: next.name,
+              exerciseCount: next.exercises.length,
+            }
+          : null,
       pause: pause
         ? {
             endDate: pause.endDate ? isoDate(pause.endDate) : null,
@@ -284,6 +322,29 @@ export class DayService {
       .find(userId, workoutId)
       .catch(() => null);
     return workout ? this.workoutBrief(workout) : null;
+  }
+
+  /**
+   * Ближайший день после сегодня, когда ждём тренировку: перенесённый (PENDING) или по расписанию,
+   * если он не на паузе и не закрыт заранее — внеплановая тренировка засчитывает ближайший будущий день.
+   */
+  private nextTrainingDate(
+    profile: SportProfile,
+    today: Date,
+    ahead: Pick<PlanDay, 'date' | 'status'>[],
+    pause: Pause | null,
+  ): DayNextResponseDto['date'] {
+    if (pause && !pause.endDate) return null;
+    for (let offset = 1; offset <= NEXT_HORIZON_DAYS; offset++) {
+      const date = addDays(today, offset);
+      const day = ahead.find((d) => d.date.getTime() === date.getTime());
+      if (day?.status === 'PENDING') return isoDate(date);
+      if (day) continue;
+      const paused = !!pause?.endDate && date <= pause.endDate;
+      if (!paused && profile.trainingDays.includes(weekdayOf(date)))
+        return isoDate(date);
+    }
+    return null;
   }
 
   /** Неделя с понедельника: отметки дней плана, впереди — тренировочные дни и пауза. */

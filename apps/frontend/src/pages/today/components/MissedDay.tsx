@@ -6,6 +6,7 @@ import { Rise } from '@/shared/ui/kit/Reveal'
 import { Eyebrow, Lead, Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
+import { NextUp } from './NextUp'
 import { WeekStreak } from './WeekStreak'
 
 type MissedDayProps = {
@@ -15,7 +16,7 @@ type MissedDayProps = {
 }
 
 // День отмечен пропуском. Исправить (business-tz, 8.3): тренировка была без записи — отметить её;
-// или потренироваться сейчас — записанная тренировка сама закроет пропуск
+// или потренироваться сейчас (кнопка внизу экрана) — записанная тренировка сама закроет пропуск
 export const MissedDay = ({ day, suggestPause }: MissedDayProps) => {
   const reschedule = useRescheduleAnswer()
   const fix = useFixDay()
@@ -33,6 +34,15 @@ export const MissedDay = ({ day, suggestPause }: MissedDayProps) => {
         >
           пропуск
         </Poster>
+        {day.streak.best > 0 && (
+          <Lead
+            size='md'
+            tone='soft'
+            className='mt-2'
+          >
+            серия прервалась · рекорд серии {day.streak.best} остаётся
+          </Lead>
+        )}
       </Rise>
 
       {dayId && (
@@ -101,6 +111,8 @@ export const MissedDay = ({ day, suggestPause }: MissedDayProps) => {
           </ButtonLink>
         </Rise>
       )}
+
+      <NextUp day={day} />
 
       <WeekStreak
         streak={day.streak}

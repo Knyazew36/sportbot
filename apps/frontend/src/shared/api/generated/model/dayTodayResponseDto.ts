@@ -6,6 +6,7 @@
  */
 import type { DayComplexBriefResponseDto } from './dayComplexBriefResponseDto';
 import type { DayComplexResponseDto } from './dayComplexResponseDto';
+import type { DayNextResponseDto } from './dayNextResponseDto';
 import type { DayPauseResponseDto } from './dayPauseResponseDto';
 import type { DayState } from './dayState';
 import type { DayStreakResponseDto } from './dayStreakResponseDto';
@@ -42,6 +43,13 @@ export interface DayTodayResponseDto {
      * @nullable
      */
   workout: DayWorkoutResponseDto | null;
+  /** Засчитано тренировок сегодня: больше одной — была ещё и внеплановая */
+  workoutsToday: number;
+  /**
+     * Что дальше: ближайший тренировочный день и комплекс по очереди (DONE, REST, MISSED, PAUSE)
+     * @nullable
+     */
+  next: DayNextResponseDto | null;
   /** @nullable */
   pause: DayPauseResponseDto | null;
   /** После пропуска ждём ответа «напомнить завтра?» */

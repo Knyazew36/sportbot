@@ -35,13 +35,16 @@ const cta = (day: DayToday): Cta | null => {
       variant: 'success',
     }
   if (day.state === 'IN_PROGRESS') return { label: 'Продолжить', to: ROUTES.WORKOUT }
+  // Пропуск ещё можно закрыть: тренировка сегодня сама снимет отметку (business-tz, 7.2)
+  if (day.state === 'MISSED' && day.next)
+    return { label: 'Потренироваться', to: `${ROUTES.WORKOUT}?complexId=${day.next.complexId}`, variant: 'success' }
   // Заминку предлагает только итог тренировки, на главной её нет
   return null
 }
 
 const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1)
 
-// Главный экран (frontend-tz, 7): одно из состояний дня, серия и неделя
+// Главный экран (frontend-tz, 7): одно из состояний дня, серия, неделя и что дальше
 const TodayPage = () => {
   const [params, setParams] = useSearchParams()
   const complexId = Number(params.get('complexId')) || undefined
@@ -101,7 +104,7 @@ const TodayPage = () => {
                 suggestPause={suggestPause}
               />
             )}
-            {day.state === 'PAUSE' && day.pause && <PauseDay pause={day.pause} />}
+            {day.state === 'PAUSE' && day.pause && <PauseDay day={day} />}
             {/* Комплекс дня не нашёлся — программа пустая */}
             {(day.state === 'NO_PROGRAM' || (day.state === 'TRAINING' && !day.complex)) && <NoProgramDay />}
           </>

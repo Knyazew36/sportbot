@@ -7,17 +7,20 @@ import type { StarPaymentPurpose } from '@/shared/api/generated/model'
 import { canPayStars } from '@/shared/miniapp'
 import { BoxInput } from '@/shared/ui/kit/BoxInput'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'
-import { Poster } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
+import { StarsPresetTile } from './StarsPresetTile'
 import { usePayStars } from './usePayStars'
 
-const DEFAULT_PRESETS = [50, 100, 250, 500]
+export type StarsPreset = { amount: number; caption?: string }
+
+const DEFAULT_PRESETS: StarsPreset[] = [{ amount: 50 }, { amount: 100 }, { amount: 250 }, { amount: 500 }]
 
 type PayStarsFormProps = {
   purpose: StarPaymentPurpose
-  presets?: number[]
-  /** Текст кнопки перед суммой: «Отправить 100 ⭐» */
+  /** Готовые суммы; caption — повод под числом */
+  presets?: StarsPreset[]
+  /** Текст кнопки перед суммой: «Передать 100 ⭐» */
   actionLabel?: string
   /** Звёзды списаны — потребитель показывает благодарность или открывает купленное */
   onPaid: (amount: number) => void
@@ -25,7 +28,7 @@ type PayStarsFormProps = {
 
 // Выбор суммы и оплата звёздами под любое назначение. Пресет кладёт число в то же поле, что и ручной ввод,
 // поэтому сумма одна и проверяется одной схемой. Вне Telegram звёзд нет — форма не рисуется
-export const PayStarsForm = ({ purpose, presets = DEFAULT_PRESETS, actionLabel = 'Отправить', onPaid }: PayStarsFormProps) => {
+export const PayStarsForm = ({ purpose, presets = DEFAULT_PRESETS, actionLabel = 'Передать', onPaid }: PayStarsFormProps) => {
   const pay = usePayStars(purpose)
   const {
     register,
@@ -35,7 +38,7 @@ export const PayStarsForm = ({ purpose, presets = DEFAULT_PRESETS, actionLabel =
     formState: { errors },
   } = useForm<StarsAmountInput, unknown, StarsAmountValues>({
     resolver: zodResolver(starsAmountSchema),
-    defaultValues: { amount: String(presets[1] ?? presets[0] ?? '') },
+    defaultValues: { amount: String((presets[1] ?? presets[0])?.amount ?? '') },
   })
   const amount = watch('amount')
 
@@ -51,25 +54,14 @@ export const PayStarsForm = ({ purpose, presets = DEFAULT_PRESETS, actionLabel =
       )}
     >
       <div className='grid grid-cols-2 gap-2'>
-        {presets.map(preset => (
-          <Button
+        {presets.map(({ amount: preset, caption }) => (
+          <StarsPresetTile
             key={preset}
-            type='button'
-            variant={amount === String(preset) ? 'default' : 'outline'}
-            aria-pressed={amount === String(preset)}
-            onClick={() => setValue('amount', String(preset), { shouldValidate: true })}
-          >
-            <Poster
-              as='span'
-              size='sm'
-            >
-              {preset}
-            </Poster>
-            <StarIcon
-              className='size-4 fill-current'
-              strokeWidth={2.5}
-            />
-          </Button>
+            amount={preset}
+            caption={caption}
+            selected={amount === String(preset)}
+            onSelect={() => setValue('amount', String(preset), { shouldValidate: true })}
+          />
         ))}
       </div>
       <div className='flex flex-col gap-1'>
@@ -84,6 +76,7 @@ export const PayStarsForm = ({ purpose, presets = DEFAULT_PRESETS, actionLabel =
       </div>
       <Button
         type='submit'
+        variant='gold'
         size='lg'
         disabled={pay.isPending}
       >

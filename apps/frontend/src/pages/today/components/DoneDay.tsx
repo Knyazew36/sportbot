@@ -5,73 +5,45 @@ import { useState } from 'react'
 
 import type { DayToday } from '@/entities/day'
 import { ROUTES } from '@/shared/config/paths'
-import { pluralize } from '@front-cmdt/utils/pluralize'
-import { MedalArt } from '@/shared/ui/kit/Art'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { Rise } from '@/shared/ui/kit/Reveal'
-import { Eyebrow, Lead, Poster } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
+import { DoneHero } from './DoneHero'
+import { ForgottenMuscles } from './ForgottenMuscles'
+import { FriendsToday } from './FriendsToday'
+import { NextUp } from './NextUp'
 import { OtherComplexSheet } from './OtherComplexSheet'
+import { WorkoutTotals } from './WorkoutTotals'
 
-// Тренировка засчитана: серия крупно, до рекорда — подписью. Дальше — ещё одна тренировка
-// (внеплановая, как в боте) или статистика
+// Тренировка засчитана: серия, итог с рекордами, что дальше, друзья. Ещё одна тренировка
+// (внеплановая, как в боте) или статистика — внизу. Неделю здесь не показываем: день уже закрыт
 export const DoneDay = ({ day }: { day: DayToday }) => {
   const navigate = useNavigate()
   const [pickOpen, setPickOpen] = useState(false)
-  const { current, best } = day.streak
-  const left = best - current
 
   return (
     <>
-      <Rise className='relative mx-auto w-[200px]'>
-        <MedalArt />
-        <Poster
-          as='span'
-          size='5xl'
-          tone='primary'
-          className='absolute inset-x-0 top-[52%] text-center'
-        >
-          {current}
-        </Poster>
-      </Rise>
-      <Rise className='px-gutter text-center'>
-        <Eyebrow
-          as='p'
-          tone='primary'
-        >
-          Тренировка засчитана ✅
-        </Eyebrow>
-        {day.workout && (
-          <Lead
-            size='md'
-            className='mt-2'
-          >
-            {day.workout.complexName}
-          </Lead>
-        )}
-        <Poster
-          as='h1'
-          size='4xl'
-          className='mt-3'
-        >
-          {pluralize(current, ['день', 'дня', 'дней'])}
-          <br />
-          подряд
-        </Poster>
-        <Lead
-          size='md'
-          tone='soft'
-          className='mt-3'
-        >
-          {left > 0 ? `до рекорда — ${pluralize(left, ['день', 'дня', 'дней'])}` : 'это твой рекорд'}
-        </Lead>
-      </Rise>
+      <DoneHero day={day} />
+
+      {/* Без тренировки — день отмечен исправлением «тренировка была» */}
+      {day.workout && (
+        <WorkoutTotals
+          workoutId={day.workout.id}
+          complexName={day.workout.complexName}
+        />
+      )}
+
+      <NextUp day={day} />
+      <ForgottenMuscles />
+      <FriendsToday />
+
       <Rise className='grid grid-cols-2 gap-2 px-gutter'>
         <Button
           variant='outline'
           size='sm'
           className='h-auto min-h-9 min-w-0 px-2 py-1.5 leading-tight whitespace-normal'
+          disabled={!day.complexes.length}
           onClick={() => setPickOpen(true)}
         >
           <PlusIcon />

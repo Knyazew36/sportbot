@@ -7,8 +7,11 @@ import { Rise } from '@/shared/ui/kit/Reveal'
 import { Eyebrow, Lead, Poster } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
+import { NextUp } from './NextUp'
+
 // Пауза: бот молчит, серия заморожена. Срок вышел — вопрос «Возвращаемся?» (business-tz, 8.5)
-export const PauseDay = ({ pause }: { pause: NonNullable<DayToday['pause']> }) => {
+export const PauseDay = ({ day }: { day: DayToday }) => {
+  const pause = day.pause!
   const end = useEndPause()
 
   if (pause.expired) {
@@ -65,6 +68,13 @@ export const PauseDay = ({ pause }: { pause: NonNullable<DayToday['pause']> }) =
         </Lead>
       </Rise>
       <Rise className='hatch border-border mx-gutter h-28 border-[1.5px] opacity-60' />
+      {/* Пауза до отмены — даты нет, и «что дальше» не показываем */}
+      {day.next?.date && (
+        <NextUp
+          day={day}
+          label='после паузы'
+        />
+      )}
       <Rise className='px-gutter'>
         <Button
           className='w-full'

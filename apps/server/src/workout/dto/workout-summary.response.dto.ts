@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+import { WorkoutRecordResponseDto } from './workout-record.response.dto';
+
 export class WorkoutSummaryResponseDto {
   @ApiProperty()
   workoutId: number;
@@ -33,4 +35,10 @@ export class WorkoutSummaryResponseDto {
 
   @ApiProperty({ type: Number, nullable: true })
   cardioMinutes: number | null;
+
+  @ApiProperty({
+    type: [WorkoutRecordResponseDto],
+    description: 'Личные рекорды этой тренировки',
+  })
+  records: WorkoutRecordResponseDto[];
 }

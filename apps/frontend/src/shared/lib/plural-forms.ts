@@ -4,6 +4,7 @@ import type { PluralForms } from '@front-cmdt/utils/pluralize'
 
 export const EXERCISE_FORMS: PluralForms = ['упражнение', 'упражнения', 'упражнений']
 export const SET_FORMS: PluralForms = ['подход', 'подхода', 'подходов']
+export const DAY_FORMS: PluralForms = ['день', 'дня', 'дней']
 export const WORKOUT_FORMS: PluralForms = ['тренировка', 'тренировки', 'тренировок']
 
 /** После «из»: «из 1 упражнения», «из 5 упражнений» */

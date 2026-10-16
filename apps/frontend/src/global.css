@@ -78,6 +78,8 @@
   --color-sb-rule: var(--sb-rule);
   --color-sb-tint: var(--sb-tint);
   --color-sb-danger: var(--sb-danger);
+  --color-sb-gold: var(--sb-gold);
+  --color-sb-gold-tint: var(--sb-gold-tint);
   --font-serif: 'Cormorant Variable', 'Times New Roman', serif;
   --font-grotesk: 'Onest Variable', ui-sans-serif, sans-serif;
   /* Плакатная система квадратная: скругления только у пилюль-чипов и круглых аватаров */
@@ -130,6 +132,9 @@
   --sb-rule: #e2e8f0;
   --sb-tint: color-mix(in oklab, #006eff 9%, transparent);
   --sb-danger: #d92d20;
+  /* Золото — «спасибо» звёздами. Вне палитр: одно и то же в синей и розовой, меняется только со светлой/тёмной */
+  --sb-gold: #a8720a;
+  --sb-gold-tint: color-mix(in oklab, var(--sb-gold) 12%, transparent);
   /* Высота нижнего меню: h-16 + рамка + отступ под системную полоску. По ней прилипают главные кнопки */
   /* Верх под кнопками Telegram в полноэкранном режиме: вырез телефона + «Закрыть» и меню мессенджера.
      Переменные --tg-* ставит SDK Telegram; вне fullscreen и вне Telegram они 0.
@@ -196,6 +201,7 @@
   --sb-tint: color-mix(in oklab, #4c97ff 13%, transparent);
   --sb-danger: #ff6b5e;
   --sb-positive: #5ee08a;
+  --sb-gold: #f2c14e;
 }
 
 /* Розовая расцветка — отдельная ось от светлой/тёмной: меняем только опорные цвета, производные пересчитываются сами.

@@ -5,9 +5,9 @@ import { Rise } from '@/shared/ui/kit/Reveal'
 import { Eyebrow } from '@/shared/ui/kit/Typography'
 
 import { SectionTicket } from './SectionTicket'
-import { SupportTicket } from './SupportTicket'
+import { ThanksLink } from './ThanksLink'
 
-// Вход на страницу команды и поддержка звёздами: это не настройки, поэтому стоят после разделов, за пунктирной отбивкой
+// Вход на страницу команды и «спасибо» звёздами: это не настройки, поэтому стоят после разделов, за пунктирной отбивкой
 export const DeveloperTicket = () => (
   <Rise className='px-gutter'>
     <div className='flex flex-col gap-4 border-t-[1.5px] border-dashed border-current/45 pt-4'>
@@ -18,7 +18,7 @@ export const DeveloperTicket = () => (
         title='Разработчик'
         meta='KM Team · сделаем ваш проект'
       />
-      <SupportTicket />
+      <ThanksLink />
     </div>
   </Rise>
 )

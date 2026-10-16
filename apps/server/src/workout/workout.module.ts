@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { LimitationModule } from '@/limitation/limitation.module';
 import { PlanModule } from '@/plan/plan.module';
 import { ProgramModule } from '@/program/program.module';
+import { StatsModule } from '@/stats/stats.module';
 import { UploadModule } from '@/upload/upload.module';
 
 import { CooldownService } from './cooldown.service';
@@ -14,7 +15,13 @@ import { WorkoutController } from './workout.controller';
 import { WorkoutService } from './workout.service';
 
 @Module({
-  imports: [ProgramModule, PlanModule, LimitationModule, UploadModule],
+  imports: [
+    ProgramModule,
+    PlanModule,
+    LimitationModule,
+    UploadModule,
+    StatsModule,
+  ],
   controllers: [WorkoutController],
   providers: [
     WorkoutService,

@@ -45,7 +45,7 @@ export const WeekStreak = ({ streak, week }: Pick<DayToday, 'streak' | 'week'>) 
         <div className='flex flex-1 flex-col justify-between gap-3 p-3'>
           <div className='flex flex-wrap items-baseline justify-between gap-x-2'>
             <Text as='span'>дней подряд</Text>
-            <Eyebrow>рекорд {record}</Eyebrow>
+            <Eyebrow>рекорд серии {record}</Eyebrow>
           </div>
           <div className='border-border relative h-3 border-[1.5px]'>
             <motion.div

@@ -4,6 +4,7 @@
  * api
  * OpenAPI spec version: 0.0.1
  */
+import type { WorkoutRecordResponseDto } from './workoutRecordResponseDto';
 import type { WorkoutSummaryResponseDtoStatus } from './workoutSummaryResponseDtoStatus';
 
 export interface WorkoutSummaryResponseDto {
@@ -24,4 +25,6 @@ export interface WorkoutSummaryResponseDto {
   cardioName: string | null;
   /** @nullable */
   cardioMinutes: number | null;
+  /** Личные рекорды этой тренировки */
+  records: WorkoutRecordResponseDto[];
 }

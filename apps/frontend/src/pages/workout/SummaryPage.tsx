@@ -16,6 +16,7 @@ import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { StatGrid } from '@/shared/ui/kit/StatGrid'
 import { Lead, Poster, Text } from '@/shared/ui/kit/Typography'
 import { EXERCISE_FORMS, SET_FORMS } from '@/shared/lib/plural-forms'
+import { WorkoutRecords } from '@/widgets/workout-records/WorkoutRecords'
 
 // Протокол: что сделано по каждому упражнению
 const Protocol = ({ workoutId }: { workoutId: number }) => {
@@ -163,11 +164,20 @@ const SummaryView = ({ summary }: { summary: WorkoutSummary }) => (
       )}
     </Rise>
 
+    {summary.records.length > 0 && (
+      <ScreenSection
+        title='Рекорды'
+        aside={summary.records.length}
+      >
+        <WorkoutRecords records={summary.records} />
+      </ScreenSection>
+    )}
+
     <Protocol workoutId={summary.workoutId} />
   </Screen>
 )
 
-// Итог тренировки (frontend-tz, 8.6): время, подходы, серия, кнопка «Заминка»
+// Итог тренировки (frontend-tz, 8.6): время, подходы, серия, рекорды, кнопка «Заминка»
 const SummaryPage = () => {
   const workoutId = Number(useParams().workoutId)
   const summary = useWorkoutSummary(workoutId)
