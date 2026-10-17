@@ -129,7 +129,7 @@ export const ExerciseSheet = ({ exercise, kind = 'exercise', onOpenChange, actio
           {kind === 'exercise' ? 'Карточка упражнения' : 'Карточка растяжки'}
         </SheetDescription>
       </SheetHeader>
-      <div className='px-gutter min-h-0 flex-1 overflow-y-auto pb-2'>
+      <div className='px-gutter min-h-0 flex-1 overflow-y-auto pt-4 pb-2'>
         {exercise && (kind === 'exercise' ? <ExerciseDetails id={exercise.id} /> : <StretchDetails id={exercise.id} />)}
       </div>
       <div className='px-gutter pt-2 pb-6'>{action}</div>

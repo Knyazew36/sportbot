@@ -15,6 +15,7 @@ import { StatusFromMeta } from '@/shared/ui/kit/StatusBadge'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Badge } from '@/shared/ui/shadcn/badge'
+import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet'
 
 import { PendingTagRow } from './components/PendingTagRow'
 import { type ProgramRejectMode, RejectProgramSheet } from './components/RejectProgramSheet'
@@ -41,6 +42,7 @@ const ReviewBody = ({ review: r }: { review: ProgramReview }) => {
   const approved = r.tags.filter(t => t.isApproved)
   const pending = r.tags.filter(t => !t.isApproved)
   const editing = r.publication === 'PUBLISHED' && r.textPending
+  const [opened, setOpened] = useState<{ id: number; name: string } | null>(null)
 
   return (
     <>
@@ -103,8 +105,17 @@ const ReviewBody = ({ review: r }: { review: ProgramReview }) => {
             {c.exercises.map((e, j) => (
               <ListRow
                 key={e.id}
+                className='hover:bg-accent/60 -mx-gutter px-gutter relative transition-colors'
                 lead={String(j + 1).padStart(2, '0')}
-                title={e.name}
+                title={
+                  <button
+                    type='button'
+                    className='text-left after:absolute after:inset-0'
+                    onClick={() => setOpened({ id: e.exerciseId, name: e.name })}
+                  >
+                    {e.name}
+                  </button>
+                }
                 meta={e.draft ? `${e.muscles} · черновик автора` : e.muscles}
                 trail={
                   <Poster
@@ -120,6 +131,11 @@ const ReviewBody = ({ review: r }: { review: ProgramReview }) => {
           </List>
         </ScreenSection>
       ))}
+
+      <ExerciseSheet
+        exercise={opened}
+        onOpenChange={open => !open && setOpened(null)}
+      />
     </>
   )
 }

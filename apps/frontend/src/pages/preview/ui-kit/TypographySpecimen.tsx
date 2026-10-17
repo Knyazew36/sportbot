@@ -258,7 +258,7 @@ export const TypographySpecimen = () => (
             size='xs'
             tone='muted'
           >
-            6 упр. · на очереди
+            6 упражнений · на очереди
           </Text>
         </div>
         <div>

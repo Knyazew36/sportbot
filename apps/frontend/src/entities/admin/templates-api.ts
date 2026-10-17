@@ -179,7 +179,8 @@ export const useUngroupTemplateExercise = () => {
   const apply = useApplyTemplate()
   return useMutation({
     mutationFn: (id: number) => adminTemplatesControllerUngroupItem(id),
-    meta: { successMessage: 'Упражнение вынесено из суперсета' },
+    // Плашку «Отменить» показывает редактор комплекса (useComplexEditing) — тост дублировал бы её
+    meta: { skipSuccessToast: true },
     onSuccess: apply,
   })
 }
@@ -189,7 +190,8 @@ export const useUngroupTemplateSuperset = () => {
   return useMutation({
     mutationFn: ({ complexId, superset }: { complexId: number; superset: number }) =>
       adminTemplatesControllerUngroupSuperset(complexId, { superset }),
-    meta: { successMessage: 'Суперсет разгруппирован' },
+    // Плашку «Отменить» показывает редактор комплекса (useComplexEditing) — тост дублировал бы её
+    meta: { skipSuccessToast: true },
     onSuccess: apply,
   })
 }
@@ -209,7 +211,8 @@ export const useDeleteTemplateExercise = () => {
   const apply = useApplyTemplate()
   return useMutation({
     mutationFn: (id: number) => adminTemplatesControllerRemoveItem(id),
-    meta: { successMessage: 'Упражнение убрано' },
+    // Плашку «Отменить» показывает редактор комплекса (useComplexEditing) — тост дублировал бы её
+    meta: { skipSuccessToast: true },
     onSuccess: apply,
   })
 }

@@ -6,9 +6,9 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 
-import { BotSender } from '@/bot';
+import { BotSender, isAdmin } from '@/bot';
 import { paginatePrisma } from '@/common/prisma';
-import { Prisma } from '@/generated/prisma/client';
+import { Prisma, User } from '@/generated/prisma/client';
 import { UploadService } from '@/upload/upload.service';
 
 import {
@@ -139,14 +139,19 @@ export class CatalogAppService {
   }
 
   public async exercise(
-    userId: number,
+    user: User,
     id: number,
   ): Promise<CatalogExerciseResponseDto> {
+    // Админ на проверке программы открывает и черновики автора
+    const admin = isAdmin(user);
     const exercise = await this.prisma.exercise.findFirst({
-      where: { id, ...this.catalog.visibleExercises(userId) },
+      where: admin ? { id } : { id, ...this.catalog.visibleExercises(user.id) },
       include: EXERCISE_INCLUDE,
     });
-    if (!exercise) throw new NotFoundException('Упражнение не найдено.');
+    if (!exercise) {
+      this.logger.warn(`Карточка упражнения не найдена: id=${id}, userId=${user.id}, admin=${admin}`);
+      throw new NotFoundException('Упражнение не найдено.');
+    }
     return {
       id: exercise.id,
       name: exercise.name,

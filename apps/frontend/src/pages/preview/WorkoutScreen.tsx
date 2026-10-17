@@ -369,7 +369,7 @@ const WorkoutScreen = () => {
               title='Грудь и трицепс'
               subtitle={
                 <>
-                  упр. {current + 1} из {plan.length} · <span className='text-primary'>{workout.elapsed}</span>
+                  упражнение {current + 1} из {plan.length} · <span className='text-primary'>{workout.elapsed}</span>
                 </>
               }
               action={

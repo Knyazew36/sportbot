@@ -34,6 +34,7 @@ import { TopBar } from '@/shared/ui/kit/ScreenHeader'
 import { ScreenState } from '@/shared/ui/kit/ScreenState'
 import { Stamp } from '@/shared/ui/kit/Stamp'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
+import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet'
 import { type EditingSet, EditSetSheet } from '@/widgets/workout/EditSetSheet'
 import { SetList } from '@/widgets/workout/SetList'
 
@@ -69,8 +70,12 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
   const finish = useFinishWorkout()
   const discard = useDiscardWorkout()
   const [pickedId, setPickedId] = useState<number | null>(null)
+  // Дорожка открывает просмотр, а не переход: случайный тап мимо текущей перескакивал упражнение
+  const [previewId, setPreviewId] = useState<number | null>(null)
   const [editing, setEditing] = useState<EditingSet | null>(null)
   const [entryOpen, setEntryOpen] = useState(false)
+  // «К упражнению» сворачивает отдых, а не останавливает: пока идёт, в футере кнопка отдыха вместо подхода
+  const [restHidden, setRestHidden] = useState(false)
   const timer = useDeadlineTimer({
     storageKey: `rest-timer-${workout.id}`,
     onEnd: () => timerEndSignal(workout.settings),
@@ -136,7 +141,7 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
       </Screen>
     )
 
-  const index = items.indexOf(item)
+  const preview = items.find(e => e.id === previewId) ?? null
   const { settings } = workout
   // Суперсет — один экран и один круг на всех участников; одиночное упражнение — как раньше
   const superset = supersetRound(items, item)
@@ -193,8 +198,13 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
     else if (nextId) setPickedId(nextId)
   }
 
+  const startRest = (seconds: number) => {
+    setRestHidden(false)
+    timer.start(seconds)
+  }
+
   const rest = () => {
-    if (settings.showRestTimer && settings.restAutoStart) timer.start(settings.restSeconds)
+    if (settings.showRestTimer && settings.restAutoStart) startRest(settings.restSeconds)
   }
 
   // Суперсет закрыт: штамп и сразу следующий блок — отдыхать перед ним или нет, решает человек
@@ -273,11 +283,7 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
             <TopBar
               back={ROUTES.TODAY}
               title={workout.complexName}
-              subtitle={
-                <>
-                  упр. {index + 1} из {items.length} · <ElapsedInline startedAt={workout.startedAt} />
-                </>
-              }
+              subtitle={<ElapsedInline startedAt={workout.startedAt} />}
               action={
                 // Засчитывается, если сделано хотя бы одно упражнение (business-tz, 7.3)
                 <ConfirmAction
@@ -307,7 +313,9 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
             <WorkoutLanes
               items={items}
               currentId={item.id}
-              onPick={setPickedId}
+              onPick={id => {
+                if (!block.some(e => e.id === id)) setPreviewId(id)
+              }}
             />
           </>
         }
@@ -325,7 +333,9 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
             round={superset ? (superset.done ? null : superset.number) : undefined}
             onRecordRound={() => setRoundOpen(true)}
             onStartSet={startSet}
-            onRest={() => timer.start(settings.restSeconds)}
+            restLeft={settings.showRestTimer && timer.status !== 'idle' && restHidden ? timer.left : null}
+            onRest={() => startRest(settings.restSeconds)}
+            onRestOpen={() => setRestHidden(false)}
             onNext={onNext}
           />
         }
@@ -382,7 +392,8 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
         />
       ) : (
         settings.showRestTimer &&
-        timer.status !== 'idle' && (
+        timer.status !== 'idle' &&
+        !restHidden && (
           <FocusRest
             timer={timer}
             title={superset ? `Суперсет ${superset.letter}` : focusTitle}
@@ -399,7 +410,7 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
                 : null
             }
             onToSet={startSet}
-            onClose={timer.stop}
+            onClose={() => setRestHidden(true)}
             planDone={planDone}
             next={forward}
             onNext={() => {
@@ -431,6 +442,24 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
           stopwatch.resume()
         }}
         onSaved={onRoundSaved}
+      />
+      <ExerciseSheet
+        exercise={preview && { id: preview.exerciseId, name: preview.name }}
+        onOpenChange={open => !open && setPreviewId(null)}
+        action={
+          preview && (
+            <Button
+              size='lg'
+              className='w-full'
+              onClick={() => {
+                setPickedId(preview.id)
+                setPreviewId(null)
+              }}
+            >
+              Перейти к упражнению
+            </Button>
+          )
+        }
       />
       <Stamp text={stamp} />
       <EditSetSheet

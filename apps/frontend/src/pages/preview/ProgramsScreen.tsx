@@ -53,7 +53,7 @@ const ActiveProgram = ({ program }: { program: Program }) => (
               title={c.title}
               active={c.id === program.nextComplexId}
             >
-              <Eyebrow>{c.exercises.length} упр.</Eyebrow>
+              <Eyebrow>{pluralize(c.exercises.length, EXERCISE_FORMS)}</Eyebrow>
             </Ticket>
           </li>
         ))}

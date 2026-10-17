@@ -81,9 +81,9 @@ export const ScreenSection = ({
 
   return (
     <Rise className={cn('flex flex-col gap-3', !bleed && 'px-gutter', className)}>
-      {(title || aside || action) && (
+      {( action) && (
         <div className={cn('flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1', bleed && 'px-gutter')}>
-          {title && (
+          {/* {title && (
             <Eyebrow
               as='h2'
               tone='primary'
@@ -91,7 +91,7 @@ export const ScreenSection = ({
               {title}
             </Eyebrow>
           )}
-          {aside && <Eyebrow>{aside}</Eyebrow>}
+          {aside && <Eyebrow>{aside}</Eyebrow>} */}
           {action}
         </div>
       )}

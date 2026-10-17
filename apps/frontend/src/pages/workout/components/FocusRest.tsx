@@ -1,4 +1,6 @@
 import { ArrowRightIcon, PlayIcon, PlusIcon } from 'lucide-react'
+import { motion, useReducedMotion } from 'motion/react'
+import { useRef, useState } from 'react'
 
 import { formatSeconds, type useDeadlineTimer } from '@/shared/lib/hooks/use-deadline-timer'
 import { Ring } from '@/shared/ui/kit/Ring'
@@ -18,7 +20,7 @@ type FocusRestProps = {
   round: { letter: string; number: number; rounds: number } | null
   /** Отдых закончен или пропущен — сразу следующий подход */
   onToSet: () => void
-  /** Подходов больше не будет — к экрану упражнения */
+  /** К экрану упражнения: отдых сворачивается, таймер идёт и виден на кнопке отдыха */
   onClose: () => void
   /** План по подходам выполнен — главная кнопка ведёт дальше, а не в лишний подход */
   planDone: boolean
@@ -43,6 +45,15 @@ export const FocusRest = ({
   const over = timer.left <= 0
   // total растёт с каждым «+30 с», поэтому прошедшее считаем от него: видно, сколько отдыхали всего, с добавками
   const rested = Math.max(0, timer.total - timer.left)
+  const still = useReducedMotion()
+  // Каждое нажатие — своя всплывашка: при быстрых нажатиях они летят друг за другом, а не перезапускают одну
+  const [bumps, setBumps] = useState<number[]>([])
+  const bumpId = useRef(0)
+  const addRest = () => {
+    timer.add(30)
+    bumpId.current += 1
+    setBumps((list) => [...list, bumpId.current])
+  }
   return (
     <FocusShell
       title={title}
@@ -91,14 +102,25 @@ export const FocusRest = ({
             </Button>
           )}
           <div className='grid grid-cols-2 gap-3'>
-            <Button
-              variant='outline'
-              disabled={over}
-              onClick={() => timer.add(30)}
-            >
-              <PlusIcon strokeWidth={3} />
-              30 с
-            </Button>
+            {/* Дальше только завершение: продлевать отдых незачем, а вернуться может понадобиться —
+                добить подход в другом упражнении */}
+            {planDone && next === 'finish' ? (
+              <Button
+                variant='outline'
+                onClick={onClose}
+              >
+                К упражнению
+              </Button>
+            ) : (
+              <Button
+                variant='outline'
+                disabled={over}
+                onClick={addRest}
+              >
+                <PlusIcon strokeWidth={3} />
+                30 с
+              </Button>
+            )}
             {planDone ? (
               <Button
                 variant='outline'
@@ -154,6 +176,27 @@ export const FocusRest = ({
           ) : (
             // Подпись под цифрами тоже вне потока, чтобы цифры стояли ровно по центру кольца
             <div className='relative'>
+              {/* Над цифрами и вне потока: всплывашка не двигает секундомер */}
+              <div className='pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2'>
+                {bumps.map((id) => (
+                  <motion.div
+                    key={id}
+                    className='absolute bottom-0 left-1/2 -translate-x-1/2 whitespace-nowrap'
+                    initial={{ opacity: 0, y: 8, scale: 0.9 }}
+                    animate={{ opacity: [0, 1, 1, 0], y: still ? 0 : -56, scale: 1 }}
+                    transition={{ duration: 1.1, ease: 'easeOut', times: [0, 0.15, 0.6, 1] }}
+                    onAnimationComplete={() => setBumps((list) => list.filter((item) => item !== id))}
+                  >
+                    <Poster
+                      size='lg'
+                      tone='primary'
+                      numeric
+                    >
+                      +30 с
+                    </Poster>
+                  </motion.div>
+                ))}
+              </div>
               <Poster
                 size='hero'
                 numeric

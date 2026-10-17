@@ -146,7 +146,7 @@ const OtherComplexSheet = ({
             key={c.id}
             mark={c.letter}
             title={c.title}
-            meta={`${c.exercises.length} упр.${c.id === activeProgram.nextComplexId ? ' · на очереди' : ''}`}
+            meta={`${pluralize(c.exercises.length, EXERCISE_FORMS)}${c.id === activeProgram.nextComplexId ? ' · на очереди' : ''}`}
             selected={c.id === current}
             onClick={() => {
               onPick(c.id)
@@ -226,7 +226,7 @@ const TrainingDay = () => {
 
       <ScreenSection
         title='Состав'
-        aside={`${exercisesOfDay.length} упр.`}
+        aside={`${pluralize(exercisesOfDay.length, EXERCISE_FORMS)}`}
       >
         <List>
           {exercisesOfDay.map((e, i) => (

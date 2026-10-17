@@ -144,7 +144,7 @@ const TemplateScreen = () => {
                 title={c.title}
                 active={i === 0}
               >
-                <Eyebrow>{c.exercises.length} упр.</Eyebrow>
+                <Eyebrow>{pluralize(c.exercises.length, EXERCISE_FORMS)}</Eyebrow>
               </Ticket>
             </li>
           ))}

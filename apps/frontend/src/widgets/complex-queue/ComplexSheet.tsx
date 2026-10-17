@@ -1,5 +1,7 @@
 import { CalendarCheckIcon } from 'lucide-react'
 
+import { EXERCISE_FORMS } from '@/shared/lib/plural-forms'
+import { pluralize } from '@front-cmdt/utils/pluralize'
 import { complexLetter, planText, type ProgramComplex } from '@/entities/program'
 import { ExerciseBlocks } from '@/shared/ui/kit/ExerciseBlocks'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
@@ -41,7 +43,7 @@ export const ComplexSheet = ({
                 {complexLetter(complex.index)} · {c.name}
               </SheetTitle>
               <SheetDescription>
-                {c.exercises.length} упр.{c.isNext ? ' · на очереди' : ''}
+                {pluralize(c.exercises.length, EXERCISE_FORMS)}{c.isNext ? ' · на очереди' : ''}
               </SheetDescription>
             </SheetHeader>
             <div className='min-h-0 overflow-y-auto px-gutter pb-6'>

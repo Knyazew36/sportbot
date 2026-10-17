@@ -1,6 +1,7 @@
 import { ChevronDownIcon, GripVerticalIcon, PlusIcon, Trash2Icon, XIcon } from 'lucide-react'
 import { AnimatePresence, motion, Reorder, useDragControls } from 'motion/react'
 
+import { EXERCISE_FORMS } from '@/shared/lib/plural-forms'
 import { cn } from '@/shared/lib/utils'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
@@ -10,6 +11,7 @@ import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Badge } from '@/shared/ui/shadcn/badge'
 import { Input } from '@/shared/ui/shadcn/input'
 import { Label } from '@/shared/ui/shadcn/label'
+import { pluralize } from '@front-cmdt/utils/pluralize'
 
 import type { EditorComplex, EditorExercise } from './types'
 
@@ -88,7 +90,7 @@ export const ComplexCard = ({
             tone='muted'
             className='mt-0.5 flex items-center gap-2'
           >
-            {complex.exercises.length} упр.
+            {pluralize(complex.exercises.length, EXERCISE_FORMS)}
             {isNext && <Badge className='h-5'>следующий</Badge>}
           </Text>
         </button>

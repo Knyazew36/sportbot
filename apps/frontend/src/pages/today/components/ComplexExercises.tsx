@@ -1,5 +1,7 @@
 import { TriangleAlertIcon } from 'lucide-react'
 
+import { EXERCISE_FORMS } from '@/shared/lib/plural-forms'
+import { pluralize } from '@front-cmdt/utils/pluralize'
 import { useState } from 'react'
 
 import type { DayToday } from '@/entities/day'
@@ -23,7 +25,7 @@ export const ComplexExercises = ({ complex }: { complex: Complex }) => {
   return (
     <ScreenSection
       title='Состав'
-      aside={`${complex.exercises.length} упр.`}
+      aside={`${pluralize(complex.exercises.length, EXERCISE_FORMS)}`}
     >
       {complex.exercises.length === 0 ? (
         <Text tone='soft'>В комплексе пока нет упражнений — добавь их в программе.</Text>

@@ -30,6 +30,8 @@ const buttonVariants = cva(
         destructive: 'border-destructive bg-background text-destructive [--press:var(--sb-danger)]',
         // Зелёный «можно»: тренировка вне очереди, подтверждённый успех
         success: 'border-foreground bg-success text-black [--press:var(--sb-ink)]',
+        // Идёт отдых: тот же абрикосовый, что у живой полосы во время отдыха
+        rest: 'border-foreground bg-(--sb-rest) text-black [--press:var(--sb-ink)]',
         // Золото — «спасибо» звёздами: тихое, не спорит с синими действиями. Выбранное — с золотой подложкой
         gold: 'border-sb-gold bg-background text-sb-gold [--press:var(--sb-gold)] aria-pressed:bg-sb-gold-tint',
         // Жёлтый «наружу»: публикация в каталог и «Поделиться» — всё, что увидят другие люди
@@ -43,8 +45,8 @@ const buttonVariants = cva(
         link: 'border-transparent text-primary underline-offset-4 shadow-none! translate-none! hover:underline',
       },
       size: {
-        xs: "h-7 px-2.5 text-[12px] shadow-[2px_2px_0_var(--press)] active:translate-[2px] [&_svg:not([class*='size-'])]:size-3",
-        sm: 'h-9 px-3.5 text-[13px] shadow-[2px_2px_0_var(--press)] active:translate-[2px]',
+        xs: "sb-poster h-7 px-2.5 text-[13px] tracking-[0.01em] shadow-[2px_2px_0_var(--press)] active:translate-[2px] [&_svg:not([class*='size-'])]:size-3",
+        sm: 'sb-poster h-9 px-3.5 text-[15px] tracking-[0.01em] shadow-[2px_2px_0_var(--press)] active:translate-[2px]',
         default: 'sb-poster h-12 px-5 text-[18px] shadow-[3px_3px_0_var(--press)] active:translate-[3px]',
         lg: 'sb-poster h-[60px] px-6 text-[22px] shadow-[4px_4px_0_var(--press)] active:translate-[4px]',
         // Главное действие экрана: крупная цель под большой палец

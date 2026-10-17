@@ -1,4 +1,6 @@
 import type { DayToday } from '@/entities/day'
+import { EXERCISE_FORMS } from '@/shared/lib/plural-forms'
+import { pluralize } from '@front-cmdt/utils/pluralize'
 import { ROUTES } from '@/shared/config/paths'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { OptionButton } from '@/shared/ui/kit/OptionButton'
@@ -58,7 +60,7 @@ export const OtherComplexSheet = ({
             key={c.id}
             mark={complexLetter(i)}
             title={c.name}
-            meta={`${c.exerciseCount} упр.${c.isNext ? ' · на очереди' : ''}`}
+            meta={`${pluralize(c.exerciseCount, EXERCISE_FORMS)}${c.isNext ? ' · на очереди' : ''}`}
             selected={c.id === currentId}
             onClick={() => {
               onPick(c.id)

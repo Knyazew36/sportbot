@@ -5,6 +5,7 @@ import { type ReactNode, useEffect, useState } from 'react'
 import { cn } from '@/shared/lib/utils'
 import { showBackButton } from '@/shared/miniapp'
 import { ScreenChromeProvider } from '@/shared/ui/kit/screen-chrome'
+import { UndoBar } from '@/shared/ui/kit/UndoBar'
 
 import { BottomNav } from './BottomNav'
 import { isFocusRoute, isLiveHidden, isSectionRoot, type NavBadges, type ShellNav } from './nav'
@@ -50,6 +51,7 @@ export const MiniAppShell = ({ nav, isAdmin = false, badges, liveBar, className 
         <div className='flex flex-1 flex-col'>
           <Outlet />
         </div>
+        <UndoBar />
       </ScreenChromeProvider>
       {navVisible && (
         <BottomNav

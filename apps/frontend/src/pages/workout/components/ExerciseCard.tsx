@@ -72,12 +72,15 @@ export const ExerciseCard = ({ item, label }: ExerciseCardProps) => {
             {planText(item.plannedSets, item.repsMin, item.repsMax, item.measure)}
           </Poster>
         </Text>
-        <Text size='sm'>
-          <Eyebrow>Прошлый раз </Eyebrow>
-          <Poster as='span' size='sm' tone={last ? 'primary' : 'faint'}>
-            {last ?? 'первый раз'}
-          </Poster>
-        </Text>
+        {/* Упражнение раньше не делали — сравнивать не с чем, строку не показываем */}
+        {last && (
+          <Text size='sm'>
+            <Eyebrow>Прошлый раз </Eyebrow>
+            <Poster as='span' size='sm' tone='primary'>
+              {last}
+            </Poster>
+          </Text>
+        )}
       </Rise>
 
       <Rise className='flex gap-3'>

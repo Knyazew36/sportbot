@@ -280,7 +280,7 @@ const UiKitScreen = () => {
             <TopBar
               back={ROUTES.PREVIEW_TODAY}
               title='Грудь и трицепс'
-              subtitle='упр. 2 из 6 · 23:41'
+              subtitle='упражнение 2 из 6 · 23:41'
               action={
                 <Button
                   variant='ink'
@@ -491,13 +491,13 @@ const UiKitScreen = () => {
             <OptionButton
               mark='A'
               title='Грудь и трицепс'
-              meta='6 упр. · на очереди'
+              meta='6 упражнений · на очереди'
               selected
             />
             <OptionButton
               mark='B'
               title='Широчайшие, задние дельты и бицепс'
-              meta='5 упр.'
+              meta='5 упражнений'
             />
           </div>
         </Sample>

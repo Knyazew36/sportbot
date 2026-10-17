@@ -27,3 +27,24 @@ export const toBlocks = <T extends { id: number; superset: number | null }>(item
   }
   return blocks
 }
+
+/**
+ * Суперсеты после правки порядка или состава — копия normalizeSupersets с бэка (server/src/program/superset.ts):
+ * у номера остаётся самый длинный непрерывный отрезок, одиночки выходят из группы, номера идут 1..n сверху вниз.
+ * Нужна, чтобы правка, которая ещё не ушла на сервер, выглядела ровно так, как её потом вернёт сервер
+ */
+export const normalizeSupersets = <T extends { id: number; superset: number | null }>(items: T[]): T[] => {
+  const blocks = toBlocks(items)
+  const longest = new Map<number, ExerciseBlock<T>>()
+  for (const block of blocks) {
+    if (block.superset === null) continue
+    const best = longest.get(block.superset)
+    if (!best || block.items.length > best.items.length) longest.set(block.superset, block)
+  }
+  let next = 0
+  return blocks.flatMap(block => {
+    const kept = block.superset !== null && block.items.length > 1 && longest.get(block.superset) === block
+    const superset = kept ? ++next : null
+    return block.items.map(item => (item.superset === superset ? item : { ...item, superset }))
+  })
+}

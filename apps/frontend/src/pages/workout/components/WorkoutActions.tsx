@@ -15,6 +15,10 @@ type WorkoutActionsProps = {
   nextPending: boolean
   /** Отдых вручную — когда он не стартует сам после подхода; null — кнопки нет */
   restSeconds: number | null
+  /** Отдых свёрнут к экрану упражнения: пока остаток > 0, кнопка отдыха стоит вместо подхода; null — отдых не идёт */
+  restLeft?: number | null
+  /** Развернуть свёрнутый отдых обратно на весь экран */
+  onRestOpen?: () => void
   /** Суперсет: номер следующего круга; null — суперсет закончен, круг не начать */
   round?: number | null
   /** Записать круг без секундомера — сразу шторка ввода */
@@ -36,25 +40,57 @@ export const WorkoutActions = ({
   next,
   nextPending,
   restSeconds,
+  restLeft = null,
   round,
   onRecordRound,
   onStartSet,
   onRest,
+  onRestOpen,
   onNext,
 }: WorkoutActionsProps) => {
   const superset = round !== undefined
+  // Свёрнутый отдых ещё идёт — вместо подхода кнопка отдыха с остатком, тап разворачивает его.
+  // Время вышло — снова обычная кнопка подхода
+  const resting = restLeft !== null && restLeft > 0
+  const restBack = resting && (
+    <Button
+      variant='rest'
+      size='lg'
+      className='min-w-0 flex-1 shrink'
+      onClick={onRestOpen}
+    >
+      <TimerIcon className='size-6' />
+      Отдых
+      {/* Без ячеек Digits: в кнопке они разводили цифры слишком широко. Ширина рамки постоянная — подпись не прыгает */}
+      <span className='inline-block w-[2.3em] text-left'>{formatSeconds(restLeft)}</span>
+    </Button>
+  )
+  // Ручной старт отдыха — когда он не стартует сам и сейчас не идёт
+  const restButton = restLeft === null && restSeconds !== null && (
+    <Button
+      variant='outline'
+      size='lg'
+      onClick={onRest}
+      aria-label='Начать отдых'
+    >
+      <TimerIcon className='size-5' />
+      <Digits>{formatSeconds(restSeconds)}</Digits>
+    </Button>
+  )
   const start = superset ? (
     round !== null && (
       // На 360px «Начать круг» и «Записать» с подписями не влезали и давали боковой скролл — «Записать» значком
       <div className='flex gap-3'>
-        <Button
-          size='lg'
-          className='min-w-0 flex-1 shrink'
-          onClick={onStartSet}
-        >
-          <PlayIcon className='size-6' />
-          Начать круг {round}
-        </Button>
+        {restBack || (
+          <Button
+            size='lg'
+            className='min-w-0 flex-1 shrink'
+            onClick={onStartSet}
+          >
+            <PlayIcon className='size-6' />
+            Начать круг {round}
+          </Button>
+        )}
         <Button
           variant='outline'
           size='lg'
@@ -63,42 +99,24 @@ export const WorkoutActions = ({
         >
           <ClipboardPenIcon className='size-5' />
         </Button>
-        {restSeconds !== null && (
-          <Button
-            variant='outline'
-            size='lg'
-            onClick={onRest}
-            aria-label='Начать отдых'
-          >
-            <TimerIcon className='size-5' />
-            <Digits>{formatSeconds(restSeconds)}</Digits>
-          </Button>
-        )}
+        {restButton}
       </div>
     )
   ) : (
     <div className='flex gap-3'>
-      {/* План выполнен — подход не главный: лишний подход только осознанно, а не по привычке нажать синюю */}
-      <Button
-        variant={planDone ? 'outline' : 'default'}
-        size='lg'
-        className='flex-1'
-        onClick={onStartSet}
-      >
-        {planDone ? <PlusIcon strokeWidth={3} /> : <PlayIcon className='size-6' />}
-        {planDone ? 'Ещё подход' : 'Начать подход'}
-      </Button>
-      {restSeconds !== null && (
+      {restBack || (
+        // План выполнен — подход не главный: лишний подход только осознанно, а не по привычке нажать синюю
         <Button
-          variant='outline'
+          variant={planDone ? 'outline' : 'default'}
           size='lg'
-          onClick={onRest}
-          aria-label='Начать отдых'
+          className='flex-1'
+          onClick={onStartSet}
         >
-          <TimerIcon className='size-5' />
-          <Digits>{formatSeconds(restSeconds)}</Digits>
+          {planDone ? <PlusIcon strokeWidth={3} /> : <PlayIcon className='size-6' />}
+          {planDone ? 'Ещё подход' : 'Начать подход'}
         </Button>
       )}
+      {restButton}
     </div>
   )
 

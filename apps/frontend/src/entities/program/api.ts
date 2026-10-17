@@ -306,7 +306,8 @@ export const useUngroupComplexExercise = () => {
   const apply = useApplyProgram()
   return useMutation({
     mutationFn: (id: number) => programControllerUngroupItem(id),
-    meta: { successMessage: 'Упражнение вынесено из суперсета' },
+    // Плашку «Отменить» показывает редактор комплекса (useComplexEditing) — тост дублировал бы её
+    meta: { skipSuccessToast: true },
     onSuccess: apply,
   })
 }
@@ -316,7 +317,8 @@ export const useUngroupSuperset = () => {
   return useMutation({
     mutationFn: ({ complexId, superset }: { complexId: number; superset: number }) =>
       programControllerUngroupSuperset(complexId, { superset }),
-    meta: { successMessage: 'Суперсет разгруппирован' },
+    // Плашку «Отменить» показывает редактор комплекса (useComplexEditing) — тост дублировал бы её
+    meta: { skipSuccessToast: true },
     onSuccess: apply,
   })
 }
@@ -335,7 +337,8 @@ export const useDeleteComplexExercise = () => {
   const apply = useApplyProgram()
   return useMutation({
     mutationFn: (id: number) => programControllerRemoveItem(id),
-    meta: { successMessage: 'Упражнение убрано' },
+    // Плашку «Отменить» показывает редактор комплекса (useComplexEditing) — тост дублировал бы её
+    meta: { skipSuccessToast: true },
     onSuccess: apply,
   })
 }

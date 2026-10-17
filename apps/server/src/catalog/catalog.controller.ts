@@ -14,6 +14,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
+import { User } from '@/generated/prisma/client';
 import { Swagger } from '@/common/decorators/swagger/swagger.decorator';
 import { SportAuth } from '@/miniapp/decorators/sport-auth.decorator';
 import { CleanupStagedUploadsInterceptor } from '@/upload/cleanup-staged-uploads.interceptor';
@@ -164,10 +165,10 @@ export class CatalogController {
     bearerAuth: true,
   })
   public exercise(
-    @CurrentUser('id') userId: number,
+    @CurrentUser() user: User,
     @Param('id', ParseIntPipe) id: number,
   ) {
-    return this.catalogAppService.exercise(userId, id);
+    return this.catalogAppService.exercise(user, id);
   }
 
   // ── Растяжки ────────────────────────────────────────────────────────────

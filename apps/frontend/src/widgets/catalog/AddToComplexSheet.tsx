@@ -1,5 +1,7 @@
 import { CheckIcon } from 'lucide-react'
 
+import { EXERCISE_FORMS } from '@/shared/lib/plural-forms'
+import { pluralize } from '@front-cmdt/utils/pluralize'
 import { useState } from 'react'
 
 import { OptionButton } from '@/shared/ui/kit/OptionButton'
@@ -63,7 +65,7 @@ export const AddToComplexSheet = ({
                 key={c.id}
                 mark={c.letter}
                 title={c.title}
-                meta={`${c.count} упр.`}
+                meta={`${pluralize(c.count, EXERCISE_FORMS)}`}
                 onClick={() =>
                   Promise.resolve(onPick(c.id))
                     .then(() => setAdded(c.id))

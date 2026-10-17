@@ -1,8 +1,9 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useParams } from 'react-router'
 
 import {
-  complexLetter,
   type Program,
+  programKeys,
   useDeleteComplex,
   useDeleteComplexExercise,
   useProgram,
@@ -17,11 +18,12 @@ import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Screen } from '@/shared/ui/kit/Screen'
 import { TopBar } from '@/shared/ui/kit/ScreenHeader'
-import { arrangeBy } from '@/widgets/program-editor/arrange'
-import { type ComplexActions, ComplexEditor } from '@/widgets/program-editor/ComplexEditor'
+import { ComplexEditor } from '@/widgets/program-editor/ComplexEditor'
+import { useComplexEditing } from '@/widgets/program-editor/use-complex-editing'
 
-// Каждая правка сразу уходит на сервер; пока перестановка сохраняется, показываем новый порядок, а не старый
-const useComplexActions = (onDeleted: () => void) => {
+// Правки уходят на сервер по очереди; удаление упражнения и разборку суперсета можно отменить 3 секунды
+const useComplexActions = (programId: number, complexId: number, onDeleted: () => void) => {
+  const queryClient = useQueryClient()
   const renameComplex = useRenameComplex()
   const deleteComplex = useDeleteComplex()
   const updateExercise = useUpdateComplexExercise()
@@ -30,28 +32,20 @@ const useComplexActions = (onDeleted: () => void) => {
   const ungroupExercise = useUngroupComplexExercise()
   const ungroupSuperset = useUngroupSuperset()
 
-  const actions: ComplexActions = {
-    renameComplex: (id, name) => renameComplex.mutateAsync({ id, name }),
-    deleteComplex: id => deleteComplex.mutateAsync(id).then(onDeleted),
-    updateExercise: (id, plan) => updateExercise.mutateAsync({ id, ...plan }),
-    deleteExercise: id => deleteExercise.mutate(id),
-    reorderExercises: (complexId, ids) => reorderExercises.mutate({ complexId, ids }),
-    ungroupExercise: id => ungroupExercise.mutate(id),
-    ungroupSuperset: (complexId, superset) => ungroupSuperset.mutate({ complexId, superset }),
-  }
-
-  const pick = (program: Program, complexId: number) => {
-    const index = program.complexes.findIndex(c => c.id === complexId)
-    const complex = program.complexes[index]
-    if (!complex) return null
-    const exercises =
-      reorderExercises.isPending && reorderExercises.variables.complexId === complexId
-        ? arrangeBy(complex.exercises, reorderExercises.variables.ids)
-        : complex.exercises
-    return { complex: { ...complex, exercises }, letter: complexLetter(index) }
-  }
-
-  return { actions, pick }
+  return useComplexEditing({
+    mutations: {
+      renameComplex: (id, name) => renameComplex.mutateAsync({ id, name }),
+      deleteComplex: id => deleteComplex.mutateAsync(id),
+      updateExercise: (id, plan) => updateExercise.mutateAsync({ id, ...plan }),
+      deleteExercise: id => deleteExercise.mutateAsync(id),
+      reorderExercises: (id, ids) => reorderExercises.mutateAsync({ complexId: id, ids }),
+      ungroupExercise: id => ungroupExercise.mutateAsync(id),
+      ungroupSuperset: (id, superset) => ungroupSuperset.mutateAsync({ complexId: id, superset }),
+    },
+    readComplex: () =>
+      queryClient.getQueryData<Program>(programKeys.detail(programId))?.complexes.find(c => c.id === complexId),
+    onDeleted,
+  })
 }
 
 // Комплекс программы на отдельной странице (frontend-tz, 10.3): название и упражнения с планом.
@@ -63,22 +57,26 @@ const ComplexPage = () => {
   const navigate = useNavigate()
   const program = useProgram(programId)
   const back = buildPath(ROUTES.PROGRAM, { programId })
-  const { actions, pick } = useComplexActions(() => navigate(back, { replace: true }))
-  const current = program.data ? pick(program.data, complexId) : null
+  const { view, actions } = useComplexActions(programId, complexId, () => navigate(back, { replace: true }))
+  const pick = (p: Program) => {
+    const complex = p.complexes.find(c => c.id === complexId)
+    return complex && view(complex)
+  }
 
   return (
     <Screen
       header={
         <TopBar
           back={back}
-          title={current?.complex.name ?? 'Комплекс'}
-          subtitle={current ? `комплекс ${current.letter} · ${program.data?.name}` : undefined}
+          title={program.data?.complexes.find(c => c.id === complexId)?.name ?? 'Комплекс'}
           action={
+            // Правки уже ушли на сервер по ходу; кнопка подтверждает и возвращает в программу
             <ButtonLink
               to={back}
               size='sm'
+              variant='success'
             >
-              Готово
+              Сохранить
             </ButtonLink>
           }
         />
@@ -86,16 +84,16 @@ const ComplexPage = () => {
     >
       <QueryScreen
         query={program}
-        isEmpty={p => !pick(p, complexId)}
+        isEmpty={p => !pick(p)}
         empty={{ title: 'Комплекса нет', description: 'Его уже удалили. Вернись в программу.' }}
       >
         {p => {
-          const found = pick(p, complexId)
+          const complex = pick(p)
           return (
-            found && (
+            complex && (
               <ComplexEditor
-                complex={found.complex}
-                actions={actions}
+                complex={complex}
+                actions={actions(complex)}
                 addExerciseTo={buildPath(ROUTES.PROGRAM_ADD_EXERCISE, { programId, complexId })}
               />
             )

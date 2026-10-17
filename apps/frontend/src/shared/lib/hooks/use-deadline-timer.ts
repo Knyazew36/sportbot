@@ -38,6 +38,12 @@ type Options = {
  */
 export const useDeadlineTimer = ({ storageKey, onEnd }: Options = {}) => {
   const [state, setState] = useState<TimerState>(() => read(storageKey))
+  // Ключ появился позже (id тренировки догрузился) — перечитываем хранилище, иначе таймер так и останется пустым
+  const [readKey, setReadKey] = useState(storageKey)
+  if (readKey !== storageKey) {
+    setReadKey(storageKey)
+    setState(read(storageKey))
+  }
   const [now, setNow] = useState(() => Date.now())
   const endedRef = useRef(false)
   const onEndRef = useRef(onEnd)

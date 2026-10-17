@@ -177,6 +177,10 @@
   --sb-live: #d1ffca;
   --sb-live-deep: #b4f5a8;
   --sb-live-ink: #0a0a0a;
+  /* Отдых — тёплый абрикосовый: отличим от мятной работы и синих действий. Кнопка отдыха и живая полоса во время отдыха.
+     Как и --sb-live, одинаков в любой теме, текст чёрный, формат #RRGGBB — уходит в шапку Telegram */
+  --sb-rest: #ffdcae;
+  --sb-rest-deep: #ffc98a;
   --primary: var(--sb-blue);
   --primary-foreground: var(--sb-paper);
   --secondary: var(--mist);

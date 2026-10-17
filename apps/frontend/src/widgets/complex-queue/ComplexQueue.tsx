@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+import { EXERCISE_FORMS } from '@/shared/lib/plural-forms'
+import { pluralize } from '@front-cmdt/utils/pluralize'
 import { complexLetter, type ProgramComplex } from '@/entities/program'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Ticket } from '@/shared/ui/kit/Ticket'
@@ -36,7 +38,7 @@ export const ComplexQueue = ({ complexes, activeId, aside, onPick, pickLabel }: 
               active={c.id === activeId}
               onClick={() => setOpened({ complex: c, index: i })}
             >
-              <Eyebrow>{c.exercises.length} упр.</Eyebrow>
+              <Eyebrow>{pluralize(c.exercises.length, EXERCISE_FORMS)}</Eyebrow>
             </Ticket>
           </li>
         ))}

@@ -1,4 +1,4 @@
-import { ArrowRightIcon, ListIcon, SkipBackIcon, SkipForwardIcon } from 'lucide-react'
+import { ArrowRightIcon, InfoIcon, ListIcon, SkipBackIcon, SkipForwardIcon } from 'lucide-react'
 import { useParams, useSearchParams } from 'react-router'
 
 import { useEffect, useRef, useState } from 'react'
@@ -23,6 +23,7 @@ import { Eyebrow, Lead, Poster } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { CatalogRow } from '@/widgets/catalog/CatalogRow'
 import { HoldControls } from '@/widgets/catalog/HoldControls'
+import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet'
 
 import { SideTrack } from './components/SideTrack'
 import { StretchListSheet } from './components/StretchListSheet'
@@ -35,6 +36,7 @@ type Phase = { kind: 'overview' } | { kind: 'step'; index: number; side: 1 | 2 }
 const CooldownView = ({ cooldown, start }: { cooldown: Cooldown; start: boolean }) => {
   const [phase, setPhase] = useState<Phase>(start ? { kind: 'step', index: 0, side: 1 } : { kind: 'overview' })
   const [listOpen, setListOpen] = useState(false)
+  const [opened, setOpened] = useState<{ id: number; name: string } | null>(null)
   const all = [...cooldown.main, ...cooldown.optional]
   const back = buildPath(ROUTES.WORKOUT_SUMMARY, { workoutId: cooldown.workoutId })
   const { mutate: markStart } = useCooldownStart()
@@ -80,6 +82,16 @@ const CooldownView = ({ cooldown, start }: { cooldown: Cooldown; start: boolean 
       minutes={cooldown.minutes}
       current={phase.kind === 'step' ? phase.index : null}
       onPick={go}
+      onOpen={s => setOpened({ id: s.id, name: s.name })}
+    />
+  )
+
+  // Без «Подробнее в справочнике»: уход со страницы сбросил бы, на какой растяжке человек
+  const detailSheet = (
+    <ExerciseSheet
+      exercise={opened}
+      kind='stretch'
+      onOpenChange={open => !open && setOpened(null)}
     />
   )
 
@@ -176,11 +188,13 @@ const CooldownView = ({ cooldown, start }: { cooldown: Cooldown; start: boolean 
                     name={s.name}
                     imageUrl={toAssetUrl(s.imageUrl) ?? null}
                     meta={`${s.muscles} · ${s.holdSeconds} с${s.perSide ? ' × 2' : ''}`}
+                    onClick={() => setOpened({ id: s.id, name: s.name })}
                   />
                 ))}
               </List>
             </ScreenSection>
           ))}
+        {detailSheet}
       </Screen>
     )
 
@@ -264,6 +278,15 @@ const CooldownView = ({ cooldown, start }: { cooldown: Cooldown; start: boolean 
               subtitle={`растяжка ${phase.index + 1} из ${all.length} · ~${cooldown.minutes} мин`}
               action={
                 <div className='flex items-center gap-2'>
+                  {/* Шторка поверх: таймер удержания под ней продолжает идти */}
+                  <Button
+                    variant='alert'
+                    size='icon'
+                    onClick={() => setOpened({ id: stretch.id, name: stretch.name })}
+                    aria-label='Карточка растяжки'
+                  >
+                    <InfoIcon className='size-5' />
+                  </Button>
                   <Button
                     variant='alert'
                     size='icon'
@@ -357,6 +380,7 @@ const CooldownView = ({ cooldown, start }: { cooldown: Cooldown; start: boolean 
         onEnd={() => timerEndSignal(cooldown)}
       />
       {listSheet}
+      {detailSheet}
     </div>
   )
 }

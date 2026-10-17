@@ -133,7 +133,7 @@ export const SetList = ({ item, onEdit, live = true, onAdd }: SetListProps) => {
         onClick={onAdd}
       >
         <PlusIcon strokeWidth={3} />
-        Добавить подход
+        Добавить подход вручную
       </Button>
     )}
   </Rise>

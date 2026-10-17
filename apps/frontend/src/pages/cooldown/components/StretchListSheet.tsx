@@ -14,6 +14,8 @@ type StretchListSheetProps = {
   minutes: number
   current: number | null
   onPick: (index: number) => void
+  /** Тап по строке — карточка растяжки поверх списка */
+  onOpen: (stretch: CooldownStretch) => void
 }
 
 // Вся заминка разом (frontend-tz, 9.2): из любого места можно перейти к любой растяжке
@@ -25,6 +27,7 @@ export const StretchListSheet = ({
   minutes,
   current,
   onPick,
+  onOpen,
 }: StretchListSheetProps) => {
   const blocks = [
     { title: 'Основной блок', list: main, offset: 0 },
@@ -60,6 +63,7 @@ export const StretchListSheet = ({
                       imageUrl={toAssetUrl(s.imageUrl) ?? null}
                       meta={`${s.muscles} · ${s.holdSeconds} с${s.perSide ? ' × 2' : ''}`}
                       selected={index === current}
+                      onClick={() => onOpen(s)}
                       trail={
                         <Button
                           variant={index === current ? 'default' : 'outline'}
