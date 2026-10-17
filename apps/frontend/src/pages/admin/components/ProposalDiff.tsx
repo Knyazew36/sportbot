@@ -37,7 +37,8 @@ export const ProposalDiff = ({ changes, alt }: ProposalDiffProps) => (
             />
           </dd>
         ) : (
-          <dd className='flex flex-col gap-0.5'>
+          // Шаги и ошибки приходят нумерованными строками — переносы сохраняем
+          <dd className='flex flex-col gap-0.5 whitespace-pre-line'>
             <Text
               size='sm'
               tone='muted'

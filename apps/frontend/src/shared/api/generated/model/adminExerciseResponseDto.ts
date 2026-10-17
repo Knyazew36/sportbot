@@ -14,6 +14,8 @@ export interface AdminExerciseResponseDto {
   code: string | null;
   /** @nullable */
   technique: string | null;
+  steps: string[];
+  mistakes: string[];
   /** @nullable */
   videoUrl: string | null;
   /** @nullable */
@@ -22,6 +24,10 @@ export interface AdminExerciseResponseDto {
   imagePath: string | null;
   /** @nullable */
   imageUrl: string | null;
+  /** @nullable */
+  imageEndPath: string | null;
+  /** @nullable */
+  imageEndUrl: string | null;
   primary: number[];
   secondary: number[];
   jointIds: number[];

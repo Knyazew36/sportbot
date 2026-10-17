@@ -290,6 +290,8 @@ export class AdminAppService {
             id: request.exercise.id,
             name: request.exercise.name,
             text: request.exercise.technique,
+            steps: request.exercise.steps,
+            mistakes: request.exercise.mistakes,
             videoUrl: request.exercise.videoUrl,
             primaryMuscles: request.exercise.muscles
               .filter((m) => m.role === 'PRIMARY')
@@ -305,6 +307,8 @@ export class AdminAppService {
               id: request.stretch.id,
               name: request.stretch.name,
               text: request.stretch.howTo,
+              steps: request.stretch.steps,
+              mistakes: request.stretch.mistakes,
               videoUrl: null,
               primaryMuscles: request.stretch.muscles.map((m) => m.muscle.name),
               secondaryMuscles: [],

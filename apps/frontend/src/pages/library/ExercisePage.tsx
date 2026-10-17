@@ -1,15 +1,16 @@
-import { CirclePlayIcon, PencilLineIcon, PlusIcon, TriangleAlertIcon, XIcon } from 'lucide-react'
+import { CirclePlayIcon, PencilLineIcon, PlusIcon, TriangleAlertIcon } from 'lucide-react'
 import { useParams, useSearchParams } from 'react-router'
 
 import { useState } from 'react'
 
-import { EQUIPMENT_LABEL, splitTechnique, useCatalogExercise } from '@/entities/catalog'
+import { EQUIPMENT_LABEL, exerciseGuide, useCatalogExercise } from '@/entities/catalog'
 import { useLimitations } from '@/entities/limitation'
 import { complexLetter, useActiveProgram, useAddComplexExercises } from '@/entities/program'
 import { toAssetUrl } from '@/shared/api'
 import { ROUTES } from '@/shared/config/paths'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
-import { CatalogImage } from '@/shared/ui/kit/CatalogImage'
+import { MistakeList } from '@/shared/ui/kit/MistakeList'
+import { PhotoPair } from '@/shared/ui/kit/PhotoPair'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Screen, StickyFooter } from '@/shared/ui/kit/Screen'
@@ -74,16 +75,16 @@ const ExercisePage = () => {
     >
       <QueryScreen query={exercise}>
         {e => {
-          const { points, mistakes } = splitTechnique(e.technique)
+          const guide = exerciseGuide(e)
           // Суставы, на которые у пользователя действует ограничение, подсвечены
           const limited = new Set(limitations.data?.map(l => l.jointId))
           return (
             <>
               <Rise className='px-gutter flex flex-col gap-4'>
-                <CatalogImage
-                  src={toAssetUrl(e.imageUrl) ?? null}
+                <PhotoPair
+                  start={toAssetUrl(e.imageUrl) ?? null}
+                  end={toAssetUrl(e.imageEndUrl) ?? null}
                   alt={e.name}
-                  size='cover'
                 />
                 <Poster
                   as='h1'
@@ -159,36 +160,16 @@ const ExercisePage = () => {
                 )}
               </ScreenSection>
 
-              {points.length > 0 && (
+              {(guide.description || guide.steps.length > 0) && (
                 <ScreenSection title='Техника'>
-                  <StepList items={points} />
+                  {guide.description && <Text className='leading-relaxed'>{guide.description}</Text>}
+                  {guide.steps.length > 0 && <StepList items={guide.steps} />}
                 </ScreenSection>
               )}
 
-              {mistakes.length > 0 && (
+              {guide.mistakes.length > 0 && (
                 <ScreenSection title='Типичные ошибки'>
-                  {/* Сетка как у StepList: крестики встают в колонку цифр техники, и два списка читаются одной лесенкой */}
-                  <ul className='flex flex-col gap-1.5'>
-                    {mistakes.map(m => (
-                      <li
-                        key={m}
-                        className='grid grid-cols-[24px_1fr] items-start gap-2'
-                      >
-                        <XIcon
-                          className='text-destructive mt-[3px] size-3.5'
-                          strokeWidth={3.5}
-                          aria-hidden
-                        />
-                        <Text
-                          as='span'
-                          tone='soft'
-                          className='first-letter:uppercase'
-                        >
-                          {m}
-                        </Text>
-                      </li>
-                    ))}
-                  </ul>
+                  <MistakeList items={guide.mistakes} />
                 </ScreenSection>
               )}
 

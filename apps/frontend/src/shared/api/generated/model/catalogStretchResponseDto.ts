@@ -12,10 +12,19 @@ export interface CatalogStretchResponseDto {
   /** @nullable */
   imageUrl: string | null;
   /**
-     * Как делать
+     * Общее описание
      * @nullable
      */
   howTo: string | null;
+  /** Шаги выполнения по порядку */
+  steps: string[];
+  /** Типичные ошибки, каждая с исправлением */
+  mistakes: string[];
+  /**
+     * Фото финишного положения
+     * @nullable
+     */
+  imageEndUrl: string | null;
   /** Удержание, с */
   holdSeconds: number;
   /** На каждую сторону */

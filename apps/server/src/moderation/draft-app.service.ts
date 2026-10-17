@@ -45,6 +45,8 @@ export class DraftAppService {
       // У растяжки мышцы одного вида — все в primary
       secondary: isExercise ? (dto.secondary ?? []) : [],
       technique: dto.technique || undefined,
+      steps: dto.steps,
+      mistakes: dto.mistakes,
       videoUrl: dto.videoUrl || undefined,
       holdSeconds: dto.holdSeconds,
       perSide: dto.perSide,

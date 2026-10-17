@@ -21,6 +21,11 @@ interface ImportExercise {
   code: string;
   name: string;
   technique?: string;
+  /** Шаги и ошибки; поля нет — у существующей записи списки не меняются. */
+  steps?: string[];
+  mistakes?: string[];
+  /** Фото финишного положения: ссылка или путь, как у image. */
+  imageEnd?: string;
   image?: string;
   videoUrl?: string;
   equipment?: Equipment;
@@ -33,6 +38,11 @@ interface ImportStretch {
   code: string;
   name: string;
   howTo?: string;
+  /** Шаги и ошибки; поля нет — у существующей записи списки не меняются. */
+  steps?: string[];
+  mistakes?: string[];
+  /** Фото финишного положения: ссылка или путь, как у image. */
+  imageEnd?: string;
   image?: string;
   muscles: string[];
   holdSeconds: number;
@@ -104,6 +114,17 @@ const isText = (value: unknown): value is string =>
 const isCount = (value: unknown, max: number): value is number =>
   Number.isInteger(value) && (value as number) >= 1 && (value as number) <= max;
 const list = (value: unknown): unknown[] => (Array.isArray(value) ? value : []);
+const isTextList = (value: unknown): boolean =>
+  value === undefined ||
+  (Array.isArray(value) &&
+    value.length <= 20 &&
+    value.every((item) => isText(item) && item.length <= 300));
+
+/** Шаги и ошибки из файла — только если поле есть: иначе импорт не затирает правки. */
+const guideData = (item: { steps?: string[]; mistakes?: string[] }) => ({
+  ...(item.steps && { steps: item.steps.map((s) => s.trim()) }),
+  ...(item.mistakes && { mistakes: item.mistakes.map((m) => m.trim()) }),
+});
 
 /**
  * Импорт справочника и шаблонов JSON-файлом (раздел 30.2 ТЗ). Запись ищется по `code`:
@@ -199,6 +220,8 @@ export class ImportService {
         errors.push(`${at}: неизвестный сустав ${String(code)}`);
       if (item?.equipment && !EQUIPMENT.includes(item.equipment))
         errors.push(`${at}: неизвестный инвентарь ${String(item.equipment)}`);
+      if (!isTextList(item?.steps) || !isTextList(item?.mistakes))
+        errors.push(`${at}: steps/mistakes — до 20 непустых строк по 300 символов`);
     });
 
     duplicates('stretches', file.stretches);
@@ -214,6 +237,8 @@ export class ImportService {
         errors.push(`${at}: holdSeconds — целое от 1 до 600`);
       if (item?.kind && !STRETCH_KINDS.includes(item.kind))
         errors.push(`${at}: неизвестный kind ${String(item.kind)}`);
+      if (!isTextList(item?.steps) || !isTextList(item?.mistakes))
+        errors.push(`${at}: steps/mistakes — до 20 непустых строк по 300 символов`);
     });
 
     const groupCodes = duplicates('programTagGroups', file.programTagGroups);
@@ -384,19 +409,31 @@ export class ImportService {
       ...(
         await this.prisma.exercise.findMany({
           where: { code: { not: null } },
-          select: { code: true, imagePath: true },
+          select: { code: true, imagePath: true, imageEndPath: true },
         })
-      ).map((e) => [`e:${e.code}`, e.imagePath] as [string, string | null]),
+      ).flatMap((e) => [
+        [`e:${e.code}`, e.imagePath] as [string, string | null],
+        [`e:${e.code}:end`, e.imageEndPath] as [string, string | null],
+      ]),
       ...(
         await this.prisma.stretch.findMany({
           where: { code: { not: null } },
-          select: { code: true, imagePath: true },
+          select: { code: true, imagePath: true, imageEndPath: true },
         })
-      ).map((s) => [`s:${s.code}`, s.imagePath] as [string, string | null]),
+      ).flatMap((s) => [
+        [`s:${s.code}`, s.imagePath] as [string, string | null],
+        [`s:${s.code}:end`, s.imageEndPath] as [string, string | null],
+      ]),
     ]);
     const withImages = [
-      ...file.exercises.map((e) => ({ key: `e:${e.code}`, image: e.image })),
-      ...file.stretches.map((s) => ({ key: `s:${s.code}`, image: s.image })),
+      ...file.exercises.flatMap((e) => [
+        { key: `e:${e.code}`, image: e.image },
+        { key: `e:${e.code}:end`, image: e.imageEnd },
+      ]),
+      ...file.stretches.flatMap((s) => [
+        { key: `s:${s.code}`, image: s.image },
+        { key: `s:${s.code}:end`, image: s.imageEnd },
+      ]),
     ];
     for (const item of withImages) {
       if (!isText(item.image)) continue;
@@ -416,10 +453,13 @@ export class ImportService {
 
         for (const item of file.exercises) {
           const imagePath = images.get(`e:${item.code}`);
+          const imageEndPath = images.get(`e:${item.code}:end`);
           const data = {
             name: item.name.trim(),
             nameNormalized: normalizeName(item.name),
             technique: item.technique ?? null,
+            ...guideData(item),
+            ...(imageEndPath && { imageEndPath }),
             videoUrl: item.videoUrl ?? null,
             equipment: item.equipment ?? null,
             status: 'CATALOG' as const,
@@ -463,10 +503,13 @@ export class ImportService {
 
         for (const item of file.stretches) {
           const imagePath = images.get(`s:${item.code}`);
+          const imageEndPath = images.get(`s:${item.code}:end`);
           const data = {
             name: item.name.trim(),
             nameNormalized: normalizeName(item.name),
             howTo: item.howTo ?? null,
+            ...guideData(item),
+            ...(imageEndPath && { imageEndPath }),
             holdSeconds: item.holdSeconds,
             perSide: item.perSide ?? false,
             kind: item.kind ?? ('COOLDOWN' as const),

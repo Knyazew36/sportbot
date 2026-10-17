@@ -14,6 +14,8 @@ export interface AdminStretchResponseDto {
   code: string | null;
   /** @nullable */
   howTo: string | null;
+  steps: string[];
+  mistakes: string[];
   holdSeconds: number;
   perSide: boolean;
   kind: AdminStretchResponseDtoKind;
@@ -21,6 +23,10 @@ export interface AdminStretchResponseDto {
   imagePath: string | null;
   /** @nullable */
   imageUrl: string | null;
+  /** @nullable */
+  imageEndPath: string | null;
+  /** @nullable */
+  imageEndUrl: string | null;
   muscles: number[];
   status: AdminStretchResponseDtoStatus;
 }

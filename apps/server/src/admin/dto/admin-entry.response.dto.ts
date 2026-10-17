@@ -11,9 +11,15 @@ export class AdminEntryResponseDto {
   @ApiProperty({
     type: String,
     nullable: true,
-    description: 'Техника или «как делать»',
+    description: 'Общее описание',
   })
   text: string | null;
+
+  @ApiProperty({ type: [String] })
+  steps: string[];
+
+  @ApiProperty({ type: [String] })
+  mistakes: string[];
 
   @ApiProperty({ type: String, nullable: true })
   videoUrl: string | null;

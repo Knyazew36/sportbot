@@ -3,6 +3,7 @@ import { PrismaService } from 'prisma/prisma.service';
 
 import { APP_SCREEN, appBtn, btn, msg } from '@/bot';
 import { CatalogKind, normalizeName } from '@/catalog/catalog.service';
+import { guideLines } from '@/catalog/catalog.texts';
 import { paginatePrisma } from '@/common/prisma';
 import {
   Equipment,
@@ -47,6 +48,8 @@ export interface DraftInput {
   primary: number[];
   secondary: number[];
   technique?: string;
+  steps?: string[];
+  mistakes?: string[];
   videoUrl?: string;
   holdSeconds?: number;
   perSide?: boolean;
@@ -119,6 +122,8 @@ export class ModerationService {
           data: {
             ...common,
             technique: input.technique,
+            steps: input.steps,
+            mistakes: input.mistakes,
             videoUrl: input.videoUrl,
             imagePath: input.imagePath,
             equipment: input.equipment,
@@ -150,6 +155,8 @@ export class ModerationService {
         data: {
           ...common,
           howTo: input.technique,
+          steps: input.steps,
+          mistakes: input.mistakes,
           imagePath: input.imagePath,
           holdSeconds: input.holdSeconds ?? 30,
           perSide: input.perSide ?? false,
@@ -237,6 +244,7 @@ export class ModerationService {
         `Новая заявка: упражнение «${request.exercise.name}» от ${author}`,
         `Мышцы: ${names('PRIMARY')}${names('SECONDARY') ? `; вспомогательные — ${names('SECONDARY')}` : ''}`,
         `Техника: ${request.exercise.technique || 'не указана'}`,
+        ...guideLines(request.exercise),
         `Видео: ${request.exercise.videoUrl || 'нет'}`,
       );
     } else if (request.stretch) {
@@ -245,6 +253,7 @@ export class ModerationService {
         `Тянет: ${request.stretch.muscles.map((m) => m.muscle.name.toLowerCase()).join(', ')}`,
         `Удержание: ${request.stretch.holdSeconds} сек${request.stretch.perSide ? ' на сторону' : ''}`,
         `Как делать: ${request.stretch.howTo || 'не указано'}`,
+        ...guideLines(request.stretch),
       );
     }
     if (request.outcome !== 'PENDING')

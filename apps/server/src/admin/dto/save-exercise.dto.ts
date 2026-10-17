@@ -12,6 +12,7 @@ import {
   ValidateIf,
 } from 'class-validator';
 
+import { TextList } from '@/catalog/text-list.decorator';
 import { Trim } from '@/common/decorators/trim.decorator';
 
 /** Форма упражнения справочника (business-tz, 5.2): создание и правка. */
@@ -30,6 +31,12 @@ export class SaveExerciseDto {
   @IsString()
   @MaxLength(2000)
   technique?: string | null;
+
+  @TextList('Шаги выполнения по порядку')
+  steps?: string[];
+
+  @TextList('Типичные ошибки, каждая с исправлением')
+  mistakes?: string[];
 
   @ApiPropertyOptional({ type: String, nullable: true })
   @IsOptional()
@@ -57,6 +64,17 @@ export class SaveExerciseDto {
   @IsString()
   @MaxLength(200)
   imagePath?: string | null;
+
+  @ApiPropertyOptional({
+    type: String,
+    nullable: true,
+    description: 'Финишное положение, из POST admin/catalog/image; null — убрать',
+  })
+  @IsOptional()
+  @ValidateIf((_, value) => value !== null)
+  @IsString()
+  @MaxLength(200)
+  imageEndPath?: string | null;
 
   @ApiProperty({ type: [Number], description: 'Основные мышцы' })
   @IsArray()

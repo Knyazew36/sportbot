@@ -16,6 +16,7 @@ import {
   MinLength,
 } from 'class-validator';
 
+import { TextList } from '@/catalog/text-list.decorator';
 import { Trim } from '@/common/decorators/trim.decorator';
 
 const EQUIPMENT = ['BARBELL', 'DUMBBELL', 'MACHINE', 'BODYWEIGHT'] as const;
@@ -60,6 +61,12 @@ export class CreateDraftDto {
   @IsString()
   @MaxLength(2000)
   technique?: string;
+
+  @TextList('Шаги выполнения по порядку')
+  steps?: string[];
+
+  @TextList('Типичные ошибки, каждая с исправлением')
+  mistakes?: string[];
 
   @ApiPropertyOptional()
   @IsOptional()

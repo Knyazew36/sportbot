@@ -27,13 +27,29 @@ const videoUrl = z
   .transform(v => v || null)
 const EQUIPMENT_VALUES = ['BARBELL', 'DUMBBELL', 'MACHINE', 'BODYWEIGHT'] as const
 
+// Шаги и ошибки: в форме — строки useFieldArray (ему нужны объекты), на бэк — массив строк.
+// Пустые строки, оставленные кнопкой «+ Добавить», отбрасываются
+export const TEXT_LIST_MAX = 20
+export const textListSchema = z
+  .array(z.object({ value: z.string().trim().max(300, 'Пункт — до 300 символов') }))
+  .max(TEXT_LIST_MAX, `До ${TEXT_LIST_MAX} пунктов`)
+  .transform(items => items.map(item => item.value).filter(Boolean))
+export type TextListInput = z.input<typeof textListSchema>
+
+/** Список из API → строки формы */
+export const toTextList = (items: string[] | undefined): TextListInput => (items ?? []).map(value => ({ value }))
+
 // Упражнение справочника (business-tz, 5.2)
 export const exerciseFormSchema = z.object({
   name: catalogNameSchema,
   technique: optionalTextSchema(2000),
+  steps: textListSchema,
+  mistakes: textListSchema,
   videoUrl,
   equipment: z.enum(EQUIPMENT_VALUES),
   imagePath: z.string().nullable(),
+  // Фото финиша загружает только админ
+  imageEndPath: z.string().nullable().optional(),
   primary: z.array(z.number().int()).min(1, 'Нужна хотя бы одна основная мышца'),
   secondary: z.array(z.number().int()),
   jointIds: z.array(z.number().int()),
@@ -43,7 +59,7 @@ export type ExerciseFormValues = z.output<typeof exerciseFormSchema>
 
 // Правка упражнения от пользователя: те же поля и комментарий для администратора.
 // Инвентаря у записи может не быть, картинка не трогается, пока не загружена новая
-export const exerciseProposalSchema = exerciseFormSchema.extend({
+export const exerciseProposalSchema = exerciseFormSchema.omit({ imageEndPath: true }).extend({
   equipment: z.enum(EQUIPMENT_VALUES).nullable(),
   imagePath: z.string().optional(),
   comment: z.string().trim().max(500, 'До 500 символов'),
@@ -53,7 +69,7 @@ export type ExerciseProposalValues = z.output<typeof exerciseProposalSchema>
 
 // Новое упражнение из справочника: у пользователя уходит черновиком на модерацию, у админа — сразу в справочник.
 // Инвентарь и картинку можно не указывать
-export const exerciseCreateSchema = exerciseFormSchema.extend({
+export const exerciseCreateSchema = exerciseFormSchema.omit({ imageEndPath: true }).extend({
   equipment: z.enum(EQUIPMENT_VALUES).nullable(),
 })
 export type ExerciseCreateInput = z.input<typeof exerciseCreateSchema>
@@ -65,6 +81,8 @@ export type ExerciseCreateValues = z.output<typeof exerciseCreateSchema>
 export const stretchFormSchema = z.object({
   name: catalogNameSchema,
   howTo: optionalTextSchema(2000),
+  steps: textListSchema,
+  mistakes: textListSchema,
   holdSeconds: z
     .string()
     .trim()
@@ -74,13 +92,14 @@ export const stretchFormSchema = z.object({
   perSide: z.boolean(),
   kind: z.enum(['COOLDOWN', 'WARMUP']),
   imagePath: z.string().nullable(),
+  imageEndPath: z.string().nullable().optional(),
   muscles: z.array(z.number().int()).min(1, 'Отметь хотя бы одну мышцу'),
 })
 export type StretchFormInput = z.input<typeof stretchFormSchema>
 export type StretchFormValues = z.output<typeof stretchFormSchema>
 
 // Правка растяжки от пользователя: тип «заминка / разминка» решает админ, картинка не трогается без новой
-export const stretchProposalSchema = stretchFormSchema.omit({ kind: true }).extend({
+export const stretchProposalSchema = stretchFormSchema.omit({ kind: true, imageEndPath: true }).extend({
   imagePath: z.string().optional(),
   comment: z.string().trim().max(500, 'До 500 символов'),
 })

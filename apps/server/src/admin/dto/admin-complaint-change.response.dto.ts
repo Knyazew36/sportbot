@@ -3,6 +3,8 @@ import { ApiProperty } from '@nestjs/swagger';
 const FIELDS = [
   'name',
   'technique',
+  'steps',
+  'mistakes',
   'videoUrl',
   'equipment',
   'imagePath',

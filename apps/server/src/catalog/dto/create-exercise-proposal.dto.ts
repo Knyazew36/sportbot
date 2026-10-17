@@ -15,6 +15,8 @@ import {
 
 import { Trim } from '@/common/decorators/trim.decorator';
 
+import { TextList } from '../text-list.decorator';
+
 const EQUIPMENT = ['BARBELL', 'DUMBBELL', 'MACHINE', 'BODYWEIGHT'] as const;
 
 /**
@@ -48,6 +50,12 @@ export class CreateExerciseProposalDto {
   @IsString()
   @MaxLength(2000, { message: 'До 2000 символов' })
   technique?: string | null;
+
+  @TextList('Шаги выполнения по порядку')
+  steps?: string[];
+
+  @TextList('Типичные ошибки, каждая с исправлением')
+  mistakes?: string[];
 
   @ApiPropertyOptional({ type: String, nullable: true })
   @IsOptional()

@@ -14,6 +14,10 @@ export interface CreateExerciseProposalDto {
   name?: string;
   /** @nullable */
   technique?: string | null;
+  /** Шаги выполнения по порядку */
+  steps?: string[];
+  /** Типичные ошибки, каждая с исправлением */
+  mistakes?: string[];
   /** @nullable */
   videoUrl?: string | null;
   /** @nullable */

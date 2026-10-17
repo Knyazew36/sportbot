@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { type AdminStretch, useUploadCatalogImage } from '@/entities/admin'
-import { type StretchFormInput, stretchFormSchema, type StretchFormValues } from '@/entities/catalog'
+import { type StretchFormInput, stretchFormSchema, type StretchFormValues, toTextList } from '@/entities/catalog'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { StretchFields } from '@/widgets/catalog/StretchFields'
 
@@ -20,6 +20,9 @@ export const StretchForm = ({ stretch, formId, onSave }: StretchFormProps) => {
     defaultValues: {
       name: stretch?.name ?? '',
       howTo: stretch?.howTo ?? '',
+      steps: toTextList(stretch?.steps),
+      mistakes: toTextList(stretch?.mistakes),
+      imageEndPath: stretch?.imageEndPath ?? null,
       holdSeconds: String(stretch?.holdSeconds ?? 30),
       perSide: stretch?.perSide ?? false,
       kind: stretch?.kind ?? 'COOLDOWN',
@@ -39,6 +42,7 @@ export const StretchForm = ({ stretch, formId, onSave }: StretchFormProps) => {
           initialImageUrl={stretch?.imageUrl ?? null}
           upload={upload}
           showKind
+          endImage={{ initialUrl: stretch?.imageEndUrl ?? null }}
         />
       </form>
     </FormProvider>

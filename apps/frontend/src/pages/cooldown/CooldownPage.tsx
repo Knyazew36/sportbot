@@ -3,7 +3,7 @@ import { useParams, useSearchParams } from 'react-router'
 
 import { useEffect, useRef, useState } from 'react'
 
-import { splitSteps } from '@/entities/catalog/lib'
+import { stretchGuide } from '@/entities/catalog/lib'
 import { type Cooldown, useCooldown, useCooldownFinish, useCooldownStart } from '@/entities/workout'
 import { toAssetUrl } from '@/shared/api'
 import { buildPath, ROUTES } from '@/shared/config/paths'
@@ -246,6 +246,7 @@ const CooldownView = ({ cooldown, start }: { cooldown: Cooldown; start: boolean 
     )
 
   const stretch = all[phase.index]!
+  const { steps } = stretchGuide(stretch)
   const inMain = phase.index < cooldown.main.length
   const isLast =
     (phase.index === all.length - 1 || (inMain && phase.index === cooldown.main.length - 1)) &&
@@ -331,10 +332,10 @@ const CooldownView = ({ cooldown, start }: { cooldown: Cooldown; start: boolean 
             <SideTrack side={phase.side} />
           </Rise>
         )}
-        {stretch.howTo && (
+        {steps.length > 0 && (
           <Rise>
             <StepList
-              items={splitSteps(stretch.howTo)}
+              items={steps}
               size='lg'
             />
           </Rise>

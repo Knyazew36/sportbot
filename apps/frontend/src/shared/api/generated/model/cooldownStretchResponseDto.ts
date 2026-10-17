@@ -9,10 +9,19 @@ export interface CooldownStretchResponseDto {
   id: number;
   name: string;
   /**
-     * Как делать
+     * Общее описание
      * @nullable
      */
   howTo: string | null;
+  /** Шаги выполнения по порядку */
+  steps: string[];
+  /** Типичные ошибки, каждая с исправлением */
+  mistakes: string[];
+  /**
+     * Фото финишного положения
+     * @nullable
+     */
+  imageEndUrl: string | null;
   /**
      * /uploads/…
      * @nullable

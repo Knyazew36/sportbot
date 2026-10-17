@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider, useForm } from 'react-hook-form'
 
 import { type AdminExercise, useUploadCatalogImage } from '@/entities/admin'
-import { type ExerciseFormInput, exerciseFormSchema, type ExerciseFormValues } from '@/entities/catalog'
+import { type ExerciseFormInput, exerciseFormSchema, type ExerciseFormValues, toTextList } from '@/entities/catalog'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { ExerciseFields } from '@/widgets/catalog/ExerciseFields'
 
@@ -20,6 +20,9 @@ export const ExerciseForm = ({ exercise, formId, onSave }: ExerciseFormProps) =>
     defaultValues: {
       name: exercise?.name ?? '',
       technique: exercise?.technique ?? '',
+      steps: toTextList(exercise?.steps),
+      mistakes: toTextList(exercise?.mistakes),
+      imageEndPath: exercise?.imageEndPath ?? null,
       videoUrl: exercise?.videoUrl ?? '',
       equipment: exercise?.equipment ?? 'BARBELL',
       imagePath: exercise?.imagePath ?? null,
@@ -39,6 +42,7 @@ export const ExerciseForm = ({ exercise, formId, onSave }: ExerciseFormProps) =>
         <ExerciseFields
           initialImageUrl={exercise?.imageUrl ?? null}
           upload={upload}
+          endImage={{ initialUrl: exercise?.imageEndUrl ?? null }}
         />
       </form>
     </FormProvider>

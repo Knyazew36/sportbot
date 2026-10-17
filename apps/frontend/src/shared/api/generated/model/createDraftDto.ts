@@ -16,6 +16,10 @@ export interface CreateDraftDto {
   secondary?: number[];
   /** Техника (упражнение) или «как делать» (растяжка) */
   technique?: string;
+  /** Шаги выполнения по порядку */
+  steps?: string[];
+  /** Типичные ошибки, каждая с исправлением */
+  mistakes?: string[];
   videoUrl?: string;
   /** Картинка из POST catalog/image */
   imagePath?: string;

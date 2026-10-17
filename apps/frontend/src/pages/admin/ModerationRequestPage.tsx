@@ -20,12 +20,14 @@ import { applyFieldErrors } from '@/shared/lib/form'
 import { formatDate } from '@/shared/lib/format'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'
 import { List } from '@/shared/ui/kit/ListRow'
+import { MistakeList } from '@/shared/ui/kit/MistakeList'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Screen, StickyFooter } from '@/shared/ui/kit/Screen'
 import { TopBar } from '@/shared/ui/kit/ScreenHeader'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Segmented } from '@/shared/ui/kit/Segmented'
+import { StepList } from '@/shared/ui/kit/StepList'
 import { TextField } from '@/shared/ui/kit/TextField'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
@@ -143,6 +145,22 @@ const RequestForm = ({ request }: { request: AdminRequest }) => {
             )}
             <Eyebrow as='dt'>Описание</Eyebrow>
             <Text as='dd'>{entry.text ?? <span className='text-muted-foreground'>не заполнено</span>}</Text>
+            {entry.steps.length > 0 && (
+              <>
+                <Eyebrow as='dt'>Шаги</Eyebrow>
+                <dd>
+                  <StepList items={entry.steps} />
+                </dd>
+              </>
+            )}
+            {entry.mistakes.length > 0 && (
+              <>
+                <Eyebrow as='dt'>Ошибки</Eyebrow>
+                <dd>
+                  <MistakeList items={entry.mistakes} />
+                </dd>
+              </>
+            )}
             <Eyebrow as='dt'>Видео</Eyebrow>
             <Text
               as='dd'

@@ -13,6 +13,12 @@ export class AdminExerciseResponseDto {
   @ApiProperty({ type: String, nullable: true })
   technique: string | null;
 
+  @ApiProperty({ type: [String] })
+  steps: string[];
+
+  @ApiProperty({ type: [String] })
+  mistakes: string[];
+
   @ApiProperty({ type: String, nullable: true })
   videoUrl: string | null;
 
@@ -28,6 +34,12 @@ export class AdminExerciseResponseDto {
 
   @ApiProperty({ type: String, nullable: true })
   imageUrl: string | null;
+
+  @ApiProperty({ type: String, nullable: true })
+  imageEndPath: string | null;
+
+  @ApiProperty({ type: String, nullable: true })
+  imageEndUrl: string | null;
 
   @ApiProperty({ type: [Number] })
   primary: number[];

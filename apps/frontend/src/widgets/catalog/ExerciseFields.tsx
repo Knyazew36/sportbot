@@ -15,6 +15,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/shadcn/toggle-group'
 
 import { ImageField } from './ImageField'
 import { MuscleRoles } from './MuscleRoles'
+import { TextListField } from './TextListField'
 
 const EQUIPMENT = (Object.keys(EQUIPMENT_LABEL) as Equipment[]).map(value => ({ value, label: EQUIPMENT_LABEL[value] }))
 
@@ -23,11 +24,13 @@ type ExerciseFieldsProps = {
   upload: ComponentProps<typeof ImageField>['upload']
   /** Под названием: при создании — «Возможно, ты искал…». Получает введённое название */
   afterName?: (name: string) => ReactNode
+  /** Фото финишного положения — только у админа: initialUrl текущего фото */
+  endImage?: { initialUrl: string | null }
 }
 
 // Поля упражнения (business-tz, 5.2) — общие для создания, правки от пользователя и формы админа.
 // Форма и её схема — снаружи, поля берут её из FormProvider
-export const ExerciseFields = ({ initialImageUrl, upload, afterName }: ExerciseFieldsProps) => {
+export const ExerciseFields = ({ initialImageUrl, upload, afterName, endImage }: ExerciseFieldsProps) => {
   const muscles = useMuscles()
   const joints = useJoints()
   const {
@@ -57,6 +60,20 @@ export const ExerciseFields = ({ initialImageUrl, upload, afterName }: ExerciseF
           onUploaded={path => setValue('imagePath', path, { shouldDirty: true })}
         />
       </ScreenSection>
+
+      {endImage && (
+        <ScreenSection
+          title='Фото финиша'
+          aside='можно пропустить'
+        >
+          <ImageField
+            initialUrl={endImage.initialUrl}
+            alt={`${name}: финиш`}
+            upload={upload}
+            onUploaded={path => setValue('imageEndPath', path, { shouldDirty: true })}
+          />
+        </ScreenSection>
+      )}
 
       <ScreenSection title='Инвентарь'>
         <div className='no-scrollbar -mx-gutter px-gutter overflow-x-auto pb-1'>
@@ -131,23 +148,29 @@ export const ExerciseFields = ({ initialImageUrl, upload, afterName }: ExerciseF
         />
       </ScreenSection>
 
-      <ScreenSection title='Описание'>
+      <ScreenSection title='Техника'>
         <div className='flex flex-col gap-2'>
-          <Label htmlFor='item-technique'>Техника</Label>
+          <Label htmlFor='item-technique'>Описание</Label>
           <Textarea
             id='item-technique'
-            placeholder={'Ключевые пункты одним абзацем.\nОшибки: первая, вторая, третья.'}
+            placeholder='Исходное положение и на что обратить внимание'
             aria-invalid={!!errors.technique}
             {...register('technique')}
           />
           <ErrorText errors={errors.technique} />
-          <Text
-            size='xs'
-            tone='muted'
-          >
-            Строка «Ошибки: …» станет в карточке блоком типичных ошибок.
-          </Text>
         </div>
+        <TextListField
+          name='steps'
+          label='Шаги'
+          placeholder='Одно действие'
+          addLabel='Добавить шаг'
+        />
+        <TextListField
+          name='mistakes'
+          label='Ошибки'
+          placeholder='Ошибка — как исправить'
+          addLabel='Добавить ошибку'
+        />
         <TextField
           label='Ссылка на видео'
           type='url'

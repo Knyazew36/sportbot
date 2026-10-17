@@ -19,8 +19,20 @@ export interface WorkoutItemResponseDto {
      * @nullable
      */
   imageUrl: string | null;
-  /** @nullable */
+  /**
+     * Общее описание техники
+     * @nullable
+     */
   technique: string | null;
+  /** Шаги выполнения по порядку */
+  steps: string[];
+  /** Типичные ошибки, каждая с исправлением */
+  mistakes: string[];
+  /**
+     * Фото финишного положения
+     * @nullable
+     */
+  imageEndUrl: string | null;
   /** @nullable */
   videoUrl: string | null;
   /** Упражнение с собственным весом: вес необязателен */

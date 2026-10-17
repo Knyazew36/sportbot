@@ -1017,6 +1017,8 @@ export class ProgramService {
         name: draft.name,
         nameNormalized: draft.nameNormalized,
         technique: draft.technique,
+        steps: draft.steps,
+        mistakes: draft.mistakes,
         videoUrl: draft.videoUrl,
         equipment: draft.equipment,
         imagePath: draft.imagePath,

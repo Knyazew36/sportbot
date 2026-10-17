@@ -16,6 +16,8 @@ import {
 
 import { Trim } from '@/common/decorators/trim.decorator';
 
+import { TextList } from '../text-list.decorator';
+
 /**
  * Правка растяжки от пользователя: передаются поля формы, бэк оставит изменённые.
  * Правила полей — как у формы админа (SaveStretchDto); тип «заминка / разминка» не правится.
@@ -47,6 +49,12 @@ export class CreateStretchProposalDto {
   @IsString()
   @MaxLength(2000, { message: 'До 2000 символов' })
   howTo?: string | null;
+
+  @TextList('Шаги выполнения по порядку')
+  steps?: string[];
+
+  @TextList('Типичные ошибки, каждая с исправлением')
+  mistakes?: string[];
 
   @ApiPropertyOptional({
     type: String,

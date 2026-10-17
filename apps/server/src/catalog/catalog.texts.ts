@@ -19,6 +19,21 @@ export function holdText(stretch: {
   return `${stretch.holdSeconds} сек${stretch.perSide ? ' на сторону' : ''}`;
 }
 
+/** Шаги и ошибки записи — строками для сообщений бота; пустые списки не выводятся. */
+export function guideLines(entry: {
+  steps: string[];
+  mistakes: string[];
+}): string[] {
+  return [
+    ...(entry.steps.length
+      ? ['', 'Шаги:', ...entry.steps.map((step, i) => `${i + 1}. ${step}`)]
+      : []),
+    ...(entry.mistakes.length
+      ? ['', '❌ Ошибки:', ...entry.mistakes.map((m) => `• ${m}`)]
+      : []),
+  ];
+}
+
 /** Строку «Ошибки: …» в тексте техники выносим отдельным абзацем с пометкой. */
 function techniqueText(technique: string): string {
   return technique
@@ -51,9 +66,15 @@ export function exerciseCard(exercise: ExerciseFull): string {
     lines.push(
       `🦴 Нагружает: ${exercise.joints.map((j) => lower(j.joint.name)).join(', ')}`,
     );
+  const guide = guideLines(exercise);
   lines.push(
     '',
-    technique ? `📋 ${techniqueText(technique)}` : 'Техника не описана.',
+    technique
+      ? `📋 ${techniqueText(technique)}`
+      : guide.length
+        ? '📋 Техника'
+        : 'Техника не описана.',
+    ...guide,
   );
   return lines.join('\n');
 }
@@ -66,6 +87,11 @@ export function stretchCard(stretch: StretchFull): string {
     `💪 Тянет: ${stretch.muscles.map((m) => lower(m.muscle.name)).join(', ') || '—'}`,
     `⏱ Удержание: ${holdText(stretch)}`,
     '',
-    howTo ? `📋 ${howTo}` : 'Описание не добавлено.',
+    howTo
+      ? `📋 ${howTo}`
+      : stretch.steps.length || stretch.mistakes.length
+        ? '📋 Как делать'
+        : 'Описание не добавлено.',
+    ...guideLines(stretch),
   ].join('\n');
 }

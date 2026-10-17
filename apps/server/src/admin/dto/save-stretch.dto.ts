@@ -14,6 +14,7 @@ import {
   ValidateIf,
 } from 'class-validator';
 
+import { TextList } from '@/catalog/text-list.decorator';
 import { Trim } from '@/common/decorators/trim.decorator';
 
 /** Форма растяжки справочника (business-tz, 5.3): создание и правка. */
@@ -32,6 +33,12 @@ export class SaveStretchDto {
   @IsString()
   @MaxLength(2000)
   howTo?: string | null;
+
+  @TextList('Шаги выполнения по порядку')
+  steps?: string[];
+
+  @TextList('Типичные ошибки, каждая с исправлением')
+  mistakes?: string[];
 
   @ApiProperty({ description: 'Удержание, с' })
   @IsInt()
@@ -53,6 +60,17 @@ export class SaveStretchDto {
   @IsString()
   @MaxLength(200)
   imagePath?: string | null;
+
+  @ApiPropertyOptional({
+    type: String,
+    nullable: true,
+    description: 'Финишное положение, из POST admin/catalog/image; null — убрать',
+  })
+  @IsOptional()
+  @ValidateIf((_, value) => value !== null)
+  @IsString()
+  @MaxLength(200)
+  imageEndPath?: string | null;
 
   @ApiProperty({ type: [Number], description: 'Мышцы, которые тянет' })
   @IsArray()

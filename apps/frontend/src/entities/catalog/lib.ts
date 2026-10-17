@@ -61,6 +61,25 @@ export const splitSteps = (text: string | null) =>
     .map(step => step.trim().replace(/\.$/, ''))
     .filter(Boolean)
 
+/** Техника для показа: описание, шаги и ошибки. */
+export type Guide = { description: string | null; steps: string[]; mistakes: string[] }
+
+/**
+ * Упражнение: шаги и ошибки списками; у старых записей их нет —
+ * тогда режем текст техники как раньше, и описанием он не дублируется
+ */
+export const exerciseGuide = (e: { technique: string | null; steps: string[]; mistakes: string[] }): Guide => {
+  if (e.steps.length || e.mistakes.length) return { description: e.technique, ...e }
+  const { points, mistakes } = splitTechnique(e.technique)
+  return { description: null, steps: points, mistakes }
+}
+
+/** Растяжка: то же, у старых записей шаги — предложения «как делать» */
+export const stretchGuide = (s: { howTo: string | null; steps: string[]; mistakes: string[] }): Guide =>
+  s.steps.length || s.mistakes.length
+    ? { description: s.howTo, steps: s.steps, mistakes: s.mistakes }
+    : { description: null, steps: splitSteps(s.howTo), mistakes: [] }
+
 /** «Все» в фильтрах справочника: ни мышцы, ни инвентаря */
 export const FILTER_ALL = 'ALL'
 

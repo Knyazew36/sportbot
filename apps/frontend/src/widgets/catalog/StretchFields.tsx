@@ -16,6 +16,7 @@ import { Textarea } from '@/shared/ui/shadcn/textarea'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/shadcn/toggle-group'
 
 import { ImageField } from './ImageField'
+import { TextListField } from './TextListField'
 
 type StretchFieldsProps = {
   initialImageUrl: string | null
@@ -24,11 +25,13 @@ type StretchFieldsProps = {
   showKind?: boolean
   /** Под названием: при создании — «Возможно, ты искал…». Получает введённое название */
   afterName?: (name: string) => ReactNode
+  /** Фото финишного положения — только у админа: initialUrl текущего фото */
+  endImage?: { initialUrl: string | null }
 }
 
 // Поля растяжки (business-tz, 5.3) — общие для создания, правки от пользователя и формы админа.
 // Форма и её схема — снаружи, поля берут её из FormProvider
-export const StretchFields = ({ initialImageUrl, upload, showKind, afterName }: StretchFieldsProps) => {
+export const StretchFields = ({ initialImageUrl, upload, showKind, afterName, endImage }: StretchFieldsProps) => {
   const muscles = useMuscles()
   const {
     control,
@@ -57,6 +60,20 @@ export const StretchFields = ({ initialImageUrl, upload, showKind, afterName }: 
           onUploaded={path => setValue('imagePath', path, { shouldDirty: true })}
         />
       </ScreenSection>
+
+      {endImage && (
+        <ScreenSection
+          title='Фото финиша'
+          aside='можно пропустить'
+        >
+          <ImageField
+            initialUrl={endImage.initialUrl}
+            alt={`${name}: финиш`}
+            upload={upload}
+            onUploaded={path => setValue('imageEndPath', path, { shouldDirty: true })}
+          />
+        </ScreenSection>
+      )}
 
       <ScreenSection
         title='Какие мышцы тянет'
@@ -141,17 +158,29 @@ export const StretchFields = ({ initialImageUrl, upload, showKind, afterName }: 
         )}
       </ScreenSection>
 
-      <ScreenSection title='Описание'>
+      <ScreenSection title='Как делать'>
         <div className='flex flex-col gap-2'>
-          <Label htmlFor='stretch-howto'>Как делать</Label>
+          <Label htmlFor='stretch-howto'>Описание</Label>
           <Textarea
             id='stretch-howto'
-            placeholder='Исходное положение и движение'
+            placeholder='Исходное положение и что должно тянуть'
             aria-invalid={!!errors.howTo}
             {...register('howTo')}
           />
           <ErrorText errors={errors.howTo} />
         </div>
+        <TextListField
+          name='steps'
+          label='Шаги'
+          placeholder='Одно действие'
+          addLabel='Добавить шаг'
+        />
+        <TextListField
+          name='mistakes'
+          label='Ошибки'
+          placeholder='Ошибка — как исправить'
+          addLabel='Добавить ошибку'
+        />
       </ScreenSection>
     </>
   )

@@ -9,6 +9,7 @@ import {
   type ExerciseProposalInput,
   exerciseProposalSchema,
   type ExerciseProposalValues,
+  toTextList,
   useProposeExercise,
   useUploadEntryImage,
 } from '@/entities/catalog'
@@ -39,6 +40,8 @@ const ProposalForm = ({ exercise, onSent }: { exercise: CatalogExercise; onSent:
     defaultValues: {
       name: exercise.name,
       technique: exercise.technique ?? '',
+      steps: toTextList(exercise.steps),
+      mistakes: toTextList(exercise.mistakes),
       videoUrl: exercise.videoUrl ?? '',
       equipment: exercise.equipment,
       primary: exercise.primaryMuscles.map(m => m.id),

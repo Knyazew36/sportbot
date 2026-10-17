@@ -56,6 +56,8 @@ const CreateForm = ({
     defaultValues: {
       name: '',
       technique: '',
+      steps: [],
+      mistakes: [],
       videoUrl: '',
       equipment: null,
       imagePath: null,

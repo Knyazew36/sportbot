@@ -7,6 +7,8 @@ import { EQUIPMENT_TITLE } from './catalog.texts';
 export type ExerciseForm = {
   name: string;
   technique: string | null;
+  steps: string[];
+  mistakes: string[];
   videoUrl: string | null;
   equipment: Equipment | null;
   imagePath: string | null;
@@ -19,6 +21,8 @@ export type ExerciseForm = {
 export type StretchForm = {
   name: string;
   howTo: string | null;
+  steps: string[];
+  mistakes: string[];
   imagePath: string | null;
   holdSeconds: number;
   perSide: boolean;
@@ -40,7 +44,14 @@ export type ProposalChange = {
 };
 
 type ValueKind =
-  'text' | 'image' | 'equipment' | 'muscles' | 'joints' | 'seconds' | 'flag';
+  | 'text'
+  | 'list'
+  | 'image'
+  | 'equipment'
+  | 'muscles'
+  | 'joints'
+  | 'seconds'
+  | 'flag';
 
 type FieldSpec = { title: string; kind: ValueKind };
 
@@ -52,7 +63,9 @@ const EXERCISE_FIELDS: Record<keyof ExerciseForm, FieldSpec> = {
   primary: { title: 'Основные мышцы', kind: 'muscles' },
   secondary: { title: 'Помогают', kind: 'muscles' },
   jointIds: { title: 'Суставы', kind: 'joints' },
-  technique: { title: 'Техника', kind: 'text' },
+  technique: { title: 'Описание', kind: 'text' },
+  steps: { title: 'Шаги', kind: 'list' },
+  mistakes: { title: 'Ошибки', kind: 'list' },
   videoUrl: { title: 'Видео', kind: 'text' },
 };
 
@@ -62,16 +75,21 @@ const STRETCH_FIELDS: Record<keyof StretchForm, FieldSpec> = {
   muscles: { title: 'Мышцы', kind: 'muscles' },
   holdSeconds: { title: 'Удержание', kind: 'seconds' },
   perSide: { title: 'На каждую сторону', kind: 'flag' },
-  howTo: { title: 'Как делать', kind: 'text' },
+  howTo: { title: 'Описание', kind: 'text' },
+  steps: { title: 'Шаги', kind: 'list' },
+  mistakes: { title: 'Ошибки', kind: 'list' },
 };
 
 const specOf = (kind: CatalogKind): Record<string, FieldSpec> =>
   kind === 'exercise' ? EXERCISE_FIELDS : STRETCH_FIELDS;
 
-// Пустая строка в форме и null в базе — одно и то же «нет значения»
-const normalize = (value: unknown): unknown =>
+// Пустая строка в форме и null в базе — одно и то же «нет значения».
+// У шагов и ошибок порядок важен, у мышц и суставов — нет
+const normalize = (spec: FieldSpec, value: unknown): unknown =>
   Array.isArray(value)
-    ? [...(value as number[])].sort((a, b) => a - b).join(',')
+    ? spec.kind === 'list'
+      ? JSON.stringify(value)
+      : [...(value as number[])].sort((a, b) => a - b).join(',')
     : value === '' || value === undefined
       ? null
       : value;
@@ -79,6 +97,8 @@ const normalize = (value: unknown): unknown =>
 export const exerciseForm = (exercise: ExerciseFull): ExerciseForm => ({
   name: exercise.name,
   technique: exercise.technique,
+  steps: exercise.steps,
+  mistakes: exercise.mistakes,
   videoUrl: exercise.videoUrl,
   equipment: exercise.equipment,
   imagePath: exercise.imagePath,
@@ -94,6 +114,8 @@ export const exerciseForm = (exercise: ExerciseFull): ExerciseForm => ({
 export const stretchForm = (stretch: StretchFull): StretchForm => ({
   name: stretch.name,
   howTo: stretch.howTo,
+  steps: stretch.steps,
+  mistakes: stretch.mistakes,
   imagePath: stretch.imagePath,
   holdSeconds: stretch.holdSeconds,
   perSide: stretch.perSide,
@@ -109,10 +131,10 @@ export const proposalDiff = <T extends object>(
   const diff: Partial<T> = {};
   const now = current as Record<string, unknown>;
   const next = proposal as Record<string, unknown>;
-  for (const field of Object.keys(specOf(kind))) {
+  for (const [field, spec] of Object.entries(specOf(kind))) {
     const value = next[field];
     if (value === undefined) continue;
-    if (normalize(now[field]) !== normalize(value))
+    if (normalize(spec, now[field]) !== normalize(spec, value))
       Object.assign(diff, { [field]: value === '' ? null : value });
   }
   return diff;
@@ -142,6 +164,12 @@ export const proposalChanges = (
         return `${value as number} с`;
       case 'flag':
         return value ? 'да' : 'нет';
+      case 'list': {
+        const items = value as string[];
+        return items.length
+          ? items.map((item, i) => `${i + 1}. ${item}`).join('\n')
+          : null;
+      }
       case 'muscles':
       case 'joints': {
         const map = spec.kind === 'joints' ? names.joints : names.muscles;

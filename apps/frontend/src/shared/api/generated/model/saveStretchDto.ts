@@ -10,12 +10,21 @@ export interface SaveStretchDto {
   name: string;
   /** @nullable */
   howTo?: string | null;
+  /** Шаги выполнения по порядку */
+  steps?: string[];
+  /** Типичные ошибки, каждая с исправлением */
+  mistakes?: string[];
   /** Удержание, с */
   holdSeconds: number;
   perSide: boolean;
   kind: SaveStretchDtoKind;
   /** @nullable */
   imagePath?: string | null;
+  /**
+     * Финишное положение, из POST admin/catalog/image; null — убрать
+     * @nullable
+     */
+  imageEndPath?: string | null;
   /** Мышцы, которые тянет */
   muscles: number[];
 }

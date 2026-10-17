@@ -3,16 +3,18 @@ import { useParams } from 'react-router'
 
 import { useState } from 'react'
 
-import { muscleNames, useCatalogStretch } from '@/entities/catalog'
+import { muscleNames, stretchGuide, useCatalogStretch } from '@/entities/catalog'
 import { toAssetUrl } from '@/shared/api'
 import { ROUTES } from '@/shared/config/paths'
-import { CatalogImage } from '@/shared/ui/kit/CatalogImage'
+import { MistakeList } from '@/shared/ui/kit/MistakeList'
+import { PhotoPair } from '@/shared/ui/kit/PhotoPair'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Screen, StickyFooter } from '@/shared/ui/kit/Screen'
 import { TopBar } from '@/shared/ui/kit/ScreenHeader'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { StatGrid } from '@/shared/ui/kit/StatGrid'
+import { StepList } from '@/shared/ui/kit/StepList'
 import { Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Badge } from '@/shared/ui/shadcn/badge'
@@ -78,13 +80,15 @@ const StretchPage = () => {
       className='gap-7'
     >
       <QueryScreen query={stretch}>
-        {st => (
+        {st => {
+          const guide = stretchGuide(st)
+          return (
           <>
             <Rise className='px-gutter flex flex-col gap-4'>
-              <CatalogImage
-                src={toAssetUrl(st.imageUrl) ?? null}
+              <PhotoPair
+                start={toAssetUrl(st.imageUrl) ?? null}
+                end={toAssetUrl(st.imageEndUrl) ?? null}
                 alt={st.name}
-                size='cover'
               />
               <Poster
                 as='h1'
@@ -113,14 +117,10 @@ const StretchPage = () => {
               />
             </Rise>
 
-            {st.howTo && (
+            {(guide.description || guide.steps.length > 0) && (
               <ScreenSection title='Как делать'>
-                <Text
-                  size='lg'
-                  className='leading-relaxed'
-                >
-                  {st.howTo}
-                </Text>
+                {guide.description && <Text className='leading-relaxed'>{guide.description}</Text>}
+                {guide.steps.length > 0 && <StepList items={guide.steps} />}
                 {st.perSide && (
                   <Text
                     size='sm'
@@ -132,13 +132,20 @@ const StretchPage = () => {
               </ScreenSection>
             )}
 
+            {guide.mistakes.length > 0 && (
+              <ScreenSection title='Типичные ошибки'>
+                <MistakeList items={guide.mistakes} />
+              </ScreenSection>
+            )}
+
             <StretchEditSheet
               open={editOpen}
               onOpenChange={setEditOpen}
               stretch={st}
             />
           </>
-        )}
+          )
+        }}
       </QueryScreen>
     </Screen>
   )

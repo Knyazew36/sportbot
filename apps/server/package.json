@@ -18,6 +18,10 @@
     "lint": "eslint \"src/**/*.ts\"",
     "lint:fix": "eslint \"src/**/*.ts\" --fix",
     "content:import": "ts-node -r tsconfig-paths/register prisma/import-content.ts",
+    "content:sources": "ts-node -r tsconfig-paths/register prisma/fetch-sources.ts",
+    "content:export": "ts-node -r tsconfig-paths/register prisma/export-content.ts",
+    "content:enrich": "ts-node -r tsconfig-paths/register prisma/enrich-content.ts",
+    "content:apply-guides": "ts-node -r tsconfig-paths/register prisma/apply-guides.ts",
     "content:setup": "./content.sh"
   },
   "dependencies": {
@@ -54,6 +58,7 @@
     "zod": "^4.5.4"
   },
   "devDependencies": {
+    "@anthropic-ai/sdk": "^0.135.0",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
     "@nestjs/cli": "^11.0.0",

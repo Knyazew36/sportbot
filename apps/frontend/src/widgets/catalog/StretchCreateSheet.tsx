@@ -50,6 +50,8 @@ const CreateForm = ({
     defaultValues: {
       name: '',
       howTo: '',
+      steps: [],
+      mistakes: [],
       holdSeconds: '30',
       perSide: true,
       kind: 'COOLDOWN',
@@ -69,6 +71,8 @@ const CreateForm = ({
             // У растяжки мышцы одного вида — в черновике они идут списком primary
             primary: values.muscles,
             technique: values.howTo ?? undefined,
+            steps: values.steps,
+            mistakes: values.mistakes,
             holdSeconds: values.holdSeconds,
             perSide: values.perSide,
             imagePath: values.imagePath ?? undefined,

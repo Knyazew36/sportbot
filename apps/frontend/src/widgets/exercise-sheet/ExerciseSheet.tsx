@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react'
 
-import { type CatalogKind, splitTechnique, useCatalogExercise, useCatalogStretch } from '@/entities/catalog'
+import { type CatalogKind, exerciseGuide, stretchGuide, useCatalogExercise, useCatalogStretch } from '@/entities/catalog'
 import { toAssetUrl } from '@/shared/api'
-import { CatalogImage } from '@/shared/ui/kit/CatalogImage'
+import { MistakeList } from '@/shared/ui/kit/MistakeList'
+import { PhotoPair } from '@/shared/ui/kit/PhotoPair'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { StepList } from '@/shared/ui/kit/StepList'
 import { Eyebrow, Text } from '@/shared/ui/kit/Typography'
@@ -28,13 +29,13 @@ const ExerciseDetails = ({ id }: { id: number }) => {
       className=''
     >
       {e => {
-        const { points } = splitTechnique(e.technique)
+        const { steps, mistakes } = exerciseGuide(e)
         return (
           <div className='flex flex-col gap-4'>
-            <CatalogImage
-              src={toAssetUrl(e.imageUrl) ?? null}
+            <PhotoPair
+              start={toAssetUrl(e.imageUrl) ?? null}
+              end={toAssetUrl(e.imageEndUrl) ?? null}
               alt={e.name}
-              size='cover'
             />
             <div className='flex flex-wrap gap-1.5'>
               {e.primaryMuscles.map(m => (
@@ -49,10 +50,16 @@ const ExerciseDetails = ({ id }: { id: number }) => {
                 </Badge>
               ))}
             </div>
-            {points.length > 0 && (
+            {steps.length > 0 && (
               <div className='flex flex-col gap-2'>
                 <Eyebrow>Техника</Eyebrow>
-                <StepList items={points} />
+                <StepList items={steps} />
+              </div>
+            )}
+            {mistakes.length > 0 && (
+              <div className='flex flex-col gap-2'>
+                <Eyebrow>Ошибки</Eyebrow>
+                <MistakeList items={mistakes} />
               </div>
             )}
           </div>
@@ -70,12 +77,14 @@ const StretchDetails = ({ id }: { id: number }) => {
       query={stretch}
       className=''
     >
-      {s => (
+      {s => {
+        const guide = stretchGuide(s)
+        return (
         <div className='flex flex-col gap-4'>
-          <CatalogImage
-            src={toAssetUrl(s.imageUrl) ?? null}
+          <PhotoPair
+            start={toAssetUrl(s.imageUrl) ?? null}
+            end={toAssetUrl(s.imageEndUrl) ?? null}
             alt={s.name}
-            size='cover'
           />
           <div className='flex flex-wrap gap-1.5'>
             {s.muscles.map(m => (
@@ -88,14 +97,21 @@ const StretchDetails = ({ id }: { id: number }) => {
               {s.holdSeconds} с{s.perSide ? ', на каждую сторону' : ''}
             </Text>
           </div>
-          {s.howTo && (
+          {guide.steps.length > 0 && (
             <div className='flex flex-col gap-2'>
               <Eyebrow>Как делать</Eyebrow>
-              <Text className='leading-relaxed'>{s.howTo}</Text>
+              <StepList items={guide.steps} />
+            </div>
+          )}
+          {guide.mistakes.length > 0 && (
+            <div className='flex flex-col gap-2'>
+              <Eyebrow>Ошибки</Eyebrow>
+              <MistakeList items={guide.mistakes} />
             </div>
           )}
         </div>
-      )}
+        )
+      }}
     </QueryScreen>
   )
 }

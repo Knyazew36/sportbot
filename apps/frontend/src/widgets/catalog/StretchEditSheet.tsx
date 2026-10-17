@@ -9,6 +9,7 @@ import {
   type StretchProposalInput,
   stretchProposalSchema,
   type StretchProposalValues,
+  toTextList,
   useProposeStretch,
   useUploadEntryImage,
 } from '@/entities/catalog'
@@ -39,6 +40,8 @@ const ProposalForm = ({ stretch, onSent }: { stretch: CatalogStretch; onSent: ()
     defaultValues: {
       name: stretch.name,
       howTo: stretch.howTo ?? '',
+      steps: toTextList(stretch.steps),
+      mistakes: toTextList(stretch.mistakes),
       holdSeconds: String(stretch.holdSeconds),
       perSide: stretch.perSide,
       muscles: stretch.muscles.map(m => m.id),

@@ -9,10 +9,12 @@ export interface AdminEntryResponseDto {
   id: number;
   name: string;
   /**
-     * Техника или «как делать»
+     * Общее описание
      * @nullable
      */
   text: string | null;
+  steps: string[];
+  mistakes: string[];
   /** @nullable */
   videoUrl: string | null;
   primaryMuscles: string[];

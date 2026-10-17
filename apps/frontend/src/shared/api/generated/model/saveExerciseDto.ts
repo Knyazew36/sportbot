@@ -10,6 +10,10 @@ export interface SaveExerciseDto {
   name: string;
   /** @nullable */
   technique?: string | null;
+  /** Шаги выполнения по порядку */
+  steps?: string[];
+  /** Типичные ошибки, каждая с исправлением */
+  mistakes?: string[];
   /** @nullable */
   videoUrl?: string | null;
   /** @nullable */
@@ -19,6 +23,11 @@ export interface SaveExerciseDto {
      * @nullable
      */
   imagePath?: string | null;
+  /**
+     * Финишное положение, из POST admin/catalog/image; null — убрать
+     * @nullable
+     */
+  imageEndPath?: string | null;
   /** Основные мышцы */
   primary: number[];
   secondary: number[];

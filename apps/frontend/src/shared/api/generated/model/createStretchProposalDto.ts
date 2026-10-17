@@ -13,6 +13,10 @@ export interface CreateStretchProposalDto {
   name?: string;
   /** @nullable */
   howTo?: string | null;
+  /** Шаги выполнения по порядку */
+  steps?: string[];
+  /** Типичные ошибки, каждая с исправлением */
+  mistakes?: string[];
   /**
      * Из POST catalog/image; null — убрать картинку
      * @nullable

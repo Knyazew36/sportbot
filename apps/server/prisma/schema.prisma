@@ -618,8 +618,12 @@ model Exercise {
   name           String
   nameNormalized String /// нижний регистр, ё→е, без знаков — для поиска и подсказки дублей
 
-  technique           String? /// ключевые пункты техники и типичные ошибки
+  technique           String? /// общее описание техники свободным текстом
+  steps               String[] @default([]) /// шаги выполнения по порядку
+  mistakes            String[] @default([]) /// типичные ошибки, каждая сразу с исправлением
   imagePath           String? /// файл относительно upload root (catalog/uuid.ext)
+  /// Финишное положение; только для Mini App, поэтому без кэша мессенджеров.
+  imageEndPath        String?
   /// Кэш уже загруженной в мессенджер картинки; сбрасывается при смене imagePath.
   imageTelegramFileId String?
   imageMaxToken       String?
@@ -683,8 +687,11 @@ model Stretch {
   name           String
   nameNormalized String
 
-  howTo               String? /// как делать
+  howTo               String? /// общее описание свободным текстом
+  steps               String[] @default([])
+  mistakes            String[] @default([])
   imagePath           String?
+  imageEndPath        String?
   imageTelegramFileId String?
   imageMaxToken       String?
 

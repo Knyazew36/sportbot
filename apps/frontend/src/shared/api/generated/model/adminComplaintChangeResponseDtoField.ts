@@ -11,6 +11,8 @@ export type AdminComplaintChangeResponseDtoField = typeof AdminComplaintChangeRe
 export const AdminComplaintChangeResponseDtoField = {
   name: 'name',
   technique: 'technique',
+  steps: 'steps',
+  mistakes: 'mistakes',
   videoUrl: 'videoUrl',
   equipment: 'equipment',
   imagePath: 'imagePath',
