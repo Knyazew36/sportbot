@@ -2,7 +2,7 @@ import { GlobeIcon, PencilIcon } from 'lucide-react'
 
 import { useState } from 'react'
 
-import { isPublishable, publishLabel, PUBLICATION_STATUS, useProgram } from '@/entities/program'
+import { isPublishable, publishLabel, PUBLICATION_STATUS, useMakeNextComplex, useProgram } from '@/entities/program'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
@@ -22,6 +22,7 @@ import { EXERCISE_FORMS, SET_FORMS } from '@/shared/lib/plural-forms'
 export const ActiveProgram = ({ programId }: { programId: number }) => {
   const program = useProgram(programId)
   const [publishing, setPublishing] = useState(false)
+  const makeNext = useMakeNextComplex()
 
   return (
     <QueryScreen
@@ -68,6 +69,9 @@ export const ActiveProgram = ({ programId }: { programId: number }) => {
               <ComplexQueue
                 complexes={p.complexes}
                 activeId={p.complexes.find(c => c.isNext)?.id}
+                aside='следующий подсвечен'
+                onPick={id => makeNext.mutate(id)}
+                pickLabel='Сделать следующим'
               />
             )}
             <Rise className='px-gutter flex flex-col gap-4'>

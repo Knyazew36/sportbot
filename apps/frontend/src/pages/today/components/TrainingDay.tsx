@@ -44,6 +44,7 @@ export const TrainingDay = ({ day, onPickComplex, onMissed }: TrainingDayProps) 
       <ComplexQueue
         currentId={complex.id}
         byQueue={complex.byQueue}
+        onPick={onPickComplex}
       />
 
       <ComplexExercises complex={complex} />

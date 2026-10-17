@@ -253,6 +253,20 @@ export class ProgramController {
     return this.programAppService.reorderComplexes(userId, id, dto.ids);
   }
 
+  @Post('complex/make-next/:id')
+  @Swagger({
+    title: 'Сделать комплекс активной программы следующим в очереди',
+    param: ID_PARAM,
+    response: ProgramResponseDto,
+    bearerAuth: true,
+  })
+  public makeNextComplex(
+    @CurrentUser('id') userId: number,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.programAppService.makeNext(userId, id);
+  }
+
   @Post('complex/update/:id')
   @Swagger({
     title: 'Комплекс: название и кардио',

@@ -1,5 +1,6 @@
 import type {
   CooldownResponseDto,
+  CreateWorkoutSetDto,
   SharedWorkoutResponseDto,
   WorkoutAnalogResponseDto,
   WorkoutResponseDto,
@@ -18,6 +19,9 @@ export type WorkoutSummary = WorkoutSummaryResponseDto
 export type Cooldown = CooldownResponseDto
 export type SharedWorkout = SharedWorkoutResponseDto
 export type CooldownStretch = Cooldown['main'][number]
+
+/** Время подхода с клиента: подход доезжает через офлайн-очередь позже нажатия */
+export type SetTiming = Pick<CreateWorkoutSetDto, 'doneAt' | 'workSeconds' | 'restTargetSeconds'>
 
 export type CurrentWorkout = { workout: Workout | null }
 

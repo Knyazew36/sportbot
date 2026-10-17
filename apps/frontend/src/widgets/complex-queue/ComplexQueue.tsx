@@ -12,10 +12,13 @@ type ComplexQueueProps = {
   /** Какой билет подсвечен: следующий по очереди или выбранный на сегодня */
   activeId: number | undefined
   aside?: string
+  /** Выбор комплекса из шторки; без него шторка только показывает состав */
+  onPick?: (id: number) => void
+  pickLabel?: string
 }
 
 // Очередь комплексов программы билетами. Билет открывает состав комплекса в шторке
-export const ComplexQueue = ({ complexes, activeId, aside }: ComplexQueueProps) => {
+export const ComplexQueue = ({ complexes, activeId, aside, onPick, pickLabel }: ComplexQueueProps) => {
   const [opened, setOpened] = useState<{ complex: ProgramComplex; index: number } | null>(null)
 
   return (
@@ -41,6 +44,9 @@ export const ComplexQueue = ({ complexes, activeId, aside }: ComplexQueueProps) 
       <ComplexSheet
         complex={opened}
         onClose={() => setOpened(null)}
+        activeId={activeId}
+        onPick={onPick}
+        pickLabel={pickLabel}
       />
     </ScreenSection>
   )

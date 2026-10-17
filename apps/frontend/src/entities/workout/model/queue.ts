@@ -166,12 +166,24 @@ const mapSets = (items: WorkoutItem[], ref: SetRef, fn: (sets: WorkoutSet[], ind
 const applyEntry = (items: WorkoutItem[], entry: QueueEntry): WorkoutItem[] => {
   switch (entry.kind) {
     case 'set-add': {
-      const { itemId, clientId, weight, reps } = entry.variables
+      const { itemId, clientId, weight, reps, doneAt, workSeconds, restTargetSeconds } = entry.variables
       return items.map(item => {
         // Сервер уже принял подход, ответ пришёл раньше, чем мутация закрылась
         if (item.id !== itemId || item.sets.some(s => s.clientId === clientId)) return item
         const number = (item.sets.at(-1)?.number ?? 0) + 1
-        const set: WorkoutSet = { id: 0, clientId, number, weight: weight ?? 0, reps, pending: true }
+        const set: WorkoutSet = {
+          id: 0,
+          clientId,
+          number,
+          weight: weight ?? 0,
+          reps,
+          doneAt: doneAt ?? null,
+          workSeconds: workSeconds ?? null,
+          restTargetSeconds: restTargetSeconds ?? null,
+          // Отдых считает сервер по шкале всей тренировки — до ответа подпись без него
+          restBeforeSeconds: null,
+          pending: true,
+        }
         return { ...item, done: true, sets: [...item.sets, set] }
       })
     }

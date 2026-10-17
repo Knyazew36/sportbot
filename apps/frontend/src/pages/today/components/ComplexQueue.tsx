@@ -2,7 +2,13 @@ import { useActiveProgram } from '@/entities/program'
 import { ComplexQueue as ComplexQueueWidget } from '@/widgets/complex-queue/ComplexQueue'
 
 // Очередь на «Сегодня»: в ответе дня у комплексов нет состава — для шторки берём активную программу целиком
-export const ComplexQueue = ({ currentId, byQueue }: { currentId: number; byQueue: boolean }) => {
+type ComplexQueueProps = {
+  currentId: number
+  byQueue: boolean
+  onPick: (id: number) => void
+}
+
+export const ComplexQueue = ({ currentId, byQueue, onPick }: ComplexQueueProps) => {
   const program = useActiveProgram()
   if (!program.data?.complexes.length) return null
 
@@ -11,6 +17,7 @@ export const ComplexQueue = ({ currentId, byQueue }: { currentId: number; byQueu
       complexes={program.data.complexes}
       activeId={currentId}
       aside={byQueue ? 'следующий подсвечен' : 'выбран вручную'}
+      onPick={onPick}
     />
   )
 }

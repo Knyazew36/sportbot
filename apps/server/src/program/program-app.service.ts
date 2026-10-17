@@ -459,6 +459,11 @@ export class ProgramAppService {
     return this.view(owner, programId);
   }
 
+  public async makeNext(userId: number, complexId: number) {
+    const programId = await this.programs.setNext(userId, complexId);
+    return this.view(userId, programId);
+  }
+
   // ── Упражнения комплекса ────────────────────────────────────────────────
 
   public async addExercises(

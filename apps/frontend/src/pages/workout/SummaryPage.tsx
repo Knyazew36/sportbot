@@ -19,6 +19,8 @@ import { Lead, Poster, Text } from '@/shared/ui/kit/Typography'
 import { EXERCISE_FORMS, SET_FORMS } from '@/shared/lib/plural-forms'
 import { WorkoutRecords } from '@/widgets/workout-records/WorkoutRecords'
 
+import { SummaryTiming } from './components/SummaryTiming'
+
 // Протокол: что сделано по каждому упражнению
 const Protocol = ({ workoutId }: { workoutId: number }) => {
   const workout = useWorkout(workoutId)
@@ -169,6 +171,9 @@ const SummaryView = ({ summary }: { summary: WorkoutSummary }) => (
         <WorkoutRecords records={summary.records} />
       </ScreenSection>
     )}
+
+    {/* Старые тренировки и простой режим без времени подходов — блока нет */}
+    {summary.timing && <SummaryTiming timing={summary.timing} />}
 
     <Protocol workoutId={summary.workoutId} />
   </Screen>

@@ -1,4 +1,4 @@
-import { EyeIcon, GripVerticalIcon, Link2Icon, Trash2Icon } from 'lucide-react'
+import { GripVerticalIcon, Link2Icon, Trash2Icon } from 'lucide-react'
 import { Reorder, useDragControls } from 'motion/react'
 
 import type { ComplexExerciseValues, ProgramExercise } from '@/entities/program'
@@ -54,19 +54,27 @@ export const ComplexExerciseRow = ({
         <GripVerticalIcon className='size-5' />
       </button>
       <div className='min-w-0'>
-        <Text
-          size='lg'
-          className='leading-tight'
+        {/* Тап по названию открывает карточку, как в ленте суперсета: отдельная кнопка не влезала в ряд плана */}
+        <button
+          type='button'
+          className='block w-full text-left'
+          aria-label={`Посмотреть «${exercise.name}»`}
+          onClick={onView}
         >
-          {exercise.name}
-        </Text>
-        <Text
-          size='xs'
-          tone='muted'
-          className='mt-1'
-        >
-          {exercise.muscles}
-        </Text>
+          <Text
+            size='lg'
+            className='leading-tight'
+          >
+            {exercise.name}
+          </Text>
+          <Text
+            size='xs'
+            tone='muted'
+            className='mt-1'
+          >
+            {exercise.muscles}
+          </Text>
+        </button>
         {exercise.draft && (
           <Badge
             variant='outline'
@@ -80,20 +88,11 @@ export const ComplexExerciseRow = ({
           onPlanChange={onPlanChange}
           className='mt-2'
         >
-          <Button
-            type='button'
-            variant='outline'
-            size='icon-sm'
-            className='ml-auto'
-            aria-label={`Посмотреть «${exercise.name}»`}
-            onClick={onView}
-          >
-            <EyeIcon />
-          </Button>
           <ButtonLink
             to={supersetTo}
             variant='outline'
             size='icon-sm'
+            className='ml-auto'
             aria-label={`Собрать суперсет с «${exercise.name}»`}
           >
             <Link2Icon />

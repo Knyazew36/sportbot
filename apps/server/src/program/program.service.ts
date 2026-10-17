@@ -790,6 +790,35 @@ export class ProgramService {
   }
 
   /**
+   * Ручной выбор следующего комплекса в очереди. Принадлежность активной программе — в where той же
+   * мутации: чужой или неактивный комплекс даёт P2025. Возвращает id активной программы.
+   */
+  public async setNext(userId: number, complexId: number): Promise<number> {
+    try {
+      const profile = await this.prisma.sportProfile.update({
+        where: {
+          userId,
+          activeProgram: { complexes: { some: { id: complexId } } },
+        },
+        data: { nextComplexId: complexId },
+        select: { activeProgramId: true },
+      });
+      this.logger.log(
+        `Следующий комплекс выбран вручную: userId=${userId}, nextComplexId=${complexId}`,
+      );
+      return profile.activeProgramId!;
+    } catch (e) {
+      if (
+        e instanceof Prisma.PrismaClientKnownRequestError &&
+        e.code === 'P2025'
+      ) {
+        throw new NotFoundException('Комплекс не найден в активной программе.');
+      }
+      throw e;
+    }
+  }
+
+  /**
    * Сдвиг ротации после засчитанной тренировки: следующий по position после выполненного,
    * после последнего — первый. Считается от выполненного, а не от указателя.
    */

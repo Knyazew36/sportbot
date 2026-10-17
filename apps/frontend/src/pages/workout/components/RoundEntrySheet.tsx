@@ -8,6 +8,7 @@ import {
   roundEntrySchema,
   type RoundEntryValues,
   roundPrefill,
+  type SetTiming,
   type SupersetRound,
   supersetLabels,
   useAddSet,
@@ -50,9 +51,10 @@ const RoundEntryForm = ({ round, onSubmit }: RoundEntryFormProps) => {
     <form
       onSubmit={handleSubmit(onSubmit)}
       autoComplete='off'
-      className='flex flex-col gap-3 px-gutter pb-6'
+      // Длинный суперсет не влезает в шторку: строки прокручиваются, а «Записать круг» всегда под пальцем
+      className='flex min-h-0 flex-1 flex-col gap-3 px-gutter pb-6'
     >
-      <ol className='border-border flex flex-col border-t-[1.5px]'>
+      <ol className='border-border flex min-h-0 flex-col overflow-y-auto overscroll-contain border-t-[1.5px]'>
         {fields.map((field, i) => {
           const item = round.round.find(e => e.id === field.itemId)!
           const row = rows[i]!
@@ -134,6 +136,8 @@ const RoundEntryForm = ({ round, onSubmit }: RoundEntryFormProps) => {
 type RoundEntrySheetProps = {
   open: boolean
   round: SupersetRound | null
+  /** Время круга на момент записи */
+  timing: () => SetTiming
   onClose: () => void
   /** Круг принят к отправке: id упражнений, по которым записан подход. Экран идёт дальше, не дожидаясь сервера */
   onSaved: (addedIds: number[]) => void
@@ -141,14 +145,25 @@ type RoundEntrySheetProps = {
 
 // Ввод круга суперсета после «Закончил круг»: строка на участника, одна кнопка.
 // Подходы встают в офлайн-очередь по одному на упражнение — как обычные, со своим clientId
-export const RoundEntrySheet = ({ open, round, onClose, onSaved }: RoundEntrySheetProps) => {
+export const RoundEntrySheet = ({ open, round, timing, onClose, onSaved }: RoundEntrySheetProps) => {
   const add = useAddSet()
 
   const submit = ({ rows }: RoundEntryValues) => {
     if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
     const done = rows.filter(r => !r.skip)
+    // До onSaved: он останавливает секундомер круга
+    const time = timing()
     onSaved(done.map(r => r.itemId))
-    for (const r of done) add.mutate({ itemId: r.itemId, weight: r.weight, reps: r.reps, clientId: newClientId() })
+    // Секундомер мерил весь круг: время и план отдыха — первому подходу, остальным только момент записи
+    done.forEach((r, i) =>
+      add.mutate({
+        itemId: r.itemId,
+        weight: r.weight,
+        reps: r.reps,
+        ...(i === 0 ? time : { doneAt: time.doneAt }),
+        clientId: newClientId(),
+      }),
+    )
   }
 
   return (

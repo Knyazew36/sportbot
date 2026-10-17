@@ -19,4 +19,33 @@ export class WorkoutSetResponseDto {
     description: 'uuid с клиента; null — подход записан не из офлайн-очереди',
   })
   clientId: string | null;
+
+  @ApiProperty({
+    type: Date,
+    nullable: true,
+    description: 'Когда записан; null — подход до учёта времени',
+  })
+  doneAt: Date | null;
+
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    description: 'Чистое время подхода, с; null — ручной ввод или бот',
+  })
+  workSeconds: number | null;
+
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    description: 'План отдыха перед подходом, с',
+  })
+  restTargetSeconds: number | null;
+
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    description:
+      'Фактический отдых перед подходом, с; null — первый, после перехода, простоя или без времени',
+  })
+  restBeforeSeconds: number | null;
 }

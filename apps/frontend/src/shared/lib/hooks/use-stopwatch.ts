@@ -53,6 +53,8 @@ export const useStopwatch = ({ storageKey }: { storageKey?: string } = {}) => {
   return {
     running: state !== null,
     paused: state?.pausedAt != null,
+    /** Момент паузы — когда нажали «Готово»: время подхода для записи */
+    pausedAt: state?.pausedAt ?? null,
     elapsed: Math.floor(elapsedMs / 1000),
     /** Для плавного кольца: секунды целиком дают ему шаги */
     elapsedMs,

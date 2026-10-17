@@ -50,6 +50,13 @@ export interface CompleteResult {
   cooldown: CooldownView;
 }
 
+/** Время подхода с клиента. */
+export interface SetTiming {
+  doneAt?: Date;
+  workSeconds?: number;
+  restTargetSeconds?: number;
+}
+
 export interface LastResult {
   date: Date;
   sets: { weight: number; reps: number }[];
@@ -275,6 +282,7 @@ export class WorkoutService {
     weight: number,
     reps: number,
     clientId?: string,
+    timing: SetTiming = {},
   ): Promise<number> {
     if (!isValidSet(weight, reps))
       throw new BadRequestException('Вес до 999 кг, повторы от 1 до 999.');
@@ -283,7 +291,7 @@ export class WorkoutService {
       throw new BadRequestException(
         'В простом режиме подходы не записываются.',
       );
-    return this.createSet(item, weight, reps, clientId);
+    return this.createSet(item, weight, reps, clientId, timing);
   }
 
   /** Исправить сохранённый подход — в идущей или прошедшей тренировке (frontend-tz, 8.2). */
@@ -586,7 +594,58 @@ export class WorkoutService {
     return this.cooldowns.build(workoutId, userId, onlyDone);
   }
 
+  /** Заминка открыта: пишется только первое открытие, повтор ничего не меняет. */
+  public async cooldownStart(
+    userId: number,
+    workoutId: number,
+    at?: Date,
+  ): Promise<void> {
+    const { count } = await this.prisma.workout.updateMany({
+      where: { id: workoutId, userId, cooldownStartedAt: null },
+      data: { cooldownStartedAt: this.cooldownAt(at) },
+    });
+    if (count)
+      this.logger.log(
+        `Заминка начата: workoutId=${workoutId}, userId=${userId}`,
+      );
+    else
+      this.logger.debug(
+        `Заминка уже начата или тренировки нет: workoutId=${workoutId}, userId=${userId}`,
+      );
+  }
+
+  /** Заминка пройдена: только после начала и один раз. */
+  public async cooldownFinish(
+    userId: number,
+    workoutId: number,
+    at?: Date,
+  ): Promise<void> {
+    const { count } = await this.prisma.workout.updateMany({
+      where: {
+        id: workoutId,
+        userId,
+        cooldownStartedAt: { not: null },
+        cooldownFinishedAt: null,
+      },
+      data: { cooldownFinishedAt: this.cooldownAt(at) },
+    });
+    if (count)
+      this.logger.log(
+        `Заминка пройдена: workoutId=${workoutId}, userId=${userId}`,
+      );
+    else
+      this.logger.debug(
+        `Заминка уже пройдена, не начата или тренировки нет: workoutId=${workoutId}, userId=${userId}`,
+      );
+  }
+
   // ── Внутреннее ──────────────────────────────────────────────────────────
+
+  /** Время заминки с клиента; из будущего не берём. */
+  private cooldownAt(at?: Date): Date {
+    const now = Date.now();
+    return new Date(at ? Math.min(now, +at) : now);
+  }
 
   /** Подход пользователя. Статус не проверяем: прошедшие тренировки правятся из статистики. */
   private async ownedSet(userId: number, setId: number) {
@@ -604,6 +663,7 @@ export class WorkoutService {
     weight: number,
     reps: number,
     clientId?: string,
+    timing: SetTiming = {},
   ): Promise<number> {
     const closed = item.workout.status !== 'IN_PROGRESS';
     // Повтор из офлайн-очереди: первый запрос дошёл, ответ потерялся
@@ -622,6 +682,7 @@ export class WorkoutService {
             weight,
             reps,
             clientId,
+            ...this.setTiming(item, timing, closed),
           },
         }),
         // В прошедшей тренировке «сделано» уже не нажать, а нагрузка по мышцам считает только сделанные
@@ -658,6 +719,42 @@ export class WorkoutService {
         `Подход записан: workoutExerciseId=${item.id}, userId=${item.workout.userId}`,
       );
     return item.workoutId;
+  }
+
+  /**
+   * Время подхода для записи. В закрытую тренировку (правка из статистики) время не пишем —
+   * подход не был сделан «сейчас». Время с клиента не раньше старта и не из будущего.
+   */
+  private setTiming(
+    item: Awaited<ReturnType<WorkoutService['findItem']>>,
+    timing: SetTiming,
+    closed: boolean,
+  ): Pick<Prisma.WorkoutSetUncheckedCreateInput, 'doneAt' | 'workSeconds' | 'restTargetSeconds'> {
+    const { userId, id: workoutId, startedAt } = item.workout;
+    if (closed) {
+      if (timing.doneAt)
+        this.logger.debug(
+          `Время подхода отброшено, тренировка закрыта: workoutId=${workoutId}, userId=${userId}`,
+        );
+      return { doneAt: null, workSeconds: null, restTargetSeconds: null };
+    }
+    const now = Date.now();
+    let doneAt = timing.doneAt ?? new Date(now);
+    const clamped = Math.min(now, Math.max(startedAt.getTime(), +doneAt));
+    if (clamped !== +doneAt) {
+      this.logger.warn(
+        `Время подхода срезано: workoutId=${workoutId}, userId=${userId}, пришло=${doneAt.toISOString()}, стало=${new Date(clamped).toISOString()}`,
+      );
+      doneAt = new Date(clamped);
+    }
+    this.logger.debug(
+      `Время подхода: workoutId=${workoutId}, userId=${userId}, doneAt=${doneAt.toISOString()}, работа=${timing.workSeconds ?? '—'}с, план отдыха=${timing.restTargetSeconds ?? '—'}с`,
+    );
+    return {
+      doneAt,
+      workSeconds: timing.workSeconds ?? null,
+      restTargetSeconds: timing.restTargetSeconds ?? null,
+    };
   }
 
   private async create(

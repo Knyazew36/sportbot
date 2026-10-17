@@ -47,7 +47,7 @@ const catalogIdOf = (name: string) =>
 
 // Как беговые дорожки: сделано залито, текущее в синем контуре. Порядок не обязателен — можно перейти к любому
 const Lanes = ({ done, current, onPick }: { done: number[]; current: number; onPick: (index: number) => void }) => (
-  <ol className='grid grid-cols-6 gap-1.5 px-gutter pt-4'>
+  <ol className='grid grid-cols-6 gap-1 px-gutter pt-3'>
     {plan.map((e, i) => {
       const isDone = done.includes(i)
       const isCurrent = current === i
@@ -58,7 +58,7 @@ const Lanes = ({ done, current, onPick }: { done: number[]; current: number; onP
             size='sm'
             onClick={() => onPick(i)}
             className={cn(
-              'h-11 w-full items-end justify-between px-1.5 pb-1',
+              'h-8 w-full justify-between px-1.5',
               isCurrent && 'border-2',
               !isDone && !isCurrent && 'text-foreground/45',
             )}
@@ -73,7 +73,7 @@ const Lanes = ({ done, current, onPick }: { done: number[]; current: number; onP
             </Poster>
             {isDone && (
               <CheckIcon
-                className='mb-0.5 size-3.5'
+                className='size-3'
                 strokeWidth={3}
               />
             )}

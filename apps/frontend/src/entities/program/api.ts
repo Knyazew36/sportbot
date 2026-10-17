@@ -16,6 +16,7 @@ import {
   programControllerCreate,
   programControllerDismissUpdate,
   programControllerList,
+  programControllerMakeNextComplex,
   programControllerPublish,
   programControllerRemove,
   programControllerRemoveComplex,
@@ -246,6 +247,16 @@ export const useAddComplex = () => {
       programControllerAddComplex(programId, { name }),
     // После добавления сразу открывается страница нового комплекса — результат и так виден
     meta: { skipSuccessToast: true, inlineFieldErrors: true },
+    onSuccess: apply,
+  })
+}
+
+/** Ручной выбор следующего в очереди: подсветка на «Программах» и комплекс дня на «Сегодня» */
+export const useMakeNextComplex = () => {
+  const apply = useApplyProgram()
+  return useMutation({
+    mutationFn: (id: number) => programControllerMakeNextComplex(id),
+    meta: { successMessage: 'Комплекс следующий в очереди' },
     onSuccess: apply,
   })
 }

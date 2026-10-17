@@ -6,6 +6,8 @@ import type { ReplaceWorkoutItemDto } from '@/shared/api/generated/model'
 import {
   workoutControllerAnalogs,
   workoutControllerCooldown,
+  workoutControllerCooldownFinish,
+  workoutControllerCooldownStart,
   workoutControllerCurrent,
   workoutControllerDiscard,
   workoutControllerFind,
@@ -129,6 +131,28 @@ export const useCooldown = (workoutId: number) =>
     queryFn: () => workoutControllerCooldown(workoutId),
     staleTime: Infinity,
   })
+
+// Время заминки — со временем нажатия и в общей очереди: без сети уйдёт позже, но не исказится.
+// Повтор безопасен: сервер пишет только первое начало и первое прохождение
+export const useCooldownStart = () =>
+  useMutation({
+    mutationFn: (workoutId: number) => workoutControllerCooldownStart(workoutId, { at: new Date().toISOString() }),
+    scope: WORKOUT_QUEUE_SCOPE,
+    // Заминка уже идёт на экране — отметка времени фоновая
+    meta: { skipSuccessToast: true },
+  })
+
+export const useCooldownFinish = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (workoutId: number) => workoutControllerCooldownFinish(workoutId, { at: new Date().toISOString() }),
+    scope: WORKOUT_QUEUE_SCOPE,
+    // Прохождение заминки и так видно на экране — финальный «Готово»
+    meta: { skipSuccessToast: true },
+    // Итог показывает время заминки — после неё ведём туда
+    onSuccess: (_, workoutId) => queryClient.invalidateQueries({ queryKey: workoutKeys.summary(workoutId) }),
+  })
+}
 
 /** «Поделиться»: бот присылает в чат карточку результата, её пересылают друзьям */
 export const useShareWorkout = () =>

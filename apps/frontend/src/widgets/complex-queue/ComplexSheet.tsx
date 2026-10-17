@@ -1,17 +1,32 @@
+import { CalendarCheckIcon } from 'lucide-react'
+
 import { complexLetter, planText, type ProgramComplex } from '@/entities/program'
 import { ExerciseBlocks } from '@/shared/ui/kit/ExerciseBlocks'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { Poster, Text } from '@/shared/ui/kit/Typography'
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'
+import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
+import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'
 
 type ComplexSheetProps = {
   /** Открытый комплекс и его место в очереди; null — шторка закрыта */
   complex: { complex: ProgramComplex; index: number } | null
   onClose: () => void
+  /** Подсвеченный комплекс: для него кнопка выбора не нужна */
+  activeId?: number
+  /** Выбор комплекса; без него шторка только показывает состав */
+  onPick?: (id: number) => void
+  /** Подпись кнопки выбора: на «Сегодня» — на сегодня, в программах — следующий в очереди */
+  pickLabel?: string
 }
 
 // Состав комплекса из очереди: что в нём за упражнения и сколько подходов, без перехода в редактор
-export const ComplexSheet = ({ complex, onClose }: ComplexSheetProps) => {
+export const ComplexSheet = ({
+  complex,
+  onClose,
+  activeId,
+  onPick,
+  pickLabel = 'Буду делать сегодня',
+}: ComplexSheetProps) => {
   const c = complex?.complex
   return (
     <Sheet
@@ -72,6 +87,21 @@ export const ComplexSheet = ({ complex, onClose }: ComplexSheetProps) => {
                 </List>
               )}
             </div>
+            {onPick && c.id !== activeId && (
+              <SheetFooter className='border-foreground/15 border-t-[1.5px]'>
+                <Button
+                  size='lg'
+                  className='w-full'
+                  onClick={() => {
+                    onPick(c.id)
+                    onClose()
+                  }}
+                >
+                  <CalendarCheckIcon />
+                  {pickLabel}
+                </Button>
+              </SheetFooter>
+            )}
           </>
         )}
       </SheetContent>

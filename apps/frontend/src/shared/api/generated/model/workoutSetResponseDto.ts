@@ -17,4 +17,24 @@ export interface WorkoutSetResponseDto {
      * @nullable
      */
   clientId: string | null;
+  /**
+     * Когда записан; null — подход до учёта времени
+     * @nullable
+     */
+  doneAt: string | null;
+  /**
+     * Чистое время подхода, с; null — ручной ввод или бот
+     * @nullable
+     */
+  workSeconds: number | null;
+  /**
+     * План отдыха перед подходом, с
+     * @nullable
+     */
+  restTargetSeconds: number | null;
+  /**
+     * Фактический отдых перед подходом, с; null — первый, после перехода, простоя или без времени
+     * @nullable
+     */
+  restBeforeSeconds: number | null;
 }

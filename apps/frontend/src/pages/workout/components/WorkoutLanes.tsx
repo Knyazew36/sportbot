@@ -20,7 +20,7 @@ export const WorkoutLanes = ({ items, currentId, onPick }: WorkoutLanesProps) =>
   let number = 0
   return (
     <ol
-      className='grid gap-1.5 px-gutter pt-4'
+      className='grid gap-1 px-gutter pt-3'
       style={{ gridTemplateColumns: `repeat(${Math.min(blocks.length, 8)}, minmax(0, 1fr))` }}
     >
       {blocks.map(block => {
@@ -37,7 +37,7 @@ export const WorkoutLanes = ({ items, currentId, onPick }: WorkoutLanesProps) =>
               size='sm'
               onClick={() => onPick(first.id)}
               className={cn(
-                'relative h-11 w-full items-end justify-between overflow-hidden px-1.5 pb-1',
+                'relative h-8 w-full justify-between overflow-hidden px-1.5',
                 isCurrent && 'border-2',
                 !done && !isCurrent && 'text-foreground/45',
               )}
@@ -62,7 +62,7 @@ export const WorkoutLanes = ({ items, currentId, onPick }: WorkoutLanesProps) =>
               </Poster>
               {done && (
                 <CheckIcon
-                  className='mb-0.5 size-3.5'
+                  className='size-3'
                   strokeWidth={3}
                 />
               )}

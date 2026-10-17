@@ -1003,6 +1003,10 @@ model Workout {
   startedAt  DateTime  @default(now())
   finishedAt DateTime?
 
+  /// Заминка: время с клиента, первое открытие и прохождение. null — не открывали или до учёта времени.
+  cooldownStartedAt  DateTime?
+  cooldownFinishedAt DateTime?
+
   /// Токен ссылки «Поделиться» на страницу результата; появляется при первом шаринге.
   shareToken String? @unique
 
@@ -1053,6 +1057,13 @@ model WorkoutSet {
   reps   Int
   /// uuid с клиента: повтор запроса из офлайн-очереди не создаёт второй подход
   clientId String? @unique @db.Uuid
+
+  /// Время с клиента: подход доезжает через офлайн-очередь позже нажатия. null — записан до учёта времени.
+  doneAt            DateTime?
+  /// Чистое время подхода по секундомеру; null — ручной ввод или бот.
+  workSeconds       Int?
+  /// План отдыха перед подходом (настройка + «+30 с»); null — таймер не запускали.
+  restTargetSeconds Int?
 
   @@unique([workoutExerciseId, number])
 }

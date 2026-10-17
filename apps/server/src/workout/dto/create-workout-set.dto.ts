@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsInt,
+  IsISO8601,
   IsNumber,
   IsOptional,
   IsUUID,
@@ -38,4 +39,30 @@ export class CreateWorkoutSetDto {
   @IsOptional()
   @IsUUID()
   clientId?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Когда записали подход на клиенте (ISO). Офлайн-подход доезжает позже — время берётся отсюда',
+  })
+  @IsOptional()
+  @IsISO8601()
+  doneAt?: string;
+
+  @ApiPropertyOptional({
+    description: 'Чистое время подхода по секундомеру, с; нет — ручной ввод',
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(3600)
+  workSeconds?: number;
+
+  @ApiPropertyOptional({
+    description: 'План отдыха перед подходом, с; нет — таймер не запускали',
+  })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(3600)
+  restTargetSeconds?: number;
 }

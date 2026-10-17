@@ -14,6 +14,7 @@ import type {
   ProgramControllerCreate200,
   ProgramControllerDismissUpdate200,
   ProgramControllerList200,
+  ProgramControllerMakeNextComplex200,
   ProgramControllerPublish200,
   ProgramControllerRemove200,
   ProgramControllerRemoveComplex200,
@@ -216,6 +217,17 @@ export const programControllerReorderComplexes = (
       );
     }
   /**
+ * @summary Сделать комплекс активной программы следующим в очереди
+ */
+export const programControllerMakeNextComplex = (
+    id: number,
+ ) => {
+      return customInstance<ProgramControllerMakeNextComplex200>(
+      {url: `/program/complex/make-next/${id}`, method: 'POST'
+    },
+      );
+    }
+  /**
  * @summary Комплекс: название и кардио
  */
 export const programControllerUpdateComplex = (
@@ -343,6 +355,7 @@ export type ProgramControllerPublishResult = NonNullable<Awaited<ReturnType<type
 export type ProgramControllerUnpublishResult = NonNullable<Awaited<ReturnType<typeof programControllerUnpublish>>>
 export type ProgramControllerAddComplexResult = NonNullable<Awaited<ReturnType<typeof programControllerAddComplex>>>
 export type ProgramControllerReorderComplexesResult = NonNullable<Awaited<ReturnType<typeof programControllerReorderComplexes>>>
+export type ProgramControllerMakeNextComplexResult = NonNullable<Awaited<ReturnType<typeof programControllerMakeNextComplex>>>
 export type ProgramControllerUpdateComplexResult = NonNullable<Awaited<ReturnType<typeof programControllerUpdateComplex>>>
 export type ProgramControllerRemoveComplexResult = NonNullable<Awaited<ReturnType<typeof programControllerRemoveComplex>>>
 export type ProgramControllerAddExercisesResult = NonNullable<Awaited<ReturnType<typeof programControllerAddExercises>>>

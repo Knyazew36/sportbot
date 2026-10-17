@@ -58,7 +58,7 @@ export const ChargeChain = ({ links, onPick, burstKey, className }: ChargeChainP
               {...(onPick ? { type: 'button' as const, onClick: () => onPick(i) } : {})}
               className={cn(
                 // Пройденное звено узнаётся по полной заливке: галочка рядом с меткой не влезала в пять звеньев на 360px
-                'relative flex h-10 min-w-0 flex-1 items-center justify-center overflow-hidden border-[1.5px]',
+                'relative flex h-8 min-w-0 flex-1 items-center justify-center overflow-hidden border-[1.5px]',
                 link.state === 'current' ? 'border-primary border-2' : 'border-foreground/25',
               )}
               aria-current={link.state === 'current' ? 'step' : undefined}

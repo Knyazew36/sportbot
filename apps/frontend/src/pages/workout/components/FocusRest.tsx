@@ -1,7 +1,6 @@
 import { ArrowRightIcon, PlayIcon, PlusIcon } from 'lucide-react'
 
 import { formatSeconds, type useDeadlineTimer } from '@/shared/lib/hooks/use-deadline-timer'
-import { type ChargeLink, ChargeChain } from '@/shared/ui/kit/ChargeChain'
 import { Ring } from '@/shared/ui/kit/Ring'
 import { Digits, Eyebrow, Poster } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
@@ -15,8 +14,8 @@ type FocusRestProps = {
   startedAt: string
   nextSet: number
   plannedSets: number
-  /** Отдых между кругами суперсета: табло считает круги, под кольцом пустая цепочка следующего круга */
-  round: { letter: string; number: number; rounds: number; links: ChargeLink[] } | null
+  /** Отдых между кругами суперсета: табло считает круги */
+  round: { letter: string; number: number; rounds: number } | null
   /** Отдых закончен или пропущен — сразу следующий подход */
   onToSet: () => void
   /** Подходов больше не будет — к экрану упражнения */
@@ -169,12 +168,6 @@ export const FocusRest = ({
           )}
         </div>
       </div>
-      {round && (
-        <ChargeChain
-          links={round.links}
-          className='w-full'
-        />
-      )}
     </FocusShell>
   )
 }

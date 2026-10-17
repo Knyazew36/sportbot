@@ -5,6 +5,7 @@
  * OpenAPI spec version: 0.0.1
  */
 import type {
+  CooldownAtDto,
   CreateWorkoutSetDto,
   FinishWorkoutDto,
   ReplaceWorkoutItemDto,
@@ -13,6 +14,8 @@ import type {
   WorkoutControllerAddSet200,
   WorkoutControllerAnalogs200,
   WorkoutControllerCooldown200,
+  WorkoutControllerCooldownFinish200,
+  WorkoutControllerCooldownStart200,
   WorkoutControllerCurrent200,
   WorkoutControllerDeleteSet200,
   WorkoutControllerDiscard200,
@@ -167,6 +170,34 @@ export const workoutControllerReplace = (
       );
     }
   /**
+ * @summary Заминка начата: пишется первое открытие, повтор ничего не меняет
+ */
+export const workoutControllerCooldownStart = (
+    id: number,
+    cooldownAtDto: CooldownAtDto,
+ ) => {
+      return customInstance<WorkoutControllerCooldownStart200>(
+      {url: `/workout/cooldown/start/${id}`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: cooldownAtDto
+    },
+      );
+    }
+  /**
+ * @summary Заминка пройдена: только после начала и один раз
+ */
+export const workoutControllerCooldownFinish = (
+    id: number,
+    cooldownAtDto: CooldownAtDto,
+ ) => {
+      return customInstance<WorkoutControllerCooldownFinish200>(
+      {url: `/workout/cooldown/finish/${id}`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: cooldownAtDto
+    },
+      );
+    }
+  /**
  * @summary Поделиться: бот присылает в чат карточку результата для пересылки
  */
 export const workoutControllerShare = (
@@ -232,6 +263,8 @@ export type WorkoutControllerDeleteSetResult = NonNullable<Awaited<ReturnType<ty
 export type WorkoutControllerMarkDoneResult = NonNullable<Awaited<ReturnType<typeof workoutControllerMarkDone>>>
 export type WorkoutControllerAnalogsResult = NonNullable<Awaited<ReturnType<typeof workoutControllerAnalogs>>>
 export type WorkoutControllerReplaceResult = NonNullable<Awaited<ReturnType<typeof workoutControllerReplace>>>
+export type WorkoutControllerCooldownStartResult = NonNullable<Awaited<ReturnType<typeof workoutControllerCooldownStart>>>
+export type WorkoutControllerCooldownFinishResult = NonNullable<Awaited<ReturnType<typeof workoutControllerCooldownFinish>>>
 export type WorkoutControllerShareResult = NonNullable<Awaited<ReturnType<typeof workoutControllerShare>>>
 export type WorkoutControllerSharedResult = NonNullable<Awaited<ReturnType<typeof workoutControllerShared>>>
 export type WorkoutControllerSummaryResult = NonNullable<Awaited<ReturnType<typeof workoutControllerSummary>>>

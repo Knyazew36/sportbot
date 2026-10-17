@@ -18,7 +18,9 @@ import { WorkoutAnalogResponseDto } from './dto/workout-analog.response.dto';
 import { WorkoutCurrentResponseDto } from './dto/workout-current.response.dto';
 import { WorkoutItemResponseDto } from './dto/workout-item.response.dto';
 import { WorkoutSummaryResponseDto } from './dto/workout-summary.response.dto';
+import { WorkoutTimingResponseDto } from './dto/workout-timing.response.dto';
 import { WorkoutResponseDto } from './dto/workout.response.dto';
+import { workoutTiming } from './workout-timing';
 import {
   canComplete,
   isDone,
@@ -88,6 +90,7 @@ export class WorkoutAppService {
       cardioName: workout.cardioName,
       cardioMinutes: workout.cardioMinutes,
       records,
+      timing: this.timingView(workout),
     };
   }
 
@@ -133,13 +136,22 @@ export class WorkoutAppService {
       throw new BadRequestException(
         'Пока не сделано ни одного упражнения — засчитывать нечего.',
       );
-    // Время с клиента не раньше старта и не из будущего
+    // Время с клиента не раньше старта и последнего подхода и не из будущего
     const now = Date.now();
-    const at = finishedAt
-      ? new Date(
-          Math.min(now, Math.max(workout.startedAt.getTime(), +finishedAt)),
-        )
-      : undefined;
+    const lastDone = Math.max(
+      workout.startedAt.getTime(),
+      ...workout.exercises.flatMap((e) =>
+        e.sets.flatMap((s) => (s.doneAt ? [s.doneAt.getTime()] : [])),
+      ),
+    );
+    let at: Date | undefined;
+    if (finishedAt) {
+      at = new Date(Math.min(now, Math.max(lastDone, +finishedAt)));
+      if (+at !== +finishedAt)
+        this.logger.warn(
+          `Время завершения срезано: workoutId=${workoutId}, userId=${userId}, пришло=${finishedAt.toISOString()}, стало=${at.toISOString()}`,
+        );
+    }
     await this.workouts.complete(profile, workoutId, { finishedAt: at });
     return this.summary(userId, workoutId);
   }
@@ -167,6 +179,11 @@ export class WorkoutAppService {
       dto.weight ?? 0,
       dto.reps,
       dto.clientId,
+      {
+        doneAt: dto.doneAt ? new Date(dto.doneAt) : undefined,
+        workSeconds: dto.workSeconds,
+        restTargetSeconds: dto.restTargetSeconds,
+      },
     );
     return this.find(userId, workoutId);
   }
@@ -262,7 +279,30 @@ export class WorkoutAppService {
     };
   }
 
+  public async cooldownStart(
+    userId: number,
+    workoutId: number,
+    at?: Date,
+  ): Promise<void> {
+    await this.workouts.cooldownStart(userId, workoutId, at);
+  }
+
+  public async cooldownFinish(
+    userId: number,
+    workoutId: number,
+    at?: Date,
+  ): Promise<void> {
+    await this.workouts.cooldownFinish(userId, workoutId, at);
+  }
+
   // ── Внутреннее ──────────────────────────────────────────────────────────
+
+  private timingView(workout: WorkoutFull): WorkoutTimingResponseDto | null {
+    const timing = workoutTiming(workout);
+    if (!timing) return null;
+    const { restBefore: _restBefore, ...totals } = timing;
+    return totals;
+  }
 
   private stretchView(stretch: StretchFull): CooldownStretchResponseDto {
     return {
@@ -290,6 +330,7 @@ export class WorkoutAppService {
     profile: SportProfile,
     workout: WorkoutFull,
   ): Promise<WorkoutResponseDto> {
+    const restBefore = workoutTiming(workout)?.restBefore ?? new Map<number, number>();
     const [limited, last] = await Promise.all([
       this.limitations.activeJointIds(profile),
       Promise.all(
@@ -309,7 +350,7 @@ export class WorkoutAppService {
       cardioName: workout.cardioName,
       cardioMinutes: workout.cardioMinutes,
       exercises: workout.exercises.map((item, index) =>
-        this.itemView(item, limited, last[index]),
+        this.itemView(item, limited, last[index], restBefore),
       ),
       settings: {
         showRestTimer: profile.showRestTimer,
@@ -325,6 +366,7 @@ export class WorkoutAppService {
     item: WorkoutExerciseFull,
     limited: Set<number>,
     last: Awaited<ReturnType<WorkoutService['lastResult']>>,
+    restBefore: Map<number, number>,
   ): WorkoutItemResponseDto {
     const { exercise } = item;
     return {
@@ -352,6 +394,10 @@ export class WorkoutAppService {
         weight: Number(s.weight),
         reps: s.reps,
         clientId: s.clientId,
+        doneAt: s.doneAt,
+        workSeconds: s.workSeconds,
+        restTargetSeconds: s.restTargetSeconds,
+        restBeforeSeconds: restBefore.get(s.id) ?? null,
       })),
       last: last
         ? {

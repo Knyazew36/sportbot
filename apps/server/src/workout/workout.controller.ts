@@ -14,6 +14,7 @@ import { BotChannel, User } from '@/generated/prisma/client';
 import { AuthChannel } from '@/miniapp/decorators/auth-channel.decorator';
 import { SportAuth } from '@/miniapp/decorators/sport-auth.decorator';
 
+import { CooldownAtDto } from './dto/cooldown-at.dto';
 import { CooldownResponseDto } from './dto/cooldown.response.dto';
 import { CreateWorkoutSetDto } from './dto/create-workout-set.dto';
 import { FinishWorkoutDto } from './dto/finish-workout.dto';
@@ -211,6 +212,46 @@ export class WorkoutController {
       id,
       dto.exerciseId,
       dto.inComplex,
+    );
+  }
+
+  // ── Заминка ─────────────────────────────────────────────────────────────
+
+  @Post('cooldown/start/:id')
+  @Swagger({
+    title: 'Заминка начата: пишется первое открытие, повтор ничего не меняет',
+    param: ID_PARAM,
+    body: CooldownAtDto,
+    bearerAuth: true,
+  })
+  public cooldownStart(
+    @CurrentUser('id') userId: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: CooldownAtDto,
+  ) {
+    return this.workoutAppService.cooldownStart(
+      userId,
+      id,
+      dto.at ? new Date(dto.at) : undefined,
+    );
+  }
+
+  @Post('cooldown/finish/:id')
+  @Swagger({
+    title: 'Заминка пройдена: только после начала и один раз',
+    param: ID_PARAM,
+    body: CooldownAtDto,
+    bearerAuth: true,
+  })
+  public cooldownFinish(
+    @CurrentUser('id') userId: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: CooldownAtDto,
+  ) {
+    return this.workoutAppService.cooldownFinish(
+      userId,
+      id,
+      dto.at ? new Date(dto.at) : undefined,
     );
   }
 

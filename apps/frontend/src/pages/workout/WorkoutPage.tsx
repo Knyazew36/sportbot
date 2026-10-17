@@ -11,6 +11,7 @@ import {
   useDiscardWorkout,
   useFinishWorkout,
   useQueuedWorkout,
+  type SetTiming,
   useStartWorkout,
   type Workout,
   type WorkoutSet,
@@ -75,16 +76,15 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
     onEnd: () => timerEndSignal(workout.settings),
   })
   const stopwatch = useStopwatch({ storageKey: `set-stopwatch-${workout.id}` })
-  // Шаг круга суперсета в фокусе: переживает перезагрузку вместе с секундомером круга
-  const stepKey = `round-step-${workout.id}`
-  const [roundStep, setRoundStepState] = useState<number | null>(() => {
-    const saved = local.get(stepKey)
-    return saved === null ? null : Number(saved)
-  })
-  const setRoundStep = (next: number | null) => {
-    setRoundStepState(next)
-    if (next === null) local.remove(stepKey)
-    else local.set(stepKey, String(next))
+  // План отдыха перед идущим подходом: таймер на старте подхода останавливается, а план нужен при записи
+  const restTargetKey = `set-rest-target-${workout.id}`
+  // Идёт круг суперсета: переживает перезагрузку вместе с секундомером круга
+  const roundKey = `round-active-${workout.id}`
+  const [roundActive, setRoundActiveState] = useState(() => local.get(roundKey) !== null)
+  const setRoundActive = (next: boolean) => {
+    setRoundActiveState(next)
+    if (next) local.set(roundKey, '1')
+    else local.remove(roundKey)
   }
   // Подход одному участнику суперсета: забытый подход или круг из одного упражнения
   const [entryFor, setEntryFor] = useState<number | null>(null)
@@ -147,8 +147,7 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
   const setNumber = entryItem.sets.length + 1
   // Подход в суперсете подписан «A1 ·»: видно, что это часть круга, а не одно упражнение
   const focusTitle = superset ? `${labelOf(entryItem.id)} · ${entryItem.name}` : entryItem.name
-  const step = superset && roundStep !== null ? Math.min(roundStep, superset.round.length - 1) : null
-  const inRound = superset !== null && step !== null && superset.round.length > 1 && stopwatch.running
+  const inRound = superset !== null && roundActive && superset.round.length > 1 && stopwatch.running
 
   // Дальше — следующий несделанный блок по порядку, иначе первый несделанный. Пропуск ничего не отмечает:
   // упражнение без подходов остаётся несделанным и в итогах
@@ -171,6 +170,7 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
   const onFinish = () => {
     timer.stop()
     stopwatch.stop()
+    local.remove(restTargetKey)
     finish.mutate(
       { id: workout.id, finishedAt: new Date().toISOString() },
       {
@@ -184,6 +184,7 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
     discard.mutateAsync(workout.id).then(() => {
       timer.stop()
       stopwatch.stop()
+      local.remove(restTargetKey)
       navigate(ROUTES.TODAY, { replace: true })
     })
 
@@ -205,19 +206,17 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
 
   // Круг из нескольких упражнений идёт фокусом круга; из одного — обычным подходом
   const startSet = () => {
+    // План — с учётом всех «+30 с»; таймер не запускали — плана нет
+    if (timer.status !== 'idle') local.set(restTargetKey, String(timer.total))
+    else local.remove(restTargetKey)
     timer.stop()
     if (superset) {
       const [first, second] = superset.round
       if (!first) return
-      if (second) setRoundStep(0)
+      if (second) setRoundActive(true)
       else setEntryFor(first.id)
     }
     stopwatch.start()
-  }
-
-  const nextInRound = () => {
-    haptic.tap()
-    setRoundStep((step ?? 0) + 1)
   }
 
   // Конец круга: вспышка цепочки и штамп, потом шторка ввода — пока шторка едет, штамп успевает прочитаться
@@ -229,15 +228,28 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
     window.setTimeout(() => setRoundOpen(true), 550)
   }
 
+  // Время подхода берётся в момент записи: с секундомером — нажатие «Готово» и чистое время,
+  // без него (ручной ввод) — сам момент записи. Подход доедет через очередь позже, время останется этим
+  const setTiming = (): SetTiming => {
+    if (!stopwatch.running) return { doneAt: new Date().toISOString() }
+    const restTarget = Number(local.get(restTargetKey))
+    return {
+      doneAt: new Date(stopwatch.pausedAt ?? Date.now()).toISOString(),
+      workSeconds: stopwatch.elapsed,
+      restTargetSeconds: restTarget > 0 ? restTarget : undefined,
+    }
+  }
+
   const cancelRound = () => {
     stopwatch.stop()
-    setRoundStep(null)
+    setRoundActive(false)
   }
 
   const onRoundSaved = (addedIds: number[]) => {
     setRoundOpen(false)
     stopwatch.stop()
-    setRoundStep(null)
+    local.remove(restTargetKey)
+    setRoundActive(false)
     if (superset && supersetDoneWith(superset.members, addedIds)) finishSuperset(superset.letter)
     else rest()
   }
@@ -245,6 +257,7 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
   const onSaved = () => {
     setEntryOpen(false)
     stopwatch.stop()
+    local.remove(restTargetKey)
     setEntryFor(null)
     if (superset && supersetDoneWith(superset.members, [entryItem.id])) finishSuperset(superset.letter)
     else rest()
@@ -342,15 +355,10 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
         <FocusRound
           stopwatch={stopwatch}
           round={superset}
-          step={step}
           startedAt={workout.startedAt}
           burstKey={burstKey || undefined}
-          onNext={nextInRound}
           onFinish={() => finishRound(superset.number)}
-          onRestart={() => {
-            setRoundStep(0)
-            stopwatch.start()
-          }}
+          onRestart={stopwatch.start}
           onCancel={cancelRound}
         />
       ) : stopwatch.running ? (
@@ -381,8 +389,6 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
                     letter: superset.letter,
                     number: superset.number,
                     rounds: superset.rounds,
-                    // Следующий круг ещё не заряжен: цепочка пустая, заряжаться начнёт по «К кругу»
-                    links: superset.round.map(e => ({ label: labelOf(e.id)!, charge: 0, state: 'idle' as const })),
                   }
                 : null
             }
@@ -405,12 +411,14 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
           stopwatch.resume()
         }}
         item={entryItem}
+        timing={setTiming}
         onSubmitStart={() => setPickedId(entryItem.id)}
         onSaved={onSaved}
       />
       <RoundEntrySheet
         open={roundOpen}
         round={superset}
+        timing={setTiming}
         // Закрыл без записи — круг продолжается с последнего упражнения с того же времени
         onClose={() => {
           setRoundOpen(false)

@@ -6,12 +6,12 @@ import { Eyebrow, Poster } from '@/shared/ui/kit/Typography'
 import { FocusScoreboard, type FocusSets } from './FocusScoreboard'
 
 type FocusShellProps = {
-  /** Что происходит: «идёт подход», «пауза», «отдых» */
-  status: string
+  /** Что происходит: «идёт подход», «пауза», «отдых»; в круге суперсета — только пауза, цепочка и так видна */
+  status?: string
   /** Акцентом, когда статус требует действия: пауза, отдых закончился */
   alert?: boolean
-  /** Название упражнения; в круге суперсета — с анимацией смены */
-  title: ReactNode
+  /** Название упражнения; в круге суперсета его нет — круг виден списком */
+  title?: ReactNode
   /** Под названием: что будет дальше в круге суперсета */
   subtitle?: ReactNode
   /** Над названием: цепочка круга суперсета */
@@ -46,22 +46,29 @@ export const FocusShell = ({
     {/* Название целиком, до двух строк: «Жим гантелей на наклонной…» с многоточием не отличить от соседнего упражнения */}
     <div className='relative flex flex-col gap-3 px-gutter pt-[calc(var(--sb-top-inset,0px)+1rem)]'>
       {above}
+      {(status || title || subtitle) && (
       <div>
-        <Eyebrow
-          as='p'
-          tone={alert ? 'primary' : 'muted'}
-        >
-          {status}
-        </Eyebrow>
-        <Poster
-          as='h1'
-          size='md'
-          className='mt-1 line-clamp-2 text-balance'
-        >
-          {title}
-        </Poster>
+        {status && (
+          <Eyebrow
+            as='p'
+            tone={alert ? 'primary' : 'muted'}
+            className='mb-1'
+          >
+            {status}
+          </Eyebrow>
+        )}
+        {title && (
+          <Poster
+            as='h1'
+            size='md'
+            className='line-clamp-2 text-balance'
+          >
+            {title}
+          </Poster>
+        )}
         {subtitle}
       </div>
+      )}
       <FocusScoreboard
         sets={sets}
         startedAt={startedAt}

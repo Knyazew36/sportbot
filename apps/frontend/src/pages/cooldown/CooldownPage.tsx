@@ -1,10 +1,10 @@
 import { ArrowRightIcon, ListIcon, SkipBackIcon, SkipForwardIcon } from 'lucide-react'
 import { useParams, useSearchParams } from 'react-router'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { splitSteps } from '@/entities/catalog/lib'
-import { type Cooldown, useCooldown } from '@/entities/workout'
+import { type Cooldown, useCooldown, useCooldownFinish, useCooldownStart } from '@/entities/workout'
 import { toAssetUrl } from '@/shared/api'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { pluralize } from '@front-cmdt/utils/pluralize'
@@ -30,13 +30,28 @@ import { StretchListSheet } from './components/StretchListSheet'
 type Phase = { kind: 'overview' } | { kind: 'step'; index: number; side: 1 | 2 } | { kind: 'more' } | { kind: 'done' }
 
 // Заминка тренировки (frontend-tz, 9): состав и порядок — с сервера, при повторном открытии не меняется.
-// Прохождение ничего не записывает в статистику
+// В статистику идёт только время заминки: начало первой растяжки и выход на «Готово»
 // start — пришли с предложения после финиша: список уже не показываем, сразу первая растяжка
 const CooldownView = ({ cooldown, start }: { cooldown: Cooldown; start: boolean }) => {
   const [phase, setPhase] = useState<Phase>(start ? { kind: 'step', index: 0, side: 1 } : { kind: 'overview' })
   const [listOpen, setListOpen] = useState(false)
   const all = [...cooldown.main, ...cooldown.optional]
   const back = buildPath(ROUTES.WORKOUT_SUMMARY, { workoutId: cooldown.workoutId })
+  const { mutate: markStart } = useCooldownStart()
+  const { mutate: markFinish } = useCooldownFinish()
+  const marked = useRef<{ start?: boolean; finish?: boolean }>({})
+
+  // Отметка один раз за открытие; повторное открытие сервер не перезапишет
+  useEffect(() => {
+    if (phase.kind === 'step' && !marked.current.start) {
+      marked.current.start = true
+      markStart(cooldown.workoutId)
+    }
+    if (phase.kind === 'done' && marked.current.start && !marked.current.finish) {
+      marked.current.finish = true
+      markFinish(cooldown.workoutId)
+    }
+  }, [phase.kind, cooldown.workoutId, markStart, markFinish])
 
   const go = (index: number) => setPhase({ kind: 'step', index, side: 1 })
 
@@ -256,7 +271,7 @@ const CooldownView = ({ cooldown, start }: { cooldown: Cooldown; start: boolean 
                   >
                     <ListIcon className='size-5' />
                   </Button>
-                  {/* Заминка ничего не пишет в статистику — выйти можно в любой момент без подтверждения */}
+                  {/* Заминка не влияет на засчитывание — выйти можно в любой момент без подтверждения */}
                   <Button
                     variant='destructive'
                     size='sm'

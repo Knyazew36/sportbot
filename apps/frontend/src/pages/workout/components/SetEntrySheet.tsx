@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import {
   lastSetHint,
   newClientId,
+  type SetTiming,
   useAddSet,
   weightText,
   type WorkoutItem,
@@ -78,6 +79,8 @@ const SetEntryForm = ({ item, onSubmit }: SetEntryFormProps) => {
 type SetEntrySheetProps = {
   open: boolean
   item: WorkoutItem
+  /** Время подхода на момент записи */
+  timing: () => SetTiming
   onClose: () => void
   /** Подход отправляется — экран закрепляет упражнение за собой */
   onSubmitStart: () => void
@@ -88,18 +91,20 @@ type SetEntrySheetProps = {
 // Ввод подхода после «Закончил подход»: два крупных поля и одна кнопка (frontend-tz, 8.2).
 // Отправка не держит экран: подход встаёт в офлайн-очередь, шторка закрывается сразу,
 // подход виден в списке с меткой «ждёт отправки», пока сервер его не принял
-export const SetEntrySheet = ({ open, item, onClose, onSubmitStart, onSaved }: SetEntrySheetProps) => {
+export const SetEntrySheet = ({ open, item, timing, onClose, onSubmitStart, onSaved }: SetEntrySheetProps) => {
   const add = useAddSet()
   const hint = lastSetHint(item.last, item.sets.length + 1)
   const number = item.sets.length + 1
 
   const submit = (values: WorkoutSetValues) => {
+    // До onSaved: он останавливает секундомер, и время подхода пропало бы
+    const time = timing()
     // Первый подход делает упражнение «сделанным», и без закрепления экран ушёл бы к следующему несделанному
     onSubmitStart()
     // Клавиатура уходит вместе со шторкой, а не после неё
     if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
     onSaved()
-    add.mutate({ itemId: item.id, ...values, clientId: newClientId() })
+    add.mutate({ itemId: item.id, ...values, ...time, clientId: newClientId() })
   }
 
   return (

@@ -1,6 +1,7 @@
 import { ClockIcon, PencilIcon, PlusIcon } from 'lucide-react'
 
 import { weightText, type WorkoutItem, type WorkoutSet } from '@/entities/workout'
+import { formatSeconds } from '@/shared/lib/hooks/use-deadline-timer'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Eyebrow, Poster, Text, Unit } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
@@ -12,6 +13,34 @@ type SetListProps = {
   live?: boolean
   /** Записать подход без таймера; нет — кнопки под списком нет */
   onAdd?: () => void
+}
+
+// Время подхода и отдых перед ним. Отдых сверх плана выделен: видно, где пересидел
+const SetTiming = ({ set }: { set: WorkoutSet }) => {
+  const rest = set.restBeforeSeconds
+  if (set.workSeconds === null && rest === null) return null
+  // План показываем, только когда пересидел
+  const target = rest !== null && set.restTargetSeconds !== null && rest > set.restTargetSeconds ? set.restTargetSeconds : null
+  return (
+    <Text
+      size='xs'
+      tone='muted'
+      className='col-span-3 col-start-2 mt-1.5 tabular-nums'
+    >
+      {set.workSeconds !== null && formatSeconds(set.workSeconds)}
+      {set.workSeconds !== null && rest !== null && ' · '}
+      {rest !== null && (
+        <Text
+          as='span'
+          size='xs'
+          tone={target !== null ? 'danger' : 'muted'}
+        >
+          отдых {formatSeconds(rest)}
+          {target !== null && ` из ${formatSeconds(target)}`}
+        </Text>
+      )}
+    </Text>
+  )
 }
 
 // Сохранённые подходы упражнения. Подходов может быть больше или меньше плана
@@ -66,6 +95,7 @@ export const SetList = ({ item, onEdit, live = true, onAdd }: SetListProps) => (
             >
               <PencilIcon />
             </Button>
+            <SetTiming set={set} />
           </li>
         ))}
       </ol>

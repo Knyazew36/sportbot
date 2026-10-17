@@ -6,6 +6,7 @@
  */
 import type { WorkoutRecordResponseDto } from './workoutRecordResponseDto';
 import type { WorkoutSummaryResponseDtoStatus } from './workoutSummaryResponseDtoStatus';
+import type { WorkoutTimingResponseDto } from './workoutTimingResponseDto';
 
 export interface WorkoutSummaryResponseDto {
   workoutId: number;
@@ -27,4 +28,9 @@ export interface WorkoutSummaryResponseDto {
   cardioMinutes: number | null;
   /** Личные рекорды этой тренировки */
   records: WorkoutRecordResponseDto[];
+  /**
+     * Разбивка времени; null — подходов со временем нет
+     * @nullable
+     */
+  timing: WorkoutTimingResponseDto | null;
 }
