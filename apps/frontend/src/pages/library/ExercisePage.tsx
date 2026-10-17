@@ -1,4 +1,4 @@
-import { CirclePlayIcon, PencilLineIcon, PlusIcon, TriangleAlertIcon } from 'lucide-react'
+import { PencilLineIcon, PlusIcon, TriangleAlertIcon } from 'lucide-react'
 import { useParams, useSearchParams } from 'react-router'
 
 import { useState } from 'react'
@@ -8,7 +8,6 @@ import { useLimitations } from '@/entities/limitation'
 import { complexLetter, useActiveProgram, useAddComplexExercises } from '@/entities/program'
 import { toAssetUrl } from '@/shared/api'
 import { ROUTES } from '@/shared/config/paths'
-import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { MistakeList } from '@/shared/ui/kit/MistakeList'
 import { PhotoPair } from '@/shared/ui/kit/PhotoPair'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
@@ -22,6 +21,7 @@ import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Badge } from '@/shared/ui/shadcn/badge'
 import { AddToComplexSheet } from '@/widgets/catalog/AddToComplexSheet'
 import { ExerciseEditSheet } from '@/widgets/catalog/ExerciseEditSheet'
+import { VideoLink } from '@/widgets/catalog/VideoLink'
 
 // Карточка упражнения (frontend-tz, 11.2). Открывается и из справочника, и кнопкой «Техника» на тренировке —
 // тогда ?from= возвращает туда же
@@ -97,17 +97,10 @@ const ExercisePage = () => {
                   {e.equipment && <Badge variant='secondary'>{EQUIPMENT_LABEL[e.equipment]}</Badge>}
                   {e.draft && <Badge variant='outline'>не проверено</Badge>}
                 </div>
-                {e.videoUrl && (
-                  <ButtonLink
-                    to={e.videoUrl}
-                    variant='outline'
-                    size='sm'
-                    className='self-start'
-                  >
-                    <CirclePlayIcon />
-                    Видео техники
-                  </ButtonLink>
-                )}
+                <VideoLink
+                  name={e.name}
+                  videoUrl={e.videoUrl}
+                />
               </Rise>
 
               <ScreenSection title='Мышцы'>
