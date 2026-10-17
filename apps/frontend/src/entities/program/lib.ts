@@ -26,6 +26,12 @@ export const catalogItemPath = (id: number, source: CatalogSource): string => {
   return source === 'users' ? `${path}?${SOURCE_PARAM}=users` : path
 }
 
+/** Откуда программа в общей витрине: у программ пользователей есть автор, у шаблонов — нет */
+export const catalogSourceOf = (p: Pick<Program, 'author'>): CatalogSource => (p.author ? 'users' : 'templates')
+
+/** Сортировка каталога в ссылке; без параметра — порядок редакции, потом новые от пользователей */
+export const SORT_PARAM = 'sort'
+
 /** «12 добавлений» — сколько раз программу взяли себе */
 export const addedText = (count: number): string => pluralize(count, ['добавление', 'добавления', 'добавлений'])
 

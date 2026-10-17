@@ -14,6 +14,7 @@ type PhotoGalleryProps = {
 }
 
 // Фото на весь экран со свайпом между ними: в карточке старт и финиш слишком мелкие, чтобы разглядеть положение
+// Верх — под кнопками Telegram в полноэкранном режиме (--sb-top-inset), иначе крестик закрытия уйдёт под них
 export const PhotoGallery = ({ photos, index, onOpenChange, alt }: PhotoGalleryProps) => {
   const [api, setApi] = useState<CarouselApi>()
   const [selected, setSelected] = useState(0)
@@ -33,7 +34,7 @@ export const PhotoGallery = ({ photos, index, onOpenChange, alt }: PhotoGalleryP
       open={index != null}
       onOpenChange={onOpenChange}
     >
-      <DialogContent className='inset-0 flex max-w-none translate-x-0 translate-y-0 flex-col justify-center gap-4 border-0 p-0 shadow-none sm:max-w-none'>
+      <DialogContent className='inset-x-0 top-(--sb-top-inset) bottom-0 flex max-w-none translate-x-0 translate-y-0 flex-col justify-center gap-4 border-0 p-0 shadow-none sm:max-w-none'>
         <DialogTitle className='sr-only'>{alt}</DialogTitle>
         <Carousel
           setApi={setApi}
@@ -48,7 +49,7 @@ export const PhotoGallery = ({ photos, index, onOpenChange, alt }: PhotoGalleryP
                 <img
                   src={photo.src}
                   alt={photo.label ? `${alt}: ${photo.label.toLowerCase()}` : alt}
-                  className='max-h-[75dvh] w-full object-contain'
+                  className='max-h-[calc(75dvh-var(--sb-top-inset))] w-full object-contain'
                 />
                 {photo.label && <Eyebrow>{photo.label}</Eyebrow>}
               </CarouselItem>

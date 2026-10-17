@@ -4,13 +4,14 @@ import { useSearchParams } from 'react-router'
 import { useEffect, useState } from 'react'
 
 import {
-  type CatalogSource,
+  type CatalogScope,
   SEARCH_PARAM,
   selectedTagIds,
   selectionFromParams,
+  SORT_PARAM,
   SOURCE_PARAM,
   type TagSelection,
-  useTemplates,
+  useCatalog,
   useTemplateTagGroups,
 } from '@/entities/program'
 import { useCreateBlankProgram } from '@/features/create-program/useCreateBlankProgram'
@@ -22,32 +23,45 @@ import { Rise } from '@/shared/ui/kit/Reveal'
 import { Screen } from '@/shared/ui/kit/Screen'
 import { TopBar } from '@/shared/ui/kit/ScreenHeader'
 import { Segmented } from '@/shared/ui/kit/Segmented'
-import { Lead } from '@/shared/ui/kit/Typography'
+import { Eyebrow, Poster } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { TemplateFilter } from '@/widgets/template-filter/TemplateFilter'
 
+import { byPopularity, CatalogShowcase } from './components/CatalogShowcase'
 import { TemplateCard } from './components/TemplateCard'
 
-const SOURCE_TABS: { value: CatalogSource; label: string }[] = [
-  { value: 'templates', label: 'Программы' },
-  { value: 'users', label: 'Программы пользователей' },
+type CatalogSort = 'default' | 'popular'
+
+const SCOPE_OPTIONS: { value: CatalogScope; label: string }[] = [
+  { value: 'all', label: 'Все' },
+  { value: 'templates', label: 'Каталог' },
+  { value: 'users', label: 'Пользователей' },
 ]
 
-// Каталог программ: подбор под себя по группам тегов и поиску, «Взять» — копия у себя (frontend-tz, 10.2).
-// Второй таб — программы, которые опубликовали пользователи: пока без фильтров, новые сверху
+const SORT_OPTIONS: { value: CatalogSort; label: string }[] = [
+  { value: 'default', label: 'Рекомендуем' },
+  { value: 'popular', label: 'Популярные' },
+]
+
+const PROGRAM_FORMS: [string, string, string] = ['программа', 'программы', 'программ']
+
+// Каталог программ (frontend-tz, 10.2): шаблоны и программы пользователей одной витриной.
+// Без фильтров — полки «Популярное» и «От сообщества» над общим списком; с фильтром — один список результатов
 const TemplatesPage = () => {
   const groups = useTemplateTagGroups()
   const blank = useCreateBlankProgram()
-  // Фильтры и таб в ссылке: выборку можно переслать и вернуть кнопкой «назад»
+  // Фильтры в ссылке: выборку можно переслать и вернуть кнопкой «назад»
   const [params, setParams] = useSearchParams()
-  const source: CatalogSource = params.get(SOURCE_PARAM) === 'users' ? 'users' : 'templates'
-  const users = source === 'users'
-  const selection = users ? {} : selectionFromParams(groups.data ?? [], params)
+  const sourceParam = params.get(SOURCE_PARAM)
+  const scope: CatalogScope = sourceParam === 'users' || sourceParam === 'templates' ? sourceParam : 'all'
+  const sort: CatalogSort = params.get(SORT_PARAM) === 'popular' ? 'popular' : 'default'
+  const selection = selectionFromParams(groups.data ?? [], params)
   const [query, setQuery] = useState(params.get(SEARCH_PARAM) ?? '')
-  const debounced = useDebouncedValue(query.trim())
-  const search = users ? '' : debounced
-  const filtered = Object.keys(selection).length > 0 || search !== ''
-  const templates = useTemplates({ source, tagIds: selectedTagIds(groups.data ?? [], selection), search })
+  const search = useDebouncedValue(query.trim())
+  const filtered = Object.keys(selection).length > 0 || search !== '' || scope !== 'all' || sort !== 'default'
+  const catalog = useCatalog({ scope, tagIds: selectedTagIds(groups.data ?? [], selection), search })
+  const merged = catalog.data ? [...catalog.data.templates, ...catalog.data.users] : []
+  const list = sort === 'popular' ? byPopularity(merged) : merged
 
   // Поиск попадает в ссылку после паузы, как и в запрос — история не копит каждую букву
   useEffect(() => {
@@ -62,19 +76,56 @@ const TemplatesPage = () => {
     )
   }, [search, setParams])
 
+  const setParam = (key: string, value: string | null) =>
+    setParams(
+      prev => {
+        const next = new URLSearchParams(prev)
+        if (value) next.set(key, value)
+        else next.delete(key)
+        return next
+      },
+      { replace: true },
+    )
+
+  // Теги заменяются целиком, источник, сортировка и поиск остаются
   const select = (next: TagSelection) =>
-    setParams(search ? { ...next, [SEARCH_PARAM]: search } : next, { replace: true })
+    setParams(
+      prev => {
+        const kept = new URLSearchParams(next)
+        for (const key of [SEARCH_PARAM, SOURCE_PARAM, SORT_PARAM]) {
+          const value = prev.get(key)
+          if (value) kept.set(key, value)
+        }
+        return kept
+      },
+      { replace: true },
+    )
 
   const reset = () => {
     setQuery('')
     setParams({}, { replace: true })
   }
 
-  // Смена таба сбрасывает фильтры: у программ пользователей их пока нет
-  const switchSource = (next: CatalogSource) => {
-    setQuery('')
-    setParams(next === 'users' ? { [SOURCE_PARAM]: next } : {}, { replace: true })
-  }
+  const resetAction = (
+    <div className='flex flex-wrap justify-center gap-2'>
+      <Button
+        variant='outline'
+        size='sm'
+        onClick={reset}
+      >
+        <RotateCcwIcon />
+        Сбросить фильтры
+      </Button>
+      <Button
+        size='sm'
+        disabled={blank.isPending}
+        onClick={() => void blank.create()}
+      >
+        Собрать свою
+        <ArrowRightIcon />
+      </Button>
+    </div>
+  )
 
   return (
     <Screen
@@ -82,95 +133,93 @@ const TemplatesPage = () => {
         <TopBar
           back={ROUTES.PROGRAMS}
           title='Каталог'
-          subtitle={
-            templates.data ? pluralize(templates.data.length, ['программа', 'программы', 'программ']) : undefined
-          }
+          subtitle={catalog.data ? pluralize(merged.length, PROGRAM_FORMS) : undefined}
         />
       }
-      className='px-gutter gap-4'
+      className='gap-8 pt-4'
     >
-      <Rise className='-mx-gutter px-gutter no-scrollbar overflow-x-auto'>
-        <Segmented
-          options={SOURCE_TABS}
-          value={source}
-          onValueChange={switchSource}
-          className='w-max'
+      <Rise className='px-gutter'>
+        <TemplateFilter
+          groups={groups.data ?? []}
+          selection={selection}
+          onSelectionChange={select}
+          search={query}
+          onSearchChange={setQuery}
+          moreActive={(scope !== 'all' ? 1 : 0) + (sort !== 'default' ? 1 : 0)}
+          onReset={filtered ? reset : undefined}
+          showLabel={catalog.data ? `Показать ${pluralize(merged.length, PROGRAM_FORMS)}` : 'Показать'}
+          more={
+            <>
+              <div className='flex flex-col gap-1.5'>
+                <Eyebrow as='p'>Чьи</Eyebrow>
+                <Segmented
+                  options={SCOPE_OPTIONS}
+                  value={scope}
+                  onValueChange={v => setParam(SOURCE_PARAM, v === 'all' ? null : v)}
+                  stretch
+                />
+              </div>
+              <div className='flex flex-col gap-1.5'>
+                <Eyebrow as='p'>Сначала</Eyebrow>
+                <Segmented
+                  options={SORT_OPTIONS}
+                  value={sort}
+                  onValueChange={v => setParam(SORT_PARAM, v === 'default' ? null : v)}
+                  stretch
+                />
+              </div>
+            </>
+          }
         />
       </Rise>
-      <Rise>
-        <Lead>{users ? 'собрали другие — бери и правь под себя' : 'подбери под себя'}</Lead>
-      </Rise>
-      {!users && (
-        <Rise>
-          <TemplateFilter
-            groups={groups.data ?? []}
-            selection={selection}
-            onSelectionChange={select}
-            search={query}
-            onSearchChange={setQuery}
-          />
-        </Rise>
-      )}
       <QueryScreen
-        query={templates}
-        className=''
-        isEmpty={list => list.length === 0}
+        query={catalog}
+        isEmpty={data => data.templates.length + data.users.length === 0}
         empty={
-          users
-            ? {
-                title: 'Пока пусто',
-                description: 'Опубликуй свою программу: в её редакторе — блок «Каталог».',
+          filtered
+            ? { title: 'Ничего не нашлось', description: 'Сбрось фильтры или собери программу сам.', action: resetAction }
+            : {
+                title: 'Каталог пока пуст',
+                description: 'Собери программу с нуля.',
+                action: (
+                  <Button
+                    size='sm'
+                    disabled={blank.isPending}
+                    onClick={() => void blank.create()}
+                  >
+                    Собрать свою
+                    <ArrowRightIcon />
+                  </Button>
+                ),
               }
-            : filtered
-              ? {
-                  title: 'Ничего не нашлось',
-                  description: 'Сбрось фильтры или собери программу сам.',
-                  action: (
-                    <div className='flex flex-wrap justify-center gap-2'>
-                      <Button
-                        variant='outline'
-                        size='sm'
-                        onClick={reset}
-                      >
-                        <RotateCcwIcon />
-                        Сбросить фильтры
-                      </Button>
-                      <Button
-                        size='sm'
-                        disabled={blank.isPending}
-                        onClick={() => void blank.create()}
-                      >
-                        Собрать свою
-                        <ArrowRightIcon />
-                      </Button>
-                    </div>
-                  ),
-                }
-              : {
-                  title: 'Каталог пока пуст',
-                  description: 'Собери программу с нуля.',
-                  action: (
-                    <Button
-                      size='sm'
-                      disabled={blank.isPending}
-                      onClick={() => void blank.create()}
-                    >
-                      Собрать свою
-                      <ArrowRightIcon />
-                    </Button>
-                  ),
-                }
         }
       >
-        {list =>
-          list.map((t, i) => (
-            <TemplateCard
-              key={t.id}
-              template={t}
-              index={i}
-              source={source}
+        {data =>
+          filtered ? (
+            <Rise className='px-gutter flex flex-col gap-5'>
+              <div className='flex items-baseline justify-between gap-3'>
+                <Poster
+                  as='h2'
+                  size='lg'
+                >
+                  {sort === 'popular' ? 'Рейтинг' : 'Нашлось'}
+                </Poster>
+                <Eyebrow>{pluralize(list.length, PROGRAM_FORMS)}</Eyebrow>
+              </div>
+              {list.map(t => (
+                <TemplateCard
+                  key={t.id}
+                  template={t}
+                />
+              ))}
+            </Rise>
+          ) : (
+            <CatalogShowcase
+              data={data}
+              onShowCommunity={() => setParam(SOURCE_PARAM, 'users')}
+              onShowPopular={() => setParam(SORT_PARAM, 'popular')}
             />
-          ))
+          )
         }
       </QueryScreen>
     </Screen>

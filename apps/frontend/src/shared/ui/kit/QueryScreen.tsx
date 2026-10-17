@@ -8,7 +8,8 @@ import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { ScreenState } from './ScreenState'
 
 type QueryScreenProps<T> = {
-  query: Pick<UseQueryResult<T>, 'data' | 'isPending' | 'isError' | 'refetch' | 'isRefetching'>
+  // refetch — любой: экран из нескольких запросов повторяет их все разом
+  query: Pick<UseQueryResult<T>, 'data' | 'isPending' | 'isError' | 'isRefetching'> & { refetch: () => unknown }
   /** Пустые данные: показать подсказку вместо children */
   isEmpty?: (data: T) => boolean
   empty?: { title?: string; description?: ReactNode; action?: ReactNode }

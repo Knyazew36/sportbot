@@ -82,7 +82,7 @@ export const useActiveProgram = () => {
  * Каталог шаблонов с составом. Без фильтра — весь каталог: экран шаблона берёт свой из этого списка.
  * Пока грузится новая выборка, на экране остаётся прежняя — чипы не мигают пустым списком
  */
-export const useTemplates = (filters: TemplateFilters = {}) =>
+export const useTemplates = (filters: TemplateFilters = {}, { enabled = true }: { enabled?: boolean } = {}) =>
   useQuery({
     queryKey: programKeys.catalog(filters),
     queryFn: () =>
@@ -93,7 +93,36 @@ export const useTemplates = (filters: TemplateFilters = {}) =>
       }),
     placeholderData: keepPreviousData,
     staleTime: 5 * 60_000,
+    enabled,
   })
+
+/** Чьи программы показывать в каталоге: все сразу или один источник */
+export type CatalogScope = 'all' | CatalogSource
+
+export type CatalogData = { templates: Program[]; users: Program[] }
+
+/**
+ * Витрина каталога: шаблоны и программы пользователей одним экраном. Сервер отдаёт их раздельно —
+ * склеиваем два запроса с одинаковым фильтром, выключенный источник отдаёт пустой список
+ */
+export const useCatalog = ({ scope, ...filters }: Omit<TemplateFilters, 'source'> & { scope: CatalogScope }) => {
+  const templates = useTemplates({ ...filters, source: 'templates' }, { enabled: scope !== 'users' })
+  const users = useTemplates({ ...filters, source: 'users' }, { enabled: scope !== 'templates' })
+  const parts = [scope !== 'users' && templates, scope !== 'templates' && users].filter(q => q !== false)
+  const isPending = parts.some(q => q.isPending)
+  return {
+    data: isPending
+      ? undefined
+      : ({
+          templates: scope === 'users' ? [] : (templates.data ?? []),
+          users: scope === 'templates' ? [] : (users.data ?? []),
+        } satisfies CatalogData),
+    isPending,
+    isError: parts.some(q => q.isError),
+    isRefetching: parts.some(q => q.isRefetching),
+    refetch: () => Promise.all(parts.map(q => q.refetch())),
+  }
+}
 
 /** Ряды чипов каталога: группы с тегами, у которых есть опубликованные шаблоны */
 export const useTemplateTagGroups = () =>
