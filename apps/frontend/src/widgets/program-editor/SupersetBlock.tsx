@@ -64,7 +64,7 @@ const SupersetCard = ({ exercise, label, onDrop, onOpen }: SupersetCardProps) =>
           tone='muted'
           className='mt-auto'
         >
-          {planText(exercise.sets, exercise.repsMin, exercise.repsMax)}
+          {planText(exercise.sets, exercise.repsMin, exercise.repsMax, exercise.measure)}
           {exercise.draft && ' · не проверено'}
         </Text>
       </button>

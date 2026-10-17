@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useParams } from 'react-router'
 
-import { useQueuedWorkout, useWorkout, type WorkoutSet } from '@/entities/workout'
+import { useQueuedWorkout, useWorkout } from '@/entities/workout'
 import { ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
 import { supersetLabels } from '@/shared/lib/superset'
@@ -10,7 +10,7 @@ import { Screen } from '@/shared/ui/kit/Screen'
 import { TopBar } from '@/shared/ui/kit/ScreenHeader'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Text } from '@/shared/ui/kit/Typography'
-import { EditSetSheet } from '@/widgets/workout/EditSetSheet'
+import { type EditingSet, EditSetSheet } from '@/widgets/workout/EditSetSheet'
 import { SetList } from '@/widgets/workout/SetList'
 
 import { AddSetForm } from './components/AddSetForm'
@@ -22,7 +22,7 @@ const WorkoutEditPage = () => {
   const workout = useWorkout(workoutId)
   // Правки уходят через офлайн-очередь: список показывает их сразу, не дожидаясь сервера
   const queued = useQueuedWorkout(workout.data)
-  const [editing, setEditing] = useState<WorkoutSet | null>(null)
+  const [editing, setEditing] = useState<EditingSet | null>(null)
 
   return (
     <Screen
@@ -63,7 +63,7 @@ const WorkoutEditPage = () => {
         )}
       </QueryScreen>
       <EditSetSheet
-        set={editing}
+        editing={editing}
         onClose={() => setEditing(null)}
       />
     </Screen>

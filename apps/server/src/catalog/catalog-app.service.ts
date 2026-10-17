@@ -157,6 +157,7 @@ export class CatalogAppService {
       imageEndUrl: this.uploads.toPublicUrl(exercise.imageEndPath),
       videoUrl: exercise.videoUrl,
       equipment: exercise.equipment,
+      measure: exercise.measure,
       primaryMuscles: exercise.muscles
         .filter((m) => m.role === 'PRIMARY')
         .map((m) => ref(m.muscle)),

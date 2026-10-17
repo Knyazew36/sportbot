@@ -6,6 +6,12 @@ export class StatsDayExerciseResponseDto {
   @ApiProperty()
   name: string;
 
+  @ApiProperty({
+    enum: ['REPS', 'TIME', 'MINUTES'],
+    description: 'Чем меряется: TIME — в reps подхода секунды',
+  })
+  measure: 'REPS' | 'TIME' | 'MINUTES';
+
   @ApiProperty()
   done: boolean;
 

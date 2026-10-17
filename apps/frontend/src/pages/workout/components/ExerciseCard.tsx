@@ -16,7 +16,7 @@ type ExerciseCardProps = {
 
 // Текущее упражнение: название, ⚠️ при ограничении, план, прошлый результат, «Техника» и «Заменить» (frontend-tz, 8.1)
 export const ExerciseCard = ({ item, label }: ExerciseCardProps) => {
-  const last = lastText(item.last)
+  const last = lastText(item.last, item.measure)
   // Аналоги и замена — только с сервера: без сети ссылка гасится, чтобы не вести на вечную загрузку
   const online = useIsOnline()
   const offlineLink = online ? undefined : 'pointer-events-none opacity-50'
@@ -69,7 +69,7 @@ export const ExerciseCard = ({ item, label }: ExerciseCardProps) => {
         <Text size='sm'>
           <Eyebrow>План </Eyebrow>
           <Poster as='span' size='sm'>
-            {planText(item.plannedSets, item.repsMin, item.repsMax)}
+            {planText(item.plannedSets, item.repsMin, item.repsMax, item.measure)}
           </Poster>
         </Text>
         <Text size='sm'>

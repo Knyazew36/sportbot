@@ -8,6 +8,7 @@ const FIELDS = [
   'videoUrl',
   'equipment',
   'imagePath',
+  'measure',
   'primary',
   'secondary',
   'jointIds',

@@ -433,15 +433,6 @@ export class ProgramAppService {
     const complex = await this.programs.findComplex(owner, complexId);
     if (dto.name !== undefined)
       await this.programs.renameComplex(owner, complexId, dto.name);
-    if (dto.cardioName !== undefined || dto.cardioMinutes !== undefined)
-      await this.programs.setCardioValues(
-        owner,
-        complexId,
-        dto.cardioName === undefined ? complex.cardioName : dto.cardioName,
-        dto.cardioMinutes === undefined
-          ? complex.cardioMinutes
-          : dto.cardioMinutes,
-      );
     return this.view(owner, complex.programId);
   }
 

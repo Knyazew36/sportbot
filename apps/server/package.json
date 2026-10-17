@@ -23,6 +23,7 @@
     "content:enrich": "ts-node -r tsconfig-paths/register prisma/enrich-content.ts",
     "content:apply-guides": "ts-node -r tsconfig-paths/register prisma/apply-guides.ts",
     "content:merge": "ts-node -r tsconfig-paths/register prisma/merge-content.ts",
+    "content:migrate-cardio": "ts-node -r tsconfig-paths/register prisma/migrate-cardio.ts",
     "content:setup": "./content.sh"
   },
   "dependencies": {

@@ -71,6 +71,12 @@ export class WorkoutItemResponseDto {
   repsMax: number;
 
   @ApiProperty({
+    enum: ['REPS', 'TIME', 'MINUTES'],
+    description: 'Чем меряется: TIME — в repsMin/repsMax секунды',
+  })
+  measure: 'REPS' | 'TIME' | 'MINUTES';
+
+  @ApiProperty({
     type: Number,
     nullable: true,
     description: 'Номер суперсета: участники идут подряд и делаются по кругу',

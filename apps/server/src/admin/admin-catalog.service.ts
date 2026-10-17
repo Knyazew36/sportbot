@@ -107,6 +107,7 @@ export class AdminCatalogService {
       mistakes: exercise.mistakes,
       videoUrl: exercise.videoUrl,
       equipment: exercise.equipment,
+      measure: exercise.measure,
       imagePath: exercise.imagePath,
       imageUrl: this.uploads.toPublicUrl(exercise.imagePath),
       imageEndPath: exercise.imageEndPath,
@@ -265,6 +266,8 @@ export class AdminCatalogService {
       imageEndPath: dto.imageEndPath,
       videoUrl: dto.videoUrl || null,
       equipment: dto.equipment ?? null,
+      // Поля нет — мера не меняется (при создании берётся REPS по умолчанию)
+      ...(dto.measure && { measure: dto.measure }),
     };
   }
 

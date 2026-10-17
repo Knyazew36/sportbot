@@ -14,7 +14,7 @@ import {
   weekStart,
 } from '@/bot';
 import { uploadRoot } from '@/catalog/catalog.service';
-import { SportProfile } from '@/generated/prisma/client';
+import { ExerciseMeasure, SportProfile } from '@/generated/prisma/client';
 import { MessengerMessage, strike } from '@/messengers';
 
 import { renderProgressChart } from './progress-chart';
@@ -36,8 +36,8 @@ const DONE_STATUSES = ['FINISHED', 'AUTO_CLOSED'] as const;
 
 const num = (value: number): string => String(Number(value.toFixed(1)));
 
-/** В чём считается прогресс упражнения: вес или, если веса нет, повторы. */
-export type ProgressUnit = 'kg' | 'reps';
+/** В чём считается прогресс упражнения: вес или, если веса нет, повторы; на время — секунды. */
+export type ProgressUnit = 'kg' | 'reps' | 'sec' | 'min';
 
 export interface Progress {
   unit: ProgressUnit;
@@ -49,10 +49,17 @@ interface ProgressRow {
   sets: { weight: unknown; reps: number }[];
 }
 
-const UNIT_SHORT: Record<ProgressUnit, string> = { kg: 'кг', reps: 'повт.' };
+const UNIT_SHORT: Record<ProgressUnit, string> = {
+  kg: 'кг',
+  reps: 'повт.',
+  sec: 'с',
+  min: 'мин',
+};
 const UNIT_AXIS: Record<ProgressUnit, string> = {
   kg: 'максимальный вес подхода, кг',
   reps: 'максимум повторов в подходе',
+  sec: 'лучшее время подхода, с',
+  min: 'лучшее время подхода, мин',
 };
 
 /** Статистика: агрегирующие запросы без таблиц-кэшей — объёмы малы (раздел 27 ТЗ). */
@@ -225,10 +232,11 @@ export class StatsService {
       take: CHART_POINTS,
       select: {
         workout: { select: { date: true } },
+        exercise: { select: { measure: true } },
         sets: { select: { weight: true, reps: true } },
       },
     });
-    return progressOf(items.reverse());
+    return progressOf(items.reverse(), items[0]?.exercise.measure ?? 'REPS');
   }
 
   /**
@@ -256,7 +264,7 @@ export class StatsService {
         orderBy: [{ workout: { date: 'asc' } }, { id: 'asc' }],
         select: {
           exerciseId: true,
-          exercise: { select: { name: true } },
+          exercise: { select: { name: true, measure: true } },
           workout: { select: { date: true } },
           sets: { select: { weight: true, reps: true } },
         },
@@ -265,20 +273,26 @@ export class StatsService {
     if (!muscle) throw new NotFoundException('Мышца не найдена.');
     const byExercise = new Map<
       number,
-      { id: number; name: string; rows: ProgressRow[] }
+      {
+        id: number;
+        name: string;
+        measure: ExerciseMeasure;
+        rows: ProgressRow[];
+      }
     >();
     for (const item of items) {
       const entry = byExercise.get(item.exerciseId) ?? {
         id: item.exerciseId,
         name: item.exercise.name,
+        measure: item.exercise.measure,
         rows: [],
       };
       entry.rows.push(item);
       byExercise.set(item.exerciseId, entry);
     }
     const exercises = [...byExercise.values()]
-      .map(({ id, name, rows }) => {
-        const progress = progressOf(rows);
+      .map(({ id, name, measure, rows }) => {
+        const progress = progressOf(rows, measure);
         return {
           id,
           name,
@@ -333,10 +347,14 @@ export class StatsService {
     if (!units.size) return [];
     const exercises = await this.prisma.exercise.findMany({
       where: { id: { in: [...units.keys()] } },
-      select: { id: true, name: true },
+      select: { id: true, name: true, measure: true },
       orderBy: { name: 'asc' },
     });
-    return exercises.map((e) => ({ ...e, unit: units.get(e.id)! }));
+    // У упражнений на время прогресс всегда в секундах, даже если когда-то записали вес
+    return exercises.map(({ measure, ...e }) => ({
+      ...e,
+      unit: timedUnit(measure) ?? units.get(e.id)!,
+    }));
   }
 
   /**
@@ -387,16 +405,20 @@ export class StatsService {
       startedAt: Date;
       exercises: {
         exerciseId: number;
-        exercise: { name: string };
+        exercise: { name: string; measure: ExerciseMeasure };
         sets: { weight: unknown; reps: number }[];
       }[];
     },
   ): Promise<PersonalRecord[]> {
-    const today = new Map<number, { name: string; sets: SetRow[] }>();
+    const today = new Map<
+      number,
+      { name: string; measure: ExerciseMeasure; sets: SetRow[] }
+    >();
     for (const item of workout.exercises) {
       if (!item.sets.length) continue;
       const entry = today.get(item.exerciseId) ?? {
         name: item.exercise.name,
+        measure: item.exercise.measure,
         sets: [],
       };
       entry.sets.push(...item.sets);
@@ -422,16 +444,16 @@ export class StatsService {
     });
 
     const records: PersonalRecord[] = [];
-    for (const [exerciseId, { name, sets }] of today) {
+    for (const [exerciseId, { name, measure, sets }] of today) {
       const before = history
         .filter((h) => h.exerciseId === exerciseId)
         .flatMap((h) => h.sets);
       if (!before.length) continue;
-      const unit: ProgressUnit = [...before, ...sets].some(
-        (s) => Number(s.weight) > 0,
-      )
-        ? 'kg'
-        : 'reps';
+      const unit: ProgressUnit =
+        timedUnit(measure) ??
+        ([...before, ...sets].some((s) => Number(s.weight) > 0)
+          ? 'kg'
+          : 'reps');
       const value = bestOf(sets, unit);
       const previous = bestOf(before, unit);
       // Подходов с весом раньше не было — сравнивать не с чем
@@ -455,13 +477,23 @@ export interface PersonalRecord {
   previous: number;
 }
 
-/** Лучший подход: максимальный вес (без нулевых) или максимум повторов. null — сравнивать не с чем. */
+/** Лучший подход: максимальный вес (без нулевых), максимум повторов или времени. null — сравнивать не с чем. */
 function bestOf(sets: SetRow[], unit: ProgressUnit): number | null {
   const values =
     unit === 'kg'
       ? sets.map((s) => Number(s.weight)).filter((w) => w > 0)
-      : sets.map((s) => s.reps);
+      : sets.map((s) => fromSeconds(unit, s.reps));
   return values.length ? Math.max(...values) : null;
+}
+
+/** Единица прогресса упражнения на время: удержание — секунды, кардио — минуты. null — не на время. */
+function timedUnit(measure: ExerciseMeasure): ProgressUnit | null {
+  return measure === 'MINUTES' ? 'min' : measure === 'TIME' ? 'sec' : null;
+}
+
+/** Секунды подхода в единице прогресса: у кардио минуты с одним знаком. */
+function fromSeconds(unit: ProgressUnit | null, value: number): number {
+  return unit === 'min' ? Math.round(value / 6) / 10 : value;
 }
 
 /**
@@ -469,14 +501,19 @@ function bestOf(sets: SetRow[], unit: ProgressUnit): number | null {
  * а тренировки без веса пропускаем: «0 кг» на графике читается как провал. Веса не было никогда
  * (отжимания на брусьях, подтягивания) — лучший подход по повторам.
  */
-function progressOf(rows: ProgressRow[]): Progress {
-  const weighted = rows.some((r) => r.sets.some((s) => Number(s.weight) > 0));
+function progressOf(rows: ProgressRow[], measure: ExerciseMeasure): Progress {
+  const timed = timedUnit(measure);
+  const weighted =
+    !timed && rows.some((r) => r.sets.some((s) => Number(s.weight) > 0));
   if (!weighted)
     return {
-      unit: 'reps',
+      unit: timed ?? 'reps',
       points: rows.map((r) => ({
         date: r.workout.date,
-        value: Math.max(...r.sets.map((s) => s.reps)),
+        value: fromSeconds(
+          timed,
+          Math.max(...r.sets.map((s) => s.reps)),
+        ),
       })),
     };
   return {

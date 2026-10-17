@@ -61,7 +61,7 @@ export const ComplexSheet = ({
                           as='span'
                           className='whitespace-nowrap'
                         >
-                          {planText(e.sets, e.repsMin, e.repsMax)}
+                          {planText(e.sets, e.repsMin, e.repsMax, e.measure)}
                         </Poster>
                       }
                     />

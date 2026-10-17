@@ -115,6 +115,7 @@ export class WorkoutShareService {
       cardioMinutes: workout.cardioMinutes,
       exercises: workout.exercises.map((item) => ({
         name: item.exercise.name,
+        measure: item.exercise.measure,
         done: isDone(item),
         sets: item.sets.map((s) => ({
           weight: Number(s.weight),

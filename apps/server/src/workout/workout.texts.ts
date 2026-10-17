@@ -10,6 +10,8 @@ import {
   numEmoji,
 } from '@/bot';
 import { holdText } from '@/catalog/catalog.texts';
+import { durationText, isTimed } from '@/catalog/measure';
+import type { ExerciseMeasure } from '@/generated/prisma/client';
 import { MessengerButton, MessengerMessage } from '@/messengers';
 import { ComplexFull } from '@/program/program.service';
 import { cardioText, exercisesCount, planText } from '@/program/program.texts';
@@ -46,9 +48,13 @@ const warn = (exercise: WithJoints, limited: Set<number>): string => {
 
 const num = (value: number): string => String(Number(value.toFixed(2)));
 
-/** Один подход: «22 кг × 10 повт.»; без веса — «без веса × 12 повт.». */
-const setText = (set: { weight: number; reps: number }): string =>
-  `${set.weight === 0 ? 'без веса' : `${num(set.weight)} кг`} × ${set.reps} повт.`;
+/** Один подход: «22 кг × 10 повт.»; без веса — «без веса × 12 повт.»; на время — «45 с». */
+const setText =
+  (measure: ExerciseMeasure) =>
+  (set: { weight: number; reps: number }): string =>
+    isTimed(measure)
+      ? durationText(set.reps)
+      : `${set.weight === 0 ? 'без веса' : `${num(set.weight)} кг`} × ${set.reps} повт.`;
 
 /**
  * Как записать подход. Пример — отдельной строкой, чтобы формат читался с одного взгляда,
@@ -56,6 +62,12 @@ const setText = (set: { weight: number; reps: number }): string =>
  */
 export const SET_INPUT_EXAMPLE =
   'например:\n60 10\nБез веса — только повторы: 10';
+
+/** Подход на время: у удержания — секунды или мм:сс, у кардио — минуты. */
+export const timeInputExample = (measure: ExerciseMeasure) =>
+  measure === 'MINUTES'
+    ? 'например:\n20 — это 20 минут\n20:30 — двадцать с половиной'
+    : 'например:\n45 — это 45 секунд\n1:30 — полторы минуты';
 
 // ── Комплекс ────────────────────────────────────────────────────────────
 
@@ -70,7 +82,7 @@ export function previewMessage(
       `«${complex.name}» — ${exercisesCount(complex.exercises.length)}`,
       ...complex.exercises.map(
         (item, index) =>
-          `${index + 1}. ${supersetMark(item.superset)}${item.exercise.name}${warn(item.exercise, limited)} — ${planText(item.sets, item.repsMin, item.repsMax)}`,
+          `${index + 1}. ${supersetMark(item.superset)}${item.exercise.name}${warn(item.exercise, limited)} — ${planText(item.sets, item.repsMin, item.repsMax, item.exercise.measure)}`,
       ),
       ...(cardio ? [cardio] : []),
     ].join('\n'),
@@ -89,13 +101,14 @@ export function stepMessage(
   limited: Set<number>,
 ): MessengerMessage {
   const index = workout.exercises.findIndex((e) => e.id === item.id);
+  const timed = isTimed(item.exercise.measure);
   const zones = limitedZones(item.exercise, limited);
   const sets = item.sets.map((s) => ({
     weight: Number(s.weight),
     reps: s.reps,
   }));
   const lines = [
-    `${index + 1} из ${workout.exercises.length}. ${item.exercise.name} — ${planText(item.plannedSets, item.repsMin, item.repsMax)}${isDone(item) && item.done ? ' ✅' : ''}`,
+    `${index + 1} из ${workout.exercises.length}. ${item.exercise.name} — ${planText(item.plannedSets, item.repsMin, item.repsMax, item.exercise.measure)}${isDone(item) && item.done ? ' ✅' : ''}`,
   ];
   const round = roundInfo(workout.exercises, item.id);
   if (round) {
@@ -111,16 +124,17 @@ export function stepMessage(
     lines.push(
       '',
       `🕓 Прошлый раз (${fmtDay(last.date)}):`,
-      ...last.sets.map(setText),
+      ...last.sets.map(setText(item.exercise.measure)),
     );
   // Смайл выделяет блок: по нему видно, что только что введённый подход записан
-  if (sets.length) lines.push('', '🔥 Сегодня:', ...sets.map(setText));
+  if (sets.length)
+    lines.push('', '🔥 Сегодня:', ...sets.map(setText(item.exercise.measure)));
   // Какой подход сейчас — чтобы не сбиться со счёта между подходами
   lines.push(
     '',
     sets.length < item.plannedSets
-      ? `Сейчас подход ${numEmoji(sets.length + 1)} из ${numEmoji(item.plannedSets)}.\n${hint(`❗ Введи вес и повторы, ${SET_INPUT_EXAMPLE}`)}`
-      : `Все подходы записаны: ${sets.length} из ${item.plannedSets}.\n${hint(`Жми «Следующее упражнение». Или запиши ещё подход (${sets.length + 1}-й), ${SET_INPUT_EXAMPLE}`)}`,
+      ? `Сейчас подход ${numEmoji(sets.length + 1)} из ${numEmoji(item.plannedSets)}.\n${hint(timed ? `❗ Введи время, ${timeInputExample(item.exercise.measure)}` : `❗ Введи вес и повторы, ${SET_INPUT_EXAMPLE}`)}`
+      : `Все подходы записаны: ${sets.length} из ${item.plannedSets}.\n${hint(`Жми «Следующее упражнение». Или запиши ещё подход (${sets.length + 1}-й), ${timed ? timeInputExample(item.exercise.measure) : SET_INPUT_EXAMPLE}`)}`,
   );
 
   const rows: MessengerButton[][] = [
@@ -258,7 +272,7 @@ const shareExerciseText = (item: WorkoutExerciseFull): string => {
   const name = `${supersetMark(item.superset)}${item.exercise.name}`;
   if (!item.sets.length) return `✅ ${name}`;
   const sets = item.sets.map((s) =>
-    setText({ weight: Number(s.weight), reps: s.reps }),
+    setText(item.exercise.measure)({ weight: Number(s.weight), reps: s.reps }),
   );
   return `✅ ${name}: ${sets.join(', ')}`;
 };

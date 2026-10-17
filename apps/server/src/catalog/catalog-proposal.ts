@@ -1,4 +1,4 @@
-import { Equipment, Prisma } from '@/generated/prisma/client';
+import { Equipment, ExerciseMeasure, Prisma } from '@/generated/prisma/client';
 
 import type { CatalogKind, ExerciseFull, StretchFull } from './catalog.service';
 import { EQUIPMENT_TITLE } from './catalog.texts';
@@ -11,6 +11,7 @@ export type ExerciseForm = {
   mistakes: string[];
   videoUrl: string | null;
   equipment: Equipment | null;
+  measure: ExerciseMeasure;
   imagePath: string | null;
   primary: number[];
   secondary: number[];
@@ -48,6 +49,7 @@ type ValueKind =
   | 'list'
   | 'image'
   | 'equipment'
+  | 'measure'
   | 'muscles'
   | 'joints'
   | 'seconds'
@@ -60,6 +62,7 @@ const EXERCISE_FIELDS: Record<keyof ExerciseForm, FieldSpec> = {
   name: { title: 'Название', kind: 'text' },
   imagePath: { title: 'Картинка', kind: 'image' },
   equipment: { title: 'Инвентарь', kind: 'equipment' },
+  measure: { title: 'Чем меряется', kind: 'measure' },
   primary: { title: 'Основные мышцы', kind: 'muscles' },
   secondary: { title: 'Помогают', kind: 'muscles' },
   jointIds: { title: 'Суставы', kind: 'joints' },
@@ -101,6 +104,7 @@ export const exerciseForm = (exercise: ExerciseFull): ExerciseForm => ({
   mistakes: exercise.mistakes,
   videoUrl: exercise.videoUrl,
   equipment: exercise.equipment,
+  measure: exercise.measure,
   imagePath: exercise.imagePath,
   primary: exercise.muscles
     .filter((m) => m.role === 'PRIMARY')
@@ -160,6 +164,12 @@ export const proposalChanges = (
     switch (spec.kind) {
       case 'equipment':
         return EQUIPMENT_TITLE[value as Equipment];
+      case 'measure':
+        return value === 'MINUTES'
+          ? 'минуты'
+          : value === 'TIME'
+            ? 'секунды'
+            : 'повторы';
       case 'seconds':
         return `${value as number} с`;
       case 'flag':

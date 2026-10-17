@@ -1,11 +1,14 @@
 import { TrophyIcon } from 'lucide-react'
 
 import type { WorkoutRecordResponseDto } from '@/shared/api/generated/model'
+import { durationText } from '@/shared/lib/measure'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { Poster, Text } from '@/shared/ui/kit/Typography'
 
 const amount = (value: number, unit: WorkoutRecordResponseDto['unit']) =>
-  `${value.toLocaleString('ru-RU')} ${unit === 'kg' ? 'кг' : 'повт.'}`
+  unit === 'sec'
+    ? durationText(value)
+    : `${value.toLocaleString('ru-RU')} ${unit === 'kg' ? 'кг' : unit === 'min' ? 'мин' : 'повт.'}`
 
 type WorkoutRecordsProps = {
   records: WorkoutRecordResponseDto[]

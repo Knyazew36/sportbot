@@ -8,11 +8,12 @@ export class WorkoutRecordResponseDto {
   name: string;
 
   @ApiProperty({
-    enum: ['kg', 'reps'],
+    enum: ['kg', 'reps', 'sec', 'min'],
     enumName: 'RecordUnit',
-    description: 'В чём рекорд: вес или, у упражнений без веса, повторы',
+    description:
+      'В чём рекорд: вес или, у упражнений без веса, повторы; у удержаний — секунды, у кардио — минуты',
   })
-  unit: 'kg' | 'reps';
+  unit: 'kg' | 'reps' | 'sec' | 'min';
 
   @ApiProperty({ description: 'Лучший подход сегодня' })
   value: number;

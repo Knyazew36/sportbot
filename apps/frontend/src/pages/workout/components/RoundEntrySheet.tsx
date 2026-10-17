@@ -13,6 +13,7 @@ import {
   supersetLabels,
   useAddSet,
 } from '@/entities/workout'
+import { timeInput, timeLabel } from '@/shared/lib/measure'
 import { cn } from '@/shared/lib/utils'
 import { BoxInput } from '@/shared/ui/kit/BoxInput'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'
@@ -39,13 +40,19 @@ const RoundEntryForm = ({ round, onSubmit }: RoundEntryFormProps) => {
     resolver: zodResolver(roundEntrySchema),
     // Поля заполнены заранее: обычно круг повторяет прошлый, и остаётся нажать одну кнопку
     defaultValues: {
-      rows: round.round.map(e => ({ itemId: e.id, bodyweight: e.bodyweight, skip: false, ...roundPrefill(e) })),
+      rows: round.round.map(e => ({
+        itemId: e.id,
+        bodyweight: e.bodyweight,
+        measure: e.measure,
+        skip: false,
+        ...roundPrefill(e),
+      })),
     },
   })
   const { fields } = useFieldArray({ control, name: 'rows' })
   const rows = watch('rows')
   // Пустой вес — не догадка, а пропуск: кнопка ждёт, пока его впишут
-  const blocked = rows.every(r => r.skip) || rows.some(r => !r.skip && !r.bodyweight && !r.weight.trim())
+  const blocked = rows.every(r => r.skip) || rows.some(r => !r.skip && r.measure === 'REPS' && !r.bodyweight && !r.weight.trim())
 
   return (
     <form
@@ -89,8 +96,8 @@ const RoundEntryForm = ({ round, onSubmit }: RoundEntryFormProps) => {
                 </Button>
               </div>
               {!row.skip && (
-                <div className={cn('mt-2 grid gap-2', item.bodyweight ? 'grid-cols-1' : 'grid-cols-2')}>
-                  {!item.bodyweight && (
+                <div className={cn('mt-2 grid gap-2', item.bodyweight || row.measure !== 'REPS' ? 'grid-cols-1' : 'grid-cols-2')}>
+                  {!item.bodyweight && row.measure === 'REPS' && (
                     <BoxInput
                       label='вес, кг'
                       placeholder='?'
@@ -100,9 +107,9 @@ const RoundEntryForm = ({ round, onSubmit }: RoundEntryFormProps) => {
                     />
                   )}
                   <BoxInput
-                    label='повторы'
-                    inputMode='numeric'
-                    placeholder={String(item.repsMin)}
+                    label={row.measure === 'REPS' ? 'повторы' : `время, ${timeLabel(row.measure)}`}
+                    inputMode={row.measure === 'TIME' ? 'text' : 'numeric'}
+                    placeholder={row.measure === 'REPS' ? String(item.repsMin) : timeInput(row.measure, item.repsMin)}
                     className='py-1.5'
                     {...register(`rows.${i}.reps`)}
                   />

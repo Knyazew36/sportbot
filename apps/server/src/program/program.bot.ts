@@ -175,37 +175,29 @@ export class ProgramBot implements BotFeature {
         );
       case 'pick':
         await this.programs.addExercise(userId, id, Number(args[1]));
-        await ctx.toast('Добавлено: 3 × 8–12');
+        await ctx.toast('Добавлено в комплекс');
         return ctx.edit(await this.complexScreen(ctx, id));
-      case 'cardio': {
-        const complex = await this.programs.findComplex(userId, id);
-        await this.sessions.set(ctx, `cx.cardio:${id}`);
-        return ctx.edit(
-          msg(
-            `Какое кардио после упражнений и сколько минут?\n${hint('Например «Беговая дорожка 30».')}`,
-            [
-              ...(cardioText(complex)
-                ? [[btn('🗑 Убрать кардио', `cx:cardiorm:${id}`)]]
-                : []),
-              [btn('Отмена', `cx:v:${id}`)],
-            ],
-          ),
-        );
-      }
+      // Кардио теперь — упражнения на время в самом комплексе; старый блок можно только убрать
       case 'cardiorm':
         await this.programs.clearCardio(userId, id);
         await ctx.toast('Кардио убрано');
         return ctx.edit(await this.complexScreen(ctx, id));
       case 'e':
         return ctx.edit(await this.itemScreen(ctx, id));
-      case 'plan':
+      case 'plan': {
+        const item = await this.programs.findItem(userId, id);
         await this.sessions.set(ctx, `cx.plan:${id}`);
         return ctx.edit(
           msg(
-            `Введи подходы и повторы.\n${hint('«4 8 12» — 4 подхода по 8–12, «3 10» — 3 по 10.')}`,
+            item.exercise.measure === 'MINUTES'
+              ? `Введи подходы и минуты.\n${hint('«1 20» — один раз 20 минут.')}`
+              : item.exercise.measure === 'TIME'
+                ? `Введи подходы и время.\n${hint('«3 30 60» — 3 подхода по 30–60 секунд.')}`
+                : `Введи подходы и повторы.\n${hint('«4 8 12» — 4 подхода по 8–12, «3 10» — 3 по 10.')}`,
             [[btn('Отмена', `cx:e:${id}`)]],
           ),
         );
+      }
       case 'eup':
       case 'edn': {
         const complexId = await this.programs.moveItem(
@@ -254,11 +246,6 @@ export class ProgramBot implements BotFeature {
       }
       case 'cx.ren':
         await this.programs.renameComplex(userId, id, text);
-        await this.sessions.clear(ctx);
-        await ctx.reply(await this.complexScreen(ctx, id));
-        return;
-      case 'cx.cardio':
-        await this.programs.setCardio(userId, id, text);
         await this.sessions.clear(ctx);
         await ctx.reply(await this.complexScreen(ctx, id));
         return;
@@ -379,7 +366,7 @@ export class ProgramBot implements BotFeature {
     const complex = await this.programs.findComplex(ctx.user.id, complexId);
     const lines = complex.exercises.map(
       (item, index) =>
-        `${index + 1}. ${supersetMark(item.superset)}${item.exercise.name} — ${planText(item.sets, item.repsMin, item.repsMax)}`,
+        `${index + 1}. ${supersetMark(item.superset)}${item.exercise.name} — ${planText(item.sets, item.repsMin, item.repsMax, item.exercise.measure)}`,
     );
     const cardio = cardioText(complex);
     return msg(
@@ -408,7 +395,9 @@ export class ProgramBot implements BotFeature {
         ),
         [
           btn('➕ Упражнение', `cx:add:${complex.id}`),
-          btn('🏃 Кардио', `cx:cardio:${complex.id}`),
+          ...(cardio
+            ? [btn('🗑 Убрать кардио', `cx:cardiorm:${complex.id}`)]
+            : []),
         ],
         [
           btn('⬆️ Выше', `cx:up:${complex.id}`),
@@ -429,9 +418,16 @@ export class ProgramBot implements BotFeature {
   ): Promise<MessengerMessage> {
     const item = await this.programs.findItem(ctx.user.id, itemId);
     return msg(
-      `${item.exercise.name} — ${planText(item.sets, item.repsMin, item.repsMax)}\nКомплекс: ${item.complex.name}`,
+      `${item.exercise.name} — ${planText(item.sets, item.repsMin, item.repsMax, item.exercise.measure)}\nКомплекс: ${item.complex.name}`,
       [
-        [btn('🔢 Подходы и повторы', `cx:plan:${item.id}`)],
+        [
+          btn(
+            item.exercise.measure !== 'REPS'
+              ? '⏱ Подходы и время'
+              : '🔢 Подходы и повторы',
+            `cx:plan:${item.id}`,
+          ),
+        ],
         [
           btn('⬆️ Выше', `cx:eup:${item.id}`),
           btn('⬇️ Ниже', `cx:edn:${item.id}`),

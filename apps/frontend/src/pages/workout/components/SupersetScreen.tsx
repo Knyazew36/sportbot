@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 
-import { type SupersetRound, supersetLabels, type WorkoutItem, type WorkoutSet } from '@/entities/workout'
+import { type SupersetRound, supersetLabels, type WorkoutItem } from '@/entities/workout'
+import type { EditingSet } from '@/widgets/workout/EditSetSheet'
 import { haptic } from '@/shared/miniapp'
 import { ChargeChain } from '@/shared/ui/kit/ChargeChain'
 import { Rise } from '@/shared/ui/kit/Reveal'
@@ -12,7 +13,7 @@ import { ExerciseCard } from './ExerciseCard'
 
 type SupersetScreenProps = {
   round: SupersetRound
-  onEdit: (set: WorkoutSet) => void
+  onEdit: (editing: EditingSet) => void
   /** Дописать забытый подход одному упражнению */
   onAddSet: (item: WorkoutItem) => void
 }

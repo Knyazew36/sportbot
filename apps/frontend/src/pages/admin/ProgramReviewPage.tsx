@@ -112,7 +112,7 @@ const ReviewBody = ({ review: r }: { review: ProgramReview }) => {
                     size='sm'
                     className='whitespace-nowrap'
                   >
-                    {planText(e.sets, e.repsMin, e.repsMax)}
+                    {planText(e.sets, e.repsMin, e.repsMax, e.measure)}
                   </Poster>
                 }
               />

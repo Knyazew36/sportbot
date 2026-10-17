@@ -11,6 +11,7 @@ export interface ExportedExercise {
   imagePath: string | null;
   imageEndPath: string | null;
   equipment: string | null;
+  measure?: 'REPS' | 'TIME' | 'MINUTES';
   muscles: { code: string; role: string }[];
   joints: string[];
 }

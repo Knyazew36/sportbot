@@ -6,7 +6,13 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 
-import { Prisma } from '@/generated/prisma/client';
+import {
+  defaultPlan,
+  isTimed,
+  MEASURE_LIMITS,
+  parseTime,
+} from '@/catalog/measure';
+import { ExerciseMeasure, Prisma } from '@/generated/prisma/client';
 import {
   PROGRAM_TAG_ORDER,
   PROGRAM_TAG_SELECT,
@@ -83,9 +89,7 @@ const visibleExercise = (owner: ProgramOwner): Prisma.ExerciseWhereInput =>
     : { OR: [{ status: 'CATALOG' }, { status: 'DRAFT', authorId: owner }] };
 
 const NAME_MAX = 60;
-const DEFAULT_PLAN = { sets: 3, repsMin: 8, repsMax: 12 };
-export const CARDIO_NAME_MAX = 40;
-export const CARDIO_MINUTES_MAX = 300;
+const SETS_MAX = 20;
 
 function cleanName(name: string): string {
   const trimmed = name.trim().replace(/\s+/g, ' ');
@@ -367,33 +371,7 @@ export class ProgramService {
     if (!count) throw new NotFoundException('Комплекс не найден.');
   }
 
-  /** Кардио из ввода: название и минуты в конце, например «Беговая дорожка 30». */
-  public async setCardio(
-    userId: number,
-    complexId: number,
-    input: string,
-  ): Promise<void> {
-    const match = /^(.*\D)\s*(\d+)\s*(?:мин\S*)?$/iu.exec(input.trim());
-    // «Велотренажёр — 35 минут»: разделитель перед числом в название не попадает
-    const name =
-      match?.[1]
-        .replace(/[\s—–:-]+$/u, '')
-        .trim()
-        .replace(/\s+/g, ' ') ?? '';
-    const minutes = Number(match?.[2]);
-    if (!name)
-      throw new BadRequestException(
-        'Не понял. Формат: название и минуты, например «Беговая дорожка 30».',
-      );
-    if (name.length > CARDIO_NAME_MAX)
-      throw new BadRequestException(
-        `Название кардио — до ${CARDIO_NAME_MAX} символов.`,
-      );
-    if (minutes < 1 || minutes > CARDIO_MINUTES_MAX)
-      throw new BadRequestException(`Минут — от 1 до ${CARDIO_MINUTES_MAX}.`);
-    await this.updateCardio(userId, complexId, name, minutes);
-  }
-
+  /** Убрать старый кардио-блок: кардио теперь — упражнения на время в самом комплексе. */
   public async clearCardio(userId: number, complexId: number): Promise<void> {
     await this.updateCardio(userId, complexId, null, null);
   }
@@ -443,7 +421,7 @@ export class ProgramService {
       throw new BadRequestException('Это упражнение уже есть в комплексе.');
     const visible = await this.prisma.exercise.findFirst({
       where: { id: exerciseId, ...visibleExercise(owner) },
-      select: { id: true },
+      select: { id: true, measure: true },
     });
     if (!visible) throw new NotFoundException('Упражнение не найдено.');
     await this.prisma.complexExercise.create({
@@ -451,7 +429,7 @@ export class ProgramService {
         complexId,
         exerciseId,
         position: (complex.exercises.at(-1)?.position ?? 0) + 1,
-        ...DEFAULT_PLAN,
+        ...defaultPlan(visible.measure),
       },
     });
     await this.touch(complex.programId);
@@ -481,11 +459,13 @@ export class ProgramService {
       throw new BadRequestException(
         'Для суперсета выбери хотя бы два новых упражнения.',
       );
-    const visible = await this.prisma.exercise.count({
+    const visible = await this.prisma.exercise.findMany({
       where: { id: { in: fresh }, ...visibleExercise(owner) },
+      select: { id: true, measure: true },
     });
-    if (visible !== fresh.length)
+    if (visible.length !== fresh.length)
       throw new NotFoundException('Упражнение не найдено.');
+    const measureOf = new Map(visible.map((e) => [e.id, e.measure]));
 
     const order: SupersetSlot[] = complex.exercises.map((e) => ({
       id: e.id,
@@ -510,7 +490,12 @@ export class ProgramService {
       const created: SupersetSlot[] = [];
       for (const exerciseId of fresh) {
         const item = await tx.complexExercise.create({
-          data: { complexId, exerciseId, position: 0, ...DEFAULT_PLAN },
+          data: {
+            complexId,
+            exerciseId,
+            position: 0,
+            ...defaultPlan(measureOf.get(exerciseId)!),
+          },
           select: { id: true },
         });
         created.push({ id: item.id, superset });
@@ -622,25 +607,36 @@ export class ProgramService {
     return item.complexId;
   }
 
-  /** План из ввода: «4 8 12», «4x8-12», «3 10». */
+  /**
+   * План из ввода: «4 8 12», «4x8-12», «3 10». У удержания вторая и третья величины —
+   * секунды: «3 30 60»; у кардио — одно число минут: «1 20».
+   */
   public async setPlan(userId: number, itemId: number, input: string) {
-    const numbers = (input.match(/\d+/g) ?? []).map(Number);
-    if (numbers.length < 2 || numbers.length > 3)
-      throw new BadRequestException(
-        'Не понял. Формат: подходы и повторы, например «4 8 12» или «3 10».',
+    const item = await this.findItem(userId, itemId);
+    const { measure } = item.exercise;
+    const parts = input.trim().split(/[\s×xх*–-]+/i).filter(Boolean);
+    const sets = Number(parts[0]);
+    const values = parts
+      .slice(1)
+      .map((part) =>
+        isTimed(measure) ? parseTime(measure, part) : Number(part),
       );
-    const [sets, repsMin, repsMax = repsMin] = numbers;
     if (
-      sets < 1 ||
-      sets > 20 ||
-      repsMin < 1 ||
-      repsMax > 200 ||
-      repsMin > repsMax
+      parts.length < 2 ||
+      // У кардио одно число минут, диапазона нет
+      parts.length > (measure === 'MINUTES' ? 2 : 3) ||
+      !/^\d+$/.test(parts[0]) ||
+      values.some((v) => v === null || !Number.isInteger(v))
     )
       throw new BadRequestException(
-        'Подходов — от 1 до 20, повторов — от 1 до 200, минимум не больше максимума.',
+        measure === 'MINUTES'
+          ? 'Не понял. Формат: подходы и минуты, например «1 20».'
+          : measure === 'TIME'
+            ? 'Не понял. Формат: подходы и время, например «3 30 60» (секунды) или «1 1:30».'
+            : 'Не понял. Формат: подходы и повторы, например «4 8 12» или «3 10».',
       );
-    const item = await this.findItem(userId, itemId);
+    const [repsMin, repsMax = repsMin] = values as number[];
+    this.checkPlan(measure, { sets, repsMin, repsMax });
     await this.prisma.complexExercise.update({
       where: { id: itemId },
       data: { sets, repsMin, repsMax },
@@ -677,33 +673,14 @@ export class ProgramService {
 
   // ── Редактор приложения ─────────────────────────────────────────────────
 
-  /** Кардио комплекса из формы: название и минуты по отдельности; null — убрать. */
-  public async setCardioValues(
-    owner: ProgramOwner,
-    complexId: number,
-    name: string | null,
-    minutes: number | null,
-  ): Promise<void> {
-    const clean = name?.trim().replace(/\s+/g, ' ') || null;
-    if (!clean) return this.updateCardio(owner, complexId, null, null);
-    if (clean.length > CARDIO_NAME_MAX)
-      throw new BadRequestException(
-        `Название кардио — до ${CARDIO_NAME_MAX} символов.`,
-      );
-    if (!minutes || minutes < 1 || minutes > CARDIO_MINUTES_MAX)
-      throw new BadRequestException(`Минут — от 1 до ${CARDIO_MINUTES_MAX}.`);
-    await this.updateCardio(owner, complexId, clean, minutes);
-  }
-
-  /** План подходов из формы: «3 × 8–12». */
+  /** План подходов из формы: «3 × 8–12»; у упражнения на время — секунды. */
   public async updatePlan(
     owner: ProgramOwner,
     itemId: number,
     plan: { sets: number; repsMin: number; repsMax: number },
   ) {
-    if (plan.repsMin > plan.repsMax)
-      throw new BadRequestException('Минимум повторов не больше максимума.');
     const item = await this.findItem(owner, itemId);
+    this.checkPlan(item.exercise.measure, plan);
     await this.prisma.complexExercise.update({
       where: { id: itemId },
       data: plan,
@@ -851,6 +828,26 @@ export class ProgramService {
   }
 
   // ── Внутреннее ──────────────────────────────────────────────────────────
+
+  /** Границы плана по мере: повторы до 200, время до 4 часов. */
+  private checkPlan(
+    measure: ExerciseMeasure,
+    plan: { sets: number; repsMin: number; repsMax: number },
+  ): void {
+    const max = MEASURE_LIMITS[measure].plan;
+    if (
+      plan.sets < 1 ||
+      plan.sets > SETS_MAX ||
+      plan.repsMin < 1 ||
+      plan.repsMax > max ||
+      plan.repsMin > plan.repsMax
+    )
+      throw new BadRequestException(
+        isTimed(measure)
+          ? `Подходов — от 1 до ${SETS_MAX}, время — от 1 секунды до 4 часов, минимум не больше максимума.`
+          : `Подходов — от 1 до ${SETS_MAX}, повторов — от 1 до ${max}, минимум не больше максимума.`,
+      );
+  }
 
   /** Любая правка состава программы — по этой отметке друг узнаёт об обновлении. */
   private async touch(programId: number): Promise<void> {
@@ -1021,6 +1018,7 @@ export class ProgramService {
         mistakes: draft.mistakes,
         videoUrl: draft.videoUrl,
         equipment: draft.equipment,
+        measure: draft.measure,
         imagePath: draft.imagePath,
         status: 'DRAFT',
         authorId: ownerId,

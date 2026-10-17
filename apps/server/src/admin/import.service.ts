@@ -4,9 +4,13 @@ import * as path from 'path';
 import { PrismaService } from 'prisma/prisma.service';
 
 import { resolveCatalogImage } from '@/catalog/catalog-image';
+import { MEASURE_LIMITS } from '@/catalog/measure';
 import { normalizeName, uploadRoot } from '@/catalog/catalog.service';
-import { Equipment, StretchKind } from '@/generated/prisma/client';
-import { CARDIO_MINUTES_MAX, CARDIO_NAME_MAX } from '@/program/program.service';
+import {
+  Equipment,
+  ExerciseMeasure,
+  StretchKind,
+} from '@/generated/prisma/client';
 import { normalizeSupersets, supersetError } from '@/program/superset';
 import {
   TAG_CODE_PATTERN,
@@ -17,9 +21,14 @@ import {
   GROUP_RESERVED_CODE,
 } from '@/program-tag/dto/create-program-tag-group.dto';
 
+/**
+ * Упражнение справочника. Без primary — частичная запись существующего упражнения:
+ * меняются только переданные поля (measure, equipment, videoUrl, technique, steps, mistakes),
+ * название, мышцы и картинки не трогаются. Так меняют меру, не затирая правки на проде.
+ */
 interface ImportExercise {
   code: string;
-  name: string;
+  name?: string;
   technique?: string;
   /** Шаги и ошибки; поля нет — у существующей записи списки не меняются. */
   steps?: string[];
@@ -29,7 +38,9 @@ interface ImportExercise {
   image?: string;
   videoUrl?: string;
   equipment?: Equipment;
-  primary: string[];
+  /** Чем меряется: повторы или время. Поля нет — у новой записи REPS, у существующей не меняется. */
+  measure?: ExerciseMeasure;
+  primary?: string[];
   secondary?: string[];
   joints?: string[];
 }
@@ -83,7 +94,6 @@ interface ImportProgram {
    */
   complexes?: {
     name: string;
-    cardio?: { name: string; minutes: number };
     exercises: {
       code: string;
       sets: number;
@@ -110,6 +120,7 @@ export interface ImportReport {
 }
 
 const EQUIPMENT: Equipment[] = ['BARBELL', 'DUMBBELL', 'MACHINE', 'BODYWEIGHT'];
+const MEASURES: ExerciseMeasure[] = ['REPS', 'TIME', 'MINUTES'];
 const STRETCH_KINDS: StretchKind[] = ['COOLDOWN', 'WARMUP'];
 const MAX_ERRORS_SHOWN = 15;
 /** Куда попадает новый тег без группы в файле. */
@@ -182,7 +193,7 @@ export class ImportService {
       this.prisma.joint.findMany({ select: { code: true } }),
       this.prisma.exercise.findMany({
         where: { code: { not: null } },
-        select: { code: true },
+        select: { code: true, measure: true },
       }),
       this.prisma.stretch.findMany({
         where: { code: { not: null } },
@@ -212,11 +223,15 @@ export class ImportService {
     };
 
     const exerciseCodes = duplicates('exercises', file.exercises);
+    const dbExerciseCodes = new Set(dbExercises.map((e) => e.code as string));
     file.exercises.forEach((item, index) => {
       const at = `exercises[${index}]${isText(item?.code) ? ` (${item.code})` : ''}`;
+      const partial = item?.primary === undefined;
       if (!isText(item?.code)) errors.push(`${at}: нет code`);
-      if (!isText(item?.name)) errors.push(`${at}: нет name`);
-      if (!list(item?.primary).length)
+      if (partial && isText(item?.code) && !dbExerciseCodes.has(item.code))
+        errors.push(`${at}: без primary можно только поправить уже существующее упражнение`);
+      if (!partial && !isText(item?.name)) errors.push(`${at}: нет name`);
+      if (!partial && !list(item?.primary).length)
         errors.push(`${at}: пустые основные мышцы (primary)`);
       for (const code of unknown(item?.primary, muscleCodes))
         errors.push(`${at}: неизвестная мышца ${String(code)}`);
@@ -224,6 +239,8 @@ export class ImportService {
         errors.push(`${at}: неизвестная мышца ${String(code)}`);
       for (const code of unknown(item?.joints, jointCodes))
         errors.push(`${at}: неизвестный сустав ${String(code)}`);
+      if (item?.measure !== undefined && !MEASURES.includes(item.measure))
+        errors.push(`${at}: measure — REPS, TIME или MINUTES`);
       if (item?.equipment && !EQUIPMENT.includes(item.equipment))
         errors.push(`${at}: неизвестный инвентарь ${String(item.equipment)}`);
       if (!isTextList(item?.steps) || !isTextList(item?.mistakes))
@@ -287,6 +304,13 @@ export class ImportService {
       ...dbExercises.map((e) => e.code as string),
     ]);
     const knownTags = new Set([...tagCodes, ...dbTags.map((t) => t.code)]);
+    // Мера из файла важнее базы: патч может перевести упражнение на время
+    const measureOf = new Map<string, ExerciseMeasure>([
+      ...dbExercises.map((e) => [e.code as string, e.measure] as const),
+      ...file.exercises
+        .filter((e) => e?.measure)
+        .map((e) => [e.code, e.measure!] as const),
+    ]);
     const knownPrograms = new Set(dbPrograms.map((p) => p.code as string));
     file.programs.forEach((program, index) => {
       const at = `programs[${index}]${isText(program?.code) ? ` (${program.code})` : ''}`;
@@ -320,13 +344,11 @@ export class ImportService {
         if (!isText(complex?.name)) errors.push(`${where}: нет name`);
         if (!list(complex?.exercises).length)
           errors.push(`${where}: нет упражнений`);
-        if (
-          complex?.cardio !== undefined &&
-          (!isText(complex.cardio?.name) ||
-            complex.cardio.name.trim().length > CARDIO_NAME_MAX ||
-            !isCount(complex.cardio?.minutes, CARDIO_MINUTES_MAX))
-        )
-          errors.push(`${where}: проверь cardio — нужны name и minutes`);
+        const legacy = complex as { cardio?: unknown; legacyCardio?: unknown };
+        if (legacy?.cardio !== undefined || legacy?.legacyCardio !== undefined)
+          errors.push(
+            `${where}: блока cardio больше нет — добавь кардио упражнением на время (measure TIME)`,
+          );
         for (const item of list(
           complex?.exercises,
         ) as NonNullable<ImportProgram['complexes']>[number]['exercises']) {
@@ -334,10 +356,13 @@ export class ImportService {
             errors.push(
               `${where}: неизвестное упражнение ${String(item?.code)}`,
             );
+          // Секунды у упражнения на время, повторы у остальных
+          const maxReps =
+            MEASURE_LIMITS[measureOf.get(item?.code) ?? 'REPS'].plan;
           if (
             !isCount(item?.sets, 20) ||
-            !isCount(item?.repsMin, 200) ||
-            !isCount(item?.repsMax, 200) ||
+            !isCount(item?.repsMin, maxReps) ||
+            !isCount(item?.repsMax, maxReps) ||
             item.repsMin > item.repsMax
           )
             errors.push(
@@ -464,16 +489,36 @@ export class ImportService {
         );
 
         for (const item of file.exercises) {
+          if (item.primary === undefined) {
+            await tx.exercise.update({
+              where: { code: item.code },
+              data: {
+                ...(item.measure && { measure: item.measure }),
+                ...(item.equipment !== undefined && {
+                  equipment: item.equipment,
+                }),
+                ...(item.videoUrl !== undefined && { videoUrl: item.videoUrl }),
+                ...(item.technique !== undefined && {
+                  technique: item.technique,
+                }),
+                ...guideData(item),
+              },
+            });
+            continue;
+          }
+          // Полная запись: name и primary проверены в check
+          const name = item.name!;
           const imagePath = images.get(`e:${item.code}`);
           const imageEndPath = images.get(`e:${item.code}:end`);
           const data = {
-            name: item.name.trim(),
-            nameNormalized: normalizeName(item.name),
+            name: name.trim(),
+            nameNormalized: normalizeName(name),
             technique: item.technique ?? null,
             ...guideData(item),
             ...(imageEndPath && { imageEndPath }),
             videoUrl: item.videoUrl ?? null,
             equipment: item.equipment ?? null,
+            ...(item.measure && { measure: item.measure }),
             status: 'CATALOG' as const,
             ...(imagePath
               ? { imagePath, imageTelegramFileId: null, imageMaxToken: null }
@@ -693,8 +738,6 @@ export class ImportService {
                 programId: program.id,
                 name: complex.name.trim(),
                 position: index + 1,
-                cardioName: complex.cardio?.name.trim() ?? null,
-                cardioMinutes: complex.cardio?.minutes ?? null,
                 exercises: {
                   create: complex.exercises.map((exercise, position) => ({
                     exerciseId: exerciseId.get(exercise.code)!,

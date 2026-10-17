@@ -1,16 +1,19 @@
+import { durationText, isTimed, type Measure, timeInput } from '@/shared/lib/measure'
 import { supersetLetter } from '@/shared/lib/superset'
 
 import type { WorkoutItem } from './api'
 
 const num = (value: number) => String(Number(value.toFixed(2)))
 
-/** План подходов: «3 × 8–12» */
-export const planText = (sets: number, repsMin: number, repsMax: number) =>
-  `${sets} × ${repsMin === repsMax ? repsMin : `${repsMin}–${repsMax}`}`
+export { planText } from '@/shared/lib/measure'
 
-/** Прошлый раз одной строкой: «60 × 8, 8, 7»; разный вес — «60×8, 55×10». null — истории нет */
-export const lastText = (last: WorkoutItem['last']): string | null => {
+/**
+ * Прошлый раз одной строкой: «60 × 8, 8, 7»; разный вес — «60×8, 55×10»; на время — «45 с, 50 с».
+ * null — истории нет
+ */
+export const lastText = (last: WorkoutItem['last'], measure: Measure = 'REPS'): string | null => {
   if (!last?.sets.length) return null
+  if (isTimed(measure)) return last.sets.map(s => durationText(s.reps)).join(', ')
   const weights = new Set(last.sets.map(s => s.weight))
   const w = (value: number) => (value === 0 ? 'свой вес' : num(value))
   if (weights.size === 1) return `${w(last.sets[0]!.weight)} × ${last.sets.map(s => s.reps).join(', ')}`
@@ -78,9 +81,11 @@ export const supersetDoneWith = (members: WorkoutItem[], addedIds: number[]): bo
  * иначе план — нижняя граница повторов: прибавить легче, чем убавить. Вес без истории не угадываем
  */
 export const roundPrefill = (item: WorkoutItem): { weight: string; reps: string } => {
+  // У упражнения на время в reps секунды — в поле по мере: секунды или минуты
+  const reps = (value: number) => (isTimed(item.measure) ? timeInput(item.measure, value) : String(value))
   const source = item.sets.at(-1) ?? lastSetHint(item.last, item.sets.length + 1)
-  if (source) return { weight: source.weight === 0 ? '' : num(source.weight), reps: String(source.reps) }
-  return { weight: '', reps: String(item.repsMin) }
+  if (source) return { weight: source.weight === 0 ? '' : num(source.weight), reps: reps(source.reps) }
+  return { weight: '', reps: reps(item.repsMin) }
 }
 
 /**

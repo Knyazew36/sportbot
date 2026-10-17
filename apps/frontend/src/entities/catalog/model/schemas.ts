@@ -47,6 +47,8 @@ export const exerciseFormSchema = z.object({
   mistakes: textListSchema,
   videoUrl,
   equipment: z.enum(EQUIPMENT_VALUES),
+  // Чем меряется: повторы или время (кардио, планка)
+  measure: z.enum(['REPS', 'TIME', 'MINUTES']),
   imagePath: z.string().nullable(),
   // Фото финиша загружает только админ
   imageEndPath: z.string().nullable().optional(),

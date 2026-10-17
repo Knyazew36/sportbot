@@ -91,6 +91,14 @@ export class CreateDraftDto {
   equipment?: (typeof EQUIPMENT)[number];
 
   @ApiPropertyOptional({
+    enum: ['REPS', 'TIME', 'MINUTES'],
+    description: 'Чем меряется: повторы или время (кардио, удержания)',
+  })
+  @IsOptional()
+  @IsIn(['REPS', 'TIME', 'MINUTES'])
+  measure?: 'REPS' | 'TIME' | 'MINUTES';
+
+  @ApiPropertyOptional({
     type: [Number],
     description: 'Упражнение: нагружаемые суставы',
   })

@@ -384,6 +384,7 @@ export class WorkoutAppService {
       imageEndUrl: this.uploads.toPublicUrl(exercise.imageEndPath),
       videoUrl: exercise.videoUrl,
       bodyweight: exercise.equipment === 'BODYWEIGHT',
+      measure: exercise.measure,
       draft: exercise.status === 'DRAFT',
       done: isDone(item),
       replaced: item.replacedExerciseId !== null,

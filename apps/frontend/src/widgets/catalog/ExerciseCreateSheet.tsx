@@ -60,6 +60,7 @@ const CreateForm = ({
       mistakes: [],
       videoUrl: '',
       equipment: null,
+      measure: 'REPS',
       imagePath: null,
       primary: [],
       secondary: [],

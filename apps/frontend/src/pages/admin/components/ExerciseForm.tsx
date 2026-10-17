@@ -25,6 +25,7 @@ export const ExerciseForm = ({ exercise, formId, onSave }: ExerciseFormProps) =>
       imageEndPath: exercise?.imageEndPath ?? null,
       videoUrl: exercise?.videoUrl ?? '',
       equipment: exercise?.equipment ?? 'BARBELL',
+      measure: exercise?.measure ?? 'REPS',
       imagePath: exercise?.imagePath ?? null,
       primary: exercise?.primary ?? [],
       secondary: exercise?.secondary ?? [],

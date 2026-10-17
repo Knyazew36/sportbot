@@ -14,9 +14,12 @@ export class UpdateWorkoutSetDto {
   @Max(999, { message: 'Вес до 999 кг' })
   weight?: number;
 
-  @ApiProperty()
+  // Предел по мере проверяет сервис: повторы до 999, у упражнения на время — секунды до 4 часов
+  @ApiProperty({
+    description: 'Повторы; у упражнения на время (measure TIME) — секунды',
+  })
   @IsInt({ message: 'Повторы — целое число' })
   @Min(1, { message: 'Хотя бы 1 повтор' })
-  @Max(999, { message: 'Повторов до 999' })
+  @Max(14_400, { message: 'Слишком много' })
   reps: number;
 }

@@ -12,6 +12,7 @@ import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
 import { ExerciseBlocks } from '@/shared/ui/kit/ExerciseBlocks'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
+import { durationText, isTimed, type Measure } from '@/shared/lib/measure'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
@@ -19,9 +20,11 @@ import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { DAY_MARK, MARK_LABEL } from './marks'
 import { MonthCalendar } from './MonthCalendar'
 
-// «50 × 10, 10, 9» — вес один на все подходы; иначе каждый подход «вес × повторы». Без веса — только повторы
-const setsText = (sets: { weight: number; reps: number }[]) => {
+// «50 × 10, 10, 9» — вес один на все подходы; иначе каждый подход «вес × повторы». Без веса — только повторы,
+// на время — «45 с, 50 с»
+const setsText = (sets: { weight: number; reps: number }[], measure: Measure) => {
   if (!sets.length) return '—'
+  if (isTimed(measure)) return sets.map(s => durationText(s.reps)).join(', ')
   const weights = new Set(sets.map(s => s.weight))
   const reps = sets.map(s => s.reps).join(', ')
   if (weights.size === 1) {
@@ -83,7 +86,7 @@ const DayDetails = ({ day, canFix }: { day: StatsDay; canFix: boolean }) => {
                     tone='soft'
                     className='whitespace-nowrap'
                   >
-                    {setsText(e.sets)}
+                    {setsText(e.sets, e.measure)}
                   </Poster>
                 }
                 className='py-2'

@@ -1,12 +1,15 @@
 import { plural } from '@/bot';
+import { rangeText } from '@/catalog/measure';
+import type { ExerciseMeasure } from '@/generated/prisma/client';
 
-/** «4 × 8–12» / «3 × 10». */
+/** «4 × 8–12» / «3 × 10»; на время — «3 × 30–60 с», «1 × 20 мин». */
 export function planText(
   sets: number,
   repsMin: number,
   repsMax: number,
+  measure: ExerciseMeasure = 'REPS',
 ): string {
-  return `${sets} × ${repsMin === repsMax ? repsMin : `${repsMin}–${repsMax}`}`;
+  return `${sets} × ${rangeText(measure, repsMin, repsMax)}`;
 }
 
 /** «🏃 Кардио: беговая дорожка — 30 мин»; кардио в комплексе нет — null. */

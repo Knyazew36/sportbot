@@ -236,7 +236,7 @@ export class StatsAppService {
           exercises: {
             orderBy: { position: 'asc' },
             include: {
-              exercise: { select: { name: true } },
+              exercise: { select: { name: true, measure: true } },
               sets: { orderBy: { number: 'asc' } },
             },
           },
@@ -272,6 +272,7 @@ export class StatsAppService {
         simple: w.mode === 'SIMPLE',
         exercises: w.exercises.map((e) => ({
           name: e.exercise.name,
+          measure: e.exercise.measure,
           done: e.done,
           sets: e.sets.map((s) => ({ weight: Number(s.weight), reps: s.reps })),
           superset: e.superset,

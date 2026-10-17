@@ -31,7 +31,7 @@ export const ResultExercises = ({ workout }: { workout: SharedWorkout }) => (
             tone='soft'
             className='mt-1 tracking-[0.01em]'
           >
-            {lastText({ date: workout.date, sets: e.sets }) ?? (e.done ? 'без записи подходов' : 'пропущено')}
+            {lastText({ date: workout.date, sets: e.sets }, e.measure) ?? (e.done ? 'без записи подходов' : 'пропущено')}
           </Poster>
         </ListRow>
         )}

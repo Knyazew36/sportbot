@@ -54,7 +54,7 @@ const Protocol = ({ workoutId }: { workoutId: number }) => {
                   tone='soft'
                   className='mt-1 tracking-[0.01em]'
                 >
-                  {lastText({ date: w.date, sets: e.sets }) ?? (e.done ? 'без записи подходов' : 'не делал')}
+                  {lastText({ date: w.date, sets: e.sets }, e.measure) ?? (e.done ? 'без записи подходов' : 'не делал')}
                 </Poster>
               </ListRow>
               )}

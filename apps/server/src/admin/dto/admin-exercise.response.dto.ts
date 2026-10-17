@@ -29,6 +29,12 @@ export class AdminExerciseResponseDto {
   })
   equipment: 'BARBELL' | 'DUMBBELL' | 'MACHINE' | 'BODYWEIGHT' | null;
 
+  @ApiProperty({
+    enum: ['REPS', 'TIME', 'MINUTES'],
+    description: 'Чем меряется: повторы или время (кардио, удержания)',
+  })
+  measure: 'REPS' | 'TIME' | 'MINUTES';
+
   @ApiProperty({ type: String, nullable: true })
   imagePath: string | null;
 

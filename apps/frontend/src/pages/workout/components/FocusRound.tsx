@@ -7,6 +7,7 @@ import type { useStopwatch } from '@/shared/lib/hooks/use-stopwatch'
 import { cn } from '@/shared/lib/utils'
 import { haptic } from '@/shared/miniapp'
 import { Digits, Poster, Text } from '@/shared/ui/kit/Typography'
+import { isTimed, type Measure, rangeText } from '@/shared/lib/measure'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
 import { FocusShell } from './FocusShell'
@@ -22,7 +23,9 @@ type FocusRoundProps = {
   onCancel: () => void
 }
 
-const repsText = (min: number, max: number) => `${min === max ? min : `${min}–${max}`} повт.`
+// План строки круга: «8–12 повт.»; у упражнения на время — «30–60 с»
+const repsText = (min: number, max: number, measure: Measure) =>
+  isTimed(measure) ? rangeText(measure, min, max) : `${rangeText('REPS', min, max)} повт.`
 
 // Круг суперсета на весь экран: упражнения идут подряд без телефона в руках, поэтому круг виден целиком,
 // а нажатие одно — в конце. Ввод — одной шторкой после круга
@@ -176,7 +179,7 @@ export const FocusRound = ({ stopwatch, round, startedAt, burstKey, onFinish, on
               numeric
               className='shrink-0'
             >
-              {repsText(e.repsMin, e.repsMax)}
+              {repsText(e.repsMin, e.repsMax, e.measure)}
             </Poster>
           </li>
         ))}

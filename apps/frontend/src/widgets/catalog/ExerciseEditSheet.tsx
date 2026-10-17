@@ -44,6 +44,7 @@ const ProposalForm = ({ exercise, onSent }: { exercise: CatalogExercise; onSent:
       mistakes: toTextList(exercise.mistakes),
       videoUrl: exercise.videoUrl ?? '',
       equipment: exercise.equipment,
+      measure: exercise.measure,
       primary: exercise.primaryMuscles.map(m => m.id),
       secondary: exercise.secondaryMuscles.map(m => m.id),
       jointIds: exercise.joints.map(j => j.id),

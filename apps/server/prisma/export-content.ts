@@ -63,6 +63,7 @@ async function main() {
         imagePath: e.imagePath,
         imageEndPath: e.imageEndPath,
         equipment: e.equipment,
+        measure: e.measure,
         muscles: e.muscles.map((m) => ({ code: m.muscle.code, role: m.role })),
         joints: e.joints.map((j) => j.joint.code),
       })),
@@ -99,8 +100,9 @@ async function main() {
         published: p.isPublished,
         complexes: p.complexes.map((c) => ({
           name: c.name,
-          ...(c.cardioName && c.cardioMinutes
-            ? { cardio: { name: c.cardioName, minutes: c.cardioMinutes } }
+          // Старый кардио-блок: импорт его не принимает — перенеси упражнением на время
+          ...(c.cardioName
+            ? { legacyCardio: `${c.cardioName}, ${c.cardioMinutes} мин` }
             : {}),
           exercises: c.exercises.map((e) => ({
             // Черновик без code в шаблоне импортом не повторить — помечаем id, чтобы было видно

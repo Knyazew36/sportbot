@@ -65,9 +65,7 @@ export const supersetTargetFromParams = (params: URLSearchParams): SupersetTarge
   return params.get(NEW_SUPERSET_PARAM) === 'new' ? { newSuperset: true } : {}
 }
 
-/** План подходов: «3 × 8–12» или «3 × 10» */
-export const planText = (sets: number, repsMin: number, repsMax: number): string =>
-  `${sets} × ${repsMin === repsMax ? repsMin : `${repsMin}–${repsMax}`}`
+export { planText } from '@/shared/lib/measure'
 
 /**
  * Статус публикации программы в каталоге «Программы пользователей» — для автора. Жёлтый — цвет «видят другие»,

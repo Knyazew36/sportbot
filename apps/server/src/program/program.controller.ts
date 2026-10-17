@@ -269,7 +269,7 @@ export class ProgramController {
 
   @Post('complex/update/:id')
   @Swagger({
-    title: 'Комплекс: название и кардио',
+    title: 'Комплекс: название',
     param: ID_PARAM,
     body: UpdateComplexDto,
     response: ProgramResponseDto,

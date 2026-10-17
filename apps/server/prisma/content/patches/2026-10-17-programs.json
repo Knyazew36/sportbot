@@ -218,10 +218,6 @@
       "complexes": [
         {
           "name": "День А",
-          "cardio": {
-            "name": "Ходьба на дорожке",
-            "minutes": 10
-          },
           "exercises": [
             {
               "code": "leg-press",
@@ -258,15 +254,17 @@
               "sets": 2,
               "repsMin": 20,
               "repsMax": 30
+            },
+            {
+              "code": "treadmill-walk",
+              "sets": 1,
+              "repsMin": 600,
+              "repsMax": 600
             }
           ]
         },
         {
           "name": "День Б",
-          "cardio": {
-            "name": "Ходьба на дорожке",
-            "minutes": 10
-          },
           "exercises": [
             {
               "code": "goblet-squat",
@@ -303,6 +301,12 @@
               "sets": 2,
               "repsMin": 12,
               "repsMax": 15
+            },
+            {
+              "code": "treadmill-walk",
+              "sets": 1,
+              "repsMin": 600,
+              "repsMax": 600
             }
           ]
         }
@@ -1289,10 +1293,6 @@
       "complexes": [
         {
           "name": "День А",
-          "cardio": {
-            "name": "Эллипс или дорожка",
-            "minutes": 20
-          },
           "exercises": [
             {
               "code": "leg-press",
@@ -1335,15 +1335,17 @@
               "repsMin": 15,
               "repsMax": 20,
               "superset": 3
+            },
+            {
+              "code": "elliptical",
+              "sets": 1,
+              "repsMin": 1200,
+              "repsMax": 1200
             }
           ]
         },
         {
           "name": "День Б",
-          "cardio": {
-            "name": "Эллипс или дорожка",
-            "minutes": 20
-          },
           "exercises": [
             {
               "code": "db-romanian-deadlift",
@@ -1386,15 +1388,17 @@
               "repsMin": 12,
               "repsMax": 15,
               "superset": 3
+            },
+            {
+              "code": "elliptical",
+              "sets": 1,
+              "repsMin": 1200,
+              "repsMax": 1200
             }
           ]
         },
         {
           "name": "День В",
-          "cardio": {
-            "name": "Эллипс или дорожка",
-            "minutes": 20
-          },
           "exercises": [
             {
               "code": "smith-squat",
@@ -1437,6 +1441,12 @@
               "repsMin": 30,
               "repsMax": 45,
               "superset": 3
+            },
+            {
+              "code": "elliptical",
+              "sets": 1,
+              "repsMin": 1200,
+              "repsMax": 1200
             }
           ]
         }

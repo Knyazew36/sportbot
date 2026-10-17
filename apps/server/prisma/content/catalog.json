@@ -1511,7 +1511,8 @@
         "Провисает поясница — напряги пресс и ягодицы.",
         "Таз поднят — опусти его на линию плеч и пяток."
       ],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Plank/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Plank/1.jpg",
+      "measure": "TIME"
     },
     {
       "code": "cable-crunch",
@@ -6213,7 +6214,8 @@
         "Корпус заваливается вперёд — держи плечи и таз в одной плоскости.",
         "Задерживаешь дыхание — дыши ровно."
       ],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Bridge/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Bridge/1.jpg",
+      "measure": "TIME"
     },
     {
       "code": "dead-bug",
@@ -6555,6 +6557,273 @@
         "shoulder",
         "wrist",
         "hip"
+      ]
+    },
+    {
+      "code": "treadmill-walk",
+      "name": "Ходьба на беговой дорожке",
+      "technique": "Нагрузка ниже, чем у бега, и обычно мягче для суставов, чем ходьба на улице. Иди в среднем или быстром темпе, а не прогулочным шагом. Наклон дорожки меняет интенсивность. Человек весом около 68 кг тратит примерно 175 ккал за 30 минут ходьбы со скоростью 6,4 км/ч.",
+      "steps": [
+        "Встань на дорожку и выбери режим в меню: ручной или готовую программу. Обычно можно ввести возраст и вес — дорожка оценит расход калорий.",
+        "Выставь скорость и наклон.",
+        "Иди в среднем или быстром темпе, держи осанку."
+      ],
+      "mistakes": [
+        "Идёшь прогулочным шагом — иди в среднем или быстром темпе.",
+        "Держишься за поручни всё время — держись, только когда сходишь с дорожки или меряешь пульс."
+      ],
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Walking_Treadmill/0.jpg",
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Walking_Treadmill/1.jpg",
+      "equipment": "MACHINE",
+      "measure": "MINUTES",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [
+        "calves",
+        "glutes",
+        "hamstrings"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "ankle"
+      ]
+    },
+    {
+      "code": "treadmill-jog",
+      "name": "Бег трусцой на беговой дорожке",
+      "technique": "Обычно мягче для суставов, чем бег трусцой на улице. Наклон дорожки меняет интенсивность. Человек весом около 68 кг тратит почти 250 ккал за 30 минут бега трусцой.",
+      "steps": [
+        "Встань на дорожку и выбери режим в меню: ручной или готовую программу. Обычно можно ввести возраст и вес — дорожка оценит расход калорий.",
+        "Выставь скорость и наклон.",
+        "Беги трусцой, держи осанку."
+      ],
+      "mistakes": [
+        "Держишься за поручни всё время — держись, только когда сходишь с дорожки или меряешь пульс."
+      ],
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Jogging_Treadmill/0.jpg",
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Jogging_Treadmill/1.jpg",
+      "equipment": "MACHINE",
+      "measure": "MINUTES",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [
+        "glutes",
+        "hamstrings"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "ankle"
+      ]
+    },
+    {
+      "code": "treadmill-run",
+      "name": "Бег на беговой дорожке",
+      "technique": "Обычно мягче для суставов, чем бег на улице. Наклон дорожки меняет интенсивность. Человек весом около 68 кг тратит больше 450 ккал за 30 минут бега со скоростью 13 км/ч.",
+      "steps": [
+        "Встань на дорожку и выбери режим в меню: ручной или готовую программу. Обычно можно ввести возраст и вес — дорожка оценит расход калорий.",
+        "Выставь скорость и наклон.",
+        "Беги, держи осанку."
+      ],
+      "mistakes": [
+        "Держишься за поручни всё время — держись, только когда сходишь с дорожки или меряешь пульс."
+      ],
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Running_Treadmill/0.jpg",
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Running_Treadmill/1.jpg",
+      "equipment": "MACHINE",
+      "measure": "MINUTES",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [
+        "calves",
+        "glutes",
+        "hamstrings"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "ankle"
+      ]
+    },
+    {
+      "code": "elliptical",
+      "name": "Эллиптический тренажёр",
+      "technique": "По датчикам на рукоятях можно следить за пульсом, чтобы держать нужную интенсивность. Наклон меняет нагрузку.",
+      "steps": [
+        "Встань на педали эллипса.",
+        "Выбери режим в меню: ручной или готовую программу; можно ввести возраст и вес для оценки калорий.",
+        "Работай в нужном темпе, пульс смотри по рукоятям."
+      ],
+      "mistakes": [],
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Elliptical_Trainer/0.jpg",
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Elliptical_Trainer/1.jpg",
+      "equipment": "MACHINE",
+      "measure": "MINUTES",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [
+        "calves",
+        "glutes",
+        "hamstrings"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "ankle"
+      ]
+    },
+    {
+      "code": "stationary-bike",
+      "name": "Велотренажёр",
+      "technique": "Сиденье подстрой под рост. Сопротивление можно менять по ходу тренировки, пульс — смотреть по датчикам на рукоятях.",
+      "steps": [
+        "Сядь и подстрой сиденье под рост.",
+        "Выбери режим в меню; иногда для включения нужно начать крутить педали.",
+        "Крути педали, меняй сопротивление по ходу."
+      ],
+      "mistakes": [],
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bicycling_Stationary/0.jpg",
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bicycling_Stationary/1.jpg",
+      "equipment": "MACHINE",
+      "measure": "MINUTES",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [
+        "calves",
+        "glutes",
+        "hamstrings"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "ankle"
+      ]
+    },
+    {
+      "code": "recumbent-bike",
+      "name": "Горизонтальный велотренажёр",
+      "technique": "Велотренажёр со спинкой: нагрузка мягче, чем у многих других видов кардио. Сиденье подстрой под рост, сопротивление меняй по ходу. Человек весом около 68 кг тратит примерно 230 ккал за 30 минут в среднем темпе.",
+      "steps": [
+        "Сядь и подстрой сиденье под рост.",
+        "Выбери режим в меню; иногда для включения нужно начать крутить педали.",
+        "Крути педали, меняй сопротивление по ходу."
+      ],
+      "mistakes": [],
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Recumbent_Bike/0.jpg",
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Recumbent_Bike/1.jpg",
+      "equipment": "MACHINE",
+      "measure": "MINUTES",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [
+        "calves",
+        "glutes",
+        "hamstrings"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "ankle"
+      ]
+    },
+    {
+      "code": "rowing-machine",
+      "name": "Гребной тренажёр",
+      "technique": "Пятки упираются в основание педалей, ремни застёгнуты. Тянут в основном ноги и таз — так меньше нагрузки на спину. Гребок — три фазы: подъезд вперёд, толчок ногами с тягой рук, возврат.",
+      "steps": [
+        "Сядь, упри пятки в основание педалей, застегни ремни.",
+        "Подъедь вперёд: колени согнуты к груди, корпус чуть наклонён, осанка ровная.",
+        "Оттолкнись ногами и выпрями их, одновременно тяни рукоять к верху живота, сводя плечи назад.",
+        "Выпрями руки, согни колени и подъедь вперёд — начинается следующий гребок."
+      ],
+      "mistakes": [
+        "Тянешь спиной — работай в основном ногами и тазом."
+      ],
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Rowing_Stationary/0.jpg",
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Rowing_Stationary/1.jpg",
+      "equipment": "MACHINE",
+      "measure": "MINUTES",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [
+        "biceps",
+        "calves",
+        "glutes",
+        "hamstrings",
+        "lower-back",
+        "lats"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "lower-back",
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "stair-climber",
+      "name": "Степпер-лестница",
+      "technique": "Обычно заметно тяжелее других кардиотренажёров. Держись за поручни, чтобы не упасть. Человек весом около 68 кг тратит больше 300 ккал за 30 минут.",
+      "steps": [
+        "Встань на тренажёр и выбери режим в меню.",
+        "Держись за поручни.",
+        "Шагай в ровном ритме, продавливая педали, но не до самого пола."
+      ],
+      "mistakes": [
+        "Продавливаешь педали до пола — останавливай их чуть выше."
+      ],
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Stairmaster/0.jpg",
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Stairmaster/1.jpg",
+      "equipment": "MACHINE",
+      "measure": "MINUTES",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [
+        "calves",
+        "glutes",
+        "hamstrings"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "ankle"
+      ]
+    },
+    {
+      "code": "jump-rope",
+      "name": "Скакалка",
+      "technique": "Требует координации и много энергии. Темп выбирай такой, чтобы держать его весь подход; разные скорости и техники разнообразят нагрузку. Человек весом около 68 кг тратит примерно 350 ккал за 30 минут.",
+      "steps": [
+        "Возьми по ручке в каждую руку, скакалка лежит на полу сзади.",
+        "Подними руки и перекинь скакалку через голову вперёд.",
+        "Когда она коснётся пола, перепрыгни её.",
+        "Держи ровный темп вращения."
+      ],
+      "mistakes": [],
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Rope_Jumping/0.jpg",
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Rope_Jumping/1.jpg",
+      "equipment": "BODYWEIGHT",
+      "measure": "MINUTES",
+      "primary": [
+        "quads"
+      ],
+      "secondary": [
+        "calves",
+        "hamstrings"
+      ],
+      "joints": [
+        "knee",
+        "ankle"
       ]
     }
   ],
@@ -9605,10 +9874,6 @@
       "complexes": [
         {
           "name": "День А",
-          "cardio": {
-            "name": "Беговая дорожка",
-            "minutes": 30
-          },
           "exercises": [
             {
               "code": "squat",
@@ -9645,15 +9910,17 @@
               "sets": 3,
               "repsMin": 8,
               "repsMax": 8
+            },
+            {
+              "code": "treadmill-run",
+              "sets": 1,
+              "repsMin": 1800,
+              "repsMax": 1800
             }
           ]
         },
         {
           "name": "День Б",
-          "cardio": {
-            "name": "Велотренажёр",
-            "minutes": 35
-          },
           "exercises": [
             {
               "code": "romanian-deadlift",
@@ -9690,15 +9957,17 @@
               "sets": 3,
               "repsMin": 12,
               "repsMax": 12
+            },
+            {
+              "code": "stationary-bike",
+              "sets": 1,
+              "repsMin": 2100,
+              "repsMax": 2100
             }
           ]
         },
         {
           "name": "День В",
-          "cardio": {
-            "name": "Беговая дорожка",
-            "minutes": 25
-          },
           "exercises": [
             {
               "code": "squat",
@@ -9735,6 +10004,12 @@
               "sets": 3,
               "repsMin": 12,
               "repsMax": 12
+            },
+            {
+              "code": "treadmill-run",
+              "sets": 1,
+              "repsMin": 1500,
+              "repsMax": 1500
             }
           ]
         }
@@ -10193,10 +10468,6 @@
       "complexes": [
         {
           "name": "День А",
-          "cardio": {
-            "name": "Ходьба на дорожке",
-            "minutes": 10
-          },
           "exercises": [
             {
               "code": "leg-press",
@@ -10233,15 +10504,17 @@
               "sets": 2,
               "repsMin": 20,
               "repsMax": 30
+            },
+            {
+              "code": "treadmill-walk",
+              "sets": 1,
+              "repsMin": 600,
+              "repsMax": 600
             }
           ]
         },
         {
           "name": "День Б",
-          "cardio": {
-            "name": "Ходьба на дорожке",
-            "minutes": 10
-          },
           "exercises": [
             {
               "code": "goblet-squat",
@@ -10278,6 +10551,12 @@
               "sets": 2,
               "repsMin": 12,
               "repsMax": 15
+            },
+            {
+              "code": "treadmill-walk",
+              "sets": 1,
+              "repsMin": 600,
+              "repsMax": 600
             }
           ]
         }
@@ -11264,10 +11543,6 @@
       "complexes": [
         {
           "name": "День А",
-          "cardio": {
-            "name": "Эллипс или дорожка",
-            "minutes": 20
-          },
           "exercises": [
             {
               "code": "leg-press",
@@ -11310,15 +11585,17 @@
               "repsMin": 15,
               "repsMax": 20,
               "superset": 3
+            },
+            {
+              "code": "elliptical",
+              "sets": 1,
+              "repsMin": 1200,
+              "repsMax": 1200
             }
           ]
         },
         {
           "name": "День Б",
-          "cardio": {
-            "name": "Эллипс или дорожка",
-            "minutes": 20
-          },
           "exercises": [
             {
               "code": "db-romanian-deadlift",
@@ -11361,15 +11638,17 @@
               "repsMin": 12,
               "repsMax": 15,
               "superset": 3
+            },
+            {
+              "code": "elliptical",
+              "sets": 1,
+              "repsMin": 1200,
+              "repsMax": 1200
             }
           ]
         },
         {
           "name": "День В",
-          "cardio": {
-            "name": "Эллипс или дорожка",
-            "minutes": 20
-          },
           "exercises": [
             {
               "code": "smith-squat",
@@ -11412,6 +11691,12 @@
               "repsMin": 30,
               "repsMax": 45,
               "superset": 3
+            },
+            {
+              "code": "elliptical",
+              "sets": 1,
+              "repsMin": 1200,
+              "repsMax": 1200
             }
           ]
         }

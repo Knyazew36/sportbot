@@ -6,10 +6,13 @@ import type { ReactNode } from 'react'
 import {
   type ComplexExerciseInput,
   complexExerciseSchema,
+  complexExerciseMinutesSchema,
+  complexExerciseTimeSchema,
   type ComplexExerciseValues,
   type ProgramExercise,
 } from '@/entities/program'
 import { applyFieldErrors } from '@/shared/lib/form'
+import { isTimed, timeInput } from '@/shared/lib/measure'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'
 import { Poster, Text } from '@/shared/ui/kit/Typography'
 import { Input } from '@/shared/ui/shadcn/input'
@@ -36,20 +39,27 @@ type ExercisePlanFormProps = {
   className?: string
 }
 
-// План «3 × 8–12» правится на месте и сохраняется, когда фокус уходит из формы
+// План «3 × 8–12» правится на месте и сохраняется, когда фокус уходит из формы.
+// У удержания вместо повторов — секунды «30–60», у кардио — одно число минут «20»
 export const ExercisePlanForm = ({ exercise, onPlanChange, children, className }: ExercisePlanFormProps) => {
+  const { measure } = exercise
+  const timed = isTimed(measure)
+  const single = measure === 'MINUTES'
+  const reps = (value: number) => (timed ? timeInput(measure, value) : String(value))
+  const schema =
+    measure === 'MINUTES' ? complexExerciseMinutesSchema : measure === 'TIME' ? complexExerciseTimeSchema : complexExerciseSchema
   const {
     register,
     handleSubmit,
     setError,
     formState: { errors },
   } = useForm<ComplexExerciseInput, unknown, ComplexExerciseValues>({
-    resolver: zodResolver(complexExerciseSchema),
+    resolver: zodResolver(schema),
     // values, а не defaultValues: после сохранения или правки в боте поля встают в новое значение
     values: {
       sets: String(exercise.sets),
-      repsMin: String(exercise.repsMin),
-      repsMax: String(exercise.repsMax),
+      repsMin: reps(exercise.repsMin),
+      repsMax: reps(exercise.repsMax),
     },
   })
 
@@ -89,27 +99,32 @@ export const ExercisePlanForm = ({ exercise, onPlanChange, children, className }
         <div className='flex flex-col items-center gap-1'>
           <div className='flex items-center gap-1.5'>
             <Input
-              inputMode='numeric'
-              className={`${CELL} w-12`}
-              aria-label='Повторов от'
+              // Двоеточие для «мм:сс» есть только на обычной клавиатуре; минуты — число
+              inputMode={measure === 'TIME' ? 'text' : 'numeric'}
+              className={`${CELL} ${measure === 'TIME' ? 'w-16' : 'w-12'}`}
+              aria-label={single ? 'Минут' : timed ? 'Время от' : 'Повторов от'}
               aria-invalid={!!errors.repsMin}
               {...register('repsMin')}
             />
-            <Poster
-              as='span'
-              size='sm'
-            >
-              –
-            </Poster>
-            <Input
-              inputMode='numeric'
-              className={`${CELL} w-12`}
-              aria-label='Повторов до'
-              aria-invalid={!!errors.repsMax}
-              {...register('repsMax')}
-            />
+            {!single && (
+              <>
+                <Poster
+                  as='span'
+                  size='sm'
+                >
+                  –
+                </Poster>
+                <Input
+                  inputMode={timed ? 'text' : 'numeric'}
+                  className={`${CELL} ${timed ? 'w-16' : 'w-12'}`}
+                  aria-label={timed ? 'Время до' : 'Повторов до'}
+                  aria-invalid={!!errors.repsMax}
+                  {...register('repsMax')}
+                />
+              </>
+            )}
           </div>
-          <Caption>повт.</Caption>
+          <Caption>{single ? 'мин' : timed ? 'сек' : 'повт.'}</Caption>
         </div>
         {/* Enter на телефонной клавиатуре отправляет форму — отдельная кнопка не нужна */}
         <button

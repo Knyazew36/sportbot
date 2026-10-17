@@ -55,6 +55,14 @@ export class SaveExerciseDto {
   equipment?: 'BARBELL' | 'DUMBBELL' | 'MACHINE' | 'BODYWEIGHT' | null;
 
   @ApiPropertyOptional({
+    enum: ['REPS', 'TIME', 'MINUTES'],
+    description: 'Чем меряется: повторы или время (кардио, удержания)',
+  })
+  @IsOptional()
+  @IsIn(['REPS', 'TIME', 'MINUTES'])
+  measure?: 'REPS' | 'TIME' | 'MINUTES';
+
+  @ApiPropertyOptional({
     type: String,
     nullable: true,
     description: 'Из POST admin/catalog/image; null — убрать',

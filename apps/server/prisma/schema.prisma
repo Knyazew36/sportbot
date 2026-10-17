@@ -558,6 +558,14 @@ enum Equipment {
   BODYWEIGHT
 }
 
+/// Чем меряется упражнение. TIME (удержания, ввод в секундах) и MINUTES (кардио, ввод в минутах):
+/// в плане (repsMin/repsMax) и в подходе (reps) хранятся секунды, вес не пишется.
+enum ExerciseMeasure {
+  REPS
+  TIME
+  MINUTES
+}
+
 /// Запись общего справочника или личный черновик автора.
 enum CatalogStatus {
   CATALOG
@@ -629,6 +637,7 @@ model Exercise {
   imageMaxToken       String?
   videoUrl            String? /// ссылка на внешнее видео, свои видео бот не хранит
   equipment           Equipment?
+  measure             ExerciseMeasure @default(REPS)
 
   status CatalogStatus @default(CATALOG)
 
@@ -911,6 +920,7 @@ model ComplexExercise {
 
   position Int
   sets     Int
+  /// Повторы или секунды — по exercise.measure
   repsMin  Int
   repsMax  Int
   /// Номер суперсета внутри комплекса: участники идут подряд по position, их не меньше двух. null — одиночное.
@@ -1038,6 +1048,7 @@ model WorkoutExercise {
   done     Boolean @default(false)
 
   plannedSets Int
+  /// Повторы или секунды — по exercise.measure
   repsMin     Int
   repsMax     Int
   /// Снимок суперсета комплекса на старте: участники выполняются по кругу, отдых — после круга.
@@ -1061,7 +1072,7 @@ model WorkoutSet {
 
   number Int
   weight Decimal @db.Decimal(6, 2) /// кг; 0 — упражнение без веса
-  reps   Int
+  reps   Int /// повторы или секунды — по exercise.measure
   /// uuid с клиента: повтор запроса из офлайн-очереди не создаёт второй подход
   clientId String? @unique @db.Uuid
 

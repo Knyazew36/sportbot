@@ -140,7 +140,7 @@ export class AdminTemplatesController {
 
   @Post('complex/update/:id')
   @Swagger({
-    title: 'Комплекс шаблона: название и кардио',
+    title: 'Комплекс шаблона: название',
     param: ID_PARAM,
     body: UpdateComplexDto,
     response: ProgramResponseDto,

@@ -3,6 +3,7 @@ import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import type { ComponentProps, ReactNode } from 'react'
 
 import { type Equipment, EQUIPMENT_LABEL, type ExerciseFormInput, useJoints, useMuscles } from '@/entities/catalog'
+import { type Measure, MEASURE_LABEL } from '@/shared/lib/measure'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
@@ -18,6 +19,7 @@ import { MuscleRoles } from './MuscleRoles'
 import { TextListField } from './TextListField'
 
 const EQUIPMENT = (Object.keys(EQUIPMENT_LABEL) as Equipment[]).map(value => ({ value, label: EQUIPMENT_LABEL[value] }))
+const MEASURES = (Object.keys(MEASURE_LABEL) as Measure[]).map(value => ({ value, label: MEASURE_LABEL[value] }))
 
 type ExerciseFieldsProps = {
   initialImageUrl: string | null
@@ -90,6 +92,27 @@ export const ExerciseFields = ({ initialImageUrl, upload, afterName, endImage }:
             )}
           />
         </div>
+      </ScreenSection>
+
+      <ScreenSection title='Чем меряется'>
+        <Text
+          size='sm'
+          tone='muted'
+        >
+          Секунды — для удержаний вроде планки, минуты — для кардио: дорожка, велотренажёр, скакалка. Без веса.
+        </Text>
+        <Controller
+          control={control}
+          name='measure'
+          render={({ field }) => (
+            <Segmented
+              options={MEASURES}
+              value={field.value}
+              onValueChange={v => v && field.onChange(v)}
+              stretch
+            />
+          )}
+        />
       </ScreenSection>
 
       <ScreenSection

@@ -297,6 +297,7 @@ export class DayService {
         sets: item.sets,
         repsMin: item.repsMin,
         repsMax: item.repsMax,
+        measure: item.exercise.measure,
         superset: item.superset,
         limitedZones: item.exercise.joints
           .filter((j) => limited.has(j.jointId))

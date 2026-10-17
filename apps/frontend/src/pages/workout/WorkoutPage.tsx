@@ -14,13 +14,13 @@ import {
   type SetTiming,
   useStartWorkout,
   type Workout,
-  type WorkoutSet,
 } from '@/entities/workout'
 import { useIsOnline } from '@/shared/api'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { useDeadlineTimer } from '@/shared/lib/hooks/use-deadline-timer'
 import { useStopwatch } from '@/shared/lib/hooks/use-stopwatch'
 import { useWorkoutElapsed } from '@/shared/lib/hooks/use-workout-elapsed'
+import { isTimed } from '@/shared/lib/measure'
 import { timerEndSignal } from '@/shared/lib/signal'
 import { local } from '@/shared/lib/storage'
 import { haptic } from '@/shared/miniapp'
@@ -34,7 +34,7 @@ import { TopBar } from '@/shared/ui/kit/ScreenHeader'
 import { ScreenState } from '@/shared/ui/kit/ScreenState'
 import { Stamp } from '@/shared/ui/kit/Stamp'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
-import { EditSetSheet } from '@/widgets/workout/EditSetSheet'
+import { type EditingSet, EditSetSheet } from '@/widgets/workout/EditSetSheet'
 import { SetList } from '@/widgets/workout/SetList'
 
 import { ExerciseCard } from './components/ExerciseCard'
@@ -69,7 +69,7 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
   const finish = useFinishWorkout()
   const discard = useDiscardWorkout()
   const [pickedId, setPickedId] = useState<number | null>(null)
-  const [editing, setEditing] = useState<WorkoutSet | null>(null)
+  const [editing, setEditing] = useState<EditingSet | null>(null)
   const [entryOpen, setEntryOpen] = useState(false)
   const timer = useDeadlineTimer({
     storageKey: `rest-timer-${workout.id}`,
@@ -368,6 +368,12 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
           startedAt={workout.startedAt}
           setNumber={setNumber}
           plannedSets={entryItem.plannedSets}
+          target={
+            isTimed(entryItem.measure)
+              ? { min: entryItem.repsMin, max: entryItem.repsMax, measure: entryItem.measure }
+              : undefined
+          }
+          onTarget={() => timerEndSignal(workout.settings)}
           // Подход закончен — время стоит, пока вводятся вес и повторы
           onDone={() => {
             stopwatch.pause()
@@ -428,7 +434,7 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
       />
       <Stamp text={stamp} />
       <EditSetSheet
-        set={editing}
+        editing={editing}
         onClose={() => setEditing(null)}
       />
     </div>

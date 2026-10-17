@@ -54,6 +54,7 @@ export class DraftAppService {
       // У растяжки инвентаря и суставов нет
       ...(isExercise && {
         equipment: dto.equipment,
+        measure: dto.measure,
         jointIds: dto.jointIds,
       }),
     });

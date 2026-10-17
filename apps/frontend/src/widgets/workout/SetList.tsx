@@ -2,13 +2,16 @@ import { ClockIcon, PencilIcon, PlusIcon } from 'lucide-react'
 
 import { weightText, type WorkoutItem, type WorkoutSet } from '@/entities/workout'
 import { formatSeconds } from '@/shared/lib/hooks/use-deadline-timer'
+import { clockText, isTimed, type Measure } from '@/shared/lib/measure'
+import { cn } from '@/shared/lib/utils'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Eyebrow, Poster, Text, Unit } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
 type SetListProps = {
   item: WorkoutItem
-  onEdit: (set: WorkoutSet) => void
+  /** Мера нужна шторке правки: у упражнения на время правится время */
+  onEdit: (editing: { set: WorkoutSet; measure: Measure }) => void
   /** Идущая тренировка: подсказка, с чего начать. В прошедшей подход добавляется формой под списком */
   live?: boolean
   /** Записать подход без таймера; нет — кнопки под списком нет */
@@ -43,13 +46,23 @@ const SetTiming = ({ set }: { set: WorkoutSet }) => {
   )
 }
 
-// Сохранённые подходы упражнения. Подходов может быть больше или меньше плана
-export const SetList = ({ item, onEdit, live = true, onAdd }: SetListProps) => (
+// Сохранённые подходы упражнения. Подходов может быть больше или меньше плана.
+// У упражнения на время одна колонка — время подхода, веса нет
+export const SetList = ({ item, onEdit, live = true, onAdd }: SetListProps) => {
+  const timed = isTimed(item.measure)
+  const grid = timed ? 'grid-cols-[32px_1fr_40px]' : 'grid-cols-[32px_1fr_1fr_40px]'
+  return (
   <Rise>
-    <div className='border-border grid grid-cols-[32px_1fr_1fr_40px] border-b-[1.5px] pb-2'>
+    <div className={cn('border-border grid border-b-[1.5px] pb-2', grid)}>
       <Eyebrow tone='faint'>№</Eyebrow>
-      <Eyebrow tone='faint'>Вес</Eyebrow>
-      <Eyebrow tone='faint'>Повторы</Eyebrow>
+      {timed ? (
+        <Eyebrow tone='faint'>Время</Eyebrow>
+      ) : (
+        <>
+          <Eyebrow tone='faint'>Вес</Eyebrow>
+          <Eyebrow tone='faint'>Повторы</Eyebrow>
+        </>
+      )}
     </div>
     {item.sets.length ? (
       <ol>
@@ -57,7 +70,7 @@ export const SetList = ({ item, onEdit, live = true, onAdd }: SetListProps) => (
           <li
             // У подхода из очереди серверного id ещё нет
             key={set.clientId ?? set.id}
-            className='border-border grid grid-cols-[32px_1fr_1fr_40px] items-center border-b-[1.5px] py-3'
+            className={cn('border-border grid items-center border-b-[1.5px] py-3', grid)}
           >
             <Poster
               as='span'
@@ -66,19 +79,22 @@ export const SetList = ({ item, onEdit, live = true, onAdd }: SetListProps) => (
             >
               {set.number}
             </Poster>
+            {!timed && (
+              <Poster
+                as='span'
+                size='xl'
+              >
+                {weightText(set.weight)}
+                {set.weight > 0 && <Unit>кг</Unit>}
+              </Poster>
+            )}
             <Poster
               as='span'
               size='xl'
+              numeric={timed}
             >
-              {weightText(set.weight)}
-              {set.weight > 0 && <Unit>кг</Unit>}
-            </Poster>
-            <Poster
-              as='span'
-              size='xl'
-            >
-              {set.reps}
-              <Unit>раз</Unit>
+              {timed ? clockText(set.reps) : set.reps}
+              <Unit>{timed ? 'мин:с' : 'раз'}</Unit>
               {/* Тихая метка вместо бейджа: подход сохранён на телефоне и уйдёт, когда появится сеть */}
               {set.pending && (
                 <ClockIcon
@@ -90,7 +106,7 @@ export const SetList = ({ item, onEdit, live = true, onAdd }: SetListProps) => (
             <Button
               variant='outline'
               size='icon-sm'
-              onClick={() => onEdit(set)}
+              onClick={() => onEdit({ set, measure: item.measure })}
               aria-label={`Исправить подход ${set.number}`}
             >
               <PencilIcon />
@@ -121,4 +137,5 @@ export const SetList = ({ item, onEdit, live = true, onAdd }: SetListProps) => (
       </Button>
     )}
   </Rise>
-)
+  )
+}

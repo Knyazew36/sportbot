@@ -7,7 +7,9 @@ import {
 import { PrismaService } from 'prisma/prisma.service';
 
 import { addDays, localToday } from '@/bot';
+import { isTimed, MEASURE_LIMITS, parseTime } from '@/catalog/measure';
 import {
+  ExerciseMeasure,
   Prisma,
   SportProfile,
   TrackingMode,
@@ -99,14 +101,26 @@ export function workoutTotals(workout: WorkoutFull): WorkoutTotals {
   };
 }
 
-/** Границы ввода подхода — как в боте: вес 0..999 кг (0 — без веса), повторы 1..999. */
-const isValidSet = (weight: number, reps: number): boolean =>
+/**
+ * Границы ввода подхода — как в боте: вес 0..999 кг (0 — без веса), повторы 1..999.
+ * На время вес не пишется, а reps — секунды до 4 часов.
+ */
+const isValidSet = (
+  measure: ExerciseMeasure,
+  weight: number,
+  reps: number,
+): boolean =>
   Number.isFinite(weight) &&
   weight >= 0 &&
   weight <= 999 &&
   Number.isInteger(reps) &&
   reps >= 1 &&
-  reps <= 999;
+  reps <= MEASURE_LIMITS[measure].set;
+
+const setError = (measure: ExerciseMeasure) =>
+  isTimed(measure)
+    ? 'Время — от 1 секунды до 4 часов.'
+    : 'Вес до 999 кг, повторы от 1 до 999.';
 
 @Injectable()
 export class WorkoutService {
@@ -254,6 +268,21 @@ export class WorkoutService {
    * упражнение без веса.
    */
   public async addSet(userId: number, itemId: number, input: string) {
+    const item = await this.findItem(userId, itemId);
+    // В чате подход пишется только в идущую тренировку: прошедшие правятся в приложении
+    if (item.workout.status !== 'IN_PROGRESS')
+      throw new BadRequestException('Тренировка уже закрыта.');
+    const { measure } = item.exercise;
+    if (isTimed(measure)) {
+      const seconds = parseTime(measure, input);
+      if (seconds === null || !isValidSet(measure, 0, seconds))
+        throw new BadRequestException(
+          measure === 'MINUTES'
+            ? 'Не понял. Напиши минуты: 20 — это 20 минут, 20:30 — двадцать с половиной.'
+            : 'Не понял. Напиши время: 45 — это 45 секунд, 1:30 — полторы минуты.',
+        );
+      return this.createSet(item, 0, seconds);
+    }
     const match =
       /^\s*(\d{1,3}(?:[.,]\d{1,2})?)\s*(?:(?:[xх×*]|\s)\s*(\d{1,3}))?\s*$/i.exec(
         input,
@@ -261,14 +290,10 @@ export class WorkoutService {
     const first = match ? Number(match[1].replace(',', '.')) : NaN;
     const weight = match?.[2] ? first : 0;
     const reps = match?.[2] ? Number(match[2]) : first;
-    if (!match || !isValidSet(weight, reps))
+    if (!match || !isValidSet('REPS', weight, reps))
       throw new BadRequestException(
         'Не понял. Напиши вес и повторы, например:\n60 10\nДробный вес — через точку: 22.5 10\nБез веса — только повторы: 10',
       );
-    const item = await this.findItem(userId, itemId);
-    // В чате подход пишется только в идущую тренировку: прошедшие правятся в приложении
-    if (item.workout.status !== 'IN_PROGRESS')
-      throw new BadRequestException('Тренировка уже закрыта.');
     return this.createSet(item, weight, reps);
   }
 
@@ -284,14 +309,17 @@ export class WorkoutService {
     clientId?: string,
     timing: SetTiming = {},
   ): Promise<number> {
-    if (!isValidSet(weight, reps))
-      throw new BadRequestException('Вес до 999 кг, повторы от 1 до 999.');
     const item = await this.findItem(userId, itemId);
+    const { measure } = item.exercise;
+    // На время вес не пишется, даже если клиент его прислал
+    const setWeight = isTimed(measure) ? 0 : weight;
+    if (!isValidSet(measure, setWeight, reps))
+      throw new BadRequestException(setError(measure));
     if (item.workout.mode === 'SIMPLE')
       throw new BadRequestException(
         'В простом режиме подходы не записываются.',
       );
-    return this.createSet(item, weight, reps, clientId, timing);
+    return this.createSet(item, setWeight, reps, clientId, timing);
   }
 
   /** Исправить сохранённый подход — в идущей или прошедшей тренировке (frontend-tz, 8.2). */
@@ -301,12 +329,14 @@ export class WorkoutService {
     weight: number,
     reps: number,
   ): Promise<number> {
-    if (!isValidSet(weight, reps))
-      throw new BadRequestException('Вес до 999 кг, повторы от 1 до 999.');
     const set = await this.ownedSet(userId, setId);
+    const { measure } = set.workoutExercise.exercise;
+    const setWeight = isTimed(measure) ? 0 : weight;
+    if (!isValidSet(measure, setWeight, reps))
+      throw new BadRequestException(setError(measure));
     await this.prisma.workoutSet.update({
       where: { id: setId },
-      data: { weight, reps },
+      data: { weight: setWeight, reps },
     });
     this.logger.log(`Подход исправлен: setId=${setId}, userId=${userId}`);
     return set.workoutExercise.workoutId;
@@ -651,7 +681,11 @@ export class WorkoutService {
   private async ownedSet(userId: number, setId: number) {
     const set = await this.prisma.workoutSet.findFirst({
       where: { id: setId, workoutExercise: { workout: { userId } } },
-      include: { workoutExercise: { include: { workout: true } } },
+      include: {
+        workoutExercise: {
+          include: { workout: true, exercise: { select: { measure: true } } },
+        },
+      },
     });
     if (!set) throw new NotFoundException('Подход не найден.');
     return set;

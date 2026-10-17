@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { MEASURE_LIMITS, parseTime } from '@/shared/lib/measure'
+
 // Названия программы и комплекса — как в CreateProgramDto / CreateComplexDto на бэке
 const name = z.string().trim().min(1, 'Название не может быть пустым').max(60, 'Название — до 60 символов')
 
@@ -29,6 +31,36 @@ export const complexExerciseSchema = z
 
 export type ComplexExerciseInput = z.input<typeof complexExerciseSchema>
 export type ComplexExerciseValues = z.output<typeof complexExerciseSchema>
+
+// Время в плане удержания: «45» — секунды, «1:30» — минуты и секунды; на бэк уходят секунды
+const duration = z.string().transform((v, ctx) => {
+  const seconds = parseTime('TIME', v)
+  if (seconds === null || seconds < 1 || seconds > MEASURE_LIMITS.TIME.plan) {
+    ctx.addIssue({ code: 'custom', message: 'Время — секунды или мм:сс, до 4 часов' })
+    return z.NEVER
+  }
+  return seconds
+})
+
+// План удержания: «3 × 30–60 с»
+export const complexExerciseTimeSchema = z
+  .object({ sets: count('Подходы', 20), repsMin: duration, repsMax: duration })
+  .refine(v => v.repsMin <= v.repsMax, { message: 'Диапазон времени: от меньшего к большему', path: ['repsMax'] })
+
+// Минуты кардио: одно число, без диапазона; на бэк уходят секунды в обе границы
+const minutes = z.string().transform((v, ctx) => {
+  const seconds = parseTime('MINUTES', v)
+  if (seconds === null || seconds < 60 || seconds > MEASURE_LIMITS.MINUTES.plan) {
+    ctx.addIssue({ code: 'custom', message: 'Минуты — число от 1 до 240' })
+    return z.NEVER
+  }
+  return seconds
+})
+
+// План кардио: «1 × 20 мин». Поле repsMax в форме не показывается — берётся из repsMin
+export const complexExerciseMinutesSchema = z
+  .object({ sets: count('Подходы', 20), repsMin: minutes, repsMax: z.string() })
+  .transform(v => ({ sets: v.sets, repsMin: v.repsMin, repsMax: v.repsMin }))
 
 // Публикация в каталог — как PublishProgramDto на бэке. Свой тег — новый, ещё без id
 const ownTag = z.object({

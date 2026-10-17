@@ -7,6 +7,7 @@ import { guideLines } from '@/catalog/catalog.texts';
 import { paginatePrisma } from '@/common/prisma';
 import {
   Equipment,
+  ExerciseMeasure,
   ModerationOutcome,
   Prisma,
 } from '@/generated/prisma/client';
@@ -55,8 +56,9 @@ export interface DraftInput {
   perSide?: boolean;
   /** Картинка из формы приложения. */
   imagePath?: string;
-  /** Только упражнение: инвентарь и суставы. */
+  /** Только упражнение: инвентарь, мера и суставы. */
   equipment?: Equipment;
+  measure?: ExerciseMeasure;
   jointIds?: number[];
 }
 
@@ -127,6 +129,7 @@ export class ModerationService {
             videoUrl: input.videoUrl,
             imagePath: input.imagePath,
             equipment: input.equipment,
+            measure: input.measure,
             joints: {
               create: (input.jointIds ?? []).map((jointId) => ({ jointId })),
             },
@@ -478,6 +481,16 @@ export class ModerationService {
   ): Promise<void> {
     if (!fromIds.length) return;
     const where = { in: fromIds };
+    // История подходов хранит повторы или секунды по мере: смешивать их нельзя
+    const measures = await tx.exercise.findMany({
+      where: { id: { in: [...fromIds, toId] } },
+      select: { measure: true },
+      distinct: ['measure'],
+    });
+    if (measures.length > 1)
+      throw new BadRequestException(
+        'Упражнения меряются по-разному (повторы и время) — объединить нельзя.',
+      );
     await tx.complexExercise.updateMany({
       where: { exerciseId: where },
       data: { exerciseId: toId },

@@ -12,7 +12,7 @@ export class StatsMuscleExerciseResponseDto {
   name: string;
 
   @ApiProperty({
-    enum: ['kg', 'reps'],
+    enum: ['kg', 'reps', 'sec', 'min'],
     description:
       'В чём прогресс: kg — лучший вес подхода; reps — упражнение без веса, лучшие повторы',
   })

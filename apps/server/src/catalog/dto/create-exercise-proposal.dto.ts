@@ -70,6 +70,14 @@ export class CreateExerciseProposalDto {
   equipment?: (typeof EQUIPMENT)[number] | null;
 
   @ApiPropertyOptional({
+    enum: ['REPS', 'TIME', 'MINUTES'],
+    description: 'Чем меряется: повторы или время (кардио, удержания)',
+  })
+  @IsOptional()
+  @IsIn(['REPS', 'TIME', 'MINUTES'])
+  measure?: 'REPS' | 'TIME' | 'MINUTES';
+
+  @ApiPropertyOptional({
     type: String,
     nullable: true,
     description: 'Из POST catalog/image; null — убрать картинку',

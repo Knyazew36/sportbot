@@ -1,11 +1,14 @@
 import { CheckIcon, PauseIcon, PlayIcon, TimerResetIcon, XIcon } from 'lucide-react'
 
+import { useEffect, useRef } from 'react'
+
 import { formatSeconds } from '@/shared/lib/hooks/use-deadline-timer'
+import { type Measure, rangeText } from '@/shared/lib/measure'
 import type { useStopwatch } from '@/shared/lib/hooks/use-stopwatch'
 import { cn } from '@/shared/lib/utils'
 import { haptic } from '@/shared/miniapp'
 import { Ring } from '@/shared/ui/kit/Ring'
-import { Digits, Poster } from '@/shared/ui/kit/Typography'
+import { Digits, Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
 import { FocusShell } from './FocusShell'
@@ -18,10 +21,38 @@ type FocusSetProps = {
   plannedSets: number
   /** Подход закончен — открыть ввод веса и повторов */
   onDone: () => void
+  /** Упражнение на время: план в секундах. Нижняя граница — сигнал «цель есть» */
+  target?: { min: number; max: number; measure: Measure }
+  /** Сигнал, когда время дошло до нижней границы цели: звук и вибрация из настроек */
+  onTarget?: () => void
 }
 
 // Идёт подход: секундомер на весь экран. Пауза — если отвлекли посреди подхода, её время в подход не идёт
-export const FocusSet = ({ stopwatch, title, startedAt, setNumber, plannedSets, onDone }: FocusSetProps) => (
+export const FocusSet = ({
+  stopwatch,
+  title,
+  startedAt,
+  setNumber,
+  plannedSets,
+  onDone,
+  target,
+  onTarget,
+}: FocusSetProps) => {
+  // Сигнал один раз за подход: «Сначала» обнуляет секундомер — сигнал снова ждёт цели
+  const signalled = useRef(false)
+  const reached = !!target && stopwatch.elapsed >= target.min
+  useEffect(() => {
+    if (!target) return
+    if (!reached) {
+      signalled.current = false
+      return
+    }
+    if (signalled.current) return
+    signalled.current = true
+    onTarget?.()
+  }, [reached, target, onTarget])
+
+  return (
   <FocusShell
     title={title}
     startedAt={startedAt}
@@ -69,6 +100,14 @@ export const FocusSet = ({ stopwatch, title, startedAt, setNumber, plannedSets, 
     >
       <Digits>{formatSeconds(stopwatch.elapsed)}</Digits>
     </Poster>
+    {target && (
+      <Text
+        size='sm'
+        tone={reached ? 'primary' : 'muted'}
+      >
+        {reached ? 'цель есть' : 'цель'} · {rangeText(target.measure, target.min, target.max)}
+      </Text>
+    )}
     {/* На паузе гасим всё, кроме кнопки «дальше»: взгляд сразу на ней, а случайный тап по тёмному не жмёт «Закончил» или «Отменить» */}
     <div
       aria-hidden
@@ -125,4 +164,5 @@ export const FocusSet = ({ stopwatch, title, startedAt, setNumber, plannedSets, 
       </button>
     </div>
   </FocusShell>
-)
+  )
+}

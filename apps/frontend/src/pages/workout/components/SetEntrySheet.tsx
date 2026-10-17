@@ -6,6 +6,8 @@ import {
   lastSetHint,
   newClientId,
   type SetTiming,
+  type TimeSetInput,
+  timeSetSchema,
   useAddSet,
   weightText,
   type WorkoutItem,
@@ -13,6 +15,7 @@ import {
   workoutSetSchema,
   type WorkoutSetValues,
 } from '@/entities/workout'
+import { durationText, isTimed, timeInput, timeLabel } from '@/shared/lib/measure'
 import { BoxInput } from '@/shared/ui/kit/BoxInput'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
@@ -76,6 +79,54 @@ const SetEntryForm = ({ item, onSubmit }: SetEntryFormProps) => {
   )
 }
 
+type TimeEntryFormProps = {
+  item: WorkoutItem
+  /** Время по секундомеру: подставляется в поле, его можно поправить */
+  elapsed: number | undefined
+  onSubmit: (values: WorkoutSetValues) => void
+}
+
+// Подход на время: одно поле. По секундомеру время уже вписано — остаётся нажать кнопку
+const TimeEntryForm = ({ item, elapsed, onSubmit }: TimeEntryFormProps) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<TimeSetInput, unknown, WorkoutSetValues>({
+    resolver: zodResolver(timeSetSchema(item.measure)),
+    defaultValues: { time: elapsed ? timeInput(item.measure, elapsed) : '' },
+  })
+
+  return (
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      autoComplete='off'
+      className='flex flex-col gap-3 px-gutter pb-6'
+    >
+      <BoxInput
+        label={`время, ${timeLabel(item.measure)}`}
+        inputMode={item.measure === 'TIME' ? 'text' : 'numeric'}
+        placeholder={timeInput(item.measure, item.repsMax)}
+        className='py-2 [&_input]:h-12 [&_input]:text-[40px]'
+        autoFocus={!elapsed}
+        {...register('time')}
+      />
+      <ErrorText errors={errors.time} />
+      <Button
+        type='submit'
+        size='xl'
+        className='w-full'
+      >
+        <CheckIcon
+          className='size-7'
+          strokeWidth={3}
+        />
+        Записать подход
+      </Button>
+    </form>
+  )
+}
+
 type SetEntrySheetProps = {
   open: boolean
   item: WorkoutItem
@@ -95,6 +146,7 @@ export const SetEntrySheet = ({ open, item, timing, onClose, onSubmitStart, onSa
   const add = useAddSet()
   const hint = lastSetHint(item.last, item.sets.length + 1)
   const number = item.sets.length + 1
+  const timed = isTimed(item.measure)
 
   const submit = (values: WorkoutSetValues) => {
     // До onSaved: он останавливает секундомер, и время подхода пропало бы
@@ -116,16 +168,30 @@ export const SetEntrySheet = ({ open, item, timing, onClose, onSubmitStart, onSa
         <SheetHeader>
           <SheetTitle className='first-letter:uppercase'>{setCaption(number, item.plannedSets)}</SheetTitle>
           <SheetDescription>
-            {hint ? `Прошлый раз ${weightText(hint.weight)} × ${hint.reps}` : 'Сколько поднял и сколько раз'}
+            {timed
+              ? hint
+                ? `Прошлый раз ${durationText(hint.reps)}`
+                : 'Сколько по времени'
+              : hint
+                ? `Прошлый раз ${weightText(hint.weight)} × ${hint.reps}`
+                : 'Сколько поднял и сколько раз'}
           </SheetDescription>
         </SheetHeader>
-        {open && (
-          <SetEntryForm
-            key={number}
-            item={item}
-            onSubmit={submit}
-          />
-        )}
+        {open &&
+          (timed ? (
+            <TimeEntryForm
+              key={number}
+              item={item}
+              elapsed={timing().workSeconds ?? undefined}
+              onSubmit={submit}
+            />
+          ) : (
+            <SetEntryForm
+              key={number}
+              item={item}
+              onSubmit={submit}
+            />
+          ))}
       </SheetContent>
     </Sheet>
   )
