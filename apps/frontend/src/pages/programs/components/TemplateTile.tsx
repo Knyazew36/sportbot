@@ -43,11 +43,11 @@ export const TemplateTile = ({ template: t }: { template: Program }) => (
       >
         {t.name}
       </Poster>
-      {!t.author && t.description && (
+      {t.description && (
         <Text
           size='sm'
           tone='soft'
-          className='line-clamp-2'
+          className='line-clamp-3'
         >
           {t.description}
         </Text>

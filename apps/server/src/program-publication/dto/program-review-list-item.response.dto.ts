@@ -26,4 +26,11 @@ export class ProgramReviewListItemResponseDto {
 
   @ApiProperty({ type: Date, nullable: true })
   reviewRequestedAt: Date | null;
+
+  @ApiProperty({
+    type: Date,
+    nullable: true,
+    description: 'Первое одобрение — с этого момента программа в каталоге',
+  })
+  publishedAt: Date | null;
 }

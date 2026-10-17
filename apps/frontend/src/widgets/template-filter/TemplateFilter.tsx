@@ -108,20 +108,23 @@ export const TemplateFilter = ({
                 </div>
               ))}
             </div>
-            <div className='px-gutter grid grid-cols-2 gap-2 pt-6 pb-6'>
-              {onReset ? (
+            <div className='px-gutter flex gap-2 pt-6 pb-6'>
+              {onReset && (
                 <Button
                   type='button'
                   variant='outline'
-                  onClick={onReset}
+                  className='shrink-0'
+                  onClick={() => {
+                    onReset()
+                    setOpen(false)
+                  }}
                 >
                   Сбросить
                 </Button>
-              ) : (
-                <span />
               )}
               <Button
                 type='button'
+                className='min-w-0 flex-1'
                 onClick={() => setOpen(false)}
               >
                 {showLabel}

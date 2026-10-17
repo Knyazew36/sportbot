@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from 'react-router'
+import { useNavigate, useParams, useSearchParams } from 'react-router'
 
 import { useState } from 'react'
 
@@ -20,7 +20,6 @@ import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet'
 import { PendingTagRow } from './components/PendingTagRow'
 import { type ProgramRejectMode, RejectProgramSheet } from './components/RejectProgramSheet'
 
-const BACK = `${ROUTES.ADMIN}?tab=programs`
 
 // Было → стало: у опубликованной программы в каталоге висит одобренный текст, автор прислал новый
 const TextChange = ({ label, before, after }: { label: string; before: string | null; after: string | null }) =>
@@ -37,7 +36,7 @@ const TextChange = ({ label, before, after }: { label: string; before: string | 
     </div>
   )
 
-const ReviewBody = ({ review: r }: { review: ProgramReview }) => {
+const ReviewBody = ({ review: r, onRemove }: { review: ProgramReview; onRemove: () => void }) => {
   const groups = useAllTagGroups()
   const approved = r.tags.filter(t => t.isApproved)
   const pending = r.tags.filter(t => !t.isApproved)
@@ -132,6 +131,19 @@ const ReviewBody = ({ review: r }: { review: ProgramReview }) => {
         </ScreenSection>
       ))}
 
+      {/* У опубликованной «Удалить» в футере, в очереди футер занят решением */}
+      {r.publication !== 'PUBLISHED' && (
+        <div className='px-gutter'>
+          <Button
+            variant='ghost'
+            className='text-destructive w-full'
+            onClick={onRemove}
+          >
+            Удалить программу
+          </Button>
+        </div>
+      )}
+
       <ExerciseSheet
         exercise={opened}
         onOpenChange={open => !open && setOpened(null)}
@@ -144,20 +156,22 @@ const ReviewBody = ({ review: r }: { review: ProgramReview }) => {
 const ProgramReviewPage = () => {
   const programId = Number(useParams().programId)
   const navigate = useNavigate()
+  const status = useSearchParams()[0].get('status') ?? 'queue'
+  const back = `${ROUTES.ADMIN}?tab=programs&status=${status}`
   const review = useProgramReview(programId)
   const approve = useApproveProgramReview()
   const [rejecting, setRejecting] = useState<ProgramRejectMode | null>(null)
   const r = review.data
-  const done = () => navigate(BACK, { replace: true })
+  const done = () => navigate(back, { replace: true })
   const hasPendingTags = !!r?.tags.some(t => !t.isApproved)
 
   return (
     <Screen
       header={
         <TopBar
-          back={BACK}
+          back={back}
           title={r?.name ?? 'Программа'}
-          subtitle='на проверке'
+          subtitle={r?.publication === 'PUBLISHED' && !r.textPending ? 'в каталоге' : 'на проверке'}
         />
       }
       footer={
@@ -184,21 +198,34 @@ const ProgramReviewPage = () => {
           </StickyFooter>
         ) : (
           r.publication === 'PUBLISHED' && (
-            <StickyFooter>
+            <StickyFooter className='flex-nowrap'>
               <Button
                 variant='outline'
                 size='lg'
-                className='w-full'
+                className='flex-1'
                 onClick={() => setRejecting('takeDown')}
               >
                 Снять из каталога
+              </Button>
+              <Button
+                variant='destructive'
+                size='lg'
+                className='flex-1'
+                onClick={() => setRejecting('remove')}
+              >
+                Удалить
               </Button>
             </StickyFooter>
           )
         ))
       }
     >
-      <QueryScreen query={review}>{data => <ReviewBody review={data} />}</QueryScreen>
+      <QueryScreen query={review}>{data => (
+          <ReviewBody
+            review={data}
+            onRemove={() => setRejecting('remove')}
+          />
+        )}</QueryScreen>
       {r && (
         <RejectProgramSheet
           program={r}

@@ -8,29 +8,36 @@ import {
   adminProgramReviewControllerOne,
   adminProgramReviewControllerReject,
   adminProgramReviewControllerRejectTag,
+  adminProgramReviewControllerRemove,
   adminProgramReviewControllerReplaceTag,
   adminProgramReviewControllerTakeDown,
 } from '@/shared/api/generated/admin-program-reviews/admin-program-reviews'
-import type { ProgramReviewListItemResponseDto, ProgramReviewResponseDto } from '@/shared/api/generated/model'
+import type {
+  ProgramReviewFilter,
+  ProgramReviewListItemResponseDto,
+  ProgramReviewResponseDto,
+} from '@/shared/api/generated/model'
 
 import { adminKeys, nextPage } from './api'
 
 export type ProgramReview = ProgramReviewResponseDto
 export type ProgramReviewListItem = ProgramReviewListItemResponseDto
+export type { ProgramReviewFilter }
 
 const PAGE_SIZE = 30
 
 export const programReviewKeys = {
   all: ['admin', 'program-reviews'] as const,
-  list: ['admin', 'program-reviews', 'list'] as const,
+  list: (filter: ProgramReviewFilter) => ['admin', 'program-reviews', 'list', filter] as const,
   detail: (id: number) => ['admin', 'program-reviews', 'detail', id] as const,
 }
 
-/** Очередь программ пользователей: первые публикации, правки текста, свои теги */
-export const useProgramReviews = () =>
+/** Программы пользователей: queue — ждут решения (публикации, правки текста, свои теги), published — в каталоге */
+export const useProgramReviews = (filter: ProgramReviewFilter) =>
   useInfiniteQuery({
-    queryKey: programReviewKeys.list,
-    queryFn: ({ pageParam }) => adminProgramReviewControllerList({ page: pageParam, limit: PAGE_SIZE }),
+    queryKey: programReviewKeys.list(filter),
+    queryFn: ({ pageParam }) =>
+      adminProgramReviewControllerList({ page: pageParam, limit: PAGE_SIZE, filter_status: filter }),
     initialPageParam: 1,
     getNextPageParam: nextPage,
     staleTime: 0,
@@ -79,6 +86,20 @@ export const useTakeDownProgram = () => {
       adminProgramReviewControllerTakeDown(id, { reason }),
     meta: { successMessage: 'Снято из каталога, автор получит причину', inlineFieldErrors: true },
     onSuccess: invalidate,
+  })
+}
+
+export const useDeleteProgramReview = () => {
+  const queryClient = useQueryClient()
+  const invalidate = useInvalidateReviews()
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: number; reason: string }) => adminProgramReviewControllerRemove(id, { reason }),
+    meta: { successMessage: 'Программа удалена, автор получит причину', inlineFieldErrors: true },
+    onSuccess: (_, { id }) => {
+      // Удалённую не перезапрашиваем: иначе общий тост покажет 404
+      queryClient.removeQueries({ queryKey: programReviewKeys.detail(id) })
+      invalidate()
+    },
   })
 }
 

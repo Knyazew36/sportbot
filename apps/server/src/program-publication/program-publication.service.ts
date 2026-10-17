@@ -9,7 +9,6 @@ import { PrismaService } from 'prisma/prisma.service';
 import { APP_SCREEN, appBtn, BotSender, msg } from '@/bot';
 import { normalizeName } from '@/catalog/catalog.service';
 import { paginatePrisma } from '@/common/prisma';
-import { PaginationQueryDto } from '@/common/type/pagination-query.dto';
 import { Prisma } from '@/generated/prisma/client';
 import { COMPLEXES_INCLUDE, toComplexesDto } from '@/program/program-complexes';
 import {
@@ -20,6 +19,7 @@ import {
 
 import { ProgramReviewListItemResponseDto } from './dto/program-review-list-item.response.dto';
 import { ProgramReviewResponseDto } from './dto/program-review.response.dto';
+import { ProgramReviewsQueryDto } from './dto/program-reviews-query.dto';
 import { PublishProgramDto } from './dto/publish-program.dto';
 
 type Tx = Prisma.TransactionClient;
@@ -44,6 +44,12 @@ export const PROGRAM_REVIEW_QUEUE = {
       tags: { some: PENDING_TAG },
     },
   ],
+} satisfies Prisma.ProgramWhereInput;
+
+/** Уже в каталоге «Программы пользователей» — отсюда админ снимает или удаляет. */
+const PUBLISHED_PROGRAMS = {
+  isTemplate: false,
+  publication: 'PUBLISHED',
 } satisfies Prisma.ProgramWhereInput;
 
 const AUTHOR_SELECT = {
@@ -245,15 +251,26 @@ export class ProgramPublicationService {
 
   // ── Администратор ───────────────────────────────────────────────────────
 
-  public async queue(query: PaginationQueryDto) {
+  public async queue(query: ProgramReviewsQueryDto) {
+    const filter = query.filter_status ?? 'queue';
     const page = await paginatePrisma(this.prisma.program, {
       page: query.page,
       limit: query.limit,
-      where: PROGRAM_REVIEW_QUEUE,
-      orderBy: [
-        { reviewRequestedAt: { sort: 'asc', nulls: 'last' } },
-        { id: 'asc' },
-      ],
+      ...(filter === 'published'
+        ? {
+            where: PUBLISHED_PROGRAMS,
+            orderBy: [
+              { publishedAt: { sort: 'desc', nulls: 'last' } },
+              { id: 'desc' },
+            ],
+          }
+        : {
+            where: PROGRAM_REVIEW_QUEUE,
+            orderBy: [
+              { reviewRequestedAt: { sort: 'asc', nulls: 'last' } },
+              { id: 'asc' },
+            ],
+          }),
       include: LIST_INCLUDE,
     });
     const items = (page.items as unknown as ListRow[]).map(
@@ -265,9 +282,12 @@ export class ProgramPublicationService {
         textPending: !!p.reviewRequestedAt,
         pendingTagCount: p._count.tags,
         reviewRequestedAt: p.reviewRequestedAt,
+        publishedAt: p.publishedAt,
       }),
     );
-    this.logger.debug(`Очередь программ: всего=${page.meta.total}`);
+    this.logger.debug(
+      `Программы пользователей: фильтр=${filter}, всего=${page.meta.total}`,
+    );
     return { items, meta: page.meta };
   }
 
@@ -394,6 +414,45 @@ export class ProgramPublicationService {
       programId,
     );
     return this.one(programId);
+  }
+
+  /**
+   * Удалить программу пользователя совсем: пропадает и у автора. Копии у взявших остаются
+   * без связи с источником, история тренировок автора — без ссылки на комплекс.
+   */
+  public async remove(programId: number, reason: string): Promise<void> {
+    let program: { name: string; ownerId: number | null };
+    try {
+      program = await this.prisma.$transaction(async (tx) => {
+        const deleted = await tx.program.delete({
+          where: { id: programId, isTemplate: false },
+          select: { name: true, ownerId: true },
+        });
+        if (deleted.ownerId) await this.dropOrphanTags(tx, deleted.ownerId);
+        return deleted;
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        this.logger.warn(`Удаление: программы нет, programId=${programId}`);
+        throw new NotFoundException('Программа не найдена.');
+      }
+      this.logger.error(
+        `Сбой удаления программы: programId=${programId}`,
+        (error as Error).stack,
+      );
+      throw error;
+    }
+    this.logger.log(
+      `Программа удалена администратором: programId=${programId}, ownerId=${program.ownerId}`,
+    );
+    await this.notifyAuthor(
+      program.ownerId,
+      `«${program.name}» удалена администратором: ${reason}.`,
+      null,
+    );
   }
 
   /** Свой тег автора — в справочник, последним чипом группы. */

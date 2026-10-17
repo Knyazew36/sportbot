@@ -147,7 +147,8 @@ const TemplatesPage = () => {
           onSearchChange={setQuery}
           moreActive={(scope !== 'all' ? 1 : 0) + (sort !== 'default' ? 1 : 0)}
           onReset={filtered ? reset : undefined}
-          showLabel={catalog.data ? `Показать ${pluralize(merged.length, PROGRAM_FORMS)}` : 'Показать'}
+          // Только число: «Показать 3 программы» рядом со «Сбросить» не влезает в 375px
+          showLabel={catalog.data ? `Показать · ${merged.length}` : 'Показать'}
           more={
             <>
               <div className='flex flex-col gap-1.5'>

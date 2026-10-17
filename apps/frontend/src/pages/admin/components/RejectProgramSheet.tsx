@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 
 import {
   rejectProgramSchema,
+  useDeleteProgramReview,
   type RejectProgramValues,
   useRejectProgramReview,
   useTakeDownProgram,
@@ -14,8 +15,18 @@ import { Label } from '@/shared/ui/shadcn/label'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'
 import { Textarea } from '@/shared/ui/shadcn/textarea'
 
-/** reject — отказ в публикации или правке текста; takeDown — снять опубликованную из каталога */
-export type ProgramRejectMode = 'reject' | 'takeDown'
+/** reject — отказ в публикации или правке текста; takeDown — снять опубликованную из каталога; remove — удалить совсем */
+export type ProgramRejectMode = 'reject' | 'takeDown' | 'remove'
+
+const TEXT: Record<ProgramRejectMode, { title: string; action: string; note: string }> = {
+  reject: { title: 'Отклонить', action: 'Отклонить', note: 'причину увидит автор' },
+  takeDown: { title: 'Снять из каталога', action: 'Снять из каталога', note: 'причину увидит автор' },
+  remove: {
+    title: 'Удалить совсем',
+    action: 'Удалить совсем',
+    note: 'программа пропадёт и у автора, копии у взявших останутся',
+  },
+}
 
 type RejectProgramSheetProps = {
   program: { id: number; name: string }
@@ -28,7 +39,8 @@ type RejectProgramSheetProps = {
 const RejectForm = ({ id, mode, onDone }: { id: number; mode: ProgramRejectMode; onDone: () => void }) => {
   const reject = useRejectProgramReview()
   const takeDown = useTakeDownProgram()
-  const mutation = mode === 'reject' ? reject : takeDown
+  const remove = useDeleteProgramReview()
+  const mutation = { reject, takeDown, remove }[mode]
   const {
     register,
     handleSubmit,
@@ -61,7 +73,7 @@ const RejectForm = ({ id, mode, onDone }: { id: number; mode: ProgramRejectMode;
         className='w-full'
         disabled={mutation.isPending}
       >
-        {mode === 'reject' ? 'Отклонить' : 'Снять из каталога'}
+        {TEXT[mode].action}
       </Button>
     </form>
   )
@@ -75,8 +87,10 @@ export const RejectProgramSheet = ({ program, mode, onClose, onDone }: RejectPro
   >
     <SheetContent>
       <SheetHeader>
-        <SheetTitle>{mode === 'takeDown' ? 'Снять из каталога' : 'Отклонить'}</SheetTitle>
-        <SheetDescription>«{program.name}» · причину увидит автор</SheetDescription>
+        <SheetTitle>{TEXT[mode ?? 'reject'].title}</SheetTitle>
+        <SheetDescription>
+          «{program.name}» · {TEXT[mode ?? 'reject'].note}
+        </SheetDescription>
       </SheetHeader>
       {mode && (
         <RejectForm

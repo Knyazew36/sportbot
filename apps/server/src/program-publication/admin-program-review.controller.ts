@@ -10,11 +10,11 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 
 import { Swagger } from '@/common/decorators/swagger/swagger.decorator';
-import { PaginationQueryDto } from '@/common/type/pagination-query.dto';
 import { SportAdmin } from '@/miniapp/decorators/sport-auth.decorator';
 
 import { ProgramReviewListItemResponseDto } from './dto/program-review-list-item.response.dto';
 import { ProgramReviewResponseDto } from './dto/program-review.response.dto';
+import { ProgramReviewsQueryDto } from './dto/program-reviews-query.dto';
 import { RejectProgramDto } from './dto/reject-program.dto';
 import { ReplaceProgramTagDto } from './dto/replace-program-tag.dto';
 import { ProgramPublicationService } from './program-publication.service';
@@ -33,13 +33,14 @@ export class AdminProgramReviewController {
 
   @Get('list')
   @Swagger({
-    title: 'Очередь программ: публикации, правки текста, свои теги',
-    query: PaginationQueryDto,
+    title:
+      'Программы пользователей: очередь на проверку или опубликованные в каталоге',
+    query: ProgramReviewsQueryDto,
     response: ProgramReviewListItemResponseDto,
     isArray: true,
     bearerAuth: true,
   })
-  public list(@Query() query: PaginationQueryDto) {
+  public list(@Query() query: ProgramReviewsQueryDto) {
     return this.publication.queue(query);
   }
 
@@ -93,6 +94,21 @@ export class AdminProgramReviewController {
     @Body() dto: RejectProgramDto,
   ) {
     return this.publication.takeDown(id, dto.reason);
+  }
+
+  @Post('delete/:id')
+  @Swagger({
+    title:
+      'Удалить программу пользователя совсем с причиной: копии у взявших остаются',
+    param: ID_PARAM,
+    body: RejectProgramDto,
+    bearerAuth: true,
+  })
+  public remove(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: RejectProgramDto,
+  ) {
+    return this.publication.remove(id, dto.reason);
   }
 
   // ── Свои теги ───────────────────────────────────────────────────────────
