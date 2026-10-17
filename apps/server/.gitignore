@@ -64,3 +64,4 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 # Выходы пайплайна техники: экспорт с сервера и результат content:enrich
 /enrich-out
 /catalog-export.json
+/prisma/content/prod/

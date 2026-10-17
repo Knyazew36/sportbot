@@ -68,14 +68,20 @@ interface ImportProgramTag {
 
 interface ImportProgram {
   code: string;
-  name: string;
+  /** Без complexes — частичная запись существующего шаблона: name можно не указывать. */
+  name?: string;
   /** Кому подходит и что нужно из инвентаря. Поля нет — описание не трогаем. */
   description?: string;
   /** Коды тегов витрины. Поля нет — теги шаблона не трогаем; пустой массив снимает все. */
   tags?: string[];
   /** Виден в каталоге. Поля нет — новый шаблон публикуется, у существующего не меняется. */
   published?: boolean;
-  complexes: {
+  /**
+   * Состав шаблона целиком: заменяет комплексы. Поля нет — частичная запись: меняются только
+   * переданные поля (published, tags, description, name), состав не трогается. Так шаблон
+   * снимают с витрины, не затирая правки состава на проде.
+   */
+  complexes?: {
     name: string;
     cardio?: { name: string; minutes: number };
     exercises: {
@@ -281,10 +287,16 @@ export class ImportService {
       ...dbExercises.map((e) => e.code as string),
     ]);
     const knownTags = new Set([...tagCodes, ...dbTags.map((t) => t.code)]);
+    const knownPrograms = new Set(dbPrograms.map((p) => p.code as string));
     file.programs.forEach((program, index) => {
       const at = `programs[${index}]${isText(program?.code) ? ` (${program.code})` : ''}`;
+      const partial = program?.complexes === undefined;
       if (!isText(program?.code)) errors.push(`${at}: нет code`);
-      if (!isText(program?.name)) errors.push(`${at}: нет name`);
+      if (partial && isText(program?.code) && !knownPrograms.has(program.code))
+        errors.push(`${at}: без complexes можно только поправить уже существующий шаблон`);
+      if (!partial && !isText(program?.name)) errors.push(`${at}: нет name`);
+      if (partial && program?.name !== undefined && !isText(program.name))
+        errors.push(`${at}: name — непустая строка`);
       if (
         program?.description !== undefined &&
         (typeof program.description !== 'string' ||
@@ -300,10 +312,10 @@ export class ImportService {
         errors.push(`${at}: tags — массив кодов тегов`);
       for (const code of unknown(program?.tags, knownTags))
         errors.push(`${at}: неизвестный тег ${String(code)}`);
-      if (!list(program?.complexes).length)
+      if (!partial && !list(program?.complexes).length)
         errors.push(`${at}: нет комплексов`);
       list(program?.complexes).forEach((raw, complexIndex) => {
-        const complex = raw as ImportProgram['complexes'][number];
+        const complex = raw as NonNullable<ImportProgram['complexes']>[number];
         const where = `${at}, комплекс ${complexIndex + 1}`;
         if (!isText(complex?.name)) errors.push(`${where}: нет name`);
         if (!list(complex?.exercises).length)
@@ -317,7 +329,7 @@ export class ImportService {
           errors.push(`${where}: проверь cardio — нужны name и minutes`);
         for (const item of list(
           complex?.exercises,
-        ) as ImportProgram['complexes'][number]['exercises']) {
+        ) as NonNullable<ImportProgram['complexes']>[number]['exercises']) {
           if (!knownExercises.has(item?.code))
             errors.push(
               `${where}: неизвестное упражнение ${String(item?.code)}`,
@@ -337,7 +349,7 @@ export class ImportService {
             );
         }
         const superset = supersetError(
-          list(complex?.exercises) as ImportProgram['complexes'][number]['exercises'],
+          list(complex?.exercises) as NonNullable<ImportProgram['complexes']>[number]['exercises'],
         );
         if (superset) errors.push(`${where}: ${superset}`);
       });
@@ -629,11 +641,26 @@ export class ImportService {
             item.description !== undefined
               ? { description: item.description.trim() || null }
               : {};
+          if (!item.complexes) {
+            await tx.program.update({
+              where: { code: item.code },
+              data: {
+                ...(item.name ? { name: item.name.trim() } : {}),
+                ...(item.published !== undefined
+                  ? { isPublished: item.published }
+                  : {}),
+                ...description,
+                ...(tags ? { tags: { set: tags } } : {}),
+              },
+            });
+            continue;
+          }
+          const name = item.name!.trim();
           const program = await tx.program.upsert({
             where: { code: item.code },
             create: {
               code: item.code,
-              name: item.name.trim(),
+              name,
               isTemplate: true,
               // Файл готовит админ — шаблон из него сразу в каталоге, если не сказано иначе
               isPublished: item.published ?? true,
@@ -642,7 +669,7 @@ export class ImportService {
               ...(tags ? { tags: { connect: tags } } : {}),
             },
             update: {
-              name: item.name.trim(),
+              name,
               isTemplate: true,
               contentUpdatedAt: new Date(),
               ...(item.published !== undefined

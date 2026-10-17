@@ -151,6 +151,7 @@ async function main() {
     }
     const entry: GuideEntry = {
       id: job.entry.id,
+      code: job.entry.code,
       updatedAt: job.entry.updatedAt,
       ...parsed,
       ...(!job.entry.imageEndPath && job.source.images[1]

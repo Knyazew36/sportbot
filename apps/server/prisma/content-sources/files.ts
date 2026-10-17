@@ -38,6 +38,8 @@ export interface ExportFile {
 
 export interface GuideEntry {
   id: number;
+  /** Код записи справочника — по нему content:merge находит её в catalog.json; у черновиков null. */
+  code?: string | null;
   /** updatedAt из экспорта: запись, изменённая позже, при применении пропускается. */
   updatedAt: string;
   description: string;

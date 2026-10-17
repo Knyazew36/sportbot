@@ -1,0 +1,1470 @@
+{
+  "exercises": [
+    {
+      "code": "goblet-squat",
+      "name": "Кубковые приседания с гантелью",
+      "technique": "Гантель вертикально у груди, держи её за верхний диск. Грудь и голова подняты, спина прямая. Самый простой присед с весом для старта и для дома.",
+      "steps": [
+        "Встань, стопы чуть шире плеч, держи гантель у груди.",
+        "Садись между стоп как можно глубже, спина прямая.",
+        "Внизу пауза: локтями разведи колени наружу.",
+        "Встань в исходное положение."
+      ],
+      "mistakes": [
+        "Гантель отходит от груди — держи её прижатой.",
+        "Наклоняешься вперёд — грудь и голова подняты.",
+        "Колени внутрь — разводи их локтями внизу."
+      ],
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Goblet_Squat/0.jpg",
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Goblet_Squat/1.jpg",
+      "equipment": "DUMBBELL",
+      "primary": [
+        "quads",
+        "glutes"
+      ],
+      "secondary": [
+        "hamstrings",
+        "abs"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "ankle"
+      ]
+    },
+    {
+      "code": "knee-push-ups",
+      "name": "Отжимания с колен",
+      "technique": "Облегчённые отжимания для старта. Колени вместе на полу, ладони чуть шире плеч, под плечами. Тело — прямая линия от головы до колен.",
+      "steps": [
+        "Встань на колени, поставь ладони на пол чуть шире плеч.",
+        "Выстрой тело прямой линией от головы до колен.",
+        "Опускай грудь к полу, сгибая локти; корпус неподвижен.",
+        "Выжми себя вверх, напрягая грудь."
+      ],
+      "mistakes": [
+        "Провисает таз — держи прямую линию от головы до колен.",
+        "Колени отрываются — держи их на полу."
+      ],
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "chest"
+      ],
+      "secondary": [
+        "triceps",
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "pike-push-ups",
+      "name": "Отжимания уголком",
+      "technique": "Отжимания из положения «уголок»: таз высоко, тело буквой Λ. Работают плечи — замена жиму над головой, когда нет гантелей. Сложнее — ноги на возвышении.",
+      "steps": [
+        "Встань в упор лёжа и подними таз высоко вверх.",
+        "Сгибая локти, опусти голову к полу между ладонями.",
+        "Выжми себя обратно до прямых рук."
+      ],
+      "mistakes": [],
+      "image": "https://wger.de/media/exercise-images/454/447f3c17-405f-46e0-b138-65c2a8caaab0.png",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "front-delts"
+      ],
+      "secondary": [
+        "triceps",
+        "mid-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ]
+    },
+    {
+      "code": "inverted-row",
+      "name": "Обратная тяга лёжа",
+      "technique": "Тяга своим весом под низкой перекладиной: гриф в раме на уровне пояса или Смит. Тело прямое, пятки на полу. Шаг к подтягиваниям, если они пока не получаются.",
+      "steps": [
+        "Выстави гриф на уровне пояса, ляг под ним.",
+        "Возьмись хватом шире плеч, тело прямое, пятки на полу, руки прямые.",
+        "Тяни грудь к грифу, сводя лопатки.",
+        "Пауза вверху — и опустись до прямых рук."
+      ],
+      "mistakes": [
+        "Провисает таз — держи тело прямой линией."
+      ],
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Inverted_Row/0.jpg",
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Inverted_Row/1.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "lats"
+      ],
+      "secondary": [
+        "biceps",
+        "rear-delts",
+        "traps"
+      ],
+      "joints": [
+        "shoulder",
+        "elbow"
+      ]
+    },
+    {
+      "code": "bodyweight-lunge",
+      "name": "Выпады без веса",
+      "technique": "Руки на поясе, корпус вертикально. Переднее колено над стопой. Можно шагать вперёд по очереди или делать выпады на месте.",
+      "steps": [
+        "Встань, стопы на ширине плеч, руки на поясе.",
+        "Шагни вперёд и опускайся, пока заднее колено почти не коснётся пола.",
+        "Оттолкнись пяткой передней ноги и поднимись.",
+        "Шагни другой ногой и повтори."
+      ],
+      "mistakes": [
+        "Наклоняешь корпус — держи его вертикально.",
+        "Переднее колено уходит за носок или внутрь — держи его над стопой."
+      ],
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bodyweight_Walking_Lunge/0.jpg",
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bodyweight_Walking_Lunge/1.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "quads",
+        "glutes"
+      ],
+      "secondary": [
+        "hamstrings"
+      ],
+      "joints": [
+        "hip",
+        "knee",
+        "ankle"
+      ]
+    },
+    {
+      "code": "mountain-climbers",
+      "name": "Скалолаз",
+      "technique": "Упор лёжа, вес на ладонях и носках. Ноги меняются быстро, таз не поднимается. В плане повторы — шаги одной ногой.",
+      "steps": [
+        "Встань в упор лёжа, подтяни одно колено под таз.",
+        "Резко поменяй ноги: согнутую выпрями назад, другую подтяни.",
+        "Продолжай менять ноги в быстром темпе."
+      ],
+      "mistakes": [
+        "Таз задирается вверх — держи корпус ровно, как в планке."
+      ],
+      "image": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Mountain_Climbers/0.jpg",
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Mountain_Climbers/1.jpg",
+      "equipment": "BODYWEIGHT",
+      "primary": [
+        "abs"
+      ],
+      "secondary": [
+        "quads",
+        "front-delts"
+      ],
+      "joints": [
+        "shoulder",
+        "wrist",
+        "hip"
+      ]
+    }
+  ],
+  "programTagGroups": [
+    {
+      "code": "goal",
+      "name": "Цель",
+      "position": 2
+    }
+  ],
+  "programTags": [
+    {
+      "code": "strength",
+      "name": "Сила",
+      "group": "goal"
+    },
+    {
+      "code": "muscle",
+      "name": "Масса",
+      "group": "goal"
+    },
+    {
+      "code": "fat-loss",
+      "name": "Похудение",
+      "group": "goal"
+    },
+    {
+      "code": "short",
+      "name": "Мало времени",
+      "group": "goal"
+    },
+    {
+      "code": "devushki",
+      "name": "Девушки"
+    }
+  ],
+  "programs": [
+    {
+      "code": "start-zero",
+      "name": "Старт с нуля",
+      "tags": [
+        "gym",
+        "beginner"
+      ],
+      "description": "Для тех, кто первый раз в зале. Два-три раза в неделю, всё тело за тренировку, в основном тренажёры: в них проще держать технику, чем со штангой. Дни А и Б чередуются по очереди. Первые 2 недели бери вес, с которым все повторы даются легко, потом добавляй понемногу, когда делаешь верх диапазона во всех подходах. Через 4–6 недель переходи на «Силу 5×5» или «Универсальную».",
+      "complexes": [
+        {
+          "name": "День А",
+          "cardio": {
+            "name": "Ходьба на дорожке",
+            "minutes": 10
+          },
+          "exercises": [
+            {
+              "code": "leg-press",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "chest-press-machine",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "lat-pulldown",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "seated-leg-curl",
+              "sets": 2,
+              "repsMin": 12,
+              "repsMax": 15
+            },
+            {
+              "code": "machine-shoulder-press",
+              "sets": 2,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "plank",
+              "sets": 2,
+              "repsMin": 20,
+              "repsMax": 30
+            }
+          ]
+        },
+        {
+          "name": "День Б",
+          "cardio": {
+            "name": "Ходьба на дорожке",
+            "minutes": 10
+          },
+          "exercises": [
+            {
+              "code": "goblet-squat",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "seated-cable-row",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "incline-chest-press-machine",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "leg-extension",
+              "sets": 2,
+              "repsMin": 12,
+              "repsMax": 15
+            },
+            {
+              "code": "face-pull",
+              "sets": 2,
+              "repsMin": 12,
+              "repsMax": 15
+            },
+            {
+              "code": "crunches",
+              "sets": 2,
+              "repsMin": 12,
+              "repsMax": 15
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "strength-5x5",
+      "name": "Сила 5×5",
+      "tags": [
+        "gym",
+        "beginner",
+        "strength"
+      ],
+      "description": "По схеме StrongLifts 5×5 — одной из самых популярных программ для новичков. Три тренировки в неделю, дни А и Б по очереди, присед на каждой. Пять подходов по пять повторов в базовых упражнениях со штангой. Сделал все 5×5 — в следующий раз добавь 2,5 кг (в становой — 5 кг). Не получилось три тренировки подряд — сбрось вес на 10% и снова набирай. Начинай с лёгкого веса: рост нужен долгий.",
+      "complexes": [
+        {
+          "name": "День А",
+          "exercises": [
+            {
+              "code": "squat",
+              "sets": 5,
+              "repsMin": 5,
+              "repsMax": 5
+            },
+            {
+              "code": "bench-press",
+              "sets": 5,
+              "repsMin": 5,
+              "repsMax": 5
+            },
+            {
+              "code": "barbell-row",
+              "sets": 5,
+              "repsMin": 5,
+              "repsMax": 5
+            }
+          ]
+        },
+        {
+          "name": "День Б",
+          "exercises": [
+            {
+              "code": "squat",
+              "sets": 5,
+              "repsMin": 5,
+              "repsMax": 5
+            },
+            {
+              "code": "overhead-press",
+              "sets": 5,
+              "repsMin": 5,
+              "repsMax": 5
+            },
+            {
+              "code": "deadlift",
+              "sets": 1,
+              "repsMin": 5,
+              "repsMax": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "gzclp-4",
+      "name": "Лестница силы",
+      "tags": [
+        "gym",
+        "strength"
+      ],
+      "description": "По схеме GZCLP — для тех, кто прошёл «Старт» или «5×5» и упёрся в веса. Четыре тренировки в неделю, в каждой три ступени: тяжёлое базовое 5×3, второе базовое 3×10 и лёгкое 3×15 на объём. Сделал все повторы — добавь вес. На тяжёлой ступени не вышло 5×3 — переходи на 6×2, затем 10×1, потом сбрось вес и начни заново. Отдых: 3–5 минут на тяжёлой ступени, 1–2 на лёгкой.",
+      "complexes": [
+        {
+          "name": "День 1",
+          "exercises": [
+            {
+              "code": "squat",
+              "sets": 5,
+              "repsMin": 3,
+              "repsMax": 3
+            },
+            {
+              "code": "bench-press",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 10
+            },
+            {
+              "code": "lat-pulldown",
+              "sets": 3,
+              "repsMin": 15,
+              "repsMax": 15
+            }
+          ]
+        },
+        {
+          "name": "День 2",
+          "exercises": [
+            {
+              "code": "overhead-press",
+              "sets": 5,
+              "repsMin": 3,
+              "repsMax": 3
+            },
+            {
+              "code": "deadlift",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 10
+            },
+            {
+              "code": "db-row",
+              "sets": 3,
+              "repsMin": 15,
+              "repsMax": 15
+            }
+          ]
+        },
+        {
+          "name": "День 3",
+          "exercises": [
+            {
+              "code": "bench-press",
+              "sets": 5,
+              "repsMin": 3,
+              "repsMax": 3
+            },
+            {
+              "code": "squat",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 10
+            },
+            {
+              "code": "lat-pulldown",
+              "sets": 3,
+              "repsMin": 15,
+              "repsMax": 15
+            }
+          ]
+        },
+        {
+          "name": "День 4",
+          "exercises": [
+            {
+              "code": "deadlift",
+              "sets": 5,
+              "repsMin": 3,
+              "repsMax": 3
+            },
+            {
+              "code": "overhead-press",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 10
+            },
+            {
+              "code": "db-row",
+              "sets": 3,
+              "repsMin": 15,
+              "repsMax": 15
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "ppl",
+      "name": "Тяни — толкай — ноги",
+      "tags": [
+        "gym",
+        "muscle"
+      ],
+      "description": "Классический PPL по схеме Metallicadpa для набора массы. Три дня: тяга (спина, бицепс), жим (грудь, плечи, трицепс) и ноги. Есть время — проходи круг дважды в неделю, 6 тренировок; нет — один раз, 3 тренировки. Первое упражнение дня тяжёлое: сделал все повторы — добавь вес. В остальных добавляй вес, когда упираешься в верх диапазона. Махи в стороны идут суперсетом с трицепсом.",
+      "complexes": [
+        {
+          "name": "Тяга",
+          "exercises": [
+            {
+              "code": "deadlift",
+              "sets": 1,
+              "repsMin": 5,
+              "repsMax": 5
+            },
+            {
+              "code": "lat-pulldown",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "seated-cable-row",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "face-pull",
+              "sets": 5,
+              "repsMin": 15,
+              "repsMax": 20
+            },
+            {
+              "code": "hammer-curl",
+              "sets": 4,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "db-curl",
+              "sets": 4,
+              "repsMin": 8,
+              "repsMax": 12
+            }
+          ]
+        },
+        {
+          "name": "Жим",
+          "exercises": [
+            {
+              "code": "bench-press",
+              "sets": 5,
+              "repsMin": 5,
+              "repsMax": 5
+            },
+            {
+              "code": "overhead-press",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "incline-db-press",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "triceps-pushdown",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12,
+              "superset": 1
+            },
+            {
+              "code": "lateral-raise",
+              "sets": 3,
+              "repsMin": 15,
+              "repsMax": 20,
+              "superset": 1
+            },
+            {
+              "code": "overhead-triceps-ext",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12,
+              "superset": 2
+            },
+            {
+              "code": "seated-lateral-raise",
+              "sets": 3,
+              "repsMin": 15,
+              "repsMax": 20,
+              "superset": 2
+            }
+          ]
+        },
+        {
+          "name": "Ноги",
+          "exercises": [
+            {
+              "code": "squat",
+              "sets": 3,
+              "repsMin": 5,
+              "repsMax": 5
+            },
+            {
+              "code": "romanian-deadlift",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "leg-press",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "leg-curl",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "calf-raise",
+              "sets": 5,
+              "repsMin": 8,
+              "repsMax": 12
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "phul-4",
+      "name": "Сила + масса",
+      "tags": [
+        "gym",
+        "strength",
+        "muscle"
+      ],
+      "description": "По схеме PHUL: четыре тренировки в неделю, верх и низ дважды. Два дня силовые — мало повторов, большой вес, длинный отдых. Два дня на объём — больше повторов и упражнений. Подходит тем, кто уже уверенно делает базу и хочет и силы, и формы. Добавляй вес, когда сделал верх диапазона во всех подходах.",
+      "complexes": [
+        {
+          "name": "Верх: сила",
+          "exercises": [
+            {
+              "code": "bench-press",
+              "sets": 4,
+              "repsMin": 3,
+              "repsMax": 5
+            },
+            {
+              "code": "incline-db-press",
+              "sets": 4,
+              "repsMin": 6,
+              "repsMax": 10
+            },
+            {
+              "code": "barbell-row",
+              "sets": 4,
+              "repsMin": 3,
+              "repsMax": 5
+            },
+            {
+              "code": "lat-pulldown",
+              "sets": 4,
+              "repsMin": 6,
+              "repsMax": 10
+            },
+            {
+              "code": "overhead-press",
+              "sets": 3,
+              "repsMin": 5,
+              "repsMax": 8
+            },
+            {
+              "code": "barbell-curl",
+              "sets": 3,
+              "repsMin": 6,
+              "repsMax": 10
+            },
+            {
+              "code": "skull-crusher",
+              "sets": 3,
+              "repsMin": 6,
+              "repsMax": 10
+            }
+          ]
+        },
+        {
+          "name": "Низ: сила",
+          "exercises": [
+            {
+              "code": "squat",
+              "sets": 4,
+              "repsMin": 3,
+              "repsMax": 5
+            },
+            {
+              "code": "deadlift",
+              "sets": 4,
+              "repsMin": 3,
+              "repsMax": 5
+            },
+            {
+              "code": "leg-press",
+              "sets": 5,
+              "repsMin": 10,
+              "repsMax": 15
+            },
+            {
+              "code": "leg-curl",
+              "sets": 4,
+              "repsMin": 6,
+              "repsMax": 10
+            },
+            {
+              "code": "calf-raise",
+              "sets": 4,
+              "repsMin": 6,
+              "repsMax": 10
+            }
+          ]
+        },
+        {
+          "name": "Верх: объём",
+          "exercises": [
+            {
+              "code": "incline-bench-press",
+              "sets": 4,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "db-fly",
+              "sets": 4,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "seated-cable-row",
+              "sets": 4,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "db-row",
+              "sets": 4,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "lateral-raise",
+              "sets": 4,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "incline-db-curl",
+              "sets": 4,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "rope-pushdown",
+              "sets": 4,
+              "repsMin": 8,
+              "repsMax": 12
+            }
+          ]
+        },
+        {
+          "name": "Низ: объём",
+          "exercises": [
+            {
+              "code": "front-squat",
+              "sets": 4,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "barbell-lunge",
+              "sets": 4,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "leg-extension",
+              "sets": 4,
+              "repsMin": 10,
+              "repsMax": 15
+            },
+            {
+              "code": "seated-leg-curl",
+              "sets": 4,
+              "repsMin": 10,
+              "repsMax": 15
+            },
+            {
+              "code": "seated-calf-raise",
+              "sets": 4,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "leg-press-calf-raise",
+              "sets": 4,
+              "repsMin": 8,
+              "repsMax": 12
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "glutes-3",
+      "name": "Сильные ягодицы",
+      "tags": [
+        "gym",
+        "devushki"
+      ],
+      "description": "Три тренировки в неделю с акцентом на ягодицы и ноги, верх тела — поддерживающе. Главное упражнение — ягодичный мост от скамьи: он есть в двух днях из трёх. Дальше тяги, выпады и сплит-приседания под разными углами и отведения для верха ягодиц. Подходит и новичкам: начинай с лёгкого веса и добавляй, когда делаешь верх диапазона во всех подходах.",
+      "complexes": [
+        {
+          "name": "День А",
+          "exercises": [
+            {
+              "code": "hip-thrust",
+              "sets": 4,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "romanian-deadlift",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "bulgarian-split-squat",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "abductor-machine",
+              "sets": 3,
+              "repsMin": 15,
+              "repsMax": 20
+            },
+            {
+              "code": "lat-pulldown",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "plank",
+              "sets": 3,
+              "repsMin": 30,
+              "repsMax": 45
+            }
+          ]
+        },
+        {
+          "name": "День Б",
+          "exercises": [
+            {
+              "code": "smith-squat",
+              "sets": 4,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "cable-pull-through",
+              "sets": 3,
+              "repsMin": 12,
+              "repsMax": 15
+            },
+            {
+              "code": "db-step-up",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "cable-kickback",
+              "sets": 3,
+              "repsMin": 12,
+              "repsMax": 15
+            },
+            {
+              "code": "db-shoulder-press",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "seated-cable-row",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            }
+          ]
+        },
+        {
+          "name": "День В",
+          "exercises": [
+            {
+              "code": "hip-thrust",
+              "sets": 3,
+              "repsMin": 12,
+              "repsMax": 15
+            },
+            {
+              "code": "db-reverse-lunge",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "seated-leg-curl",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 15
+            },
+            {
+              "code": "abductor-machine",
+              "sets": 3,
+              "repsMin": 15,
+              "repsMax": 20
+            },
+            {
+              "code": "reverse-hyperextension",
+              "sets": 3,
+              "repsMin": 12,
+              "repsMax": 15
+            },
+            {
+              "code": "incline-db-press",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "home-bodyweight-3",
+      "name": "Дома без железа",
+      "tags": [
+        "home",
+        "beginner"
+      ],
+      "description": "Без зала и гантелей, только свой вес, турник и пара стульев или скамья. Три тренировки в неделю, всё тело за раз. Упражнения идут парами-суперсетами: жим и тяга, ноги и корпус. Отжимания с пола пока не выходят — начни с отжиманий с колен. Подтягивания не получаются — делай обратную тягу под столом или низкой перекладиной. Делаешь верх диапазона легко — переходи на сложный вариант упражнения.",
+      "complexes": [
+        {
+          "name": "День А",
+          "exercises": [
+            {
+              "code": "bodyweight-squat",
+              "sets": 3,
+              "repsMin": 15,
+              "repsMax": 20,
+              "superset": 1
+            },
+            {
+              "code": "plank",
+              "sets": 3,
+              "repsMin": 30,
+              "repsMax": 45,
+              "superset": 1
+            },
+            {
+              "code": "knee-push-ups",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 15,
+              "superset": 2
+            },
+            {
+              "code": "inverted-row",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12,
+              "superset": 2
+            },
+            {
+              "code": "single-leg-glute-bridge",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 15
+            },
+            {
+              "code": "pike-push-ups",
+              "sets": 3,
+              "repsMin": 6,
+              "repsMax": 10
+            }
+          ]
+        },
+        {
+          "name": "День Б",
+          "exercises": [
+            {
+              "code": "bodyweight-lunge",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12,
+              "superset": 1
+            },
+            {
+              "code": "dead-bug",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 10,
+              "superset": 1
+            },
+            {
+              "code": "incline-push-ups",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 15,
+              "superset": 2
+            },
+            {
+              "code": "chin-ups",
+              "sets": 3,
+              "repsMin": 4,
+              "repsMax": 8,
+              "superset": 2
+            },
+            {
+              "code": "bodyweight-glute-bridge",
+              "sets": 3,
+              "repsMin": 15,
+              "repsMax": 20
+            },
+            {
+              "code": "bench-dips",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            }
+          ]
+        },
+        {
+          "name": "День В",
+          "exercises": [
+            {
+              "code": "bodyweight-squat",
+              "sets": 4,
+              "repsMin": 15,
+              "repsMax": 20,
+              "superset": 1
+            },
+            {
+              "code": "reverse-crunch",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 15,
+              "superset": 1
+            },
+            {
+              "code": "push-ups",
+              "sets": 3,
+              "repsMin": 6,
+              "repsMax": 12,
+              "superset": 2
+            },
+            {
+              "code": "inverted-row",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12,
+              "superset": 2
+            },
+            {
+              "code": "nordic-curl",
+              "sets": 3,
+              "repsMin": 3,
+              "repsMax": 5
+            },
+            {
+              "code": "mountain-climbers",
+              "sets": 3,
+              "repsMin": 20,
+              "repsMax": 30
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "home-db-3",
+      "name": "Дома с гантелями",
+      "tags": [
+        "home",
+        "beginner"
+      ],
+      "description": "Нужна только пара гантелей, лучше разборных. Три тренировки в неделю через день, всё тело за раз, 2–3 подхода по 8–12 повторов, отдых около минуты. Скамья не нужна: жим делаем лёжа на полу. Добавляй вес, когда делаешь верх диапазона во всех подходах; гантели уже лёгкие — делай медленнее и добавляй повторы.",
+      "complexes": [
+        {
+          "name": "День А",
+          "exercises": [
+            {
+              "code": "goblet-squat",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "db-floor-press",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "db-bent-over-row",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "standing-db-press",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "db-romanian-deadlift",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "db-curl",
+              "sets": 2,
+              "repsMin": 10,
+              "repsMax": 12
+            }
+          ]
+        },
+        {
+          "name": "День Б",
+          "exercises": [
+            {
+              "code": "db-reverse-lunge",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "push-ups",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 15
+            },
+            {
+              "code": "db-row",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "lateral-raise",
+              "sets": 3,
+              "repsMin": 12,
+              "repsMax": 15
+            },
+            {
+              "code": "single-leg-glute-bridge",
+              "sets": 3,
+              "repsMin": 12,
+              "repsMax": 15
+            },
+            {
+              "code": "overhead-triceps-ext",
+              "sets": 2,
+              "repsMin": 10,
+              "repsMax": 12
+            }
+          ]
+        },
+        {
+          "name": "День В",
+          "exercises": [
+            {
+              "code": "db-squat",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "db-floor-press",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "db-bent-over-row",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "arnold-press",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "db-step-up",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "hammer-curl",
+              "sets": 2,
+              "repsMin": 10,
+              "repsMax": 12
+            },
+            {
+              "code": "db-calf-raise",
+              "sets": 3,
+              "repsMin": 15,
+              "repsMax": 20
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "minimal-2",
+      "name": "45 минут дважды в неделю",
+      "tags": [
+        "gym",
+        "short"
+      ],
+      "description": "Для тех, у кого мало времени. Две тренировки в неделю, не подряд, по 4 упражнения: только база, которая нагружает всё тело. Укладывается в 45 минут с разминкой. Два раза в неделю дают основную часть результата от трёх-четырёх тренировок — для формы и здоровья этого достаточно. Добавляй вес, когда делаешь верх диапазона во всех подходах.",
+      "complexes": [
+        {
+          "name": "День А",
+          "exercises": [
+            {
+              "code": "squat",
+              "sets": 3,
+              "repsMin": 5,
+              "repsMax": 8
+            },
+            {
+              "code": "bench-press",
+              "sets": 3,
+              "repsMin": 5,
+              "repsMax": 8
+            },
+            {
+              "code": "barbell-row",
+              "sets": 3,
+              "repsMin": 6,
+              "repsMax": 10
+            },
+            {
+              "code": "hanging-leg-raise",
+              "sets": 2,
+              "repsMin": 8,
+              "repsMax": 12
+            }
+          ]
+        },
+        {
+          "name": "День Б",
+          "exercises": [
+            {
+              "code": "deadlift",
+              "sets": 2,
+              "repsMin": 5,
+              "repsMax": 5
+            },
+            {
+              "code": "overhead-press",
+              "sets": 3,
+              "repsMin": 6,
+              "repsMax": 8
+            },
+            {
+              "code": "lat-pulldown",
+              "sets": 3,
+              "repsMin": 8,
+              "repsMax": 12
+            },
+            {
+              "code": "lunges",
+              "sets": 2,
+              "repsMin": 10,
+              "repsMax": 12
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "shred-3",
+      "name": "Рельеф: сила + кардио",
+      "tags": [
+        "gym",
+        "fat-loss"
+      ],
+      "description": "Для снижения веса без потери мышц. Три тренировки в неделю: силовая часть суперсетами — два упражнения подряд без отдыха, отдых после пары, — затем 20 минут кардио. Силовые сохраняют мышцы, кардио добавляет расход. Вес в упражнениях держи рабочим, не облегчай. Худеешь за счёт питания: без небольшого дефицита калорий программа не сработает.",
+      "complexes": [
+        {
+          "name": "День А",
+          "cardio": {
+            "name": "Эллипс или дорожка",
+            "minutes": 20
+          },
+          "exercises": [
+            {
+              "code": "leg-press",
+              "sets": 3,
+              "repsMin": 12,
+              "repsMax": 15,
+              "superset": 1
+            },
+            {
+              "code": "lat-pulldown",
+              "sets": 3,
+              "repsMin": 12,
+              "repsMax": 15,
+              "superset": 1
+            },
+            {
+              "code": "db-bench-press",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12,
+              "superset": 2
+            },
+            {
+              "code": "seated-cable-row",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12,
+              "superset": 2
+            },
+            {
+              "code": "lateral-raise",
+              "sets": 3,
+              "repsMin": 15,
+              "repsMax": 15,
+              "superset": 3
+            },
+            {
+              "code": "crunches",
+              "sets": 3,
+              "repsMin": 15,
+              "repsMax": 20,
+              "superset": 3
+            }
+          ]
+        },
+        {
+          "name": "День Б",
+          "cardio": {
+            "name": "Эллипс или дорожка",
+            "minutes": 20
+          },
+          "exercises": [
+            {
+              "code": "db-romanian-deadlift",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12,
+              "superset": 1
+            },
+            {
+              "code": "chest-press-machine",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12,
+              "superset": 1
+            },
+            {
+              "code": "db-reverse-lunge",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12,
+              "superset": 2
+            },
+            {
+              "code": "face-pull",
+              "sets": 3,
+              "repsMin": 15,
+              "repsMax": 15,
+              "superset": 2
+            },
+            {
+              "code": "triceps-pushdown",
+              "sets": 3,
+              "repsMin": 12,
+              "repsMax": 15,
+              "superset": 3
+            },
+            {
+              "code": "cable-curl",
+              "sets": 3,
+              "repsMin": 12,
+              "repsMax": 15,
+              "superset": 3
+            }
+          ]
+        },
+        {
+          "name": "День В",
+          "cardio": {
+            "name": "Эллипс или дорожка",
+            "minutes": 20
+          },
+          "exercises": [
+            {
+              "code": "smith-squat",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12,
+              "superset": 1
+            },
+            {
+              "code": "machine-row",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12,
+              "superset": 1
+            },
+            {
+              "code": "incline-db-press",
+              "sets": 3,
+              "repsMin": 10,
+              "repsMax": 12,
+              "superset": 2
+            },
+            {
+              "code": "straight-arm-pulldown",
+              "sets": 3,
+              "repsMin": 12,
+              "repsMax": 15,
+              "superset": 2
+            },
+            {
+              "code": "mountain-climbers",
+              "sets": 3,
+              "repsMin": 20,
+              "repsMax": 30,
+              "superset": 3
+            },
+            {
+              "code": "plank",
+              "sets": 3,
+              "repsMin": 30,
+              "repsMax": 45,
+              "superset": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "fullbody-3",
+      "published": false
+    },
+    {
+      "code": "upper-lower-4",
+      "published": false
+    },
+    {
+      "code": "split-3",
+      "published": false
+    },
+    {
+      "code": "home-fullbody-3",
+      "published": false
+    },
+    {
+      "code": "home-upper-lower-4",
+      "published": false
+    },
+    {
+      "code": "home-db-fullbody-3",
+      "published": false
+    }
+  ]
+}

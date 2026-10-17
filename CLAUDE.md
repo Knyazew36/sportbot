@@ -33,3 +33,8 @@
 - Валидация — только zod-схемы через `zodResolver` из `@hookform/resolvers/zod`. Самописные правила для `register()` не пишем.
 - Схемы и типы значений (`z.infer`) лежат в `src/entities/<entity>/model/schemas.ts`, наружу — через `index.ts` сущности.
 - `trim` и прочую нормализацию делаем в схеме, а не в submit.
+
+## Контент справочника
+
+- Справочник (упражнения, растяжки, теги, программы) правим только по циклу из `apps/server/prisma/content/README.md`: выкачать прод → патч или `guides.json` → `--dry-run` → залить → `content:merge` в `catalog.json`.
+- `catalog.json` целиком на прод не импортируем: он затрёт правки, сделанные на проде.
