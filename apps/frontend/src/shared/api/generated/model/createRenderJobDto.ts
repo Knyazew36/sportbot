@@ -12,7 +12,7 @@ export interface CreateRenderJobDto {
   compositionId: CreateRenderJobDtoCompositionId;
   /** Props композиции — схема в @sportbot/render-contract (COMPOSITIONS[id].schema) */
   props: CreateRenderJobDtoProps;
-  /** Не задан — первый формат композиции */
+  /** Не задан — первый из общих форматов */
   format?: CreateRenderJobDtoFormat;
   /** Прислать файл ботом в чат: готов — сразу, в работе — как только будет готов */
   toChat?: boolean;

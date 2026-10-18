@@ -6,13 +6,14 @@
  */
 
 /**
- * Не задан — первый формат композиции
+ * Не задан — первый из общих форматов
  */
 export type CreateRenderJobDtoFormat = typeof CreateRenderJobDtoFormat[keyof typeof CreateRenderJobDtoFormat];
 
 
 export const CreateRenderJobDtoFormat = {
   'mov-alpha': 'mov-alpha',
+  'mov-hevc-alpha': 'mov-hevc-alpha',
   'mp4-chroma': 'mp4-chroma',
   mp4: 'mp4',
 } as const;

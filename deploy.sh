@@ -18,5 +18,8 @@ chmod +x apps/server/deploy.sh
 # Рендер видео: бандл композиций для воркера (apps/server/src/main-render.ts).
 # Первый раз воркер заводится вручную: cd apps/server && pm2 start dist/src/main-render.js --name render
 (cd apps/video && yarn bundle)
+# ffmpeg с альфой для HEVC (iPhone): собирается один раз, дальше только проверка. Не собрался — сайт
+# всё равно выкатываем, падать будет лишь этот формат (ошибка в логе воркера)
+bash apps/server/scripts/build-ffmpeg-alpha.sh || echo "⚠️ ffmpeg с альфой не собран — формат HEVC для iPhone недоступен"
 
 pm2 restart all

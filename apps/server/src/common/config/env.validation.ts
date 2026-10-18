@@ -66,8 +66,9 @@ const envSchema = z
     RENDER_BUNDLE_DIR: z.string().trim().min(1).default('../video/build'),
     // Сколько кадров Chrome рисует параллельно; больше числа ядер воркер сам не поставит
     RENDER_CONCURRENCY: z.coerce.number().int().positive().default(2),
-    // ffmpeg 8 с x265 с альфой — для HEVC с альфой (iPhone). Собирается scripts/build-ffmpeg-alpha.sh
-    FFMPEG_ALPHA_PATH: z.string().trim().min(1).default('/opt/ffmpeg-alpha/bin/ffmpeg'),
+    // ffmpeg 8 с x265 с альфой — для HEVC с альфой (iPhone). Собирает deploy.sh (scripts/build-ffmpeg-alpha.sh).
+    // Путь — от каталога запуска сервера
+    FFMPEG_ALPHA_PATH: z.string().trim().min(1).default('.ffmpeg-alpha/bin/ffmpeg'),
 
     // --- платформенный админ (сид) ---
     // Пробелы, \r и неснятые кавычки вокруг значения — частая причина ложного «Invalid email»

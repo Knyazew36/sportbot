@@ -82,7 +82,7 @@ export class RenderWorkerService implements OnApplicationBootstrap {
   private readonly logger = new Logger(`🎞️ ${RenderWorkerService.name}`);
   private readonly serveUrl: string;
   private readonly concurrency: number;
-  /** ffmpeg 8 с x265, собранным с альфой (scripts/build-ffmpeg-alpha.sh) — для transcode: 'hevc-alpha' */
+  /** ffmpeg 8 с x265, собранным с альфой (собирает deploy.sh через scripts/build-ffmpeg-alpha.sh) — для transcode: 'hevc-alpha' */
   private readonly ffmpegAlpha: string;
   private ready = false;
   private busy = false;
@@ -95,7 +95,7 @@ export class RenderWorkerService implements OnApplicationBootstrap {
     this.serveUrl = path.resolve(
       config.get<string>('RENDER_BUNDLE_DIR', '../video/build'),
     );
-    this.ffmpegAlpha = config.get<string>('FFMPEG_ALPHA_PATH')!;
+    this.ffmpegAlpha = path.resolve(config.get<string>('FFMPEG_ALPHA_PATH')!);
     // Remotion падает, если потоков больше, чем ядер: на маленьком сервере их меньше значения из .env
     this.concurrency = Math.min(
       config.get<number>('RENDER_CONCURRENCY', 2),
