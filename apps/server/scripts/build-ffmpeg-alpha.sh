@@ -11,15 +11,17 @@ PREFIX="${PREFIX:-${SERVER_DIR}/.ffmpeg-alpha}"
 X265_TAG="${X265_TAG:-4.1}"
 FFMPEG_TAG="${FFMPEG_TAG:-n8.0}"
 
-# Кадр с полупрозрачностью → HEVC с альфой: так проверяем и готовую сборку, и свежую
+# Путь воркера целиком: кадр с полупрозрачностью → PNG-в-MOV (как отдаёт Remotion) → HEVC с альфой.
+# PNG проверяем отдельно: без zlib ffmpeg молча собирается без него («no decoder found for: png»)
 alpha_works() {
-  local check
+  local check ok=0
   check="$(mktemp -d)"
   "${PREFIX}/bin/ffmpeg" -hide_banner -loglevel error -y \
     -f lavfi -i "color=c=red@0.5:s=320x240:d=1,format=rgba" \
-    -c:v libx265 -pix_fmt yuva420p -tag:v hvc1 "${check}/alpha.mov" &&
-    [ -s "${check}/alpha.mov" ]
-  local ok=$?
+    -c:v png -pix_fmt rgba "${check}/src.mov" &&
+    "${PREFIX}/bin/ffmpeg" -hide_banner -loglevel error -y -i "${check}/src.mov" \
+      -c:v libx265 -pix_fmt yuva420p -tag:v hvc1 "${check}/alpha.mov" &&
+    [ -s "${check}/alpha.mov" ] || ok=1
   rm -rf "${check}"
   return ${ok}
 }
@@ -34,12 +36,14 @@ missing=()
 for tool in cmake nasm pkg-config git make g++; do
   command -v "${tool}" >/dev/null || missing+=("${tool}")
 done
+# zlib — для PNG-кадров, которые отдаёт Remotion
+pkg-config --exists zlib 2>/dev/null || missing+=("zlib")
 if [ ${#missing[@]} -gt 0 ]; then
   echo "📦 Нет инструментов сборки: ${missing[*]}"
   SUDO=""
   [ "$(id -u)" -ne 0 ] && SUDO="sudo"
   ${SUDO} apt-get update
-  ${SUDO} apt-get install -y build-essential cmake nasm pkg-config git
+  ${SUDO} apt-get install -y build-essential cmake nasm pkg-config git zlib1g-dev
 fi
 
 BUILD="$(mktemp -d)"
@@ -72,6 +76,7 @@ git clone --depth 1 --branch "${FFMPEG_TAG}" https://github.com/FFmpeg/FFmpeg.gi
     --extra-libs="-lpthread -lm -lstdc++ -ldl" \
     --enable-gpl \
     --enable-libx265 \
+    --enable-zlib \
     --disable-doc \
     --disable-ffplay
   make -j"${JOBS}"
