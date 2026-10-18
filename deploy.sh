@@ -8,6 +8,10 @@ git pull
 yarn install --frozen-lockfile
 chmod +x apps/server/deploy.sh
 
+# Общий контракт рендера: сервер берёт его типы и код из dist, а postinstall при
+# «Already up-to-date» не срабатывает — собираем явно до сервера
+(cd packages/render-contract && yarn build)
+
 # Сервер: миграции + сборка. Фронт: статика в apps/frontend/dist, её отдаёт nginx
 (cd apps/server && ./deploy.sh)
 (cd apps/frontend && yarn build)
