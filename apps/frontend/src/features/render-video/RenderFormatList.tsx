@@ -1,17 +1,14 @@
-import { RENDER_FORMATS, renderEstimateSec, type RenderFormat } from '@sportbot/render-contract'
+import { RENDER_FORMAT_IDS, RENDER_FORMATS, renderEstimateSec, type RenderFormat } from '@sportbot/render-contract'
 import { CheckIcon, ClockIcon, DownloadIcon, LoaderIcon, SendIcon } from 'lucide-react'
 
 import { cn } from '@/shared/lib/utils'
-import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
+import { Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Badge } from '@/shared/ui/shadcn/badge'
 
 import type { RenderSlot } from './useRenderVideo'
 
 type Props = {
-  formats: readonly RenderFormat[]
-  /** Свои подсказки ролика к форматам — вместо общих из RENDER_FORMATS */
-  hints?: Partial<Record<RenderFormat, string>>
   /** Длина ролика, с: от неё зависит, сколько делается файл */
   seconds: number
   /** Показывать «В чат»: бот умеет прислать файл на этой площадке. По умолчанию — да */
@@ -102,12 +99,10 @@ export const ChatButton = ({ slot, onSend }: { slot: RenderSlot; onSend: () => v
   )
 }
 
-// Форматы ролика: у каждого — где им пользоваться, файл на скачивание и отправка ботом в чат.
-// Один формат на всех не годится: прозрачность понимают по-разному компьютер, браузер и телефон
+// Форматы ролика — общие для всех видео: у каждого — где им пользоваться, файл на скачивание и отправка ботом в чат.
+// Один формат на всех не годится: прозрачность Android видит, а iPhone — нет
 // Готовый файл выделяем: его карточка приподнята синей тенью, как выбранное в приложении
 export const RenderFormatList = ({
-  formats,
-  hints,
   seconds,
   chat = true,
   slotOf,
@@ -116,12 +111,10 @@ export const RenderFormatList = ({
   onSendToChat,
 }: Props) => (
   <ul className='flex flex-col gap-3'>
-    {formats.map((format, index) => {
+    {RENDER_FORMAT_IDS.map(format => {
       const spec = RENDER_FORMATS[format]
       const slot = slotOf(format)
       const ready = slot.file === 'ready'
-      // Первый формат композиции — основной. С бейджем телефона «подходит чаще всего» не пишем: он не для всех
-      const main = index === 0 && formats.length > 1 && !spec.badge
       return (
         <li
           key={format}
@@ -130,7 +123,6 @@ export const RenderFormatList = ({
             ready && 'border-primary mr-[3px] shadow-[3px_3px_0_var(--sb-blue)]',
           )}
         >
-          {main && <Eyebrow tone='primary'>Подходит чаще всего</Eyebrow>}
           {spec.badge && <Badge className='self-start'>{spec.badge}</Badge>}
           <Poster
             as='h3'
@@ -142,7 +134,7 @@ export const RenderFormatList = ({
             size='sm'
             tone='muted'
           >
-            {hints?.[format] ?? spec.hint}
+            {spec.hint}
           </Text>
           {!ready && (
             <Text

@@ -15,8 +15,11 @@ import {
   RENDER_LIMITS,
   type RenderFormat,
 } from '@sportbot/render-contract';
+import { execFile } from 'child_process';
+import { rm } from 'fs/promises';
 import * as os from 'os';
 import * as path from 'path';
+import { promisify } from 'util';
 import { PrismaService } from 'prisma/prisma.service';
 
 import { RenderJob } from '@/generated/prisma/client';
@@ -43,6 +46,32 @@ const withEncoding = (
   return extra ? [...out.slice(0, -1), ...extra, ...out.slice(-1)] : out;
 };
 
+const execFileAsync = promisify(execFile);
+
+/**
+ * HEVC с альфой из PNG-в-MOV: libx265 сам включает слой альфы на yuva420p, hvc1 — метка, которую
+ * ждут плееры Apple (с hev1 iPhone файл не откроет)
+ */
+const HEVC_ALPHA_ARGS = (src: string, out: string): string[] => [
+  '-y',
+  '-i',
+  src,
+  '-an',
+  '-c:v',
+  'libx265',
+  '-pix_fmt',
+  'yuva420p',
+  '-crf',
+  '20',
+  '-preset',
+  'medium',
+  '-tag:v',
+  'hvc1',
+  '-movflags',
+  '+faststart',
+  out,
+];
+
 /**
  * Рендер задач из очереди (RenderJob) по готовому бандлу Remotion. Отдельный процесс — Chrome и
  * ffmpeg съедают CPU, API от этого тормозить не должен. Ничего не знает о HTTP и доставке:
@@ -53,6 +82,8 @@ export class RenderWorkerService implements OnApplicationBootstrap {
   private readonly logger = new Logger(`🎞️ ${RenderWorkerService.name}`);
   private readonly serveUrl: string;
   private readonly concurrency: number;
+  /** ffmpeg 8 с x265, собранным с альфой (scripts/build-ffmpeg-alpha.sh) — для transcode: 'hevc-alpha' */
+  private readonly ffmpegAlpha: string;
   private ready = false;
   private busy = false;
 
@@ -64,6 +95,7 @@ export class RenderWorkerService implements OnApplicationBootstrap {
     this.serveUrl = path.resolve(
       config.get<string>('RENDER_BUNDLE_DIR', '../video/build'),
     );
+    this.ffmpegAlpha = config.get<string>('FFMPEG_ALPHA_PATH')!;
     // Remotion падает, если потоков больше, чем ядер: на маленьком сервере их меньше значения из .env
     this.concurrency = Math.min(
       config.get<number>('RENDER_CONCURRENCY', 2),
@@ -167,18 +199,49 @@ export class RenderWorkerService implements OnApplicationBootstrap {
     const outputLocation = path.join(this.upload.uploadRoot, filePath);
     const { cancelSignal, cancel } = makeCancelSignal();
     const timeout = setTimeout(cancel, RENDER_LIMITS.renderTimeoutSec * 1000);
+    // С перекодированием Remotion пишет промежуточный файл, итоговый собирает ffmpeg с альфой
+    const renderLocation = spec.transcode
+      ? `${outputLocation}.src.mov`
+      : outputLocation;
     try {
       await this.renderTo(
-        outputLocation,
+        renderLocation,
         job.compositionId,
         inputProps,
         spec,
         cancelSignal,
       );
+      if (spec.transcode) await this.transcode(job.id, renderLocation, outputLocation);
     } finally {
       clearTimeout(timeout);
+      if (spec.transcode) await rm(renderLocation, { force: true });
     }
     return outputLocation;
+  }
+
+  private async transcode(
+    jobId: number,
+    src: string,
+    out: string,
+  ): Promise<void> {
+    const started = Date.now();
+    this.logger.debug(`#${jobId} перекодируем в HEVC с альфой: ${this.ffmpegAlpha}`);
+    try {
+      await execFileAsync(this.ffmpegAlpha, HEVC_ALPHA_ARGS(src, out), {
+        timeout: RENDER_LIMITS.renderTimeoutSec * 1000,
+        maxBuffer: 10 * 1024 * 1024,
+      });
+    } catch (error) {
+      // Нет бинарника или x265 без альфы («does not support alpha layer») — смотреть stderr
+      const stderr = (error as { stderr?: string }).stderr?.slice(-2000);
+      throw new Error(
+        `ffmpeg с альфой не перекодировал: ${(error as Error).message}${stderr ? `
+${stderr}` : ''}`,
+      );
+    }
+    this.logger.log(
+      `#${jobId} HEVC с альфой — ${((Date.now() - started) / 1000).toFixed(1)} с`,
+    );
   }
 
   private async renderTo(

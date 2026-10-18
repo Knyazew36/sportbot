@@ -10,6 +10,7 @@ import {
 import {
   chatStateOf,
   COMPOSITIONS,
+  RENDER_FORMAT_IDS,
   RENDER_FORMATS,
   RENDER_LIMITS,
   type RenderFormat,
@@ -56,9 +57,8 @@ export class RenderService {
     dto: CreateRenderJobDto,
   ): Promise<RenderJobResponseDto> {
     const composition = COMPOSITIONS[dto.compositionId];
-    const format: RenderFormat = dto.format ?? composition.formats[0];
-    if (!(composition.formats as readonly RenderFormat[]).includes(format))
-      throw new BadRequestException('Этот ролик в таком формате не делаем');
+    // Форматы общие для всех роликов: неизвестный формат отсекает DTO
+    const format: RenderFormat = dto.format ?? RENDER_FORMAT_IDS[0];
     if (dto.toChat && !RENDER_FORMATS[format].chat)
       throw new BadRequestException(
         'Файл слишком тяжёлый для чата — скачай его',

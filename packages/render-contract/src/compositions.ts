@@ -1,7 +1,5 @@
 import { z } from 'zod'
 
-import type { RenderFormat } from './formats'
-
 // Схемы props — единственная правда о том, что принимает композиция: по ним Studio строит панель
 // props, сервер валидирует запрос, фронт — форму. React и Remotion сюда не тянем: пакет читает сервер
 
@@ -47,10 +45,6 @@ type CompositionMeta = {
   size: 'reels' | 'post' | 'square'
   /** Длительность по умолчанию; если в props есть seconds — ролик длится столько */
   durationInFrames: number
-  /** Форматы, в которых композицию можно заказать: по кнопке на каждый; первый — по умолчанию и с пометкой «Подходит чаще всего» */
-  formats: readonly [RenderFormat, ...RenderFormat[]]
-  /** Своя подсказка к формату, если общая из RENDER_FORMATS для этого ролика не подходит */
-  hints?: Partial<Record<RenderFormat, string>>
   /** Пример props: defaultProps в Studio и пример в Swagger */
   example: Record<string, unknown>
 }
@@ -62,8 +56,6 @@ export const COMPOSITIONS = {
     schema: lowerThirdProps,
     size: 'reels',
     durationInFrames: 90,
-    // Прозрачный MOV — для Android и компьютера; iPhone прозрачность не видит, там хромакей
-    formats: ['mov-alpha', 'mp4-chroma'],
     example: {
       title: 'Жим гантелей лежа',
       subtitle: '4 подхода × 10 повторов',
@@ -77,13 +69,6 @@ export const COMPOSITIONS = {
     schema: endCardProps,
     size: 'reels',
     durationInFrames: 90,
-    // Обычный MP4 ставят встык в конец ролика; с прозрачностью и хромакеем — внахлёст на последние кадры
-    formats: ['mp4', 'mov-alpha', 'mp4-chroma'],
-    hints: {
-      mp4: 'MP4 с фоном: поставь в самый конец своего ролика',
-      'mov-alpha':
-        'Без фона: положи поверх последних секунд видео — лист въедет и закроет его. CapCut на Android и компьютере, Premiere, Final Cut, DaVinci',
-    },
     example: {
       fill: 'mint',
       seconds: 3,

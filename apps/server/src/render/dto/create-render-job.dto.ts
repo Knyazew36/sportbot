@@ -25,7 +25,7 @@ export class CreateRenderJobDto {
 
   @ApiPropertyOptional({
     enum: RENDER_FORMAT_IDS,
-    description: 'Не задан — первый формат композиции',
+    description: 'Не задан — первый из общих форматов',
   })
   @IsOptional()
   @IsIn(RENDER_FORMAT_IDS, { message: 'Неизвестный формат' })

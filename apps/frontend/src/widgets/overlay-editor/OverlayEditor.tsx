@@ -1,18 +1,17 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { COMPOSITIONS, LOWER_THIRD_SECONDS, type LowerThirdProps, type RenderFormat } from '@sportbot/render-contract'
+import { COMPOSITIONS, LOWER_THIRD_SECONDS, type LowerThirdProps } from '@sportbot/render-contract'
 import { useForm } from 'react-hook-form'
 
 import { renderPropsSchema } from '@/entities/render'
-import { FILL_OPTIONS, RenderFormatList, secondsOptions, useRenderVideo } from '@/features/render-video'
-import { applyFieldErrors } from '@/shared/lib/form'
+import { FILL_OPTIONS, secondsOptions } from '@/features/render-video'
 import { usePaletteChoice } from '@/shared/lib/hooks/use-palette'
-import { getMiniappPlatform } from '@/shared/miniapp'
 import { Segmented } from '@/shared/ui/kit/Segmented'
 import { TextField } from '@/shared/ui/kit/TextField'
+import { VideoFiles } from '@/widgets/video-files'
 import { VideoPreview } from '@/widgets/video-preview/VideoPreview'
 
 const COMPOSITION = 'lower-third'
-const { formats, example } = COMPOSITIONS[COMPOSITION]
+const { example } = COMPOSITIONS[COMPOSITION]
 
 const SECONDS = secondsOptions(LOWER_THIRD_SECONDS)
 
@@ -25,25 +24,17 @@ type OverlayEditorProps = {
 // Начальные значения читаются при монтировании: для другого упражнения монтируем заново (key)
 export const OverlayEditor = ({ initial }: OverlayEditorProps) => {
   const [palette] = usePaletteChoice()
+  const form = useForm<LowerThirdProps>({
+    resolver: zodResolver(renderPropsSchema(COMPOSITION)),
+    defaultValues: { ...example, ...initial, fill: palette === 'rose' ? 'rose' : 'mint' },
+  })
   const {
     register,
     watch,
     setValue,
-    handleSubmit,
-    setError,
     formState: { errors },
-  } = useForm<LowerThirdProps>({
-    resolver: zodResolver(renderPropsSchema(COMPOSITION)),
-    defaultValues: { ...example, ...initial, fill: palette === 'rose' ? 'rose' : 'mint' },
-  })
+  } = form
   const values = watch()
-  const render = useRenderVideo(COMPOSITION, values)
-  // Бот в MAX файлы пока не отправляет — там только скачивание
-  const chat = getMiniappPlatform() !== 'max'
-
-  // Кнопки форматов — не submit формы: каждая проверяет форму и заказывает свой формат
-  const withValues = (action: (values: LowerThirdProps) => Promise<unknown>) =>
-    handleSubmit(valid => action(valid).catch(error => applyFieldErrors(error, setError)))()
 
   return (
     <div className='flex flex-col gap-4'>
@@ -76,14 +67,9 @@ export const OverlayEditor = ({ initial }: OverlayEditorProps) => {
         size='sm'
         stretch
       />
-      <RenderFormatList
-        formats={formats}
-        seconds={values.seconds}
-        chat={chat}
-        slotOf={render.slotOf}
-        onOrder={(format: RenderFormat) => withValues(valid => render.order(format, valid))}
-        onDownload={slot => slot.job && render.download(slot.job)}
-        onSendToChat={format => withValues(valid => render.sendToChat(format, valid))}
+      <VideoFiles
+        compositionId={COMPOSITION}
+        form={form}
       />
     </div>
   )
