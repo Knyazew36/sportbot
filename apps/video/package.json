@@ -1,0 +1,25 @@
+{
+  "name": "video",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "studio": "remotion studio",
+    "check-types": "tsc --noEmit",
+    "render": "remotion render",
+    "render:overlay": "remotion render --image-format=png --codec=prores --prores-profile=4444 --pixel-format=yuva444p10le"
+  },
+  "dependencies": {
+    "@fontsource-variable/onest": "^5.3.1",
+    "@fontsource-variable/oswald": "^5.3.0",
+    "@remotion/cli": "4.0.532",
+    "@sportbot/brand": "0.0.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "remotion": "4.0.532"
+  },
+  "devDependencies": {
+    "@types/react": "^19",
+    "typescript": "^6"
+  }
+}

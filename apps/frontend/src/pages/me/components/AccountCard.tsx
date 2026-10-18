@@ -1,4 +1,5 @@
 import { CameraIcon, CheckIcon } from 'lucide-react'
+
 import { useRef } from 'react'
 
 import { MESSENGER_LABEL, useLinkState } from '@/entities/link'
@@ -187,7 +188,7 @@ export const AccountCard = ({ profile }: { profile: Profile }) => {
           disabled={remove.isPending}
           onClick={() => remove.mutate()}
         >
-          Убрать фото — останутся буквы
+          Убрать фото
         </Button>
       ) : (
         // Фото нет — сам убрал или в мессенджере его не нашлось при входе: предлагаем забрать оттуда
