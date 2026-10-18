@@ -1,7 +1,7 @@
 import type { CompositionId, CompositionProps } from '@sportbot/render-contract'
 import { previewOf } from '@sportbot/video/previews'
 import { RotateCcwIcon } from 'lucide-react'
-import { animate, motion, useMotionValue, useTransform } from 'motion/react'
+import { animate, motion, useMotionValue, useMotionValueEvent, useTransform } from 'motion/react'
 
 import { useEffect, useRef, useState } from 'react'
 
@@ -29,7 +29,8 @@ const timecode = (seconds: number) => `0:${seconds.toFixed(1).padStart(4, '0').r
  * Превью ролика без плеера: та же вёрстка, что рендерит сервер, размеры — от ширины блока, как в
  * ролике — от ширины кадра. При открытии плашка выезжает и стоит — текст правится на виду.
  * «Повторить» проигрывает ролик целиком, с паузой и уездом, за его настоящую длительность —
- * полоса под кадром показывает, сколько прошло
+ * полоса под кадром показывает, сколько прошло. Покадровые превью (заставка) двигаются сами:
+ * им отдаём кадр ролика
  */
 export const VideoPreview = <Id extends CompositionId>({ compositionId, props, className }: Props<Id>) => {
   const ref = useRef<HTMLDivElement>(null)
@@ -37,11 +38,22 @@ export const VideoPreview = <Id extends CompositionId>({ compositionId, props, c
   // Номер прогона: новый ключ перезапускает анимацию с начала
   const [run, setRun] = useState(0)
   const [playing, setPlaying] = useState(false)
-  const { component: Preview, seconds, enter, exit } = previewOf(compositionId, props)
+  const { component: Preview, animation, fps, seconds, enter, exit } = previewOf(compositionId, props)
+  const frames = animation === 'frames'
   // Прошедшее время прогона, с: им двигается полоса и счётчик
   const elapsed = useMotionValue(0)
   const progress = useTransform(elapsed, t => t / seconds)
   const counter = useTransform(elapsed, timecode)
+  // Время кадра покадрового превью, с: при открытии — только появление, на «Повторить» — весь ролик
+  const clock = useMotionValue(0)
+  const [frame, setFrame] = useState(0)
+  useMotionValueEvent(clock, 'change', t => setFrame(t * fps))
+
+  useEffect(() => {
+    if (!frames) return
+    const entrance = animate(clock, seconds * enter, { duration: seconds * enter, ease: 'linear' })
+    return () => entrance.stop()
+  }, [frames, clock, seconds, enter])
 
   useEffect(() => {
     const node = ref.current
@@ -59,6 +71,9 @@ export const VideoPreview = <Id extends CompositionId>({ compositionId, props, c
     setPlaying(true)
     elapsed.set(0)
     animate(elapsed, seconds, { duration: seconds, ease: 'linear' })
+    if (!frames) return
+    clock.set(0)
+    animate(clock, seconds, { duration: seconds, ease: 'linear' }).then(() => setPlaying(false))
   }
 
   return (
@@ -68,7 +83,14 @@ export const VideoPreview = <Id extends CompositionId>({ compositionId, props, c
         className={cn('border-foreground overflow-hidden border-[1.5px] px-[6%] py-8', className)}
         style={{ background: CHECKER }}
       >
-        {width > 0 && (
+        {width > 0 && frames && (
+          <Preview
+            props={props}
+            unit={width}
+            frame={frame}
+          />
+        )}
+        {width > 0 && !frames && (
           <motion.div
             key={run}
             className='w-fit max-w-full'

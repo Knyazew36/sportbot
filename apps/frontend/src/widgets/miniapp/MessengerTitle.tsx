@@ -13,10 +13,10 @@ export const MessengerTitle = () => {
       aria-hidden
       className='pointer-events-none fixed inset-x-0 top-(--tg-safe-area-inset-top,0px) z-[46] flex h-(--tg-content-safe-area-inset-top,0px) items-center justify-center'
     >
-      <div className='flex h-8 max-w-[45vw] items-center gap-2 rounded-full bg-black/30 py-[3px] pr-3.5 pl-[3px] text-white backdrop-blur-md dark:bg-black/45'>
+      <div className='flex h-7 max-w-[45vw] items-center gap-1.5 rounded-full bg-black/30 py-[3px] pr-3 pl-[3px] text-white backdrop-blur-md dark:bg-black/45'>
         <svg
           viewBox='0 0 512 512'
-          className='size-[26px] shrink-0 rounded-full'
+          className='size-[22px] shrink-0 rounded-full'
         >
           <rect
             width='512'
@@ -33,7 +33,7 @@ export const MessengerTitle = () => {
           />
         </svg>
         {/* Шрифт системный, как у соседних кнопок Telegram, а не фирменный */}
-        <span className='truncate font-[system-ui,-apple-system,Roboto,sans-serif] text-[15px] leading-none font-semibold'>
+        <span className='truncate font-[system-ui,-apple-system,Roboto,sans-serif] text-[13px] leading-none font-semibold'>
           СпортБот
         </span>
       </div>

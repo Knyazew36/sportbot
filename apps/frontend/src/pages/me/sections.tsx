@@ -20,6 +20,7 @@ import { FriendsSection } from './components/FriendsSection'
 import { LimitsSection } from './components/LimitsSection'
 import { MessengersSection } from './components/MessengersSection'
 import { PauseSection } from './components/PauseSection'
+import { PhotoSection } from './components/PhotoSection'
 import { ScheduleSection } from './components/ScheduleSection'
 import { ThemeSection } from './components/ThemeSection'
 import { TrainingSection } from './components/TrainingSection'
@@ -75,6 +76,7 @@ export const ME_SECTIONS: MeSection[] = [
     icon: UserRoundIcon,
     items: [
       { title: 'Имя и пол', render: p => <AboutSection profile={p} /> },
+      { title: 'Фото', render: p => <PhotoSection profile={p} /> },
       { title: 'Мессенджеры', render: () => <MessengersSection /> },
       { title: 'Удаление данных', render: () => <DeleteDataSection /> },
     ],

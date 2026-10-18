@@ -3,23 +3,28 @@ import { type CompositionId, type CompositionProps, COMPOSITIONS } from '@sportb
 import type { ComponentType } from 'react'
 
 import { EndCardContent } from './cards/EndCardContent'
+import { END_CARD_SETTLED_FRAME, endCardMotion } from './cards/end-card-motion'
 import { LowerThirdCard } from './cards/LowerThirdCard'
-import { paletteOf } from './cards/palette'
 import { durationOf } from './duration'
 import { formats } from './tokens'
 
-// Превью для приложения: та же вёрстка, что в ролике, но без Remotion и плеера — статичная
-// карточка, движение даёт CSS. Без Remotion-хуков, поэтому импорт отсюда не тянет remotion
+// Превью для приложения: та же вёрстка, что в ролике, но без Remotion и плеера. Плашка — статичная
+// карточка, выезд даёт CSS. Заставка двигается покадрово тем же расчётом, что в ролике.
+// Без Remotion-хуков, поэтому импорт отсюда не тянет remotion
 
 export type PreviewProps<Id extends CompositionId> = {
   props: CompositionProps<Id>
   /** Ширина кадра превью в px */
   unit: number
+  /** Кадр ролика для покадровых превью. Нет — всё на месте */
+  frame?: number
 }
 
 type Preview<Id extends CompositionId> = {
   component: ComponentType<PreviewProps<Id>>
-  /** Сколько кадров длится выезд и уезд — как в композиции */
+  /** slide — карточку целиком выносит и уносит превью; frames — компонент сам двигается по frame */
+  animation: 'slide' | 'frames'
+  /** Сколько кадров длится выезд (для frames — до полной остановки) и уезд — как в композиции */
   enterFrames: number
   exitFrames: number
 }
@@ -33,28 +38,23 @@ const PREVIEWS: { [Id in CompositionId]: Preview<Id> } = {
         unit={unit}
       />
     ),
+    animation: 'slide',
     enterFrames: 14,
     exitFrames: 12,
   },
-  // Заставка — на своём листе. Тайминги — из compositions/EndCard.tsx: всё на месте к 36 кадру, уезда нет
+  // Заставка без листа: в превью видно только то, что в ней движется. Тайминги — из cards/end-card-motion.ts
   'end-card': {
-    component: ({ props, unit }) => (
-      <div
-        style={{
-          width: unit,
-          padding: `${unit * 0.12}px 0`,
-          display: 'flex',
-          justifyContent: 'center',
-          background: paletteOf(props.fill).paper,
-        }}
-      >
+    component: ({ props, unit, frame }) => (
+      <div style={{ width: unit, paddingBottom: unit * 0.04, display: 'flex', justifyContent: 'center' }}>
         <EndCardContent
           fill={props.fill}
           unit={unit}
+          motion={frame === undefined ? undefined : endCardMotion(frame)}
         />
       </div>
     ),
-    enterFrames: 36,
+    animation: 'frames',
+    enterFrames: END_CARD_SETTLED_FRAME,
     exitFrames: 0,
   },
 }
@@ -66,6 +66,8 @@ export const previewOf = <Id extends CompositionId>(id: Id, props: CompositionPr
   const durationInFrames = durationOf(id, props)
   return {
     component: preview.component,
+    animation: preview.animation,
+    fps: formats[size].fps,
     seconds: durationInFrames / formats[size].fps,
     enter: preview.enterFrames / durationInFrames,
     exit: 1 - preview.exitFrames / durationInFrames,

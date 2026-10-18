@@ -46,7 +46,7 @@ const useSectionMeta = (profile: Profile): Partial<Record<MeSectionSlug, string>
         .filter(Boolean)
         .join(' · ') || 'вес и ограничения',
     friends: friends.data?.length ? pluralize(friends.data.length, ['друг', 'друга', 'друзей']) : 'пригласи друзей',
-    account: ['имя и пол', ...(links.data?.linked.map(m => MESSENGER_LABEL[m]) ?? [])].join(' · '),
+    account: ['имя, пол, фото', ...(links.data?.linked.map(m => MESSENGER_LABEL[m]) ?? [])].join(' · '),
     app: [PALETTES.find(p => p.value === palette)?.label, THEME_OPTIONS.find(o => o.value === theme)?.label]
       .filter(Boolean)
       .join(' · '),

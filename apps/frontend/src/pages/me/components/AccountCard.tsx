@@ -3,7 +3,7 @@ import { CameraIcon, CheckIcon } from 'lucide-react'
 import { useRef } from 'react'
 
 import { MESSENGER_LABEL, useLinkState } from '@/entities/link'
-import { type Profile, useAvatarFromMessenger, useRemoveAvatar, useUploadAvatar } from '@/entities/profile'
+import { type Profile, useUploadAvatar } from '@/entities/profile'
 import { useSportUser } from '@/entities/sport-user'
 import { useStatsSummary } from '@/entities/stats'
 import { toAssetUrl } from '@/shared/api'
@@ -87,12 +87,10 @@ export const AccountCard = ({ profile }: { profile: Profile }) => {
   const me = useSportUser()
   const summary = useStatsSummary()
   const links = useLinkState()
-  const remove = useRemoveAvatar()
-  const fromMessenger = useAvatarFromMessenger()
   const linked = links.data?.linked ?? []
 
   return (
-    <Rise className='px-gutter flex flex-col gap-3'>
+    <Rise className='px-gutter'>
       <InkPanel className='mr-1.5 mb-1.5 p-5 shadow-[6px_6px_0_var(--sb-blue)]'>
         <div
           aria-hidden
@@ -179,32 +177,6 @@ export const AccountCard = ({ profile }: { profile: Profile }) => {
           </div>
         </div>
       </InkPanel>
-
-      {profile.avatarUrl ? (
-        <Button
-          variant='link'
-          size='xs'
-          className='self-end'
-          disabled={remove.isPending}
-          onClick={() => remove.mutate()}
-        >
-          Убрать фото
-        </Button>
-      ) : (
-        // Фото нет — сам убрал или в мессенджере его не нашлось при входе: предлагаем забрать оттуда
-        linked.map(m => (
-          <Button
-            key={m}
-            variant='link'
-            size='xs'
-            className='self-end'
-            disabled={fromMessenger.isPending}
-            onClick={() => fromMessenger.mutate(m)}
-          >
-            Взять фото из {MESSENGER_LABEL[m]}
-          </Button>
-        ))
-      )}
     </Rise>
   )
 }

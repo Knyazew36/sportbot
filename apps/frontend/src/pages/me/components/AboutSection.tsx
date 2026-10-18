@@ -43,7 +43,7 @@ const NameForm = ({ profile }: { profile: Profile }) => {
   )
 }
 
-// Имя и пол: имя видят друзья, пол заодно подбирает расцветку. Фото меняют на карте участника
+// Имя и пол: имя видят друзья, пол заодно подбирает расцветку
 export const AboutSection = ({ profile }: { profile: Profile }) => (
   <ScreenSection className='gap-5'>
     <NameForm profile={profile} />
