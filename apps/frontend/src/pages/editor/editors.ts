@@ -2,6 +2,7 @@ import type { CompositionId } from '@sportbot/render-contract'
 
 import type { ComponentType } from 'react'
 
+import { EndCardEditor } from '@/widgets/end-card-editor'
 import { OverlayEditor } from '@/widgets/overlay-editor'
 
 type EditorEntry = {
@@ -16,5 +17,9 @@ export const EDITORS = {
   'lower-third': {
     component: OverlayEditor,
     hint: 'Название упражнения и план подходов поверх твоего ролика',
+  },
+  'end-card': {
+    component: EndCardEditor,
+    hint: 'В конец ролика: где найти СпортБот в Telegram и MAX',
   },
 } satisfies Record<CompositionId, EditorEntry>

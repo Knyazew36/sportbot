@@ -41,12 +41,15 @@ export const RenderFileList = ({ files }: { files: RenderJob[] }) => {
             className='border-foreground bg-card flex flex-col gap-2 border-[1.5px] p-3'
           >
             {isCompositionId(job.compositionId) && <Eyebrow>{COMPOSITIONS[job.compositionId].title}</Eyebrow>}
-            <Poster
-              as='h3'
-              size='sm'
-            >
-              {title}
-            </Poster>
+            {/* У заставки своего текста нет — название ролика уже в строке над ним */}
+            {title && (
+              <Poster
+                as='h3'
+                size='sm'
+              >
+                {title}
+              </Poster>
+            )}
             {subtitle && <Text size='sm'>{subtitle}</Text>}
             <Text
               size='sm'

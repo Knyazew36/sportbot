@@ -9,9 +9,9 @@ export type RenderFormat = 'mov-alpha' | 'webm-alpha' | 'mp4-chroma' | 'mp4'
 export type FormatBackground = 'transparent' | 'chroma'
 
 type FormatSpec = {
-  /** Подпись кнопки */
+  /** Подпись карточки. Называем по фону файла, а не по устройству: «для компьютера» отпугивало тех, кому файл подходит */
   label: string
-  /** Пояснение под кнопкой: где этим файлом пользоваться */
+  /** Пояснение под кнопкой: где этим файлом пользоваться. Уходит и в подпись бота — без точки в конце */
   hint: string
   ext: string
   mime: string
@@ -43,8 +43,8 @@ export const RENDER_FORMATS: Record<RenderFormat, FormatSpec> = {
   // жмут прозрачное поле почти в ноль: те же 5 с — 3 МБ без потерь. Remotion такого codec не знает —
   // рендерим конвейером ProRes и подменяем кодировщик ffmpeg
   'mov-alpha': {
-    label: 'Для монтажа на компьютере',
-    hint: 'MOV с прозрачностью без потерь качества, около 3 МБ — Premiere, Final Cut, DaVinci, After Effects',
+    label: 'Прозрачный фон, MOV',
+    hint: 'Без фона и без потерь качества, около 3 МБ: положи поверх видео — и готово. CapCut на телефоне и компьютере, Premiere, Final Cut, DaVinci, After Effects',
     ext: 'mov',
     mime: 'video/quicktime',
     codec: 'prores',
@@ -58,8 +58,8 @@ export const RENDER_FORMATS: Record<RenderFormat, FormatSpec> = {
     renderRate: 2.5,
   },
   'webm-alpha': {
-    label: 'Для браузера и CapCut Desktop',
-    hint: 'WebM с прозрачностью, около 1 МБ — CapCut Desktop, Canva, браузеры. iPhone прозрачность в нём не видит',
+    label: 'Прозрачный фон, WebM',
+    hint: 'Если MOV не открылся. Файл легче, около 1 МБ — CapCut Desktop, Canva, браузеры. iPhone прозрачность в нём не видит',
     ext: 'webm',
     mime: 'video/webm',
     codec: 'vp9',
@@ -73,8 +73,8 @@ export const RENDER_FORMATS: Record<RenderFormat, FormatSpec> = {
   },
   // Цветной фон вместо альфы: снимается инструментом «Хромакей» в любом редакторе на телефоне
   'mp4-chroma': {
-    label: 'Для телефона',
-    hint: 'MP4 на цветном фоне — CapCut, InShot и другие. Наложи поверх видео и убери фон инструментом «Хромакей»',
+    label: 'Цветной фон, MP4',
+    hint: 'Если прозрачный файл не открылся. Наложи поверх видео и убери фон инструментом «Хромакей» — CapCut, InShot и другие',
     ext: 'mp4',
     mime: 'video/mp4',
     codec: 'h264',
@@ -87,7 +87,7 @@ export const RENDER_FORMATS: Record<RenderFormat, FormatSpec> = {
     renderRate: 1.5,
   },
   mp4: {
-    label: 'Обычное видео',
+    label: 'Обычное видео, MP4',
     hint: 'MP4 с фоном — сразу в сторис или ленту',
     ext: 'mp4',
     mime: 'video/mp4',

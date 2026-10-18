@@ -2,7 +2,9 @@ import { type CompositionId, type CompositionProps, COMPOSITIONS } from '@sportb
 
 import type { ComponentType } from 'react'
 
+import { EndCardContent } from './cards/EndCardContent'
 import { LowerThirdCard } from './cards/LowerThirdCard'
+import { paletteOf } from './cards/palette'
 import { durationOf } from './duration'
 import { formats } from './tokens'
 
@@ -33,6 +35,27 @@ const PREVIEWS: { [Id in CompositionId]: Preview<Id> } = {
     ),
     enterFrames: 14,
     exitFrames: 12,
+  },
+  // Заставка — на своём листе. Тайминги — из compositions/EndCard.tsx: всё на месте к 36 кадру, уезда нет
+  'end-card': {
+    component: ({ props, unit }) => (
+      <div
+        style={{
+          width: unit,
+          padding: `${unit * 0.12}px 0`,
+          display: 'flex',
+          justifyContent: 'center',
+          background: paletteOf(props.fill).paper,
+        }}
+      >
+        <EndCardContent
+          fill={props.fill}
+          unit={unit}
+        />
+      </div>
+    ),
+    enterFrames: 36,
+    exitFrames: 0,
   },
 }
 

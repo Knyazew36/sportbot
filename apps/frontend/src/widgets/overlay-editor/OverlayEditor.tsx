@@ -3,7 +3,7 @@ import { COMPOSITIONS, LOWER_THIRD_SECONDS, type LowerThirdProps, type RenderFor
 import { useForm } from 'react-hook-form'
 
 import { renderPropsSchema } from '@/entities/render'
-import { RenderFormatList, useRenderVideo } from '@/features/render-video'
+import { FILL_OPTIONS, RenderFormatList, secondsOptions, useRenderVideo } from '@/features/render-video'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { usePaletteChoice } from '@/shared/lib/hooks/use-palette'
 import { getMiniappPlatform } from '@/shared/miniapp'
@@ -14,14 +14,7 @@ import { VideoPreview } from '@/widgets/video-preview/VideoPreview'
 const COMPOSITION = 'lower-third'
 const { formats, example } = COMPOSITIONS[COMPOSITION]
 
-const FILLS: { value: LowerThirdProps['fill']; label: string }[] = [
-  { value: 'mint', label: 'Мята' },
-  { value: 'rest', label: 'Абрикос' },
-  { value: 'blue', label: 'Синяя' },
-  { value: 'rose', label: 'Розовая' },
-]
-
-const SECONDS = LOWER_THIRD_SECONDS.map(s => ({ value: String(s), label: `${s} с` }))
+const SECONDS = secondsOptions(LOWER_THIRD_SECONDS)
 
 type OverlayEditorProps = {
   /** Текст, с которым форма открывается: например, название и план упражнения. Нет — пример из контракта */
@@ -70,7 +63,7 @@ export const OverlayEditor = ({ initial }: OverlayEditorProps) => {
         {...register('subtitle')}
       />
       <Segmented
-        options={FILLS}
+        options={FILL_OPTIONS}
         value={values.fill}
         onValueChange={fill => setValue('fill', fill)}
         size='sm'

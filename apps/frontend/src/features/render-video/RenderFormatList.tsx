@@ -2,13 +2,15 @@ import { RENDER_FORMATS, renderEstimateSec, type RenderFormat } from '@sportbot/
 import { CheckIcon, ClockIcon, DownloadIcon, LoaderIcon, SendIcon } from 'lucide-react'
 
 import { cn } from '@/shared/lib/utils'
-import { Poster, Text } from '@/shared/ui/kit/Typography'
+import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
 import type { RenderSlot } from './useRenderVideo'
 
 type Props = {
   formats: readonly RenderFormat[]
+  /** Свои подсказки ролика к форматам — вместо общих из RENDER_FORMATS */
+  hints?: Partial<Record<RenderFormat, string>>
   /** Длина ролика, с: от неё зависит, сколько делается файл */
   seconds: number
   /** Показывать «В чат»: бот умеет прислать файл на этой площадке. По умолчанию — да */
@@ -104,6 +106,7 @@ export const ChatButton = ({ slot, onSend }: { slot: RenderSlot; onSend: () => v
 // Готовый файл выделяем: его карточка приподнята синей тенью, как выбранное в приложении
 export const RenderFormatList = ({
   formats,
+  hints,
   seconds,
   chat = true,
   slotOf,
@@ -112,10 +115,12 @@ export const RenderFormatList = ({
   onSendToChat,
 }: Props) => (
   <ul className='flex flex-col gap-3'>
-    {formats.map(format => {
+    {formats.map((format, index) => {
       const spec = RENDER_FORMATS[format]
       const slot = slotOf(format)
       const ready = slot.file === 'ready'
+      // Первый формат композиции — основной: остальные карточки только на случай, если он не открылся
+      const main = index === 0 && formats.length > 1
       return (
         <li
           key={format}
@@ -124,6 +129,7 @@ export const RenderFormatList = ({
             ready && 'border-primary mr-[3px] shadow-[3px_3px_0_var(--sb-blue)]',
           )}
         >
+          {main && <Eyebrow tone='primary'>Подходит чаще всего</Eyebrow>}
           <Poster
             as='h3'
             size='sm'
@@ -134,7 +140,7 @@ export const RenderFormatList = ({
             size='sm'
             tone='muted'
           >
-            {spec.hint}
+            {hints?.[format] ?? spec.hint}
           </Text>
           {!ready && (
             <Text
