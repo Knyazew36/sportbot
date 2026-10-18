@@ -35,6 +35,8 @@ export type WebApp = {
   expand?: () => void
   /** Bot API 8.0: окно на весь экран, поверх — только кнопки мессенджера */
   requestFullscreen?: () => void
+  /** Bot API 8.0: открыто на весь экран — сверху только плавающие кнопки мессенджера, шапки нет */
+  isFullscreen?: boolean
   /** Telegram Bot API 7.7, MAX: свайп вниз по контенту не сворачивает приложение */
   disableVerticalSwipes?: () => BridgeResult
   colorScheme?: 'light' | 'dark'
@@ -104,6 +106,17 @@ export const haptic = {
     if (notify) return quiet(notify('success'))
     navigator.vibrate?.([200, 100, 200])
   },
+}
+
+// ── Полный экран ─────────────────────────────────────────────────────────────
+
+/** Telegram на весь экран: своей шапки с названием нет, только «Назад» и меню поверх приложения */
+export const isMessengerFullscreen = (): boolean => Boolean(webApp()?.isFullscreen)
+
+export const onMessengerFullscreenChange = (cb: () => void): (() => void) => {
+  const app = webApp()
+  app?.onEvent?.('fullscreenChanged', cb)
+  return () => app?.offEvent?.('fullscreenChanged', cb)
 }
 
 // ── Тема ─────────────────────────────────────────────────────────────────────

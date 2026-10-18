@@ -10,9 +10,12 @@ const targets = [
   ['logo/icon.svg', 'icon-1024.png', 1024],
   // Instagram и Telegram режут аватарку в круг и не держат прозрачность: плитка сама становится фоном
   ['logo/avatar.svg', 'avatar-1080.png', 1080],
-  ['logo/icon.svg', 'apple-touch-icon-180.png', 180],
-  ['logo/icon.svg', 'favicon-32.png', 32],
-  ['logo/icon.svg', 'favicon-16.png', 16],
+  // iOS заливает прозрачное в apple-touch чёрным — чёрный треугольник пропал бы, поэтому плитка аватарки
+  ['logo/avatar.svg', 'apple-touch-icon-180.png', 180],
+  // Фавиконки — знак аватарки без плитки
+  ['logo/mark.svg', 'mark-1024.png', 1024],
+  ['logo/mark.svg', 'favicon-32.png', 32],
+  ['logo/mark.svg', 'favicon-16.png', 16],
   ['logo/icon-transparent.svg', 'icon-transparent-1024.png', 1024], // оверлей в видео
 ]
 
