@@ -8,7 +8,6 @@ import { ScreenChromeProvider } from '@/shared/ui/kit/screen-chrome'
 import { UndoBar } from '@/shared/ui/kit/UndoBar'
 
 import { BottomNav } from './BottomNav'
-import { MessengerTitle } from './MessengerTitle'
 import { isFocusRoute, isLiveHidden, isSectionRoot, type NavBadges, type ShellNav } from './nav'
 
 type MiniAppShellProps = {
@@ -46,7 +45,6 @@ export const MiniAppShell = ({ nav, isAdmin = false, badges, liveBar, className 
       {/* Полоса под кнопками Telegram в fullscreen: контент уезжает под неё, а не под «Закрыть» */}
       <div className='bg-background fixed inset-x-0 top-0 z-40 mx-auto h-(--sb-top-inset) max-w-[440px]' />
       {!isLiveHidden(nav, pathname) && liveBar}
-      <MessengerTitle />
       {/* Зерно бумаги */}
       <div className='sb-grain pointer-events-none fixed inset-0 z-50 mx-auto max-w-[440px] opacity-[0.07] mix-blend-multiply dark:opacity-[0.12] dark:mix-blend-screen' />
       <ScreenChromeProvider value={{ navVisible, setSearchFocused }}>

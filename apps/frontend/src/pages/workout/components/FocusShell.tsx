@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 
 import { cn } from '@/shared/lib/utils'
 import { Eyebrow, Poster } from '@/shared/ui/kit/Typography'
+import { MessengerTitle } from '@/widgets/miniapp/MessengerTitle'
 
 import { FocusScoreboard, type FocusSets } from './FocusScoreboard'
 
@@ -42,6 +43,8 @@ export const FocusShell = ({
   actions,
 }: FocusShellProps) => (
   <div className='bg-background fixed inset-0 z-[45] mx-auto flex max-w-[440px] flex-col'>
+    {/* Плашка с названием только в фокус-режиме: на обычных экранах своя шапка, дубль не нужен */}
+    <MessengerTitle />
     <div className={cn('sb-lanes pointer-events-none absolute inset-0 opacity-[0.06]', running && 'sb-lanes-run opacity-[0.1]')} />
     {/* Название целиком, до двух строк: «Жим гантелей на наклонной…» с многоточием не отличить от соседнего упражнения */}
     <div className='relative flex flex-col gap-3 px-gutter pt-[calc(var(--sb-top-inset,0px)+1rem)]'>

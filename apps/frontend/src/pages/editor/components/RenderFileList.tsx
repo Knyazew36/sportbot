@@ -1,9 +1,11 @@
 import { COMPOSITIONS, isCompositionId, RENDER_FORMATS, type RenderFormat } from '@sportbot/render-contract'
-import { ClockIcon } from 'lucide-react'
+import { ClockIcon, Trash2Icon } from 'lucide-react'
 
-import { type RenderJob, useOrderRender, useOrderRenderToChat } from '@/entities/render'
+import { type RenderJob, useDeleteRenderFile, useOrderRender, useOrderRenderToChat } from '@/entities/render'
 import { ChatButton, downloadRender, FileButton, slotOfJob } from '@/features/render-video'
 import { getMiniappPlatform } from '@/shared/miniapp'
+import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
+import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
 
 const HOUR_MS = 60 * 60 * 1000
@@ -17,6 +19,7 @@ const expiresText = (expiresAt: string) =>
 export const RenderFileList = ({ files }: { files: RenderJob[] }) => {
   const orderFile = useOrderRender()
   const orderChat = useOrderRenderToChat()
+  const deleteFile = useDeleteRenderFile()
   // Бот в MAX файлы пока не отправляет — там только скачивание
   const chat = getMiniappPlatform() !== 'max'
 
@@ -85,6 +88,24 @@ export const RenderFileList = ({ files }: { files: RenderJob[] }) => {
                   slot={slot}
                   onSend={() => reorder(job, true)}
                 />
+              )}
+              {/* Удалить можно только готовый: в работе файла ещё нет, у упавшего есть «Ещё раз» */}
+              {slot.file === 'ready' && (
+                <ConfirmAction
+                  trigger={
+                    <Button
+                      size='sm'
+                      variant='outline'
+                    />
+                  }
+                  title='Удалить файл?'
+                  description='Скачать его будет нельзя — только сделать заново.'
+                  confirmLabel='Удалить'
+                  onConfirm={() => deleteFile.mutateAsync(job.id)}
+                >
+                  <Trash2Icon />
+                  Удалить
+                </ConfirmAction>
               )}
             </div>
           </li>

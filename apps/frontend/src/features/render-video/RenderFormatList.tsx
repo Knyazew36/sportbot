@@ -4,6 +4,7 @@ import { CheckIcon, ClockIcon, DownloadIcon, LoaderIcon, SendIcon } from 'lucide
 import { cn } from '@/shared/lib/utils'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
+import { Badge } from '@/shared/ui/shadcn/badge'
 
 import type { RenderSlot } from './useRenderVideo'
 
@@ -119,8 +120,8 @@ export const RenderFormatList = ({
       const spec = RENDER_FORMATS[format]
       const slot = slotOf(format)
       const ready = slot.file === 'ready'
-      // Первый формат композиции — основной: остальные карточки только на случай, если он не открылся
-      const main = index === 0 && formats.length > 1
+      // Первый формат композиции — основной. С бейджем телефона «подходит чаще всего» не пишем: он не для всех
+      const main = index === 0 && formats.length > 1 && !spec.badge
       return (
         <li
           key={format}
@@ -130,6 +131,7 @@ export const RenderFormatList = ({
           )}
         >
           {main && <Eyebrow tone='primary'>Подходит чаще всего</Eyebrow>}
+          {spec.badge && <Badge className='self-start'>{spec.badge}</Badge>}
           <Poster
             as='h3'
             size='sm'

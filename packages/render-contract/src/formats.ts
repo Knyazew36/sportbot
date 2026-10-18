@@ -3,14 +3,7 @@
  * понимают прозрачность по-разному — пользователь выбирает кнопку под свой редактор.
  * HEVC с альфой (родной для iPhone) Remotion не кодирует: его умеет только VideoToolbox на macOS
  */
-export type RenderFormat =
-  | 'mov-alpha'
-  | 'webm-alpha'
-  | 'mp4-chroma'
-  | 'mp4'
-  | 'mov-prores'
-  | 'mov-prores-apple'
-  | 'mov-prores-light'
+export type RenderFormat = 'mov-alpha' | 'mp4-chroma' | 'mp4'
 
 /** Фон, который формат навязывает композиции поверх props пользователя */
 export type FormatBackground = 'transparent' | 'chroma'
@@ -20,6 +13,8 @@ type FormatSpec = {
   label: string
   /** Пояснение под кнопкой: где этим файлом пользоваться. Уходит и в подпись бота — без точки в конце */
   hint: string
+  /** Для какого телефона формат: прозрачность MOV iPhone не видит, там остаётся хромакей */
+  badge?: string
   ext: string
   mime: string
   /** Параметры renderMedia из @remotion/renderer */
@@ -51,7 +46,8 @@ export const RENDER_FORMATS: Record<RenderFormat, FormatSpec> = {
   // рендерим конвейером ProRes и подменяем кодировщик ffmpeg
   'mov-alpha': {
     label: 'Прозрачный фон, MOV',
-    hint: 'Без фона и без потерь качества, около 3 МБ: положи поверх видео — и готово. CapCut на телефоне и компьютере, Premiere, Final Cut, DaVinci, After Effects',
+    hint: 'Без фона и без потерь качества, около 3 МБ: положи поверх видео — и готово. CapCut на Android и компьютере, Premiere, Final Cut, DaVinci, After Effects',
+    badge: 'Для Android',
     ext: 'mov',
     mime: 'video/quicktime',
     codec: 'prores',
@@ -64,24 +60,12 @@ export const RENDER_FORMATS: Record<RenderFormat, FormatSpec> = {
     // PNG-кадры отрисовываются дольше JPEG
     renderRate: 2.5,
   },
-  'webm-alpha': {
-    label: 'Прозрачный фон, WebM',
-    hint: 'Если MOV не открылся. Файл легче, около 1 МБ — CapCut Desktop, Canva, браузеры. iPhone прозрачность в нём не видит',
-    ext: 'webm',
-    mime: 'video/webm',
-    codec: 'vp9',
-    pixelFormat: 'yuva420p',
-    imageFormat: 'png',
-    background: 'transparent',
-    // libvpx на настройках по умолчанию кодирует альфу в разы дольше отрисовки — realtime в 3–4 раза быстрее
-    encoding: { crf: 36, encoderArgs: ['-deadline', 'realtime', '-cpu-used', '8'] },
-    chat: true,
-    renderRate: 2,
-  },
   // Цветной фон вместо альфы: снимается инструментом «Хромакей» в любом редакторе на телефоне
   'mp4-chroma': {
     label: 'Цветной фон, MP4',
-    hint: 'Если прозрачный файл не открылся. Наложи поверх видео и убери фон инструментом «Хромакей» — CapCut, InShot и другие',
+    hint: 'Скачай файл, наложи поверх своего видео и удали фон инструментом «Хромакей» — пипеткой выбери цвет фона. CapCut, InShot и другие',
+    // Ни один прозрачный формат CapCut на iPhone не понял: ProRes 4444, PNG-в-MOV и WebM пришли с фоном
+    badge: 'Для iPhone',
     ext: 'mp4',
     mime: 'video/mp4',
     codec: 'h264',
@@ -104,52 +88,6 @@ export const RENDER_FORMATS: Record<RenderFormat, FormatSpec> = {
     encoding: { crf: 23, x264Preset: 'veryfast' },
     chat: true,
     renderRate: 1.5,
-  },
-  // Тестовые: ищем, какую прозрачность понимает iPhone. PNG-в-MOV и WebM там фон не убирают, а ProRes 4444
-  // iOS декодирует штатно. Три варианта — чтобы отделить «не тот кодек» от «не та метка файла» и «слишком тяжёлый»
-  'mov-prores': {
-    label: 'Тест iPhone 1: ProRes 4444',
-    hint: 'Тест: чистый ProRes 4444 без подмены кодека. Проверь прозрачность в CapCut, VN, InShot на iPhone',
-    ext: 'mov',
-    mime: 'video/quicktime',
-    codec: 'prores',
-    proResProfile: '4444',
-    pixelFormat: 'yuva444p10le',
-    imageFormat: 'png',
-    background: 'transparent',
-    chat: true,
-    renderRate: 2.5,
-  },
-  'mov-prores-apple': {
-    label: 'Тест iPhone 2: ProRes 4444, метки Apple',
-    hint: 'Тест: ProRes 4444, файл подписан как сделанный Apple. Проверь прозрачность в CapCut, VN, InShot на iPhone',
-    ext: 'mov',
-    mime: 'video/quicktime',
-    codec: 'prores',
-    proResProfile: '4444',
-    pixelFormat: 'yuva444p10le',
-    imageFormat: 'png',
-    background: 'transparent',
-    // Метка ap4h и альфа 16 бит у ffmpeg и так по умолчанию — отличается только подпись производителя
-    // в кадрах: Apple-декодеры могут её проверять. Подпись дорожки (FFMP) Remotion перезаписывает при сборке
-    encoding: { encoderArgs: ['-vendor', 'apl0'] },
-    chat: true,
-    renderRate: 2.5,
-  },
-  'mov-prores-light': {
-    label: 'Тест iPhone 3: ProRes 4444, лёгкий',
-    hint: 'Тест: ProRes 4444 с меньшим битрейтом — файл легче. Проверь прозрачность и качество краёв на iPhone',
-    ext: 'mov',
-    mime: 'video/quicktime',
-    codec: 'prores',
-    proResProfile: '4444',
-    pixelFormat: 'yuva444p10le',
-    imageFormat: 'png',
-    background: 'transparent',
-    // qscale выше — грубее и меньше: на плоских плашках разницу почти не видно
-    encoding: { encoderArgs: ['-vendor', 'apl0', '-qscale:v', '11'] },
-    chat: true,
-    renderRate: 2.5,
   },
 }
 

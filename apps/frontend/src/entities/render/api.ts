@@ -2,7 +2,7 @@ import { chatStateOf, type CompositionId, isRenderActive, type RenderStatus } fr
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import type { CreateRenderJobDto, RenderJobResponseDto } from '@/shared/api/generated/model'
-import { renderControllerCreate, renderControllerList } from '@/shared/api/generated/render/render'
+import { renderControllerCreate, renderControllerList, renderControllerRemove } from '@/shared/api/generated/render/render'
 
 import { renderKeys } from './model/keys'
 
@@ -53,6 +53,24 @@ export const useOrderRender = () => {
     // Кнопка формата сама показывает «Готовим…» и «Скачать» — тост лишний
     meta: { skipSuccessToast: true, inlineFieldErrors: true },
     onSuccess: upsert,
+  })
+}
+
+/**
+ * Удалить готовый файл раньше срока. Задача остаётся, только без ссылки — подменяем её на месте в обоих
+ * списках: без файла она сама уходит из «Моих файлов», а кнопки формата снова «Сделать файл»
+ */
+export const useDeleteRenderFile = () => {
+  const queryClient = useQueryClient()
+  const replace = (jobs: RenderJob[] | undefined, job: RenderJob) =>
+    jobs?.map(item => (item.id === job.id ? job : item))
+  return useMutation({
+    mutationFn: (id: number) => renderControllerRemove(id),
+    meta: { successMessage: 'Файл удалён' },
+    onSuccess: (job: RenderJob) => {
+      queryClient.setQueryData<RenderJob[]>(renderKeys.list(job.compositionId), jobs => replace(jobs, job))
+      queryClient.setQueryData<RenderJob[]>(renderKeys.list(), jobs => replace(jobs, job))
+    },
   })
 }
 

@@ -8,7 +8,7 @@ export class RenderJobResponseDto {
   @ApiProperty({ example: 'lower-third' })
   compositionId: string;
 
-  @ApiProperty({ example: 'webm-alpha' })
+  @ApiProperty({ example: 'mov-alpha' })
   format: string;
 
   @ApiProperty({
@@ -36,7 +36,7 @@ export class RenderJobResponseDto {
   })
   url: string | null;
 
-  @ApiProperty({ type: String, nullable: true, example: 'lower-third-42.webm' })
+  @ApiProperty({ type: String, nullable: true, example: 'lower-third-42.mov' })
   fileName: string | null;
 
   @ApiProperty({

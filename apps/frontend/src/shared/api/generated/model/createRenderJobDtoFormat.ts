@@ -13,10 +13,6 @@ export type CreateRenderJobDtoFormat = typeof CreateRenderJobDtoFormat[keyof typ
 
 export const CreateRenderJobDtoFormat = {
   'mov-alpha': 'mov-alpha',
-  'webm-alpha': 'webm-alpha',
   'mp4-chroma': 'mp4-chroma',
   mp4: 'mp4',
-  'mov-prores': 'mov-prores',
-  'mov-prores-apple': 'mov-prores-apple',
-  'mov-prores-light': 'mov-prores-light',
 } as const;

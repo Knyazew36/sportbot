@@ -1209,7 +1209,7 @@ model RenderJob {
 
   compositionId String /// id композиции из контракта (lower-third, …)
   props         Json /// уже провалидированы схемой композиции
-  format        String /// RenderFormat из @sportbot/render-contract: mov-alpha | webm-alpha | mp4-chroma | mp4 | mov-prores*
+  format        String /// RenderFormat из @sportbot/render-contract: mov-alpha | mp4-chroma | mp4
 
   status   RenderStatus @default(QUEUED)
   filePath String? /// относительно upload root (renders/uuid.ext); null — ещё нет или уже удалён по сроку

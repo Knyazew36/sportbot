@@ -62,8 +62,8 @@ export const COMPOSITIONS = {
     schema: lowerThirdProps,
     size: 'reels',
     durationInFrames: 90,
-    // MOV первым: прозрачный без потерь подходит чаще всего, остальные — если редактор его не открыл
-    formats: ['mov-alpha', 'webm-alpha', 'mp4-chroma', 'mov-prores', 'mov-prores-apple', 'mov-prores-light'],
+    // Прозрачный MOV — для Android и компьютера; iPhone прозрачность не видит, там хромакей
+    formats: ['mov-alpha', 'mp4-chroma'],
     example: {
       title: 'Жим гантелей лежа',
       subtitle: '4 подхода × 10 повторов',
@@ -78,11 +78,11 @@ export const COMPOSITIONS = {
     size: 'reels',
     durationInFrames: 90,
     // Обычный MP4 ставят встык в конец ролика; с прозрачностью и хромакеем — внахлёст на последние кадры
-    formats: ['mp4', 'mov-alpha', 'webm-alpha', 'mp4-chroma', 'mov-prores', 'mov-prores-apple', 'mov-prores-light'],
+    formats: ['mp4', 'mov-alpha', 'mp4-chroma'],
     hints: {
       mp4: 'MP4 с фоном: поставь в самый конец своего ролика',
       'mov-alpha':
-        'Без фона: положи поверх последних секунд видео — лист въедет и закроет его. CapCut, Premiere, Final Cut, DaVinci',
+        'Без фона: положи поверх последних секунд видео — лист въедет и закроет его. CapCut на Android и компьютере, Premiere, Final Cut, DaVinci',
     },
     example: {
       fill: 'mint',

@@ -3,7 +3,7 @@ import { useMessengerFullscreen } from '@/shared/lib/hooks/use-messenger-fullscr
 // Telegram на весь экран прячет свою шапку с названием: остаются «Назад» слева и «Свернуть»/меню справа.
 // Ставим между ними плашку с аватаркой и названием — тем же полупрозрачным овалом, что и кнопки Telegram.
 // Ряд кнопок — полоса --tg-content-safe-area-inset-top под вырезом телефона (--tg-safe-area-inset-top),
-// плашка центрируется в нём. Только подпись: нажатия проходят сквозь неё
+// плашка центрируется в нём. Только подпись: нажатия проходят сквозь неё. Монтируется в FocusShell — только в фокус-режиме
 export const MessengerTitle = () => {
   const fullscreen = useMessengerFullscreen()
   if (!fullscreen) return null
