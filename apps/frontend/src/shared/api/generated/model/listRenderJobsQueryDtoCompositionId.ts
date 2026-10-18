@@ -5,6 +5,9 @@
  * OpenAPI spec version: 0.0.1
  */
 
+/**
+ * Только этот ролик; без него — файлы всех роликов
+ */
 export type ListRenderJobsQueryDtoCompositionId = typeof ListRenderJobsQueryDtoCompositionId[keyof typeof ListRenderJobsQueryDtoCompositionId];
 
 

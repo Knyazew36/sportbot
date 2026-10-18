@@ -7,5 +7,6 @@
 import type { ListRenderJobsQueryDtoCompositionId } from './listRenderJobsQueryDtoCompositionId';
 
 export interface ListRenderJobsQueryDto {
-  compositionId: ListRenderJobsQueryDtoCompositionId;
+  /** Только этот ролик; без него — файлы всех роликов */
+  compositionId?: ListRenderJobsQueryDtoCompositionId;
 }

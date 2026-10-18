@@ -33,6 +33,10 @@ export const ROUTES = {
   ME: '/me',
   ME_SECTION: '/me/:section',
   ME_DEVELOPER: '/me/developer',
+  // Редактор роликов: хаб, форма ролика, свои файлы. Статичные пути выигрывают у /me/:section
+  ME_EDITOR: '/me/editor',
+  ME_EDITOR_FILES: '/me/editor/files',
+  ME_EDITOR_COMPOSITION: '/me/editor/:compositionId',
   ME_SUPPORT: '/me/support',
   ADMIN: '/admin',
   ONBOARDING: '/onboarding',

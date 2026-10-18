@@ -11,6 +11,8 @@ type Props = {
   formats: readonly RenderFormat[]
   /** Длина ролика, с: от неё зависит, сколько делается файл */
   seconds: number
+  /** Показывать «В чат»: бот умеет прислать файл на этой площадке. По умолчанию — да */
+  chat?: boolean
   slotOf: (format: RenderFormat) => RenderSlot
   /** Заказать файл: экран проверяет форму и заказывает с её значениями */
   onOrder: (format: RenderFormat) => void
@@ -20,7 +22,7 @@ type Props = {
 
 const Spinner = () => <LoaderIcon className='animate-spin' />
 
-const FileButton = ({
+export const FileButton = ({
   slot,
   onOrder,
   onDownload,
@@ -62,7 +64,7 @@ const FileButton = ({
 }
 
 // Ждём — кнопка заблокирована: повторное нажатие не поставит вторую задачу и не пришлёт файл дважды
-const ChatButton = ({ slot, onSend }: { slot: RenderSlot; onSend: () => void }) => {
+export const ChatButton = ({ slot, onSend }: { slot: RenderSlot; onSend: () => void }) => {
   if (slot.chat === 'waiting')
     return (
       <Button
@@ -100,7 +102,15 @@ const ChatButton = ({ slot, onSend }: { slot: RenderSlot; onSend: () => void }) 
 // Форматы ролика: у каждого — где им пользоваться, файл на скачивание и отправка ботом в чат.
 // Один формат на всех не годится: прозрачность понимают по-разному компьютер, браузер и телефон
 // Готовый файл выделяем: его карточка приподнята синей тенью, как выбранное в приложении
-export const RenderFormatList = ({ formats, seconds, slotOf, onOrder, onDownload, onSendToChat }: Props) => (
+export const RenderFormatList = ({
+  formats,
+  seconds,
+  chat = true,
+  slotOf,
+  onOrder,
+  onDownload,
+  onSendToChat,
+}: Props) => (
   <ul className='flex flex-col gap-3'>
     {formats.map(format => {
       const spec = RENDER_FORMATS[format]
@@ -149,7 +159,7 @@ export const RenderFormatList = ({ formats, seconds, slotOf, onOrder, onDownload
               onOrder={() => onOrder(format)}
               onDownload={() => onDownload(slot)}
             />
-            {spec.chat && (
+            {chat && spec.chat && (
               <ChatButton
                 slot={slot}
                 onSend={() => onSendToChat(format)}

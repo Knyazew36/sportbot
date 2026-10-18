@@ -30,10 +30,10 @@ export const renderControllerCreate = (
       );
     }
   /**
- * @summary Свои файлы ролика за срок хранения: готовые и в работе
+ * @summary Свои файлы за срок хранения: готовые и в работе
  */
 export const renderControllerList = (
-    params: RenderControllerListParams,
+    params?: RenderControllerListParams,
  ) => {
       return customInstance<RenderControllerList200>(
       {url: `/render/jobs`, method: 'GET',

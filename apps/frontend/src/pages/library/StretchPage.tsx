@@ -49,7 +49,7 @@ const StretchPage = () => {
             <Button
               variant='outline'
               size='icon-lg'
-              className='size-[68px]'
+              className='size-[60px]'
               onClick={() => setEditOpen(true)}
               aria-label='Предложить правку'
             >

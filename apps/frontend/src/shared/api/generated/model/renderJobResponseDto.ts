@@ -15,6 +15,11 @@ export interface RenderJobResponseDto {
   props: RenderJobResponseDtoProps;
   status: RenderJobResponseDtoStatus;
   /**
+     * Когда файл удалят по сроку хранения; null — файла нет
+     * @nullable
+     */
+  expiresAt: string | null;
+  /**
      * /uploads/renders/… — пока DONE и не истёк срок хранения
      * @nullable
      */

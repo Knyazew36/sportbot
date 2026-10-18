@@ -15,7 +15,7 @@ type Props<Id extends CompositionId> = {
 }
 
 // Шахматка — как в монтажке: видно, что фон у ролика прозрачный
-const CHECKER =
+export const CHECKER =
   'repeating-conic-gradient(color-mix(in oklab, var(--sb-ink) 10%, transparent) 0 25%, transparent 0 50%) 0 0 / 20px 20px'
 
 // Кривые — те же, что у плашки в ролике (motion.ease в @sportbot/brand)

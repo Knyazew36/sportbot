@@ -44,7 +44,7 @@ export const COMPOSITIONS = {
     durationInFrames: 90,
     formats: ['mp4-chroma', 'webm-alpha', 'mov-alpha'],
     example: {
-      title: 'Жим гантелей на наклонной',
+      title: 'Жим гантелей лежа',
       subtitle: '4 подхода × 10 повторов',
       fill: 'mint',
       seconds: 3,

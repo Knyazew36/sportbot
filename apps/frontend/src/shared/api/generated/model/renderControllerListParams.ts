@@ -7,5 +7,8 @@
 import type { RenderControllerListCompositionId } from './renderControllerListCompositionId';
 
 export type RenderControllerListParams = {
-compositionId: RenderControllerListCompositionId;
+/**
+ * Только этот ролик; без него — файлы всех роликов
+ */
+compositionId?: RenderControllerListCompositionId;
 };

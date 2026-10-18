@@ -1,4 +1,5 @@
 export const renderKeys = {
   all: ['render'] as const,
-  list: (compositionId: string) => [...renderKeys.all, 'list', compositionId] as const,
+  /** Без compositionId — файлы всех роликов («Мои файлы») */
+  list: (compositionId?: string) => [...renderKeys.all, 'list', compositionId ?? 'all'] as const,
 }

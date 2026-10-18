@@ -107,15 +107,18 @@ export class RenderService {
     return this.toDto(job);
   }
 
-  /** Свои файлы ролика за срок хранения: по ним фронт показывает, что готово и что в работе. */
+  /**
+   * Свои файлы за срок хранения: по ним фронт показывает, что готово и что в работе.
+   * Без compositionId — файлы всех роликов, для списка «Мои файлы».
+   */
   public async list(
     userId: number,
-    compositionId: string,
+    compositionId?: string,
   ): Promise<RenderJobResponseDto[]> {
     const jobs = await this.prisma.renderJob.findMany({
       where: {
         userId,
-        compositionId,
+        ...(compositionId && { compositionId }),
         createdAt: {
           gte: new Date(Date.now() - RENDER_LIMITS.fileTtlHours * HOUR_MS),
         },
@@ -194,6 +197,13 @@ export class RenderService {
       format: job.format,
       props: job.props as Record<string, unknown>,
       status: job.status,
+      // Как в RenderCleanupService: срок хранения считается от готовности файла
+      expiresAt:
+        job.filePath && job.finishedAt
+          ? new Date(
+              job.finishedAt.getTime() + RENDER_LIMITS.fileTtlHours * HOUR_MS,
+            ).toISOString()
+          : null,
       url: this.upload.toPublicUrl(job.filePath),
       fileName: job.filePath ? renderFileName(job) : null,
       error: job.error,

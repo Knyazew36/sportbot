@@ -45,7 +45,7 @@ export class RenderController {
 
   @Get('jobs')
   @Swagger({
-    title: 'Свои файлы ролика за срок хранения: готовые и в работе',
+    title: 'Свои файлы за срок хранения: готовые и в работе',
     query: ListRenderJobsQueryDto,
     response: RenderJobResponseDto,
     plainArray: true,

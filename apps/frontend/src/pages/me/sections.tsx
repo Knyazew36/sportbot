@@ -11,6 +11,7 @@ import {
 import type { ReactNode } from 'react'
 
 import type { Profile } from '@/entities/profile'
+import { ROUTES } from '@/shared/config/paths'
 
 import { AboutSection } from './components/AboutSection'
 import { BodyWeightSection } from './components/BodyWeightSection'
@@ -22,7 +23,6 @@ import { PauseSection } from './components/PauseSection'
 import { ScheduleSection } from './components/ScheduleSection'
 import { ThemeSection } from './components/ThemeSection'
 import { TrainingSection } from './components/TrainingSection'
-import { VideoOverlaySection } from './components/VideoOverlaySection'
 
 export type MeSectionSlug = 'training' | 'body' | 'friends' | 'account' | 'app' | 'editor'
 
@@ -37,6 +37,8 @@ type MeSection = {
   icon: LucideIcon
   /** Пункты раздела — идут на его экране подряд */
   items: MeItem[]
+  /** Свой экран вместо общего экрана раздела: пунктов тогда нет */
+  to?: string
 }
 
 // Профиль — кнопки разделов, каждый открывается своим экраном /me/:section со всеми его пунктами
@@ -87,7 +89,8 @@ export const ME_SECTIONS: MeSection[] = [
     slug: 'editor',
     title: 'Редактор',
     icon: ClapperboardIcon,
-    items: [{ title: 'Плашка для видео', render: () => <VideoOverlaySection /> }],
+    to: ROUTES.ME_EDITOR,
+    items: [],
   },
 ]
 

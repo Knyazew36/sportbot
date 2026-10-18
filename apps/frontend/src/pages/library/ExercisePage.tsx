@@ -1,4 +1,4 @@
-import { PencilLineIcon, PlusIcon, TriangleAlertIcon } from 'lucide-react'
+import { ClapperboardIcon, PencilLineIcon, PlusIcon, TriangleAlertIcon } from 'lucide-react'
 import { useParams, useSearchParams } from 'react-router'
 
 import { useState } from 'react'
@@ -23,6 +23,8 @@ import { AddToComplexSheet } from '@/widgets/catalog/AddToComplexSheet'
 import { ExerciseEditSheet } from '@/widgets/catalog/ExerciseEditSheet'
 import { VideoLink } from '@/widgets/catalog/VideoLink'
 
+import { OverlaySheet } from './components/OverlaySheet'
+
 // Карточка упражнения (frontend-tz, 11.2). Открывается и из справочника, и кнопкой «Техника» на тренировке —
 // тогда ?from= возвращает туда же
 const ExercisePage = () => {
@@ -35,6 +37,7 @@ const ExercisePage = () => {
   const add = useAddComplexExercises()
   const [addOpen, setAddOpen] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
+  const [overlayOpen, setOverlayOpen] = useState(false)
 
   return (
     <Screen
@@ -51,7 +54,7 @@ const ExercisePage = () => {
             <Button
               variant='outline'
               size='icon-lg'
-              className='size-[68px]'
+              className='size-[60px]'
               onClick={() => setEditOpen(true)}
               aria-label='Предложить правку'
             >
@@ -166,6 +169,20 @@ const ExercisePage = () => {
                 </ScreenSection>
               )}
 
+              {/* В самом низу: сначала само упражнение, плашка — для тех, кто его снимает */}
+              <ScreenSection title='Своё видео'>
+                <Text tone='soft'>Снимаешь это упражнение? Наложи на ролик плашку с названием и планом.</Text>
+                <Button
+                  variant='outline'
+                  size='sm'
+                  className='self-start'
+                  onClick={() => setOverlayOpen(true)}
+                >
+                  <ClapperboardIcon />
+                  Плашка для вашего видео
+                </Button>
+              </ScreenSection>
+
               {program.data && (
                 <AddToComplexSheet
                   open={addOpen}
@@ -181,6 +198,12 @@ const ExercisePage = () => {
                   onPick={complexId => add.mutateAsync({ complexId, exerciseIds: [e.id] })}
                 />
               )}
+              <OverlaySheet
+                open={overlayOpen}
+                onOpenChange={setOverlayOpen}
+                exercise={e}
+                program={program.data ?? undefined}
+              />
               <ExerciseEditSheet
                 open={editOpen}
                 onOpenChange={setEditOpen}

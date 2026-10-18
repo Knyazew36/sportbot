@@ -9,6 +9,7 @@ import { PrismaService } from 'prisma/prisma.service';
 import { APP_SCREEN, appBtn, BotSender, msg } from '@/bot';
 import { normalizeName } from '@/catalog/catalog.service';
 import { paginatePrisma } from '@/common/prisma';
+import { slugify } from '@/common/utils';
 import { Prisma } from '@/generated/prisma/client';
 import { COMPLEXES_INCLUDE, toComplexesDto } from '@/program/program-complexes';
 import {
@@ -79,50 +80,6 @@ const textDiffers = (p: {
   publishedDescription: string | null;
 }): boolean =>
   p.name !== p.publishedName || p.description !== p.publishedDescription;
-
-const RU_TO_LAT: Record<string, string> = {
-  а: 'a',
-  б: 'b',
-  в: 'v',
-  г: 'g',
-  д: 'd',
-  е: 'e',
-  ж: 'zh',
-  з: 'z',
-  и: 'i',
-  й: 'y',
-  к: 'k',
-  л: 'l',
-  м: 'm',
-  н: 'n',
-  о: 'o',
-  п: 'p',
-  р: 'r',
-  с: 's',
-  т: 't',
-  у: 'u',
-  ф: 'f',
-  х: 'h',
-  ц: 'ts',
-  ч: 'ch',
-  ш: 'sh',
-  щ: 'sch',
-  ъ: '',
-  ы: 'y',
-  ь: '',
-  э: 'e',
-  ю: 'yu',
-  я: 'ya',
-};
-
-/** Латинский ключ тега из названия: «Турник дома» → turnik-doma. */
-const slugify = (name: string): string =>
-  normalizeName(name)
-    .split('')
-    .map((ch) => RU_TO_LAT[ch] ?? ch)
-    .join('')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '') || 'tag';
 
 /**
  * Публикация программ пользователей в каталог «Программы пользователей» и их проверка
@@ -591,7 +548,7 @@ export class ProgramPublicationService {
     groupId: number,
     name: string,
   ) {
-    const base = slugify(name);
+    const base = slugify(name, 'tag');
     const taken = await tx.programTag.findMany({
       where: { code: { startsWith: base } },
       select: { code: true },

@@ -11,7 +11,7 @@ import { PrismaService } from 'prisma/prisma.service';
 
 import { BotSender } from '@/bot';
 import { RenderJob } from '@/generated/prisma/client';
-import { renderFileName } from '@/render/render.files';
+import { renderFileName, renderTitle } from '@/render/render.files';
 import { UploadService } from '@/upload/upload.service';
 
 /**
@@ -92,9 +92,9 @@ export class RenderDeliveryService {
     const title = isCompositionId(job.compositionId)
       ? COMPOSITIONS[job.compositionId].title
       : 'Ролик';
+    const name = renderTitle(job);
+    const head = name ? `${title} «${name}» готова.` : `${title} готова.`;
     const spec = RENDER_FORMATS[job.format as RenderFormat];
-    return spec?.background
-      ? `${title} готова. ${spec.hint}.`
-      : `${title} готова.`;
+    return spec?.background ? `${head} ${spec.hint}.` : head;
   }
 }

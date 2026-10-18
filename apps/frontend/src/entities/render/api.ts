@@ -17,25 +17,32 @@ const isBusy = (job: RenderJob) => isRenderActive(job.status as RenderStatus) ||
 
 /**
  * Свои файлы ролика за сутки: что готово, что в работе, что уже в чате. Состояние кнопок берётся
- * отсюда, а не из памяти экрана — переживает уход с экрана и перезапуск приложения
+ * отсюда, а не из памяти экрана — переживает уход с экрана и перезапуск приложения.
+ * Без compositionId — файлы всех роликов
  */
-export const useRenderJobs = (compositionId: CompositionId) =>
+export const useRenderJobs = (compositionId?: CompositionId) =>
   useQuery({
     queryKey: renderKeys.list(compositionId),
-    queryFn: () => renderControllerList({ compositionId }),
+    queryFn: () => renderControllerList(compositionId ? { compositionId } : undefined),
     refetchInterval: query => (query.state.data?.some(isBusy) ? POLL_MS : false),
     // Статус меняет воркер, а не пользователь: открыл экран — сразу свежий
     staleTime: 0,
   })
 
-/** Ответ заказа — та же задача, что придёт в списке: кладём её туда, не дожидаясь опроса */
+/**
+ * Ответ заказа — та же задача, что придёт в списке: кладём её в список ролика и в общий, не дожидаясь
+ * опроса. Общий трогаем, только если он уже загружен: иначе первым запросом он придёт с сервера целиком
+ */
 const useUpsertJob = () => {
   const queryClient = useQueryClient()
-  return (job: RenderJob) =>
-    queryClient.setQueryData<RenderJob[]>(renderKeys.list(job.compositionId), jobs => [
-      job,
-      ...(jobs ?? []).filter(item => item.id !== job.id),
-    ])
+  const put = (jobs: RenderJob[] | undefined, job: RenderJob) => [
+    job,
+    ...(jobs ?? []).filter(item => item.id !== job.id),
+  ]
+  return (job: RenderJob) => {
+    queryClient.setQueryData<RenderJob[]>(renderKeys.list(job.compositionId), jobs => put(jobs, job))
+    queryClient.setQueryData<RenderJob[]>(renderKeys.list(), jobs => jobs && put(jobs, job))
+  }
 }
 
 /** Файл ролика: такой же готов или в работе — сервер вернёт его, а не отрендерит заново */

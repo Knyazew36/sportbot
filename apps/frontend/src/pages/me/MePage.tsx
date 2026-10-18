@@ -62,10 +62,10 @@ const SectionButtons = ({ profile }: { profile: Profile }) => {
 
   return (
     <Rise className='px-gutter flex flex-col gap-4'>
-      {ME_SECTIONS.map(({ slug, title, icon }, i) => (
+      {ME_SECTIONS.map(({ slug, title, icon, to }, i) => (
         <SectionTicket
           key={slug}
-          to={buildPath(ROUTES.ME_SECTION, { section: slug })}
+          to={to ?? buildPath(ROUTES.ME_SECTION, { section: slug })}
           index={i + 1}
           icon={icon}
           title={title}

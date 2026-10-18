@@ -31,6 +31,21 @@ const sortedJson = (value: unknown): string =>
         .join(',')}}`
     : JSON.stringify(value)
 
+/** Состояние кнопок по задаче с сервера: в работе, готов, не получился */
+export const slotOfJob = (job: RenderJob): RenderSlot => {
+  const chat = chatStateOf(job)
+  if (job.status === 'FAILED') return { file: 'failed', chat, job, error: job.error ?? 'Не получилось собрать ролик' }
+  if (job.status === 'DONE')
+    // Файл удалён по сроку хранения — можно заказать заново
+    return job.url ? { file: 'ready', chat, job, error: job.chatError ?? undefined } : { file: 'idle', chat: 'idle' }
+  return { file: 'pending', chat, job }
+}
+
+/** Скачать готовый файл. Только по нажатию: системный диалог мессенджера открывается лишь по жесту */
+export const downloadRender = (job: RenderJob) => {
+  if (job.url) downloadFile(toAssetUrl(job.url) ?? job.url, job.fileName ?? 'video')
+}
+
 /**
  * Рендер любой композиции контракта. Задача — это файл: один на props и формат. Поменяли текст —
  * кнопки снова «Сделать файл»; вернули прежний — снова видно готовый файл. «В чат» — просьба на
@@ -55,11 +70,9 @@ export const useRenderVideo = <Id extends CompositionId>(compositionId: Id, valu
     const chat: ChatState = askingChat ? 'waiting' : job ? chatStateOf(job) : 'idle'
 
     if (!job) return { file: ordering || askingChat ? 'pending' : 'idle', chat }
-    if (job.status === 'FAILED') return { file: 'failed', chat, job, error: job.error ?? 'Не получилось собрать ролик' }
-    if (job.status === 'DONE')
-      // Файл удалён по сроку хранения — можно заказать заново
-      return job.url ? { file: 'ready', chat, job, error: job.chatError ?? undefined } : { file: 'idle', chat: 'idle' }
-    return { file: 'pending', chat, job }
+    const slot = slotOfJob(job)
+    // Файл удалён по сроку — задача для кнопок как бы не заказана
+    return slot.job ? { ...slot, chat } : slot
   }
 
   const order = (format: RenderFormat, props: CompositionProps<Id>) =>
@@ -68,10 +81,5 @@ export const useRenderVideo = <Id extends CompositionId>(compositionId: Id, valu
   const sendToChat = (format: RenderFormat, props: CompositionProps<Id>) =>
     orderChat.mutateAsync({ compositionId, format, props })
 
-  // Скачивание — отдельным нажатием: системный диалог мессенджера открывается только по жесту
-  const download = (job: RenderJob) => {
-    if (job.url) downloadFile(toAssetUrl(job.url) ?? job.url, job.fileName ?? 'video')
-  }
-
-  return { slotOf, order, sendToChat, download }
+  return { slotOf, order, sendToChat, download: downloadRender }
 }

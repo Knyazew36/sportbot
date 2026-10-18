@@ -25,6 +25,13 @@ export class RenderJobResponseDto {
   @ApiProperty({
     type: String,
     nullable: true,
+    description: 'Когда файл удалят по сроку хранения; null — файла нет',
+  })
+  expiresAt: string | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
     description: '/uploads/renders/… — пока DONE и не истёк срок хранения',
   })
   url: string | null;
