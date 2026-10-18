@@ -1,7 +1,7 @@
 import type { LowerThirdProps } from '@sportbot/render-contract'
 
 import { Card } from '../components/Card'
-import { color, font, rose, roseDark } from '../tokens'
+import { color, dark, font, rose, roseDark } from '../tokens'
 
 type Props = Pick<LowerThirdProps, 'title' | 'subtitle' | 'fill'> & {
   /** Ширина кадра в px: от неё считаются шрифты и отступы. Ролик — 1080, превью — ширина контейнера */
@@ -10,11 +10,12 @@ type Props = Pick<LowerThirdProps, 'title' | 'subtitle' | 'fill'> & {
   subtitleOpacity?: number
 }
 
-// Розовая плашка — акцент тёмной розовой темы приложения; на нём читается только тёмный текст
-const palette = (fill: LowerThirdProps['fill']) =>
-  fill === 'rose'
-    ? { fill: roseDark.blue, text: rose.ink, ink: rose.ink }
-    : { fill: color[fill], text: color.ink, ink: color.ink }
+// Розовая и синяя плашки — акценты тёмных тем приложения; на них читается только тёмный текст
+const palette = (fill: LowerThirdProps['fill']) => {
+  if (fill === 'rose') return { fill: roseDark.blue, text: rose.ink, ink: rose.ink }
+  if (fill === 'blue') return { fill: dark.blue, text: color.ink, ink: color.ink }
+  return { fill: color[fill], text: color.ink, ink: color.ink }
+}
 
 /** Вёрстка плашки без Remotion: её рендерит композиция LowerThird и показывает превью в приложении. */
 export const LowerThirdCard = ({ title, subtitle, fill, unit, subtitleOpacity = 1 }: Props) => {

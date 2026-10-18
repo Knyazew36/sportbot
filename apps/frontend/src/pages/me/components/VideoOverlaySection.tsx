@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { COMPOSITIONS, type LowerThirdProps, type RenderFormat } from '@sportbot/render-contract'
+import { COMPOSITIONS, LOWER_THIRD_SECONDS, type LowerThirdProps, type RenderFormat } from '@sportbot/render-contract'
 import { useForm } from 'react-hook-form'
 
 import { renderPropsSchema } from '@/entities/render'
@@ -17,9 +17,11 @@ const { formats, example } = COMPOSITIONS[COMPOSITION]
 const FILLS: { value: LowerThirdProps['fill']; label: string }[] = [
   { value: 'mint', label: 'Мята' },
   { value: 'rest', label: 'Абрикос' },
-  { value: 'sheet', label: 'Белая' },
+  { value: 'blue', label: 'Синяя' },
   { value: 'rose', label: 'Розовая' },
 ]
+
+const SECONDS = LOWER_THIRD_SECONDS.map(s => ({ value: String(s), label: `${s} с` }))
 
 // Плашка упражнения для своего видео: текст правится тут же, превью — та же вёрстка, что в ролике.
 // Живёт в разделе профиля «Редактор» — потом переедет к упражнению
@@ -70,8 +72,16 @@ export const VideoOverlaySection = () => {
         size='sm'
         stretch
       />
+      <Segmented
+        options={SECONDS}
+        value={String(values.seconds)}
+        onValueChange={seconds => setValue('seconds', Number(seconds) as LowerThirdProps['seconds'])}
+        size='sm'
+        stretch
+      />
       <RenderFormatList
         formats={formats}
+        seconds={values.seconds}
         slotOf={render.slotOf}
         onOrder={(format: RenderFormat) => withValues(valid => render.order(format, valid))}
         onDownload={slot => slot.job && render.download(slot.job)}

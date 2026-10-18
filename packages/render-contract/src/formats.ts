@@ -34,6 +34,8 @@ type FormatSpec = {
   }
   /** Можно отправить ботом: влезает в лимит Bot API 50 МБ */
   chat: boolean
+  /** Секунд рендера на секунду ролика — для оценки «сделаем примерно за» */
+  renderRate: number
 }
 
 export const RENDER_FORMATS: Record<RenderFormat, FormatSpec> = {
@@ -52,6 +54,8 @@ export const RENDER_FORMATS: Record<RenderFormat, FormatSpec> = {
     background: 'transparent',
     encoding: { encoder: { name: 'png', pixelFormat: 'rgba' } },
     chat: true,
+    // PNG-кадры отрисовываются дольше JPEG
+    renderRate: 2.5,
   },
   'webm-alpha': {
     label: 'Для браузера и CapCut Desktop',
@@ -65,6 +69,7 @@ export const RENDER_FORMATS: Record<RenderFormat, FormatSpec> = {
     // libvpx на настройках по умолчанию кодирует альфу в разы дольше отрисовки — realtime в 3–4 раза быстрее
     encoding: { crf: 36, encoderArgs: ['-deadline', 'realtime', '-cpu-used', '8'] },
     chat: true,
+    renderRate: 2,
   },
   // Цветной фон вместо альфы: снимается инструментом «Хромакей» в любом редакторе на телефоне
   'mp4-chroma': {
@@ -79,6 +84,7 @@ export const RENDER_FORMATS: Record<RenderFormat, FormatSpec> = {
     // Края плашки должны остаться чёткими для кеинга — crf не выше 23
     encoding: { crf: 23, x264Preset: 'veryfast' },
     chat: true,
+    renderRate: 1.5,
   },
   mp4: {
     label: 'Обычное видео',
@@ -90,8 +96,19 @@ export const RENDER_FORMATS: Record<RenderFormat, FormatSpec> = {
     imageFormat: 'jpeg',
     encoding: { crf: 23, x264Preset: 'veryfast' },
     chat: true,
+    renderRate: 1.5,
   },
 }
+
+// Запуск Chrome и открытие бандла — до первого кадра, от длины ролика не зависит
+const RENDER_OVERHEAD_SEC = 6
+
+/**
+ * Примерно сколько делается файл, с, без ожидания в очереди. Грубая оценка под сервер на 2 потока —
+ * уточнять по логам воркера. Округляем до 5 с: точнее всё равно не угадать
+ */
+export const renderEstimateSec = (format: RenderFormat, videoSeconds: number) =>
+  Math.ceil((RENDER_OVERHEAD_SEC + RENDER_FORMATS[format].renderRate * videoSeconds) / 5) * 5
 
 export const RENDER_FORMAT_IDS = Object.keys(RENDER_FORMATS) as RenderFormat[]
 

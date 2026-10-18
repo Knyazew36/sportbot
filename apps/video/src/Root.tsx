@@ -1,5 +1,5 @@
 import { COMPOSITION_IDS, COMPOSITIONS } from '@sportbot/render-contract'
-import { compositionOf, formats, waitForFonts } from '@sportbot/video'
+import { compositionOf, durationOf, formats, waitForFonts } from '@sportbot/video'
 import { LogoSting, type LogoStingProps } from '@sportbot/video/compositions/LogoSting'
 import { LowerThird, type LowerThirdProps } from '@sportbot/video/compositions/LowerThird'
 import { NumberCard, type NumberCardProps } from '@sportbot/video/compositions/NumberCard'
@@ -10,8 +10,10 @@ waitForFonts()
 const { reels, post, square } = formats
 
 // Оверлей: кнопка Render в Studio сразу предлагает ProRes 4444 с альфой, а не MP4 с чёрным фоном.
-// В приложении тот же формат уходит лёгким PNG-в-MOV (mov-alpha) — Studio ffmpeg не подменяет
-const overlay: CalculateMetadataFunction<LowerThirdProps> = async () => ({
+// В приложении тот же формат уходит лёгким PNG-в-MOV (mov-alpha) — Studio ffmpeg не подменяет.
+// Длина — от props.seconds: так же её считает сервер через selectComposition
+const overlay: CalculateMetadataFunction<LowerThirdProps> = async ({ props }) => ({
+  durationInFrames: durationOf('lower-third', props),
   defaultCodec: 'prores',
   defaultProResProfile: '4444',
   defaultPixelFormat: 'yuva444p10le',

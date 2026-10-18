@@ -3,6 +3,7 @@ import tokens from '@sportbot/brand/tokens.json'
 // Токены без Remotion: их берут и композиции, и карточки, которые фронт рисует без плеера
 
 export const color = { ...tokens.color.light, ...tokens.color.accent }
+export const dark = tokens.color.dark
 // Розовая расцветка приложения: blue здесь малиновый «голос палитры»
 export const rose = tokens.color.rose
 export const roseDark = tokens.color.roseDark

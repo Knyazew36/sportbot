@@ -9,7 +9,7 @@ export type { LowerThirdProps }
 
 const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const
 
-// Мятная заливка близка к зелёному — под неё ключуем синим
+// Мятная заливка близка к зелёному — под неё ключуем синим; синюю, наоборот, — зелёным
 const chromaFor = (fill: LowerThirdProps['fill']) => (fill === 'mint' ? CHROMA.blue : CHROMA.green)
 
 // Плашка поверх своего видео. Низ кадра ~250px перекрывает интерфейс Instagram — стоим выше

@@ -1,7 +1,7 @@
 import type { CompositionId, CompositionProps } from '@sportbot/render-contract'
 import { previewOf } from '@sportbot/video/previews'
 import { RotateCcwIcon } from 'lucide-react'
-import { motion } from 'motion/react'
+import { animate, motion, useMotionValue, useTransform } from 'motion/react'
 
 import { useEffect, useRef, useState } from 'react'
 
@@ -22,10 +22,14 @@ const CHECKER =
 const ENTER = [0.2, 0, 0, 1] as const
 const EXIT = [0.4, 0, 1, 1] as const
 
+/** 1,5 → «0:01,5» — как счётчик в монтажке */
+const timecode = (seconds: number) => `0:${seconds.toFixed(1).padStart(4, '0').replace('.', ',')}`
+
 /**
  * Превью ролика без плеера: та же вёрстка, что рендерит сервер, размеры — от ширины блока, как в
  * ролике — от ширины кадра. При открытии плашка выезжает и стоит — текст правится на виду.
- * «Повторить» проигрывает ролик целиком, с паузой и уездом, за его настоящую длительность
+ * «Повторить» проигрывает ролик целиком, с паузой и уездом, за его настоящую длительность —
+ * полоса под кадром показывает, сколько прошло
  */
 export const VideoPreview = <Id extends CompositionId>({ compositionId, props, className }: Props<Id>) => {
   const ref = useRef<HTMLDivElement>(null)
@@ -33,7 +37,11 @@ export const VideoPreview = <Id extends CompositionId>({ compositionId, props, c
   // Номер прогона: новый ключ перезапускает анимацию с начала
   const [run, setRun] = useState(0)
   const [playing, setPlaying] = useState(false)
-  const { component: Preview, seconds, enter, exit } = previewOf(compositionId)
+  const { component: Preview, seconds, enter, exit } = previewOf(compositionId, props)
+  // Прошедшее время прогона, с: им двигается полоса и счётчик
+  const elapsed = useMotionValue(0)
+  const progress = useTransform(elapsed, t => t / seconds)
+  const counter = useTransform(elapsed, timecode)
 
   useEffect(() => {
     const node = ref.current
@@ -49,6 +57,8 @@ export const VideoPreview = <Id extends CompositionId>({ compositionId, props, c
   const replay = () => {
     setRun(n => n + 1)
     setPlaying(true)
+    elapsed.set(0)
+    animate(elapsed, seconds, { duration: seconds, ease: 'linear' })
   }
 
   return (
@@ -83,16 +93,26 @@ export const VideoPreview = <Id extends CompositionId>({ compositionId, props, c
           </motion.div>
         )}
       </div>
-      <Button
-        size='sm'
-        variant='outline'
-        className='self-start'
-        disabled={playing}
-        onClick={replay}
-      >
-        <RotateCcwIcon />
-        Повторить
-      </Button>
+      <div className='flex items-center gap-3'>
+        <Button
+          size='sm'
+          variant='outline'
+          disabled={playing}
+          onClick={replay}
+        >
+          <RotateCcwIcon />
+          Повторить
+        </Button>
+        <div className='border-foreground h-2 flex-1 overflow-hidden border-[1.5px]'>
+          <motion.div
+            className='bg-primary h-full origin-left'
+            style={{ scaleX: progress }}
+          />
+        </div>
+        <span className='text-muted-foreground shrink-0 text-xs tabular-nums'>
+          <motion.span>{counter}</motion.span> / {timecode(seconds)}
+        </span>
+      </div>
     </div>
   )
 }

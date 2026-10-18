@@ -3,6 +3,7 @@ import { type CompositionId, type CompositionProps, COMPOSITIONS } from '@sportb
 import type { ComponentType } from 'react'
 
 import { LowerThirdCard } from './cards/LowerThirdCard'
+import { durationOf } from './duration'
 import { formats } from './tokens'
 
 // Превью для приложения: та же вёрстка, что в ролике, но без Remotion и плеера — статичная
@@ -35,10 +36,11 @@ const PREVIEWS: { [Id in CompositionId]: Preview<Id> } = {
   },
 }
 
-/** Превью и его таймлайн в секундах: весь ролик, выезд и уезд — доли от него */
-export const previewOf = <Id extends CompositionId>(id: Id) => {
+/** Превью и его таймлайн в секундах: весь ролик, выезд и уезд — доли от него. Длина — от props */
+export const previewOf = <Id extends CompositionId>(id: Id, props: CompositionProps<Id>) => {
   const preview = PREVIEWS[id] as Preview<Id>
-  const { durationInFrames, size } = COMPOSITIONS[id]
+  const { size } = COMPOSITIONS[id]
+  const durationInFrames = durationOf(id, props)
   return {
     component: preview.component,
     seconds: durationInFrames / formats[size].fps,

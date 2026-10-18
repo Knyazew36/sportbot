@@ -1,6 +1,7 @@
-import { RENDER_FORMATS, type RenderFormat } from '@sportbot/render-contract'
-import { CheckIcon, DownloadIcon, LoaderIcon, SendIcon } from 'lucide-react'
+import { RENDER_FORMATS, renderEstimateSec, type RenderFormat } from '@sportbot/render-contract'
+import { CheckIcon, ClockIcon, DownloadIcon, LoaderIcon, SendIcon } from 'lucide-react'
 
+import { cn } from '@/shared/lib/utils'
 import { Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
@@ -8,6 +9,8 @@ import type { RenderSlot } from './useRenderVideo'
 
 type Props = {
   formats: readonly RenderFormat[]
+  /** Длина ролика, с: от неё зависит, сколько делается файл */
+  seconds: number
   slotOf: (format: RenderFormat) => RenderSlot
   /** Заказать файл: экран проверяет форму и заказывает с её значениями */
   onOrder: (format: RenderFormat) => void
@@ -96,15 +99,20 @@ const ChatButton = ({ slot, onSend }: { slot: RenderSlot; onSend: () => void }) 
 
 // Форматы ролика: у каждого — где им пользоваться, файл на скачивание и отправка ботом в чат.
 // Один формат на всех не годится: прозрачность понимают по-разному компьютер, браузер и телефон
-export const RenderFormatList = ({ formats, slotOf, onOrder, onDownload, onSendToChat }: Props) => (
+// Готовый файл выделяем: его карточка приподнята синей тенью, как выбранное в приложении
+export const RenderFormatList = ({ formats, seconds, slotOf, onOrder, onDownload, onSendToChat }: Props) => (
   <ul className='flex flex-col gap-3'>
     {formats.map(format => {
       const spec = RENDER_FORMATS[format]
       const slot = slotOf(format)
+      const ready = slot.file === 'ready'
       return (
         <li
           key={format}
-          className='border-foreground bg-card flex flex-col gap-2 border-[1.5px] p-3'
+          className={cn(
+            'border-foreground bg-card flex flex-col gap-2 border-[1.5px] p-3 transition-shadow',
+            ready && 'border-primary mr-[3px] shadow-[3px_3px_0_var(--sb-blue)]',
+          )}
         >
           <Poster
             as='h3'
@@ -118,6 +126,15 @@ export const RenderFormatList = ({ formats, slotOf, onOrder, onDownload, onSendT
           >
             {spec.hint}
           </Text>
+          {!ready && (
+            <Text
+              size='sm'
+              className='flex items-center gap-1.5'
+            >
+              <ClockIcon className='size-3.5 shrink-0' />
+              Сделаем примерно за {renderEstimateSec(format, seconds)} с
+            </Text>
+          )}
           {slot.error && (
             <Text
               size='sm'
