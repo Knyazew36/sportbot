@@ -10,4 +10,5 @@ export type RenderControllerListCompositionId = typeof RenderControllerListCompo
 
 export const RenderControllerListCompositionId = {
   'lower-third': 'lower-third',
+  'end-card': 'end-card',
 } as const;

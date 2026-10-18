@@ -10,4 +10,5 @@ export type CreateRenderJobDtoCompositionId = typeof CreateRenderJobDtoCompositi
 
 export const CreateRenderJobDtoCompositionId = {
   'lower-third': 'lower-third',
+  'end-card': 'end-card',
 } as const;

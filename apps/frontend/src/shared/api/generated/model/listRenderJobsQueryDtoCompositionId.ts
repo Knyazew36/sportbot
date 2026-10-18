@@ -13,4 +13,5 @@ export type ListRenderJobsQueryDtoCompositionId = typeof ListRenderJobsQueryDtoC
 
 export const ListRenderJobsQueryDtoCompositionId = {
   'lower-third': 'lower-third',
+  'end-card': 'end-card',
 } as const;
