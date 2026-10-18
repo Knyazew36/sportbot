@@ -4,14 +4,15 @@
  * api
  * OpenAPI spec version: 0.0.1
  */
-import type { RenderJobResponseDtoDelivery } from './renderJobResponseDtoDelivery';
+import type { RenderJobResponseDtoProps } from './renderJobResponseDtoProps';
 import type { RenderJobResponseDtoStatus } from './renderJobResponseDtoStatus';
 
 export interface RenderJobResponseDto {
   id: number;
   compositionId: string;
   format: string;
-  delivery: RenderJobResponseDtoDelivery;
+  /** Props после проверки схемой — по ним фронт узнаёт файл для текущей формы */
+  props: RenderJobResponseDtoProps;
   status: RenderJobResponseDtoStatus;
   /**
      * /uploads/renders/… — пока DONE и не истёк срок хранения
@@ -20,11 +21,24 @@ export interface RenderJobResponseDto {
   url: string | null;
   /** @nullable */
   fileName: string | null;
-  /** @nullable */
+  /**
+     * Почему не отрендерилось
+     * @nullable
+     */
   error: string | null;
   /**
-     * Бот отправил файл в чат (для CHAT)
+     * Попросили прислать в чат
+     * @nullable
+     */
+  chatRequestedAt: string | null;
+  /**
+     * Бот отправил файл в чат
      * @nullable
      */
   deliveredAt: string | null;
+  /**
+     * Бот не смог отправить
+     * @nullable
+     */
+  chatError: string | null;
 }

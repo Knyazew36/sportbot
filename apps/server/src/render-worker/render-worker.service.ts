@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Interval } from '@nestjs/schedule';
 import {
   ensureBrowser,
+  makeCancelSignal,
   renderMedia,
   selectComposition,
 } from '@remotion/renderer';
@@ -11,6 +12,7 @@ import {
   isCompositionId,
   propsForFormat,
   RENDER_FORMATS,
+  RENDER_LIMITS,
   type RenderFormat,
 } from '@sportbot/render-contract';
 import * as os from 'os';
@@ -20,6 +22,26 @@ import { PrismaService } from 'prisma/prisma.service';
 import { RenderJob } from '@/generated/prisma/client';
 import { newRenderFile, RENDERS_CATEGORY } from '@/render/render.files';
 import { UploadService } from '@/upload/upload.service';
+
+/** Аргументы ffmpeg с настройками формата, которых нет среди опций renderMedia. */
+const withEncoding = (
+  args: string[],
+  encoding: (typeof RENDER_FORMATS)[RenderFormat]['encoding'],
+): string[] => {
+  const out = [...args];
+  const swap = encoding?.encoder;
+  if (swap) {
+    const codec = out.indexOf('-c:v');
+    if (codec >= 0) out[codec + 1] = swap.name;
+    const profile = out.indexOf('-profile:v');
+    if (profile >= 0) out.splice(profile, 2);
+    const pixels = out.indexOf('-pix_fmt');
+    if (pixels >= 0) out[pixels + 1] = swap.pixelFormat;
+  }
+  // Флаги кодировщика — перед последним аргументом: им ffmpeg получает путь выходного файла
+  const extra = encoding?.encoderArgs;
+  return extra ? [...out.slice(0, -1), ...extra, ...out.slice(-1)] : out;
+};
 
 /**
  * Рендер задач из очереди (RenderJob) по готовому бандлу Remotion. Отдельный процесс — Chrome и
@@ -60,6 +82,14 @@ export class RenderWorkerService implements OnApplicationBootstrap {
       },
     });
     if (count) this.logger.warn(`Прерванных задач: ${count}`);
+    // Рендер уступает процессор API на той же машине: Chrome и ffmpeg наследуют приоритет процесса
+    try {
+      os.setPriority(10);
+    } catch (error) {
+      this.logger.warn(
+        `Не удалось понизить приоритет: ${(error as Error).message}`,
+      );
+    }
     // Chrome Headless Shell скачивается при первом запуске, дальше берётся из кэша
     await ensureBrowser();
     this.ready = true;
@@ -135,9 +165,32 @@ export class RenderWorkerService implements OnApplicationBootstrap {
 
     this.upload.getCategoryDir(RENDERS_CATEGORY);
     const outputLocation = path.join(this.upload.uploadRoot, filePath);
+    const { cancelSignal, cancel } = makeCancelSignal();
+    const timeout = setTimeout(cancel, RENDER_LIMITS.renderTimeoutSec * 1000);
+    try {
+      await this.renderTo(
+        outputLocation,
+        job.compositionId,
+        inputProps,
+        spec,
+        cancelSignal,
+      );
+    } finally {
+      clearTimeout(timeout);
+    }
+    return outputLocation;
+  }
+
+  private async renderTo(
+    outputLocation: string,
+    id: string,
+    inputProps: Record<string, unknown>,
+    spec: (typeof RENDER_FORMATS)[RenderFormat],
+    cancelSignal: ReturnType<typeof makeCancelSignal>['cancelSignal'],
+  ): Promise<void> {
     const composition = await selectComposition({
       serveUrl: this.serveUrl,
-      id: job.compositionId,
+      id,
       inputProps,
     });
     await renderMedia({
@@ -151,15 +204,9 @@ export class RenderWorkerService implements OnApplicationBootstrap {
       proResProfile: spec.proResProfile,
       crf: spec.encoding?.crf,
       x264Preset: spec.encoding?.x264Preset,
-      // Флаги кодировщика — перед последним аргументом: им ffmpeg получает путь выходного файла
-      ffmpegOverride: ({ args }) => {
-        const extra = spec.encoding?.encoderArgs;
-        return extra
-          ? [...args.slice(0, -1), ...extra, ...args.slice(-1)]
-          : args;
-      },
+      ffmpegOverride: ({ args }) => withEncoding(args, spec.encoding),
       concurrency: this.concurrency,
+      cancelSignal,
     });
-    return outputLocation;
   }
 }

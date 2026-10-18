@@ -5,7 +5,6 @@
  * OpenAPI spec version: 0.0.1
  */
 import type { CreateRenderJobDtoCompositionId } from './createRenderJobDtoCompositionId';
-import type { CreateRenderJobDtoDelivery } from './createRenderJobDtoDelivery';
 import type { CreateRenderJobDtoFormat } from './createRenderJobDtoFormat';
 import type { CreateRenderJobDtoProps } from './createRenderJobDtoProps';
 
@@ -15,5 +14,6 @@ export interface CreateRenderJobDto {
   props: CreateRenderJobDtoProps;
   /** Не задан — первый формат композиции */
   format?: CreateRenderJobDtoFormat;
-  delivery: CreateRenderJobDtoDelivery;
+  /** Прислать файл ботом в чат: готов — сразу, в работе — как только будет готов */
+  toChat?: boolean;
 }

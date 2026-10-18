@@ -2,13 +2,11 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   COMPOSITION_IDS,
   COMPOSITIONS,
-  RENDER_DELIVERIES,
   RENDER_FORMAT_IDS,
   type CompositionId,
-  type RenderDelivery,
   type RenderFormat,
 } from '@sportbot/render-contract';
-import { IsIn, IsObject, IsOptional } from 'class-validator';
+import { IsBoolean, IsIn, IsObject, IsOptional } from 'class-validator';
 
 export class CreateRenderJobDto {
   @ApiProperty({ enum: COMPOSITION_IDS, example: 'lower-third' })
@@ -33,7 +31,11 @@ export class CreateRenderJobDto {
   @IsIn(RENDER_FORMAT_IDS, { message: 'Неизвестный формат' })
   format?: RenderFormat;
 
-  @ApiProperty({ enum: RENDER_DELIVERIES })
-  @IsIn(RENDER_DELIVERIES, { message: 'Неизвестный способ доставки' })
-  delivery: RenderDelivery;
+  @ApiPropertyOptional({
+    description:
+      'Прислать файл ботом в чат: готов — сразу, в работе — как только будет готов',
+  })
+  @IsOptional()
+  @IsBoolean()
+  toChat?: boolean;
 }

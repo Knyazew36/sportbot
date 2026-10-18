@@ -1,11 +1,12 @@
-import type { CompositionId, CompositionProps } from '@sportbot/render-contract'
+import { type CompositionId, type CompositionProps, COMPOSITIONS } from '@sportbot/render-contract'
 
 import type { ComponentType } from 'react'
 
 import { LowerThirdCard } from './cards/LowerThirdCard'
+import { formats } from './tokens'
 
 // Превью для приложения: та же вёрстка, что в ролике, но без Remotion и плеера — статичная
-// карточка, анимацию появления даёт CSS. Без Remotion-хуков, поэтому импорт отсюда не тянет remotion
+// карточка, движение даёт CSS. Без Remotion-хуков, поэтому импорт отсюда не тянет remotion
 
 export type PreviewProps<Id extends CompositionId> = {
   props: CompositionProps<Id>
@@ -13,13 +14,35 @@ export type PreviewProps<Id extends CompositionId> = {
   unit: number
 }
 
-const PREVIEWS: { [Id in CompositionId]: ComponentType<PreviewProps<Id>> } = {
-  'lower-third': ({ props, unit }) => (
-    <LowerThirdCard
-      {...props}
-      unit={unit}
-    />
-  ),
+type Preview<Id extends CompositionId> = {
+  component: ComponentType<PreviewProps<Id>>
+  /** Сколько кадров длится выезд и уезд — как в композиции */
+  enterFrames: number
+  exitFrames: number
 }
 
-export const previewOf = <Id extends CompositionId>(id: Id) => PREVIEWS[id] as ComponentType<PreviewProps<Id>>
+const PREVIEWS: { [Id in CompositionId]: Preview<Id> } = {
+  // Тайминги — из compositions/LowerThird.tsx: выезд 0–14 кадр, уезд — последние 12
+  'lower-third': {
+    component: ({ props, unit }) => (
+      <LowerThirdCard
+        {...props}
+        unit={unit}
+      />
+    ),
+    enterFrames: 14,
+    exitFrames: 12,
+  },
+}
+
+/** Превью и его таймлайн в секундах: весь ролик, выезд и уезд — доли от него */
+export const previewOf = <Id extends CompositionId>(id: Id) => {
+  const preview = PREVIEWS[id] as Preview<Id>
+  const { durationInFrames, size } = COMPOSITIONS[id]
+  return {
+    component: preview.component,
+    seconds: durationInFrames / formats[size].fps,
+    enter: preview.enterFrames / durationInFrames,
+    exit: 1 - preview.exitFrames / durationInFrames,
+  }
+}

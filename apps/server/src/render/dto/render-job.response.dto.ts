@@ -1,10 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  RENDER_DELIVERIES,
-  RENDER_STATUSES,
-  type RenderDelivery,
-  type RenderStatus,
-} from '@sportbot/render-contract';
+import { RENDER_STATUSES, type RenderStatus } from '@sportbot/render-contract';
 
 export class RenderJobResponseDto {
   @ApiProperty()
@@ -16,8 +11,13 @@ export class RenderJobResponseDto {
   @ApiProperty({ example: 'webm-alpha' })
   format: string;
 
-  @ApiProperty({ enum: RENDER_DELIVERIES })
-  delivery: RenderDelivery;
+  @ApiProperty({
+    type: 'object',
+    additionalProperties: true,
+    description:
+      'Props после проверки схемой — по ним фронт узнаёт файл для текущей формы',
+  })
+  props: Record<string, unknown>;
 
   @ApiProperty({ enum: RENDER_STATUSES })
   status: RenderStatus;
@@ -32,13 +32,31 @@ export class RenderJobResponseDto {
   @ApiProperty({ type: String, nullable: true, example: 'lower-third-42.webm' })
   fileName: string | null;
 
-  @ApiProperty({ type: String, nullable: true })
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: 'Почему не отрендерилось',
+  })
   error: string | null;
 
   @ApiProperty({
     type: String,
     nullable: true,
-    description: 'Бот отправил файл в чат (для CHAT)',
+    description: 'Попросили прислать в чат',
+  })
+  chatRequestedAt: string | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: 'Бот отправил файл в чат',
   })
   deliveredAt: string | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: 'Бот не смог отправить',
+  })
+  chatError: string | null;
 }

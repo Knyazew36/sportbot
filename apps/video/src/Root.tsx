@@ -1,4 +1,4 @@
-import { COMPOSITION_IDS, COMPOSITIONS, RENDER_FORMATS } from '@sportbot/render-contract'
+import { COMPOSITION_IDS, COMPOSITIONS } from '@sportbot/render-contract'
 import { compositionOf, formats, waitForFonts } from '@sportbot/video'
 import { LogoSting, type LogoStingProps } from '@sportbot/video/compositions/LogoSting'
 import { LowerThird, type LowerThirdProps } from '@sportbot/video/compositions/LowerThird'
@@ -9,13 +9,13 @@ waitForFonts()
 
 const { reels, post, square } = formats
 
-// Оверлей: кнопка Render в Studio сразу предлагает ProRes 4444 с альфой, а не MP4 с чёрным фоном
-const prores = RENDER_FORMATS['prores-alpha']
+// Оверлей: кнопка Render в Studio сразу предлагает ProRes 4444 с альфой, а не MP4 с чёрным фоном.
+// В приложении тот же формат уходит лёгким PNG-в-MOV (mov-alpha) — Studio ffmpeg не подменяет
 const overlay: CalculateMetadataFunction<LowerThirdProps> = async () => ({
-  defaultCodec: prores.codec,
-  defaultProResProfile: prores.proResProfile,
-  defaultPixelFormat: prores.pixelFormat,
-  defaultVideoImageFormat: prores.imageFormat,
+  defaultCodec: 'prores',
+  defaultProResProfile: '4444',
+  defaultPixelFormat: 'yuva444p10le',
+  defaultVideoImageFormat: 'png',
 })
 
 const demoLowerThird = COMPOSITIONS['lower-third'].example
@@ -71,7 +71,7 @@ export const Root = () => (
     <Composition
       id='LowerThird-Rose-Reels'
       component={LowerThird}
-      durationInFrames={150}
+      durationInFrames={COMPOSITIONS['lower-third'].durationInFrames}
       {...reels}
       calculateMetadata={overlay}
       defaultProps={{ ...demoLowerThird, fill: 'rose' } satisfies LowerThirdProps}

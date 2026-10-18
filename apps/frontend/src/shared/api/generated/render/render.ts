@@ -7,7 +7,9 @@
 import type {
   CreateRenderJobDto,
   RenderControllerCreate200,
-  RenderControllerFindOne200
+  RenderControllerFindOne200,
+  RenderControllerList200,
+  RenderControllerListParams
 } from '../model';
 
 import { customInstance } from '../../model/orval-mutator';
@@ -28,6 +30,18 @@ export const renderControllerCreate = (
       );
     }
   /**
+ * @summary Свои файлы ролика за срок хранения: готовые и в работе
+ */
+export const renderControllerList = (
+    params: RenderControllerListParams,
+ ) => {
+      return customInstance<RenderControllerList200>(
+      {url: `/render/jobs`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
  * @summary Статус своей задачи рендера и ссылка на готовый файл
  */
 export const renderControllerFindOne = (
@@ -39,4 +53,5 @@ export const renderControllerFindOne = (
       );
     }
   export type RenderControllerCreateResult = NonNullable<Awaited<ReturnType<typeof renderControllerCreate>>>
+export type RenderControllerListResult = NonNullable<Awaited<ReturnType<typeof renderControllerList>>>
 export type RenderControllerFindOneResult = NonNullable<Awaited<ReturnType<typeof renderControllerFindOne>>>

@@ -3,7 +3,7 @@
  * понимают прозрачность по-разному — пользователь выбирает кнопку под свой редактор.
  * HEVC с альфой (родной для iPhone) Remotion не кодирует: его умеет только VideoToolbox на macOS
  */
-export type RenderFormat = 'prores-alpha' | 'webm-alpha' | 'mp4-chroma' | 'mp4'
+export type RenderFormat = 'mov-alpha' | 'webm-alpha' | 'mp4-chroma' | 'mp4'
 
 /** Фон, который формат навязывает композиции поверх props пользователя */
 export type FormatBackground = 'transparent' | 'chroma'
@@ -23,17 +23,26 @@ type FormatSpec = {
   background?: FormatBackground
   /**
    * Скорость важнее качества: в роликах плоские плашки с текстом, лишние биты на них не видны.
-   * crf — выше значит меньше и грубее; encoderArgs — флаги ffmpeg перед выходным файлом
+   * crf — выше значит меньше и грубее; encoderArgs — флаги ffmpeg перед выходным файлом;
+   * encoder — подменить кодировщик, которого нет среди codec Remotion (pixelFormat — его формат пикселей)
    */
-  encoding?: { crf?: number; x264Preset?: 'veryfast' | 'faster' | 'fast'; encoderArgs?: string[] }
+  encoding?: {
+    crf?: number
+    x264Preset?: 'veryfast' | 'faster' | 'fast'
+    encoderArgs?: string[]
+    encoder?: { name: 'png'; pixelFormat: 'rgba' }
+  }
   /** Можно отправить ботом: влезает в лимит Bot API 50 МБ */
   chat: boolean
 }
 
 export const RENDER_FORMATS: Record<RenderFormat, FormatSpec> = {
-  'prores-alpha': {
+  // ProRes 4444 тратит биты на каждый пиксель кадра, даже пустой: 5 с плашки — 20 МБ. PNG-кадры в MOV
+  // жмут прозрачное поле почти в ноль: те же 5 с — 3 МБ без потерь. Remotion такого codec не знает —
+  // рендерим конвейером ProRes и подменяем кодировщик ffmpeg
+  'mov-alpha': {
     label: 'Для монтажа на компьютере',
-    hint: 'MOV ProRes 4444 с прозрачностью — Premiere, Final Cut, DaVinci, After Effects. Тяжёлый: около 20 МБ',
+    hint: 'MOV с прозрачностью без потерь качества, около 3 МБ — Premiere, Final Cut, DaVinci, After Effects',
     ext: 'mov',
     mime: 'video/quicktime',
     codec: 'prores',
@@ -41,6 +50,7 @@ export const RENDER_FORMATS: Record<RenderFormat, FormatSpec> = {
     pixelFormat: 'yuva444p10le',
     imageFormat: 'png',
     background: 'transparent',
+    encoding: { encoder: { name: 'png', pixelFormat: 'rgba' } },
     chat: true,
   },
   'webm-alpha': {

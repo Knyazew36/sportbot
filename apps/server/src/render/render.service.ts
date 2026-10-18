@@ -8,6 +8,7 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import {
+  chatStateOf,
   COMPOSITIONS,
   RENDER_FORMATS,
   RENDER_LIMITS,
@@ -15,14 +16,15 @@ import {
 } from '@sportbot/render-contract';
 import { PrismaService } from 'prisma/prisma.service';
 
-import { BotChannel, RenderJob } from '@/generated/prisma/client';
+import { BotChannel, Prisma, RenderJob } from '@/generated/prisma/client';
 import { UploadService } from '@/upload/upload.service';
 
 import { CreateRenderJobDto } from './dto/create-render-job.dto';
 import { RenderJobResponseDto } from './dto/render-job.response.dto';
 import { renderFileName } from './render.files';
 
-const DAY_MS = 24 * 60 * 60 * 1000;
+const HOUR_MS = 60 * 60 * 1000;
+const DAY_MS = 24 * HOUR_MS;
 
 /** 422 в формате ValidationPipe (main.ts): фронт разложит ошибки props под поля формы. */
 const fieldError = (fields: Record<string, string[]>) =>
@@ -32,8 +34,8 @@ const fieldError = (fields: Record<string, string[]>) =>
   });
 
 /**
- * Очередь рендера: проверяет заказ по контракту композиции и ставит задачу. Сам не рендерит и не
- * доставляет — это render-worker (отдельный процесс) и render-delivery.
+ * Очередь рендера: проверяет заказ по контракту композиции, отдаёт уже готовый файл или ставит
+ * задачу. Сам не рендерит и не доставляет — это render-worker (отдельный процесс) и render-delivery.
  */
 @Injectable()
 export class RenderService {
@@ -44,6 +46,10 @@ export class RenderService {
     private readonly upload: UploadService,
   ) {}
 
+  /**
+   * Файл ролика: такой же (props и формат) уже готов или в работе — отдаём его, иначе ставим в
+   * очередь. toChat — пометка «прислать в чат» на этой же задаче: файл заново не рендерится.
+   */
   public async create(
     userId: number,
     channel: BotChannel | null,
@@ -53,9 +59,9 @@ export class RenderService {
     const format: RenderFormat = dto.format ?? composition.formats[0];
     if (!(composition.formats as readonly RenderFormat[]).includes(format))
       throw new BadRequestException('Этот ролик в таком формате не делаем');
-    if (dto.delivery === 'CHAT' && !RENDER_FORMATS[format].chat)
+    if (dto.toChat && !RENDER_FORMATS[format].chat)
       throw new BadRequestException(
-        'Файл слишком тяжёлый для чата — выбери «Скачать»',
+        'Файл слишком тяжёлый для чата — скачай его',
       );
 
     const parsed = composition.schema.safeParse(dto.props);
@@ -69,14 +75,12 @@ export class RenderService {
       throw fieldError(fields);
     }
 
-    // Повторное нажатие той же кнопки: файл уже есть или вот-вот будет — второй раз не рендерим
-    if (dto.delivery === 'DOWNLOAD') {
-      const same = await this.prisma.renderJob.findFirst({
+    let job =
+      (await this.prisma.renderJob.findFirst({
         where: {
           userId,
           compositionId: dto.compositionId,
           format,
-          delivery: 'DOWNLOAD',
           props: { equals: parsed.data },
           OR: [
             { status: { in: ['QUEUED', 'RENDERING'] } },
@@ -84,26 +88,42 @@ export class RenderService {
           ],
         },
         orderBy: { createdAt: 'desc' },
+      })) ?? (await this.enqueue(userId, dto, format, parsed.data));
+
+    // Повторное «В чат» после отказа бота — пробуем ещё раз; уже отправленный или ждущий — не трогаем
+    const chat = chatStateOf(job);
+    if (dto.toChat && (chat === 'idle' || chat === 'failed')) {
+      job = await this.prisma.renderJob.update({
+        where: { id: job.id },
+        data: {
+          chatRequestedAt: new Date(),
+          channel: channel ?? 'TELEGRAM',
+          deliveredAt: null,
+          chatError: null,
+        },
       });
-      if (same) return this.toDto(same);
+      this.logger.log(`Задача #${job.id}: прислать в ${job.channel}`);
     }
-
-    await this.assertLimits(userId);
-
-    const job = await this.prisma.renderJob.create({
-      data: {
-        userId,
-        compositionId: dto.compositionId,
-        props: parsed.data,
-        format,
-        delivery: dto.delivery,
-        channel: dto.delivery === 'CHAT' ? (channel ?? 'TELEGRAM') : null,
-      },
-    });
-    this.logger.log(
-      `Задача #${job.id}: ${job.compositionId} ${format} ${job.delivery}, userId=${userId}`,
-    );
     return this.toDto(job);
+  }
+
+  /** Свои файлы ролика за срок хранения: по ним фронт показывает, что готово и что в работе. */
+  public async list(
+    userId: number,
+    compositionId: string,
+  ): Promise<RenderJobResponseDto[]> {
+    const jobs = await this.prisma.renderJob.findMany({
+      where: {
+        userId,
+        compositionId,
+        createdAt: {
+          gte: new Date(Date.now() - RENDER_LIMITS.fileTtlHours * HOUR_MS),
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+    });
+    return jobs.map((job) => this.toDto(job));
   }
 
   public async findOwn(
@@ -117,8 +137,32 @@ export class RenderService {
     return this.toDto(job);
   }
 
+  private async enqueue(
+    userId: number,
+    dto: CreateRenderJobDto,
+    format: RenderFormat,
+    props: Record<string, unknown>,
+  ): Promise<RenderJob> {
+    await this.assertLimits(userId);
+    const job = await this.prisma.renderJob.create({
+      data: {
+        userId,
+        compositionId: dto.compositionId,
+        props: props as Prisma.InputJsonObject,
+        format,
+      },
+    });
+    this.logger.log(
+      `Задача #${job.id}: ${job.compositionId} ${format}, userId=${userId}`,
+    );
+    return job;
+  }
+
   private async assertLimits(userId: number): Promise<void> {
-    const [active, today] = await Promise.all([
+    const [queued, active, today] = await Promise.all([
+      this.prisma.renderJob.count({
+        where: { status: { in: ['QUEUED', 'RENDERING'] } },
+      }),
       this.prisma.renderJob.count({
         where: { userId, status: { in: ['QUEUED', 'RENDERING'] } },
       }),
@@ -126,6 +170,11 @@ export class RenderService {
         where: { userId, createdAt: { gte: new Date(Date.now() - DAY_MS) } },
       }),
     ]);
+    if (queued >= RENDER_LIMITS.queueMax)
+      throw new HttpException(
+        'Сейчас много роликов в работе — попробуй через пару минут',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
     if (active >= RENDER_LIMITS.activePerUser)
       throw new HttpException(
         'Предыдущий ролик ещё готовится — дождись его',
@@ -143,12 +192,14 @@ export class RenderService {
       id: job.id,
       compositionId: job.compositionId,
       format: job.format,
-      delivery: job.delivery,
+      props: job.props as Record<string, unknown>,
       status: job.status,
       url: this.upload.toPublicUrl(job.filePath),
       fileName: job.filePath ? renderFileName(job) : null,
       error: job.error,
+      chatRequestedAt: job.chatRequestedAt?.toISOString() ?? null,
       deliveredAt: job.deliveredAt?.toISOString() ?? null,
+      chatError: job.chatError,
     };
   }
 }

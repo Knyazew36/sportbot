@@ -409,7 +409,7 @@ model SportProfile {
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   displayName String /// имя для друзей и групп; по умолчанию из профиля мессенджера
-  timeZone    String @default("Europe/Moscow") /// IANA: Europe/Moscow, Etc/GMT-5
+  timeZone    String  @default("Europe/Moscow") /// IANA: Europe/Moscow, Etc/GMT-5
   gender      Gender? /// пол; задаёт расцветку Mini App, null — не выбран
 
   trainingDays Int[] /// 0..6, 0 — воскресенье, как Date.getDay()
@@ -441,9 +441,9 @@ model SportProfile {
   notifyChannels BotChannel[] @default([])
 
   /// Таймеры Mini App: бот про них не знает.
-  showRestTimer Boolean @default(true) /// показывать таймер отдыха на экране тренировки
-  restSeconds   Int     @default(90) /// отдых между подходами, с
-  restAutoStart Boolean @default(true) /// таймер отдыха стартует сам после подхода
+  showRestTimer  Boolean @default(true) /// показывать таймер отдыха на экране тренировки
+  restSeconds    Int     @default(90) /// отдых между подходами, с
+  restAutoStart  Boolean @default(true) /// таймер отдыха стартует сам после подхода
   timerSound     Boolean @default(true) /// звук по окончании таймеров
   timerVibration Boolean @default(true) /// вибрация по окончании таймеров
 
@@ -628,8 +628,8 @@ model Exercise {
   nameNormalized String /// нижний регистр, ё→е, без знаков — для поиска и подсказки дублей
 
   technique           String? /// общее описание техники свободным текстом
-  steps               String[] @default([]) /// шаги выполнения по порядку
-  mistakes            String[] @default([]) /// типичные ошибки, каждая сразу с исправлением
+  steps               String[]        @default([]) /// шаги выполнения по порядку
+  mistakes            String[]        @default([]) /// типичные ошибки, каждая сразу с исправлением
   imagePath           String? /// файл относительно upload root (catalog/uuid.ext)
   /// Финишное положение; только для Mini App, поэтому без кэша мессенджеров.
   imageEndPath        String?
@@ -783,8 +783,8 @@ model Complaint {
   userId Int?
   user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
-  text   String /// комментарий автора; у правки может быть пустым
-  status ComplaintStatus @default(OPEN)
+  text     String /// комментарий автора; у правки может быть пустым
+  status   ComplaintStatus @default(OPEN)
   /// Предложенная правка упражнения: только изменённые поля формы (name, technique, videoUrl,
   /// equipment, imagePath, primary, secondary, jointIds). null — обычная жалоба текстом.
   proposal Json?
@@ -813,10 +813,10 @@ model Program {
   owner   User? @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 
   /// Программа, с которой снята копия (шаблон или программа друга).
-  sourceProgramId Int?
-  sourceProgram   Program?  @relation("ProgramCopy", fields: [sourceProgramId], references: [id], onDelete: SetNull)
-  copies          Program[] @relation("ProgramCopy")
-  sourceSyncedAt  DateTime? /// какой версии источника соответствует копия
+  sourceProgramId   Int?
+  sourceProgram     Program?  @relation("ProgramCopy", fields: [sourceProgramId], references: [id], onDelete: SetNull)
+  copies            Program[] @relation("ProgramCopy")
+  sourceSyncedAt    DateTime? /// какой версии источника соответствует копия
   /// «Не сейчас» на плашке обновления: плашка вернётся только после новой правки источника.
   sourceDismissedAt DateTime?
 
@@ -1071,9 +1071,9 @@ model WorkoutSet {
   workoutExerciseId Int
   workoutExercise   WorkoutExercise @relation(fields: [workoutExerciseId], references: [id], onDelete: Cascade)
 
-  number Int
-  weight Decimal @db.Decimal(6, 2) /// кг; 0 — упражнение без веса
-  reps   Int /// повторы или секунды — по exercise.measure
+  number   Int
+  weight   Decimal @db.Decimal(6, 2) /// кг; 0 — упражнение без веса
+  reps     Int /// повторы или секунды — по exercise.measure
   /// uuid с клиента: повтор запроса из офлайн-очереди не создаёт второй подход
   clientId String? @unique @db.Uuid
 
@@ -1199,14 +1199,9 @@ enum RenderStatus {
   FAILED
 }
 
-/// CHAT — бот присылает файл в чат; DOWNLOAD — файл забирают из приложения по ссылке.
-enum RenderDelivery {
-  CHAT
-  DOWNLOAD
-}
-
-/// Задача на рендер ролика. Ставит API (src/render), рендерит отдельный процесс (src/render-worker),
-/// в чат доставляет основной процесс (src/render-delivery) — там живут боты.
+/// Файл ролика: один на пользователя, композицию, props и формат — повторный заказ отдаёт его же.
+/// Ставит API (src/render), рендерит отдельный процесс (src/render-worker), в чат по просьбе
+/// пользователя шлёт основной процесс (src/render-delivery) — там живут боты.
 model RenderJob {
   id     Int  @id @default(autoincrement())
   userId Int
@@ -1214,19 +1209,21 @@ model RenderJob {
 
   compositionId String /// id композиции из контракта (lower-third, …)
   props         Json /// уже провалидированы схемой композиции
-  format        String /// webm-alpha | prores-alpha | mp4
-  delivery      RenderDelivery
-  /// Мессенджер, откуда открыто приложение: туда бот пришлёт файл. Только для CHAT.
-  channel       BotChannel?
+  format        String /// webm-alpha | prores-alpha | mp4-chroma | mp4
 
   status   RenderStatus @default(QUEUED)
   filePath String? /// относительно upload root (renders/uuid.ext); null — ещё нет или уже удалён по сроку
   error    String? /// текст для пользователя, если FAILED
 
-  startedAt   DateTime?
-  finishedAt  DateTime?
-  deliveredAt DateTime? /// бот отправил файл (или окончательно не смог — тогда error)
-  createdAt   DateTime  @default(now())
+  startedAt  DateTime?
+  finishedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  // --- «В чат»: просьба прислать файл ботом; живёт на той же задаче, файл не рендерится заново ---
+  chatRequestedAt DateTime? /// попросили прислать; файл ещё в работе — бот пришлёт, как только будет готов
+  channel         BotChannel? /// мессенджер, откуда открыто приложение: туда бот пришлёт файл
+  deliveredAt     DateTime? /// бот отправил файл
+  chatError       String? /// бот не смог отправить; повторное «В чат» сбрасывает и пробует снова
 
   @@index([userId, createdAt])
   @@index([status, createdAt])

@@ -33,8 +33,9 @@ export const COMPOSITIONS = {
     title: 'Плашка упражнения',
     schema: lowerThirdProps,
     size: 'reels',
-    durationInFrames: 150,
-    formats: ['mp4-chroma', 'webm-alpha', 'prores-alpha'],
+    // 3 с: плашку кладут на короткий кусок видео, дольше она мешает смотреть само упражнение
+    durationInFrames: 90,
+    formats: ['mp4-chroma', 'webm-alpha', 'mov-alpha'],
     example: {
       title: 'Жим гантелей на наклонной',
       subtitle: '4 подхода × 10 повторов',

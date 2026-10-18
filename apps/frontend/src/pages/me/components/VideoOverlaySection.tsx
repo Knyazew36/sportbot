@@ -74,9 +74,8 @@ export const VideoOverlaySection = () => {
         formats={formats}
         slotOf={render.slotOf}
         onOrder={(format: RenderFormat) => withValues(valid => render.order(format, valid))}
-        onDownload={slot => render.download(slot.job)}
+        onDownload={slot => slot.job && render.download(slot.job)}
         onSendToChat={format => withValues(valid => render.sendToChat(format, valid))}
-        isSending={render.isSending}
       />
     </ScreenSection>
   )

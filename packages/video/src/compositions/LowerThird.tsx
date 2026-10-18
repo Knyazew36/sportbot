@@ -20,7 +20,8 @@ export const LowerThird = ({ title, subtitle, fill, background }: LowerThirdProp
   const enter = interpolate(frame, [0, 14], [0, 1], { easing: ease.enter, ...clamp })
   const sub = interpolate(frame, [6, 20], [0, 1], { easing: ease.enter, ...clamp })
   const exit = interpolate(frame, [durationInFrames - 12, durationInFrames], [0, 1], { easing: ease.exit, ...clamp })
-  const x = (p: number) => `${(p - 1) * 120}% 0`
+  // Сдвиг на ширину кадра, а не плашки: короткая плашка с тенью от 120% своей ширины не уезжала целиком
+  const x = (p: number) => `${(p - 1) * width}px 0`
 
   return (
     <AbsoluteFill from={-26}>

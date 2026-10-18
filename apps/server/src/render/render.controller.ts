@@ -5,6 +5,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
@@ -15,6 +16,7 @@ import { AuthChannel } from '@/miniapp/decorators/auth-channel.decorator';
 import { SportAuth } from '@/miniapp/decorators/sport-auth.decorator';
 
 import { CreateRenderJobDto } from './dto/create-render-job.dto';
+import { ListRenderJobsQueryDto } from './dto/list-render-jobs.query.dto';
 import { RenderJobResponseDto } from './dto/render-job.response.dto';
 import { RenderService } from './render.service';
 
@@ -39,6 +41,21 @@ export class RenderController {
     @Body() dto: CreateRenderJobDto,
   ) {
     return this.renderService.create(userId, channel, dto);
+  }
+
+  @Get('jobs')
+  @Swagger({
+    title: 'Свои файлы ролика за срок хранения: готовые и в работе',
+    query: ListRenderJobsQueryDto,
+    response: RenderJobResponseDto,
+    plainArray: true,
+    bearerAuth: true,
+  })
+  public list(
+    @CurrentUser('id') userId: number,
+    @Query() query: ListRenderJobsQueryDto,
+  ) {
+    return this.renderService.list(userId, query.compositionId);
   }
 
   @Get('jobs/:id')

@@ -15,9 +15,9 @@ import { renderFileName } from '@/render/render.files';
 import { UploadService } from '@/upload/upload.service';
 
 /**
- * Доставка готовых роликов в чат. Живёт в основном процессе: только тут запущены боты, воркер
- * рендера их не поднимает (второй polling того же бота Telegram отклонит). О рендере ничего не
- * знает — смотрит на задачи в статусе DONE.
+ * Файлы, которые попросили прислать в чат. Живёт в основном процессе: только тут запущены боты,
+ * воркер рендера их не поднимает (второй polling того же бота Telegram отклонит). О рендере ничего
+ * не знает — берёт готовые (DONE) задачи с пометкой chatRequestedAt.
  */
 @Injectable()
 export class RenderDeliveryService {
@@ -38,11 +38,12 @@ export class RenderDeliveryService {
       const ready = await this.prisma.renderJob.findMany({
         where: {
           status: 'DONE',
-          delivery: 'CHAT',
+          chatRequestedAt: { not: null },
           deliveredAt: null,
+          chatError: null,
           filePath: { not: null },
         },
-        orderBy: { finishedAt: 'asc' },
+        orderBy: { chatRequestedAt: 'asc' },
         take: 10,
       });
       for (const job of ready) await this.deliver(job);
@@ -54,7 +55,7 @@ export class RenderDeliveryService {
   private async deliver(job: RenderJob): Promise<void> {
     // Захват задачи: при нескольких экземплярах API файл уйдёт один раз
     const { count } = await this.prisma.renderJob.updateMany({
-      where: { id: job.id, deliveredAt: null },
+      where: { id: job.id, deliveredAt: null, chatError: null },
       data: { deliveredAt: new Date() },
     });
     if (!count || !job.filePath || !job.channel) return;
@@ -79,8 +80,9 @@ export class RenderDeliveryService {
       await this.prisma.renderJob.update({
         where: { id: job.id },
         data: {
-          error:
-            'Бот не смог прислать файл в чат. Скачай его в приложении — он хранится сутки.',
+          deliveredAt: null,
+          chatError:
+            'Бот не смог прислать файл. Открой чат с ботом, нажми «Старт» и попробуй ещё раз — или скачай файл.',
         },
       });
     }

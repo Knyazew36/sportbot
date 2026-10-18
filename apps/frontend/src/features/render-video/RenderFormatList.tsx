@@ -1,5 +1,5 @@
 import { RENDER_FORMATS, type RenderFormat } from '@sportbot/render-contract'
-import { DownloadIcon, LoaderIcon, SendIcon } from 'lucide-react'
+import { CheckIcon, DownloadIcon, LoaderIcon, SendIcon } from 'lucide-react'
 
 import { Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
@@ -11,54 +11,92 @@ type Props = {
   slotOf: (format: RenderFormat) => RenderSlot
   /** Заказать файл: экран проверяет форму и заказывает с её значениями */
   onOrder: (format: RenderFormat) => void
-  onDownload: (slot: Extract<RenderSlot, { state: 'ready' }>) => void
+  onDownload: (slot: RenderSlot) => void
   onSendToChat: (format: RenderFormat) => void
-  isSending: boolean
 }
 
-const MainAction = ({
+const Spinner = () => <LoaderIcon className='animate-spin' />
+
+const FileButton = ({
   slot,
   onOrder,
   onDownload,
-}: { slot: RenderSlot } & Pick<Props, 'onDownload'> & { onOrder: () => void }) => {
-  switch (slot.state) {
-    case 'pending':
-      return (
-        <Button
-          size='sm'
-          variant='outline'
-          disabled
-        >
-          <LoaderIcon className='animate-spin' />
-          Готовим…
-        </Button>
-      )
-    case 'ready':
-      return (
-        <Button
-          size='sm'
-          variant='success'
-          onClick={() => onDownload(slot)}
-        >
-          <DownloadIcon />
-          Скачать
-        </Button>
-      )
-    default:
-      return (
-        <Button
-          size='sm'
-          onClick={onOrder}
-        >
-          {slot.state === 'failed' ? 'Ещё раз' : 'Сделать файл'}
-        </Button>
-      )
-  }
+}: {
+  slot: RenderSlot
+  onOrder: () => void
+  onDownload: () => void
+}) => {
+  if (slot.file === 'pending')
+    return (
+      <Button
+        size='sm'
+        variant='outline'
+        disabled
+      >
+        <Spinner />
+        Готовим…
+      </Button>
+    )
+  if (slot.file === 'ready')
+    return (
+      <Button
+        size='sm'
+        variant='success'
+        onClick={onDownload}
+      >
+        <DownloadIcon />
+        Скачать
+      </Button>
+    )
+  return (
+    <Button
+      size='sm'
+      onClick={onOrder}
+    >
+      {slot.file === 'failed' ? 'Ещё раз' : 'Сделать файл'}
+    </Button>
+  )
+}
+
+// Ждём — кнопка заблокирована: повторное нажатие не поставит вторую задачу и не пришлёт файл дважды
+const ChatButton = ({ slot, onSend }: { slot: RenderSlot; onSend: () => void }) => {
+  if (slot.chat === 'waiting')
+    return (
+      <Button
+        size='sm'
+        variant='outline'
+        disabled
+      >
+        <Spinner />
+        {slot.file === 'ready' ? 'Отправляем…' : 'Пришлём, как будет готов'}
+      </Button>
+    )
+  if (slot.chat === 'sent')
+    return (
+      <Button
+        size='sm'
+        variant='outline'
+        disabled
+      >
+        <CheckIcon />В чате
+      </Button>
+    )
+  return (
+    <Button
+      size='sm'
+      variant='outline'
+      disabled={slot.file === 'pending' && slot.chat === 'idle' && !slot.job}
+      onClick={onSend}
+    >
+      <SendIcon />
+      {slot.chat === 'failed' ? 'В чат ещё раз' : 'В чат'}
+    </Button>
+  )
 }
 
 // Форматы ролика: у каждого — где им пользоваться, файл на скачивание и отправка ботом в чат.
 // Один формат на всех не годится: прозрачность понимают по-разному компьютер, браузер и телефон
-export const RenderFormatList = ({ formats, slotOf, onOrder, onDownload, onSendToChat, isSending }: Props) => (
+export const RenderFormatList = ({ formats, slotOf, onOrder, onDownload, onSendToChat }: Props) => (
   <ul className='flex flex-col gap-3'>
     {formats.map(format => {
       const spec = RENDER_FORMATS[format]
@@ -80,7 +118,7 @@ export const RenderFormatList = ({ formats, slotOf, onOrder, onDownload, onSendT
           >
             {spec.hint}
           </Text>
-          {slot.state === 'failed' && (
+          {slot.error && (
             <Text
               size='sm'
               tone='danger'
@@ -89,20 +127,16 @@ export const RenderFormatList = ({ formats, slotOf, onOrder, onDownload, onSendT
             </Text>
           )}
           <div className='flex flex-wrap gap-2'>
-            <MainAction
+            <FileButton
               slot={slot}
               onOrder={() => onOrder(format)}
-              onDownload={onDownload}
+              onDownload={() => onDownload(slot)}
             />
             {spec.chat && (
-              <Button
-                size='sm'
-                variant='outline'
-                disabled={isSending}
-                onClick={() => onSendToChat(format)}
-              >
-                <SendIcon />В чат
-              </Button>
+              <ChatButton
+                slot={slot}
+                onSend={() => onSendToChat(format)}
+              />
             )}
           </div>
         </li>
