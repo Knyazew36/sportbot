@@ -10,6 +10,15 @@
   --brand-voltage: #fff100;
   --brand-rest: #ffdcae;
 
+  /* Розовая расцветка — как [data-palette='rose'] в приложении */
+  --brand-rose-paper: #fff5f8;
+  --brand-rose-sheet: #fffafc;
+  --brand-rose-ink: #1f0a14;
+  --brand-rose-blue: #d6246e;
+  --brand-rose-rule: #f3dbe5;
+  /* Розовая тёмная — акцент светлее, им красим плашки в видео */
+  --brand-rose-dark-blue: #ff6fa8;
+
   --brand-font-sans: 'Onest Variable', ui-sans-serif, system-ui, sans-serif;
   --brand-font-display: 'Oswald Variable', 'Arial Narrow', sans-serif;
   --brand-font-serif: 'Cormorant Variable', 'Times New Roman', serif;

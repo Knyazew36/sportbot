@@ -1,4 +1,4 @@
-import { Composition } from 'remotion'
+import { type CalculateMetadataFunction, Composition } from 'remotion'
 
 import { formats } from './brand'
 import './fonts'
@@ -7,6 +7,14 @@ import { LowerThird, type LowerThirdProps } from './compositions/LowerThird'
 import { NumberCard, type NumberCardProps } from './compositions/NumberCard'
 
 const { reels, post, square } = formats
+
+// Оверлей: кнопка Render в Studio сразу предлагает ProRes 4444 с альфой, а не MP4 с чёрным фоном
+const overlay: CalculateMetadataFunction<LowerThirdProps> = async () => ({
+  defaultCodec: 'prores',
+  defaultProResProfile: '4444',
+  defaultPixelFormat: 'yuva444p10le',
+  defaultVideoImageFormat: 'png',
+})
 
 export const Root = () => (
   <>
@@ -47,11 +55,27 @@ export const Root = () => (
       component={LowerThird}
       durationInFrames={150}
       {...reels}
+      calculateMetadata={overlay}
       defaultProps={
         {
           title: 'Жим гантелей на наклонной',
           subtitle: '4 подхода × 10 повторов',
           fill: 'mint',
+          background: 'transparent',
+        } satisfies LowerThirdProps
+      }
+    />
+    <Composition
+      id='LowerThird-Rose-Reels'
+      component={LowerThird}
+      durationInFrames={150}
+      {...reels}
+      calculateMetadata={overlay}
+      defaultProps={
+        {
+          title: 'Жим гантелей на наклонной',
+          subtitle: '4 подхода × 10 повторов',
+          fill: 'rose',
           background: 'transparent',
         } satisfies LowerThirdProps
       }

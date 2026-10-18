@@ -8,7 +8,8 @@ mkdirSync(out, { recursive: true })
 
 const targets = [
   ['logo/icon.svg', 'icon-1024.png', 1024],
-  ['logo/icon.svg', 'avatar-1080.png', 1080], // Instagram, Telegram
+  // Instagram и Telegram режут аватарку в круг и не держат прозрачность: плитка сама становится фоном
+  ['logo/avatar.svg', 'avatar-1080.png', 1080],
   ['logo/icon.svg', 'apple-touch-icon-180.png', 180],
   ['logo/icon.svg', 'favicon-32.png', 32],
   ['logo/icon.svg', 'favicon-16.png', 16],

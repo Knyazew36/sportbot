@@ -2,6 +2,9 @@ import tokens from '@sportbot/brand/tokens.json'
 import { Easing } from 'remotion'
 
 export const color = { ...tokens.color.light, ...tokens.color.accent }
+// Розовая расцветка приложения: blue здесь малиновый «голос палитры»
+export const rose = tokens.color.rose
+export const roseDark = tokens.color.roseDark
 export const font = {
   display: `'Oswald Variable', 'Arial Narrow', sans-serif`,
   sans: `'Onest Variable', system-ui, sans-serif`,
