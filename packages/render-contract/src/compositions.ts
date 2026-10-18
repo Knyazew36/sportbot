@@ -63,7 +63,7 @@ export const COMPOSITIONS = {
     size: 'reels',
     durationInFrames: 90,
     // MOV первым: прозрачный без потерь подходит чаще всего, остальные — если редактор его не открыл
-    formats: ['mov-alpha', 'webm-alpha', 'mp4-chroma'],
+    formats: ['mov-alpha', 'webm-alpha', 'mp4-chroma', 'mov-prores', 'mov-prores-apple', 'mov-prores-light'],
     example: {
       title: 'Жим гантелей лежа',
       subtitle: '4 подхода × 10 повторов',
@@ -78,7 +78,7 @@ export const COMPOSITIONS = {
     size: 'reels',
     durationInFrames: 90,
     // Обычный MP4 ставят встык в конец ролика; с прозрачностью и хромакеем — внахлёст на последние кадры
-    formats: ['mp4', 'mov-alpha', 'webm-alpha', 'mp4-chroma'],
+    formats: ['mp4', 'mov-alpha', 'webm-alpha', 'mp4-chroma', 'mov-prores', 'mov-prores-apple', 'mov-prores-light'],
     hints: {
       mp4: 'MP4 с фоном: поставь в самый конец своего ролика',
       'mov-alpha':

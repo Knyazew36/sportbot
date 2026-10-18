@@ -140,6 +140,30 @@ export class RenderService {
     return this.toDto(job);
   }
 
+  /**
+   * Удаление файла раньше срока — как у RenderCleanupService: файл с диска, задача остаётся без
+   * ссылки. Строку не удаляем, иначе удалённые выпадут из дневного лимита в assertLimits.
+   */
+  public async removeFile(
+    userId: number,
+    id: number,
+  ): Promise<RenderJobResponseDto> {
+    // Путь нужен до обнуления: update вернёт уже filePath = null
+    const job = await this.prisma.renderJob.findFirst({
+      where: { id, userId, status: 'DONE', filePath: { not: null } },
+      select: { filePath: true },
+    });
+    if (!job) throw new NotFoundException('Файл не найден или уже удалён');
+
+    const updated = await this.prisma.renderJob.update({
+      where: { id },
+      data: { filePath: null },
+    });
+    this.upload.deleteByRelativePath(job.filePath);
+    this.logger.log(`Задача #${id}: файл удалён пользователем, userId=${userId}`);
+    return this.toDto(updated);
+  }
+
   private async enqueue(
     userId: number,
     dto: CreateRenderJobDto,

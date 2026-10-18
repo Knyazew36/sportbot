@@ -9,7 +9,8 @@ import type {
   RenderControllerCreate200,
   RenderControllerFindOne200,
   RenderControllerList200,
-  RenderControllerListParams
+  RenderControllerListParams,
+  RenderControllerRemove200
 } from '../model';
 
 import { customInstance } from '../../model/orval-mutator';
@@ -52,6 +53,18 @@ export const renderControllerFindOne = (
     },
       );
     }
+  /**
+ * @summary Удалить свой готовый файл, не дожидаясь срока хранения
+ */
+export const renderControllerRemove = (
+    id: number,
+ ) => {
+      return customInstance<RenderControllerRemove200>(
+      {url: `/render/jobs/delete/${id}`, method: 'POST'
+    },
+      );
+    }
   export type RenderControllerCreateResult = NonNullable<Awaited<ReturnType<typeof renderControllerCreate>>>
 export type RenderControllerListResult = NonNullable<Awaited<ReturnType<typeof renderControllerList>>>
 export type RenderControllerFindOneResult = NonNullable<Awaited<ReturnType<typeof renderControllerFindOne>>>
+export type RenderControllerRemoveResult = NonNullable<Awaited<ReturnType<typeof renderControllerRemove>>>

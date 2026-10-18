@@ -71,4 +71,18 @@ export class RenderController {
   ) {
     return this.renderService.findOwn(userId, id);
   }
+
+  @Post('jobs/delete/:id')
+  @Swagger({
+    title: 'Удалить свой готовый файл, не дожидаясь срока хранения',
+    param: { name: 'id', type: Number },
+    response: RenderJobResponseDto,
+    bearerAuth: true,
+  })
+  public remove(
+    @CurrentUser('id') userId: number,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.renderService.removeFile(userId, id);
+  }
 }

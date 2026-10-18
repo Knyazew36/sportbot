@@ -3,7 +3,14 @@
  * понимают прозрачность по-разному — пользователь выбирает кнопку под свой редактор.
  * HEVC с альфой (родной для iPhone) Remotion не кодирует: его умеет только VideoToolbox на macOS
  */
-export type RenderFormat = 'mov-alpha' | 'webm-alpha' | 'mp4-chroma' | 'mp4'
+export type RenderFormat =
+  | 'mov-alpha'
+  | 'webm-alpha'
+  | 'mp4-chroma'
+  | 'mp4'
+  | 'mov-prores'
+  | 'mov-prores-apple'
+  | 'mov-prores-light'
 
 /** Фон, который формат навязывает композиции поверх props пользователя */
 export type FormatBackground = 'transparent' | 'chroma'
@@ -97,6 +104,52 @@ export const RENDER_FORMATS: Record<RenderFormat, FormatSpec> = {
     encoding: { crf: 23, x264Preset: 'veryfast' },
     chat: true,
     renderRate: 1.5,
+  },
+  // Тестовые: ищем, какую прозрачность понимает iPhone. PNG-в-MOV и WebM там фон не убирают, а ProRes 4444
+  // iOS декодирует штатно. Три варианта — чтобы отделить «не тот кодек» от «не та метка файла» и «слишком тяжёлый»
+  'mov-prores': {
+    label: 'Тест iPhone 1: ProRes 4444',
+    hint: 'Тест: чистый ProRes 4444 без подмены кодека. Проверь прозрачность в CapCut, VN, InShot на iPhone',
+    ext: 'mov',
+    mime: 'video/quicktime',
+    codec: 'prores',
+    proResProfile: '4444',
+    pixelFormat: 'yuva444p10le',
+    imageFormat: 'png',
+    background: 'transparent',
+    chat: true,
+    renderRate: 2.5,
+  },
+  'mov-prores-apple': {
+    label: 'Тест iPhone 2: ProRes 4444, метки Apple',
+    hint: 'Тест: ProRes 4444, файл подписан как сделанный Apple. Проверь прозрачность в CapCut, VN, InShot на iPhone',
+    ext: 'mov',
+    mime: 'video/quicktime',
+    codec: 'prores',
+    proResProfile: '4444',
+    pixelFormat: 'yuva444p10le',
+    imageFormat: 'png',
+    background: 'transparent',
+    // Метка ap4h и альфа 16 бит у ffmpeg и так по умолчанию — отличается только подпись производителя
+    // в кадрах: Apple-декодеры могут её проверять. Подпись дорожки (FFMP) Remotion перезаписывает при сборке
+    encoding: { encoderArgs: ['-vendor', 'apl0'] },
+    chat: true,
+    renderRate: 2.5,
+  },
+  'mov-prores-light': {
+    label: 'Тест iPhone 3: ProRes 4444, лёгкий',
+    hint: 'Тест: ProRes 4444 с меньшим битрейтом — файл легче. Проверь прозрачность и качество краёв на iPhone',
+    ext: 'mov',
+    mime: 'video/quicktime',
+    codec: 'prores',
+    proResProfile: '4444',
+    pixelFormat: 'yuva444p10le',
+    imageFormat: 'png',
+    background: 'transparent',
+    // qscale выше — грубее и меньше: на плоских плашках разницу почти не видно
+    encoding: { encoderArgs: ['-vendor', 'apl0', '-qscale:v', '11'] },
+    chat: true,
+    renderRate: 2.5,
   },
 }
 
