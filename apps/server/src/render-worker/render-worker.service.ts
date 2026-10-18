@@ -13,6 +13,7 @@ import {
   RENDER_FORMATS,
   type RenderFormat,
 } from '@sportbot/render-contract';
+import * as os from 'os';
 import * as path from 'path';
 import { PrismaService } from 'prisma/prisma.service';
 
@@ -41,7 +42,11 @@ export class RenderWorkerService implements OnApplicationBootstrap {
     this.serveUrl = path.resolve(
       config.get<string>('RENDER_BUNDLE_DIR', '../video/build'),
     );
-    this.concurrency = config.get<number>('RENDER_CONCURRENCY', 4);
+    // Remotion падает, если потоков больше, чем ядер: на маленьком сервере их меньше значения из .env
+    this.concurrency = Math.min(
+      config.get<number>('RENDER_CONCURRENCY', 2),
+      os.cpus().length,
+    );
   }
 
   public async onApplicationBootstrap(): Promise<void> {
@@ -58,7 +63,9 @@ export class RenderWorkerService implements OnApplicationBootstrap {
     // Chrome Headless Shell скачивается при первом запуске, дальше берётся из кэша
     await ensureBrowser();
     this.ready = true;
-    this.logger.log(`Готов к рендеру, бандл ${this.serveUrl}`);
+    this.logger.log(
+      `Готов к рендеру, бандл ${this.serveUrl}, потоков ${this.concurrency}`,
+    );
   }
 
   @Interval(2000)

@@ -64,8 +64,8 @@ const envSchema = z
     // --- рендер видео (процесс src/main-render.ts) ---
     // Бандл композиций: yarn workspace video bundle. Путь — от каталога запуска сервера
     RENDER_BUNDLE_DIR: z.string().trim().min(1).default('../video/build'),
-    // Сколько кадров Chrome рисует параллельно: не больше числа ядер, на слабом сервере — 1–2
-    RENDER_CONCURRENCY: z.coerce.number().int().positive().default(4),
+    // Сколько кадров Chrome рисует параллельно; больше числа ядер воркер сам не поставит
+    RENDER_CONCURRENCY: z.coerce.number().int().positive().default(2),
 
     // --- платформенный админ (сид) ---
     // Пробелы, \r и неснятые кавычки вокруг значения — частая причина ложного «Invalid email»
