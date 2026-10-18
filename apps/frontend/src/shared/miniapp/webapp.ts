@@ -47,6 +47,8 @@ export type WebApp = {
   HapticFeedback?: Haptic
   openTelegramLink?: (url: string) => void
   openLink?: (url: string) => void
+  /** Telegram Bot API 8.0: системный диалог сохранения файла. accepted — пользователь согласился */
+  downloadFile?: (params: { url: string; file_name: string }, cb?: (accepted: boolean) => void) => void
   /** MAX: системный диалог «Поделиться», в вебе его нет */
   shareContent?: (params: MaxShareParams) => Promise<unknown>
   /** MAX: выбор чата внутри MAX — как t.me/share в Telegram */
@@ -186,6 +188,25 @@ export const openExternalLink = (url: string): boolean => {
   if (!app?.openLink) return false
   app.openLink(url)
   return true
+}
+
+// ── Скачивание файла ─────────────────────────────────────────────────────────
+
+/**
+ * Сохраняет файл по ссылке. В Telegram — системным диалогом (<a download> в его WebView ненадёжен,
+ * на iOS не работает); в MAX и браузере — обычной ссылкой с download
+ */
+export const downloadFile = (url: string, fileName: string) => {
+  const app = webApp()
+  if (app?.downloadFile && app.isVersionAtLeast?.('8.0')) {
+    app.downloadFile({ url, file_name: fileName })
+    return
+  }
+  const link = document.createElement('a')
+  link.href = url
+  link.download = fileName
+  link.rel = 'noopener'
+  link.click()
 }
 
 // ── Разрешение писать ────────────────────────────────────────────────────────

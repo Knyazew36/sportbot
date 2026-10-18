@@ -58,9 +58,7 @@ export const PauseSection = ({ profile }: { profile: Profile }) => {
   const end = useEndPause()
 
   return (
-    <ScreenSection
-      aside='серия сохраняется'
-    >
+    <ScreenSection aside='серия сохраняется'>
       {profile.pause ? (
         <div className='hatch border-border flex items-center justify-between gap-3 border-[1.5px] p-4'>
           <div className='bg-background px-1'>

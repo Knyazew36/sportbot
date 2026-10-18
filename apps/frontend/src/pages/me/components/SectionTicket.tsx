@@ -18,10 +18,7 @@ type SectionTicketProps = {
 // Вырез на линии отрыва — тот же корешок, что у билетов комплексов и у карты участника
 const Notch = ({ className }: { className: string }) => (
   <span
-    className={cn(
-      'bg-background absolute -left-[7px] size-3 rounded-full border-[1.5px] border-current',
-      className,
-    )}
+    className={cn('bg-background absolute -left-[7px] size-3 rounded-full border-[1.5px] border-current', className)}
   />
 )
 
@@ -34,12 +31,7 @@ export const SectionTicket = ({ to, index, icon: Icon, title, meta, marked }: Se
     size='lg'
     className='h-auto w-full items-stretch justify-start gap-0 p-0 text-left whitespace-normal'
   >
-    <span
-      className={cn(
-        'flex w-[68px] shrink-0 flex-col items-center justify-center gap-2 py-3.5',
-        marked && 'hatch',
-      )}
-    >
+    <span className={cn('flex w-[68px] shrink-0 flex-col items-center justify-center gap-2 py-3.5', marked && 'hatch')}>
       {index != null && (
         <Poster
           as='span'

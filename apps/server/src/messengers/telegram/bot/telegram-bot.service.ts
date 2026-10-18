@@ -94,20 +94,7 @@ export class TelegramBotService implements OnApplicationBootstrap {
       this.logger.debug(`Сообщение отправлено telegramId=${telegramId}`);
       return result;
     } catch (error) {
-      const message =
-        error instanceof TelegramError
-          ? `Telegram[${error.code}]: ${error.description}`
-          : String(error);
-      this.logger.error(
-        `Ошибка отправки сообщения telegramId=${telegramId}: ${message}`,
-      );
-      if (
-        error instanceof TelegramError &&
-        UNREACHABLE_DESCRIPTIONS.some((d) => error.description.includes(d))
-      ) {
-        await this.dialogService.markClosed(telegramId);
-      }
-      throw error instanceof TelegramError ? new Error(message) : error;
+      throw await this.sendFailed(telegramId, 'сообщения', error);
     }
   }
 
@@ -139,21 +126,63 @@ export class TelegramBotService implements OnApplicationBootstrap {
       this.logger.debug(`Картинка отправлена telegramId=${telegramId}`);
       return result.photo.at(-1)?.file_id;
     } catch (error) {
-      const message =
-        error instanceof TelegramError
-          ? `Telegram[${error.code}]: ${error.description}`
-          : String(error);
-      this.logger.error(
-        `Ошибка отправки картинки telegramId=${telegramId}: ${message}`,
-      );
-      if (
-        error instanceof TelegramError &&
-        UNREACHABLE_DESCRIPTIONS.some((d) => error.description.includes(d))
-      ) {
-        await this.dialogService.markClosed(telegramId);
-      }
-      throw error instanceof TelegramError ? new Error(message) : error;
+      throw await this.sendFailed(telegramId, 'картинки', error);
     }
+  }
+
+  /**
+   * Отправить файл документом: Telegram не пережимает его, в отличие от sendVideo/sendPhoto
+   * (видео с прозрачностью после пережатия теряет альфу). Лимит Bot API — 50 МБ.
+   */
+  public async sendDocument(
+    telegramId: string | number,
+    file: { path: string; name: string },
+    text: string,
+    extra?: TelegramSendExtra,
+  ): Promise<void> {
+    const fits = text.length <= 1024;
+    try {
+      await this.bot.telegram.sendDocument(
+        Number(telegramId),
+        { source: file.path, filename: file.name },
+        fits
+          ? {
+              caption: text,
+              caption_entities: extra?.entities,
+              reply_markup: extra?.reply_markup as never,
+            }
+          : undefined,
+      );
+      if (!fits) await this.sendMessage(telegramId, text, extra);
+      this.logger.debug(`Файл отправлен telegramId=${telegramId}`);
+    } catch (error) {
+      throw await this.sendFailed(telegramId, 'файла', error);
+    }
+  }
+
+  /**
+   * Лог отказа и ошибка с понятным текстом. Если Telegram ответил, что писать пользователю нельзя, —
+   * чат помечается закрытым, чтобы следующие отправки не долбили Telegram впустую.
+   */
+  private async sendFailed(
+    telegramId: string | number,
+    what: string,
+    error: unknown,
+  ): Promise<unknown> {
+    const message =
+      error instanceof TelegramError
+        ? `Telegram[${error.code}]: ${error.description}`
+        : String(error);
+    this.logger.error(
+      `Ошибка отправки ${what} telegramId=${telegramId}: ${message}`,
+    );
+    if (
+      error instanceof TelegramError &&
+      UNREACHABLE_DESCRIPTIONS.some((d) => error.description.includes(d))
+    ) {
+      await this.dialogService.markClosed(telegramId);
+    }
+    return error instanceof TelegramError ? new Error(message) : error;
   }
 
   /** Меню команд бота (кнопка «/» в клиенте). */
@@ -230,10 +259,13 @@ export class TelegramBotService implements OnApplicationBootstrap {
     chargeId: string,
   ): Promise<void> {
     try {
-      await this.bot.telegram.callApi('refundStarPayment' as never, {
-        user_id: Number(telegramId),
-        telegram_payment_charge_id: chargeId,
-      } as never);
+      await this.bot.telegram.callApi(
+        'refundStarPayment' as never,
+        {
+          user_id: Number(telegramId),
+          telegram_payment_charge_id: chargeId,
+        } as never,
+      );
       this.logger.log(
         `Звёзды возвращены: telegramId=${telegramId}, chargeId=${chargeId}`,
       );

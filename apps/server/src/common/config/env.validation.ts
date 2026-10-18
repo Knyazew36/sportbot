@@ -61,6 +61,12 @@ const envSchema = z
     UPLOAD_DIR: z.string().trim().min(1).default('uploads'),
     MAX_FILE_SIZE: z.coerce.number().int().positive().default(5242880),
 
+    // --- рендер видео (процесс src/main-render.ts) ---
+    // Бандл композиций: yarn workspace video bundle. Путь — от каталога запуска сервера
+    RENDER_BUNDLE_DIR: z.string().trim().min(1).default('../video/build'),
+    // Сколько кадров Chrome рисует параллельно: не больше числа ядер, на слабом сервере — 1–2
+    RENDER_CONCURRENCY: z.coerce.number().int().positive().default(4),
+
     // --- платформенный админ (сид) ---
     // Пробелы, \r и неснятые кавычки вокруг значения — частая причина ложного «Invalid email»
     PLATFORM_ADMIN_EMAIL: z.preprocess(

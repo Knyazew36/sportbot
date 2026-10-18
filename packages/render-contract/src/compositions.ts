@@ -1,0 +1,52 @@
+import { z } from 'zod'
+
+import type { RenderFormat } from './formats'
+
+// Схемы props — единственная правда о том, что принимает композиция: по ним Studio строит панель
+// props, сервер валидирует запрос, фронт — форму. React и Remotion сюда не тянем: пакет читает сервер
+
+export const lowerThirdProps = z.object({
+  title: z.string().trim().min(1, 'Название — обязательно').max(60, 'Название — до 60 символов'),
+  subtitle: z.string().trim().max(60, 'Подпись — до 60 символов'),
+  fill: z.enum(['mint', 'rest', 'sheet', 'rose']),
+  /** chroma — ключевой цвет под заливку, для формата mp4-chroma */
+  background: z.enum(['paper', 'transparent', 'chroma']),
+})
+export type LowerThirdProps = z.infer<typeof lowerThirdProps>
+
+type CompositionMeta = {
+  /** Как ролик называется у пользователя: в сообщении бота, на экране */
+  title: string
+  schema: z.ZodType<Record<string, unknown>>
+  /** Формат кадра — ключ tokens.video из @sportbot/brand */
+  size: 'reels' | 'post' | 'square'
+  durationInFrames: number
+  /** Форматы, в которых композицию можно заказать: по кнопке на каждый; первый — по умолчанию */
+  formats: readonly [RenderFormat, ...RenderFormat[]]
+  /** Пример props: defaultProps в Studio и пример в Swagger */
+  example: Record<string, unknown>
+}
+
+/** Композиции, которые пользователь может отрендерить сам. id — он же id <Composition> в бандле */
+export const COMPOSITIONS = {
+  'lower-third': {
+    title: 'Плашка упражнения',
+    schema: lowerThirdProps,
+    size: 'reels',
+    durationInFrames: 150,
+    formats: ['mp4-chroma', 'webm-alpha', 'prores-alpha'],
+    example: {
+      title: 'Жим гантелей на наклонной',
+      subtitle: '4 подхода × 10 повторов',
+      fill: 'mint',
+      background: 'transparent',
+    } satisfies LowerThirdProps,
+  },
+} as const satisfies Record<string, CompositionMeta>
+
+export type CompositionId = keyof typeof COMPOSITIONS
+export type CompositionProps<Id extends CompositionId> = z.infer<(typeof COMPOSITIONS)[Id]['schema']>
+
+export const COMPOSITION_IDS = Object.keys(COMPOSITIONS) as CompositionId[]
+
+export const isCompositionId = (id: string): id is CompositionId => id in COMPOSITIONS

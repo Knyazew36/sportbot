@@ -1,3 +1,4 @@
+import { pluralize } from '@front-cmdt/utils/pluralize'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 
@@ -12,7 +13,6 @@ import {
   useUpdateProfile,
 } from '@/entities/profile'
 import { applyFieldErrors } from '@/shared/lib/form'
-import { pluralize } from '@front-cmdt/utils/pluralize'
 import { WEEKDAYS } from '@/shared/lib/weekdays'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
@@ -180,9 +180,7 @@ const TimezoneForm = ({ profile }: { profile: Profile }) => {
 
 // Расписание (frontend-tz, 13.1): дни, время вопросов, часовой пояс как в боте
 export const ScheduleSection = ({ profile }: { profile: Profile }) => (
-  <ScreenSection
-    aside={`${pluralize(profile.trainingDays.length, DAY_FORMS)} в неделю`}
-  >
+  <ScreenSection aside={`${pluralize(profile.trainingDays.length, DAY_FORMS)} в неделю`}>
     <ScheduleForm profile={profile} />
     <TimezoneForm profile={profile} />
   </ScreenSection>

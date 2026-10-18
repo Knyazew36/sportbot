@@ -23,7 +23,11 @@ export const NumberCard = ({ value, unit, label, fill, background }: NumberCardP
   const count = interpolate(frame, [8, 48], [0, value], { easing: Easing.out(Easing.cubic), ...clamp })
   // Цифра досчитала — плитка «нажимается», единственное место для punch
   const press =
-    frame < 48 ? 0 : frame < 52 ? interpolate(frame, [48, 52], [0, 1]) : 1 - spring({ frame: frame - 52, fps, config: { damping: 9 } })
+    frame < 48
+      ? 0
+      : frame < 52
+        ? interpolate(frame, [48, 52], [0, 1])
+        : 1 - spring({ frame: frame - 52, fps, config: { damping: 9 } })
   const labelIn = interpolate(frame, [30, 44], [0, 1], { easing: ease.enter, ...clamp })
 
   return (

@@ -46,6 +46,7 @@ export class MaxMessengerChannel implements MessengerChannel, OnModuleInit {
     message: MessengerMessage,
   ): Promise<MessengerSendResult> {
     if (!user.maxId) throw new Error('У пользователя не привязан MAX');
+    if (message.file) throw new Error('Файлы в MAX бот пока не отправляет');
     const { text, format } = this.format(message);
     if (!message.image) {
       await this.botService.sendMessage(user.maxId, text, {

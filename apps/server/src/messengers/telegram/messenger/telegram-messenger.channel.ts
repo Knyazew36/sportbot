@@ -51,6 +51,15 @@ export class TelegramMessengerChannel
     if (!user.telegramId)
       throw new Error('У пользователя не привязан Telegram');
     const { text, extra } = this.format(message);
+    if (message.file) {
+      await this.botService.sendDocument(
+        user.telegramId,
+        message.file,
+        text,
+        extra,
+      );
+      return {};
+    }
     if (message.image) {
       const imageId = await this.botService.sendPhoto(
         user.telegramId,

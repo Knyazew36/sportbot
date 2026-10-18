@@ -26,9 +26,7 @@ export const FriendsSection = () => {
     })
 
   return (
-    <ScreenSection
-      aside={friends.data?.length ? `${friends.data.length} в списке` : undefined}
-    >
+    <ScreenSection aside={friends.data?.length ? `${friends.data.length} в списке` : undefined}>
       {friends.data?.length ? (
         <List>
           {friends.data.map(f => (

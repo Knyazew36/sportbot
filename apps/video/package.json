@@ -7,16 +7,17 @@
     "studio": "remotion studio",
     "check-types": "tsc --noEmit",
     "render": "remotion render",
-    "render:overlay": "remotion render --image-format=png --codec=prores --prores-profile=4444 --pixel-format=yuva444p10le"
+    "render:overlay": "remotion render --image-format=png --codec=prores --prores-profile=4444 --pixel-format=yuva444p10le",
+    "bundle": "remotion bundle --out-dir=build"
   },
   "dependencies": {
-    "@fontsource-variable/onest": "^5.3.1",
-    "@fontsource-variable/oswald": "^5.3.0",
     "@remotion/cli": "4.0.532",
-    "@sportbot/brand": "0.0.0",
+    "@sportbot/render-contract": "0.0.0",
+    "@sportbot/video": "0.0.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "remotion": "4.0.532"
+    "remotion": "4.0.532",
+    "zod": "4.5.4"
   },
   "devDependencies": {
     "@types/react": "^19",

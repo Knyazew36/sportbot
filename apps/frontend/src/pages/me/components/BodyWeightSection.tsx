@@ -46,9 +46,7 @@ export const BodyWeightSection = ({ profile }: { profile: Profile }) => {
   })
 
   return (
-    <ScreenSection
-      aside={last ? `последний ${last} кг` : undefined}
-    >
+    <ScreenSection aside={last ? `последний ${last} кг` : undefined}>
       <form
         className='grid grid-cols-[1fr_auto] gap-2'
         onSubmit={handleSubmit(({ value }) =>

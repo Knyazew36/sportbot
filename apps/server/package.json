@@ -24,7 +24,9 @@
     "content:apply-guides": "ts-node -r tsconfig-paths/register prisma/apply-guides.ts",
     "content:merge": "ts-node -r tsconfig-paths/register prisma/merge-content.ts",
     "content:migrate-cardio": "ts-node -r tsconfig-paths/register prisma/migrate-cardio.ts",
-    "content:setup": "./content.sh"
+    "content:setup": "./content.sh",
+    "start:render": "nest start --entryFile src/main-render",
+    "start:prod:render": "node dist/src/main-render.js"
   },
   "dependencies": {
     "@casl/ability": "^7.0.1",
@@ -38,7 +40,9 @@
     "@nestjs/throttler": "^6.5.0",
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "7.10.0",
+    "@remotion/renderer": "4.0.532",
     "@resvg/resvg-js": "^2.6.2",
+    "@sportbot/render-contract": "0.0.0",
     "@telegram-apps/init-data-node": "^2.0.0",
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",

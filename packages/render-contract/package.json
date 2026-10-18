@@ -1,0 +1,23 @@
+{
+  "name": "@sportbot/render-contract",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Контракт рендера видео: композиции, их props (zod), форматы и статусы задач. Общий для фронта, Studio и сервера",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./src/index.ts",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "postinstall": "tsc -p tsconfig.json",
+    "check-types": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "zod": "4.5.4"
+  }
+}

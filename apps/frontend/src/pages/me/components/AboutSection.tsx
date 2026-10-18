@@ -2,12 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 
-import {
-  displayNameSchema,
-  type DisplayNameValues,
-  type Profile,
-  useUpdateProfile,
-} from '@/entities/profile'
+import { displayNameSchema, type DisplayNameValues, type Profile, useUpdateProfile } from '@/entities/profile'
 import { sportUserKeys } from '@/entities/sport-user'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'

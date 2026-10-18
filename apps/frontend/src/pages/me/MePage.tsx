@@ -1,3 +1,4 @@
+import { pluralize } from '@front-cmdt/utils/pluralize'
 
 import { useLimitations } from '@/entities/limitation'
 import { MESSENGER_LABEL, useLinkState } from '@/entities/link'
@@ -5,7 +6,6 @@ import { type Profile, useProfile } from '@/entities/profile'
 import { useFriends } from '@/entities/social'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
-import { pluralize } from '@front-cmdt/utils/pluralize'
 import { useThemeChoice } from '@/shared/lib/hooks/use-messenger-theme'
 import { usePaletteChoice } from '@/shared/lib/hooks/use-palette'
 import { WEEKDAYS } from '@/shared/lib/weekdays'
@@ -50,6 +50,7 @@ const useSectionMeta = (profile: Profile): Partial<Record<MeSectionSlug, string>
     app: [PALETTES.find(p => p.value === palette)?.label, THEME_OPTIONS.find(o => o.value === theme)?.label]
       .filter(Boolean)
       .join(' · '),
+    editor: 'плашки для своих видео',
   }
 }
 

@@ -46,6 +46,8 @@ import { PlanModule } from './plan/plan.module';
 import { ProfileModule } from './profile/profile.module';
 import { ProgramModule } from './program/program.module';
 import { ProgramTagModule } from './program-tag/program-tag.module';
+import { RenderDeliveryModule } from './render-delivery/render-delivery.module';
+import { RenderModule } from './render/render.module';
 import { SocialModule } from './social/social.module';
 import { StarsModule } from './stars/stars.module';
 import { StatsModule } from './stats/stats.module';
@@ -107,6 +109,9 @@ import { WorkoutModule } from './workout/workout.module';
     SocialModule,
     LinkModule,
     AdminModule,
+    // Рендер роликов: очередь и API; сам рендер — отдельный процесс src/main-render.ts
+    RenderModule,
+    RenderDeliveryModule,
   ],
   controllers: [AppController],
   providers: [

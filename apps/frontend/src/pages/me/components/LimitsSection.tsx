@@ -91,9 +91,7 @@ export const LimitsSection = () => {
   const [open, setOpen] = useState(false)
 
   return (
-    <ScreenSection
-      aside='бот предупредит в тренировке'
-    >
+    <ScreenSection aside='бот предупредит в тренировке'>
       {limitations.data?.length ? (
         <List>
           {limitations.data.map(l => (

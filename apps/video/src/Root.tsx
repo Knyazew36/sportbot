@@ -1,23 +1,41 @@
+import { COMPOSITION_IDS, COMPOSITIONS, RENDER_FORMATS } from '@sportbot/render-contract'
+import { compositionOf, formats, waitForFonts } from '@sportbot/video'
+import { LogoSting, type LogoStingProps } from '@sportbot/video/compositions/LogoSting'
+import { LowerThird, type LowerThirdProps } from '@sportbot/video/compositions/LowerThird'
+import { NumberCard, type NumberCardProps } from '@sportbot/video/compositions/NumberCard'
 import { type CalculateMetadataFunction, Composition } from 'remotion'
 
-import { formats } from './brand'
-import './fonts'
-import { LogoSting, type LogoStingProps } from './compositions/LogoSting'
-import { LowerThird, type LowerThirdProps } from './compositions/LowerThird'
-import { NumberCard, type NumberCardProps } from './compositions/NumberCard'
+waitForFonts()
 
 const { reels, post, square } = formats
 
 // Оверлей: кнопка Render в Studio сразу предлагает ProRes 4444 с альфой, а не MP4 с чёрным фоном
+const prores = RENDER_FORMATS['prores-alpha']
 const overlay: CalculateMetadataFunction<LowerThirdProps> = async () => ({
-  defaultCodec: 'prores',
-  defaultProResProfile: '4444',
-  defaultPixelFormat: 'yuva444p10le',
-  defaultVideoImageFormat: 'png',
+  defaultCodec: prores.codec,
+  defaultProResProfile: prores.proResProfile,
+  defaultPixelFormat: prores.pixelFormat,
+  defaultVideoImageFormat: prores.imageFormat,
 })
+
+const demoLowerThird = COMPOSITIONS['lower-third'].example
 
 export const Root = () => (
   <>
+    {/* Композиции, которые пользователи рендерят из приложения: id и props — из контракта, как на сервере */}
+    {COMPOSITION_IDS.map((id) => {
+      const { component, schema, ...meta } = compositionOf(id)
+      return (
+        <Composition
+          key={id}
+          {...meta}
+          component={component}
+          schema={schema}
+          calculateMetadata={overlay}
+        />
+      )
+    })}
+
     <Composition
       id='Logo-Reels'
       component={LogoSting}
@@ -51,34 +69,12 @@ export const Root = () => (
       }
     />
     <Composition
-      id='LowerThird-Reels'
-      component={LowerThird}
-      durationInFrames={150}
-      {...reels}
-      calculateMetadata={overlay}
-      defaultProps={
-        {
-          title: 'Жим гантелей на наклонной',
-          subtitle: '4 подхода × 10 повторов',
-          fill: 'mint',
-          background: 'transparent',
-        } satisfies LowerThirdProps
-      }
-    />
-    <Composition
       id='LowerThird-Rose-Reels'
       component={LowerThird}
       durationInFrames={150}
       {...reels}
       calculateMetadata={overlay}
-      defaultProps={
-        {
-          title: 'Жим гантелей на наклонной',
-          subtitle: '4 подхода × 10 повторов',
-          fill: 'rose',
-          background: 'transparent',
-        } satisfies LowerThirdProps
-      }
+      defaultProps={{ ...demoLowerThird, fill: 'rose' } satisfies LowerThirdProps}
     />
   </>
 )

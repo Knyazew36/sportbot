@@ -46,6 +46,7 @@ export class VkMessengerChannel implements MessengerChannel, OnModuleInit {
     message: MessengerMessage,
   ): Promise<MessengerSendResult> {
     if (!user.vkId) throw new Error('У пользователя не привязан VK');
+    if (message.file) throw new Error('Файлы в VK бот пока не отправляет');
     await this.botService.sendMessage(
       user.vkId,
       plainText(message.text),

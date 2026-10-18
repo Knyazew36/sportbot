@@ -21,6 +21,7 @@ export class UploadService {
     'avatars',
     'chat',
     'catalog',
+    'renders',
   ] as const;
 
   readonly uploadRoot: string;

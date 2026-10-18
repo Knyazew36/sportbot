@@ -1,4 +1,12 @@
-import { BellRingIcon, HeartPulseIcon, type LucideIcon, PaletteIcon, UserRoundIcon, UsersRoundIcon } from 'lucide-react'
+import {
+  BellRingIcon,
+  ClapperboardIcon,
+  HeartPulseIcon,
+  type LucideIcon,
+  PaletteIcon,
+  UserRoundIcon,
+  UsersRoundIcon,
+} from 'lucide-react'
 
 import type { ReactNode } from 'react'
 
@@ -14,8 +22,9 @@ import { PauseSection } from './components/PauseSection'
 import { ScheduleSection } from './components/ScheduleSection'
 import { ThemeSection } from './components/ThemeSection'
 import { TrainingSection } from './components/TrainingSection'
+import { VideoOverlaySection } from './components/VideoOverlaySection'
 
-export type MeSectionSlug = 'training' | 'body' | 'friends' | 'account' | 'app'
+export type MeSectionSlug = 'training' | 'body' | 'friends' | 'account' | 'app' | 'editor'
 
 type MeItem = {
   title: string
@@ -73,6 +82,12 @@ export const ME_SECTIONS: MeSection[] = [
     title: 'Оформление',
     icon: PaletteIcon,
     items: [{ title: 'Оформление', render: () => <ThemeSection /> }],
+  },
+  {
+    slug: 'editor',
+    title: 'Редактор',
+    icon: ClapperboardIcon,
+    items: [{ title: 'Плашка для видео', render: () => <VideoOverlaySection /> }],
   },
 ]
 
