@@ -16,7 +16,7 @@ export type NavItem = {
   to: string
   icon: LucideIcon
   adminOnly?: boolean
-  /** Главный раздел: плитка с датой по центру меню */
+  /** Главный раздел: число дня по центру меню */
   hero?: boolean
 }
 

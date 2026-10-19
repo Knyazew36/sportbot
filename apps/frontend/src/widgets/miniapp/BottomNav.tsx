@@ -22,7 +22,7 @@ const Badge = ({ count }: { count?: number }) =>
     </span>
   )
 
-// Нижнее меню: «Сегодня» — плитка с датой по центру, остальные разделы делятся по бокам.
+// Нижнее меню: «Сегодня» — число дня по центру, остальные разделы делятся по бокам.
 // Активный боковой раздел отмечен отрезком беговой дорожки сверху. У администратора шестой пункт уходит вправо
 export const BottomNav = ({ nav, isAdmin, badges }: { nav: NavItem[]; isAdmin: boolean; badges?: NavBadges }) => {
   const items = nav.filter(item => isAdmin || !item.adminOnly)
@@ -103,49 +103,49 @@ const SideGroup = ({ items, badges }: { items: NavItem[]; badges?: NavBadges }) 
   </div>
 )
 
-// Плитка «Сегодня»: вместо иконки — сегодняшнее число, кнопка буквально про этот день.
-// Выступает над меню на --sb-nav-rise и, как все кнопки, садится на жёсткую тень при нажатии.
-// Дата берётся при отрисовке: меню перерисовывается на каждом переходе, после полуночи догонит с первым же тапом
+// «Сегодня»: вместо иконки — сегодняшнее число плакатным шрифтом, кнопка буквально про этот день.
+// Не выступает над меню: выпуклым на экране остаётся только главное действие над ним, иначе они спорят.
+// Открытый раздел — дорожка сверху, как у боковых, и растр печатного плаката: под цифрой пусто,
+// растр расходится от неё кольцом. Дата берётся при отрисовке: меню перерисовывается на каждом переходе
 const HeroLink = ({ item, badge }: { item: NavItem; badge?: number }) => {
-  const now = new Date()
-  const weekday = now.toLocaleDateString('ru-RU', { weekday: 'short' })
+  const day = new Date().getDate()
   return (
     <NavLink
       to={item.to}
       aria-label={item.label}
       onClick={tapIfNew}
-      // Подпись на одной линии с боковыми, отступ от плитки больше её тени — иначе тень наползает на текст
-      className='group/hero relative flex h-16 flex-col items-center justify-end gap-1.5 pb-2.5 outline-none'
+      className={({ isActive }) =>
+        cn(
+          'relative flex h-16 flex-col items-center justify-end gap-0.5 pb-1.5 transition-colors',
+          isActive ? 'text-primary' : 'text-foreground',
+        )
+      }
     >
       {({ isActive }) => (
         <>
           <span
+            className={cn(
+              'bg-primary absolute -top-[1.5px] h-[3px] rounded-full transition-all duration-300',
+              isActive ? 'w-12' : 'w-0',
+            )}
+          />
+          <span
             aria-hidden
-            className='relative -mt-(--sb-nav-rise) size-14'
+            className='relative flex h-10 w-16 items-center justify-center'
           >
-            {/* Растр печатного плаката проступает за активной плиткой, как оттиск */}
             <span
               className={cn(
-                'sb-halftone absolute -inset-[18px] [mask-image:radial-gradient(closest-side,black_62%,transparent)] transition-[opacity,scale] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',
-                isActive ? 'scale-100 opacity-70' : 'scale-75 opacity-0',
+                'sb-halftone absolute -inset-x-[16px] -inset-y-[12px] [mask-image:radial-gradient(closest-side,transparent_42%,black_62%,transparent)] transition-[opacity,scale] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',
+                isActive ? 'scale-100 opacity-80' : 'scale-75 opacity-0',
               )}
             />
-            <span
-              className={cn(
-                'border-foreground relative flex size-full flex-col items-center justify-center gap-0.5 border-[1.5px] shadow-[3px_3px_0_var(--sb-ink)] transition-[translate,box-shadow,background-color,color] duration-100 group-focus-visible/hero:ring-4 group-focus-visible/hero:ring-ring/25 group-active/hero:translate-[3px] group-active/hero:shadow-none',
-                isActive ? 'bg-primary text-primary-foreground' : 'bg-background text-foreground',
-              )}
-            >
-              <span className='sb-label text-[9px] leading-none tracking-[0.18em]'>{weekday}</span>
-              <span className='sb-poster text-[27px] tabular-nums'>{now.getDate()}</span>
-            </span>
+            <span className='sb-poster relative pt-1 text-[30px] leading-none tabular-nums'>{day}</span>
             <Badge count={badge} />
           </span>
-          {/* Ярлык-наклейка под плиткой: плакатная плашка с лёгким перекосом, как наклеенная от руки */}
           <span
             className={cn(
-              'sb-poster relative flex h-4 -rotate-2 items-center px-1.5 pt-px text-[12px] tracking-[0.06em] whitespace-nowrap transition-colors',
-              isActive ? 'bg-primary text-primary-foreground' : 'bg-foreground text-background',
+              'sb-poster text-[13px] leading-none tracking-[0.06em] whitespace-nowrap',
+              !isActive && 'text-foreground/70',
             )}
           >
             {item.label}
