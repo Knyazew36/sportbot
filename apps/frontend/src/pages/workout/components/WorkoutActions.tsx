@@ -1,4 +1,12 @@
-import { ArrowRightIcon, ClipboardPenIcon, PlayIcon, PlusIcon, SkipForwardIcon, TimerIcon } from 'lucide-react'
+import {
+  ArrowRightIcon,
+  ClipboardPenIcon,
+  FlameIcon,
+  PlayIcon,
+  PlusIcon,
+  SkipForwardIcon,
+  TimerIcon,
+} from 'lucide-react'
 
 import { formatSeconds } from '@/shared/lib/hooks/use-deadline-timer'
 import { StickyFooter } from '@/shared/ui/kit/Screen'
@@ -19,6 +27,10 @@ type WorkoutActionsProps = {
   restLeft?: number | null
   /** Развернуть свёрнутый отдых обратно на весь экран */
   onRestOpen?: () => void
+  /** Разминка свёрнута к экрану упражнения: остаток на кнопке рядом с подходом; null — разминки нет */
+  warmupLeft?: number | null
+  /** Развернуть свёрнутую разминку обратно на весь экран */
+  onWarmupOpen?: () => void
   /** Суперсет: номер следующего круга; null — суперсет закончен, круг не начать */
   round?: number | null
   /** Записать круг без секундомера — сразу шторка ввода */
@@ -46,6 +58,8 @@ export const WorkoutActions = ({
   onStartSet,
   onRest,
   onRestOpen,
+  warmupLeft = null,
+  onWarmupOpen,
   onNext,
 }: WorkoutActionsProps) => {
   const superset = round !== undefined
@@ -77,6 +91,19 @@ export const WorkoutActions = ({
       <Digits>{formatSeconds(restSeconds)}</Digits>
     </Button>
   )
+  // Рядом с подходом, а не вместо: начать подход после разминки — главное действие, разминку он и закончит.
+  // Только значок и время: с подписью «Начать подход» на 375px не влезал
+  const warmupBack = warmupLeft !== null && (
+    <Button
+      variant='rest'
+      size='lg'
+      onClick={onWarmupOpen}
+      aria-label='Вернуться к разминке'
+    >
+      <FlameIcon className='size-5' />
+      <span className='inline-block w-[2.3em] text-left'>{formatSeconds(warmupLeft)}</span>
+    </Button>
+  )
   const start = superset ? (
     round !== null && (
       // На 360px «Начать круг» и «Записать» с подписями не влезали и давали боковой скролл — «Записать» значком
@@ -100,6 +127,7 @@ export const WorkoutActions = ({
           <ClipboardPenIcon className='size-5' />
         </Button>
         {restButton}
+        {warmupBack}
       </div>
     )
   ) : (
@@ -117,6 +145,7 @@ export const WorkoutActions = ({
         </Button>
       )}
       {restButton}
+      {warmupBack}
     </div>
   )
 

@@ -4,6 +4,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { randomBytes } from 'crypto';
 import { PrismaService } from 'prisma/prisma.service';
 
 import {
@@ -324,6 +325,61 @@ export class ProgramService {
     await this.repairPointer(userId, true);
   }
 
+  // ── Поделиться ──────────────────────────────────────────────────────────
+
+  /**
+   * Токен ссылки «Поделиться» на свою программу. Ставится при первом шаринге и потом не меняется —
+   * уже разосланные ссылки продолжают работать.
+   */
+  public async shareToken(
+    userId: number,
+    programId: number,
+  ): Promise<{ name: string; shareToken: string }> {
+    const where = {
+      id: programId,
+      ownerId: userId,
+      isTemplate: false,
+    } satisfies Prisma.ProgramWhereInput;
+    const select = { name: true, shareToken: true } as const;
+    try {
+      const program = await this.prisma.program.update({
+        where: { ...where, AND: { shareToken: null } },
+        data: { shareToken: randomBytes(8).toString('hex') },
+        select,
+      });
+      this.logger.log(
+        `Токен программы выдан: programId=${programId}, userId=${userId}`,
+      );
+      return program as { name: string; shareToken: string };
+    } catch (error) {
+      if (
+        !(error instanceof Prisma.PrismaClientKnownRequestError) ||
+        error.code !== 'P2025'
+      )
+        throw error;
+    }
+    // Токен уже был — или программы нет
+    const program = await this.prisma.program.findFirst({
+      where: { ...where, shareToken: { not: null } },
+      select,
+    });
+    if (!program) throw new NotFoundException('Программа не найдена.');
+    return program as { name: string; shareToken: string };
+  }
+
+  /** «Забрать себе» по ссылке: копия чужой программы, дружба не нужна — хватает токена. */
+  public async takeShared(shareToken: string, userId: number) {
+    const source = await this.prisma.program.findUnique({
+      where: { shareToken },
+      select: { id: true },
+    });
+    if (!source) throw new NotFoundException('Ссылка устарела: программу удалили.');
+    this.logger.log(
+      `Программа по ссылке: programId=${source.id}, userId=${userId}`,
+    );
+    return this.copy(source.id, userId);
+  }
+
   // ── Комплексы ───────────────────────────────────────────────────────────
 
   public async findComplex(
@@ -369,6 +425,22 @@ export class ProgramService {
       data: { name: cleanName(name) },
     });
     if (!count) throw new NotFoundException('Тренировка не найдена.');
+  }
+
+  /** Разминка комплекса: null — как в профиле, 0 — без разминки. */
+  public async setComplexWarmup(
+    owner: ProgramOwner,
+    complexId: number,
+    warmupMinutes: number | null,
+  ): Promise<void> {
+    const { count } = await this.prisma.complex.updateMany({
+      where: { id: complexId, program: ownerWhere(owner) },
+      data: { warmupMinutes },
+    });
+    if (!count) throw new NotFoundException('Тренировка не найдена.');
+    this.logger.log(
+      `Разминка комплекса: complexId=${complexId}, минут=${warmupMinutes ?? 'как в профиле'}`,
+    );
   }
 
   /** Убрать старый кардио-блок: кардио теперь — упражнения на время в самом комплексе. */
@@ -937,6 +1009,7 @@ export class ProgramService {
           position: complex.position,
           cardioName: complex.cardioName,
           cardioMinutes: complex.cardioMinutes,
+          warmupMinutes: complex.warmupMinutes,
         },
       });
       for (const item of complex.exercises) {

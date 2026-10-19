@@ -13,6 +13,7 @@ import {
   useQueuedWorkout,
   type SetTiming,
   useStartWorkout,
+  useWarmupFinish,
   type Workout,
 } from '@/entities/workout'
 import { useIsOnline } from '@/shared/api'
@@ -43,6 +44,7 @@ import { FocusRest } from './components/FocusRest'
 import { FinishPending } from './components/FinishPending'
 import { FocusRound } from './components/FocusRound'
 import { FocusSet } from './components/FocusSet'
+import { FocusWarmup } from './components/FocusWarmup'
 import { RoundEntrySheet } from './components/RoundEntrySheet'
 import { SetEntrySheet } from './components/SetEntrySheet'
 import { SupersetScreen } from './components/SupersetScreen'
@@ -94,6 +96,37 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
   // Подход одному участнику суперсета: забытый подход или круг из одного упражнения
   const [entryFor, setEntryFor] = useState<number | null>(null)
   const [roundOpen, setRoundOpen] = useState(false)
+  // Разминка кончилась с первым подходом: отметка может стоять в офлайн-очереди, а экран должен уйти сразу
+  const warmupKey = `warmup-done-${workout.id}`
+  const [warmupEnded, setWarmupEnded] = useState(() => local.get(warmupKey) !== null)
+  // Свёрнута к экрану упражнения: отсчёт идёт, вернуться — кнопкой в футере. Переживает уход с экрана
+  const warmupHiddenKey = `warmup-hidden-${workout.id}`
+  const [warmupHidden, setWarmupHiddenState] = useState(() => local.get(warmupHiddenKey) !== null)
+  const setWarmupHidden = (next: boolean) => {
+    setWarmupHiddenState(next)
+    if (next) local.set(warmupHiddenKey, '1')
+    else local.remove(warmupHiddenKey)
+  }
+  const warmupFinish = useWarmupFinish()
+  const warmupTimer = useDeadlineTimer({
+    storageKey: `warmup-timer-${workout.id}`,
+    onEnd: () => timerEndSignal(workout.settings),
+  })
+  // Разминка только до первого подхода: записал подход — разминка позади
+  const warmupMinutes =
+    workout.warmupMinutes &&
+    !workout.warmupFinishedAt &&
+    !warmupEnded &&
+    !workout.exercises.some(e => e.sets.length)
+      ? workout.warmupMinutes
+      : null
+  const { status: warmupStatus, start: startWarmup } = warmupTimer
+  // Отсчёт от начала тренировки: экран открыли позже — осталось меньше
+  useEffect(() => {
+    if (!warmupMinutes || warmupStatus !== 'idle') return
+    const passed = Math.floor((Date.now() - Date.parse(workout.startedAt)) / 1000)
+    startWarmup(Math.max(1, warmupMinutes * 60 - passed))
+  }, [warmupMinutes, warmupStatus, startWarmup, workout.startedAt])
   const [stamp, setStamp] = useState<string | null>(null)
   const [burstKey, setBurstKey] = useState(0)
   const stampTimer = useRef<number | undefined>(undefined)
@@ -143,6 +176,15 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
 
   const preview = items.find(e => e.id === previewId) ?? null
   const { settings } = workout
+  // Конец разминки — начало первого подхода любым путём: секундомер, круг или ручной ввод
+  const endWarmup = () => {
+    if (!warmupMinutes) return
+    local.set(warmupKey, '1')
+    local.remove(warmupHiddenKey)
+    setWarmupEnded(true)
+    warmupTimer.stop()
+    warmupFinish.mutate(workout.id)
+  }
   // Суперсет — один экран и один круг на всех участников; одиночное упражнение — как раньше
   const superset = supersetRound(items, item)
   const block = superset?.members ?? [item]
@@ -176,6 +218,8 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
     timer.stop()
     stopwatch.stop()
     local.remove(restTargetKey)
+    local.remove(warmupKey)
+    local.remove(warmupHiddenKey)
     finish.mutate(
       { id: workout.id, finishedAt: new Date().toISOString() },
       {
@@ -190,6 +234,9 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
       timer.stop()
       stopwatch.stop()
       local.remove(restTargetKey)
+      local.remove(warmupKey)
+      local.remove(warmupHiddenKey)
+    local.remove(warmupHiddenKey)
       navigate(ROUTES.TODAY, { replace: true })
     })
 
@@ -216,6 +263,7 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
 
   // Круг из нескольких упражнений идёт фокусом круга; из одного — обычным подходом
   const startSet = () => {
+    endWarmup()
     // План — с учётом всех «+30 с»; таймер не запускали — плана нет
     if (timer.status !== 'idle') local.set(restTargetKey, String(timer.total))
     else local.remove(restTargetKey)
@@ -331,9 +379,14 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
                 : null
             }
             round={superset ? (superset.done ? null : superset.number) : undefined}
-            onRecordRound={() => setRoundOpen(true)}
+            onRecordRound={() => {
+              endWarmup()
+              setRoundOpen(true)
+            }}
             onStartSet={startSet}
             restLeft={settings.showRestTimer && timer.status !== 'idle' && restHidden ? timer.left : null}
+            warmupLeft={warmupMinutes && warmupHidden ? warmupTimer.left : null}
+            onWarmupOpen={() => setWarmupHidden(false)}
             onRest={() => startRest(settings.restSeconds)}
             onRestOpen={() => setRestHidden(false)}
             onNext={onNext}
@@ -346,6 +399,7 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
             round={superset}
             onEdit={setEditing}
             onAddSet={member => {
+              endWarmup()
               setEntryFor(member.id)
               setEntryOpen(true)
             }}
@@ -356,12 +410,21 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
             <SetList
               item={item}
               onEdit={setEditing}
-              onAdd={() => setEntryOpen(true)}
+              onAdd={() => {
+                endWarmup()
+                setEntryOpen(true)
+              }}
             />
           </>
         )}
       </Screen>
-      {inRound ? (
+      {warmupMinutes && !warmupHidden ? (
+        <FocusWarmup
+          timer={warmupTimer}
+          first={item}
+          onClose={() => setWarmupHidden(true)}
+        />
+      ) : inRound ? (
         <FocusRound
           stopwatch={stopwatch}
           round={superset}

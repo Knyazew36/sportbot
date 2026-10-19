@@ -63,6 +63,11 @@ export class ProfileResponseDto {
   @ApiProperty({ description: 'Вибрация по окончании таймеров' })
   timerVibration: boolean;
 
+  @ApiProperty({
+    description: 'Разминка перед тренировкой, мин; 0 — без разминки',
+  })
+  warmupMinutes: number;
+
   @ApiProperty({ type: ProfilePauseResponseDto, nullable: true })
   pause: ProfilePauseResponseDto | null;
 

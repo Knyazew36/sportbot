@@ -12,6 +12,7 @@ import {
   StretchKind,
 } from '@/generated/prisma/client';
 import { normalizeSupersets, supersetError } from '@/program/superset';
+import { WARMUP_MINUTES } from '@/program/warmup';
 import {
   TAG_CODE_PATTERN,
   TAG_NAME_MAX,
@@ -94,6 +95,8 @@ interface ImportProgram {
    */
   complexes?: {
     name: string;
+    /** Разминка, мин: 0, 5, 10 или 15. Поля нет — как в профиле пользователя. */
+    warmupMinutes?: number;
     exercises: {
       code: string;
       sets: number;
@@ -344,6 +347,11 @@ export class ImportService {
         if (!isText(complex?.name)) errors.push(`${where}: нет name`);
         if (!list(complex?.exercises).length)
           errors.push(`${where}: нет упражнений`);
+        if (
+          complex?.warmupMinutes !== undefined &&
+          !(WARMUP_MINUTES as readonly unknown[]).includes(complex.warmupMinutes)
+        )
+          errors.push(`${where}: warmupMinutes — 0, 5, 10 или 15`);
         const legacy = complex as { cardio?: unknown; legacyCardio?: unknown };
         if (legacy?.cardio !== undefined || legacy?.legacyCardio !== undefined)
           errors.push(
@@ -738,6 +746,7 @@ export class ImportService {
                 programId: program.id,
                 name: complex.name.trim(),
                 position: index + 1,
+                warmupMinutes: complex.warmupMinutes ?? null,
                 exercises: {
                   create: complex.exercises.map((exercise, position) => ({
                     exerciseId: exerciseId.get(exercise.code)!,

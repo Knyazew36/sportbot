@@ -22,9 +22,12 @@ import type {
   ProgramControllerReorderComplexes200,
   ProgramControllerReorderItems200,
   ProgramControllerResync200,
+  ProgramControllerShare200,
+  ProgramControllerShared200,
   ProgramControllerTagGroups200,
   ProgramControllerTagGroupsParams,
   ProgramControllerTake200,
+  ProgramControllerTakeShared200,
   ProgramControllerTemplates200,
   ProgramControllerTemplatesParams,
   ProgramControllerUngroupItem200,
@@ -78,6 +81,39 @@ export const programControllerTake = (
  ) => {
       return customInstance<ProgramControllerTake200>(
       {url: `/program/take/${id}`, method: 'POST'
+    },
+      );
+    }
+  /**
+ * @summary Ссылка «Поделиться» на свою программу: по ней любой заберёт копию
+ */
+export const programControllerShare = (
+    id: number,
+ ) => {
+      return customInstance<ProgramControllerShare200>(
+      {url: `/program/share/${id}`, method: 'POST'
+    },
+      );
+    }
+  /**
+ * @summary Программа по ссылке «Поделиться»: состав и автор
+ */
+export const programControllerShared = (
+    token: string,
+ ) => {
+      return customInstance<ProgramControllerShared200>(
+      {url: `/program/shared/${token}`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @summary «Забрать себе» программу по ссылке «Поделиться»
+ */
+export const programControllerTakeShared = (
+    token: string,
+ ) => {
+      return customInstance<ProgramControllerTakeShared200>(
+      {url: `/program/shared/take/${token}`, method: 'POST'
     },
       );
     }
@@ -344,6 +380,9 @@ export const programControllerView = (
   export type ProgramControllerTemplatesResult = NonNullable<Awaited<ReturnType<typeof programControllerTemplates>>>
 export type ProgramControllerTagGroupsResult = NonNullable<Awaited<ReturnType<typeof programControllerTagGroups>>>
 export type ProgramControllerTakeResult = NonNullable<Awaited<ReturnType<typeof programControllerTake>>>
+export type ProgramControllerShareResult = NonNullable<Awaited<ReturnType<typeof programControllerShare>>>
+export type ProgramControllerSharedResult = NonNullable<Awaited<ReturnType<typeof programControllerShared>>>
+export type ProgramControllerTakeSharedResult = NonNullable<Awaited<ReturnType<typeof programControllerTakeShared>>>
 export type ProgramControllerListResult = NonNullable<Awaited<ReturnType<typeof programControllerList>>>
 export type ProgramControllerCreateResult = NonNullable<Awaited<ReturnType<typeof programControllerCreate>>>
 export type ProgramControllerUpdateResult = NonNullable<Awaited<ReturnType<typeof programControllerUpdate>>>

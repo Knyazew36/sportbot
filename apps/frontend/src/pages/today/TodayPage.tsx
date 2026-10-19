@@ -1,5 +1,5 @@
-import { ArrowRightIcon, CalendarDaysIcon } from 'lucide-react'
-import { Link, useSearchParams } from 'react-router'
+import { ArrowRightIcon } from 'lucide-react'
+import { useSearchParams } from 'react-router'
 
 import { useState } from 'react'
 
@@ -12,7 +12,6 @@ import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Screen, StickyFooter } from '@/shared/ui/kit/Screen'
 import { ScreenHeader } from '@/shared/ui/kit/ScreenHeader'
-import { ATTENDANCE_LINK } from '@/widgets/stats/links'
 
 import { DoneDay } from './components/DoneDay'
 import { FinishQueuedDay } from './components/FinishQueuedDay'
@@ -70,16 +69,6 @@ const TodayPage = () => {
           {!(today.data?.state === 'IN_PROGRESS' && !finishQueued) && (
             <ScreenHeader
               title={today.data ? capitalize(formatDate(today.data.date, 'EEEE · d MMMM')) : 'Сегодня'}
-              aside={
-                // Посещения и календарь — в шапке, чтобы вход был при любом состоянии дня
-                <Link
-                  to={ATTENDANCE_LINK}
-                  className='text-primary -my-2 flex items-center gap-1.5 py-2'
-                >
-                  <CalendarDaysIcon className='size-4' />
-                  Посещения
-                </Link>
-              }
             />
           )}
           {me.data && !me.data.canMessage && <PermissionBanner />}

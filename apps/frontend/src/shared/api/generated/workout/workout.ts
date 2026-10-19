@@ -5,7 +5,7 @@
  * OpenAPI spec version: 0.0.1
  */
 import type {
-  CooldownAtDto,
+  ClientAtDto,
   CreateWorkoutSetDto,
   FinishWorkoutDto,
   ReplaceWorkoutItemDto,
@@ -28,7 +28,8 @@ import type {
   WorkoutControllerShared200,
   WorkoutControllerStart200,
   WorkoutControllerSummary200,
-  WorkoutControllerUpdateSet200
+  WorkoutControllerUpdateSet200,
+  WorkoutControllerWarmupFinish200
 } from '../model';
 
 import { customInstance } from '../../model/orval-mutator';
@@ -170,16 +171,30 @@ export const workoutControllerReplace = (
       );
     }
   /**
+ * @summary Разминка закончена или пропущена: пишется один раз
+ */
+export const workoutControllerWarmupFinish = (
+    id: number,
+    clientAtDto: ClientAtDto,
+ ) => {
+      return customInstance<WorkoutControllerWarmupFinish200>(
+      {url: `/workout/warmup/finish/${id}`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: clientAtDto
+    },
+      );
+    }
+  /**
  * @summary Заминка начата: пишется первое открытие, повтор ничего не меняет
  */
 export const workoutControllerCooldownStart = (
     id: number,
-    cooldownAtDto: CooldownAtDto,
+    clientAtDto: ClientAtDto,
  ) => {
       return customInstance<WorkoutControllerCooldownStart200>(
       {url: `/workout/cooldown/start/${id}`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
-      data: cooldownAtDto
+      data: clientAtDto
     },
       );
     }
@@ -188,12 +203,12 @@ export const workoutControllerCooldownStart = (
  */
 export const workoutControllerCooldownFinish = (
     id: number,
-    cooldownAtDto: CooldownAtDto,
+    clientAtDto: ClientAtDto,
  ) => {
       return customInstance<WorkoutControllerCooldownFinish200>(
       {url: `/workout/cooldown/finish/${id}`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
-      data: cooldownAtDto
+      data: clientAtDto
     },
       );
     }
@@ -263,6 +278,7 @@ export type WorkoutControllerDeleteSetResult = NonNullable<Awaited<ReturnType<ty
 export type WorkoutControllerMarkDoneResult = NonNullable<Awaited<ReturnType<typeof workoutControllerMarkDone>>>
 export type WorkoutControllerAnalogsResult = NonNullable<Awaited<ReturnType<typeof workoutControllerAnalogs>>>
 export type WorkoutControllerReplaceResult = NonNullable<Awaited<ReturnType<typeof workoutControllerReplace>>>
+export type WorkoutControllerWarmupFinishResult = NonNullable<Awaited<ReturnType<typeof workoutControllerWarmupFinish>>>
 export type WorkoutControllerCooldownStartResult = NonNullable<Awaited<ReturnType<typeof workoutControllerCooldownStart>>>
 export type WorkoutControllerCooldownFinishResult = NonNullable<Awaited<ReturnType<typeof workoutControllerCooldownFinish>>>
 export type WorkoutControllerShareResult = NonNullable<Awaited<ReturnType<typeof workoutControllerShare>>>

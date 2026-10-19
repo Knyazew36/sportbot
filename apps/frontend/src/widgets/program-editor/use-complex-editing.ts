@@ -40,6 +40,7 @@ const applyEdit = (items: Exercise[], edit: ComplexEdit): Exercise[] => {
 /** Что редактор комплекса умеет отправить на сервер: программы пользователя и шаблоны админа */
 export type ComplexMutations = {
   renameComplex: (id: number, name: string) => Promise<unknown>
+  setWarmup: (id: number, warmupMinutes: number | null) => Promise<unknown>
   deleteComplex: (id: number) => Promise<unknown>
   updateExercise: (id: number, plan: ComplexExerciseValues) => Promise<unknown>
   deleteExercise: (id: number) => Promise<unknown>
@@ -87,6 +88,7 @@ export const useComplexEditing = ({ mutations: m, readComplex, onDeleted }: Opti
 
   const actions = (complex: ProgramComplex): ComplexActions => ({
     renameComplex: (id, name) => queue.run(() => m.renameComplex(id, name)),
+    setWarmup: (id, minutes) => queue.run(() => m.setWarmup(id, minutes)),
     deleteComplex: id => queue.run(() => m.deleteComplex(id)).then(onDeleted),
     updateExercise: (id, plan) => queue.run(() => m.updateExercise(id, plan)),
     reorderExercises: (_, ids) => queue.send({ type: 'reorder', ids }),

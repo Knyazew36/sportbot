@@ -22,6 +22,16 @@ export interface WorkoutResponseDto {
   cardioName: string | null;
   /** @nullable */
   cardioMinutes: number | null;
+  /**
+     * Разминка, мин: снимок на старте; null — без разминки
+     * @nullable
+     */
+  warmupMinutes: number | null;
+  /**
+     * Конец разминки; null — ещё идёт или её нет
+     * @nullable
+     */
+  warmupFinishedAt: string | null;
   exercises: WorkoutItemResponseDto[];
   /** Таймеры из профиля */
   settings: WorkoutSettingsResponseDto;

@@ -1,4 +1,3 @@
-import { pluralize } from '@front-cmdt/utils/pluralize'
 import { PlusIcon } from 'lucide-react'
 
 import { useState } from 'react'
@@ -17,7 +16,6 @@ import { MyPrograms } from './components/MyPrograms'
 import { NewProgramSheet } from './components/NewProgramSheet'
 import { SourceUpdate } from './components/SourceUpdate'
 
-const PROGRAM_FORMS: [string, string, string] = ['программа', 'программы', 'программ']
 /** Сколько своих программ под плакатом; остальные — на странице «Все мои программы» */
 const MY_PROGRAMS_SHOWN = 4
 
@@ -30,10 +28,7 @@ const ProgramsPage = () => {
   return (
     <Screen
       header={
-        <ScreenHeader
-          title='Программы'
-          aside={programs.data ? pluralize(programs.data.length, PROGRAM_FORMS) : undefined}
-        />
+        <ScreenHeader title='Программы' />
       }
       footer={
         <StickyFooter>

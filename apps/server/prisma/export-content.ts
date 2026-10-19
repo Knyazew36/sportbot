@@ -100,6 +100,7 @@ async function main() {
         published: p.isPublished,
         complexes: p.complexes.map((c) => ({
           name: c.name,
+          ...(c.warmupMinutes !== null ? { warmupMinutes: c.warmupMinutes } : {}),
           // Старый кардио-блок: импорт его не принимает — перенеси упражнением на время
           ...(c.cardioName
             ? { legacyCardio: `${c.cardioName}, ${c.cardioMinutes} мин` }

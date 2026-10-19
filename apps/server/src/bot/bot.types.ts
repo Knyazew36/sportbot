@@ -136,6 +136,7 @@ export const APP_SCREEN = {
   complaint: (complaintId: number) => `cp_${complaintId}`,
   programReview: (programId: number) => `pv_${programId}`,
   result: (shareToken: string) => `ws_${shareToken}`,
+  sharedProgram: (shareToken: string) => `ps_${shareToken}`,
 } as const;
 
 /** Кнопка мини-приложения, сразу на нужный экран. Кнопки бота при этом остаются: всё можно и в чате. */

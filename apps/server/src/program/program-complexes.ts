@@ -29,6 +29,7 @@ export const toComplexesDto = (
     position: c.position,
     cardioName: c.cardioName,
     cardioMinutes: c.cardioMinutes,
+    warmupMinutes: c.warmupMinutes,
     isNext: c.id === nextComplexId,
     exercises: c.exercises.map((item) => ({
       id: item.id,

@@ -41,6 +41,8 @@ export interface ProfileResponseDto {
   timerSound: boolean;
   /** Вибрация по окончании таймеров */
   timerVibration: boolean;
+  /** Разминка перед тренировкой, мин; 0 — без разминки */
+  warmupMinutes: number;
   /** @nullable */
   pause: ProfilePauseResponseDto | null;
   /**

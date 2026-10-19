@@ -12,9 +12,10 @@ const BY_ID: Record<string, (id: number) => string> = {
   cp: () => `${ROUTES.ADMIN}?tab=complaints`,
 }
 
-// Ссылки «Поделиться» результатом: в startapp не id, а токен — чужие тренировки перебором не открыть
+// Ссылки «Поделиться» результатом и программой: в startapp не id, а токен — чужое перебором не открыть
 const BY_TOKEN: Record<string, (token: string) => string> = {
   ws: token => buildPath(ROUTES.WORKOUT_RESULT, { token }),
+  ps: token => buildPath(ROUTES.PROGRAM_SHARED, { token }),
 }
 
 const PLAIN: Record<string, string> = {

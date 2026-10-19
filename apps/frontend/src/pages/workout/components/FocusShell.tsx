@@ -19,9 +19,10 @@ type FocusShellProps = {
   above?: ReactNode
   /** Фон-дорожки едут: идёт круг суперсета */
   running?: boolean
-  sets: FocusSets
+  /** Без sets и startedAt табло нет — разминка: подхода ещё нет, а общее время там лишнее */
+  sets?: FocusSets
   /** Начало тренировки — общее время на табло, пока шапка экрана упражнения закрыта */
-  startedAt: string
+  startedAt?: string
   children: ReactNode
   /** Крупные кнопки внизу, под большой палец */
   actions: ReactNode
@@ -72,10 +73,12 @@ export const FocusShell = ({
         {subtitle}
       </div>
       )}
-      <FocusScoreboard
-        sets={sets}
-        startedAt={startedAt}
-      />
+      {sets && startedAt && (
+        <FocusScoreboard
+          sets={sets}
+          startedAt={startedAt}
+        />
+      )}
     </div>
     <div className='relative flex flex-1 flex-col items-center justify-center gap-6 px-gutter'>{children}</div>
     <div className='relative flex flex-col gap-3 px-gutter pb-[max(1.25rem,var(--sb-bottom-inset))]'>

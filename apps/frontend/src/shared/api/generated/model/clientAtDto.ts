@@ -5,7 +5,7 @@
  * OpenAPI spec version: 0.0.1
  */
 
-export interface CooldownAtDto {
+export interface ClientAtDto {
   /** Когда нажали на клиенте (ISO). Запрос из офлайн-очереди доезжает позже — время берётся отсюда */
   at?: string;
 }

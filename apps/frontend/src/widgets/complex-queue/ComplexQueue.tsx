@@ -33,6 +33,7 @@ export const ComplexQueue = ({ complexes, activeId, aside, onPick, pickLabel }: 
         {complexes.map((c, i) => (
           <li key={c.id}>
             <Ticket
+              kicker='Тренировка'
               mark={complexLetter(i)}
               title={c.name}
               active={c.id === activeId}

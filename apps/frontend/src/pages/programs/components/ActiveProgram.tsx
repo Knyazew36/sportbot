@@ -3,6 +3,7 @@ import { GlobeIcon, PencilIcon } from 'lucide-react'
 import { useState } from 'react'
 
 import { isPublishable, publishLabel, PUBLICATION_STATUS, useMakeNextComplex, useProgram } from '@/entities/program'
+import { ShareProgramButton } from '@/features/share-program/ShareProgramButton'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
@@ -82,14 +83,20 @@ export const ActiveProgram = ({ programId }: { programId: number }) => {
                   { label: pluralize(sets, SET_FORMS, { withCount: false }), value: sets },
                 ]}
               />
-              <ButtonLink
-                to={buildPath(ROUTES.PROGRAM, { programId: p.id })}
-                variant='outline'
-                className='w-full'
-              >
-                <PencilIcon />
-                Редактировать
-              </ButtonLink>
+              <div className='flex gap-2'>
+                <ButtonLink
+                  to={buildPath(ROUTES.PROGRAM, { programId: p.id })}
+                  variant='outline'
+                  className='flex-1'
+                >
+                  <PencilIcon />
+                  Редактировать
+                </ButtonLink>
+                <ShareProgramButton
+                  programId={p.id}
+                  iconOnly
+                />
+              </div>
               {publishable && (
                 <Button
                   // Уже отправленную только правят — это не выход наружу, поэтому без жёлтого

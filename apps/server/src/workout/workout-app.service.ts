@@ -279,6 +279,14 @@ export class WorkoutAppService {
     };
   }
 
+  public async warmupFinish(
+    userId: number,
+    workoutId: number,
+    at?: Date,
+  ): Promise<void> {
+    await this.workouts.warmupFinish(userId, workoutId, at);
+  }
+
   public async cooldownStart(
     userId: number,
     workoutId: number,
@@ -352,6 +360,8 @@ export class WorkoutAppService {
       finishedAt: workout.finishedAt,
       cardioName: workout.cardioName,
       cardioMinutes: workout.cardioMinutes,
+      warmupMinutes: workout.warmupMinutes,
+      warmupFinishedAt: workout.warmupFinishedAt,
       exercises: workout.exercises.map((item, index) =>
         this.itemView(item, limited, last[index], restBefore),
       ),

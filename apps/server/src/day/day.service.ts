@@ -8,6 +8,7 @@ import { LimitationService } from '@/limitation/limitation.service';
 import { PlanDayService } from '@/plan/plan-day.service';
 import { PollService } from '@/plan/poll.service';
 import { ComplexFull, ProgramService } from '@/program/program.service';
+import { resolveWarmup } from '@/program/warmup';
 import { isDone, WorkoutFull, WorkoutService } from '@/workout/workout.service';
 
 import { DayComplexBriefResponseDto } from './dto/day-complex-brief.response.dto';
@@ -272,11 +273,12 @@ export class DayService {
       this.programs.findComplex(profile.userId, id),
       this.limitations.activeJointIds(profile),
     ]);
-    return this.complexView(complex, limited, id === pick.nextId);
+    return this.complexView(complex, profile, limited, id === pick.nextId);
   }
 
   private complexView(
     complex: ComplexFull,
+    profile: SportProfile,
     limited: Set<number>,
     byQueue: boolean,
   ): DayComplexResponseDto {
@@ -286,6 +288,7 @@ export class DayService {
       byQueue,
       cardioName: complex.cardioName,
       cardioMinutes: complex.cardioMinutes,
+      warmupMinutes: resolveWarmup(complex, profile),
       exercises: complex.exercises.map((item) => ({
         id: item.id,
         exerciseId: item.exerciseId,

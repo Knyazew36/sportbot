@@ -18,9 +18,11 @@ import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
+import { Segmented } from '@/shared/ui/kit/Segmented'
 import { TextField } from '@/shared/ui/kit/TextField'
 import { Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
+import { Label } from '@/shared/ui/shadcn/label'
 import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet'
 
 import { ComplexExerciseRow } from './ComplexExerciseRow'
@@ -29,6 +31,8 @@ import { SupersetBlock } from './SupersetBlock'
 /** Что страница комплекса умеет с ним делать: программы пользователя (frontend-tz, 10.3) и шаблоны админа (14.2) */
 export type ComplexActions = {
   renameComplex: (id: number, name: string) => Promise<unknown>
+  /** null — как в профиле, 0 — без разминки */
+  setWarmup: (id: number, warmupMinutes: number | null) => Promise<unknown>
   /** После удаления страница уводит обратно в программу */
   deleteComplex: (id: number) => Promise<unknown>
   updateExercise: (id: number, plan: ComplexExerciseValues) => Promise<unknown>
@@ -75,6 +79,30 @@ const ComplexNameForm = ({ complex, onRename }: ComplexNameFormProps) => {
   )
 }
 
+// «Профиль», а не «Как в профиле»: пять сегментов на 375px длинную подпись не вмещают
+const WARMUP = [
+  { value: 'profile', label: 'Профиль' },
+  { value: '0', label: 'Нет' },
+  { value: '5', label: '5' },
+  { value: '10', label: '10' },
+  { value: '15', label: '15' },
+]
+
+type ComplexWarmupProps = { complex: ProgramComplex; onChange: ComplexActions['setWarmup'] }
+
+const ComplexWarmup = ({ complex, onChange }: ComplexWarmupProps) => (
+  <div className='flex flex-col gap-2'>
+    <Label>Разминка, мин</Label>
+    <Segmented
+      options={WARMUP}
+      value={complex.warmupMinutes === null ? 'profile' : String(complex.warmupMinutes)}
+      onValueChange={v => void onChange(complex.id, v === 'profile' ? null : Number(v))}
+      size='default'
+      stretch
+    />
+  </div>
+)
+
 // Комплекс целиком: название, упражнения с планом, добавление и удаление. Каждая правка сразу уходит на сервер
 export const ComplexEditor = ({ complex, actions, addExerciseTo }: ComplexEditorProps) => {
   // Порядок блоков под пальцем: на сервер уходит один раз, когда блок отпустили.
@@ -107,6 +135,13 @@ export const ComplexEditor = ({ complex, actions, addExerciseTo }: ComplexEditor
         <ComplexNameForm
           complex={complex}
           onRename={actions.renameComplex}
+        />
+      </Rise>
+
+      <Rise className='px-gutter'>
+        <ComplexWarmup
+          complex={complex}
+          onChange={actions.setWarmup}
         />
       </Rise>
 

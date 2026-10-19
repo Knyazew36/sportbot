@@ -8,6 +8,7 @@ import {
 import { PrismaService } from 'prisma/prisma.service';
 
 import { AvatarService } from '@/avatar/avatar.service';
+import { APP_SCREEN, BotChannelKey, botAppLink } from '@/bot';
 import { normalizeName } from '@/catalog/catalog.service';
 import { Prisma } from '@/generated/prisma/client';
 import { PublishProgramDto } from '@/program-publication/dto/publish-program.dto';
@@ -20,6 +21,7 @@ import {
 import { COMPLEXES_INCLUDE, toComplexesDto } from './program-complexes';
 import { AddComplexExercisesDto } from './dto/add-complex-exercises.dto';
 import { ProgramListItemResponseDto } from './dto/program-list-item.response.dto';
+import { ProgramShareLinkResponseDto } from './dto/program-share-link.response.dto';
 import { ProgramResponseDto } from './dto/program.response.dto';
 import { TemplatesQueryDto } from './dto/templates-query.dto';
 import { UpdateComplexDto } from './dto/update-complex.dto';
@@ -414,6 +416,62 @@ export class ProgramAppService {
     return this.view(userId, programId);
   }
 
+  // ── Поделиться ──────────────────────────────────────────────────────────
+
+  /** Ссылка на свою программу: по ней любой откроет состав в приложении и заберёт копию себе. */
+  public async shareLink(
+    userId: number,
+    programId: number,
+    channel: BotChannelKey | null,
+  ): Promise<ProgramShareLinkResponseDto> {
+    const program = await this.programs.shareToken(userId, programId);
+    const screen = APP_SCREEN.sharedProgram(program.shareToken);
+    const url =
+      botAppLink(channel ?? 'TELEGRAM', screen) ??
+      botAppLink('TELEGRAM', screen) ??
+      botAppLink('MAX', screen);
+    if (!url)
+      throw new BadRequestException('Бот не подключён ни в одном мессенджере.');
+    this.logger.log(
+      `Ссылка на программу: programId=${programId}, userId=${userId}, ${channel ?? 'TELEGRAM'}`,
+    );
+    return {
+      url,
+      text: `Программа «${program.name}» в Спортботе — забери себе`,
+    };
+  }
+
+  /** Программа по ссылке «Поделиться»: состав и автор, как в каталоге. */
+  public async shared(
+    viewerId: number,
+    shareToken: string,
+  ): Promise<ProgramResponseDto> {
+    const program = await this.prisma.program.findUnique({
+      where: { shareToken },
+      include: {
+        ...VIEW_INCLUDE,
+        copies: {
+          where: { ownerId: viewerId },
+          orderBy: { id: 'desc' },
+          take: 1,
+          select: { id: true },
+        },
+      },
+    });
+    if (!program)
+      throw new NotFoundException('Ссылка устарела: программу удалили.');
+    this.logger.debug(
+      `Программа по ссылке: programId=${program.id}, viewerId=${viewerId}`,
+    );
+    return this.toCatalogDto(program, viewerId, program.copies[0]?.id ?? null);
+  }
+
+  /** «Забрать себе» по ссылке: копия становится программой пользователя. */
+  public async takeShared(userId: number, shareToken: string) {
+    const copy = await this.programs.takeShared(shareToken, userId);
+    return this.view(userId, copy.id);
+  }
+
   // ── Комплексы ───────────────────────────────────────────────────────────
 
   public async addComplex(
@@ -433,6 +491,12 @@ export class ProgramAppService {
     const complex = await this.programs.findComplex(owner, complexId);
     if (dto.name !== undefined)
       await this.programs.renameComplex(owner, complexId, dto.name);
+    if (dto.warmupMinutes !== undefined)
+      await this.programs.setComplexWarmup(
+        owner,
+        complexId,
+        dto.warmupMinutes,
+      );
     return this.view(owner, complex.programId);
   }
 

@@ -7,4 +7,9 @@
 
 export interface UpdateComplexDto {
   name?: string;
+  /**
+     * Разминка, мин: 0, 5, 10 или 15; null — как в профиле, 0 — без разминки
+     * @nullable
+     */
+  warmupMinutes?: number | null;
 }

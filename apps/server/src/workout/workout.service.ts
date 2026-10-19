@@ -18,6 +18,7 @@ import {
 import { LimitationService } from '@/limitation/limitation.service';
 import { PlanDayService } from '@/plan/plan-day.service';
 import { ProgramService } from '@/program/program.service';
+import { resolveWarmup } from '@/program/warmup';
 
 import { CooldownService, CooldownView } from './cooldown.service';
 
@@ -612,6 +613,33 @@ export class WorkoutService {
     return item.workoutId;
   }
 
+  // ── Разминка ────────────────────────────────────────────────────────────
+
+  /** Разминка закончена или пропущена: только у тренировки с разминкой и один раз. */
+  public async warmupFinish(
+    userId: number,
+    workoutId: number,
+    at?: Date,
+  ): Promise<void> {
+    const { count } = await this.prisma.workout.updateMany({
+      where: {
+        id: workoutId,
+        userId,
+        warmupMinutes: { not: null },
+        warmupFinishedAt: null,
+      },
+      data: { warmupFinishedAt: this.clientAt(at) },
+    });
+    if (count)
+      this.logger.log(
+        `Разминка закончена: workoutId=${workoutId}, userId=${userId}`,
+      );
+    else
+      this.logger.debug(
+        `Разминка уже закончена, её нет или нет тренировки: workoutId=${workoutId}, userId=${userId}`,
+      );
+  }
+
   // ── Заминка ─────────────────────────────────────────────────────────────
 
   public async cooldown(
@@ -632,7 +660,7 @@ export class WorkoutService {
   ): Promise<void> {
     const { count } = await this.prisma.workout.updateMany({
       where: { id: workoutId, userId, cooldownStartedAt: null },
-      data: { cooldownStartedAt: this.cooldownAt(at) },
+      data: { cooldownStartedAt: this.clientAt(at) },
     });
     if (count)
       this.logger.log(
@@ -657,7 +685,7 @@ export class WorkoutService {
         cooldownStartedAt: { not: null },
         cooldownFinishedAt: null,
       },
-      data: { cooldownFinishedAt: this.cooldownAt(at) },
+      data: { cooldownFinishedAt: this.clientAt(at) },
     });
     if (count)
       this.logger.log(
@@ -671,8 +699,8 @@ export class WorkoutService {
 
   // ── Внутреннее ──────────────────────────────────────────────────────────
 
-  /** Время заминки с клиента; из будущего не берём. */
-  private cooldownAt(at?: Date): Date {
+  /** Время нажатия с клиента (разминка, заминка); из будущего не берём. */
+  private clientAt(at?: Date): Date {
     const now = Date.now();
     return new Date(at ? Math.min(now, +at) : now);
   }
@@ -806,6 +834,9 @@ export class WorkoutService {
         complexName: complex.name,
         cardioName: complex.cardioName,
         cardioMinutes: complex.cardioMinutes,
+        // Экран разминки есть только в Mini App — в простом режиме бота её нет
+        warmupMinutes:
+          mode === 'DETAILED' ? resolveWarmup(complex, profile) : null,
         date,
         mode,
         exercises: {

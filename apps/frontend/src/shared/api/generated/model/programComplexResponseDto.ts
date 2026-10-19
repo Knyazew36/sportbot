@@ -14,6 +14,11 @@ export interface ProgramComplexResponseDto {
   cardioName: string | null;
   /** @nullable */
   cardioMinutes: number | null;
+  /**
+     * Разминка, мин: null — как в профиле, 0 — без разминки
+     * @nullable
+     */
+  warmupMinutes: number | null;
   /** Следующий по очереди */
   isNext: boolean;
   exercises: ProgramExerciseResponseDto[];

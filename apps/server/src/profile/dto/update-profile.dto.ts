@@ -17,6 +17,7 @@ import {
 } from 'class-validator';
 
 import { Trim } from '@/common/decorators/trim.decorator';
+import { WARMUP_MINUTES } from '@/program/warmup';
 
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 
@@ -100,4 +101,11 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsBoolean()
   timerVibration?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Разминка перед тренировкой, мин: 0, 5, 10 или 15; 0 — без разминки',
+  })
+  @IsOptional()
+  @IsIn(WARMUP_MINUTES, { message: 'Разминка — 0, 5, 10 или 15 минут' })
+  warmupMinutes?: number;
 }

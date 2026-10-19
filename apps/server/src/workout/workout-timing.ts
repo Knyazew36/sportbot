@@ -60,7 +60,13 @@ export function workoutTiming(workout: WorkoutFull): WorkoutTiming | null {
     restBefore: new Map(),
   };
 
+  // Разминка — только отмеченная на экране разминки; пауза после неё до первого подхода — переход
   let prevEnd = workout.startedAt;
+  const warmupEnd = workout.warmupFinishedAt;
+  if (warmupEnd && warmupEnd < sets[0].doneAt) {
+    timing.warmupSeconds = seconds(workout.startedAt, warmupEnd);
+    prevEnd = warmupEnd;
+  }
   sets.forEach((set, index) => {
     const prev = index ? sets[index - 1] : null;
     if (set.workSeconds === null) {
@@ -70,9 +76,9 @@ export function workoutTiming(workout: WorkoutFull): WorkoutTiming | null {
       timing.workSeconds += set.workSeconds;
       const start = new Date(set.doneAt.getTime() - set.workSeconds * 1000);
       const gap = seconds(prevEnd, start);
-      if (!prev) timing.warmupSeconds += gap;
-      else if (gap > IDLE_GAP_SECONDS) timing.idleSeconds += gap;
-      else if (prev.group !== set.group) timing.transitionSeconds += gap;
+      if (gap > IDLE_GAP_SECONDS) timing.idleSeconds += gap;
+      else if (!prev || prev.group !== set.group)
+        timing.transitionSeconds += gap;
       else {
         timing.restSeconds += gap;
         timing.restCount += 1;

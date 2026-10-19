@@ -55,6 +55,7 @@ export const ROUTES = {
   PROGRAM_TEMPLATES: '/programs/templates',
   PROGRAMS_MINE: '/programs/mine',
   PROGRAM_TEMPLATE: '/programs/templates/:templateId',
+  PROGRAM_SHARED: '/programs/shared/:token',
   PROGRAM_COMPLEX: '/programs/:programId/complex/:complexId',
   PROGRAM_ADD_EXERCISE: '/programs/:programId/add/:complexId',
   EXERCISE: '/library/exercises/:exerciseId',

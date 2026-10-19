@@ -145,6 +145,16 @@ export const useRenameTemplateComplex = () => {
   })
 }
 
+export const useSetTemplateComplexWarmup = () => {
+  const apply = useApplyTemplate()
+  return useMutation({
+    mutationFn: ({ id, warmupMinutes }: { id: number; warmupMinutes: number | null }) =>
+      adminTemplatesControllerUpdateComplex(id, { warmupMinutes }),
+    meta: { successMessage: 'Разминка сохранена' },
+    onSuccess: apply,
+  })
+}
+
 export const useDeleteTemplateComplex = () => {
   const apply = useApplyTemplate()
   return useMutation({

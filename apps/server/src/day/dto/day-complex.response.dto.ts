@@ -18,6 +18,13 @@ export class DayComplexResponseDto {
   @ApiProperty({ type: Number, nullable: true })
   cardioMinutes: number | null;
 
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    description: 'Разминка с учётом профиля, мин; null — без разминки',
+  })
+  warmupMinutes: number | null;
+
   @ApiProperty({ type: [DayExerciseResponseDto] })
   exercises: DayExerciseResponseDto[];
 }

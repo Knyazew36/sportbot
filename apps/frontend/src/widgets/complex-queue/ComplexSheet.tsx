@@ -2,10 +2,11 @@ import { CalendarCheckIcon } from 'lucide-react'
 
 import { EXERCISE_FORMS } from '@/shared/lib/plural-forms'
 import { pluralize } from '@front-cmdt/utils/pluralize'
+import { useProfile } from '@/entities/profile'
 import { complexLetter, planText, type ProgramComplex } from '@/entities/program'
 import { ExerciseBlocks } from '@/shared/ui/kit/ExerciseBlocks'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
-import { Poster, Text } from '@/shared/ui/kit/Typography'
+import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'
 
@@ -30,6 +31,9 @@ export const ComplexSheet = ({
   pickLabel = 'Буду делать сегодня',
 }: ComplexSheetProps) => {
   const c = complex?.complex
+  // У комплекса без своей разминки — разминка из профиля, как на старте тренировки
+  const profile = useProfile()
+  const warmup = c && ((c.warmupMinutes ?? profile.data?.warmupMinutes) || null)
   return (
     <Sheet
       open={complex !== null}
@@ -39,9 +43,8 @@ export const ComplexSheet = ({
         {c && complex && (
           <>
             <SheetHeader>
-              <SheetTitle>
-                {complexLetter(complex.index)} · {c.name}
-              </SheetTitle>
+              <Eyebrow>Тренировка {complexLetter(complex.index)}</Eyebrow>
+              <SheetTitle>{c.name}</SheetTitle>
               <SheetDescription>
                 {pluralize(c.exercises.length, EXERCISE_FORMS)}{c.isNext ? ' · на очереди' : ''}
               </SheetDescription>
@@ -51,6 +54,21 @@ export const ComplexSheet = ({
                 <Text tone='soft'>В тренировке пока нет упражнений — добавь их в редакторе программы.</Text>
               ) : (
                 <List>
+                  {warmup && (
+                    <ListRow
+                      // Перед упражнением 01 — нулевым номером
+                      lead='00'
+                      title='Разминка'
+                      trail={
+                        <Poster
+                          as='span'
+                          className='whitespace-nowrap'
+                        >
+                          {warmup} мин
+                        </Poster>
+                      }
+                    />
+                  )}
                   <ExerciseBlocks items={c.exercises}>
                     {(e, i, label) => (
                     <ListRow

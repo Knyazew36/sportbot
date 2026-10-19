@@ -26,7 +26,12 @@ const MyProgramsPage = () => {
         isEmpty={list => list.length === 0}
         empty={{ title: 'Программ пока нет', description: 'Подбери готовую в каталоге или собери свою.' }}
       >
-        {list => <MyPrograms programs={[...list].sort((a, b) => Number(b.active) - Number(a.active))} />}
+        {list => (
+          <MyPrograms
+            programs={[...list].sort((a, b) => Number(b.active) - Number(a.active))}
+            deletable
+          />
+        )}
       </QueryScreen>
     </Screen>
   )

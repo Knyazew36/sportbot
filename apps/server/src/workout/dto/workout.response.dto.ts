@@ -31,6 +31,20 @@ export class WorkoutResponseDto {
   @ApiProperty({ type: Number, nullable: true })
   cardioMinutes: number | null;
 
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    description: 'Разминка, мин: снимок на старте; null — без разминки',
+  })
+  warmupMinutes: number | null;
+
+  @ApiProperty({
+    type: Date,
+    nullable: true,
+    description: 'Конец разминки; null — ещё идёт или её нет',
+  })
+  warmupFinishedAt: Date | null;
+
   @ApiProperty({ type: [WorkoutItemResponseDto] })
   exercises: WorkoutItemResponseDto[];
 

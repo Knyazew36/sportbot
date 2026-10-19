@@ -28,4 +28,6 @@ export interface UpdateProfileDto {
   restAutoStart?: boolean;
   timerSound?: boolean;
   timerVibration?: boolean;
+  /** Разминка перед тренировкой, мин: 0, 5, 10 или 15; 0 — без разминки */
+  warmupMinutes?: number;
 }

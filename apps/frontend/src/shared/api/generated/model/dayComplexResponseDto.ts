@@ -15,5 +15,10 @@ export interface DayComplexResponseDto {
   cardioName: string | null;
   /** @nullable */
   cardioMinutes: number | null;
+  /**
+     * Разминка с учётом профиля, мин; null — без разминки
+     * @nullable
+     */
+  warmupMinutes: number | null;
   exercises: DayExerciseResponseDto[];
 }

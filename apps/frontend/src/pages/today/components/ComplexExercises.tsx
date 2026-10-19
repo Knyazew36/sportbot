@@ -31,6 +31,21 @@ export const ComplexExercises = ({ complex }: { complex: Complex }) => {
         <Text tone='soft'>В тренировке пока нет упражнений — добавь их в программе.</Text>
       ) : (
         <List>
+          {complex.warmupMinutes && (
+            <ListRow
+              // Перед упражнением 01 — нулевым номером
+              lead='00'
+              title='Разминка'
+              trail={
+                <Poster
+                  as='span'
+                  className='whitespace-nowrap'
+                >
+                  {complex.warmupMinutes} мин
+                </Poster>
+              }
+            />
+          )}
           <ExerciseBlocks items={complex.exercises}>
             {(e, i, label) => (
             // Вся строка открывает карточку упражнения: кнопка растянута на строку

@@ -3,11 +3,13 @@ import type { ReactNode } from 'react'
 import { cn } from '@/shared/lib/utils'
 import { haptic } from '@/shared/miniapp'
 
-import { Poster, Text } from './Typography'
+import { Eyebrow, Poster, Text } from './Typography'
 
 type TicketProps = {
   /** Буква комплекса */
   mark: ReactNode
+  /** Подпись над буквой — что это за билет, например «Тренировка» */
+  kicker?: ReactNode
   title: ReactNode
   /** Следующий по очереди — подсвечен */
   active?: boolean
@@ -19,7 +21,7 @@ type TicketProps = {
 
 // Комплекс в очереди — как билет с вырезом корешка.
 // Нажимаемый билет получает жёсткую тень, как у кнопок: тень — признак «сюда можно тыкать»
-export const Ticket = ({ mark, title, active, onClick, children, className }: TicketProps) => {
+export const Ticket = ({ mark, kicker, title, active, onClick, children, className }: TicketProps) => {
   const Root = onClick ? 'button' : 'div'
   return (
     <Root
@@ -40,21 +42,33 @@ export const Ticket = ({ mark, title, active, onClick, children, className }: Ti
       )}
     >
       <span className='bg-background absolute top-1/2 -right-[7px] size-3 -translate-y-1/2 rounded-full border-[1.5px] border-inherit' />
-      <Poster
-        as='span'
-        size='2xl'
-        tone={active ? 'primary' : 'faint'}
-      >
-        {mark}
-      </Poster>
-      <Text
-        as='span'
-        size='sm'
-        className='leading-tight'
-      >
-        {title}
-      </Text>
-      {children}
+      <span className='flex flex-col gap-1'>
+        {kicker && (
+          <Eyebrow
+            size='sm'
+            tone={active ? 'primary' : 'muted'}
+          >
+            {kicker}
+          </Eyebrow>
+        )}
+        <Poster
+          as='span'
+          size='2xl'
+          tone={active ? 'primary' : 'faint'}
+        >
+          {mark}
+        </Poster>
+      </span>
+      <span className='flex flex-col gap-1.5'>
+        <Text
+          as='span'
+          size='sm'
+          className='leading-tight'
+        >
+          {title}
+        </Text>
+        {children}
+      </span>
     </Root>
   )
 }

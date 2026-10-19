@@ -11,6 +11,8 @@ import { ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { Swagger } from '@/common/decorators/swagger/swagger.decorator';
+import { BotChannel } from '@/generated/prisma/client';
+import { AuthChannel } from '@/miniapp/decorators/auth-channel.decorator';
 import { SportAuth } from '@/miniapp/decorators/sport-auth.decorator';
 import { ProgramTagGroupResponseDto } from '@/program-tag/dto/program-tag-group.response.dto';
 import { PublishProgramDto } from '@/program-publication/dto/publish-program.dto';
@@ -20,6 +22,7 @@ import { AddComplexExercisesDto } from './dto/add-complex-exercises.dto';
 import { CreateComplexDto } from './dto/create-complex.dto';
 import { CreateProgramDto } from './dto/create-program.dto';
 import { ProgramListItemResponseDto } from './dto/program-list-item.response.dto';
+import { ProgramShareLinkResponseDto } from './dto/program-share-link.response.dto';
 import { ProgramResponseDto } from './dto/program.response.dto';
 import { ReorderDto } from './dto/reorder.dto';
 import { TagGroupsQueryDto } from './dto/tag-groups-query.dto';
@@ -87,6 +90,51 @@ export class ProgramController {
     @Param('id', ParseIntPipe) id: number,
   ) {
     return this.programAppService.take(userId, id);
+  }
+
+  // ── Поделиться ──────────────────────────────────────────────────────────
+
+  @Post('share/:id')
+  @Swagger({
+    title: 'Ссылка «Поделиться» на свою программу: по ней любой заберёт копию',
+    param: ID_PARAM,
+    response: ProgramShareLinkResponseDto,
+    bearerAuth: true,
+  })
+  public share(
+    @CurrentUser('id') userId: number,
+    @AuthChannel() channel: BotChannel | null,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.programAppService.shareLink(userId, id, channel);
+  }
+
+  @Get('shared/:token')
+  @Swagger({
+    title: 'Программа по ссылке «Поделиться»: состав и автор',
+    param: { name: 'token', type: String },
+    response: ProgramResponseDto,
+    bearerAuth: true,
+  })
+  public shared(
+    @CurrentUser('id') userId: number,
+    @Param('token') token: string,
+  ) {
+    return this.programAppService.shared(userId, token);
+  }
+
+  @Post('shared/take/:token')
+  @Swagger({
+    title: '«Забрать себе» программу по ссылке «Поделиться»',
+    param: { name: 'token', type: String },
+    response: ProgramResponseDto,
+    bearerAuth: true,
+  })
+  public takeShared(
+    @CurrentUser('id') userId: number,
+    @Param('token') token: string,
+  ) {
+    return this.programAppService.takeShared(userId, token);
   }
 
   // ── Программы ───────────────────────────────────────────────────────────

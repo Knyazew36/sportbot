@@ -24,8 +24,11 @@ import {
   programControllerReorderComplexes,
   programControllerReorderItems,
   programControllerResync,
+  programControllerShare,
+  programControllerShared,
   programControllerTagGroups,
   programControllerTake,
+  programControllerTakeShared,
   programControllerTemplates,
   programControllerUngroupItem,
   programControllerUngroupSuperset,
@@ -56,6 +59,7 @@ export const programKeys = {
   tagGroups: ['program', 'tag-groups'] as const,
   allTagGroups: ['program', 'tag-groups', 'all'] as const,
   detail: (id: number) => ['program', 'detail', id] as const,
+  shared: (token: string) => ['program', 'shared', token] as const,
 }
 
 export const usePrograms = () =>
@@ -179,6 +183,35 @@ export const useTakeTemplate = () => {
   })
 }
 
+/** Программа по ссылке «Поделиться»: чужая или своя */
+export const useSharedProgram = (token: string) =>
+  useQuery({
+    queryKey: programKeys.shared(token),
+    queryFn: () => programControllerShared(token),
+  })
+
+/** «Забрать себе» по ссылке: копия становится программой пользователя */
+export const useTakeSharedProgram = () => {
+  const queryClient = useQueryClient()
+  const apply = useApplyProgram()
+  return useMutation({
+    mutationFn: (token: string) => programControllerTakeShared(token),
+    meta: { successMessage: 'Программа в твоих программах' },
+    onSuccess: (program, token) => {
+      apply(program)
+      void queryClient.invalidateQueries({ queryKey: programKeys.shared(token) })
+    },
+  })
+}
+
+/** Ссылка «Поделиться» на свою программу */
+export const useShareProgram = () =>
+  useMutation({
+    mutationFn: (id: number) => programControllerShare(id),
+    // Дальше открывается системное «Поделиться» — оно и есть результат
+    meta: { skipSuccessToast: true },
+  })
+
 export const useRenameProgram = () => {
   const apply = useApplyProgram()
   return useMutation({
@@ -188,11 +221,14 @@ export const useRenameProgram = () => {
   })
 }
 
-export const useDeleteProgram = () => {
+/** silent — без тоста: в списке программ строка исчезает сама, это и есть ответ */
+export const useDeleteProgram = ({ silent = false }: { silent?: boolean } = {}) => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (id: number) => programControllerRemove(id),
-    meta: { successMessage: 'Программа удалена, история тренировок осталась' },
+    meta: silent
+      ? { skipSuccessToast: true }
+      : { successMessage: 'Программа удалена, история тренировок осталась' },
     onSuccess: (_, id) => {
       queryClient.removeQueries({ queryKey: programKeys.detail(id) })
       void queryClient.invalidateQueries({ queryKey: programKeys.list })
@@ -295,6 +331,17 @@ export const useRenameComplex = () => {
   return useMutation({
     mutationFn: ({ id, name }: { id: number; name: string }) => programControllerUpdateComplex(id, { name }),
     meta: { successMessage: 'Тренировка переименована', inlineFieldErrors: true },
+    onSuccess: apply,
+  })
+}
+
+/** Разминка комплекса: null — как в профиле, 0 — без разминки */
+export const useSetComplexWarmup = () => {
+  const apply = useApplyProgram()
+  return useMutation({
+    mutationFn: ({ id, warmupMinutes }: { id: number; warmupMinutes: number | null }) =>
+      programControllerUpdateComplex(id, { warmupMinutes }),
+    meta: { successMessage: 'Разминка сохранена' },
     onSuccess: apply,
   })
 }

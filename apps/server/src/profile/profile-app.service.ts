@@ -61,6 +61,7 @@ export class ProfileAppService {
       restAutoStart: profile.restAutoStart,
       timerSound: profile.timerSound,
       timerVibration: profile.timerVibration,
+      warmupMinutes: profile.warmupMinutes,
       pause: pause
         ? {
             endDate: pause.endDate ? isoDate(pause.endDate) : null,

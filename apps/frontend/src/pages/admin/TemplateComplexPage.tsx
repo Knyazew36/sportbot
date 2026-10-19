@@ -7,6 +7,7 @@ import {
   useDeleteTemplateComplex,
   useDeleteTemplateExercise,
   useRenameTemplateComplex,
+  useSetTemplateComplexWarmup,
   useReorderTemplateExercises,
   useUngroupTemplateExercise,
   useUngroupTemplateSuperset,
@@ -25,6 +26,7 @@ import { useComplexEditing } from '@/widgets/program-editor/use-complex-editing'
 const useComplexActions = (templateId: number, complexId: number, onDeleted: () => void) => {
   const queryClient = useQueryClient()
   const renameComplex = useRenameTemplateComplex()
+  const setWarmup = useSetTemplateComplexWarmup()
   const deleteComplex = useDeleteTemplateComplex()
   const updateExercise = useUpdateTemplateExercise()
   const deleteExercise = useDeleteTemplateExercise()
@@ -35,6 +37,7 @@ const useComplexActions = (templateId: number, complexId: number, onDeleted: () 
   return useComplexEditing({
     mutations: {
       renameComplex: (id, name) => renameComplex.mutateAsync({ id, name }),
+      setWarmup: (id, warmupMinutes) => setWarmup.mutateAsync({ id, warmupMinutes }),
       deleteComplex: id => deleteComplex.mutateAsync(id),
       updateExercise: (id, plan) => updateExercise.mutateAsync({ id, ...plan }),
       deleteExercise: id => deleteExercise.mutateAsync(id),

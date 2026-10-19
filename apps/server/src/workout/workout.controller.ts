@@ -14,7 +14,7 @@ import { BotChannel, User } from '@/generated/prisma/client';
 import { AuthChannel } from '@/miniapp/decorators/auth-channel.decorator';
 import { SportAuth } from '@/miniapp/decorators/sport-auth.decorator';
 
-import { CooldownAtDto } from './dto/cooldown-at.dto';
+import { ClientAtDto } from './dto/client-at.dto';
 import { CooldownResponseDto } from './dto/cooldown.response.dto';
 import { CreateWorkoutSetDto } from './dto/create-workout-set.dto';
 import { FinishWorkoutDto } from './dto/finish-workout.dto';
@@ -215,19 +215,40 @@ export class WorkoutController {
     );
   }
 
+  // ── Разминка ────────────────────────────────────────────────────────────
+
+  @Post('warmup/finish/:id')
+  @Swagger({
+    title: 'Разминка закончена или пропущена: пишется один раз',
+    param: ID_PARAM,
+    body: ClientAtDto,
+    bearerAuth: true,
+  })
+  public warmupFinish(
+    @CurrentUser('id') userId: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: ClientAtDto,
+  ) {
+    return this.workoutAppService.warmupFinish(
+      userId,
+      id,
+      dto.at ? new Date(dto.at) : undefined,
+    );
+  }
+
   // ── Заминка ─────────────────────────────────────────────────────────────
 
   @Post('cooldown/start/:id')
   @Swagger({
     title: 'Заминка начата: пишется первое открытие, повтор ничего не меняет',
     param: ID_PARAM,
-    body: CooldownAtDto,
+    body: ClientAtDto,
     bearerAuth: true,
   })
   public cooldownStart(
     @CurrentUser('id') userId: number,
     @Param('id', ParseIntPipe) id: number,
-    @Body() dto: CooldownAtDto,
+    @Body() dto: ClientAtDto,
   ) {
     return this.workoutAppService.cooldownStart(
       userId,
@@ -240,13 +261,13 @@ export class WorkoutController {
   @Swagger({
     title: 'Заминка пройдена: только после начала и один раз',
     param: ID_PARAM,
-    body: CooldownAtDto,
+    body: ClientAtDto,
     bearerAuth: true,
   })
   public cooldownFinish(
     @CurrentUser('id') userId: number,
     @Param('id', ParseIntPipe) id: number,
-    @Body() dto: CooldownAtDto,
+    @Body() dto: ClientAtDto,
   ) {
     return this.workoutAppService.cooldownFinish(
       userId,

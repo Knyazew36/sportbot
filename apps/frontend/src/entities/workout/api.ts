@@ -8,6 +8,7 @@ import {
   workoutControllerCooldown,
   workoutControllerCooldownFinish,
   workoutControllerCooldownStart,
+  workoutControllerWarmupFinish,
   workoutControllerCurrent,
   workoutControllerDiscard,
   workoutControllerFind,
@@ -130,6 +131,16 @@ export const useCooldown = (workoutId: number) =>
     queryKey: workoutKeys.cooldown(workoutId),
     queryFn: () => workoutControllerCooldown(workoutId),
     staleTime: Infinity,
+  })
+
+// Конец разминки — со временем нажатия и в общей очереди, как заминка. Экран закрывается сразу,
+// не дожидаясь ответа: без сети отметка уйдёт позже
+export const useWarmupFinish = () =>
+  useMutation({
+    mutationFn: (workoutId: number) => workoutControllerWarmupFinish(workoutId, { at: new Date().toISOString() }),
+    scope: WORKOUT_QUEUE_SCOPE,
+    // Переход к упражнениям и так виден на экране
+    meta: { skipSuccessToast: true },
   })
 
 // Время заминки — со временем нажатия и в общей очереди: без сети уйдёт позже, но не исказится.

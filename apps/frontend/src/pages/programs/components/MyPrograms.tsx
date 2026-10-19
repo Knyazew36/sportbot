@@ -1,4 +1,4 @@
-import { ArrowRightIcon, GlobeIcon, PencilIcon } from 'lucide-react'
+import { ArrowRightIcon, GlobeIcon, PencilIcon, Trash2Icon } from 'lucide-react'
 
 import { useState } from 'react'
 
@@ -9,11 +9,14 @@ import {
   publishLabel,
   PUBLICATION_STATUS,
   useActivateProgram,
+  useDeleteProgram,
   useProgram,
 } from '@/entities/program'
+import { ShareProgramButton } from '@/features/share-program/ShareProgramButton'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { pluralize } from '@front-cmdt/utils/pluralize'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
+import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { StatusFromMeta } from '@/shared/ui/kit/StatusBadge'
@@ -32,12 +35,16 @@ type MyProgramsProps = {
   aside?: string
   /** Сколько строк показать; остальные — на странице «Все мои программы» */
   limit?: number
+  /** Кнопка удаления у каждой строки — на странице «Все мои программы» */
+  deletable?: boolean
 }
 
 // Свои программы списком: строка открывает состав в шторке, оттуда — в редактор; неактивную включают одним нажатием, активная
 // отмечена зелёным. С limit — короткий список под плакатом и ссылка на все
-export const MyPrograms = ({ programs, title, aside, limit }: MyProgramsProps) => {
+export const MyPrograms = ({ programs, title, aside, limit, deletable }: MyProgramsProps) => {
   const activate = useActivateProgram()
+  // Строка пропадает из списка на глазах — тост лишний
+  const remove = useDeleteProgram({ silent: true })
   const [openedId, setOpenedId] = useState<number | null>(null)
   const opened = useProgram(openedId ?? undefined)
   // Форма публикации открывается вместо шторки состава, а не поверх неё
@@ -71,19 +78,39 @@ export const MyPrograms = ({ programs, title, aside, limit }: MyProgramsProps) =
             }
             meta={pluralize(p.complexCount, COMPLEX_FORMS)}
             trail={
-              p.active ? (
-                <Eyebrow tone='positive'>активная</Eyebrow>
-              ) : (
-                <Button
-                  variant='outline'
-                  size='xs'
-                  className='relative z-10'
-                  disabled={activate.isPending}
-                  onClick={() => activate.mutate(p.id)}
-                >
-                  Сделать активной
-                </Button>
-              )
+              <span className='flex items-center gap-2'>
+                {p.active ? (
+                  <Eyebrow tone='positive'>активная</Eyebrow>
+                ) : (
+                  <Button
+                    variant='outline'
+                    size='xs'
+                    className='relative z-10'
+                    disabled={activate.isPending}
+                    onClick={() => activate.mutate(p.id)}
+                  >
+                    Сделать активной
+                  </Button>
+                )}
+                {deletable && (
+                  <ConfirmAction
+                    trigger={
+                      <Button
+                        variant='outline'
+                        size='icon-xs'
+                        className='text-destructive relative z-10'
+                        aria-label={`Удалить «${p.name}»`}
+                      />
+                    }
+                    title='Удалить программу?'
+                    description={`«${p.name}» и её тренировки пропадут. История тренировок сохранится.`}
+                    confirmLabel='Удалить'
+                    onConfirm={() => remove.mutateAsync(p.id)}
+                  >
+                    <Trash2Icon />
+                  </ConfirmAction>
+                )}
+              </span>
             }
           >
             {(p.fromFriend || p.fromTemplate) && (
@@ -131,14 +158,21 @@ export const MyPrograms = ({ programs, title, aside, limit }: MyProgramsProps) =
         action={
           openedId != null && (
             <div className='flex flex-col gap-2'>
-              <ButtonLink
-                to={buildPath(ROUTES.PROGRAM, { programId: openedId })}
-                size='lg'
-                className='w-full'
-              >
-                Редактировать
-                <PencilIcon />
-              </ButtonLink>
+              <div className='flex gap-2'>
+                <ButtonLink
+                  to={buildPath(ROUTES.PROGRAM, { programId: openedId })}
+                  size='lg'
+                  className='flex-1'
+                >
+                  Редактировать
+                  <PencilIcon />
+                </ButtonLink>
+                <ShareProgramButton
+                  programId={openedId}
+                  size='lg'
+                  iconOnly
+                />
+              </div>
               {publishable && (
                 <Button
                   // Уже отправленную только правят — это не выход наружу, поэтому без жёлтого

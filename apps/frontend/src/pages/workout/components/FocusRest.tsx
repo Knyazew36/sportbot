@@ -1,13 +1,11 @@
 import { ArrowRightIcon, PlayIcon, PlusIcon } from 'lucide-react'
-import { motion, useReducedMotion } from 'motion/react'
-import { useRef, useState } from 'react'
-
 import { formatSeconds, type useDeadlineTimer } from '@/shared/lib/hooks/use-deadline-timer'
 import { Ring } from '@/shared/ui/kit/Ring'
 import { Digits, Eyebrow, Poster } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
 import { FocusShell } from './FocusShell'
+import { TimeBumps, useTimeBumps } from './TimeBumps'
 import { NEXT_LABEL, type NextMode } from './WorkoutActions'
 
 type FocusRestProps = {
@@ -45,14 +43,10 @@ export const FocusRest = ({
   const over = timer.left <= 0
   // total растёт с каждым «+30 с», поэтому прошедшее считаем от него: видно, сколько отдыхали всего, с добавками
   const rested = Math.max(0, timer.total - timer.left)
-  const still = useReducedMotion()
-  // Каждое нажатие — своя всплывашка: при быстрых нажатиях они летят друг за другом, а не перезапускают одну
-  const [bumps, setBumps] = useState<number[]>([])
-  const bumpId = useRef(0)
+  const bumps = useTimeBumps()
   const addRest = () => {
     timer.add(30)
-    bumpId.current += 1
-    setBumps((list) => [...list, bumpId.current])
+    bumps.bump()
   }
   return (
     <FocusShell
@@ -176,27 +170,10 @@ export const FocusRest = ({
           ) : (
             // Подпись под цифрами тоже вне потока, чтобы цифры стояли ровно по центру кольца
             <div className='relative'>
-              {/* Над цифрами и вне потока: всплывашка не двигает секундомер */}
-              <div className='pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2'>
-                {bumps.map((id) => (
-                  <motion.div
-                    key={id}
-                    className='absolute bottom-0 left-1/2 -translate-x-1/2 whitespace-nowrap'
-                    initial={{ opacity: 0, y: 8, scale: 0.9 }}
-                    animate={{ opacity: [0, 1, 1, 0], y: still ? 0 : -56, scale: 1 }}
-                    transition={{ duration: 1.1, ease: 'easeOut', times: [0, 0.15, 0.6, 1] }}
-                    onAnimationComplete={() => setBumps((list) => list.filter((item) => item !== id))}
-                  >
-                    <Poster
-                      size='lg'
-                      tone='primary'
-                      numeric
-                    >
-                      +30 с
-                    </Poster>
-                  </motion.div>
-                ))}
-              </div>
+              <TimeBumps
+                {...bumps}
+                label='+30 с'
+              />
               <Poster
                 size='hero'
                 numeric

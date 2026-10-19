@@ -12,7 +12,14 @@ const REST = [
   { value: '180', label: '3:00' },
 ]
 
-// Таймер отдыха (frontend-tz, 13.2). Переключатели сохраняются сразу — отдельной кнопки нет
+const WARMUP = [
+  { value: '0', label: 'Нет' },
+  { value: '5', label: '5 мин' },
+  { value: '10', label: '10 мин' },
+  { value: '15', label: '15 мин' },
+]
+
+// Разминка и таймер отдыха (frontend-tz, 13.2). Переключатели сохраняются сразу — отдельной кнопки нет
 export const TrainingSection = ({ profile }: { profile: Profile }) => {
   const update = useUpdateProfile()
   const rest = String(profile.restSeconds)
@@ -22,6 +29,17 @@ export const TrainingSection = ({ profile }: { profile: Profile }) => {
 
   return (
     <ScreenSection>
+      {/* Разминка не зависит от таймера отдыха: свой экран в начале тренировки */}
+      <div className='flex flex-col gap-2'>
+        <Label>Разминка перед тренировкой</Label>
+        <Segmented
+          options={WARMUP}
+          value={String(profile.warmupMinutes)}
+          onValueChange={v => update.mutate({ warmupMinutes: Number(v) })}
+          size='default'
+          stretch
+        />
+      </div>
       <SettingRow
         title='Таймер отдыха'
         hint={

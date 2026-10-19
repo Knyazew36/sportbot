@@ -18,6 +18,13 @@ export class ProgramComplexResponseDto {
   @ApiProperty({ type: Number, nullable: true })
   cardioMinutes: number | null;
 
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    description: 'Разминка, мин: null — как в профиле, 0 — без разминки',
+  })
+  warmupMinutes: number | null;
+
   @ApiProperty({ description: 'Следующий по очереди' })
   isNext: boolean;
 
