@@ -11,7 +11,7 @@ type PosterTabsProps<T extends string> = {
 }
 
 // Разделы экрана как оглавление из глав: одна рамка с жёсткой тенью, равные ячейки «01 / ПРОГРЕСС».
-// Выбранная глава залита синим, заливка переезжает пружиной. Нарочно не похожи на Segmented:
+// Выбранная глава залита «чернилами» — не цветом бренда, которым отмечен выбранный период ниже; заливка переезжает пружиной. Нарочно не похожи на Segmented:
 // под ними стоит переключатель периода, и два ряда одинаковых кнопок читались бы как один выбор
 export const PosterTabs = <T extends string>({ tabs, value, onValueChange, className }: PosterTabsProps<T>) => {
   const still = useReducedMotion()
@@ -47,14 +47,14 @@ export const PosterTabs = <T extends string>({ tabs, value, onValueChange, class
               <motion.span
                 layoutId='poster-tab-fill'
                 aria-hidden
-                className='bg-primary absolute inset-0'
+                className='bg-foreground absolute inset-0'
                 transition={still ? { duration: 0 } : { type: 'spring', stiffness: 520, damping: 38 }}
               />
             )}
             <span
               className={cn(
                 'font-grotesk relative text-[10.5px] leading-none tracking-[0.14em] tabular-nums transition-colors',
-                active ? 'text-primary-foreground/70' : 'text-primary',
+                'text-primary',
               )}
             >
               {String(i + 1).padStart(2, '0')}
@@ -62,7 +62,7 @@ export const PosterTabs = <T extends string>({ tabs, value, onValueChange, class
             <span
               className={cn(
                 'sb-poster relative max-w-full truncate text-[min(19px,5vw)] leading-[1.1] transition-colors',
-                active ? 'text-primary-foreground' : 'text-foreground/45 group-hover:text-foreground/70',
+                active ? 'text-background' : 'text-foreground/45 group-hover:text-foreground/70',
               )}
             >
               {tab.label}
