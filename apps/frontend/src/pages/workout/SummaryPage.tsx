@@ -1,14 +1,12 @@
-import { ArrowRightIcon, CheckIcon, MinusIcon } from 'lucide-react'
+import { ArrowRightIcon } from 'lucide-react'
 import { useParams } from 'react-router'
 
-import { lastText, useWorkout, useWorkoutSummary, type WorkoutSummary } from '@/entities/workout'
+import { useWorkoutSummary, type WorkoutSummary } from '@/entities/workout'
 import { ShareWorkoutButton } from '@/features/share-workout/ShareWorkoutButton'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { pluralize } from '@front-cmdt/utils/pluralize'
 import { MedalArt } from '@/shared/ui/kit/Art'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
-import { ExerciseBlocks } from '@/shared/ui/kit/ExerciseBlocks'
-import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Screen, StickyFooter } from '@/shared/ui/kit/Screen'
@@ -18,53 +16,8 @@ import { StatGrid } from '@/shared/ui/kit/StatGrid'
 import { Lead, Poster, Text } from '@/shared/ui/kit/Typography'
 import { EXERCISE_FORMS, SET_FORMS } from '@/shared/lib/plural-forms'
 import { WorkoutRecords } from '@/widgets/workout-records/WorkoutRecords'
-
-import { SummaryTiming } from './components/SummaryTiming'
-
-// Протокол: что сделано по каждому упражнению
-const Protocol = ({ workoutId }: { workoutId: number }) => {
-  const workout = useWorkout(workoutId)
-  return (
-    <ScreenSection title='Протокол'>
-      <QueryScreen
-        query={workout}
-        className=''
-        rows={3}
-      >
-        {w => (
-          <List>
-            <ExerciseBlocks items={w.exercises}>
-              {e => (
-              <ListRow
-                key={e.id}
-                lead={
-                  e.done ? (
-                    <CheckIcon
-                      className='size-4'
-                      strokeWidth={2.5}
-                    />
-                  ) : (
-                    <MinusIcon className='text-foreground/30 size-4' />
-                  )
-                }
-                title={e.name}
-              >
-                <Poster
-                  size='xs'
-                  tone='soft'
-                  className='mt-1 tracking-[0.01em]'
-                >
-                  {lastText({ date: w.date, sets: e.sets }, e.measure) ?? (e.done ? 'без записи подходов' : 'не делал')}
-                </Poster>
-              </ListRow>
-              )}
-            </ExerciseBlocks>
-          </List>
-        )}
-      </QueryScreen>
-    </ScreenSection>
-  )
-}
+import { SummaryTiming } from '@/widgets/workout-summary/SummaryTiming'
+import { WorkoutProtocol } from '@/widgets/workout-summary/WorkoutProtocol'
 
 const SummaryView = ({ summary }: { summary: WorkoutSummary }) => (
   <Screen
@@ -175,7 +128,7 @@ const SummaryView = ({ summary }: { summary: WorkoutSummary }) => (
     {/* Старые тренировки и простой режим без времени подходов — блока нет */}
     {summary.timing && <SummaryTiming timing={summary.timing} />}
 
-    <Protocol workoutId={summary.workoutId} />
+    <WorkoutProtocol workoutId={summary.workoutId} />
   </Screen>
 )
 

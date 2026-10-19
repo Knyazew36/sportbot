@@ -9,6 +9,11 @@ export class StatsDayWorkoutResponseDto {
   @ApiProperty()
   complexName: string;
 
+  @ApiProperty({
+    description: 'Начало, ISO: различает несколько тренировок за день',
+  })
+  startedAt: string;
+
   @ApiProperty({ description: 'Внеплановая' })
   unplanned: boolean;
 

@@ -82,7 +82,7 @@ export const E1rmCard = ({ e1rm, label, trend, periodText, onOpen }: E1rmCardPro
           size='sm'
           tone='primary'
         >
-          расчётный максимум
+          расчётный максимальный вес
         </Lead>
         <span className='flex items-end justify-between gap-3'>
           <Poster
@@ -135,7 +135,7 @@ export const E1rmCard = ({ e1rm, label, trend, periodText, onOpen }: E1rmCardPro
           tone='primary'
           className='block tracking-[0.04em]'
         >
-          оценка
+          на раз
         </Poster>
       </motion.span>
     </button>

@@ -1,11 +1,13 @@
-import { CheckIcon, PauseIcon, XIcon } from 'lucide-react'
+import { CheckIcon, ChevronRightIcon, PauseIcon, XIcon } from 'lucide-react'
 import { motion } from 'motion/react'
+import { Link } from 'react-router'
 
 import type { DayToday } from '@/entities/day'
 import { cn } from '@/shared/lib/utils'
 import { weekdayShort } from '@/shared/lib/weekdays'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
+import { ATTENDANCE_LINK } from '@/widgets/stats/links'
 
 const CELL: Record<DayToday['week'][number]['mark'], string> = {
   DONE: 'bg-primary border-primary text-primary-foreground',
@@ -24,7 +26,12 @@ const TITLE: Record<DayToday['week'][number]['mark'], string> = {
 }
 
 // Серия и текущая неделя: до рекорда — дорожка, под ней дни с отметками
-export const WeekStreak = ({ streak, week }: Pick<DayToday, 'streak' | 'week'>) => {
+type WeekStreakProps = Pick<DayToday, 'streak' | 'week'> & {
+  /** Вход в посещения: нужен, только когда шапки с ним нет — во время тренировки её место занимает живая полоса */
+  withAttendance?: boolean
+}
+
+export const WeekStreak = ({ streak, week, withAttendance }: WeekStreakProps) => {
   const record = Math.max(streak.best, streak.current)
   const progress = record > 0 ? (streak.current / record) * 100 : 0
 
@@ -85,6 +92,15 @@ export const WeekStreak = ({ streak, week }: Pick<DayToday, 'streak' | 'week'>) 
           </li>
         ))}
       </ol>
+      {withAttendance && (
+      <Link
+        to={ATTENDANCE_LINK}
+        className='border-foreground/80 active:bg-foreground/5 flex items-center justify-between border-t-[1.5px] px-3 py-2.5'
+      >
+        <Eyebrow tone='primary'>Посещения и календарь</Eyebrow>
+        <ChevronRightIcon className='text-primary size-4' />
+      </Link>
+      )}
     </Rise>
   )
 }

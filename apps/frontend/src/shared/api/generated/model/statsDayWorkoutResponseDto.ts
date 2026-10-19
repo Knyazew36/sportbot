@@ -9,6 +9,8 @@ import type { StatsDayExerciseResponseDto } from './statsDayExerciseResponseDto'
 export interface StatsDayWorkoutResponseDto {
   id: number;
   complexName: string;
+  /** Начало, ISO: различает несколько тренировок за день */
+  startedAt: string;
   /** Внеплановая */
   unplanned: boolean;
   /** Записана без подходов (вечернее «да» или исправление) */

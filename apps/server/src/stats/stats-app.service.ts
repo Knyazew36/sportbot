@@ -322,6 +322,7 @@ export class StatsAppService {
       workouts: workouts.map((w) => ({
         id: w.id,
         complexName: w.complexName,
+        startedAt: w.startedAt.toISOString(),
         unplanned: w.unplanned,
         simple: w.mode === 'SIMPLE',
         exercises: w.exercises.map((e) => ({

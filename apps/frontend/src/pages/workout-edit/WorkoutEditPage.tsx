@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { useParams } from 'react-router'
+import { useLocation, useParams } from 'react-router'
 
 import { useQueuedWorkout, useWorkout } from '@/entities/workout'
-import { ROUTES } from '@/shared/config/paths'
+import { buildPath, ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
 import { supersetLabels } from '@/shared/lib/superset'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
@@ -19,6 +19,7 @@ import { AddSetForm } from './components/AddSetForm'
 // Графики и нагрузка по мышцам пересчитываются сами — бэк считает их по подходам
 const WorkoutEditPage = () => {
   const workoutId = Number(useParams().workoutId)
+  const { search } = useLocation()
   const workout = useWorkout(workoutId)
   // Правки уходят через офлайн-очередь: список показывает их сразу, не дожидаясь сервера
   const queued = useQueuedWorkout(workout.data)
@@ -28,7 +29,8 @@ const WorkoutEditPage = () => {
     <Screen
       header={
         <TopBar
-          back={ROUTES.STATS}
+          // Правку открывают со страницы тренировки в посещениях — туда и возвращаемся
+          back={`${buildPath(ROUTES.STATS_WORKOUT, { workoutId })}${search}`}
           title={workout.data?.complexName ?? 'Тренировка'}
           subtitle={workout.data ? `исправление · ${formatDate(workout.data.date, 'd MMMM yyyy')}` : 'исправление'}
         />

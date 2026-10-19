@@ -1,21 +1,16 @@
 import { addMonths, format, getDaysInMonth, parseISO } from 'date-fns'
-import { PencilIcon, Trash2Icon } from 'lucide-react'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router'
 
 import { type StatsDay, useCalendar, useStatsDay } from '@/entities/stats'
-import { useDeleteWorkout } from '@/entities/workout'
-import { ShareWorkoutButton } from '@/features/share-workout/ShareWorkoutButton'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
-import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
-import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
 import { ExerciseBlocks } from '@/shared/ui/kit/ExerciseBlocks'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { durationText, isTimed, type Measure } from '@/shared/lib/measure'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
-import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
 import { DAY_MARK, MARK_LABEL } from './marks'
 import { MonthCalendar } from './MonthCalendar'
@@ -34,10 +29,13 @@ const setsText = (sets: { weight: number; reps: number }[], measure: Measure) =>
   return sets.map(s => (s.weight ? `${String(s.weight).replace('.', ',')}×${s.reps}` : s.reps)).join(', ')
 }
 
-const DayDetails = ({ day, canFix }: { day: StatsDay; canFix: boolean }) => {
-  const remove = useDeleteWorkout()
+/** Страница прошедшей тренировки; month — вернуться на тот же месяц календаря */
+const workoutLink = (workoutId: number, month: string) =>
+  `${buildPath(ROUTES.STATS_WORKOUT, { workoutId })}?month=${month}`
 
-  return (
+// Детали дня под календарём: свой день без тренировок (пропуск, отдых) или день друга — с составом тренировок.
+// Свои тренировки открываются отдельной страницей, правка и удаление — там
+const DayDetails = ({ day }: { day: StatsDay }) => (
     <div className='border-foreground/80 mt-2 flex flex-col gap-3 border-[1.5px] p-4'>
       <div className='flex items-baseline justify-between gap-3'>
         <Poster size='lg'>{formatDate(day.date, 'd MMMM')}</Poster>
@@ -53,17 +51,6 @@ const DayDetails = ({ day, canFix }: { day: StatsDay; canFix: boolean }) => {
               {w.complexName}
               {w.unplanned && ' · внеплановая'}
             </Text>
-            {/* Подходы правит только хозяин; в простом режиме их нет */}
-            {canFix && !w.simple && (
-              <ButtonLink
-                to={buildPath(ROUTES.WORKOUT_EDIT, { workoutId: w.id })}
-                variant='outline'
-                size='xs'
-              >
-                <PencilIcon />
-                Исправить
-              </ButtonLink>
-            )}
           </div>
           <List>
             <ExerciseBlocks items={w.exercises}>
@@ -94,35 +81,10 @@ const DayDetails = ({ day, canFix }: { day: StatsDay; canFix: boolean }) => {
               )}
             </ExerciseBlocks>
           </List>
-          {/* Делиться и удалять может только хозяин */}
-          {canFix && (
-            <div className='mt-3 flex flex-wrap gap-2'>
-              <ShareWorkoutButton
-                workoutId={w.id}
-                size='xs'
-              />
-              <ConfirmAction
-                trigger={
-                  <Button
-                    variant='outline'
-                    size='xs'
-                  />
-                }
-                title='Удалить тренировку?'
-                description='Подходы пропадут из статистики, а день в календаре станет пропуском.'
-                confirmLabel='Удалить'
-                onConfirm={() => remove.mutateAsync(w.id)}
-              >
-                <Trash2Icon />
-                Удалить
-              </ConfirmAction>
-            </div>
-          )}
         </div>
       ))}
     </div>
-  )
-}
+)
 
 type CalendarSectionProps = {
   /** Календарь друга — без исправления отметок */
@@ -133,10 +95,36 @@ type CalendarSectionProps = {
 export const CalendarSection = ({ userId }: CalendarSectionProps) => {
   // Текущий месяц фиксируем при открытии: дальше него листать некуда
   const [current] = useState(() => format(new Date(), 'yyyy-MM'))
-  const [month, setMonth] = useState(current)
+  // Месяц в адресе: со страницы тренировки «Назад» возвращает на тот же месяц
+  const [params, setParams] = useSearchParams()
+  const month = params.get('month') ?? current
+  const setMonth = (next: string) =>
+    setParams(
+      prev => {
+        prev.set('month', next)
+        return prev
+      },
+      { replace: true },
+    )
   const [selected, setSelected] = useState<string | null>(null)
   const calendar = useCalendar(month, userId)
   const day = useStatsDay(selected, userId)
+  const navigate = useNavigate()
+  const own = userId == null
+  const workouts = own && day.data?.date === selected ? day.data.workouts : []
+  // Свой день с тренировками уходит на свою страницу: одна — сразу на неё, несколько — на разводящую дня.
+  // Под календарём остаются только дни без тренировок
+  const target = !selected || !workouts.length
+    ? null
+    : workouts.length === 1
+      ? workoutLink(workouts[0]!.id, month)
+      : buildPath(ROUTES.STATS_DAY, { date: selected })
+
+  useEffect(() => {
+    if (!target) return
+    setSelected(null)
+    navigate(target)
+  }, [target, navigate])
 
   const first = parseISO(`${month}-01`)
   // Понедельник — первая колонка
@@ -169,10 +157,7 @@ export const CalendarSection = ({ userId }: CalendarSectionProps) => {
           className='mt-2'
         >
           {d => (
-            <DayDetails
-              day={d}
-              canFix={userId == null}
-            />
+            <DayDetails day={d} />
           )}
         </QueryScreen>
       )}

@@ -53,7 +53,7 @@ export const E1rmSheet = ({ open, onOpenChange, e1rm, periodText }: E1rmSheetPro
         <Eyebrow tone='primary'>оценка, не замер</Eyebrow>
       </SheetHeader>
       <div className='px-gutter flex min-h-0 flex-col gap-5 overflow-y-auto pb-5'>
-        <div className='grid grid-cols-2 gap-4'>
+        <div className='flex flex-col gap-4'>
           {e1rm.best && (
             <Estimate
               label={`Лучший ${periodText}`}

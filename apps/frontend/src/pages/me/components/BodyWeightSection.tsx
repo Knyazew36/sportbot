@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ArrowRightIcon, CheckIcon } from 'lucide-react'
+import { CheckIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 
 import {
@@ -10,15 +10,15 @@ import {
   useAddBodyWeight,
   useUpdateProfile,
 } from '@/entities/profile'
-import { ROUTES } from '@/shared/config/paths'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { BoxInput } from '@/shared/ui/kit/BoxInput'
-import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { SelectField } from '@/shared/ui/kit/SelectField'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Label } from '@/shared/ui/shadcn/label'
+
+import { BodyWeightChart } from './BodyWeightChart'
 
 const WEIGHT_ASK = [
   { value: 'OFF', label: 'Не спрашивать' },
@@ -29,7 +29,7 @@ const WEIGHT_ASK = [
 
 type Frequency = Profile['weightAskFrequency']
 
-// Вес тела (frontend-tz, 13.5): запись за сегодня, частота вопроса от бота; график — в статистике
+// Вес тела (frontend-tz, 13.5): запись за сегодня, график по периодам, частота вопроса от бота
 export const BodyWeightSection = ({ profile }: { profile: Profile }) => {
   const add = useAddBodyWeight()
   const update = useUpdateProfile()
@@ -76,15 +76,7 @@ export const BodyWeightSection = ({ profile }: { profile: Profile }) => {
         </Button>
       </form>
       <ErrorText errors={errors.value} />
-      <ButtonLink
-        to={ROUTES.STATS}
-        variant='outline'
-        size='sm'
-        className='self-start'
-      >
-        График в статистике
-        <ArrowRightIcon />
-      </ButtonLink>
+      <BodyWeightChart />
       <div className='flex flex-col gap-2'>
         <Label>Бот спрашивает вес</Label>
         <SelectField

@@ -15,7 +15,7 @@ export const ForgottenMuscles = () => {
   return (
     <Rise className='px-gutter'>
       <Link
-        to={ROUTES.STATS}
+        to={`${ROUTES.STATS}?tab=muscles`}
         className='hatch border-border flex items-center gap-3 border-[1.5px] p-3'
       >
         <div className='bg-background min-w-0 flex-1'>

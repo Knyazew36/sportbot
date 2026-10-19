@@ -140,10 +140,6 @@ const FriendPage = () => {
             />
 
             <PeriodBar />
-            <AttendanceSection
-              period={period}
-              userId={f.id}
-            />
             <ProgressListSection
               period={period}
               userId={f.id}
@@ -153,6 +149,10 @@ const FriendPage = () => {
               userId={f.id}
             />
             <MuscleLoadSection
+              period={period}
+              userId={f.id}
+            />
+            <AttendanceSection
               period={period}
               userId={f.id}
             />

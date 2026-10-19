@@ -1,33 +1,72 @@
+import { useSearchParams } from 'react-router'
+
+import { PosterTabs } from '@/shared/ui/kit/PosterTabs'
 import { Screen } from '@/shared/ui/kit/Screen'
 import { ScreenHeader } from '@/shared/ui/kit/ScreenHeader'
 import { AttendanceSection } from '@/widgets/stats/AttendanceSection'
-import { BodyWeightSection } from '@/widgets/stats/BodyWeightSection'
 import { CalendarSection } from '@/widgets/stats/CalendarSection'
 import { MuscleLoadSection } from '@/widgets/stats/MuscleLoadSection'
 import { PeriodBar } from '@/widgets/stats/PeriodBar'
 import { usePeriod } from '@/widgets/stats/periods'
 import { ProgressListSection } from '@/widgets/stats/ProgressListSection'
 import { RecordsSection } from '@/widgets/stats/RecordsSection'
-import { StatsSummarySection } from '@/widgets/stats/StatsSummarySection'
 
-// Статистика (frontend-tz, 12): серия от периода не зависит и стоит над переключателем, всё ниже него — за период.
-// Цифры считает бэк — те же, что в боте
+const TABS = [
+  { value: 'progress', label: 'Прогресс' },
+  { value: 'muscles', label: 'Мышцы' },
+  { value: 'attendance', label: 'Посещения' },
+] as const
+
+type Tab = (typeof TABS)[number]['value']
+
+/** Вкладка из адреса (?tab=): на неё ведут ссылки с «Сегодня», и она переживает возврат со страницы упражнения */
+const useTab = () => {
+  const [params, setParams] = useSearchParams()
+  const raw = params.get('tab')
+  const tab: Tab = TABS.find(t => t.value === raw)?.value ?? 'progress'
+  const setTab = (next: Tab) =>
+    setParams(
+      prev => {
+        prev.set('tab', next)
+        return prev
+      },
+      { replace: true },
+    )
+  return [tab, setTab] as const
+}
+
+// Статистика (frontend-tz, 12): три вопроса, каждый на своей вкладке — «я расту?», «всё ли тело работает?»,
+// «хожу ли регулярно?». С главной в посещения ведёт ссылка в шапке. Вес тела — в профиле. Цифры считает бэк — те же, что в боте
 const StatsPage = () => {
+  const [tab, setTab] = useTab()
   const [period] = usePeriod()
 
   return (
     <Screen
       header={<ScreenHeader title='Статистика' />}
-      className='gap-10 pb-10'
+      className='gap-8 pb-10'
     >
-      <StatsSummarySection />
+      <div className='px-gutter flex flex-col gap-4'>
+        <PosterTabs
+          tabs={TABS}
+          value={tab}
+          onValueChange={setTab}
+        />
+      </div>
       <PeriodBar />
-      <AttendanceSection period={period} />
-      <ProgressListSection period={period} />
-      <RecordsSection period={period} />
-      <MuscleLoadSection period={period} />
-      <BodyWeightSection period={period} />
-      <CalendarSection />
+      {tab === 'progress' && (
+        <>
+          <ProgressListSection period={period} />
+          <RecordsSection period={period} />
+        </>
+      )}
+      {tab === 'muscles' && <MuscleLoadSection period={period} />}
+      {tab === 'attendance' && (
+        <>
+          <AttendanceSection period={period} />
+          <CalendarSection />
+        </>
+      )}
     </Screen>
   )
 }

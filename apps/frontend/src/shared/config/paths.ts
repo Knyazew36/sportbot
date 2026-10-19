@@ -32,6 +32,8 @@ export const ROUTES = {
   STATS_EXERCISES: '/stats/exercises',
   STATS_EXERCISE: '/stats/exercises/:exerciseId',
   STATS_RECORDS: '/stats/records',
+  STATS_WORKOUT: '/stats/workouts/:workoutId',
+  STATS_DAY: '/stats/days/:date',
   ME: '/me',
   ME_SECTION: '/me/:section',
   ME_DEVELOPER: '/me/developer',

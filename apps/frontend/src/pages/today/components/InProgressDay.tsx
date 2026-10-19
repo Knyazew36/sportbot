@@ -51,6 +51,7 @@ export const InProgressDay = ({ day }: { day: DayToday }) => {
       <WeekStreak
         streak={day.streak}
         week={day.week}
+        withAttendance
       />
       {/* Отмена — как «Отменить» в боте: тренировка удаляется, очередь комплексов не сдвигается */}
       <Rise className='px-gutter'>

@@ -58,7 +58,7 @@ const StatsExercisesPage = () => {
     <Screen
       header={
         <TopBar
-          back={statsHome(userId, period)}
+          back={statsHome(userId, period, muscleId ? 'muscles' : undefined)}
           title='Упражнения'
           subtitle='прогресс за период'
         />
