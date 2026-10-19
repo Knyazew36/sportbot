@@ -41,7 +41,7 @@ type WorkoutActionsProps = {
 }
 
 export const NEXT_LABEL: Record<NextMode, string> = {
-  skip: 'Пропустить упражнение',
+  skip: 'Следующее упражнение',
   next: 'Следующее упражнение',
   finish: 'Завершить тренировку',
 }

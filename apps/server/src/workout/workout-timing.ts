@@ -1,8 +1,5 @@
 import type { WorkoutFull } from './workout.service';
 
-/** Разрыв между подходами дольше этого — простой, а не отдых или переход. */
-export const IDLE_GAP_SECONDS = 600;
-
 export interface WorkoutTiming {
   warmupSeconds: number;
   workSeconds: number;
@@ -10,9 +7,6 @@ export interface WorkoutTiming {
   restCount: number;
   restTargetSeconds: number;
   restPlannedActualSeconds: number;
-  transitionSeconds: number;
-  idleSeconds: number;
-  otherSeconds: number;
   tailSeconds: number;
   cooldownSeconds: number | null;
   /** Фактический отдых перед подходом по id подхода; нет ключа — не отдых. */
@@ -23,15 +17,16 @@ const seconds = (from: Date, to: Date): number =>
   Math.max(0, Math.round((to.getTime() - from.getTime()) / 1000));
 
 /**
- * Разбивка времени тренировки по шкале подходов: событий не храним, отдых и переходы
- * выводим из разрывов между `doneAt`. null — подходов со временем нет (старые, SIMPLE).
+ * Разбивка времени тренировки по шкале подходов: событий не храним, отдых выводим из разрывов между `doneAt`.
+ * С первого подхода человек либо делает подход, либо отдыхает — третьего не бывает: ввод веса,
+ * переход к другому упражнению и долгая пауза тоже отдых. null — подходов со временем нет (старые, SIMPLE).
  */
 export function workoutTiming(workout: WorkoutFull): WorkoutTiming | null {
   const sets = workout.exercises
     .flatMap((item) =>
       item.sets.map((set) => ({
         ...set,
-        // Круг суперсета — один блок: пауза между его участниками это отдых, а не переход
+        // Круг суперсета — один блок: его участники записаны одним моментом
         group:
           item.superset === null ? `e${item.id}` : `s${item.superset}`,
       })),
@@ -52,41 +47,39 @@ export function workoutTiming(workout: WorkoutFull): WorkoutTiming | null {
     restCount: 0,
     restTargetSeconds: 0,
     restPlannedActualSeconds: 0,
-    transitionSeconds: 0,
-    idleSeconds: 0,
-    otherSeconds: 0,
     tailSeconds: 0,
     cooldownSeconds: null,
     restBefore: new Map(),
   };
 
-  // Разминка — только отмеченная на экране разминки; пауза после неё до первого подхода — переход
+  // Всё до первого подхода — разминка: отмеченная на экране разминки и сборы после неё
   let prevEnd = workout.startedAt;
-  const warmupEnd = workout.warmupFinishedAt;
-  if (warmupEnd && warmupEnd < sets[0].doneAt) {
-    timing.warmupSeconds = seconds(workout.startedAt, warmupEnd);
-    prevEnd = warmupEnd;
-  }
   sets.forEach((set, index) => {
     const prev = index ? sets[index - 1] : null;
-    if (set.workSeconds === null) {
-      // Начало подхода неизвестно — разрыв не поделить на отдых и работу
-      timing.otherSeconds += seconds(prevEnd, set.doneAt);
-    } else {
-      timing.workSeconds += set.workSeconds;
-      const start = new Date(set.doneAt.getTime() - set.workSeconds * 1000);
-      const gap = seconds(prevEnd, start);
-      if (gap > IDLE_GAP_SECONDS) timing.idleSeconds += gap;
-      else if (!prev || prev.group !== set.group)
-        timing.transitionSeconds += gap;
-      else {
-        timing.restSeconds += gap;
-        timing.restCount += 1;
-        timing.restBefore.set(set.id, gap);
-        if (set.restTargetSeconds !== null) {
-          timing.restTargetSeconds += set.restTargetSeconds;
-          timing.restPlannedActualSeconds += gap;
-        }
+    // Остальные участники круга записаны тем же моментом: отдыха перед ними нет, иначе нули тянут вниз средний
+    if (
+      prev &&
+      prev.group === set.group &&
+      +prev.doneAt === +set.doneAt &&
+      set.workSeconds === null
+    )
+      return;
+    // Начала подхода без секундомера не знаем: весь разрыв до записи идёт в отдых, работа — ноль
+    const start =
+      set.workSeconds === null
+        ? set.doneAt
+        : new Date(set.doneAt.getTime() - set.workSeconds * 1000);
+    const gap = seconds(prevEnd, start);
+    timing.workSeconds += set.workSeconds ?? 0;
+    if (!index) timing.warmupSeconds = gap;
+    else {
+      timing.restSeconds += gap;
+      timing.restCount += 1;
+      // Отдых перед ручным подходом включает и сам подход — у подхода его не показываем
+      if (set.workSeconds !== null) timing.restBefore.set(set.id, gap);
+      if (set.restTargetSeconds !== null) {
+        timing.restTargetSeconds += set.restTargetSeconds;
+        timing.restPlannedActualSeconds += gap;
       }
     }
     prevEnd = set.doneAt;

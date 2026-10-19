@@ -14,15 +14,13 @@ const restMeta = (timing: Timing): string | undefined => {
   return `${average} · ${over > 0 ? `сверх плана ${formatSeconds(over)}` : 'в рамках плана'}`
 }
 
-// Куда ушло время: разминка, затем шкала подходов — работа, отдых, переходы и простой.
+// Куда ушло время: разминка до первого подхода, дальше только работа и отдых — третьего на тренировке нет.
 // Нулевые строки не показываем, кроме работы — она главная
 export const SummaryTiming = ({ timing }: { timing: Timing }) => {
   const rows = [
     { title: 'Разминка', meta: undefined, seconds: timing.warmupSeconds, show: timing.warmupSeconds > 0 },
     { title: 'Работа', meta: 'чистое время подходов', seconds: timing.workSeconds, show: true },
     { title: 'Отдых', meta: restMeta(timing), seconds: timing.restSeconds, show: timing.restCount > 0 },
-    { title: 'Переходы', meta: 'между упражнениями', seconds: timing.transitionSeconds, show: timing.transitionSeconds > 0 },
-    { title: 'Простой', meta: 'паузы дольше 10 минут', seconds: timing.idleSeconds, show: timing.idleSeconds > 0 },
     { title: 'Заминка', meta: undefined, seconds: timing.cooldownSeconds ?? 0, show: timing.cooldownSeconds !== null },
   ].filter(r => r.show)
 

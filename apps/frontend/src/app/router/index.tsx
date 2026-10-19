@@ -17,7 +17,6 @@ import {
   appRoutes,
   guestRoutes,
   miniappRoutes,
-  previewRoutes,
   privateRoutes,
   publicRoutes,
 } from './routes'
@@ -80,11 +79,6 @@ export const router = createBrowserRouter([
         ],
       },
       { Component: MiniappRoute, children: miniappRoutes.map(toRouteObject) },
-      {
-        path: ROUTES.PREVIEW,
-        lazy: () => import('@/pages/preview/PreviewLayout').then(m => ({ Component: m.default })),
-        children: [{ index: true, loader: () => redirect(ROUTES.PREVIEW_TODAY) }, ...previewRoutes.map(toRouteObject)],
-      },
       ...publicRoutes.map(toRouteObject),
     ],
   },

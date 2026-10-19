@@ -1,11 +1,11 @@
 import { CheckIcon, MinusIcon } from 'lucide-react'
 
-import { lastText, useWorkout } from '@/entities/workout'
+import { doneOrder, lastText, useWorkout } from '@/entities/workout'
 import { ExerciseBlocks } from '@/shared/ui/kit/ExerciseBlocks'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
-import { Poster } from '@/shared/ui/kit/Typography'
+import { Poster, Text } from '@/shared/ui/kit/Typography'
 
 // Протокол: что сделано по каждому упражнению — в итоге тренировки и на её странице из календаря
 export const WorkoutProtocol = ({ workoutId }: { workoutId: number }) => {
@@ -17,9 +17,20 @@ export const WorkoutProtocol = ({ workoutId }: { workoutId: number }) => {
         className=''
         rows={3}
       >
-        {w => (
+        {w => {
+          const order = doneOrder(w.exercises)
+          return (
+          <>
+          {order.reordered && (
+            <Text
+              size='sm'
+              tone='muted'
+            >
+              По порядку выполнения — он отличался от плана
+            </Text>
+          )}
           <List>
-            <ExerciseBlocks items={w.exercises}>
+            <ExerciseBlocks items={order.items}>
               {e => (
                 <ListRow
                   key={e.id}
@@ -46,7 +57,9 @@ export const WorkoutProtocol = ({ workoutId }: { workoutId: number }) => {
               )}
             </ExerciseBlocks>
           </List>
-        )}
+          </>
+          )
+        }}
       </QueryScreen>
     </ScreenSection>
   )

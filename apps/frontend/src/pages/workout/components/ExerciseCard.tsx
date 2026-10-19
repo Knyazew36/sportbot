@@ -64,8 +64,8 @@ export const ExerciseCard = ({ item, label }: ExerciseCardProps) => {
         )}
       </Rise>
 
-      {/* Справка одной строкой: план и прошлый раз не спорят с подходами за внимание */}
-      <Rise className='flex flex-wrap items-baseline gap-x-5 gap-y-1'>
+      {/* Справка мелко: план и прошлый раз не спорят с подходами за внимание. Каждое своей строкой, а не в два столбца */}
+      <Rise className='flex flex-col gap-1'>
         <Text size='sm'>
           <Eyebrow>План </Eyebrow>
           <Poster as='span' size='sm'>

@@ -1,5 +1,5 @@
 import { durationText, isTimed, type Measure, timeInput } from '@/shared/lib/measure'
-import { supersetLetter } from '@/shared/lib/superset'
+import { supersetLetter, toBlocks } from '@/shared/lib/superset'
 
 import type { WorkoutItem } from './api'
 
@@ -104,4 +104,26 @@ export const currentItem = (items: WorkoutItem[]): WorkoutItem | undefined => {
     if (round.round.length) return round.round[0]
   }
   return items[0]
+}
+
+// ── Фактический порядок ─────────────────────────────────────────────────────
+
+/**
+ * Упражнения в том порядке, в каком их делали: блок (одиночное или суперсет целиком) встаёт по первому подходу.
+ * Блоки без времени подходов (не делал, отмечено без подходов, старые записи) — в конце, в порядке плана.
+ * reordered — порядок разошёлся с планом, это стоит подписать
+ */
+export const doneOrder = <T extends { id: number; superset: number | null; sets: { doneAt: string | null }[] }>(
+  items: T[],
+): { items: T[]; reordered: boolean } => {
+  const blocks = toBlocks(items).map(block => {
+    const times = block.items.flatMap(e => e.sets.flatMap(s => (s.doneAt ? [Date.parse(s.doneAt)] : [])))
+    return { block, start: times.length ? Math.min(...times) : Infinity }
+  })
+  // sort стабильный: блоки без времени и с одинаковым временем остаются в порядке плана
+  const sorted = [...blocks].sort((a, b) => (a.start === b.start ? 0 : a.start < b.start ? -1 : 1))
+  return {
+    items: sorted.flatMap(b => b.block.items),
+    reordered: sorted.some((b, i) => b !== blocks[i]),
+  }
 }

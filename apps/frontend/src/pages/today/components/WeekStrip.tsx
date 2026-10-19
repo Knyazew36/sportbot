@@ -40,7 +40,6 @@ const MARK_ICON: Partial<Record<DayMark, typeof CheckIcon>> = { done: CheckIcon,
 
 const weekTitle = (offset: number, monday: Date) => {
   if (offset === 0) return 'Эта неделя'
-  if (offset === -1) return 'Прошлая неделя'
   const sunday = addDays(monday, 6)
   return isSameMonth(monday, sunday)
     ? `${formatDate(monday, 'd')}–${formatDate(sunday, 'd MMM')}`

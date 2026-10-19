@@ -8,7 +8,7 @@ import { ScreenChromeProvider } from '@/shared/ui/kit/screen-chrome'
 import { UndoBar } from '@/shared/ui/kit/UndoBar'
 
 import { BottomNav } from './BottomNav'
-import { isFocusRoute, isLiveHidden, isSectionRoot, type NavBadges, type ShellNav } from './nav'
+import { backTarget, isFocusRoute, isLiveHidden, isSectionRoot, type NavBadges, type ShellNav } from './nav'
 
 type MiniAppShellProps = {
   nav: ShellNav
@@ -27,13 +27,14 @@ export const MiniAppShell = ({ nav, isAdmin = false, badges, liveBar, className 
   const [searchFocused, setSearchFocused] = useState(false)
   const navVisible = !isFocusRoute(nav, pathname) && !searchFocused
   const sectionRoot = isSectionRoot(nav, pathname)
+  const backTo = backTarget(nav, pathname)
 
   // Системная «Назад» мессенджера — шаг назад внутри приложения (frontend-tz, раздел 6). На корне раздела её нет
   useEffect(() => {
     if (sectionRoot) return
-    const hide = showBackButton(() => navigate(-1))
+    const hide = showBackButton(() => (backTo ? navigate(backTo, { replace: true }) : navigate(-1)))
     return hide || undefined
-  }, [sectionRoot, navigate])
+  }, [sectionRoot, backTo, navigate])
 
   return (
     <div

@@ -6,11 +6,11 @@
  */
 
 export interface WorkoutTimingResponseDto {
-  /** Разминка: от старта до первого подхода, с */
+  /** Разминка: от старта до начала первого подхода, с */
   warmupSeconds: number;
   /** Чистая работа по секундомеру, с */
   workSeconds: number;
-  /** Отдых между подходами одного упражнения, с */
+  /** Отдых: всё время между подходами, включая ввод результата и смену упражнения, с */
   restSeconds: number;
   /** Пауз отдыха, по ним средний отдых */
   restCount: number;
@@ -18,12 +18,6 @@ export interface WorkoutTimingResponseDto {
   restTargetSeconds: number;
   /** Факт отдыха у тех же пауз — чтобы сравнить с планом, с */
   restPlannedActualSeconds: number;
-  /** Переходы между упражнениями, с */
-  transitionSeconds: number;
-  /** Простой: паузы дольше порога, с */
-  idleSeconds: number;
-  /** Не разобрать: подходы без секундомера, с */
-  otherSeconds: number;
   /** От последнего подхода до завершения, с */
   tailSeconds: number;
   /**

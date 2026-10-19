@@ -1,4 +1,4 @@
-import { Navigate, useNavigate, useSearchParams } from 'react-router'
+import { Navigate, useNavigate, useNavigation, useSearchParams } from 'react-router'
 
 import { useEffect, useRef, useState } from 'react'
 
@@ -71,7 +71,14 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
   const online = useIsOnline()
   const finish = useFinishWorkout()
   const discard = useDiscardWorkout()
-  const [pickedId, setPickedId] = useState<number | null>(null)
+  // Выбранное упражнение переживает уход с экрана: иначе после возврата экран сам перескакивал
+  // на первое несделанное, хотя человек ещё отдыхает после последнего подхода текущего
+  const pickedKey = `workout-picked-${saved.id}`
+  const [pickedId, setPickedIdState] = useState<number | null>(() => Number(local.get(pickedKey)) || null)
+  const setPickedId = (id: number) => {
+    setPickedIdState(id)
+    local.set(pickedKey, String(id))
+  }
   // Дорожка открывает просмотр, а не переход: случайный тап мимо текущей перескакивал упражнение
   const [previewId, setPreviewId] = useState<number | null>(null)
   const [editing, setEditing] = useState<EditingSet | null>(null)
@@ -220,6 +227,7 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
     local.remove(restTargetKey)
     local.remove(warmupKey)
     local.remove(warmupHiddenKey)
+    local.remove(pickedKey)
     finish.mutate(
       { id: workout.id, finishedAt: new Date().toISOString() },
       {
@@ -236,7 +244,7 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
       local.remove(restTargetKey)
       local.remove(warmupKey)
       local.remove(warmupHiddenKey)
-    local.remove(warmupHiddenKey)
+      local.remove(pickedKey)
       navigate(ROUTES.TODAY, { replace: true })
     })
 
@@ -250,11 +258,26 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
     timer.start(seconds)
   }
 
-  const rest = () => {
+  // С первого подхода человек либо в подходе, либо отдыхает: отдых начинается в момент «Готово»,
+  // и ввод веса с повторами уже идёт в его счёт
+  const restAfterSet = () => {
     if (settings.showRestTimer && settings.restAutoStart) startRest(settings.restSeconds)
   }
 
-  // Суперсет закрыт: штамп и сразу следующий блок — отдыхать перед ним или нет, решает человек
+  // Ручной ввод без секундомера: подход только что кончился — пошёл отдых. Идущий отдых не сбрасываем:
+  // так дописывают забытый подход, а человек всё ещё отдыхает
+  const restAfterManual = (timed: boolean) => {
+    if (!timed && timer.status === 'idle') restAfterSet()
+  }
+
+  // Подход кончился, но ввод закрыли без записи — подход продолжается: отдых, начатый на «Готово», отменяем
+  const backToSet = () => {
+    if (!stopwatch.paused) return
+    timer.stop()
+    stopwatch.resume()
+  }
+
+  // Суперсет закрыт: штамп и сразу следующий блок, отдых перед ним идёт с «Готово» — сократить его решает человек
   const finishSuperset = (letter: string) => {
     haptic.success()
     flashStamp(`Суперсет ${letter} готов`)
@@ -281,6 +304,7 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
   const finishRound = (number: number) => {
     haptic.success()
     stopwatch.pause()
+    restAfterSet()
     setBurstKey(k => k + 1)
     flashStamp(`Круг ${number} ✓`)
     window.setTimeout(() => setRoundOpen(true), 550)
@@ -305,20 +329,22 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
 
   const onRoundSaved = (addedIds: number[]) => {
     setRoundOpen(false)
+    const timed = stopwatch.running
     stopwatch.stop()
     local.remove(restTargetKey)
     setRoundActive(false)
+    restAfterManual(timed)
     if (superset && supersetDoneWith(superset.members, addedIds)) finishSuperset(superset.letter)
-    else rest()
   }
 
   const onSaved = () => {
     setEntryOpen(false)
+    const timed = stopwatch.running
     stopwatch.stop()
     local.remove(restTargetKey)
     setEntryFor(null)
+    restAfterManual(timed)
     if (superset && supersetDoneWith(superset.members, [entryItem.id])) finishSuperset(superset.letter)
-    else rest()
   }
 
   return (
@@ -447,9 +473,10 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
               : undefined
           }
           onTarget={() => timerEndSignal(workout.settings)}
-          // Подход закончен — время стоит, пока вводятся вес и повторы
+          // Подход закончен — его время стоит, а ввод веса и повторов уже отдых
           onDone={() => {
             stopwatch.pause()
+            restAfterSet()
             setEntryOpen(true)
           }}
         />
@@ -488,7 +515,7 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
         // Закрыл без записи — подход продолжается с того же времени; ручной ввод без секундомера это не трогает
         onClose={() => {
           setEntryOpen(false)
-          stopwatch.resume()
+          backToSet()
         }}
         item={entryItem}
         timing={setTiming}
@@ -502,7 +529,7 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
         // Закрыл без записи — круг продолжается с последнего упражнения с того же времени
         onClose={() => {
           setRoundOpen(false)
-          stopwatch.resume()
+          backToSet()
         }}
         onSaved={onRoundSaved}
       />
@@ -597,6 +624,7 @@ const WorkoutPage = () => {
   const [params, setParams] = useSearchParams()
   const complexId = Number(params.get('complexId')) || undefined
   const current = useCurrentWorkout()
+  const navigation = useNavigation()
   const hasWorkout = Boolean(current.data?.workout)
   const wantsStart = params.has('complexId') || params.has('start')
 
@@ -610,6 +638,9 @@ const WorkoutPage = () => {
     <QueryScreen query={current}>
       {({ workout }) => {
         if (workout) return <WorkoutView workout={workout} />
+        // После «Завершить» кеш уже без тренировки, а экран итога ещё грузится (lazy-маршрут):
+        // редирект на «Сегодня» перебил бы переход к заминке
+        if (navigation.state !== 'idle') return <PageLoader />
         // Без complexId и без начатой тренировки — например, её завершили в боте
         if (!params.has('complexId') && !params.has('start')) return <Navigate to={ROUTES.TODAY} replace />
         return <StartWorkout complexId={complexId} />

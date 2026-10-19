@@ -65,6 +65,7 @@ export class DayService {
       weekDays,
       aheadDays,
       workoutsToday,
+      weekWorkouts,
     ] = await Promise.all([
         this.workouts.current(userId),
         this.workouts.finishedOn(userId, today),
@@ -91,6 +92,14 @@ export class DayService {
             date: today,
             status: { in: ['FINISHED', 'AUTO_CLOSED'] },
           },
+        }),
+        this.prisma.workout.findMany({
+          where: {
+            userId,
+            date: { gte: weekStart(today), lt: addDays(weekStart(today), 7) },
+            status: { in: ['FINISHED', 'AUTO_CLOSED'] },
+          },
+          select: { date: true },
         }),
       ]);
 
@@ -136,7 +145,7 @@ export class DayService {
       date: isoDate(today),
       dayId: day?.id ?? null,
       streak: { current: profile.currentStreak, best: profile.bestStreak },
-      week: this.week(profile, today, weekDays, pause),
+      week: this.week(profile, today, weekDays, weekWorkouts, pause),
       programName: program?.name ?? null,
       complexes: complexes.map((c): DayComplexBriefResponseDto => ({
         id: c.id,
@@ -385,16 +394,20 @@ export class DayService {
     profile: SportProfile,
     today: Date,
     days: PlanDay[],
+    workouts: { date: Date }[],
     pause: Pause | null,
   ): DayWeekCellResponseDto[] {
     const monday = weekStart(today);
     return Array.from({ length: 7 }, (_, offset) => {
       const date = addDays(monday, offset);
       const day = days.find((d) => d.date.getTime() === date.getTime());
+      const trained = workouts.some(
+        (w) => w.date.getTime() === date.getTime(),
+      );
       return {
         date: isoDate(date),
         weekday: weekdayOf(date),
-        mark: this.markOf(profile, date, today, day, pause),
+        mark: this.markOf(profile, date, today, day, trained, pause),
         isToday: date.getTime() === today.getTime(),
       };
     });
@@ -405,9 +418,12 @@ export class DayService {
     date: Date,
     today: Date,
     day: PlanDay | undefined,
+    trained: boolean,
     pause: Pause | null,
   ): WeekMark {
-    if (day?.status === 'DONE') return 'DONE';
+    // Внеплановая тренировка закрывает другой день плана, а свою дату — только фактом тренировки,
+    // как в календаре статистики
+    if (day?.status === 'DONE' || trained) return 'DONE';
     if (day?.status === 'MISSED') return 'MISSED';
     if (day?.status === 'PAUSED') return 'PAUSED';
     const inPause =

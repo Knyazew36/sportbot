@@ -3,7 +3,6 @@ import { generatePath } from 'react-router'
 // Шаблоны маршрутов — единственный источник путей: роутер берёт их как есть, ссылки собирает buildPath
 export const ROUTES = {
   HOME: '/',
-  UI: '/ui',
 
   LOGIN: '/login',
   REGISTER: '/register',
@@ -67,33 +66,6 @@ export const ROUTES = {
   ADMIN_TEMPLATE: '/admin/templates/:templateId',
   ADMIN_TEMPLATE_COMPLEX: '/admin/templates/:templateId/complex/:complexId',
   ADMIN_TEMPLATE_ADD_EXERCISE: '/admin/templates/:templateId/add/:complexId',
-
-  // Превью дизайна Mini App на моковых данных
-  PREVIEW: '/preview',
-  PREVIEW_TODAY: '/preview/today',
-  PREVIEW_WORKOUT: '/preview/workout',
-  PREVIEW_SUMMARY: '/preview/summary',
-  PREVIEW_COOLDOWN: '/preview/cooldown',
-  PREVIEW_STATS: '/preview/stats',
-  PREVIEW_PROGRAMS: '/preview/programs',
-  PREVIEW_PROGRAM_TEMPLATES: '/preview/programs/templates',
-  PREVIEW_PROGRAM_TEMPLATE: '/preview/programs/templates/:templateId',
-  PREVIEW_PROGRAM: '/preview/programs/:programId',
-  PREVIEW_PROGRAM_ADD_EXERCISE: '/preview/programs/:programId/add/:complexId',
-  PREVIEW_PROFILE: '/preview/profile',
-  PREVIEW_UI: '/preview/ui',
-  PREVIEW_WORKOUT_REPLACE: '/preview/workout/replace',
-  PREVIEW_LIBRARY: '/preview/library',
-  PREVIEW_LIBRARY_NEW: '/preview/library/new',
-  PREVIEW_EXERCISE: '/preview/library/exercises/:exerciseId',
-  PREVIEW_STRETCH: '/preview/library/stretches/:stretchId',
-  PREVIEW_FRIEND: '/preview/friends/:friendId',
-  PREVIEW_ONBOARDING: '/preview/onboarding',
-  PREVIEW_ENTRY: '/preview/entry/:reason',
-  PREVIEW_ADMIN: '/preview/admin',
-  PREVIEW_ADMIN_CATALOG_ITEM: '/preview/admin/catalog/:kind/:itemId',
-  PREVIEW_ADMIN_TEMPLATE: '/preview/admin/templates/:templateId',
-  PREVIEW_ADMIN_MODERATION: '/preview/admin/moderation/:requestId',
 } as const
 
 export type RoutePattern = (typeof ROUTES)[keyof typeof ROUTES]

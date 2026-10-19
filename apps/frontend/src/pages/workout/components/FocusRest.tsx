@@ -26,6 +26,10 @@ type FocusRestProps = {
   onNext: () => void
 }
 
+// Сверх минуты — целыми минутами: «134 с назад» приходится пересчитывать в уме
+const agoLabel = (seconds: number) =>
+  seconds > 59 ? `${Math.floor(seconds / 60)} мин назад` : `${seconds} с назад`
+
 // Отдых между подходами (frontend-tz, 8.3): обратный отсчёт на весь экран, «+30 с», «К подходу»
 export const FocusRest = ({
   timer,
@@ -59,7 +63,7 @@ export const FocusRest = ({
             ? 'отдых · план выполнен'
             : round
               ? `суперсет ${round.letter} · дальше круг ${round.number} из ${round.rounds}`
-              : 'отдых · дальше подход'
+              : undefined
       }
       alert={over}
       // План выполнен — на табло сделанное «3/3», а не несуществующий четвёртый подход
@@ -164,7 +168,7 @@ export const FocusRest = ({
               <Poster size='4xl'>Вперёд</Poster>
               <Eyebrow className='absolute top-full left-1/2 mt-2 flex -translate-x-1/2 flex-col items-center gap-1 whitespace-nowrap tabular-nums'>
                 <span>всего {formatSeconds(rested)}</span>
-                {-timer.left > 1 && <span>{-timer.left} с назад</span>}
+                {-timer.left > 1 && <span>{agoLabel(-timer.left)}</span>}
               </Eyebrow>
             </div>
           ) : (

@@ -9,8 +9,10 @@ type SparklineProps = {
 export const Sparkline = ({ values, className }: SparklineProps) => {
   if (values.length < 2) return null
   const min = Math.min(...values)
-  const range = Math.max(...values) - min || 1
-  const points = values.map((v, i) => `${(i / (values.length - 1)) * 100},${18 - ((v - min) / range) * 16}`).join(' ')
+  const range = Math.max(...values) - min
+  // Ряд без изменений — по центру: прижатая к низу линия читается как спад
+  const y = (v: number) => (range ? 18 - ((v - min) / range) * 16 : 10)
+  const points = values.map((v, i) => `${(i / (values.length - 1)) * 100},${y(v)}`).join(' ')
 
   return (
     <svg
