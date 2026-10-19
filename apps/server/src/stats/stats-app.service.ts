@@ -13,16 +13,35 @@ import {
 } from './dto/stats-calendar-day.response.dto';
 import { StatsAttendanceWeekResponseDto } from './dto/stats-attendance-week.response.dto';
 import { StatsDayResponseDto } from './dto/stats-day.response.dto';
-import { StatsExerciseResponseDto } from './dto/stats-exercise.response.dto';
+import { StatsE1rmSetResponseDto } from './dto/stats-e1rm-set.response.dto';
 import { StatsMuscleLoadResponseDto } from './dto/stats-muscle-load.response.dto';
-import { StatsMuscleProgressResponseDto } from './dto/stats-muscle-progress.response.dto';
 import { StatsPointResponseDto } from './dto/stats-point.response.dto';
+import { StatsProgressItemResponseDto } from './dto/stats-progress-item.response.dto';
+import { StatsProgressListQueryDto } from './dto/stats-progress-list-query.dto';
+import { StatsProgressQueryDto } from './dto/stats-progress-query.dto';
+import { StatsProgressResponseDto } from './dto/stats-progress.response.dto';
+import { StatsRecordResponseDto } from './dto/stats-record.response.dto';
+import { StatsRecordsQueryDto } from './dto/stats-records-query.dto';
+import { StatsSessionResponseDto } from './dto/stats-session.response.dto';
+import { StatsSessionsQueryDto } from './dto/stats-sessions-query.dto';
 import { StatsSummaryResponseDto } from './dto/stats-summary.response.dto';
-import { StatsService } from './stats.service';
+import { E1rm, ExerciseProgress, StatsService } from './stats.service';
 
-const FORGOTTEN_DAYS = 14;
+const DEFAULT_PERIOD_DAYS = 92;
 const isoDate = (date: Date): string => date.toISOString().slice(0, 10);
 const parseDate = (value: string): Date => new Date(`${value}T00:00:00.000Z`);
+
+/** Первый день периода из days дней, считая сегодня. */
+const periodStart = (today: Date, days = DEFAULT_PERIOD_DAYS): Date =>
+  addDays(today, -(days - 1));
+
+const e1rmView = (e: E1rm | null): StatsE1rmSetResponseDto | null =>
+  e && { value: e.value, weight: e.weight, reps: e.reps };
+
+const itemView = (e: ExerciseProgress): StatsProgressItemResponseDto => ({
+  ...e,
+  lastDate: isoDate(e.lastDate),
+});
 
 /**
  * Статистика в Mini App (frontend-tz, 12). Правила расчёта — StatsService, общий с ботом.
@@ -82,58 +101,87 @@ export class StatsAppService {
     );
   }
 
-  public async progressExercises(
+  /** Прогресс по упражнениям за период: лучший подход, рост, «стоит» / «не делали». */
+  public async progressList(
     viewerId: number,
-    targetId?: number,
-  ): Promise<StatsExerciseResponseDto[]> {
-    const profile = await this.target(viewerId, targetId);
-    return this.stats.progressExercises(profile.userId);
+    query: StatsProgressListQueryDto,
+  ): Promise<StatsProgressItemResponseDto[]> {
+    const profile = await this.target(viewerId, query.userId);
+    const today = localToday(profile.timeZone);
+    const list = await this.stats.progressList(profile.userId, {
+      from: periodStart(today, query.days),
+      today,
+      muscleId: query.filter_muscle,
+      status: query.filter_status,
+      search: query.search,
+      limit: query.limit,
+    });
+    return list.map(itemView);
   }
 
-  /** Прогресс: лучший вес подхода по тренировкам, у упражнений без веса — лучшие повторы. */
+  /** Прогресс упражнения: шапка, точки периода, по запросу — расчётный 1ПМ. */
   public async progress(
     viewerId: number,
-    targetId: number | undefined,
     exerciseId: number,
-  ): Promise<StatsPointResponseDto[]> {
-    const profile = await this.target(viewerId, targetId);
-    const { points } = await this.stats.progressPoints(
+    query: StatsProgressQueryDto,
+  ): Promise<StatsProgressResponseDto> {
+    const profile = await this.target(viewerId, query.userId);
+    const today = localToday(profile.timeZone);
+    const result = await this.stats.exerciseProgress(
       profile.userId,
       exerciseId,
-    );
-    return points.map((p) => ({ date: isoDate(p.date), value: p.value }));
-  }
-
-  /** Прогресс весов по мышце: по каждому упражнению — график и «было → стало». */
-  public async muscleProgress(
-    viewerId: number,
-    targetId: number | undefined,
-    muscleId: number,
-  ): Promise<StatsMuscleProgressResponseDto> {
-    const profile = await this.target(viewerId, targetId);
-    const { name, exercises } = await this.stats.muscleProgress(
-      profile.userId,
-      muscleId,
+      { from: periodStart(today, query.days), today, addE1rm: query.add_e1rm },
     );
     return {
-      id: muscleId,
-      name,
-      exercises: exercises.map((e) => {
-        const values = e.points.map((p) => p.value);
-        return {
-          id: e.id,
-          name: e.name,
-          unit: e.unit,
-          first: values[0],
-          last: values.at(-1)!,
-          best: Math.max(...values),
-          points: e.points.map((p) => ({
-            date: isoDate(p.date),
-            value: p.value,
-          })),
-        };
-      }),
+      id: exerciseId,
+      name: result.name,
+      unit: result.unit,
+      summary: result.summary && itemView(result.summary),
+      points: result.points.map((p) => ({ ...p, date: isoDate(p.date) })),
+      e1rm: result.e1rm && {
+        current: e1rmView(result.e1rm.current),
+        best: e1rmView(result.e1rm.best),
+        points: result.e1rm.points.map((p) => ({
+          date: isoDate(p.date),
+          value: p.value,
+        })),
+      },
     };
+  }
+
+  /** История тренировок с упражнением, новые сверху. */
+  public async sessions(
+    viewerId: number,
+    exerciseId: number,
+    query: StatsSessionsQueryDto,
+  ) {
+    const profile = await this.target(viewerId, query.userId);
+    const { items, meta } = await this.stats.sessions(
+      profile.userId,
+      exerciseId,
+      query.page ?? 1,
+      query.limit ?? 25,
+    );
+    return {
+      meta,
+      items: items.map(
+        (s): StatsSessionResponseDto => ({ ...s, date: isoDate(s.date) }),
+      ),
+    };
+  }
+
+  /** Лента личных рекордов, новые сверху. */
+  public async records(
+    viewerId: number,
+    query: StatsRecordsQueryDto,
+  ): Promise<StatsRecordResponseDto[]> {
+    const profile = await this.target(viewerId, query.userId);
+    const today = localToday(profile.timeZone);
+    const feed = await this.stats.recordsFeed(profile.userId, {
+      from: query.days ? periodStart(today, query.days) : undefined,
+      limit: query.limit,
+    });
+    return feed.map((r) => ({ ...r, date: isoDate(r.date) }));
   }
 
   /** Вес тела — только свой: друзьям он не виден. */
@@ -151,31 +199,37 @@ export class StatsAppService {
     return rows.map((r) => ({ date: isoDate(r.date), value: Number(r.value) }));
   }
 
-  /** Нагрузка по мышцам за неделю; «забыто» — ноль подходов за 2 недели. */
+  /**
+   * Баланс мышц: подходов в неделю в среднем за последние weeks недель. Одна неделя — шум:
+   * пропущенная тренировка переворачивает картину. «Забыто» — ноль подходов за весь период.
+   */
   public async muscleLoad(
     viewerId: number,
     targetId: number | undefined,
-    weeksAgo = 0,
+    weeks = 4,
   ): Promise<StatsMuscleLoadResponseDto[]> {
     const profile = await this.target(viewerId, targetId);
     const today = localToday(profile.timeZone);
-    const monday = addDays(weekStart(today), -7 * weeksAgo);
-    const [muscles, week, recent] = await Promise.all([
+    // Новичок за неделю иначе получил бы среднее за год, поделённое на 52, — сплошные нули
+    const known = Math.ceil(
+      (today.getTime() - profile.createdAt.getTime() + 1) / (7 * 86_400_000),
+    );
+    weeks = Math.max(1, Math.min(weeks, known));
+    const [muscles, load] = await Promise.all([
       this.prisma.muscle.findMany({ orderBy: { bodyOrder: 'asc' } }),
-      this.stats.muscleLoad(profile.userId, monday, addDays(monday, 6)),
       this.stats.muscleLoad(
         profile.userId,
-        addDays(today, -(FORGOTTEN_DAYS - 1)),
+        addDays(today, -(7 * weeks - 1)),
         today,
       ),
     ]);
     // Пока тренировок не было совсем, «забыто всё» — шум, а не подсказка
-    const anyRecent = [...recent.values()].some((v) => v > 0);
+    const anyLoad = [...load.values()].some((v) => v > 0);
     return muscles.map((m) => ({
       muscleId: m.id,
       name: m.name,
-      sets: Number((week.get(m.id) ?? 0).toFixed(1)),
-      forgotten: anyRecent && !(recent.get(m.id) ?? 0),
+      sets: Number(((load.get(m.id) ?? 0) / weeks).toFixed(1)),
+      forgotten: anyLoad && !(load.get(m.id) ?? 0),
     }));
   }
 

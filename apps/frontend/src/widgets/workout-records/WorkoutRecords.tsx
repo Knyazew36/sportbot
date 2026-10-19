@@ -5,10 +5,13 @@ import { durationText } from '@/shared/lib/measure'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { Poster, Text } from '@/shared/ui/kit/Typography'
 
-const amount = (value: number, unit: WorkoutRecordResponseDto['unit']) =>
+// У веса рядом повторы: рекорд бывает и на том же весе — больше повторов
+const amount = (value: number, unit: WorkoutRecordResponseDto['unit'], reps: number) =>
   unit === 'sec'
     ? durationText(value)
-    : `${value.toLocaleString('ru-RU')} ${unit === 'kg' ? 'кг' : unit === 'min' ? 'мин' : 'повт.'}`
+    : unit === 'kg'
+      ? `${value.toLocaleString('ru-RU')} кг × ${reps}`
+      : `${value.toLocaleString('ru-RU')} ${unit === 'min' ? 'мин' : 'повт.'}`
 
 type WorkoutRecordsProps = {
   records: WorkoutRecordResponseDto[]
@@ -29,7 +32,7 @@ export const WorkoutRecords = ({ records, limit }: WorkoutRecordsProps) => {
           key={r.exerciseId}
           lead={<TrophyIcon className='size-4' />}
           title={r.name}
-          meta={`было ${amount(r.previous, r.unit)}`}
+          meta={`было ${amount(r.previous, r.unit, r.previousReps)}`}
           trail={
             <Poster
               as='span'
@@ -37,7 +40,7 @@ export const WorkoutRecords = ({ records, limit }: WorkoutRecordsProps) => {
               tone='primary'
               numeric
             >
-              {amount(r.value, r.unit)}
+              {amount(r.value, r.unit, r.reps)}
             </Poster>
           }
         />

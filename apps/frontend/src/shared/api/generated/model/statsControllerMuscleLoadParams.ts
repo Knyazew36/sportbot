@@ -11,7 +11,7 @@ export type StatsControllerMuscleLoadParams = {
  */
 userId?: number;
 /**
- * Неделя: 0 — текущая, 1 — прошлая и т. д.
+ * За сколько последних недель считать среднее
  */
-weeksAgo?: number;
+weeks?: number;
 };

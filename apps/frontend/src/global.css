@@ -153,6 +153,8 @@
     min(120px, calc(var(--tg-safe-area-inset-bottom, 0px) + var(--tg-content-safe-area-inset-bottom, 0px)))
   );
   --sb-nav-h: calc(65.5px + max(0.5rem, var(--sb-bottom-inset)));
+  /* Насколько плитка «Сегодня» выступает над меню: липкий низ экрана оставляет под неё запас */
+  --sb-nav-rise: 24px;
 
   --canvas: color-mix(in oklab, var(--sb-paper), var(--sb-ink) 4%);
   --paper: var(--sb-sheet);

@@ -1,12 +1,15 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useInfiniteQuery, useQuery } from '@tanstack/react-query'
 
 import type {
   CalendarMark,
+  StatsControllerProgressListParams,
   StatsDayResponseDto,
-  StatsMuscleExerciseResponseDto,
   StatsMuscleLoadResponseDto,
-  StatsMuscleProgressResponseDto,
   StatsPointResponseDto,
+  StatsProgressItemResponseDto,
+  StatsProgressResponseDto,
+  StatsRecordResponseDto,
+  StatsSessionResponseDto,
   StatsSummaryResponseDto,
 } from '@/shared/api/generated/model'
 import {
@@ -15,30 +18,45 @@ import {
   statsControllerCalendar,
   statsControllerDay,
   statsControllerMuscleLoad,
-  statsControllerMuscleProgress,
   statsControllerProgress,
-  statsControllerProgressExercises,
+  statsControllerProgressList,
+  statsControllerRecords,
+  statsControllerSessions,
   statsControllerSummary,
 } from '@/shared/api/generated/stats/stats'
 
 export type StatsSummary = StatsSummaryResponseDto
 export type StatsPoint = StatsPointResponseDto
 export type StatsMuscleLoad = StatsMuscleLoadResponseDto
-export type StatsMuscleProgress = StatsMuscleProgressResponseDto
-export type StatsMuscleExercise = StatsMuscleExerciseResponseDto
+export type StatsProgressItem = StatsProgressItemResponseDto
+export type StatsProgress = StatsProgressResponseDto
+export type StatsSession = StatsSessionResponseDto
+export type StatsRecord = StatsRecordResponseDto
 export type StatsDay = StatsDayResponseDto
 export type StatsMark = CalendarMark
+
+/** Фильтры списка прогресса: период в днях, мышца, «растут / стоят», поиск, сколько первых */
+export type ProgressListParams = Pick<
+  StatsControllerProgressListParams,
+  'days' | 'filter_muscle' | 'filter_status' | 'search' | 'limit'
+>
+
+const SESSIONS_PAGE = 20
 
 // userId — статистика друга: бэк сам проверяет дружбу и прячет то, что другу не видно (business-tz, 10.1)
 export const statsKeys = {
   all: ['stats'] as const,
   summary: (userId?: number) => ['stats', 'summary', userId ?? null] as const,
   attendance: (weeks: number, userId?: number) => ['stats', 'attendance', weeks, userId ?? null] as const,
-  exercises: (userId?: number) => ['stats', 'exercises', userId ?? null] as const,
-  progress: (exerciseId: number, userId?: number) => ['stats', 'progress', exerciseId, userId ?? null] as const,
+  progressList: (params: ProgressListParams, userId?: number) =>
+    ['stats', 'progress-list', params, userId ?? null] as const,
+  progress: (exerciseId: number, days: number, userId?: number) =>
+    ['stats', 'progress', exerciseId, days, userId ?? null] as const,
+  sessions: (exerciseId: number, userId?: number) => ['stats', 'sessions', exerciseId, userId ?? null] as const,
+  records: (limit: number | null, days: number | null, userId?: number) =>
+    ['stats', 'records', limit, days, userId ?? null] as const,
   bodyWeight: (days: number) => ['stats', 'body-weight', days] as const,
-  muscleLoad: (weeksAgo: number, userId?: number) => ['stats', 'muscle-load', weeksAgo, userId ?? null] as const,
-  muscle: (muscleId: number, userId?: number) => ['stats', 'muscle', muscleId, userId ?? null] as const,
+  muscleLoad: (weeks: number, userId?: number) => ['stats', 'muscle-load', weeks, userId ?? null] as const,
   calendar: (month: string, userId?: number) => ['stats', 'calendar', month, userId ?? null] as const,
   day: (date: string, userId?: number) => ['stats', 'day', date, userId ?? null] as const,
 }
@@ -59,19 +77,37 @@ export const useAttendanceWeeks = (weeks: number, userId?: number) =>
     placeholderData: keepPreviousData,
   })
 
-/** Упражнения, по которым есть веса — список для выбора графика */
-export const useProgressExercises = (userId?: number) =>
+/** Прогресс по упражнениям за период: лучший подход, рост, «стоит» / «не делали» */
+export const useProgressList = (params: ProgressListParams, userId?: number) =>
   useQuery({
-    queryKey: statsKeys.exercises(userId),
-    queryFn: () => statsControllerProgressExercises(withUser(userId)),
+    queryKey: statsKeys.progressList(params, userId),
+    queryFn: () => statsControllerProgressList({ ...params, ...withUser(userId) }),
+    placeholderData: keepPreviousData,
   })
 
-/** Лучший вес по тренировкам */
-export const useProgress = (exerciseId: number | undefined, userId?: number) =>
+/** Прогресс упражнения за период: шапка, точки и расчётный 1ПМ (у упражнений с весом) */
+export const useProgress = (exerciseId: number, days: number, userId?: number) =>
   useQuery({
-    queryKey: statsKeys.progress(exerciseId ?? 0, userId),
-    queryFn: () => statsControllerProgress(exerciseId!, withUser(userId)),
-    enabled: exerciseId != null,
+    queryKey: statsKeys.progress(exerciseId, days, userId),
+    queryFn: () => statsControllerProgress(exerciseId, { days, add_e1rm: true, ...withUser(userId) }),
+    placeholderData: keepPreviousData,
+  })
+
+/** История тренировок с упражнением, новые сверху, порциями */
+export const useProgressSessions = (exerciseId: number, userId?: number) =>
+  useInfiniteQuery({
+    queryKey: statsKeys.sessions(exerciseId, userId),
+    queryFn: ({ pageParam }) =>
+      statsControllerSessions(exerciseId, { page: pageParam, limit: SESSIONS_PAGE, ...withUser(userId) }),
+    initialPageParam: 1,
+    getNextPageParam: last => (last.meta?.hasNextPage ? last.meta.page + 1 : undefined),
+  })
+
+/** Личные рекорды, новые сверху; без limit — все, без days — за всё время */
+export const useRecords = ({ limit, days }: { limit?: number; days?: number }, userId?: number) =>
+  useQuery({
+    queryKey: statsKeys.records(limit ?? null, days ?? null, userId),
+    queryFn: () => statsControllerRecords({ ...(limit && { limit }), ...(days && { days }), ...withUser(userId) }),
     placeholderData: keepPreviousData,
   })
 
@@ -83,19 +119,12 @@ export const useBodyWeightStats = (days: number) =>
     placeholderData: keepPreviousData,
   })
 
-/** Подходы на мышцу за неделю; weeksAgo — сколько недель назад */
-export const useMuscleLoad = (weeksAgo: number, userId?: number) =>
+/** Подходов в неделю на мышцу, в среднем за последние weeks недель; «забыто» — ноль за весь срок */
+export const useMuscleLoad = (weeks: number, userId?: number) =>
   useQuery({
-    queryKey: statsKeys.muscleLoad(weeksAgo, userId),
-    queryFn: () => statsControllerMuscleLoad({ weeksAgo, ...withUser(userId) }),
+    queryKey: statsKeys.muscleLoad(weeks, userId),
+    queryFn: () => statsControllerMuscleLoad({ weeks, ...withUser(userId) }),
     placeholderData: keepPreviousData,
-  })
-
-/** Прогресс весов по мышце: упражнения, где она основная, у каждого — график лучшего веса */
-export const useMuscleProgress = (muscleId: number, userId?: number) =>
-  useQuery({
-    queryKey: statsKeys.muscle(muscleId, userId),
-    queryFn: () => statsControllerMuscleProgress(muscleId, withUser(userId)),
   })
 
 /** Отметки дней месяца; month — «2026-10» */

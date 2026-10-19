@@ -6,13 +6,13 @@ import { StatsUserQueryDto } from './stats-user-query.dto';
 
 export class StatsMuscleLoadQueryDto extends StatsUserQueryDto {
   @ApiPropertyOptional({
-    default: 0,
-    description: 'Неделя: 0 — текущая, 1 — прошлая и т. д.',
+    default: 4,
+    description: 'За сколько последних недель считать среднее',
   })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
-  @Min(0)
-  @Max(52)
-  weeksAgo?: number;
+  @Min(1)
+  @Max(53)
+  weeks?: number;
 }

@@ -1,19 +1,19 @@
 /**
- * Во что рендерим. Один формат на всех не годится: монтажка на компьютере, браузер и телефон
- * понимают прозрачность по-разному — пользователь выбирает кнопку под свой редактор.
- * HEVC с альфой (родной для iPhone) Remotion не кодирует — его делает отдельный ffmpeg на сервере (transcode)
+ * Во что рендерим. Один формат на всех не годится: прозрачность Android видит, а iPhone — нет
+ * (PNG-в-MOV, ProRes 4444 и WebM CapCut на iPhone открыл с фоном; HEVC с альфой на сервере собрать не вышло),
+ * там — хромакей
  */
-export type RenderFormat = 'mov-alpha' | 'mov-hevc-alpha' | 'mp4-chroma' | 'mp4'
+export type RenderFormat = 'mov-alpha' | 'mp4-chroma'
 
 /** Фон, который формат навязывает композиции поверх props пользователя */
-export type FormatBackground = 'paper' | 'transparent' | 'chroma'
+export type FormatBackground = 'transparent' | 'chroma'
 
 type FormatSpec = {
   /** Подпись карточки. Называем по фону файла, а не по устройству: «для компьютера» отпугивало тех, кому файл подходит */
   label: string
   /** Пояснение под кнопкой: где этим файлом пользоваться. Уходит и в подпись бота — без точки в конце */
   hint: string
-  /** Для какого телефона формат: прозрачность понимают по-разному — PNG-в-MOV Android, HEVC iPhone */
+  /** Для какого телефона формат: прозрачность MOV iPhone не видит, там остаётся хромакей */
   badge?: string
   ext: string
   mime: string
@@ -34,11 +34,6 @@ type FormatSpec = {
     encoderArgs?: string[]
     encoder?: { name: 'png'; pixelFormat: 'rgba' }
   }
-  /**
-   * Перекодировать готовый файл внешним ffmpeg воркера. hevc-alpha — HEVC с альфой: libx265 с альфой
-   * есть только в ffmpeg 8 со своей сборкой x265, Remotion такого не везёт. Рендер — как у mov-alpha
-   */
-  transcode?: 'hevc-alpha'
   /** Можно отправить ботом: влезает в лимит Bot API 50 МБ */
   chat: boolean
   /** Секунд рендера на секунду ролика — для оценки «сделаем примерно за» */
@@ -65,28 +60,10 @@ export const RENDER_FORMATS: Record<RenderFormat, FormatSpec> = {
     // PNG-кадры отрисовываются дольше JPEG
     renderRate: 2.5,
   },
-  // Родной для iPhone вариант прозрачности: PNG-в-MOV, ProRes 4444 и WebM CapCut на iPhone открыл с фоном
-  'mov-hevc-alpha': {
-    label: 'Прозрачный фон, HEVC',
-    hint: 'Без фона, файл лёгкий: положи поверх видео — и готово. Фото и CapCut на iPhone, Final Cut, iMovie',
-    badge: 'Для iPhone',
-    ext: 'mov',
-    mime: 'video/quicktime',
-    codec: 'prores',
-    proResProfile: '4444',
-    pixelFormat: 'yuva444p10le',
-    imageFormat: 'png',
-    background: 'transparent',
-    encoding: { encoder: { name: 'png', pixelFormat: 'rgba' } },
-    transcode: 'hevc-alpha',
-    chat: true,
-    // Отрисовка PNG-кадров плюс второй проход x265 по двум слоям — цвету и альфе
-    renderRate: 4,
-  },
   // Цветной фон вместо альфы: снимается инструментом «Хромакей» в любом редакторе на телефоне
   'mp4-chroma': {
     label: 'Цветной фон, MP4',
-    hint: 'Если прозрачный не сработал: скачай файл, наложи поверх своего видео и удали фон инструментом «Хромакей» — пипеткой выбери цвет фона. CapCut, InShot и другие',
+    hint: 'Скачай файл, наложи поверх своего видео и удали фон инструментом «Хромакей» — пипеткой выбери цвет фона. CapCut, InShot и другие',
     // Ни один прозрачный формат CapCut на iPhone не понял: ProRes 4444, PNG-в-MOV и WebM пришли с фоном
     badge: 'Для iPhone',
     ext: 'mp4',
@@ -96,20 +73,6 @@ export const RENDER_FORMATS: Record<RenderFormat, FormatSpec> = {
     imageFormat: 'jpeg',
     background: 'chroma',
     // Края плашки должны остаться чёткими для кеинга — crf не выше 23
-    encoding: { crf: 23, x264Preset: 'veryfast' },
-    chat: true,
-    renderRate: 1.5,
-  },
-  // Свой кремовый фон: ролик ставят встык или выкладывают как есть, накладывать ничего не нужно
-  mp4: {
-    label: 'Обычное видео, MP4',
-    hint: 'С фоном: поставь в конец своего ролика или выложи сразу в сторис',
-    ext: 'mp4',
-    mime: 'video/mp4',
-    codec: 'h264',
-    pixelFormat: 'yuv420p',
-    imageFormat: 'jpeg',
-    background: 'paper',
     encoding: { crf: 23, x264Preset: 'veryfast' },
     chat: true,
     renderRate: 1.5,

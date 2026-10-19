@@ -8,8 +8,8 @@
 export interface StatsMuscleLoadResponseDto {
   muscleId: number;
   name: string;
-  /** Подходы за неделю: основная мышца 1, вспомогательная 0,5 */
+  /** Подходов в неделю в среднем за период: основная мышца 1, вспомогательная 0,5 */
   sets: number;
-  /** Ноль подходов за последние 2 недели */
+  /** Ноль подходов за период */
   forgotten: boolean;
 }

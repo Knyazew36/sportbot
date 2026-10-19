@@ -28,6 +28,31 @@ const StepTooltip = ({ active, payload, unit }: TooltipProps) => {
   )
 }
 
+type TickProps = {
+  x?: number | string
+  y?: number | string
+  index?: number
+  visibleTicksCount?: number
+  payload?: { value?: unknown }
+}
+
+// Подпись даты по центру точки обрезается краем графика у первой и последней точки — их прижимаем внутрь
+const EdgeTick = ({ x = 0, y = 0, index = 0, visibleTicksCount = 0, payload }: TickProps) => {
+  const anchor = index === 0 ? 'start' : index === visibleTicksCount - 1 ? 'end' : 'middle'
+  return (
+    <text
+      x={Number(x)}
+      y={Number(y)}
+      dy={12}
+      textAnchor={anchor}
+      fontSize={11}
+      fill='color-mix(in oklab, var(--sb-ink) 55%, transparent)'
+    >
+      {String(payload?.value ?? '')}
+    </text>
+  )
+}
+
 type StepChartProps = {
   data: Point[]
   unit: string
@@ -76,7 +101,7 @@ export const StepChart = ({ data, unit, curve = 'step', tickEvery = 2, className
             tickLine={false}
             axisLine={false}
             interval={interval}
-            tick={{ fill: 'color-mix(in oklab, var(--sb-ink) 55%, transparent)', fontSize: 11 }}
+            tick={EdgeTick}
           />
           <YAxis
             hide

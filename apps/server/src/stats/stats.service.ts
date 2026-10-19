@@ -13,8 +13,13 @@ import {
   plural,
   weekStart,
 } from '@/bot';
-import { uploadRoot } from '@/catalog/catalog.service';
-import { ExerciseMeasure, SportProfile } from '@/generated/prisma/client';
+import { normalizeName, uploadRoot } from '@/catalog/catalog.service';
+import { paginatePrisma } from '@/common/prisma';
+import {
+  ExerciseMeasure,
+  Prisma,
+  SportProfile,
+} from '@/generated/prisma/client';
 import { MessengerMessage, strike } from '@/messengers';
 
 import { renderProgressChart } from './progress-chart';
@@ -32,21 +37,77 @@ export interface MuscleLoad {
 
 const FORGOTTEN_DAYS = 14;
 const CHART_POINTS = 30;
+const SPARK_POINTS = 12;
+/** «Стоит»: за столько дней ≥2 тренировки с упражнением, и ни одна не побила прежний лучший подход. */
+const STALL_DAYS = 21;
 const DONE_STATUSES = ['FINISHED', 'AUTO_CLOSED'] as const;
 
 const num = (value: number): string => String(Number(value.toFixed(1)));
+const round1 = (value: number): number => Math.round(value * 10) / 10;
 
 /** В чём считается прогресс упражнения: вес или, если веса нет, повторы; на время — секунды. */
 export type ProgressUnit = 'kg' | 'reps' | 'sec' | 'min';
 
+export type ProgressStatus = 'growing' | 'flat' | 'stalled' | 'idle';
+
+/** Лучший подход тренировки. value — что рисуем на графике: кг, повторы, секунды или минуты. */
+export interface BestSet {
+  weight: number;
+  reps: number;
+  value: number;
+}
+
+export interface ProgressPoint extends BestSet {
+  date: Date;
+}
+
 export interface Progress {
   unit: ProgressUnit;
-  points: { date: Date; value: number }[];
+  points: ProgressPoint[];
+}
+
+/** Прогресс упражнения за период: для списка и шапки страницы упражнения. */
+export interface ExerciseProgress {
+  id: number;
+  name: string;
+  unit: ProgressUnit;
+  /** Лучший подход за всё время */
+  best: BestSet;
+  /** Рост за период: лучшая точка периода против первой; 0 — не выросло или точка одна */
+  delta: number;
+  /** В чём рост: у упражнения с весом — повторы, если вес не менялся */
+  deltaUnit: ProgressUnit;
+  sessions: number;
+  lastDate: Date;
+  status: ProgressStatus;
+  spark: number[];
+}
+
+/** Расчётный 1ПМ и подход, по которому он посчитан. */
+export interface E1rm {
+  value: number;
+  weight: number;
+  reps: number;
+}
+
+export interface RecordEntry {
+  date: Date;
+  exerciseId: number;
+  name: string;
+  unit: ProgressUnit;
+  set: BestSet;
+  previous: BestSet;
 }
 
 interface ProgressRow {
   workout: { date: Date };
-  sets: { weight: unknown; reps: number }[];
+  sets: SetRow[];
+}
+
+interface HistoryRow extends ProgressRow {
+  id: number;
+  exerciseId: number;
+  exercise: { name: string; measure: ExerciseMeasure };
 }
 
 const UNIT_SHORT: Record<ProgressUnit, string> = {
@@ -56,7 +117,7 @@ const UNIT_SHORT: Record<ProgressUnit, string> = {
   min: 'мин',
 };
 const UNIT_AXIS: Record<ProgressUnit, string> = {
-  kg: 'максимальный вес подхода, кг',
+  kg: 'вес лучшего подхода, кг',
   reps: 'максимум повторов в подходе',
   sec: 'лучшее время подхода, с',
   min: 'лучшее время подхода, мин',
@@ -240,76 +301,176 @@ export class StatsService {
   }
 
   /**
-   * Прогресс по мышце: упражнения, где она основная, у каждого — свои точки (кг или повторы).
-   * Вспомогательная роль не берётся — иначе у трицепса окажется весь жим. До 30 точек на упражнение.
+   * Прогресс по упражнениям за период: лучший подход, рост, статус «стоит» / «не делали».
+   * muscleId — только упражнения, где мышца основная: иначе у трицепса окажется весь жим.
    */
-  public async muscleProgress(
+  public async progressList(
     userId: number,
-    muscleId: number,
-  ): Promise<{
-    name: string;
-    exercises: ({ id: number; name: string } & Progress)[];
-  }> {
-    const [muscle, items] = await Promise.all([
-      this.prisma.muscle.findUnique({
-        where: { id: muscleId },
-        select: { name: true },
-      }),
-      this.prisma.workoutExercise.findMany({
-        where: {
-          sets: { some: {} },
-          workout: { userId, status: { in: [...DONE_STATUSES] } },
-          exercise: { muscles: { some: { muscleId, role: 'PRIMARY' } } },
-        },
-        orderBy: [{ workout: { date: 'asc' } }, { id: 'asc' }],
-        select: {
-          exerciseId: true,
-          exercise: { select: { name: true, measure: true } },
-          workout: { select: { date: true } },
-          sets: { select: { weight: true, reps: true } },
-        },
-      }),
-    ]);
-    if (!muscle) throw new NotFoundException('Мышца не найдена.');
-    const byExercise = new Map<
-      number,
-      {
-        id: number;
-        name: string;
-        measure: ExerciseMeasure;
-        rows: ProgressRow[];
-      }
-    >();
-    for (const item of items) {
-      const entry = byExercise.get(item.exerciseId) ?? {
-        id: item.exerciseId,
-        name: item.exercise.name,
-        measure: item.exercise.measure,
-        rows: [],
-      };
-      entry.rows.push(item);
-      byExercise.set(item.exerciseId, entry);
-    }
-    const exercises = [...byExercise.values()]
-      .map(({ id, name, measure, rows }) => {
-        const progress = progressOf(rows, measure);
-        return {
-          id,
-          name,
-          unit: progress.unit,
-          points: progress.points.slice(-CHART_POINTS),
-        };
-      })
-      .filter((e) => e.points.length > 0)
+    options: {
+      from: Date;
+      today: Date;
+      muscleId?: number;
+      status?: 'growing' | 'stalled';
+      search?: string;
+      limit?: number;
+    },
+  ): Promise<ExerciseProgress[]> {
+    const { from, today, muscleId, status, search, limit } = options;
+    const rows = await this.historyRows(userId, {
+      exercise: {
+        ...(muscleId && {
+          muscles: { some: { muscleId, role: 'PRIMARY' } },
+        }),
+        ...(search && {
+          nameNormalized: { contains: normalizeName(search) },
+        }),
+      },
+    });
+    const list = [...groupByExercise(rows).values()]
+      .map((group) => summarize(group, from, today))
+      .filter((e): e is ExerciseProgress => !!e)
+      .filter((e) => !status || e.status === status)
+      // Основа программы — сверху, давно заброшенные — в конце
       .sort(
         (a, b) =>
-          b.points.length - a.points.length ||
+          Number(a.status === 'idle') - Number(b.status === 'idle') ||
+          b.sessions - a.sessions ||
           a.name.localeCompare(b.name, 'ru'),
       );
     this.logger.debug(
-      `Прогресс по мышце: userId=${userId}, muscleId=${muscleId}, упражнений=${exercises.length}`,
+      `Прогресс упражнений: userId=${userId}, muscleId=${muscleId ?? '-'}, status=${status ?? '-'}, найдено=${list.length}`,
     );
-    return { name: muscle.name, exercises };
+    return limit ? list.slice(0, limit) : list;
+  }
+
+  /** Прогресс одного упражнения: шапка, точки периода и, по запросу, расчётный 1ПМ. */
+  public async exerciseProgress(
+    userId: number,
+    exerciseId: number,
+    options: { from: Date; today: Date; addE1rm?: boolean },
+  ): Promise<{
+    name: string;
+    summary: ExerciseProgress | null;
+    unit: ProgressUnit;
+    points: ProgressPoint[];
+    e1rm?: {
+      current: E1rm | null;
+      best: E1rm | null;
+      points: { date: Date; value: number }[];
+    };
+  }> {
+    const { from, today, addE1rm } = options;
+    const [exercise, rows] = await Promise.all([
+      this.prisma.exercise.findUnique({
+        where: { id: exerciseId },
+        select: { name: true, measure: true },
+      }),
+      this.historyRows(userId, { exerciseId }),
+    ]);
+    if (!exercise) throw new NotFoundException('Упражнение не найдено.');
+    const { unit, points } = progressOf(rows, exercise.measure);
+    const result = {
+      name: exercise.name,
+      summary: rows.length ? summarize(rows, from, today) : null,
+      unit,
+      points: points.filter((p) => p.date >= from),
+    };
+    // 1ПМ считается только по весу: у упражнений без веса и на время его нет
+    if (!addE1rm || unit !== 'kg') return result;
+    const e1rm = rows.flatMap((r) => {
+      const estimate = e1rmOf(r.sets);
+      return estimate ? [{ date: r.workout.date, ...estimate }] : [];
+    });
+    const period = e1rm.filter((p) => p.date >= from);
+    const best = period.length
+      ? period.reduce((top, p) => (p.value > top.value ? p : top))
+      : null;
+    return {
+      ...result,
+      e1rm: {
+        current: e1rm.at(-1) ?? null,
+        best,
+        points: period.map(({ date, value }) => ({ date, value })),
+      },
+    };
+  }
+
+  /** История тренировок с упражнением, новые сверху: все подходы, какой из них лучший, был ли рекорд. */
+  public async sessions(
+    userId: number,
+    exerciseId: number,
+    page: number,
+    limit: number,
+  ) {
+    const where = {
+      exerciseId,
+      sets: { some: {} },
+      workout: { userId, status: { in: [...DONE_STATUSES] } },
+    };
+    const [rows, result] = await Promise.all([
+      this.historyRows(userId, { exerciseId }),
+      paginatePrisma(this.prisma.workoutExercise, {
+        page,
+        limit,
+        where,
+        orderBy: [{ workout: { date: 'desc' } }, { id: 'desc' }],
+        include: {
+          workout: { select: { date: true } },
+          sets: {
+            orderBy: { number: 'asc' },
+            select: { weight: true, reps: true },
+          },
+        },
+      }),
+    ]);
+    const unit = progressOf(rows, rows[0]?.exercise.measure ?? 'REPS').unit;
+    const records = recordRows(rows, unit);
+    return {
+      meta: result.meta,
+      items: (result.items as unknown as (ProgressRow & { id: number })[]).map(
+        (r) => ({
+          id: r.id,
+          date: r.workout.date,
+          sets: r.sets.map((s) => ({ weight: Number(s.weight), reps: s.reps })),
+          bestIndex: bestIndexOf(r.sets, unit),
+          isRecord: records.has(r.id),
+        }),
+      ),
+    };
+  }
+
+  /**
+   * Лента личных рекордов, новые сверху: та же логика, что у рекордов в итоге тренировки.
+   * from — только рекорды с этой даты; сравниваются они всё равно со всей историей.
+   */
+  public async recordsFeed(
+    userId: number,
+    options: { from?: Date; limit?: number } = {},
+  ): Promise<RecordEntry[]> {
+    const { from, limit } = options;
+    const rows = await this.historyRows(userId);
+    const feed: RecordEntry[] = [];
+    for (const [exerciseId, group] of groupByExercise(rows)) {
+      const { unit, points } = progressOf(group, group[0].exercise.measure);
+      let top: ProgressPoint | null = null;
+      for (const point of points) {
+        if (top && betterSet(point, top) && (!from || point.date >= from))
+          feed.push({
+            date: point.date,
+            exerciseId,
+            name: group[0].exercise.name,
+            unit,
+            set: point,
+            previous: top,
+          });
+        if (!top || betterSet(point, top)) top = point;
+      }
+    }
+    feed.sort((a, b) => b.date.getTime() - a.date.getTime());
+    this.logger.debug(
+      `Лента рекордов: userId=${userId}, рекордов=${feed.length}`,
+    );
+    return limit ? feed.slice(0, limit) : feed;
   }
 
   /**
@@ -383,20 +544,20 @@ export class StatsService {
     this.logger.debug(
       `График построен: userId=${userId}, exerciseId=${exerciseId}, unit=${unit}`,
     );
-    const first = points[0].value;
-    const last = points.at(-1)!.value;
-    const delta = last - first;
+    const first = points[0];
+    const last = points.at(-1)!;
     return {
       file,
-      caption: `📈 ${name}: ${num(first)} → ${num(last)} ${UNIT_SHORT[unit]} (${delta >= 0 ? '+' : '−'}${num(Math.abs(delta))}) за ${points.length} ${plural(points.length, 'тренировку', 'тренировки', 'тренировок')}`,
+      caption: `📈 ${name}: ${setText(first, unit)} → ${setText(last, unit)} за ${points.length} ${plural(points.length, 'тренировку', 'тренировки', 'тренировок')}`,
     };
   }
 
   // ── Рекорды ─────────────────────────────────────────────────────────────
 
   /**
-   * Личные рекорды тренировки: лучший вес (или повторы — у упражнений без веса) выше, чем во всех
-   * более ранних тренировках. Первый раз — не рекорд, иначе первая тренировка целиком из «рекордов».
+   * Личные рекорды тренировки: лучший подход лучше, чем во всех более ранних тренировках —
+   * больше вес или столько же, но больше повторов. Первый раз — не рекорд, иначе первая
+   * тренировка целиком из «рекордов».
    */
   public async records(
     userId: number,
@@ -449,21 +610,52 @@ export class StatsService {
         .filter((h) => h.exerciseId === exerciseId)
         .flatMap((h) => h.sets);
       if (!before.length) continue;
-      const unit: ProgressUnit =
-        timedUnit(measure) ??
-        ([...before, ...sets].some((s) => Number(s.weight) > 0)
-          ? 'kg'
-          : 'reps');
-      const value = bestOf(sets, unit);
-      const previous = bestOf(before, unit);
+      const unit = unitOf([...before, ...sets], measure);
+      const best = bestSetOf(sets, unit);
+      const previous = bestSetOf(before, unit);
       // Подходов с весом раньше не было — сравнивать не с чем
-      if (previous === null || value === null || value <= previous) continue;
-      records.push({ exerciseId, name, unit, value, previous });
+      if (!previous || !best || !betterSet(best, previous)) continue;
+      records.push({
+        exerciseId,
+        name,
+        unit,
+        value: best.value,
+        reps: best.reps,
+        previous: previous.value,
+        previousReps: previous.reps,
+      });
     }
     this.logger.debug(
       `Рекорды тренировки: userId=${userId}, workoutId=${workout.id}, рекордов=${records.length}`,
     );
     return records;
+  }
+
+  // ── Внутреннее ──────────────────────────────────────────────────────────
+
+  /** Все тренировки пользователя с подходами по упражнениям, от старых к новым. */
+  private historyRows(
+    userId: number,
+    where: Prisma.WorkoutExerciseWhereInput = {},
+  ): Promise<HistoryRow[]> {
+    return this.prisma.workoutExercise.findMany({
+      where: {
+        ...where,
+        sets: { some: {} },
+        workout: { userId, status: { in: [...DONE_STATUSES] } },
+      },
+      orderBy: [{ workout: { date: 'asc' } }, { id: 'asc' }],
+      select: {
+        id: true,
+        exerciseId: true,
+        exercise: { select: { name: true, measure: true } },
+        workout: { select: { date: true } },
+        sets: {
+          orderBy: { number: 'asc' },
+          select: { weight: true, reps: true },
+        },
+      },
+    });
   }
 }
 
@@ -474,16 +666,160 @@ export interface PersonalRecord {
   name: string;
   unit: ProgressUnit;
   value: number;
+  /** Повторы лучшего подхода: при том же весе рекорд — это больше повторов */
+  reps: number;
   previous: number;
+  previousReps: number;
 }
 
-/** Лучший подход: максимальный вес (без нулевых), максимум повторов или времени. null — сравнивать не с чем. */
-function bestOf(sets: SetRow[], unit: ProgressUnit): number | null {
-  const values =
-    unit === 'kg'
-      ? sets.map((s) => Number(s.weight)).filter((w) => w > 0)
-      : sets.map((s) => fromSeconds(unit, s.reps));
-  return values.length ? Math.max(...values) : null;
+/** Подход a лучше b: больше вес, при равном весе — больше повторов. Без веса сравниваются повторы. */
+export function betterSet(a: BestSet, b: BestSet): boolean {
+  return a.weight !== b.weight ? a.weight > b.weight : a.reps > b.reps;
+}
+
+/** Лучший подход: по весу (без нулевых) и повторам, без веса — по повторам или времени. null — сравнивать не с чем. */
+function bestSetOf(sets: SetRow[], unit: ProgressUnit): BestSet | null {
+  const index = bestIndexOf(sets, unit);
+  if (index < 0) return null;
+  const set = sets[index];
+  return unit === 'kg'
+    ? { weight: Number(set.weight), reps: set.reps, value: Number(set.weight) }
+    : { weight: 0, reps: set.reps, value: fromSeconds(unit, set.reps) };
+}
+
+/** Номер лучшего подхода в тренировке; -1 — подходов с весом нет. */
+function bestIndexOf(sets: SetRow[], unit: ProgressUnit): number {
+  // Без веса вес не сравниваем: случайные «2,5 кг» в отжиманиях не должны перебить повторы
+  const asSet = (s: SetRow): BestSet => ({
+    weight: unit === 'kg' ? Number(s.weight) : 0,
+    reps: s.reps,
+    value: 0,
+  });
+  let best = -1;
+  sets.forEach((s, i) => {
+    if (unit === 'kg' && Number(s.weight) <= 0) return;
+    if (best < 0 || betterSet(asSet(s), asSet(sets[best]))) best = i;
+  });
+  return best;
+}
+
+/** В чём прогресс упражнения: на время — секунды или минуты, был хоть один вес — кг, иначе повторы. */
+function unitOf(sets: SetRow[], measure: ExerciseMeasure): ProgressUnit {
+  return (
+    timedUnit(measure) ??
+    (sets.some((s) => Number(s.weight) > 0) ? 'kg' : 'reps')
+  );
+}
+
+/** Подход текстом для бота: «60 кг × 10», без веса — «12 повт.». */
+function setText(set: BestSet, unit: ProgressUnit): string {
+  return unit === 'kg'
+    ? `${num(set.weight)} кг × ${set.reps}`
+    : `${num(set.value)} ${UNIT_SHORT[unit]}`;
+}
+
+/**
+ * Расчётный 1ПМ тренировки по Эпли: вес × (1 + повт/30), лучший из подходов, и подход, по которому
+ * он посчитан: на многоповторных подходах оценка грубее, клиент об этом предупреждает. null — подходов с весом нет.
+ */
+function e1rmOf(sets: SetRow[]): E1rm | null {
+  let best: E1rm | null = null;
+  for (const s of sets) {
+    const weight = Number(s.weight);
+    if (weight <= 0 || s.reps <= 0) continue;
+    // Один повтор — это и есть максимум, формула дала бы лишние 3%
+    const value = round1(s.reps === 1 ? weight : weight * (1 + s.reps / 30));
+    if (!best || value > best.value) best = { value, weight, reps: s.reps };
+  }
+  return best;
+}
+
+/** Строки истории по упражнениям, порядок внутри — как пришёл (от старых к новым). */
+function groupByExercise(rows: HistoryRow[]): Map<number, HistoryRow[]> {
+  const groups = new Map<number, HistoryRow[]>();
+  for (const row of rows)
+    groups.set(row.exerciseId, [...(groups.get(row.exerciseId) ?? []), row]);
+  return groups;
+}
+
+/** Лучшая точка ряда по betterSet. */
+function topOf(points: ProgressPoint[]): ProgressPoint {
+  return points.reduce((top, p) => (betterSet(p, top) ? p : top));
+}
+
+/**
+ * Рост за период: лучшая точка против первой. У упражнения с весом, если вес не менялся,
+ * рост — в повторах: иначе +2 повтора на том же весе выглядели бы как «0 кг».
+ */
+function deltaOf(
+  points: ProgressPoint[],
+  unit: ProgressUnit,
+): { delta: number; deltaUnit: ProgressUnit } {
+  if (points.length < 2) return { delta: 0, deltaUnit: unit };
+  const first = points[0];
+  const top = topOf(points);
+  if (unit === 'kg' && top.weight === first.weight)
+    return { delta: top.reps - first.reps, deltaUnit: 'reps' };
+  return { delta: round1(top.value - first.value), deltaUnit: unit };
+}
+
+/** Строки тренировок, где лучший подход побил все более ранние. Первая тренировка — не рекорд. */
+function recordRows(rows: HistoryRow[], unit: ProgressUnit): Set<number> {
+  const result = new Set<number>();
+  let top: BestSet | null = null;
+  for (const row of rows) {
+    const best = bestSetOf(row.sets, unit);
+    if (!best) continue;
+    if (top && betterSet(best, top)) result.add(row.id);
+    if (!top || betterSet(best, top)) top = best;
+  }
+  return result;
+}
+
+/** Сводка упражнения за период [from, today]; null — точек нет (например, только подходы без веса). */
+function summarize(
+  rows: HistoryRow[],
+  from: Date,
+  today: Date,
+): ExerciseProgress | null {
+  const { unit, points } = progressOf(rows, rows[0].exercise.measure);
+  if (!points.length) return null;
+  const period = points.filter((p) => p.date >= from);
+  const { delta, deltaUnit } = deltaOf(period, unit);
+  const top = topOf(points);
+  return {
+    id: rows[0].exerciseId,
+    name: rows[0].exercise.name,
+    unit,
+    best: { weight: top.weight, reps: top.reps, value: top.value },
+    delta,
+    deltaUnit,
+    sessions: period.length,
+    lastDate: points.at(-1)!.date,
+    status: statusOf(points, period, delta, today),
+    spark: period.slice(-SPARK_POINTS).map((p) => p.value),
+  };
+}
+
+/**
+ * «Не делали» — в периоде тренировок нет. «Стоит» — за STALL_DAYS ≥2 тренировки, и ни одна не побила
+ * лучший подход до них: считаем по тренировкам, иначе редкое упражнение «стояло» бы всегда.
+ */
+function statusOf(
+  points: ProgressPoint[],
+  period: ProgressPoint[],
+  delta: number,
+  today: Date,
+): ProgressStatus {
+  if (!period.length) return 'idle';
+  const since = addDays(today, -(STALL_DAYS - 1));
+  const recent = points.filter((p) => p.date >= since);
+  const before = points.filter((p) => p.date < since);
+  if (recent.length >= 2 && before.length) {
+    const top = topOf(before);
+    if (!recent.some((p) => betterSet(p, top))) return 'stalled';
+  }
+  return delta > 0 ? 'growing' : 'flat';
 }
 
 /** Единица прогресса упражнения на время: удержание — секунды, кардио — минуты. null — не на время. */
@@ -497,32 +833,20 @@ function fromSeconds(unit: ProgressUnit | null, value: number): number {
 }
 
 /**
- * Прогресс по тренировкам упражнения. Был хоть один подход с весом — считаем лучший вес,
- * а тренировки без веса пропускаем: «0 кг» на графике читается как провал. Веса не было никогда
- * (отжимания на брусьях, подтягивания) — лучший подход по повторам.
+ * Прогресс по тренировкам упражнения: точка — лучший подход тренировки. Был хоть один подход
+ * с весом — тренировки без веса пропускаем: «0 кг» на графике читается как провал. Веса не было
+ * никогда (отжимания на брусьях, подтягивания) — лучший подход по повторам.
  */
 function progressOf(rows: ProgressRow[], measure: ExerciseMeasure): Progress {
-  const timed = timedUnit(measure);
-  const weighted =
-    !timed && rows.some((r) => r.sets.some((s) => Number(s.weight) > 0));
-  if (!weighted)
-    return {
-      unit: timed ?? 'reps',
-      points: rows.map((r) => ({
-        date: r.workout.date,
-        value: fromSeconds(
-          timed,
-          Math.max(...r.sets.map((s) => s.reps)),
-        ),
-      })),
-    };
+  const unit = unitOf(
+    rows.flatMap((r) => r.sets),
+    measure,
+  );
   return {
-    unit: 'kg',
-    points: rows
-      .map((r) => ({
-        date: r.workout.date,
-        value: Math.max(...r.sets.map((s) => Number(s.weight))),
-      }))
-      .filter((p) => p.value > 0),
+    unit,
+    points: rows.flatMap((r) => {
+      const best = bestSetOf(r.sets, unit);
+      return best ? [{ date: r.workout.date, ...best }] : [];
+    }),
   };
 }

@@ -18,6 +18,15 @@ export class WorkoutRecordResponseDto {
   @ApiProperty({ description: 'Лучший подход сегодня' })
   value: number;
 
+  @ApiProperty({
+    description:
+      'Повторы лучшего подхода сегодня: при том же весе рекорд — это больше повторов',
+  })
+  reps: number;
+
   @ApiProperty({ description: 'Прежний лучший' })
   previous: number;
+
+  @ApiProperty({ description: 'Повторы прежнего лучшего подхода' })
+  previousReps: number;
 }

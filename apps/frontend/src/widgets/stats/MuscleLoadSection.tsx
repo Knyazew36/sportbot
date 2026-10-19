@@ -1,40 +1,24 @@
-import { useState } from 'react'
-
 import { useMuscleLoad } from '@/entities/stats'
-import { buildPath, ROUTES } from '@/shared/config/paths'
-import { Segmented } from '@/shared/ui/kit/Segmented'
+import { ROUTES } from '@/shared/config/paths'
 
+import { statsLink } from './links'
 import { MuscleLoad } from './MuscleLoad'
+import { PERIOD_DAYS, PERIOD_TEXT, type Period } from './periods'
 
-const WEEKS = [
-  { value: '0', label: 'Эта неделя' },
-  { value: '1', label: 'Прошлая' },
-]
-
-// Подходы за неделю на мышцу; «забыто» — ноль за две недели (frontend-tz, 12.2). userId — статистика друга
-export const MuscleLoadSection = ({ userId }: { userId?: number }) => {
-  const [weeksAgo, setWeeksAgo] = useState('0')
-  const load = useMuscleLoad(Number(weeksAgo), userId)
+// Баланс мышц: подходов в неделю в среднем за период — одна неделя слишком шумная; «забыто» — ноль за весь период.
+// Тап по мышце — упражнения, где она основная. userId — статистика друга
+export const MuscleLoadSection = ({ period, userId }: { period: Period; userId?: number }) => {
+  const load = useMuscleLoad(Math.round(PERIOD_DAYS[period] / 7), userId)
 
   if (!load.data?.length) return null
 
   return (
-    <div className='flex flex-col gap-3'>
-      <MuscleLoad
-        items={load.data}
-        linkTo={m => {
-          const path = buildPath(ROUTES.STATS_MUSCLE, { muscleId: m.muscleId! })
-          return userId ? `${path}?userId=${userId}` : path
-        }}
-      />
-      <div className='px-gutter'>
-        <Segmented
-          options={WEEKS}
-          value={weeksAgo}
-          onValueChange={setWeeksAgo}
-          stretch
-        />
-      </div>
-    </div>
+    <MuscleLoad
+      title='Баланс мышц'
+      aside='подходов в неделю'
+      note={`Среднее ${PERIOD_TEXT[period]}: основная мышца упражнения — 1 подход, вспомогательная — 0,5. «Забыто» — ни одного подхода. Нажми на мышцу — её упражнения.`}
+      items={load.data}
+      linkTo={m => statsLink(ROUTES.STATS_EXERCISES, { userId, period, muscle: m.muscleId })}
+    />
   )
 }

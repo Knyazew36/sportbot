@@ -3,8 +3,10 @@ import { Rise } from '@/shared/ui/kit/Reveal'
 import { Eyebrow, Lead, Poster, Suffix } from '@/shared/ui/kit/Typography'
 
 // Серия и рекорд на чёрной плашке — главный мотиватор статистики
-export const StreakPanel = ({ current, record }: { current: number; record: number }) => (
-  <Rise className='px-gutter'>
+type StreakPanelProps = { current: number; record: number; className?: string }
+
+export const StreakPanel = ({ current, record, className = 'px-gutter' }: StreakPanelProps) => (
+  <Rise className={className}>
     <InkPanel className='p-4'>
       <div className='flex items-end justify-between'>
         <div>
@@ -44,9 +46,18 @@ export const StreakPanel = ({ current, record }: { current: number; record: numb
 )
 
 // Посещаемость: месяц крупно, неделя рядом
-export const Attendance = ({ month, week, weekNote }: { month: number; week: number; weekNote: string }) => (
-  <Rise className='px-gutter'>
-    <Lead>посещаемость</Lead>
+type AttendanceProps = {
+  month: number
+  week: number
+  weekNote: string
+  /** Подпись над цифрами; null — у блока уже есть своя шапка */
+  label?: string | null
+  className?: string
+}
+
+export const Attendance = ({ month, week, weekNote, label = 'посещаемость', className = 'px-gutter' }: AttendanceProps) => (
+  <Rise className={className}>
+    {label && <Lead>{label}</Lead>}
     <div className='mt-2 grid grid-cols-2 items-end'>
       <div>
         <Poster

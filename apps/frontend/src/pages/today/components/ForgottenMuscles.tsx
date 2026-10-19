@@ -8,7 +8,7 @@ import { Eyebrow, Text } from '@/shared/ui/kit/Typography'
 
 // Мышцы без подходов две недели — повод выбрать комплекс с ними. Нечего сказать — блока нет
 export const ForgottenMuscles = () => {
-  const load = useMuscleLoad(0)
+  const load = useMuscleLoad(2)
   const forgotten = load.data?.filter(m => m.forgotten).map(m => m.name.toLowerCase()) ?? []
   if (!forgotten.length) return null
 

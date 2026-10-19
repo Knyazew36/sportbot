@@ -1,42 +1,43 @@
 import type { ReactNode } from 'react'
 
-import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
-import { Segmented } from '@/shared/ui/kit/Segmented'
 import { StepChart } from '@/shared/ui/kit/StepChart'
-import { Poster, Text, Unit } from '@/shared/ui/kit/Typography'
+import { Eyebrow, Poster, Text, Unit } from '@/shared/ui/kit/Typography'
 
-import { PERIODS, type Period } from './periods'
+import { StatsSection } from './StatsSection'
 
 type TrendSectionProps = {
   title: string
   aside?: string
+  /** Что показывает график */
+  note: string
   unit: string
-  /** Крупное число над графиком: последнее значение */
+  /** Крупное число над графиком — итог периода */
   headline?: ReactNode
-  period: Period
-  onPeriodChange: (period: Period) => void
+  /** Подпись под крупным числом: что именно за число */
+  caption?: ReactNode
   data: { label: string; value: number }[]
   curve?: 'step' | 'line'
   empty: string
 }
 
-// Ряд по датам с переключением периода: вес тела, посещаемость по неделям (frontend-tz, 12.2)
+// Ряд по датам за период страницы: вес тела, посещаемость по неделям (frontend-tz, 12.2)
 export const TrendSection = ({
   title,
   aside,
+  note,
   unit,
   headline,
-  period,
-  onPeriodChange,
+  caption,
   data,
   curve = 'line',
   empty,
 }: TrendSectionProps) => (
-  <ScreenSection
+  <StatsSection
     title={title}
     aside={aside}
+    note={note}
   >
-    <div className='flex flex-wrap items-end justify-between gap-3'>
+    <div>
       <Poster
         size='3xl'
         numeric
@@ -44,11 +45,14 @@ export const TrendSection = ({
         {headline ?? '—'}
         <Unit>{unit}</Unit>
       </Poster>
-      <Segmented
-        options={PERIODS}
-        value={period}
-        onValueChange={onPeriodChange}
-      />
+      {caption && (
+        <Eyebrow
+          as='p'
+          className='mt-2'
+        >
+          {caption}
+        </Eyebrow>
+      )}
     </div>
     {data.length > 1 ? (
       <StepChart
@@ -65,5 +69,5 @@ export const TrendSection = ({
         {empty}
       </Text>
     )}
-  </ScreenSection>
+  </StatsSection>
 )

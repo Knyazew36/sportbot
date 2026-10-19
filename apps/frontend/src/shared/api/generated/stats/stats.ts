@@ -15,12 +15,14 @@ import type {
   StatsControllerDayParams,
   StatsControllerMuscleLoad200,
   StatsControllerMuscleLoadParams,
-  StatsControllerMuscleProgress200,
-  StatsControllerMuscleProgressParams,
   StatsControllerProgress200,
-  StatsControllerProgressExercises200,
-  StatsControllerProgressExercisesParams,
+  StatsControllerProgressList200,
+  StatsControllerProgressListParams,
   StatsControllerProgressParams,
+  StatsControllerRecords200,
+  StatsControllerRecordsParams,
+  StatsControllerSessions200,
+  StatsControllerSessionsParams,
   StatsControllerSummary200,
   StatsControllerSummaryParams
 } from '../model';
@@ -54,19 +56,19 @@ export const statsControllerAttendance = (
       );
     }
   /**
- * @summary Упражнения, по которым есть прогресс весов
+ * @summary Прогресс по упражнениям за период: лучший подход, рост, «стоит» / «не делали»
  */
-export const statsControllerProgressExercises = (
-    params?: StatsControllerProgressExercisesParams,
+export const statsControllerProgressList = (
+    params?: StatsControllerProgressListParams,
  ) => {
-      return customInstance<StatsControllerProgressExercises200>(
+      return customInstance<StatsControllerProgressList200>(
       {url: `/stats/progress/exercises`, method: 'GET',
         params
     },
       );
     }
   /**
- * @summary Прогресс весов по упражнению
+ * @summary Прогресс упражнения: лучший подход по тренировкам за период
  */
 export const statsControllerProgress = (
     id: number,
@@ -74,6 +76,31 @@ export const statsControllerProgress = (
  ) => {
       return customInstance<StatsControllerProgress200>(
       {url: `/stats/progress/${id}`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * @summary История тренировок с упражнением: подходы, лучший, рекорд
+ */
+export const statsControllerSessions = (
+    id: number,
+    params?: StatsControllerSessionsParams,
+ ) => {
+      return customInstance<StatsControllerSessions200>(
+      {url: `/stats/progress/${id}/sessions`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * @summary Лента личных рекордов, новые сверху
+ */
+export const statsControllerRecords = (
+    params?: StatsControllerRecordsParams,
+ ) => {
+      return customInstance<StatsControllerRecords200>(
+      {url: `/stats/records`, method: 'GET',
         params
     },
       );
@@ -91,26 +118,13 @@ export const statsControllerBodyWeight = (
       );
     }
   /**
- * @summary Нагрузка по мышцам за неделю
+ * @summary Баланс мышц: подходов в неделю в среднем за последние недели
  */
 export const statsControllerMuscleLoad = (
     params?: StatsControllerMuscleLoadParams,
  ) => {
       return customInstance<StatsControllerMuscleLoad200>(
       {url: `/stats/muscle-load`, method: 'GET',
-        params
-    },
-      );
-    }
-  /**
- * @summary Прогресс весов по мышце: упражнения, где она основная
- */
-export const statsControllerMuscleProgress = (
-    id: number,
-    params?: StatsControllerMuscleProgressParams,
- ) => {
-      return customInstance<StatsControllerMuscleProgress200>(
-      {url: `/stats/muscle/${id}`, method: 'GET',
         params
     },
       );
@@ -141,10 +155,11 @@ export const statsControllerDay = (
     }
   export type StatsControllerSummaryResult = NonNullable<Awaited<ReturnType<typeof statsControllerSummary>>>
 export type StatsControllerAttendanceResult = NonNullable<Awaited<ReturnType<typeof statsControllerAttendance>>>
-export type StatsControllerProgressExercisesResult = NonNullable<Awaited<ReturnType<typeof statsControllerProgressExercises>>>
+export type StatsControllerProgressListResult = NonNullable<Awaited<ReturnType<typeof statsControllerProgressList>>>
 export type StatsControllerProgressResult = NonNullable<Awaited<ReturnType<typeof statsControllerProgress>>>
+export type StatsControllerSessionsResult = NonNullable<Awaited<ReturnType<typeof statsControllerSessions>>>
+export type StatsControllerRecordsResult = NonNullable<Awaited<ReturnType<typeof statsControllerRecords>>>
 export type StatsControllerBodyWeightResult = NonNullable<Awaited<ReturnType<typeof statsControllerBodyWeight>>>
 export type StatsControllerMuscleLoadResult = NonNullable<Awaited<ReturnType<typeof statsControllerMuscleLoad>>>
-export type StatsControllerMuscleProgressResult = NonNullable<Awaited<ReturnType<typeof statsControllerMuscleProgress>>>
 export type StatsControllerCalendarResult = NonNullable<Awaited<ReturnType<typeof statsControllerCalendar>>>
 export type StatsControllerDayResult = NonNullable<Awaited<ReturnType<typeof statsControllerDay>>>

@@ -8,10 +8,10 @@ export class StatsMuscleLoadResponseDto {
   name: string;
 
   @ApiProperty({
-    description: 'Подходы за неделю: основная мышца 1, вспомогательная 0,5',
+    description: 'Подходов в неделю в среднем за период: основная мышца 1, вспомогательная 0,5',
   })
   sets: number;
 
-  @ApiProperty({ description: 'Ноль подходов за последние 2 недели' })
+  @ApiProperty({ description: 'Ноль подходов за период' })
   forgotten: boolean;
 }

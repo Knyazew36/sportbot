@@ -21,7 +21,10 @@ import { ProgramPreviewSheet } from '@/widgets/program-preview/ProgramPreviewShe
 import { AttendanceSection } from '@/widgets/stats/AttendanceSection'
 import { CalendarSection } from '@/widgets/stats/CalendarSection'
 import { MuscleLoadSection } from '@/widgets/stats/MuscleLoadSection'
-import { ProgressSection } from '@/widgets/stats/ProgressSection'
+import { PeriodBar } from '@/widgets/stats/PeriodBar'
+import { usePeriod } from '@/widgets/stats/periods'
+import { ProgressListSection } from '@/widgets/stats/ProgressListSection'
+import { RecordsSection } from '@/widgets/stats/RecordsSection'
 import { StatsSummarySection } from '@/widgets/stats/StatsSummarySection'
 
 const BACK = buildPath(ROUTES.ME_SECTION, { section: 'friends' })
@@ -37,6 +40,7 @@ const FriendPage = () => {
   const [copied, setCopied] = useState<number[]>([])
   // Программа, чей состав открыт в шторке
   const [preview, setPreview] = useState<number | null>(null)
+  const [period] = usePeriod()
 
   // Одна кнопка и в строке, и в шторке: «У тебя» после копирования видно в обоих местах
   const copyButton = (programId: number, size: 'xs' | 'lg', className?: string) => {
@@ -135,9 +139,23 @@ const FriendPage = () => {
               action={preview != null && copyButton(preview, 'lg', 'w-full')}
             />
 
-            <ProgressSection userId={f.id} />
-            <AttendanceSection userId={f.id} />
-            <MuscleLoadSection userId={f.id} />
+            <PeriodBar />
+            <AttendanceSection
+              period={period}
+              userId={f.id}
+            />
+            <ProgressListSection
+              period={period}
+              userId={f.id}
+            />
+            <RecordsSection
+              period={period}
+              userId={f.id}
+            />
+            <MuscleLoadSection
+              period={period}
+              userId={f.id}
+            />
             <CalendarSection userId={f.id} />
 
             <Rise className='px-gutter pb-6'>

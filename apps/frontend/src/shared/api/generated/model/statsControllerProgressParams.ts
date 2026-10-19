@@ -10,4 +10,14 @@ export type StatsControllerProgressParams = {
  * Статистика друга; без параметра — своя
  */
 userId?: number;
+/**
+ * Период в днях, считая сегодня
+ * @minimum 7
+ * @maximum 400
+ */
+days?: number;
+/**
+ * Добавить расчётный 1ПМ (только упражнения с весом)
+ */
+add_e1rm?: boolean;
 };

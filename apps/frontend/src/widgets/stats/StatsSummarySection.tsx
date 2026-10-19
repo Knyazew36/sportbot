@@ -1,29 +1,31 @@
 import { useStatsSummary } from '@/entities/stats'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 
-import { Attendance, StreakPanel } from './StreakPanel'
+import { StatsSection } from './StatsSection'
+import { StreakPanel } from './StreakPanel'
 
-// Посещаемость за неделю и месяц, серия и рекорд (frontend-tz, 12.1). userId — статистика друга
+// Серия и её рекорд (frontend-tz, 12.1): от периода не зависят, поэтому стоят над переключателем.
+// Посещаемость за период — отдельным блоком ниже. userId — статистика друга
 export const StatsSummarySection = ({ userId }: { userId?: number }) => {
   const summary = useStatsSummary(userId)
 
   return (
     <QueryScreen
       query={summary}
-      rows={2}
+      rows={1}
     >
       {s => (
-        <>
-          <Attendance
-            month={s.month.percent}
-            week={s.week.percent}
-            weekNote={`${s.week.done} из ${s.week.planned}`}
-          />
+        <StatsSection
+          title='Серия'
+          aside={`эта неделя: ${s.week.done} из ${s.week.planned}`}
+          note='Тренировки по расписанию подряд, без пропусков. Пауза серию не обнуляет. Рекорд — самая длинная серия.'
+        >
           <StreakPanel
             current={s.currentStreak}
             record={s.bestStreak}
+            className=''
           />
-        </>
+        </StatsSection>
       )}
     </QueryScreen>
   )

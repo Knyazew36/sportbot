@@ -6,26 +6,32 @@ import type { ReactNode } from 'react'
 
 import { cn } from '@/shared/lib/utils'
 
-import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
+
+import { StatsSection } from './StatsSection'
 
 export type MuscleLoadItem = { muscleId?: number; name: string; sets: number; forgotten?: boolean }
 
 type MuscleLoadProps = {
   items: MuscleLoadItem[]
   title?: string
+  /** Пояснение к числам справа от заголовка */
+  aside?: string
+  /** Что значат цифры */
+  note?: string
   /** Куда ведёт мышца: прогресс весов по ней. Без него строки не нажимаются (превью) */
   linkTo?: (item: MuscleLoadItem) => string
 }
 
-// Нагрузка по мышцам за неделю: полосы в подходах, забытые группы заштрихованы
-export const MuscleLoad = ({ items, title = 'Нагрузка по мышцам', linkTo }: MuscleLoadProps) => {
+// Нагрузка по мышцам: полосы в подходах, забытые группы заштрихованы
+export const MuscleLoad = ({ items, title = 'Нагрузка по мышцам', aside = 'подходов за неделю', note = 'Подходы на мышцу: основная в упражнении — 1, вспомогательная — 0,5.', linkTo }: MuscleLoadProps) => {
   const max = Math.max(...items.map(m => m.sets), 1)
   const rowClass = cn('grid items-center gap-3', linkTo ? 'grid-cols-[84px_1fr_44px_16px]' : 'grid-cols-[84px_1fr_44px]')
   return (
-    <ScreenSection
+    <StatsSection
       title={title}
-      aside='подходов за неделю'
+      aside={aside}
+      note={note}
     >
       <ul className='flex flex-col gap-2'>
         {items.map((m, i) => (
@@ -73,7 +79,7 @@ export const MuscleLoad = ({ items, title = 'Нагрузка по мышцам'
           </MuscleRow>
         ))}
       </ul>
-    </ScreenSection>
+    </StatsSection>
   )
 }
 

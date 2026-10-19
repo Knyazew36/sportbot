@@ -65,11 +65,10 @@ const TodayPage = () => {
     <Screen
       header={
         <>
-          {/* Тренировка идёт — место даты и программы занимает живая полоса оболочки */}
+          {/* Тренировка идёт — место даты занимает живая полоса оболочки */}
           {!(today.data?.state === 'IN_PROGRESS' && !finishQueued) && (
             <ScreenHeader
               title={today.data ? capitalize(formatDate(today.data.date, 'EEEE · d MMMM')) : 'Сегодня'}
-              aside={today.data?.programName ?? undefined}
             />
           )}
           {me.data && !me.data.canMessage && <PermissionBanner />}

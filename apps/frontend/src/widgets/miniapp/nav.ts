@@ -11,7 +11,14 @@ import { matchPath } from 'react-router'
 
 import { ROUTES } from '@/shared/config/paths'
 
-export type NavItem = { label: string; to: string; icon: LucideIcon; adminOnly?: boolean }
+export type NavItem = {
+  label: string
+  to: string
+  icon: LucideIcon
+  adminOnly?: boolean
+  /** Главный раздел: плитка с датой по центру меню */
+  hero?: boolean
+}
 
 /** Число на пункте меню по его `to`; ноль не показываем */
 export type NavBadges = Partial<Record<string, number>>
@@ -24,12 +31,12 @@ export type ShellNav = {
   liveHidden?: string[]
 }
 
-// Пять разделов нижнего меню, у администратора шестой (frontend-tz, раздел 6)
+// Пять разделов нижнего меню, у администратора шестой (frontend-tz, раздел 6). «Сегодня» стоит по центру, порядок остальных — слева направо
 export const MINIAPP_NAV: ShellNav = {
   items: [
-    { label: 'Сегодня', to: ROUTES.TODAY, icon: TargetIcon },
-    { label: 'Программы', to: ROUTES.PROGRAMS, icon: LayersIcon },
+    { label: 'Сегодня', to: ROUTES.TODAY, icon: TargetIcon, hero: true },
     { label: 'Справочник', to: ROUTES.LIBRARY, icon: BookOpenIcon },
+    { label: 'Программы', to: ROUTES.PROGRAMS, icon: LayersIcon },
     { label: 'Статистика', to: ROUTES.STATS, icon: ChartNoAxesColumnIcon },
     { label: 'Профиль', to: ROUTES.ME, icon: UserRoundIcon },
     { label: 'Админ', to: ROUTES.ADMIN, icon: ShieldIcon, adminOnly: true },
@@ -71,9 +78,9 @@ export const MINIAPP_NAV: ShellNav = {
 
 export const PREVIEW_NAV: ShellNav = {
   items: [
-    { label: 'Сегодня', to: ROUTES.PREVIEW_TODAY, icon: TargetIcon },
-    { label: 'Программы', to: ROUTES.PREVIEW_PROGRAMS, icon: LayersIcon },
+    { label: 'Сегодня', to: ROUTES.PREVIEW_TODAY, icon: TargetIcon, hero: true },
     { label: 'Справочник', to: ROUTES.PREVIEW_LIBRARY, icon: BookOpenIcon },
+    { label: 'Программы', to: ROUTES.PREVIEW_PROGRAMS, icon: LayersIcon },
     { label: 'Статистика', to: ROUTES.PREVIEW_STATS, icon: ChartNoAxesColumnIcon },
     { label: 'Профиль', to: ROUTES.PREVIEW_PROFILE, icon: UserRoundIcon },
     { label: 'Админ', to: ROUTES.PREVIEW_ADMIN, icon: ShieldIcon, adminOnly: true },

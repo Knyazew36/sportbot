@@ -5,8 +5,8 @@
  * OpenAPI spec version: 0.0.1
  */
 import type { BaseResponse } from './baseResponse';
-import type { StatsPointResponseDto } from './statsPointResponseDto';
+import type { StatsProgressResponseDto } from './statsProgressResponseDto';
 
 export type StatsControllerProgress200 = BaseResponse & {
-  data?: StatsPointResponseDto[];
+  data?: StatsProgressResponseDto;
 };

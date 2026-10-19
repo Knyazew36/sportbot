@@ -12,11 +12,17 @@ import { StatsCalendarDayResponseDto } from './dto/stats-calendar-day.response.d
 import { StatsCalendarQueryDto } from './dto/stats-calendar-query.dto';
 import { StatsDayQueryDto } from './dto/stats-day-query.dto';
 import { StatsDayResponseDto } from './dto/stats-day.response.dto';
-import { StatsExerciseResponseDto } from './dto/stats-exercise.response.dto';
 import { StatsMuscleLoadQueryDto } from './dto/stats-muscle-load-query.dto';
 import { StatsMuscleLoadResponseDto } from './dto/stats-muscle-load.response.dto';
-import { StatsMuscleProgressResponseDto } from './dto/stats-muscle-progress.response.dto';
 import { StatsPointResponseDto } from './dto/stats-point.response.dto';
+import { StatsProgressItemResponseDto } from './dto/stats-progress-item.response.dto';
+import { StatsProgressListQueryDto } from './dto/stats-progress-list-query.dto';
+import { StatsProgressQueryDto } from './dto/stats-progress-query.dto';
+import { StatsProgressResponseDto } from './dto/stats-progress.response.dto';
+import { StatsRecordResponseDto } from './dto/stats-record.response.dto';
+import { StatsRecordsQueryDto } from './dto/stats-records-query.dto';
+import { StatsSessionResponseDto } from './dto/stats-session.response.dto';
+import { StatsSessionsQueryDto } from './dto/stats-sessions-query.dto';
 import { StatsSummaryResponseDto } from './dto/stats-summary.response.dto';
 import { StatsUserQueryDto } from './dto/stats-user-query.dto';
 import { StatsAppService } from './stats-app.service';
@@ -62,34 +68,66 @@ export class StatsController {
 
   @Get('progress/exercises')
   @Swagger({
-    title: 'Упражнения, по которым есть прогресс весов',
-    query: StatsUserQueryDto,
-    response: StatsExerciseResponseDto,
+    title:
+      'Прогресс по упражнениям за период: лучший подход, рост, «стоит» / «не делали»',
+    query: StatsProgressListQueryDto,
+    response: StatsProgressItemResponseDto,
     plainArray: true,
     bearerAuth: true,
   })
-  public progressExercises(
+  public progressList(
     @CurrentUser('id') userId: number,
-    @Query() query: StatsUserQueryDto,
+    @Query() query: StatsProgressListQueryDto,
   ) {
-    return this.statsAppService.progressExercises(userId, query.userId);
+    return this.statsAppService.progressList(userId, query);
   }
 
   @Get('progress/:id')
   @Swagger({
-    title: 'Прогресс весов по упражнению',
+    title: 'Прогресс упражнения: лучший подход по тренировкам за период',
     param: { name: 'id', type: Number, description: 'Упражнение' },
-    query: StatsUserQueryDto,
-    response: StatsPointResponseDto,
-    plainArray: true,
+    query: StatsProgressQueryDto,
+    response: StatsProgressResponseDto,
     bearerAuth: true,
   })
   public progress(
     @CurrentUser('id') userId: number,
     @Param('id', ParseIntPipe) id: number,
-    @Query() query: StatsUserQueryDto,
+    @Query() query: StatsProgressQueryDto,
   ) {
-    return this.statsAppService.progress(userId, query.userId, id);
+    return this.statsAppService.progress(userId, id, query);
+  }
+
+  @Get('progress/:id/sessions')
+  @Swagger({
+    title: 'История тренировок с упражнением: подходы, лучший, рекорд',
+    param: { name: 'id', type: Number, description: 'Упражнение' },
+    query: StatsSessionsQueryDto,
+    response: StatsSessionResponseDto,
+    isArray: true,
+    bearerAuth: true,
+  })
+  public sessions(
+    @CurrentUser('id') userId: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Query() query: StatsSessionsQueryDto,
+  ) {
+    return this.statsAppService.sessions(userId, id, query);
+  }
+
+  @Get('records')
+  @Swagger({
+    title: 'Лента личных рекордов, новые сверху',
+    query: StatsRecordsQueryDto,
+    response: StatsRecordResponseDto,
+    plainArray: true,
+    bearerAuth: true,
+  })
+  public records(
+    @CurrentUser('id') userId: number,
+    @Query() query: StatsRecordsQueryDto,
+  ) {
+    return this.statsAppService.records(userId, query);
   }
 
   @Get('body-weight')
@@ -109,7 +147,7 @@ export class StatsController {
 
   @Get('muscle-load')
   @Swagger({
-    title: 'Нагрузка по мышцам за неделю',
+    title: 'Баланс мышц: подходов в неделю в среднем за последние недели',
     query: StatsMuscleLoadQueryDto,
     response: StatsMuscleLoadResponseDto,
     plainArray: true,
@@ -119,27 +157,7 @@ export class StatsController {
     @CurrentUser('id') userId: number,
     @Query() query: StatsMuscleLoadQueryDto,
   ) {
-    return this.statsAppService.muscleLoad(
-      userId,
-      query.userId,
-      query.weeksAgo,
-    );
-  }
-
-  @Get('muscle/:id')
-  @Swagger({
-    title: 'Прогресс весов по мышце: упражнения, где она основная',
-    param: { name: 'id', type: Number, description: 'Мышца' },
-    query: StatsUserQueryDto,
-    response: StatsMuscleProgressResponseDto,
-    bearerAuth: true,
-  })
-  public muscleProgress(
-    @CurrentUser('id') userId: number,
-    @Param('id', ParseIntPipe) id: number,
-    @Query() query: StatsUserQueryDto,
-  ) {
-    return this.statsAppService.muscleProgress(userId, query.userId, id);
+    return this.statsAppService.muscleLoad(userId, query.userId, query.weeks);
   }
 
   @Get('calendar')

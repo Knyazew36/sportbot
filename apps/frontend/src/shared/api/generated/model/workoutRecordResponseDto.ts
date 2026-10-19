@@ -13,6 +13,10 @@ export interface WorkoutRecordResponseDto {
   unit: RecordUnit;
   /** Лучший подход сегодня */
   value: number;
+  /** Повторы лучшего подхода сегодня: при том же весе рекорд — это больше повторов */
+  reps: number;
   /** Прежний лучший */
   previous: number;
+  /** Повторы прежнего лучшего подхода */
+  previousReps: number;
 }

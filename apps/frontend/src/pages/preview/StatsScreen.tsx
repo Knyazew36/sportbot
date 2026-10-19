@@ -72,7 +72,7 @@ const DayDetails = ({ day }: { day: number }) => (
 const StatsScreen = () => {
   const [selected, setSelected] = useState(12)
   const [exercise, setExercise] = useState(STATS_EXERCISES[0]!.value)
-  const [period, setPeriod] = useState<Period>('3 мес')
+  const [period, setPeriod] = useState<Period>('quarter')
 
   return (
     <Screen
