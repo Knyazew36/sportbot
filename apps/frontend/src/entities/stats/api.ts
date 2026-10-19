@@ -1,4 +1,6 @@
-import { keepPreviousData, useInfiniteQuery, useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useInfiniteQuery, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
+
+import { useEffect } from 'react'
 
 import type {
   CalendarMark,
@@ -134,6 +136,31 @@ export const useCalendar = (month: string, userId?: number) =>
     queryFn: () => statsControllerCalendar({ month, ...withUser(userId) }),
     placeholderData: keepPreviousData,
   })
+
+const calendarQuery = (month: string, userId?: number) => ({
+  queryKey: statsKeys.calendar(month, userId),
+  queryFn: () => statsControllerCalendar({ month, ...withUser(userId) }),
+})
+
+/**
+ * Отметки дней сразу из нескольких месяцев: неделя может задеть два.
+ * prefetch — месяцы, которые понадобятся следующими (прошлая неделя), чтобы листание не мигало пустотой
+ */
+export const useCalendarMonths = (months: string[], prefetch: string[] = []) => {
+  const queryClient = useQueryClient()
+  const prefetchKey = prefetch.join(',')
+  useEffect(() => {
+    for (const month of prefetchKey.split(',').filter(Boolean)) void queryClient.prefetchQuery(calendarQuery(month))
+  }, [prefetchKey, queryClient])
+
+  return useQueries({
+    queries: months.map(month => calendarQuery(month)),
+    combine: results => ({
+      marks: new Map(results.flatMap(r => r.data ?? []).map(d => [d.date, d.mark] as const)),
+      isPending: results.some(r => r.isPending),
+    }),
+  })
+}
 
 /** Детали дня: комплекс, упражнения, подходы и как можно исправить отметку */
 export const useStatsDay = (date: string | null, userId?: number) =>

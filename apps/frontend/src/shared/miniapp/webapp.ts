@@ -158,7 +158,8 @@ export const shareLink = async (url: string, text: string): Promise<'shared' | '
   const platform = detectPlatform()
 
   if (platform === 'telegram' && app?.openTelegramLink) {
-    const share = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`
+    // Telegram ставит url над text — меняем местами, чтобы ссылка шла под текстом
+    const share = `https://t.me/share/url?url=${encodeURIComponent(text)}&text=${encodeURIComponent(url)}`
     app.openTelegramLink(share)
     return 'shared'
   }
@@ -176,7 +177,8 @@ export const shareLink = async (url: string, text: string): Promise<'shared' | '
   }
   if (navigator.share) {
     try {
-      await navigator.share({ url, text })
+      // Одним текстом: иначе порядок текста и ссылки решает приложение-получатель
+      await navigator.share({ text: `${text}\n${url}` })
       return 'shared'
     } catch {
       // пользователь закрыл диалог или share недоступен — копируем

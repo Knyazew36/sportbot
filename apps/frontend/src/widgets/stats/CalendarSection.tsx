@@ -6,30 +6,13 @@ import { useNavigate, useSearchParams } from 'react-router'
 import { type StatsDay, useCalendar, useStatsDay } from '@/entities/stats'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
-import { ExerciseBlocks } from '@/shared/ui/kit/ExerciseBlocks'
-import { List, ListRow } from '@/shared/ui/kit/ListRow'
-import { durationText, isTimed, type Measure } from '@/shared/lib/measure'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
-import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
+import { Eyebrow, Poster } from '@/shared/ui/kit/Typography'
 
+import { DayWorkout } from './DayWorkout'
 import { DAY_MARK, MARK_LABEL } from './marks'
 import { MonthCalendar } from './MonthCalendar'
 
-// «50 × 10, 10, 9» — вес один на все подходы; иначе каждый подход «вес × повторы». Без веса — только повторы,
-// на время — «45 с, 50 с»
-const setsText = (sets: { weight: number; reps: number }[], measure: Measure) => {
-  if (!sets.length) return '—'
-  if (isTimed(measure)) return sets.map(s => durationText(s.reps)).join(', ')
-  const weights = new Set(sets.map(s => s.weight))
-  const reps = sets.map(s => s.reps).join(', ')
-  if (weights.size === 1) {
-    const [w] = weights
-    return w ? `${String(w).replace('.', ',')} × ${reps}` : reps
-  }
-  return sets.map(s => (s.weight ? `${String(s.weight).replace('.', ',')}×${s.reps}` : s.reps)).join(', ')
-}
-
-/** Страница прошедшей тренировки; month — вернуться на тот же месяц календаря */
 const workoutLink = (workoutId: number, month: string) =>
   `${buildPath(ROUTES.STATS_WORKOUT, { workoutId })}?month=${month}`
 
@@ -42,46 +25,10 @@ const DayDetails = ({ day }: { day: StatsDay }) => (
         <Eyebrow tone='primary'>{MARK_LABEL[DAY_MARK[day.mark]]}</Eyebrow>
       </div>
       {day.workouts.map(w => (
-        <div key={w.id}>
-          <div className='mb-2 flex items-center justify-between gap-3'>
-            <Text
-              size='sm'
-              tone='muted'
-            >
-              {w.complexName}
-              {w.unplanned && ' · внеплановая'}
-            </Text>
-          </div>
-          <List>
-            <ExerciseBlocks items={w.exercises}>
-              {e => (
-              <ListRow
-                key={e.name}
-                title={
-                  <Text
-                    as='span'
-                    size='sm'
-                    tone={e.done ? 'inherit' : 'muted'}
-                  >
-                    {e.name}
-                  </Text>
-                }
-                trail={
-                  <Poster
-                    as='span'
-                    size='xs'
-                    tone='soft'
-                    className='whitespace-nowrap'
-                  >
-                    {setsText(e.sets, e.measure)}
-                  </Poster>
-                }
-                className='py-2'
-              />
-              )}
-            </ExerciseBlocks>
-          </List>
-        </div>
+        <DayWorkout
+          key={w.id}
+          workout={w}
+        />
       ))}
     </div>
 )

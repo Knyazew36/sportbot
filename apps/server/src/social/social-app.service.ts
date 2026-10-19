@@ -127,7 +127,7 @@ export class SocialAppService {
       url,
       telegram: links.telegram ?? null,
       max: links.max ?? null,
-      text: `${profile.displayName} зовёт тренироваться вместе в Спортботе`,
+      text: 'Зову тебя тренироваться со мной вместе в Спортботе.\nНажимай на ссылку ниже',
     };
   }
 
