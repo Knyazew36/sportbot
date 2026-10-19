@@ -3,6 +3,7 @@ import { ArrowRightIcon, CheckIcon } from 'lucide-react'
 import { useState } from 'react'
 
 import {
+  ASK_MODE_FIELDS,
   type OnboardingState,
   useFinishOnboarding,
   useOnboarding,
@@ -153,7 +154,9 @@ const Wizard = ({ state }: { state: OnboardingState }) => {
         <StepTimes
           formId={FORM_ID}
           defaultValues={{ morningTime: state.morningTime, eveningTime: state.eveningTime }}
-          onSubmit={values => saveTimes.mutateAsync(values).then(() => setStep(3))}
+          onSubmit={({ askMode, ...times }) =>
+            saveTimes.mutateAsync({ ...times, ...ASK_MODE_FIELDS[askMode] }).then(() => setStep(3))
+          }
         />
       )}
       {/* После конца настройки гард сам уведёт на «Сегодня» */}

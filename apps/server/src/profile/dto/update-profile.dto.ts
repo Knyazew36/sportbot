@@ -62,6 +62,13 @@ export class UpdateProfileDto {
   @IsBoolean()
   remindersEnabled?: boolean;
 
+  @ApiPropertyOptional({
+    description: 'false — бот не пишет утренний и вечерний вопросы',
+  })
+  @IsOptional()
+  @IsBoolean()
+  questionsEnabled?: boolean;
+
   @ApiPropertyOptional({ enum: ['OFF', 'WEEKLY', 'BIWEEKLY', 'MONTHLY'] })
   @IsOptional()
   @IsIn(['OFF', 'WEEKLY', 'BIWEEKLY', 'MONTHLY'])

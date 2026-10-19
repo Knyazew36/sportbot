@@ -54,6 +54,7 @@ export class ProfileAppService {
       morningTime: profile.morningTime,
       eveningTime: profile.eveningTime,
       remindersEnabled: profile.remindersEnabled,
+      questionsEnabled: profile.questionsEnabled,
       weightAskFrequency: profile.weightAskFrequency,
       showRestTimer: profile.showRestTimer,
       restSeconds: profile.restSeconds,

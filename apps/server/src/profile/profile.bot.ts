@@ -46,8 +46,26 @@ const daysTitle = (days: number[]): string =>
         .join(', ')
     : 'не выбраны';
 
+const questionsTitle = (profile: SportProfile): string =>
+  profile.questionsEnabled
+    ? `утром в ${profile.morningTime}, вечером в ${profile.eveningTime}`
+    : 'выключены';
+
 const remindersTitle = (profile: SportProfile): string =>
-  profile.remindersEnabled ? 'включены' : 'выключены';
+  profile.questionsEnabled && profile.remindersEnabled
+    ? 'включены'
+    : 'выключены';
+
+/** Режим вопросов в одном аргументе кнопки: `1` — с напоминаниями, `0` — без, `off` — не писать. */
+const ASK_MODE: Record<
+  string,
+  { questionsEnabled: boolean; remindersEnabled?: boolean }
+> = {
+  '1': { questionsEnabled: true, remindersEnabled: true },
+  '0': { questionsEnabled: true, remindersEnabled: false },
+  // Напоминания не трогаем: включит вопросы обратно — вернётся прежний выбор
+  off: { questionsEnabled: false },
+};
 
 /**
  * Первый запуск (префикс `ob`) и настройки (префикс `st`). Экраны общие: отличаются только
@@ -136,11 +154,9 @@ export class ProfileBot implements BotFeature {
           ),
         );
       case 'rm': {
-        if (args[0] !== '1' && args[0] !== '0')
-          return ctx.toast('Кнопка устарела');
-        ctx.profile = await this.profiles.update(userId, {
-          remindersEnabled: args[0] === '1',
-        });
+        const mode = ASK_MODE[args[0] ?? ''];
+        if (!mode) return ctx.toast('Кнопка устарела');
+        ctx.profile = await this.profiles.update(userId, mode);
         return onboarding
           ? this.advance(ctx, 2)
           : ctx.edit(this.timeScreen(ctx.profile, prefix));
@@ -329,10 +345,14 @@ export class ProfileBot implements BotFeature {
           '',
           `🌍 Часовой пояс: ${zoneTitle(ctx.profile.timeZone)}`,
           `📅 Тренировочные дни: ${daysTitle(ctx.profile.trainingDays)}`,
-          `⏰ Вопросы: утром в ${ctx.profile.morningTime}, вечером в ${ctx.profile.eveningTime}`,
-          `🔁 Напоминания: ${remindersTitle(ctx.profile)}`,
+          `⏰ Вопросы: ${questionsTitle(ctx.profile)}`,
+          ...(ctx.profile.questionsEnabled
+            ? [`🔁 Напоминания: ${remindersTitle(ctx.profile)}`]
+            : []),
           '',
-          '🔔 В тренировочные дни я сам спрошу про тренировку.',
+          ctx.profile.questionsEnabled
+            ? '🔔 В тренировочные дни я сам спрошу про тренировку.'
+            : '🙅 Сам писать не буду — тренировки отмечай в приложении, иначе тренировочный день станет пропуском. Включить вопросы можно в настройках.',
           '🚀 Начать прямо сейчас — /today. Всё остальное — в меню.',
           ...(canLink
             ? [
@@ -455,6 +475,20 @@ export class ProfileBot implements BotFeature {
 
   private timeScreen(profile: SportProfile, prefix: string): MessengerMessage {
     const onboarding = prefix === 'ob';
+    // Выключить вопросы можно только в настройках: при первом запуске это ответ на экране напоминаний
+    if (!onboarding && !profile.questionsEnabled)
+      return msg(
+        [
+          '⏰ Вопросы',
+          '',
+          '🙅 Сейчас выключены: утром и вечером я сам не пишу.',
+          'Тренировки отмечай в приложении: тренировочный день без отметки засчитаю пропуском.',
+        ].join('\n'),
+        [
+          [btn('🔔 Снова спрашивать', 'st:rm:1')],
+          [btn('⬅️ Настройки', 'st:menu')],
+        ],
+      );
     return msg(
       [
         `${this.stepTitle(2, onboarding)}⏰ Время опросов`,
@@ -487,7 +521,12 @@ export class ProfileBot implements BotFeature {
                 'st:rm:0',
               ),
             ],
-        ...(onboarding ? [] : [[btn('⬅️ Настройки', 'st:menu')]]),
+        ...(onboarding
+          ? []
+          : [
+              [btn('🙅 Не писать вопросы', 'st:rm:off')],
+              [btn('⬅️ Настройки', 'st:menu')],
+            ]),
       ],
     );
   }
@@ -506,6 +545,7 @@ export class ProfileBot implements BotFeature {
       [
         [btn('🔔 Да, напоминай', 'ob:rm:1')],
         [btn('🔕 Нет, спроси один раз', 'ob:rm:0')],
+        [btn('🙅 Вообще не пиши — отмечу сам', 'ob:rm:off')],
         [btn('⬅️ Назад', 'ob:show')],
       ],
     );
@@ -549,8 +589,10 @@ export class ProfileBot implements BotFeature {
         `Имя: ${profile.displayName}`,
         `Часовой пояс: ${zoneTitle(profile.timeZone)}`,
         `Тренировочные дни: ${daysTitle(profile.trainingDays)}`,
-        `Вопросы: утром в ${profile.morningTime}, вечером в ${profile.eveningTime}`,
-        `Напоминания: ${remindersTitle(profile)}`,
+        `Вопросы: ${questionsTitle(profile)}`,
+        ...(profile.questionsEnabled
+          ? [`Напоминания: ${remindersTitle(profile)}`]
+          : []),
         `Вопрос о весе тела: ${WEIGHT_FREQUENCY_TITLE[profile.weightAskFrequency]}`,
       ].join('\n'),
       rows,

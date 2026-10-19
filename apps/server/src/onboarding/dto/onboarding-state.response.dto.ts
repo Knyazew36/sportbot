@@ -30,6 +30,11 @@ export class OnboardingStateResponseDto {
   })
   remindersEnabled: boolean;
 
+  @ApiProperty({
+    description: 'false — бот не пишет утренний и вечерний вопросы',
+  })
+  questionsEnabled: boolean;
+
   @ApiProperty({ type: [OnboardingTemplateResponseDto] })
   templates: OnboardingTemplateResponseDto[];
 }

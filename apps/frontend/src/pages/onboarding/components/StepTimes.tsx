@@ -12,15 +12,22 @@ import { Label } from '@/shared/ui/shadcn/label'
 
 type StepTimesProps = {
   formId: string
-  /** Напоминания не предзаполняем: на них отвечают явно */
-  defaultValues: Omit<OnboardingTimesValues, 'remindersEnabled'>
+  /** Режим вопросов не предзаполняем: на него отвечают явно */
+  defaultValues: Omit<OnboardingTimesValues, 'askMode'>
   onSubmit: (values: OnboardingTimesValues) => Promise<unknown>
 }
 
-const REMINDERS = [
-  { value: 'yes', label: 'Напоминать' },
-  { value: 'no', label: 'Не напоминать' },
+const ASK_MODES = [
+  { value: 'remind', label: 'Напоминать' },
+  { value: 'once', label: 'Один раз' },
+  { value: 'off', label: 'Не писать' },
 ] as const
+
+const ASK_MODE_HINT: Record<OnboardingTimesValues['askMode'], string> = {
+  remind: 'Не ответишь — утренний вопрос повторю через 2 часа, вечерний на следующее утро.',
+  once: 'Каждый вопрос приходит один раз, без повторов.',
+  off: 'Бот сам не пишет. Тренировки отмечаешь в приложении, день без отметки — пропуск.',
+}
 
 // Шаг 2: когда бот утром спросит про тренировку и вечером — как прошло, и повторять ли без ответа
 export const StepTimes = ({ formId, defaultValues, onSubmit }: StepTimesProps) => {
@@ -59,27 +66,29 @@ export const StepTimes = ({ formId, defaultValues, onSubmit }: StepTimesProps) =
           Время московское. Часовой пояс меняется в профиле.
         </Text>
         <div className='col-span-2 mt-3 flex flex-col gap-2'>
-          <Label>Напоминать, если не ответишь?</Label>
-          <Text
-            size='xs'
-            tone='muted'
-          >
-            Утренний вопрос повторю через 2 часа, вечерний — на следующее утро. Поменять можно в профиле.
-          </Text>
+          <Label>Как спрашивать?</Label>
           <Controller
             control={control}
-            name='remindersEnabled'
+            name='askMode'
             render={({ field }) => (
-              <Segmented<'yes' | 'no' | ''>
-                options={REMINDERS}
-                value={field.value === undefined ? '' : field.value ? 'yes' : 'no'}
-                onValueChange={v => field.onChange(v === 'yes')}
-                size='default'
-                stretch
-              />
+              <>
+                <Segmented<OnboardingTimesValues['askMode'] | ''>
+                  options={ASK_MODES}
+                  value={field.value ?? ''}
+                  onValueChange={field.onChange}
+                  size='default'
+                  stretch
+                />
+                <Text
+                  size='xs'
+                  tone='muted'
+                >
+                  {field.value ? ASK_MODE_HINT[field.value] : 'Поменять можно в профиле.'}
+                </Text>
+              </>
             )}
           />
-          <ErrorText errors={errors.remindersEnabled} />
+          <ErrorText errors={errors.askMode} />
         </div>
       </form>
     </Rise>

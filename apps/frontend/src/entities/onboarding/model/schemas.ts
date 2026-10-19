@@ -18,10 +18,20 @@ export type OnboardingDaysValues = z.infer<typeof onboardingDaysSchema>
 export const onboardingTimesSchema = z.object({
   morningTime: z.string().trim().regex(TIME, 'Время в формате ЧЧ:ММ'),
   eveningTime: z.string().trim().regex(TIME, 'Время в формате ЧЧ:ММ'),
-  // Без значения по умолчанию: напоминания нравятся не всем, выбор делает сам пользователь
-  remindersEnabled: z.boolean({ message: 'Выбери, напоминать или нет' }),
+  // Без значения по умолчанию: вопросы и напоминания нравятся не всем, выбор делает сам пользователь
+  askMode: z.enum(['remind', 'once', 'off'], { message: 'Выбери, как спрашивать' }),
 })
 export type OnboardingTimesValues = z.infer<typeof onboardingTimesSchema>
+
+// Один выбор на экране — два флага в API. При «не писать» напоминания не трогаем
+export const ASK_MODE_FIELDS: Record<
+  OnboardingTimesValues['askMode'],
+  { questionsEnabled: boolean; remindersEnabled?: boolean }
+> = {
+  remind: { questionsEnabled: true, remindersEnabled: true },
+  once: { questionsEnabled: true, remindersEnabled: false },
+  off: { questionsEnabled: false },
+}
 
 // Шаг 3: шаблон по id или «с нуля»
 export const onboardingProgramSchema = z.object({

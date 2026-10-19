@@ -19,4 +19,11 @@ export class OnboardingTimesDto {
   @IsOptional()
   @IsBoolean()
   remindersEnabled?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'false — бот не пишет утренний и вечерний вопросы',
+  })
+  @IsOptional()
+  @IsBoolean()
+  questionsEnabled?: boolean;
 }

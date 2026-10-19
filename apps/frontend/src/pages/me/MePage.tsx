@@ -37,7 +37,7 @@ const useSectionMeta = (profile: Profile): Partial<Record<MeSectionSlug, string>
   return {
     training: pause
       ? `на паузе ${pause.endDate ? `до ${formatDate(pause.endDate, 'd MMMM')}` : 'до отмены'}`
-      : `${days || 'дни не выбраны'} · ${profile.morningTime} / ${profile.eveningTime}`,
+      : `${days || 'дни не выбраны'} · ${profile.questionsEnabled ? `${profile.morningTime} / ${profile.eveningTime}` : 'без вопросов'}`,
     body:
       [
         profile.lastBodyWeight != null && `${profile.lastBodyWeight} кг`,

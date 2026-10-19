@@ -135,14 +135,16 @@ export class PlanCronService {
       actions++;
     }
 
-    // Просроченные дни: без ответа до конца следующего дня — пропуск
+    // Пропуск — тренировочный день без тренировки, вопросы тут ни при чём. Сутки после дня
+    // оставлены, чтобы успеть отметить вчерашнюю тренировку
     const overdue = await this.prisma.planDay.findMany({
       where: { userId, status: 'PENDING', date: { lt: yesterday } },
       select: { id: true },
     });
     for (const day of overdue) {
       const result = await this.planDays.markMissed(userId, day.id);
-      if (result.suggestPause)
+      // Предложение паузы — тоже вопрос: кто их выключил, тому бот сам не пишет
+      if (result.suggestPause && profile.questionsEnabled)
         await this.sender.send(user, this.pauses.offerMessage());
       this.logger.log(
         `Просроченный день → MISSED: planDayId=${day.id}, userId=${userId}`,
@@ -165,18 +167,26 @@ export class PlanCronService {
       return actions;
     }
 
-    actions += await this.morningStep(
-      profile,
-      today,
-      minutes,
-      morning,
-      evening,
-      now,
-    );
-    actions += await this.eveningStep(profile, today, minutes, evening);
+    // День плана не зависит от вопросов: по нему считается пропуск, а вопросы — только стимул
+    actions += await this.trainingDayStep(profile, today);
+    if (profile.questionsEnabled) {
+      actions += await this.morningStep(
+        profile,
+        today,
+        minutes,
+        morning,
+        evening,
+        now,
+      );
+      actions += await this.eveningStep(profile, today, minutes, evening);
+    }
 
     // Напоминание наутро: вчера вечером вопрос задан, ответа нет
-    if (profile.remindersEnabled && minutes >= morning) {
+    if (
+      profile.questionsEnabled &&
+      profile.remindersEnabled &&
+      minutes >= morning
+    ) {
       const { count } = await this.prisma.planDay.updateMany({
         where: {
           userId,
@@ -316,6 +326,26 @@ export class PlanCronService {
       return 1;
     }
     return 0;
+  }
+
+  /**
+   * Тренировочный день заводится с начала суток, молча. Тренировка (из приложения или ответом
+   * «да» на вечерний вопрос) закроет его, без неё он станет пропуском.
+   */
+  private async trainingDayStep(
+    profile: ProfileWithUser,
+    today: Date,
+  ): Promise<number> {
+    const { userId } = profile;
+    if (!profile.trainingDays.includes(weekdayOf(today))) return 0;
+    // createMany со skipDuplicates не трогает уже заведённый день: тренировка могла его закрыть
+    const { count } = await this.prisma.planDay.createMany({
+      data: { userId, date: today },
+      skipDuplicates: true,
+    });
+    if (!count) return 0;
+    this.logger.log(`Тренировочный день заведён: userId=${userId}`);
+    return 1;
   }
 
   private async eveningStep(

@@ -40,6 +40,11 @@ export class ProfileResponseDto {
   })
   remindersEnabled: boolean;
 
+  @ApiProperty({
+    description: 'false — бот не пишет утренний и вечерний вопросы',
+  })
+  questionsEnabled: boolean;
+
   @ApiProperty({ enum: ['OFF', 'WEEKLY', 'BIWEEKLY', 'MONTHLY'] })
   weightAskFrequency: 'OFF' | 'WEEKLY' | 'BIWEEKLY' | 'MONTHLY';
 

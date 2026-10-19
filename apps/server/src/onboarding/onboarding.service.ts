@@ -41,6 +41,7 @@ export class OnboardingService {
       morningTime: profile.morningTime,
       eveningTime: profile.eveningTime,
       remindersEnabled: profile.remindersEnabled,
+      questionsEnabled: profile.questionsEnabled,
       templates: templates.map((t) => ({
         id: t.id,
         name: t.name,
@@ -94,11 +95,12 @@ export class OnboardingService {
         morningTime: dto.morningTime,
         eveningTime: dto.eveningTime,
         remindersEnabled: dto.remindersEnabled,
+        questionsEnabled: dto.questionsEnabled,
         onboardingStep: this.nextStep(profile, 2),
       },
     });
     this.logger.log(
-      `Шаг 2, время: userId=${userId}, ${dto.morningTime} / ${dto.eveningTime}, напоминания=${dto.remindersEnabled ?? 'без изменений'}`,
+      `Шаг 2, время: userId=${userId}, ${dto.morningTime} / ${dto.eveningTime}, вопросы=${dto.questionsEnabled ?? 'без изменений'}, напоминания=${dto.remindersEnabled ?? 'без изменений'}`,
     );
     return this.state(userId);
   }

@@ -418,6 +418,8 @@ model SportProfile {
   /// Повтор вопроса без ответа: утренний — через 2 часа, вечерний — наутро. Не всем нравится,
   /// поэтому спрашиваем при первом запуске и даём выключить в настройках.
   remindersEnabled Boolean @default(true)
+  /// false — бот не пишет утренний и вечерний вопросы, тренировки отмечаются в приложении сами.
+  questionsEnabled Boolean @default(true)
 
   weightAskFrequency WeightAskFrequency @default(OFF)
   weightAskedOn      DateTime?          @db.Date /// когда бот последний раз спрашивал вес

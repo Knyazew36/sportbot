@@ -180,7 +180,34 @@ const TimezoneForm = ({ profile }: { profile: Profile }) => {
   )
 }
 
-// Переключатель сохраняется сразу, как таймеры в «Тренировке» — без кнопки формы
+// Переключатели сохраняются сразу, как таймеры в «Тренировке» — без кнопки формы
+const QuestionsRows = ({ profile }: { profile: Profile }) => {
+  const update = useUpdateProfile()
+  return (
+    <div>
+      <SettingRow
+        title='Вопросы бота'
+        hint={
+          profile.questionsEnabled
+            ? 'Утром спросит, будешь ли тренироваться, вечером — как прошло'
+            : 'Выключены: бот сам не пишет. Тренировочный день без отметки здесь — пропуск'
+        }
+        htmlFor='questions'
+        className='border-t-[1.5px]'
+      >
+        <Switch
+          id='questions'
+          checked={profile.questionsEnabled}
+          disabled={update.isPending}
+          onCheckedChange={questionsEnabled => update.mutate({ questionsEnabled })}
+        />
+      </SettingRow>
+      {/* Повторять нечего, пока сами вопросы выключены */}
+      {profile.questionsEnabled && <RemindersRow profile={profile} />}
+    </div>
+  )
+}
+
 const RemindersRow = ({ profile }: { profile: Profile }) => {
   const update = useUpdateProfile()
   return (
@@ -192,7 +219,6 @@ const RemindersRow = ({ profile }: { profile: Profile }) => {
           : 'Каждый вопрос приходит один раз'
       }
       htmlFor='reminders'
-      className='border-t-[1.5px]'
     >
       <Switch
         id='reminders'
@@ -208,7 +234,7 @@ const RemindersRow = ({ profile }: { profile: Profile }) => {
 export const ScheduleSection = ({ profile }: { profile: Profile }) => (
   <ScreenSection aside={`${pluralize(profile.trainingDays.length, DAY_FORMS)} в неделю`}>
     <ScheduleForm profile={profile} />
-    <RemindersRow profile={profile} />
+    <QuestionsRows profile={profile} />
     <TimezoneForm profile={profile} />
   </ScreenSection>
 )
