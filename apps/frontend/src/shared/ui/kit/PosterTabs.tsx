@@ -11,7 +11,7 @@ type PosterTabsProps<T extends string> = {
 }
 
 // Разделы экрана как оглавление из глав: одна рамка с жёсткой тенью, равные ячейки «01 / ПРОГРЕСС».
-// Выбранная глава залита «чернилами» — не цветом бренда, которым отмечен выбранный период ниже; заливка переезжает пружиной. Нарочно не похожи на Segmented:
+// Выбранная глава залита «чернилами», заливка переезжает пружиной. Нарочно не похожи на Segmented и не цветом бренда:
 // под ними стоит переключатель периода, и два ряда одинаковых кнопок читались бы как один выбор
 export const PosterTabs = <T extends string>({ tabs, value, onValueChange, className }: PosterTabsProps<T>) => {
   const still = useReducedMotion()
@@ -51,12 +51,7 @@ export const PosterTabs = <T extends string>({ tabs, value, onValueChange, class
                 transition={still ? { duration: 0 } : { type: 'spring', stiffness: 520, damping: 38 }}
               />
             )}
-            <span
-              className={cn(
-                'font-grotesk relative text-[10.5px] leading-none tracking-[0.14em] tabular-nums transition-colors',
-                'text-primary',
-              )}
-            >
+            <span className='font-grotesk text-primary relative text-[10.5px] leading-none tracking-[0.14em] tabular-nums'>
               {String(i + 1).padStart(2, '0')}
             </span>
             <span
