@@ -17,10 +17,12 @@ import { WEEKDAYS } from '@/shared/lib/weekdays'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Segmented } from '@/shared/ui/kit/Segmented'
+import { SettingRow } from '@/shared/ui/kit/SettingRow'
 import { SheetSelectField } from '@/shared/ui/kit/SheetSelectField'
 import { TextField } from '@/shared/ui/kit/TextField'
 import { Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
+import { Switch } from '@/shared/ui/shadcn/animate-ui/components/radix/switch'
 import { Label } from '@/shared/ui/shadcn/label'
 import { ToggleGroup, ToggleGroupItem } from '@/shared/ui/shadcn/toggle-group'
 
@@ -178,10 +180,35 @@ const TimezoneForm = ({ profile }: { profile: Profile }) => {
   )
 }
 
-// Расписание (frontend-tz, 13.1): дни, время вопросов, часовой пояс как в боте
+// Переключатель сохраняется сразу, как таймеры в «Тренировке» — без кнопки формы
+const RemindersRow = ({ profile }: { profile: Profile }) => {
+  const update = useUpdateProfile()
+  return (
+    <SettingRow
+      title='Напоминать'
+      hint={
+        profile.remindersEnabled
+          ? 'Нет ответа — утренний вопрос повторю через 2 часа, вечерний наутро'
+          : 'Каждый вопрос приходит один раз'
+      }
+      htmlFor='reminders'
+      className='border-t-[1.5px]'
+    >
+      <Switch
+        id='reminders'
+        checked={profile.remindersEnabled}
+        disabled={update.isPending}
+        onCheckedChange={remindersEnabled => update.mutate({ remindersEnabled })}
+      />
+    </SettingRow>
+  )
+}
+
+// Расписание (frontend-tz, 13.1): дни, время вопросов, напоминания, часовой пояс как в боте
 export const ScheduleSection = ({ profile }: { profile: Profile }) => (
   <ScreenSection aside={`${pluralize(profile.trainingDays.length, DAY_FORMS)} в неделю`}>
     <ScheduleForm profile={profile} />
+    <RemindersRow profile={profile} />
     <TimezoneForm profile={profile} />
   </ScreenSection>
 )

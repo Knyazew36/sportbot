@@ -176,7 +176,7 @@ export class PlanCronService {
     actions += await this.eveningStep(profile, today, minutes, evening);
 
     // Напоминание наутро: вчера вечером вопрос задан, ответа нет
-    if (minutes >= morning) {
+    if (profile.remindersEnabled && minutes >= morning) {
       const { count } = await this.prisma.planDay.updateMany({
         where: {
           userId,
@@ -290,6 +290,7 @@ export class PlanCronService {
 
     // Одно повторное напоминание через 2 часа, в тот же день
     if (
+      profile.remindersEnabled &&
       !day.morningAnswer &&
       !day.morningRemindedAt &&
       minutes < evening &&

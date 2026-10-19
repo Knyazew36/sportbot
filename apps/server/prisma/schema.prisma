@@ -415,6 +415,9 @@ model SportProfile {
   trainingDays Int[] /// 0..6, 0 — воскресенье, как Date.getDay()
   morningTime  String @default("08:00") /// "HH:mm" в поясе пользователя
   eveningTime  String @default("20:00") /// "HH:mm" в поясе пользователя
+  /// Повтор вопроса без ответа: утренний — через 2 часа, вечерний — наутро. Не всем нравится,
+  /// поэтому спрашиваем при первом запуске и даём выключить в настройках.
+  remindersEnabled Boolean @default(true)
 
   weightAskFrequency WeightAskFrequency @default(OFF)
   weightAskedOn      DateTime?          @db.Date /// когда бот последний раз спрашивал вес

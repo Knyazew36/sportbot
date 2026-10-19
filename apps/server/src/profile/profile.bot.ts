@@ -46,6 +46,9 @@ const daysTitle = (days: number[]): string =>
         .join(', ')
     : 'не выбраны';
 
+const remindersTitle = (profile: SportProfile): string =>
+  profile.remindersEnabled ? 'включены' : 'выключены';
+
 /**
  * Первый запуск (префикс `ob`) и настройки (префикс `st`). Экраны общие: отличаются только
  * префиксом кнопок и тем, куда ведёт выход — на следующий шаг или обратно в настройки.
@@ -65,6 +68,11 @@ export class ProfileBot implements BotFeature {
       return;
     }
     // Сюда роутер приводит любого, кто не закончил первый запуск
+    // Время на шаге 2 часто пишут сразу, мимо кнопок «Утро»/«Вечер» — не отвечаем тем же экраном
+    if (ctx.kind === 'text' && ctx.profile.onboardingStep === 2) {
+      await ctx.reply(this.timeGuessScreen(ctx.profile, ctx.text ?? ''));
+      return;
+    }
     // Приветствие сменяется шагами по кнопке «Далее» (ob:show)
     if (ctx.profile.onboardingStep === 1) {
       await ctx.reply(this.welcomeScreen(ctx.profile));
@@ -127,11 +135,43 @@ export class ProfileBot implements BotFeature {
             [[btn('Отмена', onboarding ? 'ob:show' : 'st:time')]],
           ),
         );
+      case 'rm': {
+        if (args[0] !== '1' && args[0] !== '0')
+          return ctx.toast('Кнопка устарела');
+        ctx.profile = await this.profiles.update(userId, {
+          remindersEnabled: args[0] === '1',
+        });
+        return onboarding
+          ? this.advance(ctx, 2)
+          : ctx.edit(this.timeScreen(ctx.profile, prefix));
+      }
+      // Время из свободного ввода: «08:00» в кнопке лежит как «0800» — двоеточие делит payload
+      case 'pt': {
+        const time = parseUserTime(args[1] ?? '');
+        if (!time || (args[0] !== 'mt' && args[0] !== 'et'))
+          return ctx.toast('Кнопка устарела');
+        ctx.profile = await this.profiles.update(
+          userId,
+          args[0] === 'mt' ? { morningTime: time } : { eveningTime: time },
+        );
+        return ctx.edit(
+          onboarding
+            ? await this.stepScreen(ctx.profile)
+            : this.timeScreen(ctx.profile, prefix),
+        );
+      }
 
       // ── первый запуск ──
       case 'show':
         return ctx.edit(await this.stepScreen(ctx.profile));
       case 'next':
+        // Шаг времени не закрывается без ответа про напоминания — «Далее» ведёт к вопросу
+        if (
+          args[0] === '2' &&
+          !ctx.profile.onboardedAt &&
+          ctx.profile.onboardingStep === 2
+        )
+          return ctx.edit(this.remindersAskScreen());
         return this.advance(ctx, Number(args[0]));
       // Чипов тегов в боте больше нет: нажатие под старым сообщением просто перерисует шаг
       case 'tag':
@@ -217,8 +257,11 @@ export class ProfileBot implements BotFeature {
     if (field === 'mt' || field === 'et') {
       const time = parseUserTime(text);
       if (!time) {
+        // Ожидание ввода остаётся, поэтому выход нужен прямо здесь
         await ctx.reply(
-          msg('Не понял время. Напиши, например «8:00» или «20:30».'),
+          msg('Не понял время. Напиши, например «8:00» или «20:30».', [
+            [btn('Отмена', prefix === 'ob' ? 'ob:show' : 'st:time')],
+          ]),
         );
         return;
       }
@@ -287,6 +330,7 @@ export class ProfileBot implements BotFeature {
           `🌍 Часовой пояс: ${zoneTitle(ctx.profile.timeZone)}`,
           `📅 Тренировочные дни: ${daysTitle(ctx.profile.trainingDays)}`,
           `⏰ Вопросы: утром в ${ctx.profile.morningTime}, вечером в ${ctx.profile.eveningTime}`,
+          `🔁 Напоминания: ${remindersTitle(ctx.profile)}`,
           '',
           '🔔 В тренировочные дни я сам спрошу про тренировку.',
           '🚀 Начать прямо сейчас — /today. Всё остальное — в меню.',
@@ -419,25 +463,79 @@ export class ProfileBot implements BotFeature {
         `🌅 Утром в ${profile.morningTime} — спрошу «Будешь сегодня тренироваться?» и пришлю комплекс на день.`,
         `🌙 Вечером в ${profile.eveningTime} — спрошу «Потренировался?», чтобы засчитать тренировку.`,
         '',
-        '🔁 Не ответишь утром — напомню один раз через 2 часа.',
         '😴 В остальные дни не беспокою.',
-        hint('Время можно поменять кнопками ниже.'),
+        // При первом запуске про напоминания спрашивает отдельный экран после «Далее»
+        ...(onboarding
+          ? [hint('Время можно поменять кнопками ниже.')]
+          : [
+              '',
+              `🔁 Напоминания: ${remindersTitle(profile)}. Утренний вопрос без ответа повторю через 2 часа, вечерний — наутро.`,
+              hint('Время и напоминания меняются кнопками ниже.'),
+            ]),
       ].join('\n'),
       [
         [btn('🌅 Утро', `${prefix}:mt`), btn('🌙 Вечер', `${prefix}:et`)],
-        [
-          onboarding
-            ? btn('Далее ➡️', 'ob:next:2')
-            : btn('⬅️ Настройки', 'st:menu'),
-        ],
+        onboarding
+          ? [btn('Далее ➡️', 'ob:next:2')]
+          : [
+              btn(
+                `${profile.remindersEnabled ? '✅ ' : ''}🔔 Напоминать`,
+                'st:rm:1',
+              ),
+              btn(
+                `${profile.remindersEnabled ? '' : '✅ '}🔕 Не напоминать`,
+                'st:rm:0',
+              ),
+            ],
+        ...(onboarding ? [] : [[btn('⬅️ Настройки', 'st:menu')]]),
       ],
     );
+  }
+
+  /** Первый запуск, конец шага 2: напоминания нравятся не всем, поэтому выбор — явный. */
+  private remindersAskScreen(): MessengerMessage {
+    return msg(
+      [
+        `${this.stepTitle(2)}🔁 Напоминания`,
+        '',
+        'Если не ответишь на вопрос, напомнить?',
+        '🌅 Утренний повторю через 2 часа.',
+        '🌙 Вечерний — на следующее утро.',
+        hint('Поменять можно в настройках.'),
+      ].join('\n'),
+      [
+        [btn('🔔 Да, напоминай', 'ob:rm:1')],
+        [btn('🔕 Нет, спроси один раз', 'ob:rm:0')],
+        [btn('⬅️ Назад', 'ob:show')],
+      ],
+    );
+  }
+
+  /** Ответ на текст на шаге 2 без нажатой кнопки: время узнали — спрашиваем, утро это или вечер. */
+  private timeGuessScreen(profile: SportProfile, text: string): MessengerMessage {
+    const time = parseUserTime(text);
+    if (!time)
+      return msg(
+        `Чтобы поменять время, сначала нажми «🌅 Утро» или «🌙 Вечер», потом напиши время.\n${hint('Устраивает как есть — жми «Далее».')}`,
+        [
+          [btn('🌅 Утро', 'ob:mt'), btn('🌙 Вечер', 'ob:et')],
+          [btn('Далее ➡️', 'ob:next:2')],
+        ],
+      );
+    const packed = time.replace(':', '');
+    return msg(`Поставить ${time} на утренний или вечерний вопрос?`, [
+      [
+        btn(`🌅 Утро в ${time}`, `ob:pt:mt:${packed}`),
+        btn(`🌙 Вечер в ${time}`, `ob:pt:et:${packed}`),
+      ],
+      [btn('Отмена', 'ob:show')],
+    ]);
   }
 
   private settingsScreen(profile: SportProfile): MessengerMessage {
     const rows: MessengerButton[][] = [
       [btn('🌍 Часовой пояс', 'st:tz'), btn('📅 Дни', 'st:days')],
-      [btn('⏰ Время вопросов', 'st:time'), btn('⚖️ Вопрос о весе', 'st:wf')],
+      [btn('⏰ Вопросы', 'st:time'), btn('⚖️ Вопрос о весе', 'st:wf')],
       [btn('🙂 Имя', 'st:name'), btn('⏸ Пауза', 'pa:menu')],
       [btn('🦴 Ограничения', 'lm:menu'), btn('🗓 История отметок', 'pd:hist')],
       [btn('👥 Друзья', 'fr:menu'), btn('🔗 Мессенджеры', 'ln:menu')],
@@ -452,6 +550,7 @@ export class ProfileBot implements BotFeature {
         `Часовой пояс: ${zoneTitle(profile.timeZone)}`,
         `Тренировочные дни: ${daysTitle(profile.trainingDays)}`,
         `Вопросы: утром в ${profile.morningTime}, вечером в ${profile.eveningTime}`,
+        `Напоминания: ${remindersTitle(profile)}`,
         `Вопрос о весе тела: ${WEIGHT_FREQUENCY_TITLE[profile.weightAskFrequency]}`,
       ].join('\n'),
       rows,

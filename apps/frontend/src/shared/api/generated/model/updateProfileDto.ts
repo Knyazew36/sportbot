@@ -16,6 +16,8 @@ export interface UpdateProfileDto {
   trainingDays?: number[];
   morningTime?: string;
   eveningTime?: string;
+  /** Повторять вопрос без ответа: утренний через 2 часа, вечерний наутро */
+  remindersEnabled?: boolean;
   weightAskFrequency?: UpdateProfileDtoWeightAskFrequency;
   /** Показывать таймер отдыха */
   showRestTimer?: boolean;

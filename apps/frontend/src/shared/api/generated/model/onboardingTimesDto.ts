@@ -10,4 +10,6 @@ export interface OnboardingTimesDto {
   morningTime: string;
   /** Вечерний вопрос, HH:mm */
   eveningTime: string;
+  /** Повторять вопрос без ответа: утренний через 2 часа, вечерний наутро */
+  remindersEnabled?: boolean;
 }

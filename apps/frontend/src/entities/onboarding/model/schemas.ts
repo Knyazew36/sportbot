@@ -18,6 +18,8 @@ export type OnboardingDaysValues = z.infer<typeof onboardingDaysSchema>
 export const onboardingTimesSchema = z.object({
   morningTime: z.string().trim().regex(TIME, 'Время в формате ЧЧ:ММ'),
   eveningTime: z.string().trim().regex(TIME, 'Время в формате ЧЧ:ММ'),
+  // Без значения по умолчанию: напоминания нравятся не всем, выбор делает сам пользователь
+  remindersEnabled: z.boolean({ message: 'Выбери, напоминать или нет' }),
 })
 export type OnboardingTimesValues = z.infer<typeof onboardingTimesSchema>
 

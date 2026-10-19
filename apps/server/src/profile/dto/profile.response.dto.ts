@@ -35,6 +35,11 @@ export class ProfileResponseDto {
   @ApiProperty({ example: '20:00' })
   eveningTime: string;
 
+  @ApiProperty({
+    description: 'Повторять вопрос без ответа: утренний через 2 часа, вечерний наутро',
+  })
+  remindersEnabled: boolean;
+
   @ApiProperty({ enum: ['OFF', 'WEEKLY', 'BIWEEKLY', 'MONTHLY'] })
   weightAskFrequency: 'OFF' | 'WEEKLY' | 'BIWEEKLY' | 'MONTHLY';
 

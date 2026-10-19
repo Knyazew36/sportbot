@@ -25,6 +25,11 @@ export class OnboardingStateResponseDto {
   @ApiProperty({ example: '20:00' })
   eveningTime: string;
 
+  @ApiProperty({
+    description: 'Повторять вопрос без ответа: утренний через 2 часа, вечерний наутро',
+  })
+  remindersEnabled: boolean;
+
   @ApiProperty({ type: [OnboardingTemplateResponseDto] })
   templates: OnboardingTemplateResponseDto[];
 }

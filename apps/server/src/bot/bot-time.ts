@@ -106,12 +106,24 @@ export function parseUserDate(text: string, today: Date): Date | null {
   return date;
 }
 
-/** «ЧЧ:ММ» из ввода «8», «8:30», «08.30», «0830». null — не распознано. */
+/**
+ * «ЧЧ:ММ» из ввода «8», «8:30», «08.30», «0830», «8,30», «8-30», «в 8», «8ч», «8 вечера».
+ * null — не распознано.
+ */
 export function parseUserTime(text: string): string | null {
-  const match = /^\s*(\d{1,2})(?:[:.\s]?(\d{2}))?\s*$/.exec(text);
+  // Запятая и дефис — с телефонной клавиатуры, «в» и точка в конце — из живой речи
+  const match =
+    /^(?:в\s*)?(\d{1,2})(?:\s*[:.,\-\s]?\s*(\d{2}))?\s*(?:ч|час|часа|часов)?\s*(утра|дня|вечера|ночи)?$/.exec(
+      text
+        .trim()
+        .toLowerCase()
+        .replace(/[.!]+$/, '')
+        .trim(),
+    );
   if (!match) return null;
-  const hour = Number(match[1]);
+  let hour = Number(match[1]);
   const minute = match[2] ? Number(match[2]) : 0;
+  if ((match[3] === 'дня' || match[3] === 'вечера') && hour < 12) hour += 12;
   if (hour > 23 || minute > 59) return null;
   return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
 }

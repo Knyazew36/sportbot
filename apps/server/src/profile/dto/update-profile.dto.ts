@@ -55,6 +55,13 @@ export class UpdateProfileDto {
   @Matches(TIME, { message: 'Время в формате ЧЧ:ММ' })
   eveningTime?: string;
 
+  @ApiPropertyOptional({
+    description: 'Повторять вопрос без ответа: утренний через 2 часа, вечерний наутро',
+  })
+  @IsOptional()
+  @IsBoolean()
+  remindersEnabled?: boolean;
+
   @ApiPropertyOptional({ enum: ['OFF', 'WEEKLY', 'BIWEEKLY', 'MONTHLY'] })
   @IsOptional()
   @IsIn(['OFF', 'WEEKLY', 'BIWEEKLY', 'MONTHLY'])

@@ -20,5 +20,7 @@ export interface OnboardingStateResponseDto {
   trainingDays: number[];
   morningTime: string;
   eveningTime: string;
+  /** Повторять вопрос без ответа: утренний через 2 часа, вечерний наутро */
+  remindersEnabled: boolean;
   templates: OnboardingTemplateResponseDto[];
 }

@@ -53,6 +53,7 @@ export class ProfileAppService {
       trainingDays: profile.trainingDays,
       morningTime: profile.morningTime,
       eveningTime: profile.eveningTime,
+      remindersEnabled: profile.remindersEnabled,
       weightAskFrequency: profile.weightAskFrequency,
       showRestTimer: profile.showRestTimer,
       restSeconds: profile.restSeconds,
