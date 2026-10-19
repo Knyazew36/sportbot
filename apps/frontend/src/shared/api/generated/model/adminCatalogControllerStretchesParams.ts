@@ -4,6 +4,7 @@
  * api
  * OpenAPI spec version: 0.0.1
  */
+import type { AdminCatalogControllerStretchesFilterStatus } from './adminCatalogControllerStretchesFilterStatus';
 import type { AdminCatalogControllerStretchesOrder } from './adminCatalogControllerStretchesOrder';
 
 export type AdminCatalogControllerStretchesParams = {
@@ -38,4 +39,12 @@ filter_noImage?: boolean;
  * Только без мышц
  */
 filter_noMuscles?: boolean;
+/**
+ * CATALOG — опубликованные, DRAFT — личные и снятые
+ */
+filter_status?: AdminCatalogControllerStretchesFilterStatus;
+/**
+ * Только созданные пользователями
+ */
+filter_userMade?: boolean;
 };

@@ -4,6 +4,7 @@
  * api
  * OpenAPI spec version: 0.0.1
  */
+import type { AdminCatalogQueryDtoFilterStatus } from './adminCatalogQueryDtoFilterStatus';
 import type { AdminCatalogQueryDtoOrder } from './adminCatalogQueryDtoOrder';
 
 export interface AdminCatalogQueryDto {
@@ -28,4 +29,8 @@ export interface AdminCatalogQueryDto {
   filter_noImage?: boolean;
   /** Только без мышц */
   filter_noMuscles?: boolean;
+  /** CATALOG — опубликованные, DRAFT — личные и снятые */
+  filter_status?: AdminCatalogQueryDtoFilterStatus;
+  /** Только созданные пользователями */
+  filter_userMade?: boolean;
 }

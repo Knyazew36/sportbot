@@ -45,4 +45,11 @@ export class AdminStretchResponseDto {
 
   @ApiProperty({ enum: ['CATALOG', 'DRAFT'] })
   status: 'CATALOG' | 'DRAFT';
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: 'Автор-пользователь; null — запись администратора',
+  })
+  author: string | null;
 }

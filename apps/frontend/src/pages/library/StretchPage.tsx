@@ -20,6 +20,7 @@ import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Badge } from '@/shared/ui/shadcn/badge'
 import { HoldControls } from '@/widgets/catalog/HoldControls'
 import { StretchEditSheet } from '@/widgets/catalog/StretchEditSheet'
+import { PublishEntry } from '@/widgets/catalog/PublishEntry'
 import { VideoLink } from '@/widgets/catalog/VideoLink'
 
 const BACK = `${ROUTES.LIBRARY}?tab=stretches`
@@ -107,6 +108,10 @@ const StretchPage = () => {
                 </Badge>
               )}
               <VideoLink name={st.name} />
+              <PublishEntry
+                kind='stretch'
+                entry={st}
+              />
             </Rise>
 
             <Rise className='px-gutter'>

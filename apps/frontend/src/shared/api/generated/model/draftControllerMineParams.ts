@@ -4,6 +4,7 @@
  * api
  * OpenAPI spec version: 0.0.1
  */
+import type { DraftControllerMineFilterKind } from './draftControllerMineFilterKind';
 import type { DraftControllerMineOrder } from './draftControllerMineOrder';
 
 export type DraftControllerMineParams = {
@@ -30,4 +31,8 @@ order?: DraftControllerMineOrder;
  * Поиск/фильтр (опционально)
  */
 search?: string;
+/**
+ * Вид записей
+ */
+filter_kind: DraftControllerMineFilterKind;
 };

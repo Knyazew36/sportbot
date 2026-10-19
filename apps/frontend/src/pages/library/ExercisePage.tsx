@@ -21,6 +21,7 @@ import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Badge } from '@/shared/ui/shadcn/badge'
 import { AddToComplexSheet } from '@/widgets/catalog/AddToComplexSheet'
 import { ExerciseEditSheet } from '@/widgets/catalog/ExerciseEditSheet'
+import { PublishEntry } from '@/widgets/catalog/PublishEntry'
 import { VideoLink } from '@/widgets/catalog/VideoLink'
 
 import { OverlaySheet } from './components/OverlaySheet'
@@ -103,6 +104,10 @@ const ExercisePage = () => {
                 <VideoLink
                   name={e.name}
                   videoUrl={e.videoUrl}
+                />
+                <PublishEntry
+                  kind='exercise'
+                  entry={e}
                 />
               </Rise>
 

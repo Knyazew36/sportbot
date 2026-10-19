@@ -115,7 +115,7 @@ const ReviewBody = ({ review: r, onRemove }: { review: ProgramReview; onRemove: 
                     {e.name}
                   </button>
                 }
-                meta={e.draft ? `${e.muscles} · черновик автора` : e.muscles}
+                meta={e.draft ? `${e.muscles} · не проверено, заявка — во вкладке заявок` : e.muscles}
                 trail={
                   <Poster
                     as='span'

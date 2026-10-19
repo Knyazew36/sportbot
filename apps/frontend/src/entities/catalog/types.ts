@@ -72,6 +72,26 @@ export type MyEntryDto = {
   createdAt: string
 }
 
+/** Статус своей записи во вкладке «Мои»: публикация и исход последней заявки */
+export type EntryState = 'PRIVATE' | 'PENDING' | 'PUBLISHED' | 'REJECTED' | 'UNPUBLISHED'
+
+export const ENTRY_STATE_LABEL: Record<EntryState, string> = {
+  PRIVATE: 'Личное',
+  PENDING: 'На проверке',
+  PUBLISHED: 'В справочнике',
+  REJECTED: 'Отклонено',
+  UNPUBLISHED: 'Снято с публикации',
+}
+
+export const entryState = (e: { status: 'CATALOG' | 'DRAFT'; outcome: ModerationOutcome | null }): EntryState => {
+  if (e.status === 'CATALOG') return 'PUBLISHED'
+  if (e.outcome === 'PENDING') return 'PENDING'
+  if (e.outcome === 'REJECTED') return 'REJECTED'
+  // Одобренная, но снова личная — администратор убрал её из справочника
+  if (e.outcome === 'APPROVED' || e.outcome === 'APPROVED_EDITED') return 'UNPUBLISHED'
+  return 'PRIVATE'
+}
+
 export const MODERATION_LABEL: Record<ModerationOutcome, string> = {
   PENDING: 'На проверке',
   APPROVED: 'Одобрено',

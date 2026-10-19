@@ -37,7 +37,7 @@ interface Draft {
 
 const HOLD_OPTIONS = [20, 30, 45, 60];
 
-/** Своё упражнение или растяжка: мастер по шагам, подсказка дублей, заявка на модерацию. */
+/** Своё упражнение или растяжка: мастер по шагам, подсказка дублей; на модерацию — только по «В справочник». */
 @Injectable()
 @BotHandler({ prefixes: ['dr'] })
 export class DraftBot implements BotFeature {
@@ -82,6 +82,7 @@ export class DraftBot implements BotFeature {
       );
     }
     if (action === 'mine') return ctx.edit(await this.mineScreen(ctx));
+    if (action === 'pub') return this.publish(ctx, args[0], Number(args[1]));
 
     const draft = await this.load(ctx);
     if (!draft) return ctx.toast('Ввод устарел — начни заново');
@@ -238,7 +239,7 @@ export class DraftBot implements BotFeature {
     draft: Draft,
     videoUrl?: string,
   ): Promise<void> {
-    const request = await this.moderation.submit(ctx.user.id, {
+    const entry = await this.moderation.createDraft(ctx.user.id, {
       kind: draft.prefix === 'ex' ? 'exercise' : 'stretch',
       name: draft.name ?? '',
       primary: draft.primary,
@@ -249,30 +250,42 @@ export class DraftBot implements BotFeature {
       perSide: draft.perSide,
     });
     await this.sessions.clear(ctx);
-    await this.sender.sendToAdmins(this.moderation.requestMessage(request));
-    const id = request.exerciseId ?? request.stretchId;
-    if (draft.swapItemId && id) {
+    if (draft.swapItemId) {
       await ctx.edit(
         swapChoiceMessage(
           draft.swapItemId,
-          id,
-          `«${draft.name}» сохранён как личный черновик и отправлен на проверку.`,
+          entry.id,
+          `«${draft.name}» сохранён как личная запись.`,
         ),
       );
       return;
     }
     await ctx.edit(
       msg(
-        `«${draft.name}» сохранён как личный черновик с пометкой «не проверено» и отправлен на проверку.${draft.prefix === 'ex' ? ' Его уже можно ставить в тренировки.' : ' Он уже участвует в подборе заминки.'}`,
+        `«${draft.name}» сохранён как личная запись — видна только тебе.${draft.prefix === 'ex' ? ' Его уже можно ставить в тренировки.' : ' Он уже участвует в подборе заминки.'} Чтобы добавить в общий справочник, открой карточку и нажми «В справочник».`,
         [
-          [btn('Открыть', `${draft.prefix}:v:${id}`)],
+          [btn('Открыть', `${draft.prefix}:v:${entry.id}`)],
           [btn('⬅️ Справочник', 'ex:menu')],
         ],
       ),
     );
   }
 
-  // ── Экраны ──────────────────────────────────────────────────────────────
+  /** «В справочник» с карточки своей записи: заявка и сообщение администраторам. */
+  private async publish(
+    ctx: BotContext,
+    prefix: string,
+    entryId: number,
+  ): Promise<void> {
+    const kind: CatalogKind = prefix === 'sx' ? 'stretch' : 'exercise';
+    const request = await this.moderation.requestPublish(
+      ctx.user.id,
+      kind,
+      entryId,
+    );
+    await this.sender.sendToAdmins(this.moderation.requestMessage(request));
+    await ctx.toast('Отправлено на проверку — бот напишет исход');
+  }
 
   private async musclesScreen(draft: Draft): Promise<MessengerMessage> {
     const muscles = await this.catalog.muscles();

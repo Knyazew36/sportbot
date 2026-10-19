@@ -12,7 +12,12 @@ import {
   catalogControllerStretch,
   catalogControllerStretches,
 } from '@/shared/api/generated/catalog/catalog'
-import { draftControllerCreate, draftControllerLimit, draftControllerMine } from '@/shared/api/generated/drafts/drafts'
+import {
+  draftControllerCreate,
+  draftControllerMine,
+  draftControllerPublishExercise,
+  draftControllerPublishStretch,
+} from '@/shared/api/generated/drafts/drafts'
 import type {
   CatalogControllerExercisesParams,
   CatalogExerciseResponseDto,
@@ -49,8 +54,7 @@ export const catalogKeys = {
 
 export const draftKeys = {
   all: ['drafts'] as const,
-  limit: ['drafts', 'limit'] as const,
-  mine: ['drafts', 'mine'] as const,
+  mine: (kind: CatalogKind) => ['drafts', 'mine', kind] as const,
 }
 
 // Страница с бэка: { items, meta } — следующая есть, пока hasNextPage
@@ -143,20 +147,11 @@ export const useProposeStretch = () =>
 
 // ── Свои записи ─────────────────────────────────────────────────────────────
 
-/** Сколько заявок осталось на сегодня: при нуле мастер не открывается */
-export const useDraftLimit = ({ enabled = true }: { enabled?: boolean } = {}) =>
-  useQuery({
-    queryKey: draftKeys.limit,
-    queryFn: () => draftControllerLimit(),
-    staleTime: 0,
-    enabled,
-  })
-
-/** Вкладка «Мои»: свои записи и исход модерации */
-export const useMyEntries = () =>
+/** Вкладка «Мои»: свои записи одного вида и статус публикации */
+export const useMyEntries = (kind: CatalogKind) =>
   useInfiniteQuery({
-    queryKey: draftKeys.mine,
-    queryFn: ({ pageParam }) => draftControllerMine({ page: pageParam, limit: PAGE_SIZE }),
+    queryKey: draftKeys.mine(kind),
+    queryFn: ({ pageParam }) => draftControllerMine({ filter_kind: kind, page: pageParam, limit: PAGE_SIZE }),
     initialPageParam: 1,
     getNextPageParam: nextPage,
     // Исход заявки мог прийти, пока приложение было свёрнуто
@@ -167,12 +162,28 @@ export const useCreateDraft = () => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (body: CreateDraftDto) => draftControllerCreate(body),
-    // Итог показывает шторка создания экраном «Отправлено» — тост бы его дублировал
+    // Итог показывает шторка создания экраном «Сохранено» — тост бы его дублировал
     meta: { skipSuccessToast: true, inlineFieldErrors: true },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: draftKeys.all })
       // Черновик сразу виден в выдаче справочника с пометкой «не проверено»
       void queryClient.invalidateQueries({ queryKey: catalogKeys.all })
+    },
+  })
+}
+
+/** «Опубликовать»: своя запись уходит администратору на проверку в общий справочник */
+export const usePublishEntry = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ kind, id }: { kind: CatalogKind; id: number }) =>
+      kind === 'exercise' ? draftControllerPublishExercise(id) : draftControllerPublishStretch(id),
+    meta: { successMessage: 'Отправлено на проверку' },
+    onSuccess: (_, { kind, id }) => {
+      void queryClient.invalidateQueries({ queryKey: draftKeys.all })
+      void queryClient.invalidateQueries({
+        queryKey: kind === 'exercise' ? catalogKeys.exercise(id) : catalogKeys.stretch(id),
+      })
     },
   })
 }

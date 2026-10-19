@@ -7,7 +7,8 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 
-import { normalizeName } from '@/catalog/catalog.service';
+import { APP_SCREEN, appBtn, BotSender, msg } from '@/bot';
+import { CatalogKind, normalizeName } from '@/catalog/catalog.service';
 import { paginatePrisma } from '@/common/prisma';
 import { Prisma } from '@/generated/prisma/client';
 import { UploadService } from '@/upload/upload.service';
@@ -20,9 +21,14 @@ import { CatalogImageResponseDto } from '@/catalog/dto/catalog-image.response.dt
 import { SaveExerciseDto } from './dto/save-exercise.dto';
 import { SaveStretchDto } from './dto/save-stretch.dto';
 
+const AUTHOR_INCLUDE = {
+  author: { select: { sportProfile: { select: { displayName: true } } } },
+} as const;
+
 const EXERCISE_FORM_INCLUDE = {
   muscles: true,
   joints: true,
+  ...AUTHOR_INCLUDE,
 } satisfies Prisma.ExerciseInclude;
 
 const LIST_INCLUDE = { _count: { select: { muscles: true } } } as const;
@@ -59,6 +65,7 @@ export class AdminCatalogService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly uploads: UploadService,
+    private readonly sender: BotSender,
   ) {}
 
   // ── Картинка ────────────────────────────────────────────────────────────
@@ -81,6 +88,8 @@ export class AdminCatalogService {
           ...words(query.search),
           ...(query.filter_noImage ? [{ imagePath: null }] : []),
           ...(query.filter_noMuscles ? [{ muscles: { none: {} } }] : []),
+          ...(query.filter_status ? [{ status: query.filter_status }] : []),
+          ...(query.filter_userMade ? [{ authorId: { not: null } }] : []),
         ],
       },
       orderBy: { name: 'asc' },
@@ -120,6 +129,7 @@ export class AdminCatalogService {
         .map((m) => m.muscleId),
       jointIds: exercise.joints.map((j) => j.jointId),
       status: exercise.status,
+      author: exercise.author?.sportProfile?.displayName ?? null,
     };
   }
 
@@ -161,7 +171,7 @@ export class AdminCatalogService {
   public async removeExercise(id: number): Promise<void> {
     await this.guard(
       () => this.prisma.exercise.delete({ where: { id } }),
-      'Упражнение стоит в программах или тренировках — сначала замени его там.',
+      'Упражнение стоит в программах или тренировках — сними его с публикации вместо удаления.',
     );
     this.logger.log(`Упражнение удалено: exerciseId=${id}`);
   }
@@ -177,6 +187,8 @@ export class AdminCatalogService {
           ...words(query.search),
           ...(query.filter_noImage ? [{ imagePath: null }] : []),
           ...(query.filter_noMuscles ? [{ muscles: { none: {} } }] : []),
+          ...(query.filter_status ? [{ status: query.filter_status }] : []),
+          ...(query.filter_userMade ? [{ authorId: { not: null } }] : []),
         ],
       },
       orderBy: { name: 'asc' },
@@ -191,7 +203,7 @@ export class AdminCatalogService {
   public async stretch(id: number): Promise<AdminStretchResponseDto> {
     const stretch = await this.prisma.stretch.findUnique({
       where: { id },
-      include: { muscles: true },
+      include: { muscles: true, ...AUTHOR_INCLUDE },
     });
     if (!stretch) throw new NotFoundException('Растяжка не найдена.');
     return {
@@ -210,6 +222,7 @@ export class AdminCatalogService {
       imageEndUrl: this.uploads.toPublicUrl(stretch.imageEndPath),
       muscles: stretch.muscles.map((m) => m.muscleId),
       status: stretch.status,
+      author: stretch.author?.sportProfile?.displayName ?? null,
     };
   }
 
@@ -249,12 +262,67 @@ export class AdminCatalogService {
   public async removeStretch(id: number): Promise<void> {
     await this.guard(
       () => this.prisma.stretch.delete({ where: { id } }),
-      'Растяжка есть в заминках тренировок — удалить нельзя.',
+      'Растяжка есть в заминках тренировок — сними её с публикации вместо удаления.',
     );
     this.logger.log(`Растяжка удалена: stretchId=${id}`);
   }
 
+  // ── Публикация ──────────────────────────────────────────────────────────
+
+  /**
+   * Снять с публикации: запись пропадает из общего справочника, автор видит её как свою личную,
+   * а там, где её уже поставили, она остаётся по ссылке.
+   */
+  public async unpublish(kind: CatalogKind, id: number): Promise<void> {
+    const entry = await this.setStatus(kind, id, 'CATALOG', 'DRAFT');
+    this.logger.log(`Снято с публикации: ${kind}Id=${id}`);
+    if (entry.authorId)
+      await this.sender.sendToUserId(
+        entry.authorId,
+        msg(
+          `«${entry.name}» убран из общего справочника. У тебя он остаётся.`,
+          [[appBtn(APP_SCREEN.mine)]],
+        ),
+      );
+  }
+
+  /** Вернуть в справочник без заявки — например, свою запись администратора без автора. */
+  public async publish(kind: CatalogKind, id: number): Promise<void> {
+    await this.setStatus(kind, id, 'DRAFT', 'CATALOG');
+    this.logger.log(`Возвращено в справочник: ${kind}Id=${id}`);
+  }
+
   // ── Внутреннее ──────────────────────────────────────────────────────────
+
+  /** Смена статуса только из ожидаемого: повторное нажатие получает понятное «не найдено». */
+  private async setStatus(
+    kind: CatalogKind,
+    id: number,
+    from: 'CATALOG' | 'DRAFT',
+    to: 'CATALOG' | 'DRAFT',
+  ): Promise<{ name: string; authorId: number | null }> {
+    const args = {
+      where: { id, status: from },
+      data: { status: to },
+      select: { name: true, authorId: true },
+    };
+    try {
+      return kind === 'exercise'
+        ? await this.prisma.exercise.update(args)
+        : await this.prisma.stretch.update(args);
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      )
+        throw new NotFoundException(
+          from === 'CATALOG'
+            ? 'Запись не опубликована.'
+            : 'Запись уже в справочнике.',
+        );
+      throw error;
+    }
+  }
 
   private exerciseFields(dto: SaveExerciseDto) {
     return {

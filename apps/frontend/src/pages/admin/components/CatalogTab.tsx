@@ -19,18 +19,20 @@ import { CatalogRow } from '@/widgets/catalog/CatalogRow'
 import { ExerciseCreateSheet } from '@/widgets/catalog/ExerciseCreateSheet'
 import { StretchCreateSheet } from '@/widgets/catalog/StretchCreateSheet'
 
-type Gap = 'all' | 'no-image' | 'no-muscles'
+type Gap = 'all' | 'no-image' | 'no-muscles' | 'user-published' | 'private'
 
 const KINDS: { value: AdminCatalogKind; label: string }[] = [
   { value: 'exercise', label: 'Упражнения' },
   { value: 'stretch', label: 'Растяжки' },
 ]
 
-// Фильтры наполнения: чего записи не хватает (frontend-tz, 14.1)
+// Фильтры наполнения (чего записи не хватает, frontend-tz, 14.1) и публикации: что пришло от пользователей
 const GAPS: { value: Gap; label: string }[] = [
   { value: 'all', label: 'Все' },
   { value: 'no-image', label: 'Без картинки' },
   { value: 'no-muscles', label: 'Без мышц' },
+  { value: 'user-published', label: 'От пользователей' },
+  { value: 'private', label: 'Не в справочнике' },
 ]
 
 export const CatalogTab = () => {
@@ -43,6 +45,8 @@ export const CatalogTab = () => {
     search: search || undefined,
     filter_noImage: gap === 'no-image' || undefined,
     filter_noMuscles: gap === 'no-muscles' || undefined,
+    filter_userMade: gap === 'user-published' || undefined,
+    filter_status: gap === 'user-published' ? 'CATALOG' : gap === 'private' ? 'DRAFT' : undefined,
   })
 
   return (

@@ -49,7 +49,6 @@ export const InProgressDay = ({ day }: { day: DayToday }) => {
         />
       </Rise>
       <WeekStreak
-        streak={day.streak}
         week={day.week}
         withAttendance
       />

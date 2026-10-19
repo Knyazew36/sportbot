@@ -81,7 +81,6 @@ const ComplexNameForm = ({ complex, onRename }: ComplexNameFormProps) => {
 
 // «Профиль», а не «Как в профиле»: пять сегментов на 375px длинную подпись не вмещают
 const WARMUP = [
-  { value: 'profile', label: 'Профиль' },
   { value: '0', label: 'Нет' },
   { value: '5', label: '5' },
   { value: '10', label: '10' },
@@ -95,8 +94,9 @@ const ComplexWarmup = ({ complex, onChange }: ComplexWarmupProps) => (
     <Label>Разминка, мин</Label>
     <Segmented
       options={WARMUP}
-      value={complex.warmupMinutes === null ? 'profile' : String(complex.warmupMinutes)}
-      onValueChange={v => void onChange(complex.id, v === 'profile' ? null : Number(v))}
+      // null (как в профиле) выбором больше не задаётся: с «Профилем» сегменты не влезали в ширину
+      value={complex.warmupMinutes === null ? '' : String(complex.warmupMinutes)}
+      onValueChange={v => void onChange(complex.id, Number(v))}
       size='default'
       stretch
     />

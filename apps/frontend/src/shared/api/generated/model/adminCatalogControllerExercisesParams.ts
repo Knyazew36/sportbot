@@ -4,6 +4,7 @@
  * api
  * OpenAPI spec version: 0.0.1
  */
+import type { AdminCatalogControllerExercisesFilterStatus } from './adminCatalogControllerExercisesFilterStatus';
 import type { AdminCatalogControllerExercisesOrder } from './adminCatalogControllerExercisesOrder';
 
 export type AdminCatalogControllerExercisesParams = {
@@ -38,4 +39,12 @@ filter_noImage?: boolean;
  * Только без мышц
  */
 filter_noMuscles?: boolean;
+/**
+ * CATALOG — опубликованные, DRAFT — личные и снятые
+ */
+filter_status?: AdminCatalogControllerExercisesFilterStatus;
+/**
+ * Только созданные пользователями
+ */
+filter_userMade?: boolean;
 };

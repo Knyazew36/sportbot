@@ -39,4 +39,10 @@ export interface CatalogExerciseResponseDto {
   joints: CatalogRefResponseDto[];
   /** Личный черновик — «не проверено» */
   draft: boolean;
+  /** Своя запись автора (не копия чужой) */
+  mine: boolean;
+  /** Ждёт проверки администратора */
+  pendingReview: boolean;
+  /** Можно отправить на проверку в общий справочник */
+  canPublish: boolean;
 }

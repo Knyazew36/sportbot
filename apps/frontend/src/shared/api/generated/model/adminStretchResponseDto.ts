@@ -29,4 +29,9 @@ export interface AdminStretchResponseDto {
   imageEndUrl: string | null;
   muscles: number[];
   status: AdminStretchResponseDtoStatus;
+  /**
+     * Автор-пользователь; null — запись администратора
+     * @nullable
+     */
+  author: string | null;
 }

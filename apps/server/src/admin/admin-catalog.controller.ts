@@ -99,6 +99,26 @@ export class AdminCatalogController {
     return this.adminCatalogService.removeExercise(id);
   }
 
+  @Post('exercises/unpublish/:id')
+  @Swagger({
+    title: 'Снять упражнение с публикации',
+    param: ID_PARAM,
+    bearerAuth: true,
+  })
+  public unpublishExercise(@Param('id', ParseIntPipe) id: number) {
+    return this.adminCatalogService.unpublish('exercise', id);
+  }
+
+  @Post('exercises/publish/:id')
+  @Swagger({
+    title: 'Вернуть упражнение в справочник',
+    param: ID_PARAM,
+    bearerAuth: true,
+  })
+  public publishExercise(@Param('id', ParseIntPipe) id: number) {
+    return this.adminCatalogService.publish('exercise', id);
+  }
+
   @Get('exercises/:id')
   @Swagger({
     title: 'Упражнение для формы',
@@ -154,6 +174,26 @@ export class AdminCatalogController {
   @Swagger({ title: 'Удалить растяжку', param: ID_PARAM, bearerAuth: true })
   public removeStretch(@Param('id', ParseIntPipe) id: number) {
     return this.adminCatalogService.removeStretch(id);
+  }
+
+  @Post('stretches/unpublish/:id')
+  @Swagger({
+    title: 'Снять растяжку с публикации',
+    param: ID_PARAM,
+    bearerAuth: true,
+  })
+  public unpublishStretch(@Param('id', ParseIntPipe) id: number) {
+    return this.adminCatalogService.unpublish('stretch', id);
+  }
+
+  @Post('stretches/publish/:id')
+  @Swagger({
+    title: 'Вернуть растяжку в справочник',
+    param: ID_PARAM,
+    bearerAuth: true,
+  })
+  public publishStretch(@Param('id', ParseIntPipe) id: number) {
+    return this.adminCatalogService.publish('stretch', id);
   }
 
   @Get('stretches/:id')

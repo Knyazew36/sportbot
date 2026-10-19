@@ -11,11 +11,15 @@ import type {
   AdminCatalogControllerExercises200,
   AdminCatalogControllerExercisesParams,
   AdminCatalogControllerImage200,
+  AdminCatalogControllerPublishExercise200,
+  AdminCatalogControllerPublishStretch200,
   AdminCatalogControllerRemoveExercise200,
   AdminCatalogControllerRemoveStretch200,
   AdminCatalogControllerStretch200,
   AdminCatalogControllerStretches200,
   AdminCatalogControllerStretchesParams,
+  AdminCatalogControllerUnpublishExercise200,
+  AdminCatalogControllerUnpublishStretch200,
   AdminCatalogControllerUpdateExercise200,
   AdminCatalogControllerUpdateStretch200,
   CatalogImageDto,
@@ -93,6 +97,28 @@ export const adminCatalogControllerRemoveExercise = (
       );
     }
   /**
+ * @summary Снять упражнение с публикации
+ */
+export const adminCatalogControllerUnpublishExercise = (
+    id: number,
+ ) => {
+      return customInstance<AdminCatalogControllerUnpublishExercise200>(
+      {url: `/admin/catalog/exercises/unpublish/${id}`, method: 'POST'
+    },
+      );
+    }
+  /**
+ * @summary Вернуть упражнение в справочник
+ */
+export const adminCatalogControllerPublishExercise = (
+    id: number,
+ ) => {
+      return customInstance<AdminCatalogControllerPublishExercise200>(
+      {url: `/admin/catalog/exercises/publish/${id}`, method: 'POST'
+    },
+      );
+    }
+  /**
  * @summary Упражнение для формы
  */
 export const adminCatalogControllerExercise = (
@@ -154,6 +180,28 @@ export const adminCatalogControllerRemoveStretch = (
       );
     }
   /**
+ * @summary Снять растяжку с публикации
+ */
+export const adminCatalogControllerUnpublishStretch = (
+    id: number,
+ ) => {
+      return customInstance<AdminCatalogControllerUnpublishStretch200>(
+      {url: `/admin/catalog/stretches/unpublish/${id}`, method: 'POST'
+    },
+      );
+    }
+  /**
+ * @summary Вернуть растяжку в справочник
+ */
+export const adminCatalogControllerPublishStretch = (
+    id: number,
+ ) => {
+      return customInstance<AdminCatalogControllerPublishStretch200>(
+      {url: `/admin/catalog/stretches/publish/${id}`, method: 'POST'
+    },
+      );
+    }
+  /**
  * @summary Растяжка для формы
  */
 export const adminCatalogControllerStretch = (
@@ -169,9 +217,13 @@ export type AdminCatalogControllerExercisesResult = NonNullable<Awaited<ReturnTy
 export type AdminCatalogControllerCreateExerciseResult = NonNullable<Awaited<ReturnType<typeof adminCatalogControllerCreateExercise>>>
 export type AdminCatalogControllerUpdateExerciseResult = NonNullable<Awaited<ReturnType<typeof adminCatalogControllerUpdateExercise>>>
 export type AdminCatalogControllerRemoveExerciseResult = NonNullable<Awaited<ReturnType<typeof adminCatalogControllerRemoveExercise>>>
+export type AdminCatalogControllerUnpublishExerciseResult = NonNullable<Awaited<ReturnType<typeof adminCatalogControllerUnpublishExercise>>>
+export type AdminCatalogControllerPublishExerciseResult = NonNullable<Awaited<ReturnType<typeof adminCatalogControllerPublishExercise>>>
 export type AdminCatalogControllerExerciseResult = NonNullable<Awaited<ReturnType<typeof adminCatalogControllerExercise>>>
 export type AdminCatalogControllerStretchesResult = NonNullable<Awaited<ReturnType<typeof adminCatalogControllerStretches>>>
 export type AdminCatalogControllerCreateStretchResult = NonNullable<Awaited<ReturnType<typeof adminCatalogControllerCreateStretch>>>
 export type AdminCatalogControllerUpdateStretchResult = NonNullable<Awaited<ReturnType<typeof adminCatalogControllerUpdateStretch>>>
 export type AdminCatalogControllerRemoveStretchResult = NonNullable<Awaited<ReturnType<typeof adminCatalogControllerRemoveStretch>>>
+export type AdminCatalogControllerUnpublishStretchResult = NonNullable<Awaited<ReturnType<typeof adminCatalogControllerUnpublishStretch>>>
+export type AdminCatalogControllerPublishStretchResult = NonNullable<Awaited<ReturnType<typeof adminCatalogControllerPublishStretch>>>
 export type AdminCatalogControllerStretchResult = NonNullable<Awaited<ReturnType<typeof adminCatalogControllerStretch>>>

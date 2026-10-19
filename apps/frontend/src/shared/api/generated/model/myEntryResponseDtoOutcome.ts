@@ -5,7 +5,11 @@
  * OpenAPI spec version: 0.0.1
  */
 
-export type MyEntryResponseDtoOutcome = typeof MyEntryResponseDtoOutcome[keyof typeof MyEntryResponseDtoOutcome];
+/**
+ * Исход последней заявки; null — на проверку не отправлялась
+ * @nullable
+ */
+export type MyEntryResponseDtoOutcome = typeof MyEntryResponseDtoOutcome[keyof typeof MyEntryResponseDtoOutcome] | null;
 
 
 export const MyEntryResponseDtoOutcome = {

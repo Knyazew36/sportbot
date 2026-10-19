@@ -19,6 +19,34 @@ export const STRETCH_INCLUDE = {
   muscles: { include: { muscle: true } },
 } satisfies Prisma.StretchInclude;
 
+/** Заявка в ожидании: по ней карточка своей записи прячет кнопку «Опубликовать». */
+export const PENDING_REQUEST_INCLUDE = {
+  moderationRequests: {
+    where: { outcome: 'PENDING' },
+    select: { id: true },
+    take: 1,
+  },
+} satisfies Prisma.ExerciseInclude & Prisma.StretchInclude;
+
+/** Своя личная запись — оригинал, не копия чужого черновика: её можно отправить на проверку. */
+export const publishState = (
+  entry: {
+    status: string;
+    authorId: number | null;
+    originDraftId: number | null;
+    moderationRequests: { id: number }[];
+  },
+  userId: number,
+) => {
+  const mine = entry.authorId === userId && entry.originDraftId === null;
+  const pendingReview = entry.moderationRequests.length > 0;
+  return {
+    mine,
+    pendingReview,
+    canPublish: mine && entry.status === 'DRAFT' && !pendingReview,
+  };
+};
+
 export type ExerciseFull = Prisma.ExerciseGetPayload<{
   include: typeof EXERCISE_INCLUDE;
 }>;
@@ -97,13 +125,10 @@ export class CatalogService {
     };
   }
 
-  public async findExercise(
-    userId: number,
-    id: number,
-  ): Promise<ExerciseFull | null> {
+  public async findExercise(userId: number, id: number) {
     return this.prisma.exercise.findFirst({
       where: { id, ...this.visibleExercises(userId) },
-      include: EXERCISE_INCLUDE,
+      include: { ...EXERCISE_INCLUDE, ...PENDING_REQUEST_INCLUDE },
     });
   }
 
@@ -147,13 +172,10 @@ export class CatalogService {
     };
   }
 
-  public async findStretch(
-    userId: number,
-    id: number,
-  ): Promise<StretchFull | null> {
+  public async findStretch(userId: number, id: number) {
     return this.prisma.stretch.findFirst({
       where: { id, ...this.visibleStretches(userId) },
-      include: STRETCH_INCLUDE,
+      include: { ...STRETCH_INCLUDE, ...PENDING_REQUEST_INCLUDE },
     });
   }
 

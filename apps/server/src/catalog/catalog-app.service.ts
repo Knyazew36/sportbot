@@ -16,6 +16,8 @@ import {
   CatalogService,
   EXERCISE_INCLUDE,
   normalizeName,
+  PENDING_REQUEST_INCLUDE,
+  publishState,
   STRETCH_INCLUDE,
 } from './catalog.service';
 import { CatalogExerciseResponseDto } from './dto/catalog-exercise.response.dto';
@@ -146,7 +148,7 @@ export class CatalogAppService {
     const admin = isAdmin(user);
     const exercise = await this.prisma.exercise.findFirst({
       where: admin ? { id } : { id, ...this.catalog.visibleExercises(user.id) },
-      include: EXERCISE_INCLUDE,
+      include: { ...EXERCISE_INCLUDE, ...PENDING_REQUEST_INCLUDE },
     });
     if (!exercise) {
       this.logger.warn(`Карточка упражнения не найдена: id=${id}, userId=${user.id}, admin=${admin}`);
@@ -171,6 +173,7 @@ export class CatalogAppService {
         .map((m) => ref(m.muscle)),
       joints: exercise.joints.map((j) => ref(j.joint)),
       draft: exercise.status === 'DRAFT',
+      ...publishState(exercise, user.id),
     };
   }
 
@@ -227,6 +230,7 @@ export class CatalogAppService {
       perSide: stretch.perSide,
       muscles: stretch.muscles.map((m) => ref(m.muscle)),
       draft: stretch.status === 'DRAFT',
+      ...publishState(stretch, userId),
     };
   }
 

@@ -37,7 +37,6 @@ export const TrainingDay = ({ day, onPickComplex, onMissed }: TrainingDayProps) 
       />
 
       <WeekStreak
-        streak={day.streak}
         week={day.week}
       />
 

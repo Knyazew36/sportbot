@@ -37,7 +37,6 @@ export const FinishQueuedDay = ({ day }: { day: DayToday }) => (
       </Text>
     </Rise>
     <WeekStreak
-      streak={day.streak}
       week={day.week}
     />
   </>

@@ -7,10 +7,14 @@ import {
   adminCatalogControllerExercise,
   adminCatalogControllerExercises,
   adminCatalogControllerImage,
+  adminCatalogControllerPublishExercise,
+  adminCatalogControllerPublishStretch,
   adminCatalogControllerRemoveExercise,
   adminCatalogControllerRemoveStretch,
   adminCatalogControllerStretch,
   adminCatalogControllerStretches,
+  adminCatalogControllerUnpublishExercise,
+  adminCatalogControllerUnpublishStretch,
   adminCatalogControllerUpdateExercise,
   adminCatalogControllerUpdateStretch,
 } from '@/shared/api/generated/admin-catalog/admin-catalog'
@@ -27,7 +31,10 @@ export type AdminCatalogItem = AdminCatalogItemResponseDto
 export type AdminExercise = AdminExerciseResponseDto
 export type AdminStretch = AdminStretchResponseDto
 export type AdminCatalogKind = 'exercise' | 'stretch'
-export type AdminCatalogFilter = Pick<AdminCatalogQueryDto, 'search' | 'filter_noImage' | 'filter_noMuscles'>
+export type AdminCatalogFilter = Pick<
+  AdminCatalogQueryDto,
+  'search' | 'filter_noImage' | 'filter_noMuscles' | 'filter_status' | 'filter_userMade'
+>
 
 const PAGE_SIZE = 30
 
@@ -38,7 +45,7 @@ export const adminCatalogKeys = {
   stretch: (id: number) => ['admin-catalog', 'stretch', id] as const,
 }
 
-/** Справочник админа: все записи, фильтры «без картинки» и «без мышц» (frontend-tz, 14.1) */
+/** Справочник админа: все записи, фильтры «без картинки», «без мышц», статус и «от пользователей» (frontend-tz, 14.1) */
 export const useAdminCatalog = (kind: AdminCatalogKind, filter: AdminCatalogFilter) =>
   useInfiniteQuery({
     queryKey: adminCatalogKeys.list(kind, filter),
@@ -101,6 +108,28 @@ export const useDeleteCatalogItem = () => {
     mutationFn: ({ kind, id }: { kind: AdminCatalogKind; id: number }) =>
       kind === 'exercise' ? adminCatalogControllerRemoveExercise(id) : adminCatalogControllerRemoveStretch(id),
     meta: { successMessage: 'Запись удалена' },
+    onSuccess: invalidate,
+  })
+}
+
+/** Снять с публикации: запись пропадает из общего справочника, у автора остаётся личной */
+export const useUnpublishCatalogItem = () => {
+  const invalidate = useInvalidateCatalog()
+  return useMutation({
+    mutationFn: ({ kind, id }: { kind: AdminCatalogKind; id: number }) =>
+      kind === 'exercise' ? adminCatalogControllerUnpublishExercise(id) : adminCatalogControllerUnpublishStretch(id),
+    meta: { successMessage: 'Снято с публикации' },
+    onSuccess: invalidate,
+  })
+}
+
+/** Вернуть в справочник без заявки */
+export const usePublishCatalogItem = () => {
+  const invalidate = useInvalidateCatalog()
+  return useMutation({
+    mutationFn: ({ kind, id }: { kind: AdminCatalogKind; id: number }) =>
+      kind === 'exercise' ? adminCatalogControllerPublishExercise(id) : adminCatalogControllerPublishStretch(id),
+    meta: { successMessage: 'Возвращено в справочник' },
     onSuccess: invalidate,
   })
 }

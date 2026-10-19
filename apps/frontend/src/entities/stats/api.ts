@@ -142,30 +142,33 @@ const calendarQuery = (month: string, userId?: number) => ({
   queryFn: () => statsControllerCalendar({ month, ...withUser(userId) }),
 })
 
-/**
- * Отметки дней сразу из нескольких месяцев: неделя может задеть два.
- * prefetch — месяцы, которые понадобятся следующими (прошлая неделя), чтобы листание не мигало пустотой
- */
-export const useCalendarMonths = (months: string[], prefetch: string[] = []) => {
-  const queryClient = useQueryClient()
-  const prefetchKey = prefetch.join(',')
-  useEffect(() => {
-    for (const month of prefetchKey.split(',').filter(Boolean)) void queryClient.prefetchQuery(calendarQuery(month))
-  }, [prefetchKey, queryClient])
-
-  return useQueries({
+/** Отметки дней сразу из нескольких месяцев: неделя может задеть два */
+export const useCalendarMonths = (months: string[]) =>
+  useQueries({
     queries: months.map(month => calendarQuery(month)),
     combine: results => ({
       marks: new Map(results.flatMap(r => r.data ?? []).map(d => [d.date, d.mark] as const)),
       isPending: results.some(r => r.isPending),
     }),
   })
-}
 
 /** Детали дня: комплекс, упражнения, подходы и как можно исправить отметку */
+const dayQuery = (date: string, userId?: number) => ({
+  queryKey: statsKeys.day(date, userId),
+  queryFn: () => statsControllerDay({ date, ...withUser(userId) }),
+})
+
 export const useStatsDay = (date: string | null, userId?: number) =>
   useQuery({
-    queryKey: statsKeys.day(date ?? '', userId),
-    queryFn: () => statsControllerDay({ date: date!, ...withUser(userId) }),
+    ...dayQuery(date ?? '', userId),
     enabled: date != null,
   })
+
+/** Детали дней заранее, в фоне: по тапу шторка открывается уже с тренировками */
+export const usePrefetchStatsDays = (dates: string[]) => {
+  const queryClient = useQueryClient()
+  const key = dates.join(',')
+  useEffect(() => {
+    for (const date of key.split(',').filter(Boolean)) void queryClient.prefetchQuery(dayQuery(date))
+  }, [key, queryClient])
+}

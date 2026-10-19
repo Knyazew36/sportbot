@@ -65,4 +65,13 @@ export class CatalogExerciseResponseDto {
 
   @ApiProperty({ description: 'Личный черновик — «не проверено»' })
   draft: boolean;
+
+  @ApiProperty({ description: 'Своя запись автора (не копия чужой)' })
+  mine: boolean;
+
+  @ApiProperty({ description: 'Ждёт проверки администратора' })
+  pendingReview: boolean;
+
+  @ApiProperty({ description: 'Можно отправить на проверку в общий справочник' })
+  canPublish: boolean;
 }

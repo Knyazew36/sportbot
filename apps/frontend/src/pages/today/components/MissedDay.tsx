@@ -115,7 +115,6 @@ export const MissedDay = ({ day, suggestPause }: MissedDayProps) => {
       <NextUp day={day} />
 
       <WeekStreak
-        streak={day.streak}
         week={day.week}
       />
     </>

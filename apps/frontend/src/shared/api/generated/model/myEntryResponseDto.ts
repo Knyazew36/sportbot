@@ -6,20 +6,22 @@
  */
 import type { MyEntryResponseDtoKind } from './myEntryResponseDtoKind';
 import type { MyEntryResponseDtoOutcome } from './myEntryResponseDtoOutcome';
+import type { MyEntryResponseDtoStatus } from './myEntryResponseDtoStatus';
 
 export interface MyEntryResponseDto {
-  /** Заявка на модерацию */
+  /** Своя запись: упражнение или растяжка */
   id: number;
   kind: MyEntryResponseDtoKind;
+  name: string;
+  /** CATALOG — в общем справочнике, DRAFT — видна только автору */
+  status: MyEntryResponseDtoStatus;
   /**
-     * Запись: черновик, одобренная или запись-оригинал для дубля
+     * Исход последней заявки; null — на проверку не отправлялась
      * @nullable
      */
-  entryId: number | null;
-  name: string;
   outcome: MyEntryResponseDtoOutcome;
   /**
-     * Причина для автора
+     * Причина последнего решения для автора
      * @nullable
      */
   reason: string | null;

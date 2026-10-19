@@ -27,7 +27,6 @@ export const RestDay = ({ day }: { day: DayToday }) => (
       label='следующая по расписанию'
     />
     <WeekStreak
-      streak={day.streak}
       week={day.week}
     />
     <ForgottenMuscles />

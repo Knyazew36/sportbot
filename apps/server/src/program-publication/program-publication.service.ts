@@ -11,6 +11,7 @@ import { normalizeName } from '@/catalog/catalog.service';
 import { paginatePrisma } from '@/common/prisma';
 import { slugify } from '@/common/utils';
 import { Prisma } from '@/generated/prisma/client';
+import { ModerationService } from '@/moderation/moderation.service';
 import { COMPLEXES_INCLUDE, toComplexesDto } from '@/program/program-complexes';
 import {
   APPROVED_TAG,
@@ -93,6 +94,7 @@ export class ProgramPublicationService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly sender: BotSender,
+    private readonly moderation: ModerationService,
   ) {}
 
   // ── Автор ───────────────────────────────────────────────────────────────
@@ -172,6 +174,7 @@ export class ProgramPublicationService {
     } else submitted = await this.requestReview(programId);
     // Новый свой тег у программы, которая уже в очереди или в каталоге, — тоже повод позвать админа
     if (!submitted && created) await this.notifyAdmins(programId, 'новые теги');
+    await this.requestExercises(userId, programId);
   }
 
   /** Автор снимает программу с публикации: из каталога пропадает, копии у взявших остаются. */
@@ -647,6 +650,33 @@ export class ProgramPublicationService {
     });
     if (!tag) throw new BadRequestException('Тег уже обработан.');
     return tag;
+  }
+
+  /**
+   * Свои личные упражнения программы, которые ещё ни разу не проверялись, уходят на модерацию
+   * вместе с ней. Отклонённые повторно не шлём — автор отправит их сам с карточки.
+   */
+  private async requestExercises(
+    userId: number,
+    programId: number,
+  ): Promise<void> {
+    const drafts = await this.prisma.exercise.findMany({
+      where: {
+        moderationRequests: { none: {} },
+        complexExercises: { some: { complex: { programId } } },
+      },
+      select: { id: true },
+    });
+    const requests = await this.moderation.requestPublishMany(
+      userId,
+      drafts.map((d) => d.id),
+    );
+    if (!requests.length) return;
+    this.logger.log(
+      `Упражнения программы на проверку: programId=${programId}, заявок=${requests.length}`,
+    );
+    for (const request of requests)
+      await this.sender.sendToAdmins(this.moderation.requestMessage(request));
   }
 
   private async notifyAdmins(programId: number, kind: string): Promise<void> {

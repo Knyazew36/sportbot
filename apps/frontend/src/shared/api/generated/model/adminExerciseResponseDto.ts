@@ -35,4 +35,9 @@ export interface AdminExerciseResponseDto {
   secondary: number[];
   jointIds: number[];
   status: AdminExerciseResponseDtoStatus;
+  /**
+     * Автор-пользователь; null — запись администратора
+     * @nullable
+     */
+  author: string | null;
 }

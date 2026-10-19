@@ -91,16 +91,18 @@ export const WorkoutActions = ({
       <Digits>{formatSeconds(restSeconds)}</Digits>
     </Button>
   )
-  // Рядом с подходом, а не вместо: начать подход после разминки — главное действие, разминку он и закончит.
-  // Только значок и время: с подписью «Начать подход» на 375px не влезал
+  // Под подходом, а не вместо: начать подход после разминки — главное действие, разминку он и закончит.
+  // Отдельной строкой: в одном ряду с подходом время разминки не влезало и ряд разъезжался
   const warmupBack = warmupLeft !== null && (
     <Button
       variant='rest'
       size='lg'
+      className='w-full'
       onClick={onWarmupOpen}
       aria-label='Вернуться к разминке'
     >
-      <FlameIcon className='size-5' />
+      <FlameIcon className='size-6' />
+      Разминка
       <span className='inline-block w-[2.3em] text-left'>{formatSeconds(warmupLeft)}</span>
     </Button>
   )
@@ -127,7 +129,6 @@ export const WorkoutActions = ({
           <ClipboardPenIcon className='size-5' />
         </Button>
         {restButton}
-        {warmupBack}
       </div>
     )
   ) : (
@@ -145,7 +146,6 @@ export const WorkoutActions = ({
         </Button>
       )}
       {restButton}
-      {warmupBack}
     </div>
   )
 
@@ -173,7 +173,9 @@ export const WorkoutActions = ({
   return (
     <StickyFooter className='flex flex-col items-stretch gap-3'>
       {planDone ? forward : start}
+      {!planDone && warmupBack}
       {planDone ? start : forward}
+      {planDone && warmupBack}
     </StickyFooter>
   )
 }

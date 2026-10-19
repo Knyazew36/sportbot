@@ -6,6 +6,7 @@ import { CatalogKind, normalizeName } from '@/catalog/catalog.service';
 import { guideLines } from '@/catalog/catalog.texts';
 import { paginatePrisma } from '@/common/prisma';
 import {
+  CatalogStatus,
   Equipment,
   ExerciseMeasure,
   ModerationOutcome,
@@ -14,10 +15,6 @@ import {
 import { MessengerMessage } from '@/messengers';
 
 type Tx = Prisma.TransactionClient;
-
-/** Лимит заявок в сутки на пользователя: упражнения и растяжки считаются вместе. */
-const DAILY_LIMIT = 5;
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 export const REQUEST_INCLUDE = {
   author: {
@@ -32,15 +29,21 @@ export type RequestFull = Prisma.ModerationRequestGetPayload<{
 }>;
 
 const MINE_INCLUDE = {
-  exercise: { select: { id: true, name: true } },
-  stretch: { select: { id: true, name: true } },
-  duplicateOfExercise: { select: { id: true, name: true } },
-  duplicateOfStretch: { select: { id: true, name: true } },
-} satisfies Prisma.ModerationRequestInclude;
+  moderationRequests: {
+    orderBy: { id: 'desc' },
+    take: 1,
+    select: { outcome: true, reason: true },
+  },
+} as const;
 
-export type MineEntry = Prisma.ModerationRequestGetPayload<{
-  include: typeof MINE_INCLUDE;
-}>;
+/** Своя запись для вкладки «Мои»: упражнение и растяжка отдают одни и те же поля. */
+export type MineEntry = {
+  id: number;
+  name: string;
+  status: CatalogStatus;
+  createdAt: Date;
+  moderationRequests: { outcome: ModerationOutcome; reason: string | null }[];
+};
 
 export interface DraftInput {
   kind: CatalogKind;
@@ -97,84 +100,116 @@ export class ModerationService {
 
   constructor(private readonly prisma: PrismaService) {}
 
+  // ── Черновик ────────────────────────────────────────────────────────────
+
+  /** Личная запись автора: видна только ему, на модерацию не уходит. */
+  public async createDraft(
+    userId: number,
+    input: DraftInput,
+  ): Promise<{ id: number; name: string; createdAt: Date }> {
+    const name = input.name.trim().replace(/\s+/g, ' ');
+    const common = {
+      name,
+      nameNormalized: normalizeName(name),
+      status: 'DRAFT' as const,
+      authorId: userId,
+    };
+    const select = { id: true, name: true, createdAt: true } as const;
+    const entry =
+      input.kind === 'exercise'
+        ? await this.prisma.exercise.create({
+            data: {
+              ...common,
+              technique: input.technique,
+              steps: input.steps,
+              mistakes: input.mistakes,
+              videoUrl: input.videoUrl,
+              imagePath: input.imagePath,
+              equipment: input.equipment,
+              measure: input.measure,
+              joints: {
+                create: (input.jointIds ?? []).map((jointId) => ({ jointId })),
+              },
+              muscles: {
+                create: [
+                  ...input.primary.map((muscleId) => ({
+                    muscleId,
+                    role: 'PRIMARY' as const,
+                  })),
+                  ...input.secondary
+                    .filter((id) => !input.primary.includes(id))
+                    .map((muscleId) => ({
+                      muscleId,
+                      role: 'SECONDARY' as const,
+                    })),
+                ],
+              },
+            },
+            select,
+          })
+        : await this.prisma.stretch.create({
+            data: {
+              ...common,
+              howTo: input.technique,
+              steps: input.steps,
+              mistakes: input.mistakes,
+              imagePath: input.imagePath,
+              holdSeconds: input.holdSeconds ?? 30,
+              perSide: input.perSide ?? false,
+              muscles: {
+                create: input.primary.map((muscleId) => ({ muscleId })),
+              },
+            },
+            select,
+          });
+    this.logger.log(
+      `Черновик создан: ${input.kind}Id=${entry.id}, userId=${userId}`,
+    );
+    return entry;
+  }
+
   // ── Заявка ──────────────────────────────────────────────────────────────
 
-  /** Создать личный черновик и заявку на модерацию — одной транзакцией. */
-  public async submit(userId: number, input: DraftInput): Promise<RequestFull> {
-    const name = input.name.trim().replace(/\s+/g, ' ');
+  /**
+   * «Опубликовать»: заявка на свою личную запись. Копии чужих черновиков (originDraftId)
+   * не публикуются — их судьбу решает заявка оригинала.
+   */
+  public async requestPublish(
+    userId: number,
+    kind: CatalogKind,
+    entryId: number,
+  ): Promise<RequestFull> {
     const request = await this.prisma.$transaction(async (tx) => {
-      const recent = await tx.moderationRequest.count({
-        where: {
-          authorId: userId,
-          createdAt: { gte: new Date(Date.now() - DAY_MS) },
-        },
-      });
-      if (recent >= DAILY_LIMIT)
+      const created = await this.createRequests(tx, userId, kind, [entryId]);
+      if (!created.length)
         throw new BadRequestException(
-          `Лимит — ${DAILY_LIMIT} заявок в сутки. Попробуй завтра.`,
+          'Запись уже на проверке, в справочнике или не твоя.',
         );
-      const common = {
-        name,
-        nameNormalized: normalizeName(name),
-        status: 'DRAFT' as const,
-        authorId: userId,
-      };
-      if (input.kind === 'exercise') {
-        const exercise = await tx.exercise.create({
-          data: {
-            ...common,
-            technique: input.technique,
-            steps: input.steps,
-            mistakes: input.mistakes,
-            videoUrl: input.videoUrl,
-            imagePath: input.imagePath,
-            equipment: input.equipment,
-            measure: input.measure,
-            joints: {
-              create: (input.jointIds ?? []).map((jointId) => ({ jointId })),
-            },
-            muscles: {
-              create: [
-                ...input.primary.map((muscleId) => ({
-                  muscleId,
-                  role: 'PRIMARY' as const,
-                })),
-                ...input.secondary
-                  .filter((id) => !input.primary.includes(id))
-                  .map((muscleId) => ({
-                    muscleId,
-                    role: 'SECONDARY' as const,
-                  })),
-              ],
-            },
-          },
-        });
-        return tx.moderationRequest.create({
-          data: { authorId: userId, exerciseId: exercise.id },
-          include: REQUEST_INCLUDE,
-        });
-      }
-      const stretch = await tx.stretch.create({
-        data: {
-          ...common,
-          howTo: input.technique,
-          steps: input.steps,
-          mistakes: input.mistakes,
-          imagePath: input.imagePath,
-          holdSeconds: input.holdSeconds ?? 30,
-          perSide: input.perSide ?? false,
-          muscles: { create: input.primary.map((muscleId) => ({ muscleId })) },
-        },
-      });
-      return tx.moderationRequest.create({
-        data: { authorId: userId, stretchId: stretch.id },
-        include: REQUEST_INCLUDE,
-      });
+      return created[0];
     });
     this.logger.log(
-      `Заявка создана: requestId=${request.id}, userId=${userId}, ${input.kind}`,
+      `Заявка создана: requestId=${request.id}, userId=${userId}, ${kind}Id=${entryId}`,
     );
     return request;
+  }
+
+  /**
+   * Свои непроверенные упражнения программы, которая уходит на публикацию: каталог программ
+   * не должен показывать записи, которых нет в справочнике. Уже ждущие проверки пропускаются.
+   */
+  public async requestPublishMany(
+    userId: number,
+    exerciseIds: number[],
+  ): Promise<RequestFull[]> {
+    if (!exerciseIds.length) return [];
+    const requests = await this.prisma.$transaction((tx) =>
+      this.createRequests(tx, userId, 'exercise', exerciseIds),
+    );
+    if (requests.length)
+      this.logger.log(
+        `Заявки на упражнения программы: userId=${userId}, requestIds=[${requests.map((r) => r.id).join(',')}]`,
+      );
+    return requests;
   }
 
   public async find(requestId: number): Promise<RequestFull> {
@@ -195,28 +230,24 @@ export class ModerationService {
     });
   }
 
-  /** Сколько заявок ещё можно отправить за скользящие сутки: при нуле мастер не открывается. */
-  public async remaining(
+  /** Вкладка «Мои» в приложении: свои записи (без копий чужих) с последней заявкой. */
+  public async mineList(
     userId: number,
-  ): Promise<{ left: number; limit: number }> {
-    const recent = await this.prisma.moderationRequest.count({
-      where: {
-        authorId: userId,
-        createdAt: { gte: new Date(Date.now() - DAY_MS) },
-      },
-    });
-    return { left: Math.max(0, DAILY_LIMIT - recent), limit: DAILY_LIMIT };
-  }
-
-  /** Вкладка «Мои» в приложении: все заявки, у дубля — запись-оригинал. */
-  public async mineList(userId: number, page?: number, limit?: number) {
-    const result = await paginatePrisma(this.prisma.moderationRequest, {
+    kind: CatalogKind,
+    page?: number,
+    limit?: number,
+  ) {
+    const args = {
       page,
       limit,
-      where: { authorId: userId },
-      orderBy: { id: 'desc' },
+      where: { authorId: userId, originDraftId: null },
+      orderBy: { id: 'desc' as const },
       include: MINE_INCLUDE,
-    });
+    };
+    const result =
+      kind === 'exercise'
+        ? await paginatePrisma(this.prisma.exercise, args)
+        : await paginatePrisma(this.prisma.stretch, args);
     return {
       items: result.items as unknown as MineEntry[],
       meta: result.meta,
@@ -457,6 +488,40 @@ export class ModerationService {
   }
 
   // ── Внутреннее ──────────────────────────────────────────────────────────
+
+  /** Заявки только на свои личные оригиналы без заявки в ожидании — проверка прямо в where. */
+  private async createRequests(
+    tx: Tx,
+    userId: number,
+    kind: CatalogKind,
+    ids: number[],
+  ): Promise<RequestFull[]> {
+    const where = {
+      id: { in: ids },
+      status: 'DRAFT' as const,
+      authorId: userId,
+      originDraftId: null,
+      moderationRequests: { none: { outcome: 'PENDING' as const } },
+    };
+    const entries =
+      kind === 'exercise'
+        ? await tx.exercise.findMany({ where, select: { id: true } })
+        : await tx.stretch.findMany({ where, select: { id: true } });
+    const requests: RequestFull[] = [];
+    for (const entry of entries)
+      requests.push(
+        await tx.moderationRequest.create({
+          data: {
+            authorId: userId,
+            ...(kind === 'exercise'
+              ? { exerciseId: entry.id }
+              : { stretchId: entry.id }),
+          },
+          include: REQUEST_INCLUDE,
+        }),
+      );
+    return requests;
+  }
 
   /** Заявка меняется только из PENDING: повторное нажатие получает «уже обработано». */
   private async decide(

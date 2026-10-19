@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsBoolean, IsOptional } from 'class-validator';
+import { IsBoolean, IsIn, IsOptional } from 'class-validator';
 
 import { PaginationQueryDto } from '@/common/type/pagination-query.dto';
 
@@ -19,4 +19,18 @@ export class AdminCatalogQueryDto extends PaginationQueryDto {
   @Transform(toBool)
   @IsBoolean()
   filter_noMuscles?: boolean;
+
+  @ApiPropertyOptional({
+    enum: ['CATALOG', 'DRAFT'],
+    description: 'CATALOG — опубликованные, DRAFT — личные и снятые',
+  })
+  @IsOptional()
+  @IsIn(['CATALOG', 'DRAFT'])
+  filter_status?: 'CATALOG' | 'DRAFT';
+
+  @ApiPropertyOptional({ description: 'Только созданные пользователями' })
+  @IsOptional()
+  @Transform(toBool)
+  @IsBoolean()
+  filter_userMade?: boolean;
 }

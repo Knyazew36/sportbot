@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CheckIcon, PlusIcon, SendIcon } from 'lucide-react'
+import { CheckIcon, PlusIcon } from 'lucide-react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router'
 
@@ -11,14 +11,12 @@ import {
   stretchFormSchema,
   type StretchFormValues,
   useCreateDraft,
-  useDraftLimit,
   useUploadEntryImage,
 } from '@/entities/catalog'
 import { useSportUser } from '@/entities/sport-user'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
-import { Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'
 
@@ -60,7 +58,7 @@ const CreateForm = ({
     },
   })
 
-  // Админ добавляет сразу в справочник, пользователь — черновиком на модерацию (business-tz, 5.5)
+  // Админ добавляет сразу в справочник, пользователь — личной записью; публикация — отдельно, с карточки
   const save = (values: StretchFormValues): Promise<CreatedStretch> =>
     isAdmin
       ? saveStretch.mutateAsync({ id: null, ...values }).then(s => ({ id: s.id, name: s.name }))
@@ -78,7 +76,7 @@ const CreateForm = ({
             imagePath: values.imagePath ?? undefined,
           })
           // У только что созданного черновика запись есть всегда — null бывает лишь у удалённых
-          .then(entry => ({ id: entry.entryId as number, name: values.name }))
+          .then(entry => ({ id: entry.id, name: entry.name }))
 
   return (
     <FormProvider {...form}>
@@ -113,22 +111,19 @@ const CreateForm = ({
           className='w-full'
           disabled={pending}
         >
-          {isAdmin ? <PlusIcon strokeWidth={2.5} /> : <SendIcon />}
-          {isAdmin ? 'Добавить в справочник' : 'На модерацию'}
+          <PlusIcon strokeWidth={2.5} />
+          {isAdmin ? 'Добавить в справочник' : 'Сохранить'}
         </Button>
       </SheetFooter>
     </FormProvider>
   )
 }
 
-// Новая растяжка (business-tz, 5.5) — как новое упражнение: пользователь шлёт на модерацию, админ добавляет сразу
+// Новая растяжка (business-tz, 5.5) — как новое упражнение: у пользователя личная запись, админ добавляет сразу в справочник
 export const StretchCreateSheet = ({ open, onOpenChange }: StretchCreateSheetProps) => {
   const navigate = useNavigate()
   const isAdmin = useSportUser().data?.isAdmin ?? false
-  // Лимит заявок в сутки — только у пользователя: админ пишет в справочник напрямую
-  const limit = useDraftLimit({ enabled: open && !isAdmin })
   const [created, setCreated] = useState<CreatedStretch | null>(null)
-  const limitReached = !isAdmin && !!limit.data && limit.data.left <= 0
 
   const close = (next: boolean) => {
     onOpenChange(next)
@@ -143,23 +138,21 @@ export const StretchCreateSheet = ({ open, onOpenChange }: StretchCreateSheetPro
     } else setCreated(stretch)
   }
 
-  const title = created ? (isAdmin ? 'Добавлено' : 'Отправлено') : limitReached ? 'Лимит на сегодня' : 'Новая растяжка'
+  const title = created ? (isAdmin ? 'Добавлено' : 'Сохранено') : 'Новая растяжка'
   const description = created
     ? isAdmin
       ? `«${created.name}» уже в справочнике.`
-      : `«${created.name}» — черновик. Уже может попасть в твою заминку, бот напишет исход проверки.`
-    : limitReached
-      ? `Можно отправить ${limit.data?.limit} заявок в сутки. Завтра можно снова.`
-      : isAdmin
-        ? 'Запись сразу попадёт в справочник.'
-        : 'Уйдёт администратору на проверку, а пока будет видна только тебе.'
+      : `«${created.name}» уже может попасть в твою заминку. Чтобы она появилась в общем справочнике, нажми «Опубликовать» на карточке.`
+    : isAdmin
+      ? 'Запись сразу попадёт в справочник.'
+      : 'Будет видна только тебе. В общий справочник — по кнопке «Опубликовать», после проверки.'
 
   return (
     <Sheet
       open={open}
       onOpenChange={close}
     >
-      <SheetContent className={created || limitReached ? undefined : 'data-[side=bottom]:h-[88svh]'}>
+      <SheetContent className={created ? undefined : 'data-[side=bottom]:h-[88svh]'}>
         <SheetHeader>
           <SheetTitle>{title}</SheetTitle>
           <SheetDescription>{description}</SheetDescription>
@@ -181,33 +174,12 @@ export const StretchCreateSheet = ({ open, onOpenChange }: StretchCreateSheetPro
               Готово
             </Button>
           </div>
-        ) : limitReached ? (
-          <div className='px-gutter pb-6'>
-            <Button
-              variant='outline'
-              className='w-full'
-              onClick={() => close(false)}
-            >
-              Понятно
-            </Button>
-          </div>
         ) : (
           open && (
-            <>
-              {!isAdmin && limit.data && (
-                <Text
-                  size='sm'
-                  tone='muted'
-                  className='px-gutter pb-2'
-                >
-                  Осталось заявок на сегодня: {limit.data.left} из {limit.data.limit}
-                </Text>
-              )}
-              <CreateForm
-                isAdmin={isAdmin}
-                onCreated={done}
-              />
-            </>
+            <CreateForm
+              isAdmin={isAdmin}
+              onCreated={done}
+            />
           )
         )}
       </SheetContent>

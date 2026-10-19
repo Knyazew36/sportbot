@@ -7,9 +7,10 @@
 import type {
   CreateDraftDto,
   DraftControllerCreate200,
-  DraftControllerLimit200,
   DraftControllerMine200,
-  DraftControllerMineParams
+  DraftControllerMineParams,
+  DraftControllerPublishExercise200,
+  DraftControllerPublishStretch200
 } from '../model';
 
 import { customInstance } from '../../model/orval-mutator';
@@ -17,21 +18,10 @@ import { customInstance } from '../../model/orval-mutator';
 
 
   /**
- * @summary Сколько заявок ещё можно отправить сегодня
- */
-export const draftControllerLimit = (
-
- ) => {
-      return customInstance<DraftControllerLimit200>(
-      {url: `/drafts/limit`, method: 'GET'
-    },
-      );
-    }
-  /**
- * @summary Мои записи со статусами модерации
+ * @summary Мои записи со статусами публикации
  */
 export const draftControllerMine = (
-    params?: DraftControllerMineParams,
+    params: DraftControllerMineParams,
  ) => {
       return customInstance<DraftControllerMine200>(
       {url: `/drafts/mine`, method: 'GET',
@@ -40,7 +30,7 @@ export const draftControllerMine = (
       );
     }
   /**
- * @summary Своё упражнение или растяжка: черновик и заявка на проверку
+ * @summary Своё упражнение или растяжка: личная запись без проверки
  */
 export const draftControllerCreate = (
     createDraftDto: CreateDraftDto,
@@ -52,6 +42,29 @@ export const draftControllerCreate = (
     },
       );
     }
-  export type DraftControllerLimitResult = NonNullable<Awaited<ReturnType<typeof draftControllerLimit>>>
-export type DraftControllerMineResult = NonNullable<Awaited<ReturnType<typeof draftControllerMine>>>
+  /**
+ * @summary Отправить своё упражнение на проверку в общий справочник
+ */
+export const draftControllerPublishExercise = (
+    id: number,
+ ) => {
+      return customInstance<DraftControllerPublishExercise200>(
+      {url: `/drafts/exercises/publish/${id}`, method: 'POST'
+    },
+      );
+    }
+  /**
+ * @summary Отправить свою растяжку на проверку в общий справочник
+ */
+export const draftControllerPublishStretch = (
+    id: number,
+ ) => {
+      return customInstance<DraftControllerPublishStretch200>(
+      {url: `/drafts/stretches/publish/${id}`, method: 'POST'
+    },
+      );
+    }
+  export type DraftControllerMineResult = NonNullable<Awaited<ReturnType<typeof draftControllerMine>>>
 export type DraftControllerCreateResult = NonNullable<Awaited<ReturnType<typeof draftControllerCreate>>>
+export type DraftControllerPublishExerciseResult = NonNullable<Awaited<ReturnType<typeof draftControllerPublishExercise>>>
+export type DraftControllerPublishStretchResult = NonNullable<Awaited<ReturnType<typeof draftControllerPublishStretch>>>

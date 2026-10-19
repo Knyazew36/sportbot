@@ -1,4 +1,4 @@
-import { Trash2Icon } from 'lucide-react'
+import { EyeIcon, EyeOffIcon, Trash2Icon } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router'
 
 import {
@@ -6,8 +6,10 @@ import {
   useAdminExercise,
   useAdminStretch,
   useDeleteCatalogItem,
+  usePublishCatalogItem,
   useSaveExercise,
   useSaveStretch,
+  useUnpublishCatalogItem,
 } from '@/entities/admin'
 import { ROUTES } from '@/shared/config/paths'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
@@ -15,6 +17,7 @@ import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Screen, StickyFooter } from '@/shared/ui/kit/Screen'
 import { TopBar } from '@/shared/ui/kit/ScreenHeader'
+import { Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
 import { ExerciseForm } from './components/ExerciseForm'
@@ -34,6 +37,9 @@ const CatalogItemPage = () => {
   const saveExercise = useSaveExercise()
   const saveStretch = useSaveStretch()
   const remove = useDeleteCatalogItem()
+  const unpublish = useUnpublishCatalogItem()
+  const publish = usePublishCatalogItem()
+  const item = kind === 'exercise' ? exercise.data : stretch.data
   const noun = kind === 'exercise' ? 'упражнение' : 'растяжка'
   const saving = saveExercise.isPending || saveStretch.isPending
   const done = () => navigate(BACK, { replace: true })
@@ -87,8 +93,42 @@ const CatalogItemPage = () => {
       className='gap-8'
     >
       {form}
-      {id != null && (
-        <Rise className='px-gutter'>
+      {id != null && item && (
+        <Rise className='px-gutter flex flex-col gap-3'>
+          <Text
+            size='sm'
+            tone='muted'
+          >
+            {item.status === 'CATALOG' ? 'В общем справочнике' : 'Не в справочнике — видна только автору'}
+            {item.author ? ` · автор: ${item.author}` : ''}
+          </Text>
+          {item.status === 'CATALOG' ? (
+            <ConfirmAction
+              trigger={
+                <Button
+                  variant='outline'
+                  className='w-full'
+                />
+              }
+              title='Снять с публикации?'
+              description='Запись пропадёт из справочника. У автора она останется личной, а там, где её уже поставили, останется по ссылке.'
+              confirmLabel='Снять'
+              onConfirm={() => unpublish.mutateAsync({ kind, id })}
+            >
+              <EyeOffIcon />
+              Снять с публикации
+            </ConfirmAction>
+          ) : (
+            <Button
+              variant='outline'
+              className='w-full'
+              disabled={publish.isPending}
+              onClick={() => publish.mutate({ kind, id })}
+            >
+              <EyeIcon />
+              Вернуть в справочник
+            </Button>
+          )}
           <ConfirmAction
             trigger={
               <Button
@@ -97,7 +137,7 @@ const CatalogItemPage = () => {
               />
             }
             title='Удалить запись?'
-            description='Если запись стоит в чьих-то программах или тренировках, бэк откажет — тогда лучше поправить её.'
+            description='Если запись стоит в чьих-то программах или тренировках, удалить не выйдет — тогда сними её с публикации.'
             confirmLabel='Удалить'
             onConfirm={() => remove.mutateAsync({ kind, id }).then(done)}
           >

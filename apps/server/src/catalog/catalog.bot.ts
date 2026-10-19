@@ -17,7 +17,7 @@ import {
 } from '@/bot';
 import { MessengerButton } from '@/messengers';
 
-import { CatalogKind, CatalogService } from './catalog.service';
+import { CatalogKind, CatalogService, publishState } from './catalog.service';
 import { exerciseCard, stretchCard } from './catalog.texts';
 
 const KIND_BY_PREFIX: Record<string, CatalogKind> = {
@@ -253,6 +253,9 @@ export class CatalogBot implements BotFeature {
     const buttons: MessengerButton[][] = [];
     if ('videoUrl' in entity && entity.videoUrl)
       buttons.push([linkBtn('🎬 Видео', entity.videoUrl)]);
+    // Своя личная запись уходит на проверку только по явной кнопке
+    if (publishState(entity, ctx.user.id).canPublish)
+      buttons.push([btn('📤 В справочник', `dr:pub:${prefix}:${id}`)]);
     // Жалоба — только на запись общего справочника: свой черновик автор правит сам
     if (entity.status === 'CATALOG')
       buttons.push([

@@ -14,10 +14,11 @@ import { ForgottenMuscles } from './ForgottenMuscles'
 import { FriendsToday } from './FriendsToday'
 import { NextUp } from './NextUp'
 import { OtherComplexSheet } from './OtherComplexSheet'
+import { WeekStreak } from './WeekStreak'
 import { WorkoutTotals } from './WorkoutTotals'
 
-// Тренировка засчитана: серия, итог с рекордами, что дальше, друзья. Ещё одна тренировка
-// (внеплановая, как в боте) или статистика — внизу. Неделю здесь не показываем: день уже закрыт
+// Тренировка засчитана: серия, итог с рекордами, что дальше, неделя, друзья. Ещё одна тренировка
+// (внеплановая, как в боте) или статистика — внизу
 export const DoneDay = ({ day }: { day: DayToday }) => {
   const navigate = useNavigate()
   const [pickOpen, setPickOpen] = useState(false)
@@ -35,6 +36,7 @@ export const DoneDay = ({ day }: { day: DayToday }) => {
       )}
 
       <NextUp day={day} />
+      <WeekStreak week={day.week} />
       <ForgottenMuscles />
       <FriendsToday />
 
