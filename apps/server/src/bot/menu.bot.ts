@@ -17,7 +17,7 @@ import {
 export const BOT_COMMANDS: { name: string; description: string }[] = [
   { name: 'today', description: 'Тренировка сегодня' },
   { name: 'app', description: 'Открыть приложение' },
-  { name: 'programs', description: 'Программы и комплексы' },
+  { name: 'programs', description: 'Программы и тренировки' },
   { name: 'catalog', description: 'Справочник упражнений и растяжек' },
   { name: 'stats', description: 'Статистика' },
   { name: 'history', description: 'Отметки за 7 дней' },
@@ -31,9 +31,9 @@ export const BOT_COMMANDS: { name: string; description: string }[] = [
 
 const HELP = `Я веду твои тренировки в зале.
 
-/today — выдать комплекс на сегодня
+/today — выдать тренировку на сегодня
 /app — открыть приложение: таймеры, графики, календарь
-/programs — программы и комплексы
+/programs — программы и тренировки
 /catalog — упражнения и растяжки с техникой
 /stats — посещаемость, серия, нагрузка по мышцам
 /history — исправить отметку за последние 7 дней

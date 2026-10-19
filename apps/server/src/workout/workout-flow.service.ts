@@ -81,7 +81,7 @@ export class WorkoutFlow {
         : null) ?? (await this.programs.nextComplex(userId));
     if (!complex)
       return msg(
-        'Нет активной программы с комплексами. Возьми шаблон или собери свою — и я буду выдавать комплексы по кругу.',
+        'Нет активной программы с тренировками. Возьми шаблон или собери свою — и я буду выдавать тренировки по очереди.',
         [[btn('📋 Программы', 'pr:list')], [BACK_TO_MENU]],
       );
     return this.offer(ctx, complex.id);
@@ -94,9 +94,9 @@ export class WorkoutFlow {
   ): Promise<MessengerMessage> {
     const complex = await this.programs.findComplex(ctx.user.id, complexId);
     if (!complex.exercises.length)
-      return msg(`В комплексе «${complex.name}» пока нет упражнений.`, [
-        [btn('✏️ Открыть комплекс', `cx:v:${complex.id}`)],
-        [btn('🔀 Другой комплекс', 'wo:pick')],
+      return msg(`В тренировке «${complex.name}» пока нет упражнений.`, [
+        [btn('✏️ Открыть тренировку', `cx:v:${complex.id}`)],
+        [btn('🔀 Другая тренировка', 'wo:pick')],
         [BACK_TO_MENU],
       ]);
     const limited = await this.limitations.activeJointIds(ctx.profile);
@@ -107,10 +107,10 @@ export class WorkoutFlow {
   public async pick(ctx: BotContext): Promise<MessengerMessage> {
     const complexes = await this.programs.activeComplexes(ctx.user.id);
     if (!complexes.length)
-      return msg('В активной программе нет комплексов.', [
+      return msg('В активной программе нет тренировок.', [
         [btn('📋 Программы', 'pr:list')],
       ]);
-    return msg('Какой комплекс делаем?', [
+    return msg('Какую тренировку делаем?', [
       ...complexes.map((c) => [
         btn(
           cut(

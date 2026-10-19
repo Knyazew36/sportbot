@@ -124,7 +124,7 @@ export class ProgramPublicationService {
     }
     if (!program.complexes.some((c) => c._count.exercises > 0))
       throw new BadRequestException(
-        'Добавь хотя бы один комплекс с упражнениями.',
+        'Добавь хотя бы одну тренировку с упражнениями.',
       );
 
     const { tagIds, created } = await this.prisma.$transaction(async (tx) => {

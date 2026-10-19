@@ -28,7 +28,7 @@ export const ComplexExercises = ({ complex }: { complex: Complex }) => {
       aside={`${pluralize(complex.exercises.length, EXERCISE_FORMS)}`}
     >
       {complex.exercises.length === 0 ? (
-        <Text tone='soft'>В комплексе пока нет упражнений — добавь их в программе.</Text>
+        <Text tone='soft'>В тренировке пока нет упражнений — добавь их в программе.</Text>
       ) : (
         <List>
           <ExerciseBlocks items={complex.exercises}>

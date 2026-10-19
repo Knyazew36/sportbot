@@ -66,7 +66,7 @@ const ComplexNameForm = ({ complex, onRename }: ComplexNameFormProps) => {
   return (
     <form onSubmit={save}>
       <TextField
-        label='Название комплекса'
+        label='Название тренировки'
         placeholder='Например, «Ноги» или «Верх»'
         error={errors.name}
         {...register('name', { onBlur: () => void save() })}
@@ -188,12 +188,12 @@ export const ComplexEditor = ({ complex, actions, addExerciseTo }: ComplexEditor
             />
           }
           title={`Удалить «${complex.name}»?`}
-          description='Комплекс пропадёт из очереди. История тренировок по нему сохранится.'
+          description='Тренировка пропадёт из очереди. История по ней сохранится.'
           confirmLabel='Удалить'
           onConfirm={() => actions.deleteComplex(complex.id)}
         >
           <Trash2Icon />
-          Удалить комплекс
+          Удалить тренировку
         </ConfirmAction>
       </Rise>
 

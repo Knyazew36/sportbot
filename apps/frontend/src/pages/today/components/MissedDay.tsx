@@ -49,7 +49,7 @@ export const MissedDay = ({ day, suggestPause }: MissedDayProps) => {
         <Rise className='px-gutter'>
           <ConfirmAction
             title='Тренировка всё-таки была?'
-            description='Отмечу день тренировкой по комплексу дня, серия пересчитается.'
+            description='Отмечу день тренировкой дня по очереди, серия пересчитается.'
             confirmLabel='Отметить'
             confirmVariant='default'
             onConfirm={() => fix.mutateAsync({ dayId, status: 'DONE' })}

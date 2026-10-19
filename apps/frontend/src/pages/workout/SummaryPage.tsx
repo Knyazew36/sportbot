@@ -104,7 +104,7 @@ const SummaryView = ({ summary }: { summary: WorkoutSummary }) => (
           tone='soft'
           className='mt-1'
         >
-          Кардио после комплекса: {summary.cardioName}
+          Кардио в конце: {summary.cardioName}
           {summary.cardioMinutes ? `, ${summary.cardioMinutes} мин` : ''}
         </Text>
       )}

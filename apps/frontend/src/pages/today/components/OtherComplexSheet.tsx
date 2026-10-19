@@ -33,9 +33,9 @@ export const OtherComplexSheet = ({
   >
     <SheetContent>
       <SheetHeader>
-        <SheetTitle>Другой комплекс</SheetTitle>
+        <SheetTitle>Другая тренировка</SheetTitle>
         <SheetDescription>
-          {complexes.length ? `${programName}. Очередь продолжится с выбранного.` : 'Сначала нужен комплекс'}
+          {complexes.length ? `${programName}. Очередь продолжится с выбранного.` : 'Сначала нужна тренировка'}
         </SheetDescription>
       </SheetHeader>
       <div className='flex flex-col gap-2 px-gutter pb-6'>
@@ -44,8 +44,8 @@ export const OtherComplexSheet = ({
           <>
             <Text tone='soft'>
               {programName
-                ? 'В программе пока нет комплексов — добавь хотя бы один, чтобы было что выбрать.'
-                : 'Нет активной программы — выбери или собери её, чтобы было из чего выбрать комплекс.'}
+                ? 'В программе пока нет тренировок — добавь хотя бы одну, чтобы было что выбрать.'
+                : 'Нет активной программы — выбери или собери её, чтобы было из чего выбрать тренировку.'}
             </Text>
             <ButtonLink
               to={ROUTES.PROGRAMS}

@@ -108,7 +108,7 @@ export class WorkoutAppService {
     const id = complexId ?? (await this.complexOfDay(profile));
     if (!id)
       throw new BadRequestException(
-        'Нет активной программы с комплексами — возьми шаблон или собери свою.',
+        'Нет активной программы с тренировками — возьми шаблон или собери свою.',
       );
     const workout = await this.workouts.start(profile, id);
     this.logger.log(

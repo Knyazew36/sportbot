@@ -67,7 +67,7 @@ export const WorkoutTotals = ({ workoutId, complexName }: { workoutId: number; c
                 )}
               </>
             ) : (
-              <Text tone='soft'>Засчитано без записи подходов — по плану комплекса.</Text>
+              <Text tone='soft'>Засчитано без записи подходов — по плану.</Text>
             )}
             <ButtonLink
               to={buildPath(ROUTES.WORKOUT_SUMMARY, { workoutId })}

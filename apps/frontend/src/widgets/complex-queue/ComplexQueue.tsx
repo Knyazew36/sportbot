@@ -25,7 +25,7 @@ export const ComplexQueue = ({ complexes, activeId, aside, onPick, pickLabel }: 
 
   return (
     <ScreenSection
-      title='Очередь комплексов'
+      title='Очередь тренировок'
       aside={aside}
       bleed
     >

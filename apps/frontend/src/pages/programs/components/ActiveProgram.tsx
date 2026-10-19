@@ -69,15 +69,15 @@ export const ActiveProgram = ({ programId }: { programId: number }) => {
               <ComplexQueue
                 complexes={p.complexes}
                 activeId={p.complexes.find(c => c.isNext)?.id}
-                aside='следующий подсвечен'
+                aside='следующая подсвечена'
                 onPick={id => makeNext.mutate(id)}
-                pickLabel='Сделать следующим'
+                pickLabel='Сделать следующей'
               />
             )}
             <Rise className='px-gutter flex flex-col gap-4'>
               <StatGrid
                 items={[
-                  { label: 'комплексов', value: p.complexes.length },
+                  { label: 'тренировок', value: p.complexes.length },
                   { label: pluralize(exercises, EXERCISE_FORMS, { withCount: false }), value: exercises },
                   { label: pluralize(sets, SET_FORMS, { withCount: false }), value: sets },
                 ]}

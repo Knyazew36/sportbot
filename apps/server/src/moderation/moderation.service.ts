@@ -421,7 +421,7 @@ export class ModerationService {
     );
     return {
       authorId: decision.authorId,
-      text: `«${decision.from}» объединён с «${decision.to}» — в твоих комплексах он заменён, история весов сохранена.${note ? ` ${note}.` : ''}`,
+      text: `«${decision.from}» объединён с «${decision.to}» — в твоих программах он заменён, история весов сохранена.${note ? ` ${note}.` : ''}`,
     };
   }
 

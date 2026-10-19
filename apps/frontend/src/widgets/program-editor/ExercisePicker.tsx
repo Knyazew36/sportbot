@@ -194,7 +194,7 @@ export const ExercisePicker = ({ complex, back, target, adding, onAdd }: Exercis
                       key={e.id}
                       name={e.name}
                       imageUrl={toAssetUrl(e.imageUrl) ?? null}
-                      meta={[e.muscles, e.equipment && EQUIPMENT_LABEL[e.equipment], inComplex && 'уже в комплексе']
+                      meta={[e.muscles, e.equipment && EQUIPMENT_LABEL[e.equipment], inComplex && 'уже в тренировке']
                         .filter(Boolean)
                         .join(' · ')}
                       draft={e.draft}
@@ -234,7 +234,7 @@ export const ExercisePicker = ({ complex, back, target, adding, onAdd }: Exercis
               disabled
             >
               <CheckIcon strokeWidth={3} />
-              Уже в комплексе
+              Уже в тренировке
             </Button>
           ) : (
             <Button

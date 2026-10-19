@@ -26,11 +26,13 @@ type ProgramComplexListProps = {
   complexTo: (complexId: number) => string
   /** Пока сохраняется добавление — кнопка неактивна */
   adding?: boolean
+  /** Номер блока на экране редактора */
+  index?: number
 }
 
-// Комплексы программы в порядке очереди: перетаскивание за ручку и добавление.
+// Тренировки программы (комплексы в коде) в порядке очереди: перетаскивание за ручку и добавление.
 // Состав комплекса правится на его странице — здесь только очередь, чтобы экран не был перегружен
-export const ProgramComplexList = ({ complexes, actions, complexTo, adding }: ProgramComplexListProps) => {
+export const ProgramComplexList = ({ complexes, actions, complexTo, adding, index }: ProgramComplexListProps) => {
   const navigate = useNavigate()
   // Порядок под пальцем: на сервер уходит один раз, когда строку отпустили
   const [dragOrder, setDragOrder] = useState<number[] | null>(null)
@@ -45,7 +47,7 @@ export const ProgramComplexList = ({ complexes, actions, complexTo, adding }: Pr
 
   const addComplex = () =>
     actions
-      .addComplex(`Комплекс ${complexLetter(complexes.length)}`)
+      .addComplex(`Тренировка ${complexLetter(complexes.length)}`)
       .then(program => {
         const created = program.complexes.at(-1)
         if (created) navigate(complexTo(created.id))
@@ -55,15 +57,19 @@ export const ProgramComplexList = ({ complexes, actions, complexTo, adding }: Pr
 
   return (
     <ScreenSection
-      title='Комплексы'
-      aside={complexes.length > 1 ? 'порядок — тяни за ручку' : undefined}
+      variant='block'
+      index={index}
+      title='Тренировки'
+      aside={complexes.length > 1 ? 'идут по очереди · тяни за ручку' : undefined}
     >
-      <Text
-        size='sm'
-        tone='muted'
-      >
-        Комплекс — это одна тренировка, набор упражнений . Комплексы идут по очереди: A, потом B, потом C — и снова A. Один день-один комплекс
-      </Text>
+      {shown.length === 0 && (
+        <Text
+          size='sm'
+          tone='muted'
+        >
+          Тренировка — набор упражнений на один день. Бот выдаёт их по очереди: A, B, C — и снова A
+        </Text>
+      )}
       {shown.length > 0 && (
         <Reorder.Group
           axis='y'
@@ -89,7 +95,7 @@ export const ProgramComplexList = ({ complexes, actions, complexTo, adding }: Pr
         onClick={() => void addComplex()}
       >
         <PlusIcon strokeWidth={2.5} />
-        {shown.length ? 'Добавить комплекс' : 'Добавить первый комплекс'}
+        {shown.length ? 'Добавить тренировку' : 'Добавить первую тренировку'}
       </Button>
     </ScreenSection>
   )

@@ -102,7 +102,7 @@ export const ComplexExerciseRow = ({
             variant='outline'
             size='icon-sm'
             className='text-destructive'
-            aria-label={`Удалить «${exercise.name}» из комплекса`}
+            aria-label={`Удалить «${exercise.name}» из тренировки`}
             onClick={onRemove}
           >
             <Trash2Icon />

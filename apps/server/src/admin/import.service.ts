@@ -337,10 +337,10 @@ export class ImportService {
       for (const code of unknown(program?.tags, knownTags))
         errors.push(`${at}: неизвестный тег ${String(code)}`);
       if (!partial && !list(program?.complexes).length)
-        errors.push(`${at}: нет комплексов`);
+        errors.push(`${at}: нет тренировок`);
       list(program?.complexes).forEach((raw, complexIndex) => {
         const complex = raw as NonNullable<ImportProgram['complexes']>[number];
-        const where = `${at}, комплекс ${complexIndex + 1}`;
+        const where = `${at}, тренировка ${complexIndex + 1}`;
         if (!isText(complex?.name)) errors.push(`${where}: нет name`);
         if (!list(complex?.exercises).length)
           errors.push(`${where}: нет упражнений`);

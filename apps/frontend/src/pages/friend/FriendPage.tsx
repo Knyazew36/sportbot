@@ -115,7 +115,7 @@ const FriendPage = () => {
                           {p.name}
                         </button>
                       }
-                      meta={[pluralize(p.complexCount, ['комплекс', 'комплекса', 'комплексов']), p.active && 'активная']
+                      meta={[pluralize(p.complexCount, ['тренировка', 'тренировки', 'тренировок']), p.active && 'активная']
                         .filter(Boolean)
                         .join(' · ')}
                       trail={copyButton(p.id, 'xs', 'relative z-10')}

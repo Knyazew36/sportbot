@@ -17,7 +17,7 @@ import { EXERCISE_FORMS } from '@/shared/lib/plural-forms'
 /** Тегов на карточке: остальные видно на странице программы */
 const CARD_TAGS = 3
 
-const COMPLEX_FORMS: [string, string, string] = ['комплекс', 'комплекса', 'комплексов']
+const COMPLEX_FORMS: [string, string, string] = ['тренировка', 'тренировки', 'тренировок']
 
 /** Вырез корешка — полукруг цвета фона на линии отрыва */
 const Notch = ({ className }: { className: string }) => (

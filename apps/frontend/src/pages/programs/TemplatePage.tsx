@@ -166,7 +166,7 @@ const TemplatePage = () => {
               <Rise className='px-gutter'>
                 <StatGrid
                   items={[
-                    { label: 'комплексов', value: t.complexes.length },
+                    { label: 'тренировок', value: t.complexes.length },
                     { label: pluralize(exercises, EXERCISE_FORMS, { withCount: false }), value: exercises },
                   ]}
                 />

@@ -78,7 +78,7 @@ export class ProgramBot implements BotFeature {
           await this.sessions.set(ctx, `pr.addc:${id}`);
           return ctx.edit(
             msg(
-              `Как назвать комплекс?\n${hint('Например «День A» или «Грудь и трицепс».')}`,
+              `Как назвать тренировку?\n${hint('Например «День A» или «Грудь и трицепс».')}`,
               [[btn('Отмена', `pr:v:${id}`)]],
             ),
           );
@@ -90,7 +90,7 @@ export class ProgramBot implements BotFeature {
         case 'del':
           return ctx.edit(
             msg(
-              'Удалить программу со всеми комплексами? История тренировок сохранится.',
+              'Удалить программу со всеми тренировками? История тренировок сохранится.',
               [
                 [
                   btn('Да, удалить', `pr:delok:${id}`),
@@ -114,7 +114,7 @@ export class ProgramBot implements BotFeature {
       case 'ren':
         await this.sessions.set(ctx, `cx.ren:${id}`);
         return ctx.edit(
-          msg('Новое название комплекса?', [[btn('Отмена', `cx:v:${id}`)]]),
+          msg('Новое название тренировки?', [[btn('Отмена', `cx:v:${id}`)]]),
         );
       case 'up':
       case 'dn': {
@@ -127,13 +127,13 @@ export class ProgramBot implements BotFeature {
       }
       case 'del':
         return ctx.edit(
-          msg('Удалить комплекс?', [
+          msg('Удалить тренировку?', [
             [btn('Да, удалить', `cx:delok:${id}`), btn('Нет', `cx:v:${id}`)],
           ]),
         );
       case 'delok': {
         const programId = await this.programs.removeComplex(userId, id);
-        await ctx.toast('Комплекс удалён');
+        await ctx.toast('Тренировка удалена');
         return ctx.edit(await this.programScreen(ctx, programId));
       }
       case 'add':
@@ -142,7 +142,7 @@ export class ProgramBot implements BotFeature {
             [btn('🔎 По названию', `cx:af:${id}`)],
             [btn('💪 По группе мышц', `cx:am:${id}`)],
             [btn('➕ Создать своё', 'dr:new:ex')],
-            [btn('⬅️ Комплекс', `cx:v:${id}`)],
+            [btn('⬅️ Тренировка', `cx:v:${id}`)],
           ]),
         );
       case 'af':
@@ -160,7 +160,7 @@ export class ProgramBot implements BotFeature {
               muscles.map((m) => btn(m.name, `cx:ml:${id}:${m.id}:1`)),
               2,
             ),
-            [btn('⬅️ Комплекс', `cx:v:${id}`)],
+            [btn('⬅️ Тренировка', `cx:v:${id}`)],
           ]),
         );
       }
@@ -175,7 +175,7 @@ export class ProgramBot implements BotFeature {
         );
       case 'pick':
         await this.programs.addExercise(userId, id, Number(args[1]));
-        await ctx.toast('Добавлено в комплекс');
+        await ctx.toast('Добавлено в тренировку');
         return ctx.edit(await this.complexScreen(ctx, id));
       // Кардио теперь — упражнения на время в самом комплексе; старый блок можно только убрать
       case 'cardiorm':
@@ -209,7 +209,7 @@ export class ProgramBot implements BotFeature {
       }
       case 'erm': {
         const complexId = await this.programs.removeItem(userId, id);
-        await ctx.toast('Убрано из комплекса');
+        await ctx.toast('Убрано из тренировки');
         return ctx.edit(await this.complexScreen(ctx, complexId));
       }
       default:
@@ -263,11 +263,11 @@ export class ProgramBot implements BotFeature {
                 ...found.map((e) => [
                   btn(this.exerciseLabel(e), `cx:pick:${id}:${e.id}`),
                 ]),
-                [btn('⬅️ Комплекс', `cx:v:${id}`)],
+                [btn('⬅️ Тренировка', `cx:v:${id}`)],
               ])
             : msg('Ничего не нашёл. Попробуй другое слово.', [
                 [btn('➕ Создать своё', 'dr:new:ex')],
-                [btn('⬅️ Комплекс', `cx:v:${id}`)],
+                [btn('⬅️ Тренировка', `cx:v:${id}`)],
               ]),
         );
         return;
@@ -282,7 +282,7 @@ export class ProgramBot implements BotFeature {
     const activeId = ctx.profile.activeProgramId;
     return msg(
       programs.length
-        ? 'Твои программы. Активная отмечена ✅ — комплексы из неё идут по очереди.'
+        ? 'Твои программы. Активная отмечена ✅ — тренировки из неё идут по очереди.'
         : 'Программ пока нет. Возьми шаблон или собери свою.',
       [
         ...programs.map((p) => [
@@ -339,11 +339,11 @@ export class ProgramBot implements BotFeature {
         '',
         lines.length
           ? lines.join('\n')
-          : 'Комплексов пока нет — добавь первый.',
+          : 'Тренировок пока нет — добавь первую.',
       ].join('\n'),
       [
         ...program.complexes.map((c) => [btn(cut(c.name), `cx:v:${c.id}`)]),
-        [btn('➕ Комплекс', `pr:addc:${program.id}`)],
+        [btn('➕ Тренировка', `pr:addc:${program.id}`)],
         ...(active
           ? []
           : [[btn('✅ Сделать активной', `pr:act:${program.id}`)]]),
@@ -418,7 +418,7 @@ export class ProgramBot implements BotFeature {
   ): Promise<MessengerMessage> {
     const item = await this.programs.findItem(ctx.user.id, itemId);
     return msg(
-      `${item.exercise.name} — ${planText(item.sets, item.repsMin, item.repsMax, item.exercise.measure)}\nКомплекс: ${item.complex.name}`,
+      `${item.exercise.name} — ${planText(item.sets, item.repsMin, item.repsMax, item.exercise.measure)}\nТренировка: ${item.complex.name}`,
       [
         [
           btn(
@@ -436,7 +436,7 @@ export class ProgramBot implements BotFeature {
           btn('ℹ️ Техника', `ex:v:${item.exerciseId}`),
           btn('🗑 Убрать', `cx:erm:${item.id}`),
         ],
-        [btn('⬅️ Комплекс', `cx:v:${item.complexId}`)],
+        [btn('⬅️ Тренировка', `cx:v:${item.complexId}`)],
       ],
     );
   }

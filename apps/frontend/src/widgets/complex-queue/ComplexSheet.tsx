@@ -48,7 +48,7 @@ export const ComplexSheet = ({
             </SheetHeader>
             <div className='min-h-0 overflow-y-auto px-gutter pb-6'>
               {c.exercises.length === 0 && !c.cardioName ? (
-                <Text tone='soft'>В комплексе пока нет упражнений — добавь их в редакторе программы.</Text>
+                <Text tone='soft'>В тренировке пока нет упражнений — добавь их в редакторе программы.</Text>
               ) : (
                 <List>
                   <ExerciseBlocks items={c.exercises}>

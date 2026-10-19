@@ -20,7 +20,7 @@ export const NoProgramDay = () => (
         tone='soft'
         className='mt-4'
       >
-        Возьми готовый шаблон или собери свою — и бот будет выдавать комплексы по очереди.
+        Возьми готовый шаблон или собери свою — и бот будет выдавать тренировки по очереди.
       </Text>
     </Rise>
     <Rise className='grid grid-cols-2 gap-2 px-gutter'>

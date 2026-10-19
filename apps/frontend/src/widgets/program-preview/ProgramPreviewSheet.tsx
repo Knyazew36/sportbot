@@ -36,7 +36,7 @@ export const ProgramPreviewSheet = ({ program, onOpenChange, note, action, loadi
     <SheetContent>
       <SheetHeader>
         <SheetTitle>{program?.name ?? 'Программа'}</SheetTitle>
-        <SheetDescription>{program?.description || 'Комплексы идут по очереди, по кругу.'}</SheetDescription>
+        <SheetDescription>{program?.description || 'Тренировки идут по очереди, по кругу.'}</SheetDescription>
       </SheetHeader>
       <div className='px-gutter flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto pb-2'>
         {loading && (
@@ -48,7 +48,7 @@ export const ProgramPreviewSheet = ({ program, onOpenChange, note, action, loadi
             <Spinner className='text-smoke size-6' />
           </div>
         )}
-        {!loading && program && program.complexes.length === 0 && <Text tone='muted'>Комплексов пока нет.</Text>}
+        {!loading && program && program.complexes.length === 0 && <Text tone='muted'>Тренировок пока нет.</Text>}
         {program?.complexes.map((c, i) => (
           // Дни идут подряд и однотипны — без жирной шапки сливаются в один список.
           // Поля уже даёт шторка, поэтому у секции свои отключены

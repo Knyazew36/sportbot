@@ -68,8 +68,8 @@ const TemplateComplexPage = () => {
       header={
         <TopBar
           back={back}
-          title={template.data?.complexes[index]?.name ?? 'Комплекс'}
-          subtitle={index >= 0 ? `комплекс ${complexLetter(index)} · ${template.data?.name}` : undefined}
+          title={template.data?.complexes[index]?.name ?? 'Тренировка'}
+          subtitle={index >= 0 ? `тренировка ${complexLetter(index)} · ${template.data?.name}` : undefined}
           action={
             <ButtonLink
               to={back}
@@ -84,7 +84,7 @@ const TemplateComplexPage = () => {
       <QueryScreen
         query={template}
         isEmpty={p => !pick(p)}
-        empty={{ title: 'Комплекса нет', description: 'Его уже удалили. Вернись в программу.' }}
+        empty={{ title: 'Тренировки нет', description: 'Её уже удалили. Вернись в программу.' }}
       >
         {p => {
           const complex = pick(p)

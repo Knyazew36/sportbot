@@ -131,7 +131,7 @@ export const useAddTemplateComplex = () => {
   return useMutation({
     mutationFn: ({ templateId, name }: { templateId: number; name: string }) =>
       adminTemplatesControllerAddComplex(templateId, { name }),
-    meta: { successMessage: 'Комплекс добавлен' },
+    meta: { successMessage: 'Тренировка добавлена' },
     onSuccess: apply,
   })
 }
@@ -140,7 +140,7 @@ export const useRenameTemplateComplex = () => {
   const apply = useApplyTemplate()
   return useMutation({
     mutationFn: ({ id, name }: { id: number; name: string }) => adminTemplatesControllerUpdateComplex(id, { name }),
-    meta: { successMessage: 'Комплекс переименован', inlineFieldErrors: true },
+    meta: { successMessage: 'Тренировка переименована', inlineFieldErrors: true },
     onSuccess: apply,
   })
 }
@@ -149,7 +149,7 @@ export const useDeleteTemplateComplex = () => {
   const apply = useApplyTemplate()
   return useMutation({
     mutationFn: (id: number) => adminTemplatesControllerRemoveComplex(id),
-    meta: { successMessage: 'Комплекс удалён' },
+    meta: { successMessage: 'Тренировка удалена' },
     onSuccess: apply,
   })
 }

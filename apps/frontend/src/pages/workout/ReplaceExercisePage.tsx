@@ -152,7 +152,7 @@ const ReplaceExercisePage = () => {
           <SheetHeader>
             <SheetTitle>Заменить на «{choice?.name}»</SheetTitle>
             <SheetDescription>
-              Только на эту тренировку или насовсем — в комплексе «{workout?.complexName}» вместо «{item?.name}».
+              Только на эту тренировку или насовсем — в «{workout?.complexName}» вместо «{item?.name}».
             </SheetDescription>
           </SheetHeader>
           <div className='px-gutter flex flex-col gap-3 pb-6'>
@@ -180,7 +180,7 @@ const ReplaceExercisePage = () => {
               disabled={replace.isPending || !workout?.complexId}
               onClick={() => void apply(true)}
             >
-              Заменить в комплексе
+              Заменить насовсем
             </Button>
           </div>
         </SheetContent>

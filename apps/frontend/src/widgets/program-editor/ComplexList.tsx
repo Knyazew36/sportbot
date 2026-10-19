@@ -29,13 +29,13 @@ export const ComplexList = ({ complexes, onChange, nextId, initialExpandedId, ad
 
   const addComplex = () => {
     const id = Date.now()
-    onChange(list => [...list, { id, letter: '', title: `Комплекс ${LETTERS[list.length]}`, exercises: [] }])
+    onChange(list => [...list, { id, letter: '', title: `Тренировка ${LETTERS[list.length]}`, exercises: [] }])
     setExpandedId(id)
   }
 
   return (
     <ScreenSection
-      title='Комплексы'
+      title='Тренировки'
       aside='порядок = очередь, тяни за ручку'
     >
       <Reorder.Group
@@ -64,7 +64,7 @@ export const ComplexList = ({ complexes, onChange, nextId, initialExpandedId, ad
         onClick={addComplex}
       >
         <PlusIcon strokeWidth={2.5} />
-        Добавить комплекс
+        Добавить тренировку
       </Button>
     </ScreenSection>
   )

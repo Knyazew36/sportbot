@@ -24,7 +24,7 @@ import { ProgramPreviewSheet } from '@/widgets/program-preview/ProgramPreviewShe
 
 import { PublishSheet } from './PublishSheet'
 
-const COMPLEX_FORMS: [string, string, string] = ['комплекс', 'комплекса', 'комплексов']
+const COMPLEX_FORMS: [string, string, string] = ['тренировка', 'тренировки', 'тренировок']
 
 type MyProgramsProps = {
   programs: ProgramListItem[]

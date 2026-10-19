@@ -28,7 +28,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '
 
 import { ProgramTagsBlock } from './ProgramTagsBlock'
 
-const COMPLEX_FORMS: [string, string, string] = ['комплекс', 'комплекса', 'комплексов']
+const COMPLEX_FORMS: [string, string, string] = ['тренировка', 'тренировки', 'тренировок']
 
 // Новый шаблон: название сразу, состав — уже в редакторе
 const NewTemplateForm = () => {

@@ -42,10 +42,10 @@ export const AddToComplexSheet = ({
     >
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>{target ? 'Добавлено' : 'В какой комплекс?'}</SheetTitle>
+          <SheetTitle>{target ? 'Добавлено' : 'В какую тренировку?'}</SheetTitle>
           <SheetDescription>
             {target
-              ? `«${exercise}» — в конце комплекса «${target.title}». Подходы можно поправить в редакторе программы.`
+              ? `«${exercise}» — в конце тренировки «${target.title}». Подходы можно поправить в редакторе программы.`
               : program}
           </SheetDescription>
         </SheetHeader>

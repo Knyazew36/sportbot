@@ -16,7 +16,7 @@ export const ComplexQueue = ({ currentId, byQueue, onPick }: ComplexQueueProps) 
     <ComplexQueueWidget
       complexes={program.data.complexes}
       activeId={currentId}
-      aside={byQueue ? 'следующий подсвечен' : 'выбран вручную'}
+      aside={byQueue ? 'следующая подсвечена' : 'выбрана вручную'}
       onPick={onPick}
     />
   )

@@ -63,7 +63,7 @@ export class PollService {
     return msg(
       [
         'Доброе утро. Сегодня тренировочный день — будешь тренироваться?',
-        ...(complexName ? [`Следующий по программе: «${complexName}».`] : []),
+        ...(complexName ? [`Следующая по программе: «${complexName}».`] : []),
       ].join('\n'),
       buttons,
     );

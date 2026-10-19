@@ -161,7 +161,7 @@ export class AdminCatalogService {
   public async removeExercise(id: number): Promise<void> {
     await this.guard(
       () => this.prisma.exercise.delete({ where: { id } }),
-      'Упражнение стоит в комплексах или тренировках — сначала замени его там.',
+      'Упражнение стоит в программах или тренировках — сначала замени его там.',
     );
     this.logger.log(`Упражнение удалено: exerciseId=${id}`);
   }

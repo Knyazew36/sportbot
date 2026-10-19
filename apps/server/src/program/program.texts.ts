@@ -25,4 +25,4 @@ export const exercisesCount = (n: number): string =>
   `${n} ${plural(n, 'упражнение', 'упражнения', 'упражнений')}`;
 
 export const complexesCount = (n: number): string =>
-  `${n} ${plural(n, 'комплекс', 'комплекса', 'комплексов')}`;
+  `${n} ${plural(n, 'тренировка', 'тренировки', 'тренировок')}`;

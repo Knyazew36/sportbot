@@ -88,7 +88,7 @@ export const StepProgram = ({ formId, templates, onSubmit }: StepProgramProps) =
                   <OptionButton
                     type='button'
                     title={t.name}
-                    meta={`${pluralize(t.complexes.length, ['комплекс', 'комплекса', 'комплексов'])} в очереди`}
+                    meta={`${pluralize(t.complexes.length, ['тренировка', 'тренировки', 'тренировок'])} в очереди`}
                     selected={field.value === t.id}
                     onClick={() => field.onChange(t.id)}
                     // Кнопка по умолчанию не сжимается — без этого вытолкнет «посмотреть» за край экрана

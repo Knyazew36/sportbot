@@ -14,7 +14,7 @@ import { PublishSheet } from './PublishSheet'
 
 // Публикация своей программы в «Программы пользователей». Копии чужих программ публиковать нельзя —
 // каталог наполнился бы клонами оригинала, поэтому у них блока нет
-export const PublishBlock = ({ program: p }: { program: Program }) => {
+export const PublishBlock = ({ program: p, index }: { program: Program; index?: number }) => {
   const [open, setOpen] = useState(false)
   const unpublish = useUnpublishProgram()
   if (!isPublishable(p)) return null
@@ -22,7 +22,11 @@ export const PublishBlock = ({ program: p }: { program: Program }) => {
   const listed = p.publication === 'PENDING' || p.publication === 'PUBLISHED'
 
   return (
-    <ScreenSection title='Каталог'>
+    <ScreenSection
+      variant='block'
+      index={index}
+      title='Каталог'
+    >
       <div className='flex flex-col gap-3'>
         <StatusFromMeta meta={PUBLICATION_STATUS[p.publication]} />
 

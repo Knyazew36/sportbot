@@ -20,13 +20,13 @@ export const MEASURE_LIMITS: Record<
   MINUTES: { plan: 14_400, set: 14_400 },
 };
 
-/** План нового упражнения в комплексе: силовое 3 × 8–12, удержание 3 × 30–60 с, кардио 1 × 20 мин. */
+/** План нового упражнения в комплексе: силовое 4 × 8–12, удержание 4 × 30–60 с, кардио 1 × 20 мин. */
 export const defaultPlan = (measure: ExerciseMeasure) =>
   measure === 'MINUTES'
     ? { sets: 1, repsMin: 1200, repsMax: 1200 }
     : measure === 'TIME'
-      ? { sets: 3, repsMin: 30, repsMax: 60 }
-      : { sets: 3, repsMin: 8, repsMax: 12 };
+      ? { sets: 4, repsMin: 30, repsMax: 60 }
+      : { sets: 4, repsMin: 8, repsMax: 12 };
 
 const pad = (n: number) => String(n).padStart(2, '0');
 const clock = (s: number) => `${Math.floor(s / 60)}:${pad(s % 60)}`;

@@ -69,7 +69,7 @@ const ExercisePage = () => {
                 className='size-6'
                 strokeWidth={2.5}
               />
-              {program.data ? 'В комплекс' : 'Нет активной программы'}
+              {program.data ? 'В тренировку' : 'Нет активной программы'}
             </Button>
           </StickyFooter>
         )

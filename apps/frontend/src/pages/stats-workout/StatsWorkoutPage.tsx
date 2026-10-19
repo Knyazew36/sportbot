@@ -114,7 +114,7 @@ const StatsWorkoutPage = () => {
                   size='sm'
                   tone='soft'
                 >
-                  Кардио после комплекса: {s.cardioName}
+                  Кардио в конце: {s.cardioName}
                   {s.cardioMinutes ? `, ${s.cardioMinutes} мин` : ''}
                 </Text>
               )}

@@ -88,7 +88,7 @@ export function previewMessage(
     ].join('\n'),
     [
       [btn('▶️ Начать', `wo:start:${complex.id}`)],
-      [btn('🔀 Другой комплекс', 'wo:pick')],
+      [btn('🔀 Другая тренировка', 'wo:pick')],
     ],
   );
 }

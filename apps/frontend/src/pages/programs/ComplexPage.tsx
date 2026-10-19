@@ -68,7 +68,7 @@ const ComplexPage = () => {
       header={
         <TopBar
           back={back}
-          title={program.data?.complexes.find(c => c.id === complexId)?.name ?? 'Комплекс'}
+          title={program.data?.complexes.find(c => c.id === complexId)?.name ?? 'Тренировка'}
           action={
             // Правки уже ушли на сервер по ходу; кнопка подтверждает и возвращает в программу
             <ButtonLink
@@ -85,7 +85,7 @@ const ComplexPage = () => {
       <QueryScreen
         query={program}
         isEmpty={p => !pick(p)}
-        empty={{ title: 'Комплекса нет', description: 'Его уже удалили. Вернись в программу.' }}
+        empty={{ title: 'Тренировки нет', description: 'Её уже удалили. Вернись в программу.' }}
       >
         {p => {
           const complex = pick(p)

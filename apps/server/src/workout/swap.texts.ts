@@ -8,13 +8,13 @@ export function swapChoiceMessage(
   intro?: string,
 ): MessengerMessage {
   return msg(
-    [intro, 'Заменить только сегодня или в комплексе?']
+    [intro, 'Заменить только сегодня или насовсем?']
       .filter(Boolean)
       .join('\n'),
     [
       [
         btn('Только сегодня', `sw:day:${itemId}:${exerciseId}`),
-        btn('В комплексе', `sw:cx:${itemId}:${exerciseId}`),
+        btn('Насовсем', `sw:cx:${itemId}:${exerciseId}`),
       ],
       [btn('⬅️ К тренировке', 'wo:cont')],
     ],

@@ -125,7 +125,7 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
       >
         <ScreenState
           state='empty'
-          title='В комплексе нет упражнений'
+          title='В тренировке нет упражнений'
           description='Добавь упражнения в программе или отмени тренировку.'
           action={
             <Button
@@ -299,7 +299,7 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
                   description={
                     doneCount
                       ? `Сделано ${doneCount} из ${pluralize(items.length, EXERCISE_OF_FORMS)}. Тренировка засчитается.`
-                      : 'Пока не сделано ни одного упражнения. Можно отменить тренировку — очередь комплексов не сдвинется.'
+                      : 'Пока не сделано ни одного упражнения. Можно отменить тренировку — очередь тренировок не сдвинется.'
                   }
                   confirmLabel={doneCount ? 'Завершить' : 'Отменить тренировку'}
                   confirmVariant={doneCount ? 'default' : 'destructive'}
@@ -515,7 +515,7 @@ const StartWorkout = ({ complexId }: { complexId?: number }) => {
         <ScreenState
           state='error'
           title='Не получилось начать'
-          description='Проверь, что в активной программе есть комплекс с упражнениями.'
+          description='Проверь, что в активной программе есть тренировка с упражнениями.'
           action={
             <ButtonLink
               to={ROUTES.TODAY}

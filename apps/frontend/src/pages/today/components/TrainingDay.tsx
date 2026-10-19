@@ -20,7 +20,7 @@ type TrainingDayProps = {
   onMissed: (suggestPause: boolean) => void
 }
 
-// Тренировочный день, тренировки ещё не было: комплекс по очереди, «Другой комплекс», «Сегодня не буду»
+// Тренировочный день, тренировки ещё не было: комплекс по очереди, «Другая тренировка», «Сегодня не буду»
 export const TrainingDay = ({ day, onPickComplex, onMissed }: TrainingDayProps) => {
   const [otherOpen, setOtherOpen] = useState(false)
   const skip = useSkipDay()
@@ -59,7 +59,7 @@ export const TrainingDay = ({ day, onPickComplex, onMissed }: TrainingDayProps) 
           onClick={() => setOtherOpen(true)}
         >
           <ShuffleIcon />
-          Другой комплекс
+          Другая тренировка
         </Button>
         <ConfirmAction
           title='Сегодня не будешь?'

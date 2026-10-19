@@ -129,7 +129,7 @@ export class WorkoutBot implements BotFeature {
         await this.workouts.discard(userId, id);
         await this.sessions.clear(ctx);
         return ctx.edit(
-          msg('Тренировка отменена, очередь комплексов не сдвинулась.', [
+          msg('Тренировка отменена, очередь тренировок не сдвинулась.', [
             [btn('🏋️ Тренировка сегодня', 'wo:today')],
             [BACK_TO_MENU],
           ]),
@@ -212,7 +212,7 @@ export class WorkoutBot implements BotFeature {
           action === 'cx',
         );
         await ctx.toast(
-          action === 'cx' ? 'Заменено в комплексе' : 'Заменено на сегодня',
+          action === 'cx' ? 'Заменено насовсем' : 'Заменено на сегодня',
         );
         const workout = await this.workouts.find(userId, workoutId);
         return ctx.edit(await this.flow.show(ctx, workout, itemId));

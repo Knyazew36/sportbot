@@ -59,7 +59,7 @@ export const ComplexCard = ({
           type='button'
           className='text-foreground/50 flex size-10 touch-none items-center justify-center'
           onPointerDown={e => drag.start(e)}
-          aria-label={`Перетащить комплекс «${complex.title}»`}
+          aria-label={`Перетащить тренировку «${complex.title}»`}
         >
           <GripVerticalIcon className='size-5' />
         </button>
@@ -91,7 +91,7 @@ export const ComplexCard = ({
             className='mt-0.5 flex items-center gap-2'
           >
             {pluralize(complex.exercises.length, EXERCISE_FORMS)}
-            {isNext && <Badge className='h-5'>следующий</Badge>}
+            {isNext && <Badge className='h-5'>следующая</Badge>}
           </Text>
         </button>
         <Button
@@ -114,7 +114,7 @@ export const ComplexCard = ({
             className='overflow-hidden'
           >
             <div className='border-border flex flex-col gap-3 border-t-[1.5px] p-3'>
-              <Label htmlFor={`complex-${complex.id}`}>Название комплекса</Label>
+              <Label htmlFor={`complex-${complex.id}`}>Название тренировки</Label>
               <Input
                 id={`complex-${complex.id}`}
                 value={complex.title}
@@ -192,12 +192,12 @@ export const ComplexCard = ({
                     />
                   }
                   title={`Удалить «${complex.title}»?`}
-                  description='Комплекс пропадёт из очереди. История тренировок по нему сохранится.'
+                  description='Тренировка пропадёт из очереди. История по ней сохранится.'
                   confirmLabel='Удалить'
                   onConfirm={onDelete}
                 >
                   <Trash2Icon />
-                  Удалить комплекс
+                  Удалить тренировку
                 </ConfirmAction>
               </div>
             </div>

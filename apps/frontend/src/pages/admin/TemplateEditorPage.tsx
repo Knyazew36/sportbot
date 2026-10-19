@@ -188,7 +188,7 @@ const TemplateEditorPage = () => {
           title={template.data?.name ?? 'Шаблон'}
           subtitle={
             template.data
-              ? `шаблон · ${pluralize(template.data.complexes.length, ['комплекс', 'комплекса', 'комплексов'])}`
+              ? `шаблон · ${pluralize(template.data.complexes.length, ['тренировка', 'тренировки', 'тренировок'])}`
               : 'шаблон'
           }
           action={

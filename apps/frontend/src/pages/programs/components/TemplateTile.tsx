@@ -58,7 +58,7 @@ export const TemplateTile = ({ template: t }: { template: Program }) => (
         ))}
       </div>
       <Eyebrow>
-        {pluralize(t.complexes.length, ['комплекс', 'комплекса', 'комплексов'])}
+        {pluralize(t.complexes.length, ['тренировка', 'тренировки', 'тренировок'])}
         {t.addedCount > 0 && ` · ${addedText(t.addedCount)}`}
       </Eyebrow>
     </Link>

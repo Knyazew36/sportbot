@@ -31,7 +31,7 @@ export const ResultStats = ({ workout }: { workout: SharedWorkout }) => (
         tone='soft'
         className='mt-1'
       >
-        Кардио после комплекса: {workout.cardioName}
+        Кардио в конце: {workout.cardioName}
         {workout.cardioMinutes ? `, ${workout.cardioMinutes} мин` : ''}
       </Text>
     )}

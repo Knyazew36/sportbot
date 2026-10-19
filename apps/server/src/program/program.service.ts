@@ -334,7 +334,7 @@ export class ProgramService {
       where: { id: complexId, program: ownerWhere(owner) },
       include: COMPLEX_INCLUDE,
     });
-    if (!complex) throw new NotFoundException('Комплекс не найден.');
+    if (!complex) throw new NotFoundException('Тренировка не найдена.');
     return complex;
   }
 
@@ -368,7 +368,7 @@ export class ProgramService {
       where: { id: complexId, program: ownerWhere(owner) },
       data: { name: cleanName(name) },
     });
-    if (!count) throw new NotFoundException('Комплекс не найден.');
+    if (!count) throw new NotFoundException('Тренировка не найдена.');
   }
 
   /** Убрать старый кардио-блок: кардио теперь — упражнения на время в самом комплексе. */
@@ -418,7 +418,7 @@ export class ProgramService {
   ) {
     const complex = await this.findComplex(owner, complexId);
     if (complex.exercises.some((item) => item.exerciseId === exerciseId))
-      throw new BadRequestException('Это упражнение уже есть в комплексе.');
+      throw new BadRequestException('Это упражнение уже есть в тренировке.');
     const visible = await this.prisma.exercise.findFirst({
       where: { id: exerciseId, ...visibleExercise(owner) },
       select: { id: true, measure: true },
@@ -454,7 +454,7 @@ export class ProgramService {
     const present = new Set(complex.exercises.map((e) => e.exerciseId));
     const fresh = [...new Set(exerciseIds)].filter((id) => !present.has(id));
     if (!fresh.length)
-      throw new BadRequestException('Эти упражнения уже есть в комплексе.');
+      throw new BadRequestException('Эти упражнения уже есть в тренировке.');
     if (target.newSuperset && fresh.length < 2)
       throw new BadRequestException(
         'Для суперсета выбери хотя бы два новых упражнения.',
@@ -478,7 +478,7 @@ export class ProgramService {
     if (target.joinItemId !== undefined) {
       const anchorIndex = order.findIndex((e) => e.id === target.joinItemId);
       if (anchorIndex < 0)
-        throw new NotFoundException('Упражнение комплекса не найдено.');
+        throw new NotFoundException('Упражнение тренировки не найдено.');
       const anchor = order[anchorIndex];
       anchor.superset ??= newNo;
       superset = anchor.superset;
@@ -568,7 +568,7 @@ export class ProgramService {
       where: { id: itemId, complex: { program: ownerWhere(owner) } },
       include: { exercise: true, complex: true },
     });
-    if (!item) throw new NotFoundException('Упражнение комплекса не найдено.');
+    if (!item) throw new NotFoundException('Упражнение тренировки не найдено.');
     return item;
   }
 
@@ -789,7 +789,7 @@ export class ProgramService {
         e instanceof Prisma.PrismaClientKnownRequestError &&
         e.code === 'P2025'
       ) {
-        throw new NotFoundException('Комплекс не найден в активной программе.');
+        throw new NotFoundException('Тренировка не найдена в активной программе.');
       }
       throw e;
     }
@@ -868,7 +868,7 @@ export class ProgramService {
       data: { cardioName, cardioMinutes },
       select: { programId: true },
     });
-    if (!complex) throw new NotFoundException('Комплекс не найден.');
+    if (!complex) throw new NotFoundException('Тренировка не найдена.');
     await this.touch(complex.programId);
     this.logger.log(
       `Кардио комплекса: complexId=${complexId}, минут=${cardioMinutes ?? 'нет'}`,

@@ -285,7 +285,7 @@ export const useMakeNextComplex = () => {
   const apply = useApplyProgram()
   return useMutation({
     mutationFn: (id: number) => programControllerMakeNextComplex(id),
-    meta: { successMessage: 'Комплекс следующий в очереди' },
+    meta: { successMessage: 'Тренировка следующая в очереди' },
     onSuccess: apply,
   })
 }
@@ -294,7 +294,7 @@ export const useRenameComplex = () => {
   const apply = useApplyProgram()
   return useMutation({
     mutationFn: ({ id, name }: { id: number; name: string }) => programControllerUpdateComplex(id, { name }),
-    meta: { successMessage: 'Комплекс переименован', inlineFieldErrors: true },
+    meta: { successMessage: 'Тренировка переименована', inlineFieldErrors: true },
     onSuccess: apply,
   })
 }
@@ -303,7 +303,7 @@ export const useDeleteComplex = () => {
   const apply = useApplyProgram()
   return useMutation({
     mutationFn: (id: number) => programControllerRemoveComplex(id),
-    meta: { successMessage: 'Комплекс удалён' },
+    meta: { successMessage: 'Тренировка удалена' },
     onSuccess: apply,
   })
 }

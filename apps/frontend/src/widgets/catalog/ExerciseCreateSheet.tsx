@@ -159,7 +159,7 @@ export const ExerciseCreateSheet = ({ open, onOpenChange, onCreated }: ExerciseC
   const description = created
     ? isAdmin
       ? `«${created.name}» уже в справочнике.`
-      : `«${created.name}» — черновик. Его уже можно ставить в комплексы с пометкой «не проверено», бот напишет исход проверки.`
+      : `«${created.name}» — черновик. Его уже можно ставить в тренировки с пометкой «не проверено», бот напишет исход проверки.`
     : limitReached
       ? `Можно отправить ${limit.data?.limit} заявок в сутки. Завтра можно снова.`
       : isAdmin

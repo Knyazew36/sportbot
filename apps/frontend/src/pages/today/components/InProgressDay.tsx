@@ -53,7 +53,7 @@ export const InProgressDay = ({ day }: { day: DayToday }) => {
         week={day.week}
         withAttendance
       />
-      {/* Отмена — как «Отменить» в боте: тренировка удаляется, очередь комплексов не сдвигается */}
+      {/* Отмена — как «Отменить» в боте: тренировка удаляется, очередь тренировок не сдвигается */}
       <Rise className='px-gutter'>
         <ConfirmAction
           trigger={
@@ -66,8 +66,8 @@ export const InProgressDay = ({ day }: { day: DayToday }) => {
           title='Отменить тренировку?'
           description={
             workout.done
-              ? `Записанные подходы (${workout.done} из ${pluralize(workout.total, EXERCISE_OF_FORMS)}) удалятся. Очередь комплексов не сдвинется.`
-              : 'Тренировка удалится, очередь комплексов не сдвинется.'
+              ? `Записанные подходы (${workout.done} из ${pluralize(workout.total, EXERCISE_OF_FORMS)}) удалятся. Очередь тренировок не сдвинется.`
+              : 'Тренировка удалится, очередь тренировок не сдвинется.'
           }
           confirmLabel='Отменить тренировку'
           onConfirm={() => discard.mutateAsync(workout.id)}

@@ -23,7 +23,7 @@ export const ComplexPoster = ({ complex, complexes, programName }: ComplexPoster
   return (
     <Rise className='relative px-gutter'>
       <Eyebrow as='p'>
-        Комплекс {complexLetter(Math.max(index, 0))}
+        Тренировка {complexLetter(Math.max(index, 0))}
         {programName && ` · ${programName}`}
       </Eyebrow>
       <Lead className='mt-4'>{complex.byQueue ? 'сегодня на очереди —' : 'сегодня вне очереди —'}</Lead>
