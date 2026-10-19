@@ -1,4 +1,4 @@
-import { motion } from 'motion/react'
+import { motion, useReducedMotion } from 'motion/react'
 
 import { cn } from '@/shared/lib/utils'
 import { haptic } from '@/shared/miniapp'
@@ -10,41 +10,66 @@ type PosterTabsProps<T extends string> = {
   className?: string
 }
 
-// Разделы экрана плакатными словами с жирной чертой под выбранным. Нарочно не похожи на Segmented:
-// под ними часто стоит переключатель периода, и два ряда одинаковых кнопок читались бы как один выбор
-export const PosterTabs = <T extends string>({ tabs, value, onValueChange, className }: PosterTabsProps<T>) => (
-  <div
-    role='tablist'
-    className={cn('border-border no-scrollbar flex gap-5 overflow-x-auto border-b-[1.5px]', className)}
-  >
-    {tabs.map(tab => {
-      const active = tab.value === value
-      return (
-        <button
-          key={tab.value}
-          type='button'
-          role='tab'
-          aria-selected={active}
-          onClick={() => {
-            if (active) return
-            haptic.select()
-            onValueChange(tab.value)
-          }}
-          className={cn(
-            'sb-poster relative shrink-0 pb-2.5 text-[22px] transition-colors outline-none focus-visible:underline',
-            active ? 'text-foreground' : 'text-foreground/35',
-          )}
-        >
-          {tab.label}
-          {active && (
-            <motion.span
-              layoutId='poster-tab'
-              className='bg-primary absolute inset-x-0 -bottom-[1.5px] h-1'
-              transition={{ type: 'spring', stiffness: 500, damping: 40 }}
-            />
-          )}
-        </button>
-      )
-    })}
-  </div>
-)
+// Разделы экрана как оглавление из глав: одна рамка с жёсткой тенью, равные ячейки «01 / ПРОГРЕСС».
+// Выбранная глава залита синим, заливка переезжает пружиной. Нарочно не похожи на Segmented:
+// под ними стоит переключатель периода, и два ряда одинаковых кнопок читались бы как один выбор
+export const PosterTabs = <T extends string>({ tabs, value, onValueChange, className }: PosterTabsProps<T>) => {
+  const still = useReducedMotion()
+
+  return (
+    <div
+      role='tablist'
+      className={cn(
+        'border-foreground divide-foreground/80 mr-[3px] mb-[3px] grid auto-cols-fr grid-flow-col divide-x-[1.5px] border-[1.5px] shadow-[3px_3px_0_var(--sb-ink)]',
+        className,
+      )}
+    >
+      {tabs.map((tab, i) => {
+        const active = tab.value === value
+        return (
+          <button
+            key={tab.value}
+            type='button'
+            role='tab'
+            aria-selected={active}
+            onClick={() => {
+              if (active) return
+              haptic.select()
+              onValueChange(tab.value)
+            }}
+            className={cn(
+              'group relative flex min-w-0 flex-col items-start gap-1 px-2.5 pt-2 pb-2.5 text-left outline-none',
+              'focus-visible:ring-ring/25 focus-visible:ring-4 focus-visible:ring-inset',
+              !active && 'active:hatch',
+            )}
+          >
+            {active && (
+              <motion.span
+                layoutId='poster-tab-fill'
+                aria-hidden
+                className='bg-primary absolute inset-0'
+                transition={still ? { duration: 0 } : { type: 'spring', stiffness: 520, damping: 38 }}
+              />
+            )}
+            <span
+              className={cn(
+                'font-grotesk relative text-[10.5px] leading-none tracking-[0.14em] tabular-nums transition-colors',
+                active ? 'text-primary-foreground/70' : 'text-primary',
+              )}
+            >
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            <span
+              className={cn(
+                'sb-poster relative max-w-full truncate text-[min(19px,5vw)] leading-[1.1] transition-colors',
+                active ? 'text-primary-foreground' : 'text-foreground/45 group-hover:text-foreground/70',
+              )}
+            >
+              {tab.label}
+            </span>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
