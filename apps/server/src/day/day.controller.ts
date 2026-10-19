@@ -5,7 +5,6 @@ import {
   Param,
   ParseIntPipe,
   Post,
-  Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
@@ -14,13 +13,13 @@ import { Swagger } from '@/common/decorators/swagger/swagger.decorator';
 import { SportAuth } from '@/miniapp/decorators/sport-auth.decorator';
 
 import { DayService } from './day.service';
+import { DayComplexDto } from './dto/day-complex.dto';
 import { DayEveningDto } from './dto/day-evening.dto';
 import { DayEveningResponseDto } from './dto/day-evening.response.dto';
 import { DayFixDto } from './dto/day-fix.dto';
 import { DayFixResponseDto } from './dto/day-fix.response.dto';
 import { DayRescheduleDto } from './dto/day-reschedule.dto';
 import { DaySkipResponseDto } from './dto/day-skip.response.dto';
-import { DayTodayQueryDto } from './dto/day-today-query.dto';
 import { DayTodayResponseDto } from './dto/day-today.response.dto';
 
 @ApiTags('day')
@@ -31,16 +30,25 @@ export class DayController {
 
   @Get('today')
   @Swagger({
-    title: 'Сегодня: состояние дня, серия, неделя, комплекс по очереди',
-    query: DayTodayQueryDto,
+    title: 'Сегодня: состояние дня, серия, неделя, комплекс дня',
     response: DayTodayResponseDto,
     bearerAuth: true,
   })
-  public today(
+  public today(@CurrentUser('id') userId: number) {
+    return this.dayService.today(userId);
+  }
+
+  @Post('complex')
+  @Swagger({
+    title: '«Другая тренировка»: выбрать комплекс на сегодня вместо очереди',
+    body: DayComplexDto,
+    bearerAuth: true,
+  })
+  public pickComplex(
     @CurrentUser('id') userId: number,
-    @Query() query: DayTodayQueryDto,
+    @Body() dto: DayComplexDto,
   ) {
-    return this.dayService.today(userId, query.complexId);
+    return this.dayService.pickComplex(userId, dto.complexId);
   }
 
   @Post('skip')

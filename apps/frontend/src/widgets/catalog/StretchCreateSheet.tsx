@@ -13,7 +13,6 @@ import {
   useCreateDraft,
   useUploadEntryImage,
 } from '@/entities/catalog'
-import { useSportUser } from '@/entities/sport-user'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
@@ -30,13 +29,15 @@ type CreatedStretch = { id: number; name: string }
 type StretchCreateSheetProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
+  /** Из админки: запись сразу попадает в общий справочник. В обычном режиме — личная, публикация через проверку */
+  direct?: boolean
 }
 
 const CreateForm = ({
-  isAdmin,
+  direct,
   onCreated,
 }: {
-  isAdmin: boolean
+  direct: boolean
   onCreated: (stretch: CreatedStretch, pickedSimilar?: boolean) => void
 }) => {
   const createDraft = useCreateDraft()
@@ -58,9 +59,9 @@ const CreateForm = ({
     },
   })
 
-  // Админ добавляет сразу в справочник, пользователь — личной записью; публикация — отдельно, с карточки
+  // Из админки — сразу в справочник, иначе личной записью (и у админа тоже); публикация — отдельно, с карточки
   const save = (values: StretchFormValues): Promise<CreatedStretch> =>
-    isAdmin
+    direct
       ? saveStretch.mutateAsync({ id: null, ...values }).then(s => ({ id: s.id, name: s.name }))
       : createDraft
           .mutateAsync({
@@ -92,7 +93,7 @@ const CreateForm = ({
         <StretchFields
           initialImageUrl={null}
           upload={upload}
-          showKind={isAdmin}
+          showKind={direct}
           afterName={name => (
             <SimilarEntries
               kind='stretch'
@@ -112,7 +113,7 @@ const CreateForm = ({
           disabled={pending}
         >
           <PlusIcon strokeWidth={2.5} />
-          {isAdmin ? 'Добавить в справочник' : 'Сохранить'}
+          {direct ? 'Добавить в справочник' : 'Сохранить'}
         </Button>
       </SheetFooter>
     </FormProvider>
@@ -120,9 +121,8 @@ const CreateForm = ({
 }
 
 // Новая растяжка (business-tz, 5.5) — как новое упражнение: у пользователя личная запись, админ добавляет сразу в справочник
-export const StretchCreateSheet = ({ open, onOpenChange }: StretchCreateSheetProps) => {
+export const StretchCreateSheet = ({ open, onOpenChange, direct = false }: StretchCreateSheetProps) => {
   const navigate = useNavigate()
-  const isAdmin = useSportUser().data?.isAdmin ?? false
   const [created, setCreated] = useState<CreatedStretch | null>(null)
 
   const close = (next: boolean) => {
@@ -138,12 +138,12 @@ export const StretchCreateSheet = ({ open, onOpenChange }: StretchCreateSheetPro
     } else setCreated(stretch)
   }
 
-  const title = created ? (isAdmin ? 'Добавлено' : 'Сохранено') : 'Новая растяжка'
+  const title = created ? (direct ? 'Добавлено' : 'Сохранено') : 'Новая растяжка'
   const description = created
-    ? isAdmin
+    ? direct
       ? `«${created.name}» уже в справочнике.`
       : `«${created.name}» уже может попасть в твою заминку. Чтобы она появилась в общем справочнике, нажми «Опубликовать» на карточке.`
-    : isAdmin
+    : direct
       ? 'Запись сразу попадёт в справочник.'
       : 'Будет видна только тебе. В общий справочник — по кнопке «Опубликовать», после проверки.'
 
@@ -177,7 +177,7 @@ export const StretchCreateSheet = ({ open, onOpenChange }: StretchCreateSheetPro
         ) : (
           open && (
             <CreateForm
-              isAdmin={isAdmin}
+              direct={direct}
               onCreated={done}
             />
           )

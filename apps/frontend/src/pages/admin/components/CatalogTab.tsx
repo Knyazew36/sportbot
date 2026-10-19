@@ -123,14 +123,16 @@ export const CatalogTab = () => {
         </QueryScreen>
         <LoadMore query={catalog} />
       </Rise>
-      {/* Те же шторки, что в справочнике: у админа запись сразу попадает в справочник */}
+      {/* Те же шторки, что в справочнике, но из админки запись сразу попадает в справочник */}
       <ExerciseCreateSheet
         open={createOpen && kind === 'exercise'}
         onOpenChange={setCreateOpen}
+        direct
       />
       <StretchCreateSheet
         open={createOpen && kind === 'stretch'}
         onOpenChange={setCreateOpen}
+        direct
       />
     </>
   )

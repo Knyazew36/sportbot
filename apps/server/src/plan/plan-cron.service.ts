@@ -270,7 +270,13 @@ export class PlanCronService {
     if (day.status !== 'PENDING') return 0;
 
     if (!day.morningAskedAt) {
-      const complex = await this.programs.nextComplex(userId);
+      // Комплекс могли выбрать в приложении ещё до утра — бот называет его, а не очередной
+      const complex = day.suggestedComplexId
+        ? await this.prisma.complex.findUnique({
+            where: { id: day.suggestedComplexId },
+            select: { id: true, name: true },
+          })
+        : await this.programs.nextComplex(userId);
       // Первый запуск закончен сегодня уже после утреннего времени: вопрос и его повтор
       // не шлём — экран «настройка закончена» сам предлагает тренировку. Вечерний остаётся.
       const { onboardedAt, timeZone } = profile;

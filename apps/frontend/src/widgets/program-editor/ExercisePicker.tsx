@@ -43,9 +43,11 @@ type ExercisePickerProps = {
   target?: SupersetTarget
   adding: boolean
   onAdd: (exerciseIds: number[]) => void
+  /** Шаблон админа: новое упражнение сразу в справочник — в опубликованном шаблоне личных быть не должно */
+  directCreate?: boolean
 }
 
-export const ExercisePicker = ({ complex, back, target, adding, onAdd }: ExercisePickerProps) => {
+export const ExercisePicker = ({ complex, back, target, adding, onAdd, directCreate }: ExercisePickerProps) => {
   const muscles = useMuscles()
   const [params, setParams] = useSearchParams()
 
@@ -256,6 +258,7 @@ export const ExercisePicker = ({ complex, back, target, adding, onAdd }: Exercis
         open={createOpen}
         onOpenChange={setCreateOpen}
         onCreated={addCreated}
+        direct={directCreate}
       />
     </Screen>
   )

@@ -23,6 +23,7 @@ const TemplateAddExercisePage = () => {
       back={back}
       target={target}
       adding={add.isPending}
+      directCreate
       onAdd={exerciseIds =>
         add.mutate({ complexId, exerciseIds, ...target }, { onSuccess: () => navigate(back, { replace: true }) })
       }

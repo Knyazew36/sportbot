@@ -5,12 +5,13 @@
  * OpenAPI spec version: 0.0.1
  */
 import type {
+  DayComplexDto,
   DayControllerEvening200,
   DayControllerFix200,
+  DayControllerPickComplex200,
   DayControllerReschedule200,
   DayControllerSkip200,
   DayControllerToday200,
-  DayControllerTodayParams,
   DayEveningDto,
   DayFixDto,
   DayRescheduleDto
@@ -21,14 +22,26 @@ import { customInstance } from '../../model/orval-mutator';
 
 
   /**
- * @summary Сегодня: состояние дня, серия, неделя, комплекс по очереди
+ * @summary Сегодня: состояние дня, серия, неделя, комплекс дня
  */
 export const dayControllerToday = (
-    params?: DayControllerTodayParams,
+
  ) => {
       return customInstance<DayControllerToday200>(
-      {url: `/day/today`, method: 'GET',
-        params
+      {url: `/day/today`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @summary «Другая тренировка»: выбрать комплекс на сегодня вместо очереди
+ */
+export const dayControllerPickComplex = (
+    dayComplexDto: DayComplexDto,
+ ) => {
+      return customInstance<DayControllerPickComplex200>(
+      {url: `/day/complex`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: dayComplexDto
     },
       );
     }
@@ -84,6 +97,7 @@ export const dayControllerFix = (
       );
     }
   export type DayControllerTodayResult = NonNullable<Awaited<ReturnType<typeof dayControllerToday>>>
+export type DayControllerPickComplexResult = NonNullable<Awaited<ReturnType<typeof dayControllerPickComplex>>>
 export type DayControllerSkipResult = NonNullable<Awaited<ReturnType<typeof dayControllerSkip>>>
 export type DayControllerEveningResult = NonNullable<Awaited<ReturnType<typeof dayControllerEvening>>>
 export type DayControllerRescheduleResult = NonNullable<Awaited<ReturnType<typeof dayControllerReschedule>>>

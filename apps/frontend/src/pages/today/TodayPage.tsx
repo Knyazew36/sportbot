@@ -1,9 +1,8 @@
 import { ArrowRightIcon } from 'lucide-react'
-import { useSearchParams } from 'react-router'
 
 import { useState } from 'react'
 
-import { type DayToday, useToday } from '@/entities/day'
+import { type DayToday, usePickComplex, useToday } from '@/entities/day'
 import { useSportUser } from '@/entities/sport-user'
 import { useFinishQueued } from '@/entities/workout'
 import { ROUTES } from '@/shared/config/paths'
@@ -48,9 +47,8 @@ const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1
 
 // Главный экран (frontend-tz, 7): одно из состояний дня, серия, неделя и что дальше
 const TodayPage = () => {
-  const [params, setParams] = useSearchParams()
-  const complexId = Number(params.get('complexId')) || undefined
-  const today = useToday(complexId)
+  const today = useToday()
+  const pick = usePickComplex()
   const me = useSportUser()
   // Три пропуска подряд — ответ на «не буду» один раз предлагает паузу
   const [suggestPause, setSuggestPause] = useState(false)
@@ -58,7 +56,6 @@ const TodayPage = () => {
   // Завершение ждёт сети: сервер ещё говорит «идёт», но продолжать уже нечего
   const finishQueued = useFinishQueued(today.data?.workout?.id)
 
-  const pickComplex = (id: number) => setParams({ complexId: String(id) }, { replace: true })
   const action = today.data && !finishQueued ? cta(today.data) : null
 
   return (
@@ -98,7 +95,7 @@ const TodayPage = () => {
             {day.state === 'TRAINING' && day.complex && (
               <TrainingDay
                 day={day}
-                onPickComplex={pickComplex}
+                onPickComplex={pick.mutate}
                 onMissed={setSuggestPause}
               />
             )}

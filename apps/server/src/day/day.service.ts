@@ -47,14 +47,8 @@ export class DayService {
 
   // ── Сегодня ─────────────────────────────────────────────────────────────
 
-  /**
-   * Одно из состояний дня (frontend-tz, 7). complexId — «другой комплекс» до начала тренировки:
-   * любой комплекс активной программы вместо предложенного по очереди.
-   */
-  public async today(
-    userId: number,
-    complexId?: number,
-  ): Promise<DayTodayResponseDto> {
+  /** Одно из состояний дня (frontend-tz, 7). */
+  public async today(userId: number): Promise<DayTodayResponseDto> {
     const before = await this.accounts.profile(userId);
     const today = localToday(before.timeZone);
     // Зависшие тренировки прошлых дней закрываются, как при «тренировка сегодня» в боте
@@ -113,7 +107,6 @@ export class DayService {
     const showComplex = state === 'TRAINING' || state === 'REST';
     const complex = showComplex
       ? await this.complexOfDay(profile, {
-          requested: complexId,
           suggested: day?.suggestedComplexId ?? null,
           allowed: complexes.map((c) => c.id),
           nextId: next?.id ?? null,
@@ -176,6 +169,42 @@ export class DayService {
   }
 
   // ── Ответы ──────────────────────────────────────────────────────────────
+
+  /**
+   * «Другая тренировка» до начала: выбор пишется в день плана, чтобы пережить перезаход —
+   * его же берут старт тренировки и вечернее «да».
+   */
+  public async pickComplex(userId: number, complexId: number): Promise<void> {
+    const profile = await this.accounts.profile(userId);
+    const today = localToday(profile.timeZone);
+    const inProgram = await this.prisma.complex.count({
+      where: { id: complexId, program: { activeFor: { some: { userId } } } },
+    });
+    if (!inProgram)
+      throw new BadRequestException('Этого комплекса нет в активной программе.');
+
+    const { count } = await this.prisma.planDay.updateMany({
+      where: { userId, date: today, status: 'PENDING' },
+      data: { suggestedComplexId: complexId },
+    });
+    // До утреннего вопроса крон день ещё не завёл — заводим сами, утренний шаг выбор не перетрёт
+    const created =
+      !count && profile.trainingDays.includes(weekdayOf(today))
+        ? await this.prisma.planDay.createMany({
+            data: { userId, date: today, suggestedComplexId: complexId },
+            skipDuplicates: true,
+          })
+        : null;
+    if (!count && !created?.count) {
+      this.logger.warn(
+        `Выбор комплекса не в тренировочный день: userId=${userId}, complexId=${complexId}`,
+      );
+      throw new BadRequestException('Сегодня тренировка не ждёт.');
+    }
+    this.logger.log(
+      `Комплекс дня выбран вручную: userId=${userId}, complexId=${complexId}`,
+    );
+  }
 
   /** «Сегодня не буду»: пропуск и что предложить дальше. */
   public async skip(userId: number): Promise<DaySkipResponseDto> {
@@ -258,13 +287,12 @@ export class DayService {
   private async complexOfDay(
     profile: SportProfile,
     pick: {
-      requested?: number;
       suggested: number | null;
       allowed: number[];
       nextId: number | null;
     },
   ): Promise<DayComplexResponseDto | null> {
-    const id = [pick.requested, pick.suggested, pick.nextId].find(
+    const id = [pick.suggested, pick.nextId].find(
       (candidate): candidate is number =>
         candidate != null && pick.allowed.includes(candidate),
     );

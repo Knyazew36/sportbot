@@ -1,10 +1,11 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { statsKeys } from '@/entities/stats'
 import { PERSIST_GC_TIME } from '@/shared/api'
 import {
   dayControllerEvening,
   dayControllerFix,
+  dayControllerPickComplex,
   dayControllerReschedule,
   dayControllerSkip,
   dayControllerToday,
@@ -15,16 +16,14 @@ export type DayToday = DayTodayResponseDto
 
 export const dayKeys = {
   all: ['day'] as const,
-  today: (complexId?: number) => ['day', 'today', complexId ?? null] as const,
+  today: () => ['day', 'today'] as const,
 }
 
-/** Сегодня: состояние дня; complexId — «другой комплекс» вместо предложенного по очереди */
-export const useToday = (complexId?: number) =>
+/** Сегодня: состояние дня */
+export const useToday = () =>
   useQuery({
-    queryKey: dayKeys.today(complexId),
-    queryFn: () => dayControllerToday(complexId ? { complexId } : undefined),
-    // Смена комплекса не мигает пустым экраном
-    placeholderData: keepPreviousData,
+    queryKey: dayKeys.today(),
+    queryFn: () => dayControllerToday(),
     // Без сети «Сегодня» показывает сохранённое состояние: оттуда «Продолжить» ведёт в тренировку
     meta: { persist: true },
     gcTime: PERSIST_GC_TIME,
@@ -33,6 +32,17 @@ export const useToday = (complexId?: number) =>
 const useInvalidateDay = () => {
   const queryClient = useQueryClient()
   return () => queryClient.invalidateQueries({ queryKey: dayKeys.all })
+}
+
+/** «Другая тренировка»: выбор сохраняется на сервере и переживает перезаход */
+export const usePickComplex = () => {
+  const invalidate = useInvalidateDay()
+  return useMutation({
+    mutationFn: (complexId: number) => dayControllerPickComplex({ complexId }),
+    // Новый комплекс сразу виден на экране дня
+    meta: { skipSuccessToast: true },
+    onSuccess: invalidate,
+  })
 }
 
 /** «Сегодня не буду» — как утреннее «нет» в боте */

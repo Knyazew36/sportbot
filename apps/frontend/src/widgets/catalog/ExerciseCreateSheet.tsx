@@ -13,7 +13,6 @@ import {
   useCreateDraft,
   useUploadEntryImage,
 } from '@/entities/catalog'
-import { useSportUser } from '@/entities/sport-user'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
@@ -31,6 +30,8 @@ export type CreatedExercise = { id: number; name: string; draft?: boolean }
 type ExerciseCreateSheetProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
+  /** Из админки: запись сразу попадает в общий справочник. В обычном режиме — личная, публикация через проверку */
+  direct?: boolean
   /**
    * Созданное (или выбранное похожее из справочника) сразу уходит наружу вместо экрана «Готово» —
    * так замена на тренировке ставит его без лишних шагов
@@ -39,10 +40,10 @@ type ExerciseCreateSheetProps = {
 }
 
 const CreateForm = ({
-  isAdmin,
+  direct,
   onCreated,
 }: {
-  isAdmin: boolean
+  direct: boolean
   onCreated: (exercise: CreatedExercise, pickedSimilar?: boolean) => void
 }) => {
   const createDraft = useCreateDraft()
@@ -66,9 +67,9 @@ const CreateForm = ({
     },
   })
 
-  // Админ добавляет сразу в справочник, пользователь — личной записью; публикация — отдельно, с карточки
+  // Из админки — сразу в справочник, иначе личной записью (и у админа тоже); публикация — отдельно, с карточки
   const save = (values: ExerciseCreateValues): Promise<CreatedExercise> =>
-    isAdmin
+    direct
       ? saveExercise.mutateAsync({ id: null, ...values }).then(e => ({ id: e.id, name: e.name }))
       : createDraft
           .mutateAsync({
@@ -114,7 +115,7 @@ const CreateForm = ({
           disabled={pending}
         >
           <PlusIcon strokeWidth={2.5} />
-          {isAdmin ? 'Добавить в справочник' : 'Сохранить'}
+          {direct ? 'Добавить в справочник' : 'Сохранить'}
         </Button>
       </SheetFooter>
     </FormProvider>
@@ -122,9 +123,8 @@ const CreateForm = ({
 }
 
 // Новое упражнение (business-tz, 5.5): одна шторка для всех входов — справочник, замена на тренировке, админка
-export const ExerciseCreateSheet = ({ open, onOpenChange, onCreated }: ExerciseCreateSheetProps) => {
+export const ExerciseCreateSheet = ({ open, onOpenChange, onCreated, direct = false }: ExerciseCreateSheetProps) => {
   const navigate = useNavigate()
-  const isAdmin = useSportUser().data?.isAdmin ?? false
   const [created, setCreated] = useState<CreatedExercise | null>(null)
 
   const close = (next: boolean) => {
@@ -143,12 +143,12 @@ export const ExerciseCreateSheet = ({ open, onOpenChange, onCreated }: ExerciseC
     } else setCreated(exercise)
   }
 
-  const title = created ? (isAdmin ? 'Добавлено' : 'Сохранено') : 'Новое упражнение'
+  const title = created ? (direct ? 'Добавлено' : 'Сохранено') : 'Новое упражнение'
   const description = created
-    ? isAdmin
+    ? direct
       ? `«${created.name}» уже в справочнике.`
       : `«${created.name}» уже можно ставить в тренировки. Чтобы оно появилось в общем справочнике, нажми «Опубликовать» на карточке.`
-    : isAdmin
+    : direct
       ? 'Запись сразу попадёт в справочник.'
       : 'Будет видна только тебе. В общий справочник — по кнопке «Опубликовать», после проверки.'
 
@@ -182,7 +182,7 @@ export const ExerciseCreateSheet = ({ open, onOpenChange, onCreated }: ExerciseC
         ) : (
           open && (
             <CreateForm
-              isAdmin={isAdmin}
+              direct={direct}
               onCreated={done}
             />
           )
