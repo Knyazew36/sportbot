@@ -34,9 +34,10 @@ const buttonVariants = cva(
         rest: 'border-foreground bg-(--sb-rest) text-black [--press:var(--sb-ink)]',
         // Золото — «спасибо» звёздами: тихое, не спорит с синими действиями. Выбранное — с золотой подложкой
         gold: 'border-sb-gold bg-background text-sb-gold [--press:var(--sb-gold)] aria-pressed:bg-sb-gold-tint',
-        // Жёлтый «наружу»: публикация в каталог и «Поделиться» — всё, что увидят другие люди
-        share: 'border-foreground bg-attention text-black [--press:var(--sb-ink)]',
-        // Шаблонные варианты кабинета сведены к тем же голосам
+        // «Наружу» — публикация в каталог и «Поделиться», всё, что увидят другие люди. Как медаль: чернильная
+        // плашка, золотая тень и редкий блик — повод похвастаться, а не ещё одна служебная кнопка
+        share:
+          'sb-share-sheen border-foreground bg-foreground text-background [--press:var(--sb-gold)] [&_svg]:text-(--sb-gold-on-ink)',        // Шаблонные варианты кабинета сведены к тем же голосам
         secondary: 'border-foreground bg-background text-foreground [--press:var(--sb-ink)]',
         accent: 'border-foreground bg-primary text-primary-foreground [--press:var(--sb-ink)]',
         // Без тени: только служебные действия внутри плотных списков кабинета

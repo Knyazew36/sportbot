@@ -123,7 +123,9 @@ export class WorkoutBot implements BotFeature {
       }
       case 'share':
         // Новым сообщением: карточку пересылают целиком, итог при этом остаётся на месте
-        await ctx.reply(await this.share.card(userId, id, ctx.channel));
+        await this.share.withCard(userId, id, ctx.channel, (card) =>
+          ctx.reply(card),
+        );
         return;
       case 'cancel':
         await this.workouts.discard(userId, id);

@@ -45,7 +45,7 @@ export const PublishBlock = ({ program: p, index }: { program: Program; index?: 
         {p.rejectReason && <Text tone='danger'>Причина: {p.rejectReason}</Text>}
 
         <Button
-          // Уже отправленную только правят — это не выход наружу, поэтому без жёлтого
+          // Уже отправленную только правят — это не выход наружу, поэтому без «медали»
           variant={listed ? 'outline' : 'share'}
           className='w-full'
           onClick={() => setOpen(true)}

@@ -6,8 +6,9 @@ import { useEndPause, useStartPause } from '@/entities/pause'
 import { type PauseInput, pauseSchema, type Profile } from '@/entities/profile'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { formatDate } from '@/shared/lib/format'
+import { Notice } from '@/shared/ui/kit/Notice'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
-import { Poster, Text } from '@/shared/ui/kit/Typography'
+import { Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
 import { TermFields } from './TermFields'
@@ -60,24 +61,19 @@ export const PauseSection = ({ profile }: { profile: Profile }) => {
   return (
     <ScreenSection aside='серия сохраняется'>
       {profile.pause ? (
-        <div className='hatch border-border flex items-center justify-between gap-3 border-[1.5px] p-4'>
-          <div className='bg-background px-1'>
-            <Poster>{profile.pause.expired ? 'Пауза закончилась' : 'На паузе'}</Poster>
-            <Text
-              size='xs'
-              tone='muted'
+        <Notice
+          kicker={profile.pause.endDate ? `до ${formatDate(profile.pause.endDate, 'd MMMM')}` : 'до отмены'}
+          title={profile.pause.expired ? 'Пауза закончилась' : 'На паузе'}
+          action={
+            <Button
+              size='sm'
+              disabled={end.isPending}
+              onClick={() => end.mutate()}
             >
-              {profile.pause.endDate ? `до ${formatDate(profile.pause.endDate, 'd MMMM')}` : 'до отмены'}
-            </Text>
-          </div>
-          <Button
-            size='sm'
-            disabled={end.isPending}
-            onClick={() => end.mutate()}
-          >
-            {profile.pause.expired ? 'Вернуться' : 'Снять'}
-          </Button>
-        </div>
+              {profile.pause.expired ? 'Вернуться' : 'Снять'}
+            </Button>
+          }
+        />
       ) : (
         <PauseForm />
       )}

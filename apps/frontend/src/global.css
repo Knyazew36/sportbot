@@ -135,6 +135,8 @@
   /* Золото — «спасибо» звёздами. Вне палитр: одно и то же в синей и розовой, меняется только со светлой/тёмной */
   --sb-gold: #a8720a;
   --sb-gold-tint: color-mix(in oklab, var(--sb-gold) 12%, transparent);
+  /* Золото на чернильной плашке: светлая тема — плашка чёрная, золото яркое; тёмная — плашка светлая, золото глубокое */
+  --sb-gold-on-ink: #f2c14e;
   /* Высота нижнего меню: h-16 + рамка + отступ под системную полоску. По ней прилипают главные кнопки */
   /* Верх под кнопками Telegram в полноэкранном режиме: вырез телефона + «Закрыть» и меню мессенджера.
      Переменные --tg-* ставит SDK Telegram; вне fullscreen и вне Telegram они 0.
@@ -220,6 +222,7 @@
   --sb-danger: #ff6b5e;
   --sb-positive: #5ee08a;
   --sb-gold: #f2c14e;
+  --sb-gold-on-ink: #a8720a;
 }
 
 /* Розовая расцветка — отдельная ось от светлой/тёмной: меняем только опорные цвета, производные пересчитываются сами.
@@ -469,6 +472,51 @@
     transparent 75%
   );
   animation: sb-live-sheen 6s cubic-bezier(0.45, 0, 0.25, 1) 0.8s infinite;
+}
+
+/* Блик по кнопке «наружу»: редкий проход золотого света — кнопка зовёт, но не мигает.
+   Пауза внутри цикла, чтобы блик был событием, а не фоном */
+@keyframes sb-share-sheen {
+  0%,
+  70% {
+    translate: -140% 0;
+  }
+  100% {
+    translate: 360% 0;
+  }
+}
+
+@utility sb-share-sheen {
+  position: relative;
+  overflow: hidden;
+  /* Свой слой: блик с z-index -1 ложится над фоном кнопки, но под текстом */
+  isolation: isolate;
+  &::after {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    left: 0;
+    z-index: -1;
+    width: 40%;
+    pointer-events: none;
+    background-image: linear-gradient(
+      105deg,
+      transparent 15%,
+      color-mix(in oklab, var(--sb-gold-on-ink) 55%, transparent) 50%,
+      transparent 85%
+    );
+    animation: sb-share-sheen 5.5s cubic-bezier(0.45, 0, 0.25, 1) 1.2s infinite;
+  }
+  &:disabled::after {
+    animation: none;
+    opacity: 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &::after {
+      animation: none;
+      opacity: 0;
+    }
+  }
 }
 
 /* Зерно бумаги поверх всего экрана */

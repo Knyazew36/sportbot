@@ -1,9 +1,8 @@
-import { GlobeIcon, PencilIcon } from 'lucide-react'
+import { PencilIcon } from 'lucide-react'
 
 import { useState } from 'react'
 
-import { isPublishable, publishLabel, PUBLICATION_STATUS, useMakeNextComplex, useProgram } from '@/entities/program'
-import { ShareProgramButton } from '@/features/share-program/ShareProgramButton'
+import { isPublishable, PUBLICATION_STATUS, useMakeNextComplex, useProgram } from '@/entities/program'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
@@ -11,10 +10,10 @@ import { Rise } from '@/shared/ui/kit/Reveal'
 import { StatGrid } from '@/shared/ui/kit/StatGrid'
 import { StatusFromMeta } from '@/shared/ui/kit/StatusBadge'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
-import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { ComplexQueue } from '@/widgets/complex-queue/ComplexQueue'
 
 import { PublishSheet } from './PublishSheet'
+import { ShowOthers } from './ShowOthers'
 import { pluralize } from '@front-cmdt/utils/pluralize'
 import { EXERCISE_FORMS, SET_FORMS } from '@/shared/lib/plural-forms'
 
@@ -34,7 +33,6 @@ export const ActiveProgram = ({ programId }: { programId: number }) => {
         const exercises = p.complexes.reduce((sum, c) => sum + c.exercises.length, 0)
         const sets = p.complexes.reduce((sum, c) => sum + c.exercises.reduce((s, e) => s + e.sets, 0), 0)
         const publishable = isPublishable(p)
-        const sent = p.publication === 'PENDING' || p.publication === 'PUBLISHED'
         return (
           <>
             <Rise className='px-gutter'>
@@ -83,31 +81,19 @@ export const ActiveProgram = ({ programId }: { programId: number }) => {
                   { label: pluralize(sets, SET_FORMS, { withCount: false }), value: sets },
                 ]}
               />
-              <div className='flex gap-2'>
-                <ButtonLink
-                  to={buildPath(ROUTES.PROGRAM, { programId: p.id })}
-                  variant='outline'
-                  className='flex-1'
-                >
-                  <PencilIcon />
-                  Редактировать
-                </ButtonLink>
-                <ShareProgramButton
-                  programId={p.id}
-                  iconOnly
-                />
-              </div>
-              {publishable && (
-                <Button
-                  // Уже отправленную только правят — это не выход наружу, поэтому без жёлтого
-                  variant={sent ? 'outline' : 'share'}
-                  className='w-full'
-                  onClick={() => setPublishing(true)}
-                >
-                  <GlobeIcon />
-                  {publishLabel(p.publication)}
-                </Button>
-              )}
+              <ButtonLink
+                to={buildPath(ROUTES.PROGRAM, { programId: p.id })}
+                variant='outline'
+                className='w-full'
+              >
+                <PencilIcon />
+                Редактировать
+              </ButtonLink>
+              <ShowOthers
+                program={p}
+                onPublish={() => setPublishing(true)}
+                className='mt-2'
+              />
             </Rise>
             {publishable && (
               <PublishSheet

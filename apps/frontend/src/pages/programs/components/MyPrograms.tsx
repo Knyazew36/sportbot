@@ -1,4 +1,4 @@
-import { ArrowRightIcon, GlobeIcon, PencilIcon, Trash2Icon } from 'lucide-react'
+import { ArrowRightIcon, PencilIcon, Trash2Icon } from 'lucide-react'
 
 import { useState } from 'react'
 
@@ -6,13 +6,11 @@ import {
   isPublishable,
   type Program,
   type ProgramListItem,
-  publishLabel,
   PUBLICATION_STATUS,
   useActivateProgram,
   useDeleteProgram,
   useProgram,
 } from '@/entities/program'
-import { ShareProgramButton } from '@/features/share-program/ShareProgramButton'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { pluralize } from '@front-cmdt/utils/pluralize'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
@@ -26,6 +24,7 @@ import { Badge } from '@/shared/ui/shadcn/badge'
 import { ProgramPreviewSheet } from '@/widgets/program-preview/ProgramPreviewSheet'
 
 import { PublishSheet } from './PublishSheet'
+import { ShowOthers } from './ShowOthers'
 
 const COMPLEX_FORMS: [string, string, string] = ['тренировка', 'тренировки', 'тренировок']
 
@@ -158,35 +157,23 @@ export const MyPrograms = ({ programs, title, aside, limit, deletable }: MyProgr
         action={
           openedId != null && (
             <div className='flex flex-col gap-2'>
-              <div className='flex gap-2'>
-                <ButtonLink
-                  to={buildPath(ROUTES.PROGRAM, { programId: openedId })}
+              <ButtonLink
+                to={buildPath(ROUTES.PROGRAM, { programId: openedId })}
+                size='lg'
+                className='w-full'
+              >
+                Редактировать
+                <PencilIcon />
+              </ButtonLink>
+              {opened.data && (
+                <ShowOthers
+                  program={opened.data}
                   size='lg'
-                  className='flex-1'
-                >
-                  Редактировать
-                  <PencilIcon />
-                </ButtonLink>
-                <ShareProgramButton
-                  programId={openedId}
-                  size='lg'
-                  iconOnly
-                />
-              </div>
-              {publishable && (
-                <Button
-                  // Уже отправленную только правят — это не выход наружу, поэтому без жёлтого
-                  variant={publishable.publication === 'DRAFT' || publishable.publication === 'REJECTED' ? 'share' : 'outline'}
-                  size='lg'
-                  className='w-full'
-                  onClick={() => {
-                    setPublishing(publishable)
+                  onPublish={() => {
+                    setPublishing(opened.data)
                     setOpenedId(null)
                   }}
-                >
-                  {publishLabel(publishable.publication)}
-                  <GlobeIcon />
-                </Button>
+                />
               )}
             </div>
           )

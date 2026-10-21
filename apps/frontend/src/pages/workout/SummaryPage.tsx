@@ -3,136 +3,87 @@ import { useParams } from 'react-router'
 
 import { useWorkoutSummary, type WorkoutSummary } from '@/entities/workout'
 import { ShareWorkoutButton } from '@/features/share-workout/ShareWorkoutButton'
-import { buildPath, ROUTES } from '@/shared/config/paths'
-import { pluralize } from '@front-cmdt/utils/pluralize'
-import { MedalArt } from '@/shared/ui/kit/Art'
+import { ROUTES } from '@/shared/config/paths'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
-import { Rise } from '@/shared/ui/kit/Reveal'
 import { Screen, StickyFooter } from '@/shared/ui/kit/Screen'
 import { ScreenHeader } from '@/shared/ui/kit/ScreenHeader'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
-import { StatGrid } from '@/shared/ui/kit/StatGrid'
-import { Lead, Poster, Text } from '@/shared/ui/kit/Typography'
-import { EXERCISE_FORMS, SET_FORMS } from '@/shared/lib/plural-forms'
+import { cn } from '@/shared/lib/utils'
 import { WorkoutRecords } from '@/widgets/workout-records/WorkoutRecords'
 import { SummaryTiming } from '@/widgets/workout-summary/SummaryTiming'
 import { WorkoutProtocol } from '@/widgets/workout-summary/WorkoutProtocol'
 
-const SummaryView = ({ summary }: { summary: WorkoutSummary }) => (
-  <Screen
-    header={
-      <ScreenHeader
-        title='Финиш'
-        aside={summary.complexName}
-      />
-    }
-    footer={
-      // Заминку предлагали до итога; здесь она запасным путём для тех, кто пропустил
-      <StickyFooter className='block'>
-        <div className='grid grid-cols-2 gap-2'>
-          <ButtonLink
-            to={buildPath(ROUTES.COOLDOWN, { workoutId: summary.workoutId })}
-            variant='outline'
-            size='lg'
-            className='min-w-0 px-3'
-          >
-            Заминка
-          </ButtonLink>
-          <ButtonLink
-            to={ROUTES.TODAY}
-            size='lg'
-            className='min-w-0 px-3'
-          >
-            Домой
-            <ArrowRightIcon
-              className='size-6'
-              strokeWidth={2.5}
-            />
-          </ButtonLink>
-        </div>
-      </StickyFooter>
-    }
-  >
-    <Rise className='relative overflow-hidden px-gutter'>
-      <div className='sb-halftone absolute -top-10 -left-16 size-64 rounded-full opacity-20' />
-      <Lead className='relative'>тренировка</Lead>
-      <Poster
-        as='h1'
-        size='display'
-        tone='primary'
-        className='relative'
-      >
-        {summary.status === 'IN_PROGRESS' ? 'идёт' : 'засчи­тана'}
-      </Poster>
-      <div className='relative mt-2 flex justify-end'>
-        <div className='relative w-[min(118px,30vw)] shrink-0'>
-          <MedalArt />
-          <Poster
-            as='span'
-            size='2xl'
-            tone='primary'
-            className='absolute inset-x-0 top-[50%] text-center'
-          >
-            {summary.currentStreak}
-          </Poster>
-        </div>
-      </div>
-    </Rise>
+import { CooldownNudge } from './components/CooldownNudge'
+import { SummaryHero } from './components/SummaryHero'
+import { SummaryStats } from './components/SummaryStats'
 
-    <Rise className='px-gutter'>
-      <StatGrid
-        framed
-        items={[
-          { label: pluralize(summary.sets, SET_FORMS, { withCount: false }), value: summary.sets },
-          { label: pluralize(summary.exercisesTotal, EXERCISE_FORMS, { withCount: false }), value: `${summary.exercisesDone}/${summary.exercisesTotal}` },
-          { label: 'серия', value: pluralize(summary.currentStreak, ['день', 'дня', 'дней']) },
-        ]}
-      />
-      {summary.tonnage > 0 && (
-        <Text
-          size='sm'
-          tone='soft'
-          className='mt-3'
-        >
-          Поднято за тренировку: {summary.tonnage.toLocaleString('ru-RU')} кг
-        </Text>
-      )}
-      {summary.cardioName && (
-        <Text
-          size='sm'
-          tone='soft'
-          className='mt-1'
-        >
-          Кардио в конце: {summary.cardioName}
-          {summary.cardioMinutes ? `, ${summary.cardioMinutes} мин` : ''}
-        </Text>
-      )}
-      {summary.status !== 'IN_PROGRESS' && (
-        <ShareWorkoutButton
-          workoutId={summary.workoutId}
-          className='mt-4 w-full'
+const SummaryView = ({ summary }: { summary: WorkoutSummary }) => {
+  const counted = summary.status !== 'IN_PROGRESS'
+  // Без замера времени (старые тренировки, простой режим) не знаем, была ли заминка — напоминаем
+  const cooldownMissed = counted && summary.timing?.cooldownSeconds == null
+
+  return (
+    <Screen
+      header={
+        <ScreenHeader
+          title='Финиш'
+          aside={summary.complexName}
         />
+      }
+      footer={
+        // Поделиться — главное действие итога: карточка уходит из бота в любой чат
+        <StickyFooter className='block'>
+          <div className={cn('grid gap-2', counted ? 'grid-cols-2' : 'grid-cols-1')}>
+            {counted && (
+              <ShareWorkoutButton
+                workoutId={summary.workoutId}
+                size='lg'
+                className='min-w-0 px-3'
+              />
+            )}
+            <ButtonLink
+              to={ROUTES.TODAY}
+              variant='outline'
+              size='lg'
+              className='min-w-0 px-3'
+            >
+              Домой
+              <ArrowRightIcon
+                className='size-6'
+                strokeWidth={2.5}
+              />
+            </ButtonLink>
+          </div>
+        </StickyFooter>
+      }
+    >
+      <SummaryHero summary={summary} />
+
+      {/* Рекорды — пик экрана, сразу за серией, а не после сухих цифр */}
+      {summary.records.length > 0 && (
+        <ScreenSection
+          title='Рекорды'
+          aside={summary.records.length}
+        >
+          <WorkoutRecords records={summary.records} />
+        </ScreenSection>
       )}
-    </Rise>
 
-    {summary.records.length > 0 && (
-      <ScreenSection
-        title='Рекорды'
-        aside={summary.records.length}
-      >
-        <WorkoutRecords records={summary.records} />
-      </ScreenSection>
-    )}
+      <SummaryStats summary={summary} />
 
-    {/* Старые тренировки и простой режим без времени подходов — блока нет */}
-    {summary.timing && <SummaryTiming timing={summary.timing} />}
+      {/* Старые тренировки и простой режим без времени подходов — блока нет */}
+      {summary.timing && <SummaryTiming timing={summary.timing} />}
 
-    <WorkoutProtocol workoutId={summary.workoutId} />
-  </Screen>
-)
+      <WorkoutProtocol workoutId={summary.workoutId} />
 
-// Итог тренировки (frontend-tz, 8.6): время, подходы, серия, рекорды, кнопка «Заминка»
+      {/* Напоминание — последним: итог важнее, а вернуться к заминке можно и после него */}
+      {cooldownMissed && <CooldownNudge workoutId={summary.workoutId} />}
+    </Screen>
+  )
+}
+
+// Итог тренировки (frontend-tz, 8.6): время, серия, рекорды, объём, протокол; поделиться — в футере
 const SummaryPage = () => {
   const workoutId = Number(useParams().workoutId)
   const summary = useWorkoutSummary(workoutId)

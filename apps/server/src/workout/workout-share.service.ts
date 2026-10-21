@@ -5,21 +5,55 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { randomBytes } from 'crypto';
+import * as fs from 'fs';
+import * as path from 'path';
 import { PrismaService } from 'prisma/prisma.service';
 
-import { APP_SCREEN, BotChannelKey, botAppLink, BotSender } from '@/bot';
+import { APP_SCREEN, BotChannelKey, botAppLink, BotSender, cut } from '@/bot';
+import { uploadRoot } from '@/catalog/catalog.service';
+import { durationText, isTimed } from '@/catalog/measure';
 import { Prisma, User } from '@/generated/prisma/client';
 import { MessengerMessage } from '@/messengers';
 
 import { SharedWorkoutResponseDto } from './dto/shared-workout.response.dto';
+import { renderShareCard, ShareCardExercise } from './share-card';
 import { shareCardMessage } from './workout.texts';
-import { isDone, WORKOUT_INCLUDE, workoutTotals } from './workout.service';
+import {
+  isDone,
+  WORKOUT_INCLUDE,
+  WorkoutExerciseFull,
+  workoutTotals,
+} from './workout.service';
+
+/** Подпись к картинке в Telegram — не длиннее 1024 знаков; длинный список режем. */
+const CAPTION_MAX = 1000;
+
+const num = (value: number): string => String(Number(value.toFixed(2)));
+
+/** Лучший подход для картинки: тяжелейший вес (при равном — больше повторов), без веса — больше повторов. */
+const bestSet = (item: WorkoutExerciseFull): string | null => {
+  if (!item.sets.length) return null;
+  if (isTimed(item.exercise.measure))
+    return durationText(Math.max(...item.sets.map((s) => s.reps)));
+  const best = item.sets.reduce((a, b) => {
+    const wa = Number(a.weight);
+    const wb = Number(b.weight);
+    return wb > wa || (wb === wa && b.reps > a.reps) ? b : a;
+  });
+  const weight = Number(best.weight);
+  return weight ? `${num(weight)} × ${best.reps}` : `× ${best.reps}`;
+};
+
+const ddmmyyyy = (date: Date): string =>
+  `${String(date.getUTCDate()).padStart(2, '0')}.${String(date.getUTCMonth() + 1).padStart(2, '0')}.${date.getUTCFullYear()}`;
 
 const SHARE_INCLUDE = {
   ...WORKOUT_INCLUDE,
   user: {
     select: {
-      sportProfile: { select: { displayName: true, currentStreak: true } },
+      sportProfile: {
+        select: { displayName: true, currentStreak: true, gender: true },
+      },
     },
   },
 } satisfies Prisma.WorkoutInclude;
@@ -31,6 +65,7 @@ type SharedWorkout = Prisma.WorkoutGetPayload<{
 const authorOf = (workout: SharedWorkout) => ({
   name: workout.user.sportProfile?.displayName ?? 'Спортсмен',
   currentStreak: workout.user.sportProfile?.currentStreak ?? 0,
+  gender: workout.user.sportProfile?.gender ?? null,
 });
 
 /** «Поделиться» результатом: карточка для пересылки и страница результата по токену. */
@@ -45,26 +80,45 @@ export class WorkoutShareService {
 
   // ── Карточка ────────────────────────────────────────────────────────────
 
-  /** Карточка результата для пересылки; ссылка ведёт в мини-приложение бота этого мессенджера. */
-  public async card(
+  /**
+   * Карточка результата для пересылки: картинка-плакат и подробности подписью; ссылка ведёт
+   * в мини-приложение бота этого мессенджера. Картинка живёт во временном файле только на время
+   * отправки — send получает готовое сообщение, файл удаляется после него.
+   */
+  public async withCard<T>(
     userId: number,
     workoutId: number,
     channel: BotChannelKey,
-  ): Promise<MessengerMessage> {
+    send: (card: MessengerMessage) => Promise<T>,
+  ): Promise<T> {
     const workout = await this.shareable(userId, workoutId);
     const author = authorOf(workout);
+    const totals = workoutTotals(workout);
     this.logger.log(
       `Карточка результата: workoutId=${workoutId}, userId=${userId}, ${channel}`,
     );
-    return shareCardMessage({
-      authorName: author.name,
+    const message = shareCardMessage({
       complexName: workout.complexName,
       exercises: workout.exercises,
-      totals: workoutTotals(workout),
+      totals,
       cardioName: workout.cardioName,
       cardioMinutes: workout.cardioMinutes,
       url: botAppLink(channel, APP_SCREEN.result(workout.shareToken)),
     });
+    const file = this.renderImage(workout, author, totals);
+    try {
+      return await send(
+        file
+          ? {
+              ...message,
+              text: cut(message.text, CAPTION_MAX),
+              image: { path: file },
+            }
+          : message,
+      );
+    } finally {
+      if (file) fs.rmSync(file, { force: true });
+    }
   }
 
   /** Из приложения: бот присылает карточку в чат того мессенджера, откуда открыто приложение. */
@@ -74,17 +128,18 @@ export class WorkoutShareService {
     channel: BotChannelKey | null,
   ): Promise<void> {
     const via = channel ?? 'TELEGRAM';
-    const card = await this.card(user.id, workoutId, via);
-    try {
-      await this.sender.sendVia(via, user, card);
-    } catch (error) {
-      this.logger.warn(
-        `Карточка не доставлена: workoutId=${workoutId}, userId=${user.id}, ${via}: ${(error as Error).message}`,
-      );
-      throw new BadRequestException(
-        'Не получилось написать в чат — открой бота и нажми «Старт», потом попробуй ещё раз.',
-      );
-    }
+    await this.withCard(user.id, workoutId, via, async (card) => {
+      try {
+        await this.sender.sendVia(via, user, card);
+      } catch (error) {
+        this.logger.warn(
+          `Карточка не доставлена: workoutId=${workoutId}, userId=${user.id}, ${via}: ${(error as Error).message}`,
+        );
+        throw new BadRequestException(
+          'Не получилось написать в чат — открой бота и нажми «Старт», потом попробуй ещё раз.',
+        );
+      }
+    });
   }
 
   // ── Страница результата ─────────────────────────────────────────────────
@@ -124,6 +179,50 @@ export class WorkoutShareService {
         superset: item.superset,
       })),
     };
+  }
+
+  // ── Картинка ────────────────────────────────────────────────────────────
+
+  /**
+   * Плакат результата во временный файл. Не получилось (нет шрифтов, сбой resvg) — карточка
+   * уходит одним текстом: поделиться важнее, чем картинка.
+   */
+  private renderImage(
+    workout: SharedWorkout,
+    author: ReturnType<typeof authorOf>,
+    totals: ReturnType<typeof workoutTotals>,
+  ): string | null {
+    try {
+      const exercises: ShareCardExercise[] = workout.exercises
+        .filter(isDone)
+        .map((item) => ({
+          name: item.exercise.name,
+          sets: item.sets.length,
+          best: bestSet(item),
+        }));
+      const png = renderShareCard({
+        complexName: workout.complexName,
+        date: ddmmyyyy(workout.date),
+        minutes: totals.minutes,
+        sets: totals.sets,
+        tonnage: totals.tonnage,
+        exercisesDone: totals.exercisesDone,
+        exercises,
+        palette: author.gender === 'FEMALE' ? 'rose' : 'classic',
+      });
+      const dir = path.join(uploadRoot(), 'tmp');
+      fs.mkdirSync(dir, { recursive: true });
+      const file = path.join(dir, `share-${workout.id}-${Date.now()}.png`);
+      fs.writeFileSync(file, png);
+      this.logger.debug(`Картинка результата готова: workoutId=${workout.id}`);
+      return file;
+    } catch (error) {
+      this.logger.error(
+        `Картинка результата не нарисовалась, шлём текстом: workoutId=${workout.id}`,
+        (error as Error).stack,
+      );
+      return null;
+    }
   }
 
   // ── Токен ───────────────────────────────────────────────────────────────

@@ -2,6 +2,7 @@ import { type DayToday, useFixDay, useRescheduleAnswer } from '@/entities/day'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
+import { Notice } from '@/shared/ui/kit/Notice'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Eyebrow, Lead, Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
@@ -94,21 +95,18 @@ export const MissedDay = ({ day, suggestPause }: MissedDayProps) => {
       )}
 
       {suggestPause && (
-        <Rise className='hatch border-border mx-gutter flex flex-col gap-3 border-[1.5px] p-4'>
-          <Poster size='lg'>Три пропуска подряд</Poster>
-          <Text
-            size='sm'
-            tone='soft'
-            className='bg-background'
+        <Rise className='px-gutter'>
+          <Notice
+            kicker='три пропуска подряд'
+            description='Можно поставить паузу — серия сохранится, бот помолчит.'
           >
-            Можно поставить паузу — серия сохранится, бот помолчит.
-          </Text>
-          <ButtonLink
-            to={buildPath(ROUTES.ME_SECTION, { section: 'training' })}
-            variant='outline'
-          >
-            Поставить паузу
-          </ButtonLink>
+            <ButtonLink
+              to={buildPath(ROUTES.ME_SECTION, { section: 'training' })}
+              variant='outline'
+            >
+              Поставить паузу
+            </ButtonLink>
+          </Notice>
         </Rise>
       )}
 

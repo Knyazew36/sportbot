@@ -8,6 +8,7 @@ import {
   linkBtn,
   msg,
   numEmoji,
+  plural,
 } from '@/bot';
 import { holdText } from '@/catalog/catalog.texts';
 import { durationText, isTimed } from '@/catalog/measure';
@@ -255,7 +256,6 @@ export function finishedMessage(result: CompleteResult): MessengerMessage {
 }
 
 export interface ShareCardView {
-  authorName: string;
   complexName: string;
   exercises: WorkoutExerciseFull[];
   totals: WorkoutTotals;
@@ -267,32 +267,60 @@ export interface ShareCardView {
 
 const kg = (value: number): string => `${value.toLocaleString('ru-RU')} кг`;
 
-/** Упражнение в карточке: подходы через запятую; засчитанное без записи — просто галочкой. */
-const shareExerciseText = (item: WorkoutExerciseFull): string => {
-  const name = `${supersetMark(item.superset)}${item.exercise.name}`;
-  if (!item.sets.length) return `✅ ${name}`;
-  const sets = item.sets.map((s) =>
-    setText(item.exercise.measure)({ weight: Number(s.weight), reps: s.reps }),
-  );
-  return `✅ ${name}: ${sets.join(', ')}`;
+/**
+ * Подходы одного упражнения компактно: подряд идущие на одном весе — одной группой,
+ * «60 кг × 10, 10, 8 · 65 кг × 6». Без веса — «× 12, 10», на время — «45 с · 1 мин».
+ */
+const shareSetsText = (item: WorkoutExerciseFull): string => {
+  if (isTimed(item.exercise.measure))
+    return item.sets.map((s) => durationText(s.reps)).join(' · ');
+  const groups: { weight: number; reps: number[] }[] = [];
+  for (const s of item.sets) {
+    const weight = Number(s.weight);
+    const last = groups.at(-1);
+    if (last && last.weight === weight) last.reps.push(s.reps);
+    else groups.push({ weight, reps: [s.reps] });
+  }
+  return groups
+    .map(
+      (g) =>
+        `${g.weight === 0 ? '' : `${num(g.weight)} кг `}× ${g.reps.join(', ')}`,
+    )
+    .join(' · ');
+};
+
+/** Упражнение в карточке: номер, название, подходы; засчитанное без записи — без подходов. */
+const shareExerciseText = (
+  item: WorkoutExerciseFull,
+  index: number,
+): string => {
+  const name = `${index + 1}. ${supersetMark(item.superset)}${item.exercise.name}`;
+  return item.sets.length ? `${name} — ${shareSetsText(item)}` : name;
 };
 
 /**
- * Карточка результата для пересылки: что сделано и сколько. Длительность и серию не пишем —
- * карточку пересылают друзьям, им интересен сам результат.
+ * Карточка результата для пересылки — как табло финиша: заголовок, цифры одной строкой,
+ * затем что именно сделано. Без имени, серии и «N из M»: карточку постят как есть.
  */
 export function shareCardMessage(view: ShareCardView): MessengerMessage {
   const { totals } = view;
   const cardio = cardioText(view);
+  const stats = [
+    `⏱ ${totals.minutes} мин`,
+    ...(totals.sets
+      ? [`${totals.sets} ${plural(totals.sets, 'подход', 'подхода', 'подходов')}`]
+      : []),
+    ...(totals.tonnage ? [kg(totals.tonnage)] : []),
+  ];
   const lines = [
-    `💪 ${view.authorName} — тренировка «${view.complexName}» закончена!`,
+    `🏁 Тренировка засчитана`,
+    `«${view.complexName}»`,
     '',
+    stats.join('  ·  '),
+    '',
+    `💪 Что сделано:`,
     ...view.exercises.filter(isDone).map(shareExerciseText),
     ...(cardio ? [cardio] : []),
-    '',
-    `🏋️ Упражнений: ${totals.exercisesDone} из ${totals.exercisesTotal}`,
-    ...(totals.sets ? [`🔁 Подходов: ${totals.sets}`] : []),
-    ...(totals.tonnage ? [`📦 Поднято: ${kg(totals.tonnage)}`] : []),
   ];
   return msg(
     lines.join('\n'),

@@ -10,3 +10,4 @@ export {
   useWorkoutSync,
 } from './model/queue'
 export * from './model/schemas'
+export { motivationFor } from './model/motivation'

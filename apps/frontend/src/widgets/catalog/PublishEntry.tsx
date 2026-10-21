@@ -33,7 +33,7 @@ export const PublishEntry = ({ kind, entry }: PublishEntryProps) => {
         Видна только тебе. Опубликуй — после проверки появится в общем справочнике.
       </Text>
       <Button
-        variant='outline'
+        variant='share'
         disabled={publish.isPending}
         onClick={() => publish.mutate({ kind, id: entry.id })}
       >
