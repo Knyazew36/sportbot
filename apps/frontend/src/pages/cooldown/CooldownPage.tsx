@@ -1,28 +1,32 @@
-import { ArrowRightIcon, InfoIcon, ListIcon, SkipBackIcon, SkipForwardIcon } from 'lucide-react'
+import { ArrowRightIcon, BanIcon, InfoIcon, ListIcon, SkipBackIcon, SkipForwardIcon } from 'lucide-react'
 import { useParams, useSearchParams } from 'react-router'
 
 import { useEffect, useRef, useState } from 'react'
 
 import { stretchGuide } from '@/entities/catalog/lib'
 import { type Cooldown, useCooldown, useCooldownFinish, useCooldownStart } from '@/entities/workout'
+import { useExcludeCooldownStretch } from '@/features/exclude-stretch/useExcludeCooldownStretch'
 import { toAssetUrl } from '@/shared/api'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { pluralize } from '@front-cmdt/utils/pluralize'
 import { timerEndSignal } from '@/shared/lib/signal'
 import { cn } from '@/shared/lib/utils'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
-import { CatalogImage } from '@/shared/ui/kit/CatalogImage'
 import { List } from '@/shared/ui/kit/ListRow'
+import { MistakeList } from '@/shared/ui/kit/MistakeList'
+import { PhotoPair } from '@/shared/ui/kit/PhotoPair'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Screen, StickyFooter } from '@/shared/ui/kit/Screen'
 import { TopBar } from '@/shared/ui/kit/ScreenHeader'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { StepList } from '@/shared/ui/kit/StepList'
-import { Eyebrow, Lead, Poster } from '@/shared/ui/kit/Typography'
+import { Eyebrow, Lead, Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { CatalogRow } from '@/widgets/catalog/CatalogRow'
 import { HoldControls } from '@/widgets/catalog/HoldControls'
+import { ImageCredit } from '@/widgets/catalog/ImageCredit'
+import { VideoLink } from '@/widgets/catalog/VideoLink'
 import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet'
 
 import { SideTrack } from './components/SideTrack'
@@ -42,6 +46,7 @@ const CooldownView = ({ cooldown, start }: { cooldown: Cooldown; start: boolean 
   const { mutate: markStart } = useCooldownStart()
   const { mutate: markFinish } = useCooldownFinish()
   const marked = useRef<{ start?: boolean; finish?: boolean }>({})
+  const exclude = useExcludeCooldownStretch()
 
   // Отметка один раз за открытие; повторное открытие сервер не перезапишет
   useEffect(() => {
@@ -73,6 +78,23 @@ const CooldownView = ({ cooldown, start }: { cooldown: Cooldown; start: boolean 
     if (phase.index > 0) go(phase.index - 1)
   }
 
+  // Замена встаёт на место убранной; если замены не нашлось — список короче, номер поправляем
+  const excludeStretch = (stretchId: number) =>
+    exclude.mutate(
+      { workoutId: cooldown.workoutId, stretchId },
+      {
+        onSuccess: next => {
+          setOpened(null)
+          if (phase.kind !== 'step') return
+          const length = next.main.length + next.optional.length
+          const wasMain = phase.index < cooldown.main.length
+          if (phase.index >= length) return setPhase({ kind: 'done' })
+          if (wasMain && phase.index >= next.main.length && next.optional.length) return setPhase({ kind: 'more' })
+          setPhase({ kind: 'step', index: phase.index, side: 1 })
+        },
+      },
+    )
+
   const listSheet = (
     <StretchListSheet
       open={listOpen}
@@ -92,6 +114,21 @@ const CooldownView = ({ cooldown, start }: { cooldown: Cooldown; start: boolean 
       exercise={opened}
       kind='stretch'
       onOpenChange={open => !open && setOpened(null)}
+      action={
+        opened &&
+        all.some(s => s.id === opened.id) && (
+          <Button
+            variant='outline'
+            size='lg'
+            className='w-full'
+            disabled={exclude.isPending}
+            onClick={() => excludeStretch(opened.id)}
+          >
+            <BanIcon className='size-6' />
+            Не предлагать
+          </Button>
+        )
+      }
     />
   )
 
@@ -120,7 +157,7 @@ const CooldownView = ({ cooldown, start }: { cooldown: Cooldown; start: boolean 
             tone='soft'
             className='mt-3'
           >
-            В справочнике пока нет растяжек на мышцы, которые работали.
+            На мышцы, которые работали, подходящих растяжек нет.
           </Lead>
         </Rise>
       </Screen>
@@ -259,8 +296,10 @@ const CooldownView = ({ cooldown, start }: { cooldown: Cooldown; start: boolean 
       </Screen>
     )
 
-  const stretch = all[phase.index]!
-  const { steps } = stretchGuide(stretch)
+  const stretch = all[phase.index]
+  // Растяжку убрали без замены, номер шага поправится следующим рендером
+  if (!stretch) return null
+  const { steps, mistakes } = stretchGuide(stretch)
   const inMain = phase.index < cooldown.main.length
   const isLast =
     (phase.index === all.length - 1 || (inMain && phase.index === cooldown.main.length - 1)) &&
@@ -269,7 +308,7 @@ const CooldownView = ({ cooldown, start }: { cooldown: Cooldown; start: boolean 
   return (
     <div className='flex min-h-svh flex-1 flex-col'>
       <Screen
-        key={`screen-${phase.index}-${phase.side}`}
+        key={`screen-${phase.index}-${stretch.id}-${phase.side}`}
         header={
           <>
             <TopBar
@@ -327,13 +366,14 @@ const CooldownView = ({ cooldown, start }: { cooldown: Cooldown; start: boolean 
         }
         className='gap-5 px-gutter pt-4'
       >
-        <Rise className='[@media(max-height:620px)]:hidden'>
-          <CatalogImage
-            src={toAssetUrl(stretch.imageUrl) ?? null}
+        {/* Старт и финиш рядом: поза читается без видео. На низком экране фото прячем ради таймера */}
+        <Rise className='flex flex-col gap-1.5 [@media(max-height:620px)]:hidden'>
+          <PhotoPair
+            start={toAssetUrl(stretch.imageUrl) ?? null}
+            end={toAssetUrl(stretch.imageEndUrl) ?? null}
             alt={stretch.name}
-            size='cover'
-            className='aspect-[16/10] max-h-[30svh]'
           />
+          <ImageCredit credit={stretch.imageCredit} />
         </Rise>
         <Rise>
           <Eyebrow
@@ -349,6 +389,25 @@ const CooldownView = ({ cooldown, start }: { cooldown: Cooldown; start: boolean 
           >
             {stretch.name}
           </Poster>
+          {stretch.feel && (
+            <Text
+              tone='soft'
+              className='mt-2'
+            >
+              Тянет: {stretch.feel}
+            </Text>
+          )}
+          {/* Не подходит — сервер сразу ставит другую на те же мышцы, дальше эта не попадётся */}
+          <Button
+            variant='outline'
+            size='sm'
+            className='mt-3'
+            disabled={exclude.isPending}
+            onClick={() => excludeStretch(stretch.id)}
+          >
+            <BanIcon />
+            Не предлагать
+          </Button>
         </Rise>
         {stretch.perSide && (
           <Rise>
@@ -363,11 +422,24 @@ const CooldownView = ({ cooldown, start }: { cooldown: Cooldown; start: boolean 
             />
           </Rise>
         )}
+        {mistakes.length > 0 && (
+          <Rise>
+            <ScreenSection title='Типичные ошибки'>
+              <MistakeList items={mistakes} />
+            </ScreenSection>
+          </Rise>
+        )}
+        <Rise className='flex pb-4'>
+          <VideoLink
+            name={stretch.name}
+            videoUrl={stretch.videoUrl}
+          />
+        </Rise>
       </Screen>
 
       {/* Ключи соседей разные: одинаковые сломали бы сверку React и старый экран оставался бы рядом с новым */}
       <HoldControls
-        key={`hold-${phase.index}-${phase.side}`}
+        key={`hold-${phase.index}-${stretch.id}-${phase.side}`}
         holdSeconds={stretch.holdSeconds}
         side={stretch.perSide ? phase.side : undefined}
         back={{ label: 'Назад', icon: SkipBackIcon, onClick: prev }}

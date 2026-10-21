@@ -652,6 +652,16 @@ export class WorkoutService {
     return this.cooldowns.build(workoutId, userId, onlyDone);
   }
 
+  /** Растяжку больше не предлагать: в этой заминке — замена, дальше — не попадёт. */
+  public async cooldownExclude(
+    userId: number,
+    workoutId: number,
+    stretchId: number,
+  ): Promise<CooldownView> {
+    await this.cooldowns.exclude(workoutId, userId, stretchId);
+    return this.cooldown(userId, workoutId);
+  }
+
   /** Заминка открыта: пишется только первое открытие, повтор ничего не меняет. */
   public async cooldownStart(
     userId: number,

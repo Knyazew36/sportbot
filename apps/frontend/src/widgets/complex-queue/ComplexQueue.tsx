@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { EXERCISE_FORMS } from '@/shared/lib/plural-forms'
 import { pluralize } from '@front-cmdt/utils/pluralize'
@@ -22,6 +22,17 @@ type ComplexQueueProps = {
 // Очередь комплексов программы билетами. Билет открывает состав комплекса в шторке
 export const ComplexQueue = ({ complexes, activeId, aside, onPick, pickLabel }: ComplexQueueProps) => {
   const [opened, setOpened] = useState<{ complex: ProgramComplex; index: number } | null>(null)
+  const listRef = useRef<HTMLOListElement>(null)
+
+  // Активный билет может уехать за край ленты — прокручиваем к нему только ленту, страницу не трогаем
+  useEffect(() => {
+    const list = listRef.current
+    const item = list?.querySelector<HTMLElement>(`[data-complex-id="${activeId}"]`)
+    if (!list || !item) return
+    const shift = item.getBoundingClientRect().left - list.getBoundingClientRect().left
+    const left = list.scrollLeft + shift - (list.clientWidth - item.offsetWidth) / 2
+    list.scrollTo({ left: Math.max(left, 0), behavior: 'smooth' })
+  }, [activeId, complexes.length])
 
   return (
     <ScreenSection
@@ -29,9 +40,15 @@ export const ComplexQueue = ({ complexes, activeId, aside, onPick, pickLabel }: 
       aside={aside}
       bleed
     >
-      <ol className='no-scrollbar flex gap-2 overflow-x-auto px-gutter'>
+      <ol
+        ref={listRef}
+        className='no-scrollbar flex gap-2 overflow-x-auto px-gutter'
+      >
         {complexes.map((c, i) => (
-          <li key={c.id}>
+          <li
+            key={c.id}
+            data-complex-id={c.id}
+          >
             <Ticket
               kicker='Тренировка'
               mark={complexLetter(i)}

@@ -12,18 +12,51 @@ import { MessengerChannelKey } from '@/messengers';
 const trimUrl = (name: string): string | undefined =>
   process.env[name]?.trim().replace(/\/+$/, '') || undefined;
 
+const appName = (): string => process.env.APP_NAME?.trim() || 'Спортбот';
+
 /** Что пользователю нельзя делать, чтобы уведомления продолжали приходить. */
 const KEEP_NOTIFICATIONS_HINT: Record<MessengerChannelKey, string> = {
-  TELEGRAM: 'не блокируйте бота',
-  VK: 'не запрещайте сообщения от сообщества',
-  MAX: 'не закрывайте чат',
+  TELEGRAM: 'не блокируй бота',
+  VK: 'не запрещай сообщения от сообщества',
+  MAX: 'не закрывай чат',
 };
 
+// Голос бренда (packages/brand/BRAND.md): спокойный напарник на «ты», коротко, без хайпа
 export const welcomeText = (channel: MessengerChannelKey): string =>
-  `👋 Добро пожаловать в ${process.env.APP_NAME?.trim() || 'приложение'}!
+  `Привет! Я ${appName()} — веду твои тренировки в зале и дома.
 
-🚀 Приложение открывается по кнопке ниже
-🔔 Сюда же будут приходить уведомления — ${KEEP_NOTIFICATIONS_HINT[channel]}, иначе они перестанут приходить`;
+Как это работает:
+1. Открой приложение и выбери программу — готовую или свою.
+2. В тренировочные дни утром напишу, что сегодня по плану.
+3. В зале отмечай подходы — таймер отдыха подскажет, когда дальше.
+4. Вечером спрошу, как прошло. Серия посчитается сама.
+
+Напоминания приходят сюда — ${KEEP_NOTIFICATIONS_HINT[channel]}, иначе я замолчу.`;
+
+/**
+ * Картинка к приветствию: лежит во фронте (apps/frontend/public/brand), исходник — packages/brand/telegram.
+ * Без FRONTEND_URL на https Telegram её не скачает — приветствие уйдёт текстом.
+ */
+export const welcomePhotoUrl = (): string | null => {
+  const frontendUrl = trimUrl('FRONTEND_URL');
+  return frontendUrl?.startsWith('https://')
+    ? `${frontendUrl}/brand/welcome-1280x720.png`
+    : null;
+};
+
+/** Описание в профиле бота и в пустом чате до «Старт» (лимиты Telegram: 120 и 512 символов). */
+export const BOT_SHORT_DESCRIPTION =
+  'Напарник по тренировкам: план на сегодня, подходы, таймер отдыха и серия. Тренировка не теряется.';
+
+export const BOT_DESCRIPTION = `Веду твои тренировки в зале и дома.
+
+— Утром скажу, что сегодня по плану
+— В зале: подходы, веса и таймер отдыха
+— Вечером спрошу, как прошло, и отмечу тренировку
+— Серия, рекорды и графики весов — в приложении
+— Друзья видят, что ты сегодня тоже потренировался
+
+Программу возьми готовую или собери свою. Жми «Старт» — начнём.`;
 
 /** Кнопки-ссылки приветствия; незаданные адреса просто не показываются. */
 export const welcomeLinks = (): { text: string; url: string }[] => {

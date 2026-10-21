@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+import { StretchImageCreditResponseDto } from '@/catalog/dto/stretch-image-credit.response.dto';
+
 export class CooldownStretchResponseDto {
   @ApiProperty()
   id: number;
@@ -25,6 +27,23 @@ export class CooldownStretchResponseDto {
     description: 'Фото финишного положения',
   })
   imageEndUrl: string | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: 'Где должно тянуть — одна строка',
+  })
+  feel: string | null;
+
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: 'Видео техники, внешняя ссылка',
+  })
+  videoUrl: string | null;
+
+  @ApiProperty({ type: StretchImageCreditResponseDto, nullable: true })
+  imageCredit: StretchImageCreditResponseDto | null;
 
   @ApiProperty({ type: String, nullable: true, description: '/uploads/…' })
   imageUrl: string | null;

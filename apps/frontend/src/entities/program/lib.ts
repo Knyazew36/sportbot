@@ -49,8 +49,11 @@ export const selectionFromParams = (groups: ProgramTagGroup[], params: URLSearch
 export const selectedTagIds = (groups: ProgramTagGroup[], selection: TagSelection): number[] =>
   groups.flatMap(g => g.tags.filter(t => selection[g.code] === t.code).map(t => t.id))
 
-/** Буква комплекса по месту в очереди: A, B, C… */
-export const complexLetter = (index: number): string => String.fromCharCode(65 + (index % 26))
+// Без Ё, Й, Ъ, Ы, Ь: их легко спутать с соседними буквами или они не начинают слов
+const COMPLEX_LETTERS = 'АБВГДЕЖЗИКЛМНОПРСТУФХЦЧШЭЮЯ'
+
+/** Буква комплекса по месту в очереди: А, Б, В… */
+export const complexLetter = (index: number): string => COMPLEX_LETTERS.charAt(index % COMPLEX_LETTERS.length)
 
 /** Куда добавить выбранные упражнения: к суперсету упражнения или новым суперсетом */
 export type SupersetTarget = { joinItemId?: number; newSuperset?: boolean }

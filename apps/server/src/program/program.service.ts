@@ -19,6 +19,7 @@ import {
   PROGRAM_TAG_SELECT,
 } from '@/program-tag/program-tag.service';
 
+import { localToday } from '@/bot/bot-time';
 import { normalizeSupersets, SupersetSlot } from './superset';
 
 type Tx = Prisma.TransactionClient;
@@ -850,10 +851,16 @@ export class ProgramService {
           activeProgram: { complexes: { some: { id: complexId } } },
         },
         data: { nextComplexId: complexId },
-        select: { activeProgramId: true },
+        select: { activeProgramId: true, timeZone: true },
+      });
+      // Утром крон закрепляет за днём комплекс, и он перекрыл бы новый выбор на «Сегодня».
+      // Ручной выбор свежее — переносим его на ещё не отмеченный сегодняшний день
+      const { count } = await this.prisma.planDay.updateMany({
+        where: { userId, date: localToday(profile.timeZone), status: 'PENDING' },
+        data: { suggestedComplexId: complexId },
       });
       this.logger.log(
-        `Следующий комплекс выбран вручную: userId=${userId}, nextComplexId=${complexId}`,
+        `Следующий комплекс выбран вручную: userId=${userId}, nextComplexId=${complexId}, деньСегодня=${count ? 'обновлён' : 'нет'}`,
       );
       return profile.activeProgramId!;
     } catch (e) {

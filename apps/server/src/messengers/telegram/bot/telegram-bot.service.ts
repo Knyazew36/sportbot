@@ -195,6 +195,16 @@ export class TelegramBotService implements OnApplicationBootstrap {
     this.logger.log(`Меню команд обновлено: ${commands.length}`);
   }
 
+  /** Описание бота: короткое — в профиле, полное — в пустом чате до «Старт». */
+  public async setDescriptions(params: {
+    short: string;
+    full: string;
+  }): Promise<void> {
+    await this.bot.telegram.setMyShortDescription(params.short);
+    await this.bot.telegram.setMyDescription(params.full);
+    this.logger.log('Описание бота обновлено');
+  }
+
   /** Ссылка на скачивание файла, присланного боту. */
   public async getFileUrl(fileId: string): Promise<string> {
     return (await this.bot.telegram.getFileLink(fileId)).toString();

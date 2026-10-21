@@ -14,6 +14,7 @@ import { MessengerMessage, MessengerUser, plainText } from '@/messengers';
 import {
   TelegramAppAdapter,
   TelegramBotService,
+  TelegramLinkButton,
   TelegramMessengerChannel,
   TelegramPreCheckout,
   TelegramPreCheckoutResult,
@@ -24,6 +25,13 @@ import {
 import { StarsService } from '@/stars/stars.service';
 
 import { AppMessengerAccountsService } from './app-messenger-accounts.service';
+import {
+  BOT_DESCRIPTION,
+  BOT_SHORT_DESCRIPTION,
+  welcomeLinks,
+  welcomePhotoUrl,
+  welcomeText,
+} from './app-messenger-texts';
 
 /**
  * Связка модуля Telegram (src/messengers/telegram) с этим проектом: сессии, слияние аккаунтов
@@ -59,6 +67,11 @@ export class AppTelegramAdapter
       .catch((error: Error) =>
         this.logger.warn(`Меню команд не обновлено: ${error.message}`),
       );
+    this.botService
+      .setDescriptions({ short: BOT_SHORT_DESCRIPTION, full: BOT_DESCRIPTION })
+      .catch((error: Error) =>
+        this.logger.warn(`Описание бота не обновлено: ${error.message}`),
+      );
   }
 
   // ── Сессии и аккаунты ───────────────────────────────────────────────────
@@ -85,6 +98,20 @@ export class AppTelegramAdapter
 
   public describeAccount(userId: number): Promise<string | null> {
     return this.accounts.describeAccount(userId);
+  }
+
+  // ── Приветствие ─────────────────────────────────────────────────────────
+
+  public welcomeText(): string {
+    return welcomeText('TELEGRAM');
+  }
+
+  public welcomePhotoUrl(): string | null {
+    return welcomePhotoUrl();
+  }
+
+  public welcomeLinks(): TelegramLinkButton[] {
+    return welcomeLinks();
   }
 
   // ── События бота ────────────────────────────────────────────────────────

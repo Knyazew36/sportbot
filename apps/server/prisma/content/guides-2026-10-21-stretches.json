@@ -1,0 +1,1676 @@
+{
+  "exportedAt": "2026-10-21T10:21:37.769Z",
+  "exercises": [],
+  "stretches": [
+    {
+      "id": 1,
+      "code": "neck-side",
+      "updatedAt": "2026-10-17T17:45:06.708Z",
+      "description": "Сидя ровно, плечи расслаблены. Наклон мягкий, без нажима рукой.",
+      "steps": [
+        "Сядь ровно, расслабь плечи.",
+        "Мягко наклони голову ухом к плечу.",
+        "Противоположное плечо тяни вниз.",
+        "Держи и смени сторону."
+      ],
+      "mistakes": [
+        "Давишь рукой на голову — наклоняй голову без нажима.",
+        "Поднимаешь противоположное плечо — держи его опущенным."
+      ],
+      "feel": "боковая поверхность шеи и верх трапеции",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Side_Neck_Stretch",
+        "https://exercise-dataset.com/exercise/neck-side-stretch/"
+      ]
+    },
+    {
+      "id": 2,
+      "code": "traps-chin-down",
+      "updatedAt": "2026-10-17T17:45:06.904Z",
+      "description": "Сидя, пальцы сцеплены на затылке, локти направлены вниз. Подбородок опускается мягко.",
+      "steps": [
+        "Сядь, сцепи пальцы на затылке.",
+        "Направь локти вниз.",
+        "Мягко опусти подбородок к груди и держи."
+      ],
+      "mistakes": [],
+      "feel": "задняя поверхность шеи и верх спины",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Chin_To_Chest_Stretch"
+      ]
+    },
+    {
+      "id": 3,
+      "code": "front-delt-behind",
+      "updatedAt": "2026-10-17T17:45:07.079Z",
+      "description": "Руки сцеплены в замок за спиной и выпрямлены, грудь раскрыта.",
+      "steps": [
+        "Сцепи руки в замок за спиной.",
+        "Выпрями руки.",
+        "Отведи их назад-вверх, раскрывая грудь, и держи."
+      ],
+      "mistakes": [],
+      "feel": "передняя часть плеч и грудь",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Standing_Biceps_Stretch"
+      ]
+    },
+    {
+      "id": 4,
+      "code": "cross-body-shoulder",
+      "updatedAt": "2026-10-17T17:45:07.231Z",
+      "description": "Рука прямая, плечо опущено.",
+      "steps": [
+        "Проведи прямую руку перед грудью.",
+        "Второй рукой прижми её к себе выше локтя.",
+        "Держи и смени руку."
+      ],
+      "mistakes": [
+        "Поднимаешь плечо — держи его опущенным."
+      ],
+      "feel": "задняя часть плеча",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Shoulder_Stretch"
+      ]
+    },
+    {
+      "id": 5,
+      "code": "mid-delt-behind-back",
+      "updatedAt": "2026-10-17T17:45:07.237Z",
+      "description": "Тяни мягко, без рывков.",
+      "steps": [
+        "Заведи руку за спину.",
+        "Второй рукой возьми её за запястье.",
+        "Мягко тяни в противоположную сторону, наклоняя туда же голову.",
+        "Держи и смени руку."
+      ],
+      "mistakes": [],
+      "feel": "боковая часть плеча",
+      "position": "STANDING"
+    },
+    {
+      "id": 6,
+      "code": "chest-wall",
+      "updatedAt": "2026-10-17T17:45:07.246Z",
+      "description": "Ладонь и предплечье на стене на уровне плеча. Разворачивайся плавно.",
+      "steps": [
+        "Встань боком к стене.",
+        "Положи ладонь и предплечье на стену на уровне плеча.",
+        "Плавно разворачивай корпус от стены и держи.",
+        "Смени сторону."
+      ],
+      "mistakes": [],
+      "feel": "грудь и передняя часть плеча",
+      "position": "STANDING"
+    },
+    {
+      "id": 7,
+      "code": "chest-doorway",
+      "updatedAt": "2026-10-17T17:45:07.251Z",
+      "description": "Предплечья в косяках на уровне плеч.",
+      "steps": [
+        "Встань в дверном проёме.",
+        "Упрись предплечьями в косяки на уровне плеч.",
+        "Подай корпус вперёд до растяжения груди и держи."
+      ],
+      "mistakes": [
+        "Прогибаешь поясницу — держи рёбра опущенными.",
+        "Тянешь до боли — остановись на лёгком натяжении."
+      ],
+      "feel": "грудь и передняя часть плеч",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://exercise-dataset.com/exercise/doorway-chest-stretch/"
+      ]
+    },
+    {
+      "id": 8,
+      "code": "lats-hang",
+      "updatedAt": "2026-10-17T17:45:07.255Z",
+      "description": "Руки прямые, плечи и спина расслаблены, дыхание ровное.",
+      "steps": [
+        "Возьмись за перекладину и повисни на прямых руках.",
+        "Расслабь плечи и спину.",
+        "Дыши ровно и держи."
+      ],
+      "mistakes": [],
+      "feel": "широчайшие и предплечья",
+      "position": "STANDING"
+    },
+    {
+      "id": 9,
+      "code": "lats-side-bend",
+      "updatedAt": "2026-10-17T17:45:07.421Z",
+      "description": "Стойка чуть шире таза, колени слегка согнуты. Вес поровну на обеих ногах.",
+      "steps": [
+        "Встань чуть шире таза, слегка согни колени.",
+        "Подними руку вверх, второй рукой возьмись за её запястье.",
+        "Наклонись в сторону, вытягивая бок, и держи.",
+        "Смени сторону."
+      ],
+      "mistakes": [
+        "Заваливаешься на одно бедро — держи вес поровну на обеих ногах."
+      ],
+      "feel": "бок от таза до подмышки",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Standing_Lateral_Stretch"
+      ]
+    },
+    {
+      "id": 10,
+      "code": "child-pose",
+      "updatedAt": "2026-10-17T17:45:07.613Z",
+      "description": "Таз держи у пяток, тянись пальцами вперёд. Дыши спиной. При проблемах с коленями эту позу не делай.",
+      "steps": [
+        "Встань на четвереньки и переставь руки вперёд.",
+        "Опусти таз на пятки.",
+        "Вытяни руки по полу, лоб опусти на пол.",
+        "Тянись пальцами вперёд и держи."
+      ],
+      "mistakes": [
+        "Задерживаешь дыхание — расслабься и дыши ровно."
+      ],
+      "feel": "широчайшие и поясница",
+      "position": "KNEELING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Childs_Pose",
+        "https://exercise-dataset.com/exercise/childs-pose/",
+        "https://wger.de/exercise/1002/view-base"
+      ]
+    },
+    {
+      "id": 11,
+      "code": "biceps-wall",
+      "updatedAt": "2026-10-17T17:45:07.617Z",
+      "description": "Рука прямая, ладонь на стене позади на уровне плеча, пальцы назад.",
+      "steps": [
+        "Встань спиной к стене вполоборота.",
+        "Упри прямую руку ладонью в стену позади себя на уровне плеча, пальцы назад.",
+        "Разворачивай корпус от руки и держи.",
+        "Смени руку."
+      ],
+      "mistakes": [],
+      "feel": "бицепс и передняя часть плеча",
+      "position": "STANDING"
+    },
+    {
+      "id": 12,
+      "code": "triceps-overhead",
+      "updatedAt": "2026-10-17T17:45:07.788Z",
+      "description": "Давление на локоть мягкое.",
+      "steps": [
+        "Подними руку и согни её за головой.",
+        "Второй рукой возьмись за локоть.",
+        "Мягко надави на локоть вниз и назад и держи.",
+        "Смени руку."
+      ],
+      "mistakes": [],
+      "feel": "трицепс",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Triceps_Stretch"
+      ]
+    },
+    {
+      "id": 13,
+      "code": "forearm-flexor",
+      "updatedAt": "2026-10-17T17:45:07.792Z",
+      "description": "Рука вытянута ладонью вверх.",
+      "steps": [
+        "Вытяни руку перед собой ладонью вверх.",
+        "Второй рукой потяни пальцы вниз и на себя и держи.",
+        "Смени руку."
+      ],
+      "mistakes": [],
+      "feel": "внутренняя сторона предплечья",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://wger.de/exercise/2686/view-base"
+      ]
+    },
+    {
+      "id": 14,
+      "code": "forearm-extensor",
+      "updatedAt": "2026-10-17T17:45:07.795Z",
+      "description": "Рука вытянута ладонью вниз.",
+      "steps": [
+        "Вытяни руку перед собой ладонью вниз.",
+        "Согни кисть.",
+        "Второй рукой потяни её на себя и держи.",
+        "Смени руку."
+      ],
+      "mistakes": [],
+      "feel": "наружная сторона предплечья",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://wger.de/exercise/2686/view-base"
+      ]
+    },
+    {
+      "id": 15,
+      "code": "cobra",
+      "updatedAt": "2026-10-17T17:45:07.798Z",
+      "description": "Таз остаётся на полу, голова не запрокидывается.",
+      "steps": [
+        "Ляг на живот.",
+        "Упрись ладонями в пол под плечами.",
+        "Подними грудь, таз оставь на полу, и держи."
+      ],
+      "mistakes": [
+        "Запрокидываешь голову — держи шею продолжением спины.",
+        "Выпрямляешь руки через силу — держи локти чуть согнутыми.",
+        "Плечи поднимаются к ушам — опусти их."
+      ],
+      "feel": "пресс и передняя поверхность корпуса",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://exercise-dataset.com/exercise/cobra-stretch/",
+        "https://wger.de/exercise/1450/view-base"
+      ]
+    },
+    {
+      "id": 16,
+      "code": "abs-standing-reach",
+      "updatedAt": "2026-10-17T17:45:07.974Z",
+      "description": "Плечи опущены, корпус стабилен — тянутся передняя и задняя поверхность корпуса.",
+      "steps": [
+        "Встань прямо, сцепи пальцы и разверни ладони вверх.",
+        "Вытяни руки над головой, плечи опущены.",
+        "Тянись вверх, слегка прогибаясь назад, и держи."
+      ],
+      "mistakes": [],
+      "feel": "передняя и задняя поверхность корпуса",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Overhead_Stretch"
+      ]
+    },
+    {
+      "id": 17,
+      "code": "knees-to-chest",
+      "updatedAt": "2026-10-17T17:45:08.141Z",
+      "description": "Обхватывай ноги под коленями, а не поверх — так меньше давления на колени. Поясница расслаблена.",
+      "steps": [
+        "Ляг на спину.",
+        "Подтяни оба колена к груди.",
+        "Обхвати ноги руками под коленями.",
+        "Мягко тяни колени к плечам и держи."
+      ],
+      "mistakes": [
+        "Держишь руки поверх коленей — обхватывай под коленями."
+      ],
+      "feel": "поясница и ягодицы",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Hug_Knees_To_Chest"
+      ]
+    },
+    {
+      "id": 18,
+      "code": "cat-stretch",
+      "updatedAt": "2026-10-17T17:45:08.321Z",
+      "description": "Живот подтянут, голова свободно опущена.",
+      "steps": [
+        "Встань на четвереньки.",
+        "Подтяни живот и округли спину вверх.",
+        "Опусти подбородок к груди и задержись."
+      ],
+      "mistakes": [
+        "Задерживаешь дыхание — расслабься и дыши ровно."
+      ],
+      "feel": "спина вдоль позвоночника",
+      "position": "KNEELING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Cat_Stretch",
+        "https://exercise-dataset.com/exercise/cat-stretch/"
+      ]
+    },
+    {
+      "id": 19,
+      "code": "lying-twist",
+      "updatedAt": "2026-10-17T17:45:08.506Z",
+      "description": "Плечи остаются на полу. Колено может не касаться пола, если не хватает гибкости.",
+      "steps": [
+        "Ляг на спину, одна нога прямая.",
+        "Согни другую ногу и опусти колено через корпус в сторону, придерживая его рукой.",
+        "Вторую руку отведи в сторону, голову поверни туда же, и держи.",
+        "Смени сторону."
+      ],
+      "mistakes": [
+        "Плечи отрываются от пола — опускай колено только пока плечи на полу."
+      ],
+      "feel": "поясница и ягодица согнутой ноги",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Knee_Across_The_Body"
+      ]
+    },
+    {
+      "id": 20,
+      "code": "figure-four",
+      "updatedAt": "2026-10-17T17:45:08.670Z",
+      "description": "Шея и плечи расслаблены.",
+      "steps": [
+        "Ляг на спину, согни колени, стопы на полу.",
+        "Положи лодыжку на колено другой ноги.",
+        "Возьмись за бедро нижней ноги и подтяни её к груди, держи.",
+        "Смени сторону."
+      ],
+      "mistakes": [
+        "Напрягаешь шею и плечи — расслабь их."
+      ],
+      "feel": "ягодица ноги, лежащей сверху",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Ankle_On_The_Knee"
+      ]
+    },
+    {
+      "id": 21,
+      "code": "pigeon",
+      "updatedAt": "2026-10-17T17:45:08.675Z",
+      "description": "Таз опускается к полу, корпус наклоняется к передней ноге.",
+      "steps": [
+        "Согни переднюю ногу перед собой.",
+        "Заднюю ногу вытяни назад.",
+        "Опусти таз и наклонись корпусом к передней ноге, держи.",
+        "Смени ногу."
+      ],
+      "mistakes": [
+        "Таз заваливается на бок — держи его ровно, при необходимости подложи подушку под бедро."
+      ],
+      "feel": "ягодица и наружная часть бедра передней ноги",
+      "position": "KNEELING",
+      "techniqueSources": [
+        "https://exercise-dataset.com/exercise/pigeon-stretch/",
+        "https://wger.de/exercise/1872/view-base"
+      ]
+    },
+    {
+      "id": 22,
+      "code": "quad-standing",
+      "updatedAt": "2026-10-17T17:45:08.679Z",
+      "description": "Колени рядом, таз подкручен вперёд.",
+      "steps": [
+        "Встань, согни ногу и возьмись за стопу.",
+        "Подтяни пятку к ягодице, колени рядом.",
+        "Подкрути таз вперёд и держи.",
+        "Смени ногу."
+      ],
+      "mistakes": [
+        "Колено уходит вперёд или в сторону — держи колени рядом."
+      ],
+      "feel": "передняя поверхность бедра",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://exercise-dataset.com/exercise/standing-quad-stretch/",
+        "https://wger.de/exercise/1873/view-base"
+      ]
+    },
+    {
+      "id": 23,
+      "code": "couch-stretch",
+      "updatedAt": "2026-10-17T17:45:08.682Z",
+      "description": "Корпус прямой, таз подкручен.",
+      "steps": [
+        "Поставь колено у стены, голень вдоль неё.",
+        "Вторую ногу выставь вперёд в выпад.",
+        "Выпрями корпус, подкрути таз и держи.",
+        "Смени ногу."
+      ],
+      "mistakes": [
+        "Прогибаешь поясницу — напряги ягодицу задней ноги."
+      ],
+      "feel": "передняя поверхность бедра и сгибатели бедра задней ноги",
+      "position": "KNEELING",
+      "techniqueSources": [
+        "https://exercise-dataset.com/exercise/kneeling-hip-flexor-stretch/",
+        "https://wger.de/exercise/2525/view-base"
+      ]
+    },
+    {
+      "id": 24,
+      "code": "hamstring-forward-fold",
+      "updatedAt": "2026-10-17T17:45:08.843Z",
+      "description": "Ноги вместе, колени чуть мягкие. Наклон от бёдер, корпус и руки свисают свободно.",
+      "steps": [
+        "Встань, ноги вместе.",
+        "Наклонись от бёдер.",
+        "Расслабь корпус, руки тянутся к полу, держи."
+      ],
+      "mistakes": [
+        "Округляешь спину рывком — наклоняйся плавно от бёдер."
+      ],
+      "feel": "задняя поверхность бёдер и поясница",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Standing_Toe_Touches"
+      ]
+    },
+    {
+      "id": 25,
+      "code": "hamstring-seated",
+      "updatedAt": "2026-10-17T17:45:09.009Z",
+      "description": "Наклон от бёдер, тянется задняя поверхность бедра.",
+      "steps": [
+        "Сядь, одну ногу вытяни, стопу второй поставь к внутренней стороне бедра.",
+        "Наклонись от бёдер и тянись грудью к прямой ноге, держи.",
+        "Смени ногу."
+      ],
+      "mistakes": [],
+      "feel": "задняя поверхность бедра прямой ноги",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Seated_Floor_Hamstring_Stretch"
+      ]
+    },
+    {
+      "id": 26,
+      "code": "butterfly",
+      "updatedAt": "2026-10-17T17:45:09.016Z",
+      "description": "Спина прямая, давление на колени мягкое.",
+      "steps": [
+        "Сядь, соедини стопы и подтяни их к себе.",
+        "Локтями мягко дави на колени вниз.",
+        "Держи спину прямой."
+      ],
+      "mistakes": [],
+      "feel": "внутренняя поверхность бёдер",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://exercise-dataset.com/exercise/butterfly-stretch/",
+        "https://wger.de/exercise/1843/view-base"
+      ]
+    },
+    {
+      "id": 27,
+      "code": "side-lunge-stretch",
+      "updatedAt": "2026-10-17T17:45:09.020Z",
+      "description": "Прямая нога стоит всей стопой на полу.",
+      "steps": [
+        "Встань широко.",
+        "Перенеси вес на одну ногу, сгибая её.",
+        "Вторую ногу держи прямой, стопа на полу, и держи.",
+        "Смени сторону."
+      ],
+      "mistakes": [],
+      "feel": "внутренняя поверхность бедра прямой ноги",
+      "position": "STANDING"
+    },
+    {
+      "id": 28,
+      "code": "calf-wall",
+      "updatedAt": "2026-10-17T17:45:09.208Z",
+      "description": "Пятка задней ноги на полу, пятка, таз и голова на одной линии.",
+      "steps": [
+        "Встань лицом к стене, одну ногу выставь вперёд.",
+        "Упрись руками в стену.",
+        "Заднюю ногу выпрями, пятку прижми к полу.",
+        "Подай таз вперёд и держи.",
+        "Смени ногу."
+      ],
+      "mistakes": [
+        "Пятка отрывается от пола — прижми её."
+      ],
+      "feel": "икра задней ноги",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Calf_Stretch_Hands_Against_Wall"
+      ]
+    },
+    {
+      "id": 29,
+      "code": "calf-step",
+      "updatedAt": "2026-10-17T17:45:09.212Z",
+      "description": "Колено прямое, носок на краю ступеньки.",
+      "steps": [
+        "Встань носком на край ступеньки.",
+        "Опусти пятку вниз, колено прямое, и держи.",
+        "Смени ногу."
+      ],
+      "mistakes": [
+        "Носок смотрит в сторону — направь его вперёд."
+      ],
+      "feel": "икра",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://exercise-dataset.com/exercise/standing-calf-stretch/",
+        "https://wger.de/exercise/1239/view-base"
+      ]
+    },
+    {
+      "id": 30,
+      "code": "all-fours-quad",
+      "updatedAt": "2026-10-17T17:45:09.420Z",
+      "description": "Колено согнуто до конца, таз уходит вниз к полу. Поясница не прогибается.",
+      "steps": [
+        "Встань на четвереньки.",
+        "Согни одну ногу и возьми стопу одноимённой рукой.",
+        "Подтяни пятку к ягодице.",
+        "Подай таз вниз к полу и держи.",
+        "Смени ногу."
+      ],
+      "mistakes": [
+        "Прогибаешь поясницу — подай таз вниз, а не прогибайся."
+      ],
+      "feel": "передняя поверхность бедра и сгибатели бедра",
+      "position": "KNEELING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/All_Fours_Quad_Stretch"
+      ]
+    },
+    {
+      "id": 31,
+      "code": "calf-wall-elbows",
+      "updatedAt": "2026-10-17T17:45:09.593Z",
+      "description": "Тело прямое, пятки прижаты к полу. Чем дальше стопы от стены, тем сильнее растяжение.",
+      "steps": [
+        "Встань в шаге от стены.",
+        "Обопрись на стену предплечьями.",
+        "Держи тело прямым, пятки прижми к полу, и держи."
+      ],
+      "mistakes": [
+        "Пятки отрываются от пола — подойди ближе к стене."
+      ],
+      "feel": "икры",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Calf_Stretch_Elbows_Against_Wall"
+      ]
+    },
+    {
+      "id": 32,
+      "code": "bench-side-bend",
+      "updatedAt": "2026-10-17T17:45:09.742Z",
+      "description": "Сиди прямо, таз не отрывай от скамьи.",
+      "steps": [
+        "Сядь прямо на скамью.",
+        "Подними одну руку над головой.",
+        "Наклонись в противоположную сторону, свободной рукой держись за скамью, и держи.",
+        "Смени сторону."
+      ],
+      "mistakes": [
+        "Таз отрывается от скамьи — держи его на месте."
+      ],
+      "feel": "бок",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Chair_Lower_Back_Stretch"
+      ]
+    },
+    {
+      "id": 33,
+      "code": "bench-upper-body",
+      "updatedAt": "2026-10-17T17:45:09.908Z",
+      "description": "Руки прямые, спина прямая.",
+      "steps": [
+        "Сядь на край скамьи.",
+        "Возьмись руками за её край позади себя.",
+        "Выпрями руки и подай корпус вперёд с прямой спиной до растяжения в груди и плечах, держи."
+      ],
+      "mistakes": [],
+      "feel": "грудь и передняя часть плеч",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Chair_Upper_Body_Stretch"
+      ]
+    },
+    {
+      "id": 34,
+      "code": "stick-overhead-chest",
+      "updatedAt": "2026-10-17T17:45:10.087Z",
+      "description": "Хват шире плеч, руки прямые, ладони вниз. Не прогибайся в пояснице.",
+      "steps": [
+        "Встань, ноги вместе, возьми палку хватом шире плеч.",
+        "Подними её над головой.",
+        "Плавно отведи за голову на прямых руках и держи."
+      ],
+      "mistakes": [
+        "Прогибаешься в пояснице — отводи палку только пока корпус ровный."
+      ],
+      "feel": "грудь и передняя часть плеч",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Chest_And_Front_Of_Shoulder_Stretch"
+      ]
+    },
+    {
+      "id": 35,
+      "code": "chest-fitball",
+      "updatedAt": "2026-10-17T17:45:10.255Z",
+      "description": "Нужен фитбол. Рука отведена в сторону, локоть всё время на мяче.",
+      "steps": [
+        "Встань на четвереньки рядом с мячом.",
+        "Положи локоть отведённой в сторону руки на мяч.",
+        "Опускай грудь к полу, локоть остаётся на мяче, и держи.",
+        "Смени руку."
+      ],
+      "mistakes": [],
+      "feel": "грудь и передняя часть плеча",
+      "position": "KNEELING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Chest_Stretch_on_Stability_Ball"
+      ]
+    },
+    {
+      "id": 36,
+      "code": "seated-spinal-twist",
+      "updatedAt": "2026-10-17T17:45:10.431Z",
+      "description": "Сидя на полу, одна нога прямая, стопа второй за коленом прямой ноги.",
+      "steps": [
+        "Сядь на пол, вытяни одну ногу.",
+        "Согни вторую и поставь стопу за колено прямой ноги.",
+        "Упрись противоположным локтем в согнутое колено.",
+        "Поверни корпус в сторону согнутой ноги и держи.",
+        "Смени сторону."
+      ],
+      "mistakes": [],
+      "feel": "поясница и ягодица согнутой ноги",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Dancers_Stretch"
+      ]
+    },
+    {
+      "id": 37,
+      "code": "elbows-back",
+      "updatedAt": "2026-10-17T17:45:10.617Z",
+      "description": "Стоя прямо, ладони на пояснице пальцами вниз. Своди локти плавно.",
+      "steps": [
+        "Встань прямо.",
+        "Положи ладони на поясницу пальцами вниз, локти в стороны.",
+        "Плавно своди локти за спиной, раскрывая грудь, и держи."
+      ],
+      "mistakes": [],
+      "feel": "грудь и передняя часть плеч",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Elbows_Back"
+      ]
+    },
+    {
+      "id": 38,
+      "code": "lying-hamstring-strap",
+      "updatedAt": "2026-10-17T17:45:10.782Z",
+      "description": "Нужен ремень или полотенце. Вторая нога лежит на полу.",
+      "steps": [
+        "Ляг на спину.",
+        "Накинь ремень на стопу и подними прямую ногу вверх.",
+        "Тяни ремень на себя и держи.",
+        "Смени ногу."
+      ],
+      "mistakes": [],
+      "feel": "задняя поверхность бедра и икра",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Hamstring_Stretch",
+        "https://wger.de/exercise/2688/view-base"
+      ]
+    },
+    {
+      "id": 39,
+      "code": "hug-fitball",
+      "updatedAt": "2026-10-17T17:45:10.960Z",
+      "description": "Нужен фитбол. Стопы на полу, колени над щиколотками. Держи мяч крепко, чтобы он не укатился.",
+      "steps": [
+        "Сядь на корточки, мяч между ног.",
+        "Поставь стопы на пол, колени над щиколотками.",
+        "Обними мяч и расслабь спину, опуская таз вниз, держи."
+      ],
+      "mistakes": [
+        "Отпускаешь мяч — держи его крепко, иначе он укатится."
+      ],
+      "feel": "поясница",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Hug_A_Ball"
+      ]
+    },
+    {
+      "id": 40,
+      "code": "it-band-strap",
+      "updatedAt": "2026-10-17T17:45:11.168Z",
+      "description": "Нужен ремень или полотенце. Нога прямая, плечи прижаты к полу.",
+      "steps": [
+        "Ляг на спину, накинь ремень на стопу.",
+        "Уведи прямую ногу через корпус в противоположную сторону.",
+        "Тяни носок на себя и держи.",
+        "Смени ногу."
+      ],
+      "mistakes": [
+        "Плечи отрываются от пола — уводи ногу только пока плечи на полу."
+      ],
+      "feel": "наружная поверхность бедра и ягодица",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/IT_Band_and_Glute_Stretch"
+      ]
+    },
+    {
+      "id": 41,
+      "code": "lying-groin-strap",
+      "updatedAt": "2026-10-17T17:45:11.365Z",
+      "description": "Нужен ремень или полотенце. Таз не разворачивай, подтягивай мягко.",
+      "steps": [
+        "Ляг на спину, накинь ремень на стопу.",
+        "Отведи прямую ногу как можно дальше в сторону.",
+        "Мягко подтягивай ремнём и держи.",
+        "Смени ногу."
+      ],
+      "mistakes": [
+        "Таз разворачивается — отводи ногу только пока таз ровный."
+      ],
+      "feel": "внутренняя и задняя поверхность бедра",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Intermediate_Groin_Stretch"
+      ]
+    },
+    {
+      "id": 42,
+      "code": "prone-quad-strap",
+      "updatedAt": "2026-10-17T17:45:11.541Z",
+      "description": "Нужен ремень или полотенце. Колено и бедро слегка отрываются от пола.",
+      "steps": [
+        "Ляг на живот, накинь ремень на стопу.",
+        "Согни колено.",
+        "Тяни ремень двумя руками через плечо и держи.",
+        "Смени ногу."
+      ],
+      "mistakes": [],
+      "feel": "передняя поверхность бедра и сгибатели бедра",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Intermediate_Hip_Flexor_and_Quad_Stretch"
+      ]
+    },
+    {
+      "id": 43,
+      "code": "kneeling-forearm",
+      "updatedAt": "2026-10-17T17:45:11.729Z",
+      "description": "Ладони плотно на полу, пальцы к коленям. Отклоняйся плавно.",
+      "steps": [
+        "Встань на колени.",
+        "Поставь ладони на пол пальцами к коленям.",
+        "Плавно отклоняйся назад, не отрывая ладони, до растяжения и держи."
+      ],
+      "mistakes": [],
+      "feel": "запястья и предплечья",
+      "position": "KNEELING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Kneeling_Forearm_Stretch"
+      ]
+    },
+    {
+      "id": 44,
+      "code": "kneeling-hip-flexor",
+      "updatedAt": "2026-10-17T17:45:11.900Z",
+      "description": "Корпус вертикально. Подъём стопы задней ноги лежит на полу.",
+      "steps": [
+        "Поставь одну ногу вперёд стопой на пол.",
+        "Колено второй опусти на пол, подъём стопы на полу.",
+        "Подай таз вперёд до растяжения в передней части бедра задней ноги и держи.",
+        "Смени ногу."
+      ],
+      "mistakes": [],
+      "feel": "передняя часть бедра задней ноги",
+      "position": "KNEELING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Kneeling_Hip_Flexor"
+      ]
+    },
+    {
+      "id": 45,
+      "code": "leg-up-hamstring",
+      "updatedAt": "2026-10-17T17:45:12.084Z",
+      "description": "Одна нога согнута и стоит на полу — так спина стабильна. Если колено не выпрямляется до конца — это нормально.",
+      "steps": [
+        "Ляг на спину, согни одну ногу, стопа на полу.",
+        "Вторую подними вверх и обхвати руками за бедро.",
+        "Постепенно выпрямляй колено, подошва смотрит в потолок, и держи.",
+        "Смени ногу."
+      ],
+      "mistakes": [],
+      "feel": "задняя поверхность бедра поднятой ноги",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Leg-Up_Hamstring_Stretch"
+      ]
+    },
+    {
+      "id": 46,
+      "code": "kneeling-backbend",
+      "updatedAt": "2026-10-17T17:45:12.278Z",
+      "description": "При дискомфорте в пояснице уменьши прогиб.",
+      "steps": [
+        "Встань на колени, возьмись руками за пятки.",
+        "Подай таз вверх и вперёд.",
+        "Прогнись в грудном отделе, посмотри в потолок и держи."
+      ],
+      "mistakes": [
+        "Дискомфорт в пояснице — уменьши прогиб."
+      ],
+      "feel": "передняя поверхность бёдер и пресс",
+      "position": "KNEELING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Looking_At_Ceiling"
+      ]
+    },
+    {
+      "id": 47,
+      "code": "standing-twist",
+      "updatedAt": "2026-10-17T17:45:12.465Z",
+      "description": "Стопы на ширине плеч, руки на поясе. Таз остаётся на месте.",
+      "steps": [
+        "Встань, стопы на ширине плеч, руки на поясе.",
+        "Поверни корпус в сторону до растяжения и держи.",
+        "Повернись в другую сторону."
+      ],
+      "mistakes": [
+        "Таз поворачивается вместе с корпусом — держи таз на месте."
+      ],
+      "feel": "поясница и косые мышцы живота",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Middle_Back_Stretch"
+      ]
+    },
+    {
+      "id": 48,
+      "code": "bench-quad",
+      "updatedAt": "2026-10-17T17:45:12.797Z",
+      "description": "Поясница не прогибается — пупок подтяни к позвоночнику.",
+      "steps": [
+        "Ляг на спину на скамью, свесь одну ногу и руку с края.",
+        "Согни колено и возьмись за подъём стопы.",
+        "Тяни пятку к ягодице и держи.",
+        "Смени сторону."
+      ],
+      "mistakes": [
+        "Прогибаешь поясницу — подтяни пупок к позвоночнику."
+      ],
+      "feel": "передняя поверхность бедра",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/On-Your-Back_Quad_Stretch"
+      ]
+    },
+    {
+      "id": 49,
+      "code": "side-lying-quad",
+      "updatedAt": "2026-10-17T17:45:13.005Z",
+      "description": "Нижнее колено согнуто впереди для опоры.",
+      "steps": [
+        "Ляг на бок, нижнее колено согни впереди.",
+        "Согни верхнюю ногу назад и возьмись за стопу.",
+        "Подай бедро вперёд, а стопу — в ладонь, и держи.",
+        "Смени сторону."
+      ],
+      "mistakes": [],
+      "feel": "передняя поверхность бедра и сгибатели бедра",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/On_Your_Side_Quad_Stretch"
+      ]
+    },
+    {
+      "id": 50,
+      "code": "half-locust",
+      "updatedAt": "2026-10-17T17:45:13.203Z",
+      "description": "Тянутся передняя поверхность бедра, грудь и плечи.",
+      "steps": [
+        "Ляг на живот.",
+        "Согни одно колено и возьми стопу одноимённой рукой.",
+        "Одновременно поднимай стопу вверх и отрывай плечи от пола, держи.",
+        "Смени сторону."
+      ],
+      "mistakes": [],
+      "feel": "передняя поверхность бедра, грудь и плечи",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/One_Half_Locust"
+      ]
+    },
+    {
+      "id": 51,
+      "code": "one-hand-hang",
+      "updatedAt": "2026-10-17T17:45:13.382Z",
+      "description": "Стопы остаются на полу или подставке.",
+      "steps": [
+        "Возьмись за перекладину одной рукой хватом сверху.",
+        "Перенеси большую часть веса на руку, стопы на опоре.",
+        "Расслабь бок и держи.",
+        "Смени руку."
+      ],
+      "mistakes": [],
+      "feel": "широчайшая и бицепс",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/One_Handed_Hang"
+      ]
+    },
+    {
+      "id": 52,
+      "code": "one-knee-to-chest",
+      "updatedAt": "2026-10-17T17:45:13.554Z",
+      "description": "Держи ногу руками под коленом — так меньше давления на коленную чашечку. Затылок и плечи на полу.",
+      "steps": [
+        "Ляг на спину, одна нога прямая.",
+        "Согни вторую и подтяни колено к груди, держа руками под коленом.",
+        "Мягко тяни колено к себе и держи.",
+        "Смени ногу."
+      ],
+      "mistakes": [],
+      "feel": "ягодица и поясница согнутой ноги",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/One_Knee_To_Chest"
+      ]
+    },
+    {
+      "id": 53,
+      "code": "pyramid-fitball",
+      "updatedAt": "2026-10-17T17:45:13.715Z",
+      "description": "Нужен фитбол. Таз на вершине мяча. Руки и ноги прямые или чуть согнуты — как удобно.",
+      "steps": [
+        "Ляг животом на мяч так, чтобы таз был на вершине.",
+        "Опусти руки и ноги на пол.",
+        "Расслабь спину и шею и держи."
+      ],
+      "mistakes": [],
+      "feel": "поясница и широчайшие",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Pyramid"
+      ]
+    },
+    {
+      "id": 54,
+      "code": "side-lying-quad-strap",
+      "updatedAt": "2026-10-17T17:45:13.893Z",
+      "description": "Нужен ремень или полотенце. Тяни мягко, ремень через плечо или над головой.",
+      "steps": [
+        "Ляг на бок, накинь ремень на верхнюю стопу.",
+        "Согни колено и отведи бедро назад.",
+        "Тяни ремень через плечо, подтягивая пятку к ягодице, и держи.",
+        "Смени сторону."
+      ],
+      "mistakes": [],
+      "feel": "передняя поверхность бедра",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Quad_Stretch",
+        "https://wger.de/exercise/1873/view-base"
+      ]
+    },
+    {
+      "id": 55,
+      "code": "stick-behind-back",
+      "updatedAt": "2026-10-17T17:45:14.049Z",
+      "description": "Хват шире плеч, ладони назад. Поднимай руки плавно, не через силу.",
+      "steps": [
+        "Встань прямо, ноги вместе, держи палку за спиной хватом шире плеч.",
+        "Плавно поднимай прямые руки вверх за спиной и держи."
+      ],
+      "mistakes": [
+        "Наклоняешься вперёд — стой прямо.",
+        "Поднимаешь через силу — остановись там, где становится тяжело."
+      ],
+      "feel": "передняя часть плеч и грудь",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Round_The_World_Shoulder_Stretch"
+      ]
+    },
+    {
+      "id": 56,
+      "code": "runners-stretch",
+      "updatedAt": "2026-10-17T17:45:14.242Z",
+      "description": "Пятка передней ноги на полу; если отрывается — отставь заднюю ногу дальше. Тянутся сгибатели бедра задней ноги и задняя поверхность передней.",
+      "steps": [
+        "Из стойки отставь одну ногу назад и опустись в низкий выпад.",
+        "Поставь руки по бокам от передней стопы.",
+        "Выпрямляй переднюю ногу, поднимая таз вверх и наклоняясь к ней, держи.",
+        "Смени ногу."
+      ],
+      "mistakes": [
+        "Пятка передней ноги отрывается — отставь заднюю ногу дальше."
+      ],
+      "feel": "задняя поверхность передней ноги и сгибатели бедра задней",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Runners_Stretch"
+      ]
+    },
+    {
+      "id": 57,
+      "code": "seated-calf",
+      "updatedAt": "2026-10-17T17:45:14.452Z",
+      "description": "Сидя на полу, спина прямая. Согнутая нога стабилизирует корпус.",
+      "steps": [
+        "Сядь, одну ногу согни, стопу поставь на пол.",
+        "Вторую выпрями.",
+        "Возьмись за носок прямой ноги рукой или полотенцем и тяни на себя, держи.",
+        "Смени ногу."
+      ],
+      "mistakes": [],
+      "feel": "икра и задняя поверхность бедра прямой ноги",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Seated_Calf_Stretch"
+      ]
+    },
+    {
+      "id": 58,
+      "code": "seated-hamstring-strap",
+      "updatedAt": "2026-10-17T17:45:14.649Z",
+      "description": "Нужен ремень или полотенце. Обе ноги прямые.",
+      "steps": [
+        "Сядь, вытяни ноги, накинь ремень на одну стопу.",
+        "Слегка наклонись вперёд.",
+        "Тяни носок на себя и держи.",
+        "Смени ногу."
+      ],
+      "mistakes": [],
+      "feel": "задняя поверхность бедра и икра",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Seated_Hamstring_and_Calf_Stretch"
+      ]
+    },
+    {
+      "id": 59,
+      "code": "seated-side-bend",
+      "updatedAt": "2026-10-17T17:45:14.846Z",
+      "description": "Сидя на полу, стопы вместе перед собой.",
+      "steps": [
+        "Сядь прямо, соедини стопы перед собой.",
+        "Одну руку поставь на пол, вторую за голову.",
+        "Поднимай локоть к потолку и наклоняй корпус в сторону опорной руки, держи.",
+        "Смени сторону."
+      ],
+      "mistakes": [],
+      "feel": "бок",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Seated_Overhead_Stretch"
+      ]
+    },
+    {
+      "id": 60,
+      "code": "side-lying-reach",
+      "updatedAt": "2026-10-17T17:45:15.020Z",
+      "description": "Нижнее колено согнуто впереди для опоры, пресс держит корпус.",
+      "steps": [
+        "Ляг на бок, нижнее колено согни впереди.",
+        "Верхнюю ногу выпрями.",
+        "Вытяни верхнюю руку над головой и тяни её за запястье, растягивая весь бок.",
+        "Смени сторону."
+      ],
+      "mistakes": [],
+      "feel": "весь бок",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Side-Lying_Floor_Stretch"
+      ]
+    },
+    {
+      "id": 61,
+      "code": "side-lying-groin",
+      "updatedAt": "2026-10-17T17:45:15.213Z",
+      "description": "Нижнее колено согнуто для опоры. Держать под коленом проще, за стопу — сильнее.",
+      "steps": [
+        "Ляг на бок, нижнее колено согни.",
+        "Подними верхнюю ногу и возьмись за неё под коленом или за стопу.",
+        "Тяни колено к плечу, одновременно толкая стопу в ладонь, и держи.",
+        "Смени сторону."
+      ],
+      "mistakes": [],
+      "feel": "внутренняя и задняя поверхность бедра",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Side_Lying_Groin_Stretch"
+      ]
+    },
+    {
+      "id": 62,
+      "code": "side-wrist-pull",
+      "updatedAt": "2026-10-17T17:45:15.393Z",
+      "description": "Растяжение чувствуется в спине, а не в плече. Не тяни плечевой сустав сильно.",
+      "steps": [
+        "Встань, перенеси одну руку через корпус.",
+        "Возьми её за запястье другой рукой у бедра.",
+        "Выпрямляй руку и поднимай до уровня плеч, держи.",
+        "Смени руку."
+      ],
+      "mistakes": [
+        "Сильно тянешь плечо — тяни мягко, растяжение в спине."
+      ],
+      "feel": "спина под лопаткой",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Side_Wrist_Pull"
+      ]
+    },
+    {
+      "id": 63,
+      "code": "bench-quad-standing",
+      "updatedAt": "2026-10-17T17:45:15.577Z",
+      "description": "Опорное колено слегка согнуто и не выходит за носок. Корпус вертикально.",
+      "steps": [
+        "Встань спиной к скамье в полушаге от неё.",
+        "Положи подъём одной стопы на скамью.",
+        "Слегка согни опорное колено.",
+        "Подай таз вперёд и держи.",
+        "Смени ногу."
+      ],
+      "mistakes": [
+        "Опорное колено выходит за носок — держи его над стопой."
+      ],
+      "feel": "передняя поверхность бедра",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Standing_Elevated_Quad_Stretch"
+      ]
+    },
+    {
+      "id": 64,
+      "code": "calf-heel-on-step",
+      "updatedAt": "2026-10-17T17:45:15.761Z",
+      "description": "Нога на ступеньке прямая, спина прямая, опорное колено чуть согнуто. Свободная рука на бедре.",
+      "steps": [
+        "Поставь пятку прямой ноги на ступеньку или блин.",
+        "Наклонись с прямой спиной и возьмись за носок.",
+        "Тяни носок к себе до растяжения икры и держи.",
+        "Смени ногу."
+      ],
+      "mistakes": [],
+      "feel": "икра и задняя поверхность бедра",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Standing_Gastrocnemius_Calf_Stretch"
+      ]
+    },
+    {
+      "id": 65,
+      "code": "standing-hamstring-strap",
+      "updatedAt": "2026-10-17T17:45:15.943Z",
+      "description": "Нужен ремень или полотенце. Передняя нога прямая.",
+      "steps": [
+        "Накинь ремень на стопу и выставь эту ногу вперёд на пятку.",
+        "Согни заднюю ногу и наклонись вперёд.",
+        "Тяни носок ремнём на себя и держи.",
+        "Смени ногу."
+      ],
+      "mistakes": [],
+      "feel": "задняя поверхность бедра и икра передней ноги",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Standing_Hamstring_and_Calf_Stretch"
+      ]
+    },
+    {
+      "id": 66,
+      "code": "standing-hip-flexor",
+      "updatedAt": "2026-10-17T17:45:16.107Z",
+      "description": "Корпус вертикально. В этом положении глубоко растянуть не выйдет — это мягкий вариант.",
+      "steps": [
+        "Встань, одна стопа чуть впереди другой.",
+        "Согни оба колена и оторви заднюю пятку.",
+        "Подай таз вперёд со стороны задней ноги и держи.",
+        "Смени ногу."
+      ],
+      "mistakes": [],
+      "feel": "сгибатели бедра задней ноги",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Standing_Hip_Flexors"
+      ]
+    },
+    {
+      "id": 67,
+      "code": "standing-pelvic-tilt",
+      "updatedAt": "2026-10-17T17:45:16.274Z",
+      "description": "Стопы на ширине таза, колени мягкие.",
+      "steps": [
+        "Встань, стопы на ширине таза, слегка согни колени.",
+        "Несколько раз покачай таз вперёд-назад.",
+        "Подкрути копчик вперёд и удержи, вытягивая поясницу."
+      ],
+      "mistakes": [],
+      "feel": "поясница",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Standing_Pelvic_Tilt"
+      ]
+    },
+    {
+      "id": 68,
+      "code": "soleus-stretch",
+      "updatedAt": "2026-10-17T17:45:16.442Z",
+      "description": "Задняя пятка остаётся на полу.",
+      "steps": [
+        "Встань, одна стопа чуть впереди другой.",
+        "Согни оба колена, не отрывая заднюю пятку.",
+        "Перенеси вес на заднюю ногу и держи.",
+        "Смени ногу."
+      ],
+      "mistakes": [
+        "Задняя пятка отрывается — прижми её к полу."
+      ],
+      "feel": "низ икры и ахилл",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Standing_Soleus_And_Achilles_Stretch"
+      ]
+    },
+    {
+      "id": 69,
+      "code": "straddle",
+      "updatedAt": "2026-10-17T17:45:16.611Z",
+      "description": "Ноги прямые, разведены буквой V. Спина прямая.",
+      "steps": [
+        "Сядь, разведи прямые ноги в стороны.",
+        "Поставь руки на пол перед собой.",
+        "Наклоняйся вперёд с прямой спиной и держи."
+      ],
+      "mistakes": [],
+      "feel": "задняя и внутренняя поверхность бёдер",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/The_Straddle"
+      ]
+    },
+    {
+      "id": 70,
+      "code": "triceps-cross-shoulder",
+      "updatedAt": "2026-10-17T17:45:16.802Z",
+      "description": "Дави на локоть мягко.",
+      "steps": [
+        "Перенеси руку через корпус и заведи кисть за противоположное плечо.",
+        "Второй рукой возьмись за локоть.",
+        "Мягко дави на него к плечу и держи.",
+        "Смени руку."
+      ],
+      "mistakes": [],
+      "feel": "трицепс",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Tricep_Side_Stretch"
+      ]
+    },
+    {
+      "id": 71,
+      "code": "seated-thigh-hug",
+      "updatedAt": "2026-10-17T17:45:16.987Z",
+      "description": "Сидя, колени вместе. Руки не отпускай всё упражнение.",
+      "steps": [
+        "Сядь и наклонись вперёд.",
+        "Обхвати бёдра снизу двумя руками.",
+        "Опусти грудь к коленям.",
+        "Округли спину вверх, не отпуская руки, и держи."
+      ],
+      "mistakes": [],
+      "feel": "верх и середина спины",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Upper_Back-Leg_Grab"
+      ]
+    },
+    {
+      "id": 72,
+      "code": "upper-back-reach",
+      "updatedAt": "2026-10-17T17:45:17.167Z",
+      "description": "Пальцы в замке, большие пальцы вниз.",
+      "steps": [
+        "Сцепи пальцы в замок перед собой.",
+        "Вытяни руки вперёд.",
+        "Округли верх спины, разводя лопатки, и держи."
+      ],
+      "mistakes": [],
+      "feel": "верх спины между лопатками",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Upper_Back_Stretch"
+      ]
+    },
+    {
+      "id": 73,
+      "code": "upward-reach",
+      "updatedAt": "2026-10-17T17:45:17.339Z",
+      "description": "Спина прямая, рёбра не выпячивай.",
+      "steps": [
+        "Подними прямые руки над головой, ладони вместе.",
+        "Тянись вверх и слегка назад и держи."
+      ],
+      "mistakes": [
+        "Выпячиваешь рёбра — держи спину прямой."
+      ],
+      "feel": "бока и плечи",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Upward_Stretch"
+      ]
+    },
+    {
+      "id": 74,
+      "code": "lats-wall",
+      "updatedAt": "2026-10-17T17:45:17.509Z",
+      "description": "Подавай корпус плавно, до растяжения в боку под рукой.",
+      "steps": [
+        "Встань боком к стене или стойке.",
+        "Согни руку над головой и обопрись на стену предплечьем.",
+        "Плавно подавай корпус к стене и вниз и держи.",
+        "Смени сторону."
+      ],
+      "mistakes": [],
+      "feel": "широчайшая",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/One_Arm_Against_Wall"
+      ]
+    },
+    {
+      "id": 75,
+      "code": "adductor-roll",
+      "updatedAt": "2026-10-17T17:45:17.686Z",
+      "description": "Нужен массажный ролл. Дави столько, сколько терпимо, мышцу расслабь.",
+      "steps": [
+        "Ляг на живот, отведи одну ногу в сторону.",
+        "Положи внутреннюю поверхность бедра на ролл.",
+        "Медленно катайся от паха до колена.",
+        "На болезненных точках задерживайся.",
+        "Смени ногу."
+      ],
+      "mistakes": [],
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Adductor"
+      ]
+    },
+    {
+      "id": 76,
+      "code": "tibialis-roll",
+      "updatedAt": "2026-10-17T17:45:17.852Z",
+      "description": "Нужен массажный ролл или палка. Катай мышцы снаружи от кости, по самой кости — нет.",
+      "steps": [
+        "Сядь на пол, согни ноги.",
+        "Прокатывай мышцы снаружи от большеберцовой кости от колена до щиколотки.",
+        "На напряжённых точках задерживайся.",
+        "Смени ногу."
+      ],
+      "mistakes": [
+        "Катаешь по кости — катай только мышцы снаружи от неё."
+      ],
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Anterior_Tibialis-SMR"
+      ]
+    },
+    {
+      "id": 77,
+      "code": "brachialis-roll",
+      "updatedAt": "2026-10-17T17:45:18.030Z",
+      "description": "Нужен массажный ролл. Рука вдоль корпуса, ролл под наружной стороной бицепса.",
+      "steps": [
+        "Ляг на бок, положи наружную сторону бицепса на ролл.",
+        "Приподними таз, опираясь на руку и стопы.",
+        "Удерживай давление на напряжённой точке.",
+        "Смени руку."
+      ],
+      "mistakes": [],
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Brachialis-SMR"
+      ]
+    },
+    {
+      "id": 78,
+      "code": "calf-roll",
+      "updatedAt": "2026-10-17T17:45:18.192Z",
+      "description": "Нужен массажный ролл. Под колено не заезжай.",
+      "steps": [
+        "Сядь на пол, положи икру на ролл, руки сзади.",
+        "Приподними таз.",
+        "Катайся от ахилла до подколенной ямки.",
+        "На напряжённых точках задерживайся.",
+        "Смени ногу."
+      ],
+      "mistakes": [
+        "Заезжаешь под колено — останавливайся ниже подколенной ямки."
+      ],
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Calves-SMR"
+      ]
+    },
+    {
+      "id": 79,
+      "code": "foot-roll",
+      "updatedAt": "2026-10-17T17:45:18.384Z",
+      "description": "Нужен массажный мяч или малый ролл. Без обуви, давление умеренное.",
+      "steps": [
+        "Сядь или встань, сними обувь.",
+        "Поставь свод стопы на мяч.",
+        "Прокатывай от пятки до подушечек.",
+        "Смени ногу."
+      ],
+      "mistakes": [],
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Foot-SMR"
+      ]
+    },
+    {
+      "id": 80,
+      "code": "hamstring-roll",
+      "updatedAt": "2026-10-17T17:45:18.581Z",
+      "description": "Нужен массажный ролл. Мышцу, которую катаешь, расслабь.",
+      "steps": [
+        "Сядь, положи заднюю поверхность бедра на ролл, руки сзади.",
+        "Приподними таз и перенеси вес на одну ногу.",
+        "Катайся от ягодицы до колена, задерживаясь на напряжённых точках.",
+        "Смени ногу."
+      ],
+      "mistakes": [],
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Hamstring-SMR"
+      ]
+    },
+    {
+      "id": 81,
+      "code": "it-band-roll",
+      "updatedAt": "2026-10-17T17:45:18.757Z",
+      "description": "Нужен массажный ролл. Вес на ролл — сколько терпимо, мышцы расслаблены.",
+      "steps": [
+        "Ляг на бок, положи наружную сторону бедра на ролл.",
+        "Верхнюю ногу поставь впереди.",
+        "Катайся от таза до колена, задерживаясь на болезненных точках.",
+        "Смени ногу."
+      ],
+      "mistakes": [],
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Iliotibial_Tract-SMR"
+      ]
+    },
+    {
+      "id": 82,
+      "code": "lat-roll",
+      "updatedAt": "2026-10-17T17:45:18.930Z",
+      "description": "Нужен массажный ролл. Корпус над полом, вес на широчайшей.",
+      "steps": [
+        "Ляг на бок, положи ролл под подмышку.",
+        "Вытяни руку за голову.",
+        "Перенеси вес на широчайшую и медленно прокатывай вдоль рёбер.",
+        "Смени сторону."
+      ],
+      "mistakes": [],
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Latissimus_Dorsi-SMR"
+      ]
+    },
+    {
+      "id": 83,
+      "code": "lower-back-roll",
+      "updatedAt": "2026-10-17T17:45:19.110Z",
+      "description": "Нужен массажный ролл. Катай мышцы сбоку от позвоночника, не сам позвоночник.",
+      "steps": [
+        "Сядь, положи ролл под поясницу, скрести руки на груди.",
+        "Приподними таз и отклонись назад.",
+        "Слегка смести вес на одну сторону и прокатывай.",
+        "Повтори на другой стороне."
+      ],
+      "mistakes": [
+        "Катаешь по позвоночнику — смести вес на мышцы сбоку от него."
+      ],
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Lower_Back-SMR"
+      ]
+    },
+    {
+      "id": 84,
+      "code": "neck-roll",
+      "updatedAt": "2026-10-17T17:45:19.278Z",
+      "description": "Нужна массажная палка или малый ролл. Давление лёгкое, только на мышцы сбоку от шейного отдела.",
+      "steps": [
+        "Приложи ролл к мышцам сбоку от шейного отдела.",
+        "Прокатывай от затылка до основания шеи.",
+        "На напряжённых точках задерживайся."
+      ],
+      "mistakes": [
+        "Давишь на позвоночник — разверни ролл на мышцы сбоку."
+      ],
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Neck-SMR"
+      ]
+    },
+    {
+      "id": 85,
+      "code": "peroneal-roll",
+      "updatedAt": "2026-10-17T17:45:19.471Z",
+      "description": "Нужен массажный ролл. Опора на предплечье, верхняя нога сверху или скрещена впереди.",
+      "steps": [
+        "Ляг на бок, обопрись на предплечье.",
+        "Положи наружную сторону голени на ролл.",
+        "Приподними таз и катайся от колена до щиколотки.",
+        "Смени ногу."
+      ],
+      "mistakes": [],
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Peroneals-SMR"
+      ]
+    },
+    {
+      "id": 86,
+      "code": "peroneal-strap",
+      "updatedAt": "2026-10-17T17:45:19.668Z",
+      "description": "Нужен ремень или полотенце. Нога прямая, пятка на весу.",
+      "steps": [
+        "Сядь, накинь ремень на стопу прямой ноги.",
+        "Тяни ремень так, чтобы стопа развернулась внутренним краем к себе, и держи.",
+        "Смени ногу."
+      ],
+      "mistakes": [],
+      "feel": "наружная сторона голени",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Peroneals_Stretch"
+      ]
+    },
+    {
+      "id": 87,
+      "code": "piriformis-roll",
+      "updatedAt": "2026-10-17T17:45:19.836Z",
+      "description": "Нужен массажный ролл. Можно рукой подтягивать согнутое колено к груди.",
+      "steps": [
+        "Сядь на ролл, согни колени.",
+        "Положи щиколотку одной ноги на колено другой.",
+        "Смести вес на ягодицу скрещённой ноги и прокатывай верхнюю часть ягодицы.",
+        "Смени сторону."
+      ],
+      "mistakes": [],
+      "feel": "верх ягодицы",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Piriformis-SMR"
+      ]
+    },
+    {
+      "id": 88,
+      "code": "tibialis-strap",
+      "updatedAt": "2026-10-17T17:45:20.013Z",
+      "description": "Нужен ремень или полотенце. Нога прямая, пятка на весу.",
+      "steps": [
+        "Сядь, накинь ремень на стопу прямой ноги.",
+        "Тяни ремень так, чтобы стопа развернулась наружным краем к себе, и держи.",
+        "Смени ногу."
+      ],
+      "mistakes": [],
+      "feel": "внутренняя сторона голени",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Posterior_Tibialis_Stretch"
+      ]
+    },
+    {
+      "id": 89,
+      "code": "quad-roll",
+      "updatedAt": "2026-10-17T17:45:20.191Z",
+      "description": "Нужен массажный ролл. Стопа на весу и расслаблена, вес на ролл — сколько терпимо.",
+      "steps": [
+        "Ляг на живот, обопрись на предплечья.",
+        "Положи переднюю поверхность бедра на ролл.",
+        "Катайся от таза до колена, задерживаясь на напряжённых точках.",
+        "Смени ногу."
+      ],
+      "mistakes": [],
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Quadriceps-SMR"
+      ]
+    },
+    {
+      "id": 90,
+      "code": "rhomboid-roll",
+      "updatedAt": "2026-10-17T17:45:20.374Z",
+      "description": "Нужен массажный ролл. Руки скрещены на груди, плечи сведены вперёд.",
+      "steps": [
+        "Ляг на спину, положи ролл под лопатки.",
+        "Скрести руки на груди.",
+        "Приподними таз и катайся от середины спины до верха лопаток.",
+        "Смещай вес то на одну, то на другую сторону."
+      ],
+      "mistakes": [],
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Rhomboids-SMR"
+      ]
+    },
+    {
+      "id": 125,
+      "code": null,
+      "updatedAt": "2026-10-17T17:45:26.543Z",
+      "description": "Сидя на коврике, наклон медленный, на выдохе.",
+      "steps": [
+        "Сядь, вытяни одну ногу вперёд.",
+        "Натяни стопу на себя.",
+        "На выдохе медленно наклоняй корпус вниз и держи.",
+        "Повтори другой ногой."
+      ],
+      "mistakes": [],
+      "feel": "задняя поверхность бедра и икра",
+      "position": "SITTING"
+    }
+  ]
+}

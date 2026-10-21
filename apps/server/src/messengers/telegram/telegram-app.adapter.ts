@@ -59,6 +59,11 @@ export abstract class TelegramAppAdapter {
     return '👋 Добро пожаловать! Приложение открывается по кнопке ниже. Сюда же будут приходить уведомления — не блокируйте бота.';
   }
 
+  /** Картинка над приветствием (https-адрес); null — приветствие текстом. */
+  public welcomePhotoUrl(): string | null {
+    return null;
+  }
+
   /** Дополнительные кнопки-ссылки в приветствии (сайт, веб-кабинет и т.п.). */
   public welcomeLinks(): TelegramLinkButton[] {
     return [];

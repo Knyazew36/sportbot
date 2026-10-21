@@ -14,12 +14,14 @@ import { MessengerMessage, MessengerUser, plainText } from '@/messengers';
 import {
   MaxAppAdapter,
   MaxBotService,
+  MaxLinkButton,
   MaxMessengerChannel,
   MaxUserInfo,
   MaxWebSession,
 } from '@/messengers/max';
 
 import { AppMessengerAccountsService } from './app-messenger-accounts.service';
+import { welcomeLinks, welcomeText } from './app-messenger-texts';
 
 /**
  * Связка модуля MAX (src/messengers/max) с этим проектом: сессии, слияние аккаунтов и сборка
@@ -73,6 +75,16 @@ export class AppMaxAdapter
 
   public describeAccount(userId: number): Promise<string | null> {
     return this.accounts.describeAccount(userId);
+  }
+
+  // ── Приветствие ─────────────────────────────────────────────────────────
+
+  public welcomeText(): string {
+    return welcomeText('MAX');
+  }
+
+  public welcomeLinks(): MaxLinkButton[] {
+    return welcomeLinks();
   }
 
   // ── События бота ────────────────────────────────────────────────────────

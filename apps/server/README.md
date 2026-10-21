@@ -56,6 +56,9 @@ Swagger: `http://localhost:4003/api/docs`.
 - Свой файл: `./content.sh путь/к/файлу.json`. Только импорт без сида — `npm run content:import`.
 - Данные и фото — из [free-exercise-db](https://github.com/yuhonas/free-exercise-db) (Unlicense),
   русский текст, суставы и время удержания дописаны вручную.
+- Часть фото растяжек — из [wger](https://wger.de) и [Wikimedia Commons](https://commons.wikimedia.org)
+  под CC BY / CC BY-SA: автор и лицензия хранятся у растяжки и показываются под фото.
+- Факты для техники растяжек: Exercise data by [RepDB](https://repdb.co) (repdb.co).
 
 ### Схема БД
 

@@ -1,0 +1,389 @@
+{
+  "_comment": "Дополнения техники растяжек заминки по code (запись без code — #id прода): feel, position и ошибки, подтверждённые источником. Описание и шаги остаются текущими. Сборка guides: yarn content:stretch-guides.",
+  "neck-side": {
+    "feel": "боковая поверхность шеи и верх трапеции",
+    "position": "SITTING",
+    "mistakes": [
+      "Поднимаешь противоположное плечо — держи его опущенным."
+    ]
+  },
+  "traps-chin-down": {
+    "feel": "задняя поверхность шеи и верх спины",
+    "position": "SITTING"
+  },
+  "front-delt-behind": {
+    "feel": "передняя часть плеч и грудь",
+    "position": "STANDING"
+  },
+  "cross-body-shoulder": {
+    "feel": "задняя часть плеча",
+    "position": "STANDING"
+  },
+  "mid-delt-behind-back": {
+    "feel": "боковая часть плеча",
+    "position": "STANDING"
+  },
+  "chest-wall": {
+    "feel": "грудь и передняя часть плеча",
+    "position": "STANDING"
+  },
+  "chest-doorway": {
+    "feel": "грудь и передняя часть плеч",
+    "position": "STANDING",
+    "mistakes": [
+      "Прогибаешь поясницу — держи рёбра опущенными.",
+      "Тянешь до боли — остановись на лёгком натяжении."
+    ]
+  },
+  "lats-hang": {
+    "feel": "широчайшие и предплечья",
+    "position": "STANDING"
+  },
+  "lats-side-bend": {
+    "feel": "бок от таза до подмышки",
+    "position": "STANDING"
+  },
+  "child-pose": {
+    "feel": "широчайшие и поясница",
+    "position": "KNEELING",
+    "mistakes": [
+      "Задерживаешь дыхание — расслабься и дыши ровно."
+    ]
+  },
+  "biceps-wall": {
+    "feel": "бицепс и передняя часть плеча",
+    "position": "STANDING"
+  },
+  "triceps-overhead": {
+    "feel": "трицепс",
+    "position": "STANDING"
+  },
+  "forearm-flexor": {
+    "feel": "внутренняя сторона предплечья",
+    "position": "STANDING"
+  },
+  "forearm-extensor": {
+    "feel": "наружная сторона предплечья",
+    "position": "STANDING"
+  },
+  "cobra": {
+    "feel": "пресс и передняя поверхность корпуса",
+    "position": "LYING",
+    "mistakes": [
+      "Выпрямляешь руки через силу — держи локти чуть согнутыми.",
+      "Плечи поднимаются к ушам — опусти их."
+    ]
+  },
+  "abs-standing-reach": {
+    "feel": "передняя и задняя поверхность корпуса",
+    "position": "STANDING"
+  },
+  "knees-to-chest": {
+    "feel": "поясница и ягодицы",
+    "position": "LYING"
+  },
+  "cat-stretch": {
+    "feel": "спина вдоль позвоночника",
+    "position": "KNEELING",
+    "mistakes": [
+      "Задерживаешь дыхание — расслабься и дыши ровно."
+    ]
+  },
+  "lying-twist": {
+    "feel": "поясница и ягодица согнутой ноги",
+    "position": "LYING"
+  },
+  "figure-four": {
+    "feel": "ягодица ноги, лежащей сверху",
+    "position": "LYING",
+    "mistakes": [
+      "Напрягаешь шею и плечи — расслабь их."
+    ]
+  },
+  "pigeon": {
+    "feel": "ягодица и наружная часть бедра передней ноги",
+    "position": "KNEELING",
+    "mistakes": [
+      "Таз заваливается на бок — держи его ровно, при необходимости подложи подушку под бедро."
+    ]
+  },
+  "quad-standing": {
+    "feel": "передняя поверхность бедра",
+    "position": "STANDING",
+    "mistakes": [
+      "Колено уходит вперёд или в сторону — держи колени рядом."
+    ]
+  },
+  "couch-stretch": {
+    "feel": "передняя поверхность бедра и сгибатели бедра задней ноги",
+    "position": "KNEELING",
+    "mistakes": [
+      "Прогибаешь поясницу — напряги ягодицу задней ноги."
+    ]
+  },
+  "hamstring-forward-fold": {
+    "feel": "задняя поверхность бёдер и поясница",
+    "position": "STANDING"
+  },
+  "hamstring-seated": {
+    "feel": "задняя поверхность бедра прямой ноги",
+    "position": "SITTING"
+  },
+  "butterfly": {
+    "feel": "внутренняя поверхность бёдер",
+    "position": "SITTING"
+  },
+  "side-lunge-stretch": {
+    "feel": "внутренняя поверхность бедра прямой ноги",
+    "position": "STANDING"
+  },
+  "calf-wall": {
+    "feel": "икра задней ноги",
+    "position": "STANDING"
+  },
+  "calf-step": {
+    "feel": "икра",
+    "position": "STANDING",
+    "mistakes": [
+      "Носок смотрит в сторону — направь его вперёд."
+    ]
+  },
+  "all-fours-quad": {
+    "feel": "передняя поверхность бедра и сгибатели бедра",
+    "position": "KNEELING"
+  },
+  "calf-wall-elbows": {
+    "feel": "икры",
+    "position": "STANDING"
+  },
+  "bench-side-bend": {
+    "feel": "бок",
+    "position": "SITTING"
+  },
+  "bench-upper-body": {
+    "feel": "грудь и передняя часть плеч",
+    "position": "SITTING"
+  },
+  "stick-overhead-chest": {
+    "feel": "грудь и передняя часть плеч",
+    "position": "STANDING"
+  },
+  "chest-fitball": {
+    "feel": "грудь и передняя часть плеча",
+    "position": "KNEELING"
+  },
+  "seated-spinal-twist": {
+    "feel": "поясница и ягодица согнутой ноги",
+    "position": "SITTING"
+  },
+  "elbows-back": {
+    "feel": "грудь и передняя часть плеч",
+    "position": "STANDING"
+  },
+  "lying-hamstring-strap": {
+    "feel": "задняя поверхность бедра и икра",
+    "position": "LYING"
+  },
+  "hug-fitball": {
+    "feel": "поясница",
+    "position": "SITTING",
+    "mistakes": [
+      "Отпускаешь мяч — держи его крепко, иначе он укатится."
+    ]
+  },
+  "it-band-strap": {
+    "feel": "наружная поверхность бедра и ягодица",
+    "position": "LYING"
+  },
+  "lying-groin-strap": {
+    "feel": "внутренняя и задняя поверхность бедра",
+    "position": "LYING"
+  },
+  "prone-quad-strap": {
+    "feel": "передняя поверхность бедра и сгибатели бедра",
+    "position": "LYING"
+  },
+  "kneeling-forearm": {
+    "feel": "запястья и предплечья",
+    "position": "KNEELING"
+  },
+  "kneeling-hip-flexor": {
+    "feel": "передняя часть бедра задней ноги",
+    "position": "KNEELING"
+  },
+  "leg-up-hamstring": {
+    "feel": "задняя поверхность бедра поднятой ноги",
+    "position": "LYING"
+  },
+  "kneeling-backbend": {
+    "feel": "передняя поверхность бёдер и пресс",
+    "position": "KNEELING"
+  },
+  "standing-twist": {
+    "feel": "поясница и косые мышцы живота",
+    "position": "STANDING"
+  },
+  "bench-quad": {
+    "feel": "передняя поверхность бедра",
+    "position": "LYING"
+  },
+  "side-lying-quad": {
+    "feel": "передняя поверхность бедра и сгибатели бедра",
+    "position": "LYING"
+  },
+  "half-locust": {
+    "feel": "передняя поверхность бедра, грудь и плечи",
+    "position": "LYING"
+  },
+  "one-hand-hang": {
+    "feel": "широчайшая и бицепс",
+    "position": "STANDING"
+  },
+  "one-knee-to-chest": {
+    "feel": "ягодица и поясница согнутой ноги",
+    "position": "LYING"
+  },
+  "pyramid-fitball": {
+    "feel": "поясница и широчайшие",
+    "position": "LYING"
+  },
+  "side-lying-quad-strap": {
+    "feel": "передняя поверхность бедра",
+    "position": "LYING"
+  },
+  "stick-behind-back": {
+    "feel": "передняя часть плеч и грудь",
+    "position": "STANDING"
+  },
+  "runners-stretch": {
+    "feel": "задняя поверхность передней ноги и сгибатели бедра задней",
+    "position": "STANDING"
+  },
+  "seated-calf": {
+    "feel": "икра и задняя поверхность бедра прямой ноги",
+    "position": "SITTING"
+  },
+  "seated-hamstring-strap": {
+    "feel": "задняя поверхность бедра и икра",
+    "position": "SITTING"
+  },
+  "seated-side-bend": {
+    "feel": "бок",
+    "position": "SITTING"
+  },
+  "side-lying-reach": {
+    "feel": "весь бок",
+    "position": "LYING"
+  },
+  "side-lying-groin": {
+    "feel": "внутренняя и задняя поверхность бедра",
+    "position": "LYING"
+  },
+  "side-wrist-pull": {
+    "feel": "спина под лопаткой",
+    "position": "STANDING"
+  },
+  "bench-quad-standing": {
+    "feel": "передняя поверхность бедра",
+    "position": "STANDING"
+  },
+  "calf-heel-on-step": {
+    "feel": "икра и задняя поверхность бедра",
+    "position": "STANDING"
+  },
+  "standing-hamstring-strap": {
+    "feel": "задняя поверхность бедра и икра передней ноги",
+    "position": "STANDING"
+  },
+  "standing-hip-flexor": {
+    "feel": "сгибатели бедра задней ноги",
+    "position": "STANDING"
+  },
+  "standing-pelvic-tilt": {
+    "feel": "поясница",
+    "position": "STANDING"
+  },
+  "soleus-stretch": {
+    "feel": "низ икры и ахилл",
+    "position": "STANDING"
+  },
+  "straddle": {
+    "feel": "задняя и внутренняя поверхность бёдер",
+    "position": "SITTING"
+  },
+  "triceps-cross-shoulder": {
+    "feel": "трицепс",
+    "position": "STANDING"
+  },
+  "seated-thigh-hug": {
+    "feel": "верх и середина спины",
+    "position": "SITTING"
+  },
+  "upper-back-reach": {
+    "feel": "верх спины между лопатками",
+    "position": "STANDING"
+  },
+  "upward-reach": {
+    "feel": "бока и плечи",
+    "position": "STANDING"
+  },
+  "lats-wall": {
+    "feel": "широчайшая",
+    "position": "STANDING"
+  },
+  "adductor-roll": {
+    "position": "LYING"
+  },
+  "tibialis-roll": {
+    "position": "SITTING"
+  },
+  "brachialis-roll": {
+    "position": "LYING"
+  },
+  "calf-roll": {
+    "position": "SITTING"
+  },
+  "foot-roll": {
+    "position": "SITTING"
+  },
+  "hamstring-roll": {
+    "position": "SITTING"
+  },
+  "it-band-roll": {
+    "position": "LYING"
+  },
+  "lat-roll": {
+    "position": "LYING"
+  },
+  "lower-back-roll": {
+    "position": "SITTING"
+  },
+  "neck-roll": {
+    "position": "SITTING"
+  },
+  "peroneal-roll": {
+    "position": "LYING"
+  },
+  "peroneal-strap": {
+    "feel": "наружная сторона голени",
+    "position": "SITTING"
+  },
+  "piriformis-roll": {
+    "feel": "верх ягодицы",
+    "position": "SITTING"
+  },
+  "tibialis-strap": {
+    "feel": "внутренняя сторона голени",
+    "position": "SITTING"
+  },
+  "quad-roll": {
+    "position": "LYING"
+  },
+  "rhomboid-roll": {
+    "position": "LYING"
+  },
+  "#125": {
+    "feel": "задняя поверхность бедра и икра",
+    "position": "SITTING"
+  }
+}

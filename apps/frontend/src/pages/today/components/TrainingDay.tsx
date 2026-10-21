@@ -33,7 +33,6 @@ export const TrainingDay = ({ day, onPickComplex, onMissed }: TrainingDayProps) 
       <ComplexPoster
         complex={complex}
         complexes={day.complexes}
-        programName={day.programName}
       />
 
       <WeekStreak

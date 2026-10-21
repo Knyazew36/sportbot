@@ -1,6 +1,7 @@
 // Применение guides.json из content:enrich на сервере. Запуск из apps/server:
 //   yarn content:apply-guides <guides.json> [--dry-run]
-// Пишутся только описание, шаги, ошибки и фото финиша. Запись, изменённую после экспорта
+// Пишутся только описание, шаги, ошибки и фото финиша; у растяжек ещё «где тянет», положение
+// и источники. Запись, изменённую после экспорта
 // (updatedAt не совпал), скрипт пропускает: свежие правки людей не затираются.
 import 'dotenv/config';
 import { Logger } from '@nestjs/common';
@@ -116,7 +117,15 @@ async function applyKind(
           })
         : await prisma.stretch.updateMany({
             where: match,
-            data: { ...data, howTo: entry.description },
+            data: {
+              ...data,
+              howTo: entry.description,
+              ...(entry.feel !== undefined && { feel: entry.feel || null }),
+              ...(entry.position && { position: entry.position }),
+              ...(entry.techniqueSources && {
+                techniqueSources: entry.techniqueSources,
+              }),
+            },
           });
     if (count) {
       logger.log(`Техника обновлена: ${label(entry)}`);

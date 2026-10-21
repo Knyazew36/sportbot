@@ -10,6 +10,7 @@ import {
   Equipment,
   ExerciseMeasure,
   StretchKind,
+  StretchPosition,
 } from '@/generated/prisma/client';
 import { normalizeSupersets, supersetError } from '@/program/superset';
 import { WARMUP_MINUTES } from '@/program/warmup';
@@ -46,9 +47,14 @@ interface ImportExercise {
   joints?: string[];
 }
 
+/**
+ * Растяжка справочника. Без muscles — частичная запись существующей растяжки:
+ * меняются только переданные поля (фото, атрибуция, видео, техника, положение),
+ * название и мышцы не трогаются. Так докладывают фото и видео, не затирая правки на проде.
+ */
 interface ImportStretch {
   code: string;
-  name: string;
+  name?: string;
   howTo?: string;
   /** Шаги и ошибки; поля нет — у существующей записи списки не меняются. */
   steps?: string[];
@@ -56,8 +62,17 @@ interface ImportStretch {
   /** Фото финишного положения: ссылка или путь, как у image. */
   imageEnd?: string;
   image?: string;
-  muscles: string[];
-  holdSeconds: number;
+  /** Откуда фото, лицензия и автор — для подписи под фото. */
+  imageSource?: string;
+  imageLicense?: string;
+  imageAuthor?: string;
+  videoUrl?: string;
+  /** Где должно тянуть — одна строка. */
+  feel?: string;
+  techniqueSources?: string[];
+  position?: StretchPosition;
+  muscles?: string[];
+  holdSeconds?: number;
   perSide?: boolean;
   kind?: StretchKind;
 }
@@ -125,6 +140,12 @@ export interface ImportReport {
 const EQUIPMENT: Equipment[] = ['BARBELL', 'DUMBBELL', 'MACHINE', 'BODYWEIGHT'];
 const MEASURES: ExerciseMeasure[] = ['REPS', 'TIME', 'MINUTES'];
 const STRETCH_KINDS: StretchKind[] = ['COOLDOWN', 'WARMUP'];
+const STRETCH_POSITIONS: StretchPosition[] = [
+  'STANDING',
+  'KNEELING',
+  'SITTING',
+  'LYING',
+];
 const MAX_ERRORS_SHOWN = 15;
 /** Куда попадает новый тег без группы в файле. */
 const FALLBACK_GROUP = { code: 'other', name: 'Прочее' };
@@ -144,6 +165,17 @@ const isTextList = (value: unknown): boolean =>
 const guideData = (item: { steps?: string[]; mistakes?: string[] }) => ({
   ...(item.steps && { steps: item.steps.map((s) => s.trim()) }),
   ...(item.mistakes && { mistakes: item.mistakes.map((m) => m.trim()) }),
+});
+
+/** Атрибуция, видео, «где тянет» и положение растяжки — только переданные поля. */
+const stretchExtras = (item: ImportStretch) => ({
+  ...(item.imageSource !== undefined && { imageSource: item.imageSource }),
+  ...(item.imageLicense !== undefined && { imageLicense: item.imageLicense }),
+  ...(item.imageAuthor !== undefined && { imageAuthor: item.imageAuthor }),
+  ...(item.videoUrl !== undefined && { videoUrl: item.videoUrl }),
+  ...(item.feel !== undefined && { feel: item.feel.trim() }),
+  ...(item.techniqueSources && { techniqueSources: item.techniqueSources }),
+  ...(item.position !== undefined && { position: item.position }),
 });
 
 /**
@@ -251,16 +283,35 @@ export class ImportService {
     });
 
     duplicates('stretches', file.stretches);
+    const dbStretchCodes = new Set(dbStretches.map((s) => s.code as string));
     file.stretches.forEach((item, index) => {
       const at = `stretches[${index}]${isText(item?.code) ? ` (${item.code})` : ''}`;
+      const partial = item?.muscles === undefined;
       if (!isText(item?.code)) errors.push(`${at}: нет code`);
-      if (!isText(item?.name)) errors.push(`${at}: нет name`);
-      if (!list(item?.muscles).length)
+      if (partial && isText(item?.code) && !dbStretchCodes.has(item.code))
+        errors.push(`${at}: без muscles можно только поправить уже существующую растяжку`);
+      if (!partial && !isText(item?.name)) errors.push(`${at}: нет name`);
+      if (!partial && !list(item?.muscles).length)
         errors.push(`${at}: пустые мышцы (muscles)`);
       for (const code of unknown(item?.muscles, muscleCodes))
         errors.push(`${at}: неизвестная мышца ${String(code)}`);
-      if (!isCount(item?.holdSeconds, 600))
+      if (
+        (!partial || item?.holdSeconds !== undefined) &&
+        !isCount(item?.holdSeconds, 600)
+      )
         errors.push(`${at}: holdSeconds — целое от 1 до 600`);
+      if (
+        item?.position !== undefined &&
+        !STRETCH_POSITIONS.includes(item.position)
+      )
+        errors.push(`${at}: position — STANDING, KNEELING, SITTING или LYING`);
+      if (item?.videoUrl !== undefined && !/^https:\/\//.test(String(item.videoUrl)))
+        errors.push(`${at}: videoUrl — ссылка https://`);
+      // Новое фото без лицензии не принимаем: подпись под фото обязательна для CC BY
+      if (partial && isText(item?.image) && !isText(item?.imageLicense))
+        errors.push(`${at}: новое фото без imageLicense`);
+      if (!isTextList(item?.techniqueSources))
+        errors.push(`${at}: techniqueSources — до 20 ссылок`);
       if (item?.kind && !STRETCH_KINDS.includes(item.kind))
         errors.push(`${at}: неизвестный kind ${String(item.kind)}`);
       if (!isTextList(item?.steps) || !isTextList(item?.mistakes))
@@ -476,14 +527,17 @@ export class ImportService {
         { key: `e:${e.code}:end`, image: e.imageEnd },
       ]),
       ...file.stretches.flatMap((s) => [
-        { key: `s:${s.code}`, image: s.image },
-        { key: `s:${s.code}:end`, image: s.imageEnd },
+        { key: `s:${s.code}`, image: s.image, replace: !s.muscles },
+        { key: `s:${s.code}:end`, image: s.imageEnd, replace: !s.muscles },
       ]),
     ];
     for (const item of withImages) {
       if (!isText(item.image)) continue;
-      // Уже скачанную по ссылке картинку повторный импорт не качает заново
-      if (/^https?:\/\//i.test(item.image) && current.get(item.key)) continue;
+      // Уже скачанную по ссылке картинку повторный импорт не качает заново.
+      // Частичная запись растяжки — это и есть замена фото, её качаем всегда.
+      const replace = 'replace' in item && item.replace;
+      if (!replace && /^https?:\/\//i.test(item.image) && current.get(item.key))
+        continue;
       images.set(item.key, await resolveCatalogImage(item.image));
     }
 
@@ -569,13 +623,37 @@ export class ImportService {
         for (const item of file.stretches) {
           const imagePath = images.get(`s:${item.code}`);
           const imageEndPath = images.get(`s:${item.code}:end`);
+          if (item.muscles === undefined) {
+            await tx.stretch.update({
+              where: { code: item.code },
+              data: {
+                ...stretchExtras(item),
+                ...(item.howTo !== undefined && { howTo: item.howTo }),
+                ...(item.holdSeconds !== undefined && {
+                  holdSeconds: item.holdSeconds,
+                }),
+                ...(item.perSide !== undefined && { perSide: item.perSide }),
+                ...guideData(item),
+                ...(imageEndPath && { imageEndPath }),
+                ...(imagePath && {
+                  imagePath,
+                  imageTelegramFileId: null,
+                  imageMaxToken: null,
+                }),
+              },
+            });
+            continue;
+          }
+          // Полная запись: name, muscles и holdSeconds проверены в check
+          const name = item.name!;
           const data = {
-            name: item.name.trim(),
-            nameNormalized: normalizeName(item.name),
+            name: name.trim(),
+            nameNormalized: normalizeName(name),
             howTo: item.howTo ?? null,
             ...guideData(item),
+            ...stretchExtras(item),
             ...(imageEndPath && { imageEndPath }),
-            holdSeconds: item.holdSeconds,
+            holdSeconds: item.holdSeconds!,
             perSide: item.perSide ?? false,
             kind: item.kind ?? ('COOLDOWN' as const),
             status: 'CATALOG' as const,

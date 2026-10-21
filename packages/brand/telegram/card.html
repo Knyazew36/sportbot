@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="base.css" />
+    <style>
+      /* Макет 640×360; приветствие 1280×720 — тот же макет в zoom 2 */
+      .card {
+        width: 640px;
+        height: 360px;
+      }
+      .left {
+        position: absolute;
+        left: 34px;
+        top: 34px;
+        bottom: 30px;
+        width: 330px;
+        display: flex;
+        flex-direction: column;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .brand .tile {
+        width: 34px;
+        height: 34px;
+        border-width: 2px;
+        box-shadow: 3px 3px 0 var(--ink);
+      }
+      .brand .eyebrow {
+        font-size: 11px;
+        letter-spacing: 0.14em;
+      }
+      h1 {
+        margin-top: auto;
+        font-size: 58px;
+        line-height: 1.02;
+      }
+      .lead {
+        margin-top: 10px;
+        font-size: 22px;
+      }
+      .line {
+        margin-top: 14px;
+        font-size: 13px;
+        line-height: 1.4;
+        max-width: 300px;
+      }
+      .ph {
+        position: absolute;
+        width: 390px;
+        border: 3px solid var(--ink);
+        box-shadow: 8px 8px 0 var(--ink);
+        background: var(--paper);
+        transform-origin: top left;
+        overflow: hidden;
+      }
+      .ph img {
+        display: block;
+        width: 390px;
+        height: 844px;
+      }
+      .ph.front {
+        left: 436px;
+        top: 30px;
+        transform: scale(0.42);
+        z-index: 2;
+      }
+      .ph.back {
+        left: 372px;
+        top: 74px;
+        transform: scale(0.36);
+      }
+      .ph.solo {
+        left: 420px;
+        top: 28px;
+        transform: scale(0.44);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="canvas card" id="card">
+      <div class="left">
+        <div class="brand">
+          <div class="tile"><svg viewBox="0 0 350 350"><path d="M126 98L256 175L126 252Z" fill="#0a0a0a" /></svg></div>
+          <span class="eyebrow">Спортбот</span>
+        </div>
+        <h1 class="poster" id="title"></h1>
+        <p class="lead" id="lead"></p>
+        <p class="line" id="line"></p>
+      </div>
+      <div id="phones"></div>
+    </div>
+    <script>
+      const VARIANTS = {
+        // «Что умеет этот бот?» в пустом чате: видят до нажатия «Старт»
+        description: {
+          title: 'Тренировка<br><span class="blue">не теряется</span>',
+          lead: 'напарник по тренировкам в Telegram',
+          line: 'План на сегодня, подходы, таймер отдыха и серия — бот помнит всё за тебя.',
+          phones: [['solo', 'today']],
+        },
+        // Обложка Mini App в BotFather
+        cover: {
+          title: 'Подходы,<br>отдых,<br><span class="blue">прогресс</span>',
+          size: 50,
+          lead: 'тренировки в зале и дома',
+          line: '',
+          phones: [['back', 'progress'], ['front', 'rest']],
+        },
+        // Фото к приветствию /start
+        welcome: {
+          title: 'План уже<br><span class="blue">готов</span>',
+          lead: 'жми «Открыть приложение» —',
+          line: 'там тренировка на сегодня, таймеры и твой прогресс.',
+          phones: [['back', 'finish'], ['front', 'today']],
+          zoom: 2,
+        },
+      }
+      const v = VARIANTS[new URLSearchParams(location.search).get('v')]
+      document.getElementById('title').innerHTML = v.title
+      document.getElementById('lead').innerHTML = v.lead
+      document.getElementById('line').innerHTML = v.line
+      document.getElementById('phones').innerHTML = v.phones
+        .map(([pos, shot]) => `<div class="ph ${pos}"><img src="shots/${shot}.png" alt="" /></div>`)
+        .join('')
+      if (v.zoom) document.body.style.zoom = v.zoom
+      if (v.size) document.getElementById('title').style.fontSize = `${v.size}px`
+    </script>
+  </body>
+</html>

@@ -4,6 +4,7 @@
  * api
  * OpenAPI spec version: 0.0.1
  */
+import type { StretchImageCreditResponseDto } from './stretchImageCreditResponseDto';
 
 export interface CooldownStretchResponseDto {
   id: number;
@@ -22,6 +23,18 @@ export interface CooldownStretchResponseDto {
      * @nullable
      */
   imageEndUrl: string | null;
+  /**
+     * Где должно тянуть — одна строка
+     * @nullable
+     */
+  feel: string | null;
+  /**
+     * Видео техники, внешняя ссылка
+     * @nullable
+     */
+  videoUrl: string | null;
+  /** @nullable */
+  imageCredit: StretchImageCreditResponseDto | null;
   /**
      * /uploads/…
      * @nullable

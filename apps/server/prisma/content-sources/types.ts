@@ -11,6 +11,16 @@ export interface SourceRecord {
   instructions: string[];
   /** Полные ссылки на картинки: первая — старт, вторая — финиш, если есть. */
   images: string[];
+  /** Лицензия и автор каждой картинки — в том же порядке, что images. Нет — лицензия всего источника. */
+  imageCredits?: ImageCredit[];
+}
+
+/** Атрибуция картинки: то, что уходит в imageSource/imageLicense/imageAuthor растяжки. */
+export interface ImageCredit {
+  license: string;
+  author: string | null;
+  /** Страница файла у источника. */
+  page: string;
 }
 
 export interface SourceSnapshot {

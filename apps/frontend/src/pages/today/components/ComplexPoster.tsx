@@ -2,31 +2,25 @@ import type { DayToday } from '@/entities/day'
 import { BarbellArt } from '@/shared/ui/kit/Art'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { StatGrid } from '@/shared/ui/kit/StatGrid'
-import { Eyebrow, Lead, Poster } from '@/shared/ui/kit/Typography'
+import { Lead, Poster } from '@/shared/ui/kit/Typography'
 
-import { complexLetter } from '@/entities/program'
 import { pluralize } from '@front-cmdt/utils/pluralize'
 import { EXERCISE_FORMS, SET_FORMS } from '@/shared/lib/plural-forms'
 
 type ComplexPosterProps = {
   complex: NonNullable<DayToday['complex']>
   complexes: DayToday['complexes']
-  programName: string | null
 }
 
 // Плакат комплекса дня: первое слово огромным кеглем, остальное строкой ниже
-export const ComplexPoster = ({ complex, complexes, programName }: ComplexPosterProps) => {
+export const ComplexPoster = ({ complex, complexes }: ComplexPosterProps) => {
   const index = complexes.findIndex(c => c.id === complex.id)
   const [head, ...tail] = complex.name.split(' ')
   const sets = complex.exercises.reduce((sum, e) => sum + e.sets, 0)
 
   return (
     <Rise className='relative px-gutter'>
-      <Eyebrow as='p'>
-        Тренировка {complexLetter(Math.max(index, 0))}
-        {programName && ` · ${programName}`}
-      </Eyebrow>
-      <Lead className='mt-4'>{complex.byQueue ? 'сегодня на очереди —' : 'сегодня вне очереди —'}</Lead>
+      <Lead>{complex.byQueue ? 'сегодня на очереди —' : 'сегодня вне очереди —'}</Lead>
       <Poster
         as='h1'
         size='hero'

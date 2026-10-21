@@ -16,6 +16,7 @@ import { ROUTES } from '@/shared/config/paths'
 import { AboutSection } from './components/AboutSection'
 import { BodyWeightSection } from './components/BodyWeightSection'
 import { DeleteDataSection } from './components/DeleteDataSection'
+import { ExcludedStretchesSection } from './components/ExcludedStretchesSection'
 import { FriendsSection } from './components/FriendsSection'
 import { LimitsSection } from './components/LimitsSection'
 import { MessengersSection } from './components/MessengersSection'
@@ -62,6 +63,7 @@ export const ME_SECTIONS: MeSection[] = [
     items: [
       { title: 'Вес тела', render: p => <BodyWeightSection profile={p} /> },
       { title: 'Ограничения по суставам', render: () => <LimitsSection /> },
+      { title: 'Исключённые растяжки', render: () => <ExcludedStretchesSection /> },
     ],
   },
   {

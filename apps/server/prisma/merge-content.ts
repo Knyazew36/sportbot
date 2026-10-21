@@ -70,6 +70,9 @@ function mergeGuides(catalog: Catalog, guides: GuidesFile) {
         steps: entry.steps,
         mistakes: entry.mistakes,
         ...(entry.imageEnd ? { imageEnd: entry.imageEnd } : {}),
+        ...(entry.feel ? { feel: entry.feel } : {}),
+        ...(entry.position ? { position: entry.position } : {}),
+        ...(entry.techniqueSources ? { techniqueSources: entry.techniqueSources } : {}),
       });
       merged++;
     }

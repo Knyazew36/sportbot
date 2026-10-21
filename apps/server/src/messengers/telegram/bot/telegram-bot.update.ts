@@ -37,6 +37,9 @@ export class TelegramBotUpdate {
     `${TELEGRAM_LOG_EMOJI} ${TelegramBotUpdate.name}`,
   );
 
+  /** file_id картинки приветствия после первой отправки; null — ещё не отправляли */
+  private welcomePhotoId: string | null = null;
+
   constructor(
     private readonly users: MessengerUserStore,
     private readonly botService: TelegramBotService,
@@ -424,24 +427,42 @@ export class TelegramBotUpdate {
     for (let i = 0; i < links.length; i += 2)
       linkRows.push(links.slice(i, i + 2));
 
-    await ctx.reply(
-      this.adapter.welcomeText(),
-      this.botService.keyboard([
-        [this.botService.openAppButton('🚀 Открыть приложение')],
-        ...linkRows,
-        ...this.adapter
-          .welcomeCallbacks(user)
-          .map((button) => [
-            { text: button.text, callback_data: button.payload },
-          ]),
-        [
-          {
-            text: '🔔 Проверить уведомления',
-            callback_data: TELEGRAM_CALLBACK.notificationsCheck,
-          },
-        ],
-      ]),
-    );
+    const keyboard = this.botService.keyboard([
+      [this.botService.openAppButton('🚀 Открыть приложение')],
+      ...linkRows,
+      ...this.adapter
+        .welcomeCallbacks(user)
+        .map((button) => [
+          { text: button.text, callback_data: button.payload },
+        ]),
+      [
+        {
+          text: '🔔 Проверить уведомления',
+          callback_data: TELEGRAM_CALLBACK.notificationsCheck,
+        },
+      ],
+    ]);
+    const text = this.adapter.welcomeText();
+
+    const photoUrl = this.adapter.welcomePhotoUrl();
+    if (photoUrl) {
+      try {
+        // После первой отправки шлём file_id: Telegram не скачивает картинку заново
+        const sent = await ctx.replyWithPhoto(this.welcomePhotoId ?? photoUrl, {
+          caption: text,
+          ...keyboard,
+        });
+        this.welcomePhotoId = sent.photo.at(-1)?.file_id ?? null;
+        return;
+      } catch (error) {
+        // Картинка недоступна или сменилась — сбрасываем file_id, приветствие уходит текстом
+        this.welcomePhotoId = null;
+        this.logger.warn(
+          `Картинка приветствия не отправилась (${photoUrl}): ${(error as Error).message}`,
+        );
+      }
+    }
+    await ctx.reply(text, keyboard);
   }
 
   /**

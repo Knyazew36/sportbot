@@ -27,6 +27,7 @@ export * from './render/render';
 export * from './social/social';
 export * from './stars/stars';
 export * from './stats/stats';
+export * from './stretch-exclusion/stretch-exclusion';
 export * from './telegram/telegram';
 export * from './user/user';
 export * from './workout/workout';

@@ -26,6 +26,7 @@ export function getSwaggerConfig() {
     .addTag('stats', 'Статистика')
     .addTag('profile', 'Профиль')
     .addTag('limitation', 'Ограничения по суставам')
+    .addTag('stretch-exclusion', 'Исключённые растяжки')
     .addTag('body-weight', 'Вес тела')
     .addTag('link', 'Мессенджеры')
     .addTag('social', 'Друзья')

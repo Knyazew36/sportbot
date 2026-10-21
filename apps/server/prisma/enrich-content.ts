@@ -1,7 +1,7 @@
 // Новая техника записей справочника через Claude Batch API: перевод и адаптация текста источника
 // для новичка. Только локально — ключ ANTHROPIC_API_KEY есть лишь на машине разработчика.
 // Запуск из apps/server:
-//   yarn content:enrich <export.json> [--limit 10] [--out папка] [--batch <id>]
+//   yarn content:enrich <export.json> [--only stretches|exercises] [--limit 10] [--out папка] [--batch <id>]
 // --batch продолжает уже отправленный батч (id пишется в <out>/batch.json), не платя второй раз.
 // Выход: <out>/guides.json для content:apply-guides и <out>/review.md для ручного ревью.
 import 'dotenv/config';
@@ -12,14 +12,20 @@ import * as path from 'path';
 import { normalizeName } from '../src/catalog/catalog.service';
 
 import { freeExerciseFolder } from './content-sources/free-exercise-db';
+import { bestMatches, stretchQueries } from './content-sources/match';
 import type {
   ExportedExercise,
   ExportedStretch,
   ExportFile,
   GuideEntry,
   GuidesFile,
+  StretchPositionCode,
 } from './content-sources/files';
-import { GUIDE_LIMITS, guideErrors } from './content-sources/files';
+import {
+  GUIDE_LIMITS,
+  guideErrors,
+  STRETCH_POSITIONS,
+} from './content-sources/files';
 import { readSnapshot } from './content-sources/snapshots';
 import type { SourceRecord } from './content-sources/types';
 
@@ -50,7 +56,16 @@ const SYSTEM = `Ты пишешь технику упражнений для с�
 - steps — шаги по порядку, по одному действию, с дыханием, если оно есть в источнике.
 - mistakes — каждая ошибка сразу с исправлением одной строкой через тире: «Колени внутрь — разводи колени по линии носков». Исправление тоже берётся из текста; если опоры нет, исправление просто обращает ошибку.
 
-Стиль: на «ты», коротко, просто, без медицинских обещаний и без восклицаний. Говори «очередь», а не «ротация».`;
+Стиль: на «ты», коротко, просто, без медицинских обещаний и без восклицаний. Говори «очередь», а не «ротация».
+
+Источников может быть несколько — бери факты из всех, на конфликт между ними верь текущему тексту, а без него — большинству. Пометка «Tip:» в источнике — подсказка или частая ошибка.`;
+
+/** Растяжке нужны ещё «где тянет» и положение — по ним заминка показывает подсказку и строит порядок. */
+const STRETCH_SYSTEM = `${SYSTEM}
+
+Растяжка, дополнительно:
+- feel — где должно тянуть, одной короткой строкой без точки: «задняя поверхность бедра опорной ноги». Только если это сказано в тексте или источнике; нет — пустая строка.
+- position — исходное положение: STANDING (стоя), KNEELING (на коленях или в выпаде с коленом на полу), SITTING (сидя), LYING (лёжа на спине, животе или боку). Вис на перекладине — STANDING.`;
 
 const OUTPUT_SCHEMA = {
   type: 'object',
@@ -63,13 +78,28 @@ const OUTPUT_SCHEMA = {
   additionalProperties: false,
 };
 
+const STRETCH_SCHEMA = {
+  ...OUTPUT_SCHEMA,
+  properties: {
+    ...OUTPUT_SCHEMA.properties,
+    feel: { type: 'string' },
+    position: { type: 'string', enum: [...STRETCH_POSITIONS] },
+  },
+  required: [...OUTPUT_SCHEMA.required, 'feel', 'position'],
+};
+
+/** Доп. источник текста растяжки берём только при уверенном совпадении названия. */
+const EXTRA_MIN_SCORE = 1;
+const EXTRA_SOURCES = 2;
+
 type Kind = 'exercise' | 'stretch';
 
 interface Job {
   kind: Kind;
   customId: string;
   entry: ExportedExercise | ExportedStretch;
-  source: SourceRecord;
+  /** Первый — основной: из него берётся фото финиша. */
+  sources: SourceRecord[];
   flags: string[];
 }
 
@@ -92,11 +122,14 @@ async function main() {
       'Укажи файл экспорта: yarn content:enrich <export.json> [--limit N]',
     );
   const limit = Number(option('--limit')) || Infinity;
+  const only = option('--only');
+  if (only && only !== 'stretches' && only !== 'exercises')
+    throw new Error('--only: stretches или exercises');
   const outDir = path.resolve(option('--out') ?? 'enrich-out');
   fs.mkdirSync(outDir, { recursive: true });
 
   const exported = JSON.parse(fs.readFileSync(exportPath, 'utf-8')) as ExportFile;
-  const { jobs, missing } = buildJobs(exported, limit);
+  const { jobs, missing } = buildJobs(exported, limit, only);
   console.log(
     `Пар с источником: ${jobs.length}, без источника: ${missing.length}`,
   );
@@ -111,10 +144,13 @@ async function main() {
         params: {
           model: MODEL,
           max_tokens: 16000,
-          system: SYSTEM,
+          system: job.kind === 'stretch' ? STRETCH_SYSTEM : SYSTEM,
           output_config: {
             effort: 'medium',
-            format: { type: 'json_schema', schema: OUTPUT_SCHEMA },
+            format: {
+              type: 'json_schema',
+              schema: job.kind === 'stretch' ? STRETCH_SCHEMA : OUTPUT_SCHEMA,
+            },
           },
           messages: [{ role: 'user', content: userPrompt(job) }],
         },
@@ -144,7 +180,7 @@ async function main() {
   for await (const result of await client.messages.batches.results(batchId)) {
     const job = byId.get(result.custom_id);
     if (!job) continue;
-    const parsed = parseResult(result);
+    const parsed = parseResult(result, job.kind);
     if ('error' in parsed) {
       reviews.push(reviewBlock(job, null, [...job.flags, parsed.error]));
       continue;
@@ -154,9 +190,12 @@ async function main() {
       code: job.entry.code,
       updatedAt: job.entry.updatedAt,
       ...parsed,
-      ...(!job.entry.imageEndPath && job.source.images[1]
-        ? { imageEnd: job.source.images[1] }
+      ...(!job.entry.imageEndPath && job.sources[0].images[1]
+        ? { imageEnd: job.sources[0].images[1] }
         : {}),
+      ...(job.kind === 'stretch' && {
+        techniqueSources: job.sources.map((source) => source.url),
+      }),
     };
     const errors = guideErrors(entry);
     if (errors.length) {
@@ -194,7 +233,7 @@ async function main() {
 
 // ── Сопоставление ───────────────────────────────────────────────────────
 
-function buildJobs(exported: ExportFile, limit: number) {
+function buildJobs(exported: ExportFile, limit: number, only?: string) {
   const catalog = JSON.parse(
     fs.readFileSync(path.join(__dirname, 'content', 'catalog.json'), 'utf-8'),
   ) as CatalogFile;
@@ -212,11 +251,24 @@ function buildJobs(exported: ExportFile, limit: number) {
     for (const name of [record.name, ...record.altNames])
       wger.set(normalizeName(name), record);
 
+  // Тексты растяжек: RepDB и wger, пара по английскому названию (stretch-aliases.json, ссылка на фото)
+  const stretchTexts = [
+    ...(readSnapshot('repdb')?.records ?? []),
+    ...(readSnapshot('wger')?.records ?? []),
+  ];
+
   const jobs: Job[] = [];
   const missing: string[] = [];
   const entries = [
-    ...exported.exercises.map((entry) => ({ kind: 'exercise' as const, entry })),
-    ...exported.stretches.map((entry) => ({ kind: 'stretch' as const, entry })),
+    ...(only === 'stretches'
+      ? []
+      : exported.exercises.map((entry) => ({ kind: 'exercise' as const, entry }))),
+    ...(only === 'exercises'
+      ? []
+      : exported.stretches
+          // Разминку не трогаем: этап про заминку
+          .filter((entry) => entry.kind !== 'WARMUP')
+          .map((entry) => ({ kind: 'stretch' as const, entry }))),
   ];
   for (const { kind, entry } of entries) {
     if (jobs.length >= limit) break;
@@ -233,7 +285,17 @@ function buildJobs(exported: ExportFile, limit: number) {
       source = wger.get(normalizeName(entry.name));
       if (source) flags.push('проверить пару: wger, подобрано по названию');
     }
-    if (!source) {
+    const sources = source ? [source] : [];
+    if (kind === 'stretch') {
+      const extra = bestMatches(
+        stretchQueries(entry.code, known?.image),
+        stretchTexts.filter((r) => r.instructions.length && r !== source),
+        { top: EXTRA_SOURCES, minScore: EXTRA_MIN_SCORE, strict: true },
+      );
+      for (const { record } of extra) sources.push(record);
+      if (extra.length) flags.push('проверить доп. источники: подобраны по названию');
+    }
+    if (!sources.length) {
       missing.push(`${kind} #${entry.id} «${entry.name}»`);
       continue;
     }
@@ -241,7 +303,7 @@ function buildJobs(exported: ExportFile, limit: number) {
       kind,
       customId: `${kind === 'exercise' ? 'e' : 's'}-${entry.id}`,
       entry,
-      source,
+      sources,
       flags,
     });
   }
@@ -271,9 +333,11 @@ function userPrompt(job: Job): string {
     current || '(пусто)',
     '</current_text>',
     '',
-    `<source name="${job.source.source}" title="${job.source.name}">`,
-    ...job.source.instructions.map((line, i) => `${i + 1}. ${line}`),
-    '</source>',
+    ...job.sources.flatMap((source) => [
+      `<source name="${source.source}" title="${source.name}">`,
+      ...source.instructions.map((line, i) => `${i + 1}. ${line}`),
+      '</source>',
+    ]),
     '',
     `Лимиты: описание до ${GUIDE_LIMITS.description} символов, до ${GUIDE_LIMITS.items} пунктов в списке, пункт до ${GUIDE_LIMITS.item} символов.`,
   ].join('\n');
@@ -294,7 +358,10 @@ function currentText(job: Job): string {
 
 function parseResult(
   result: Anthropic.Messages.MessageBatchIndividualResponse,
-): Pick<GuideEntry, 'description' | 'steps' | 'mistakes'> | { error: string } {
+  kind: Kind,
+):
+  | Pick<GuideEntry, 'description' | 'steps' | 'mistakes' | 'feel' | 'position'>
+  | { error: string } {
   if (result.result.type !== 'succeeded')
     return { error: `запрос не выполнен: ${result.result.type}` };
   const message = result.result.message;
@@ -308,11 +375,17 @@ function parseResult(
       description: string;
       steps: string[];
       mistakes: string[];
+      feel?: string;
+      position?: StretchPositionCode;
     };
     return {
       description: value.description.trim(),
       steps: value.steps.map((s) => s.trim()).filter(Boolean),
       mistakes: value.mistakes.map((m) => m.trim()).filter(Boolean),
+      ...(kind === 'stretch' && {
+        feel: value.feel?.trim() ?? '',
+        position: value.position,
+      }),
     };
   } catch {
     return { error: 'ответ не разобрался как JSON' };
@@ -327,7 +400,9 @@ function reviewBlock(job: Job, entry: GuideEntry | null, flags: string[]) {
   return [
     `## ${job.kind === 'exercise' ? 'Упражнение' : 'Растяжка'} #${job.entry.id} «${job.entry.name}»`,
     '',
-    `Источник: ${job.source.source} — [${job.source.name}](${job.source.url})`,
+    ...job.sources.map(
+      (source) => `Источник: ${source.source} — [${source.name}](${source.url})`,
+    ),
     ...flags.map((flag) => `> ⚠️ ${flag}`),
     '',
     '**Было:**',
@@ -345,6 +420,9 @@ function reviewBlock(job: Job, entry: GuideEntry | null, flags: string[]) {
           '',
           '*Ошибки:*',
           ...list(entry.mistakes, false),
+          ...(entry.feel !== undefined
+            ? ['', `*Тянет:* ${entry.feel || '—'}`, `*Положение:* ${entry.position}`]
+            : []),
           ...(entry.imageEnd ? ['', `Фото финиша: ${entry.imageEnd}`] : []),
         ]
       : ['**Стало:** — (в guides.json не попало)']),

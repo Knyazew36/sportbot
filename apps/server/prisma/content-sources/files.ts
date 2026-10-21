@@ -28,6 +28,15 @@ export interface ExportedStretch {
   imageEndPath: string | null;
   holdSeconds: number;
   perSide: boolean;
+  /** В старых снимках полей ниже нет. */
+  kind?: 'COOLDOWN' | 'WARMUP';
+  position?: 'STANDING' | 'KNEELING' | 'SITTING' | 'LYING' | null;
+  feel?: string | null;
+  videoUrl?: string | null;
+  imageSource?: string | null;
+  imageLicense?: string | null;
+  imageAuthor?: string | null;
+  techniqueSources?: string[];
   muscles: string[];
 }
 
@@ -48,7 +57,14 @@ export interface GuideEntry {
   mistakes: string[];
   /** Ссылка на фото финиша; только если у записи его ещё нет. */
   imageEnd?: string;
+  /** Только растяжки: где должно тянуть, исходное положение и ссылки на источники фактов. */
+  feel?: string;
+  position?: StretchPositionCode;
+  techniqueSources?: string[];
 }
+
+export const STRETCH_POSITIONS = ['STANDING', 'KNEELING', 'SITTING', 'LYING'] as const;
+export type StretchPositionCode = (typeof STRETCH_POSITIONS)[number];
 
 export interface GuidesFile {
   exportedAt: string;
@@ -91,5 +107,18 @@ export function guideErrors(entry: GuideEntry): string[] {
   }
   if (entry.imageEnd !== undefined && !/^https?:\/\//i.test(entry.imageEnd))
     errors.push('imageEnd — не ссылка');
+  if (
+    entry.feel !== undefined &&
+    (typeof entry.feel !== 'string' || entry.feel.length > GUIDE_LIMITS.item)
+  )
+    errors.push(`feel — строка до ${GUIDE_LIMITS.item}`);
+  if (entry.position !== undefined && !STRETCH_POSITIONS.includes(entry.position))
+    errors.push('position — STANDING, KNEELING, SITTING или LYING');
+  if (
+    entry.techniqueSources !== undefined &&
+    (!Array.isArray(entry.techniqueSources) ||
+      entry.techniqueSources.some((url) => !/^https?:\/\//i.test(url)))
+  )
+    errors.push('techniqueSources — список ссылок');
   return errors;
 }

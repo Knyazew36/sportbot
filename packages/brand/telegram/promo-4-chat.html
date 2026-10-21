@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="base.css" />
+    <style>
+      .chat-head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        border-bottom: 1.5px solid var(--rule);
+      }
+      .chat-head .tile {
+        width: 38px;
+        height: 38px;
+        border-width: 1.5px;
+        box-shadow: 2px 2px 0 var(--ink);
+      }
+      .chat-head b {
+        display: block;
+        font-size: 16px;
+      }
+      .chat-head span {
+        font-size: 12px;
+      }
+      .feed {
+        padding: 14px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .day {
+        align-self: center;
+        margin: 4px 0;
+      }
+      .msg {
+        max-width: 300px;
+        padding: 10px 12px 8px;
+        background: var(--sheet);
+        border: 1.5px solid var(--ink);
+        font-size: 14px;
+        line-height: 1.4;
+      }
+      .msg time {
+        display: block;
+        text-align: right;
+        font-size: 10px;
+        margin-top: 4px;
+        color: rgba(10, 10, 10, 0.45);
+      }
+      .kb {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+        max-width: 300px;
+        margin-top: -4px;
+      }
+      .kb span {
+        padding: 9px 0;
+        text-align: center;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        font-size: 13px;
+        font-weight: 600;
+        box-shadow: 2px 2px 0 var(--ink);
+      }
+      .kb .picked {
+        background: var(--mint);
+      }
+      .toast {
+        align-self: center;
+        margin-top: 6px;
+        padding: 10px 14px;
+        background: var(--ink);
+        color: var(--paper);
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .composer {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        padding: 12px 16px 18px;
+        border-top: 1.5px solid var(--rule);
+        background: var(--paper);
+      }
+      .composer .btn {
+        height: 40px;
+        padding: 0 14px;
+        font-size: 15px;
+        box-shadow: 2px 2px 0 var(--blue);
+      }
+      .composer .field {
+        flex: 1;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        padding: 0 12px;
+        border: 1.5px solid var(--rule);
+        font-size: 14px;
+        color: rgba(10, 10, 10, 0.4);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="canvas promo">
+      <div class="head">
+        <p class="eyebrow blue">В чате</p>
+        <h1 class="poster">Утром спросит,<br />вечером отметит</h1>
+        <p>Отвечаешь кнопкой — бот сам ведёт отметки и считает серию.</p>
+      </div>
+
+      <div class="phone shot">
+        <div class="chat-head">
+          <div class="tile"><svg viewBox="0 0 350 350"><path d="M126 98L256 175L126 252Z" fill="#0a0a0a" /></svg></div>
+          <div><b>Спортбот</b><span class="muted">бот</span></div>
+        </div>
+        <div class="feed">
+          <span class="eyebrow muted day">Четверг</span>
+          <div class="msg">
+            Тренировка «Тяга» не закрыта: сделано 18 из 20. Закончил?
+            <time>22:30</time>
+          </div>
+          <div class="kb"><span class="picked">Да, завершить</span><span>Продолжаю</span></div>
+          <span class="eyebrow muted day" style="margin-top: 8px">Суббота</span>
+          <div class="msg">
+            Доброе утро. Сегодня тренировочный день — будешь тренироваться?<br />
+            Следующая по программе: «Ноги».
+            <time>08:00</time>
+          </div>
+          <div class="kb"><span class="picked">💪 Да</span><span>😴 Нет</span></div>
+          <div class="msg">Принято 💪 Хорошей тренировки!<time>08:01</time></div>
+
+          <div class="msg" style="margin-top: 14px">Потренировался сегодня?<time>21:00</time></div>
+          <div class="kb"><span class="picked">💪 Да</span><span>😴 Нет</span></div>
+          <span class="toast">Отметил тренировку. Серия: 19</span>
+        </div>
+        <div class="composer">
+          <div class="btn ink">Открыть</div>
+          <div class="field">Сообщение</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

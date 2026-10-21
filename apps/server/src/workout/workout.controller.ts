@@ -15,6 +15,7 @@ import { AuthChannel } from '@/miniapp/decorators/auth-channel.decorator';
 import { SportAuth } from '@/miniapp/decorators/sport-auth.decorator';
 
 import { ClientAtDto } from './dto/client-at.dto';
+import { ExcludeCooldownStretchDto } from './dto/exclude-cooldown-stretch.dto';
 import { CooldownResponseDto } from './dto/cooldown.response.dto';
 import { CreateWorkoutSetDto } from './dto/create-workout-set.dto';
 import { FinishWorkoutDto } from './dto/finish-workout.dto';
@@ -274,6 +275,23 @@ export class WorkoutController {
       id,
       dto.at ? new Date(dto.at) : undefined,
     );
+  }
+
+  @Post('cooldown/exclude/:id')
+  @Swagger({
+    title:
+      'Не предлагать растяжку: исключить навсегда и заменить в этой заминке',
+    param: ID_PARAM,
+    body: ExcludeCooldownStretchDto,
+    response: CooldownResponseDto,
+    bearerAuth: true,
+  })
+  public cooldownExclude(
+    @CurrentUser('id') userId: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: ExcludeCooldownStretchDto,
+  ) {
+    return this.workoutAppService.cooldownExclude(userId, id, dto.stretchId);
   }
 
   // ── Поделиться ──────────────────────────────────────────────────────────

@@ -5,6 +5,7 @@
  * OpenAPI spec version: 0.0.1
  */
 import type { CatalogRefResponseDto } from './catalogRefResponseDto';
+import type { StretchImageCreditResponseDto } from './stretchImageCreditResponseDto';
 
 export interface CatalogStretchResponseDto {
   id: number;
@@ -25,6 +26,18 @@ export interface CatalogStretchResponseDto {
      * @nullable
      */
   imageEndUrl: string | null;
+  /**
+     * Где должно тянуть — одна строка
+     * @nullable
+     */
+  feel: string | null;
+  /**
+     * Видео техники, внешняя ссылка
+     * @nullable
+     */
+  videoUrl: string | null;
+  /** @nullable */
+  imageCredit: StretchImageCreditResponseDto | null;
   /** Удержание, с */
   holdSeconds: number;
   /** На каждую сторону */

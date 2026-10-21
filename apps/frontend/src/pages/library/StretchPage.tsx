@@ -1,9 +1,14 @@
-import { CheckIcon, PencilLineIcon, PlayIcon, RotateCcwIcon, SkipForwardIcon } from 'lucide-react'
+import { BanIcon, CheckIcon, PencilLineIcon, PlayIcon, RotateCcwIcon, SkipForwardIcon } from 'lucide-react'
 import { useParams } from 'react-router'
 
 import { useState } from 'react'
 
 import { muscleNames, stretchGuide, useCatalogStretch } from '@/entities/catalog'
+import {
+  useCreateStretchExclusion,
+  useDeleteStretchExclusion,
+  useIsStretchExcluded,
+} from '@/entities/stretch-exclusion'
 import { toAssetUrl } from '@/shared/api'
 import { ROUTES } from '@/shared/config/paths'
 import { MistakeList } from '@/shared/ui/kit/MistakeList'
@@ -19,6 +24,7 @@ import { Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Badge } from '@/shared/ui/shadcn/badge'
 import { HoldControls } from '@/widgets/catalog/HoldControls'
+import { ImageCredit } from '@/widgets/catalog/ImageCredit'
 import { StretchEditSheet } from '@/widgets/catalog/StretchEditSheet'
 import { PublishEntry } from '@/widgets/catalog/PublishEntry'
 import { VideoLink } from '@/widgets/catalog/VideoLink'
@@ -33,6 +39,9 @@ const StretchPage = () => {
   const [side, setSide] = useState<0 | 1 | 2>(0)
   const [editOpen, setEditOpen] = useState(false)
   const s = stretch.data
+  const excluded = useIsStretchExcluded(stretchId)
+  const exclude = useCreateStretchExclusion()
+  const restore = useDeleteStretchExclusion()
 
   return (
     <Screen
@@ -56,6 +65,19 @@ const StretchPage = () => {
             >
               <PencilLineIcon className='size-6' />
             </Button>
+            {/* Исключённую возвращают из строки под названием — тут кнопка только «убрать» */}
+            {!excluded && (
+              <Button
+                variant='outline'
+                size='icon-lg'
+                className='size-[60px]'
+                disabled={exclude.isPending}
+                onClick={() => exclude.mutate(stretchId)}
+                aria-label='Не предлагать в заминке'
+              >
+                <BanIcon className='size-6' />
+              </Button>
+            )}
             <Button
               size='lg'
               onClick={() => setSide(1)}
@@ -92,6 +114,7 @@ const StretchPage = () => {
                 end={toAssetUrl(st.imageEndUrl) ?? null}
                 alt={st.name}
               />
+              <ImageCredit credit={st.imageCredit} />
               <Poster
                 as='h1'
                 size='2xl'
@@ -99,6 +122,7 @@ const StretchPage = () => {
               >
                 {st.name}
               </Poster>
+              {st.feel && <Text tone='soft'>Тянет: {st.feel}</Text>}
               {st.draft && (
                 <Badge
                   variant='outline'
@@ -107,7 +131,23 @@ const StretchPage = () => {
                   не проверено
                 </Badge>
               )}
-              <VideoLink name={st.name} />
+              {excluded && (
+                <div className='flex items-center justify-between gap-3'>
+                  <Text tone='muted'>Не предлагается в заминке</Text>
+                  <Button
+                    variant='outline'
+                    size='xs'
+                    disabled={restore.isPending}
+                    onClick={() => restore.mutate(stretchId)}
+                  >
+                    Вернуть
+                  </Button>
+                </div>
+              )}
+              <VideoLink
+                name={st.name}
+                videoUrl={st.videoUrl}
+              />
               <PublishEntry
                 kind='stretch'
                 entry={st}

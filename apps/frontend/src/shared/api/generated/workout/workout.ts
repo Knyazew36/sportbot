@@ -7,6 +7,7 @@
 import type {
   ClientAtDto,
   CreateWorkoutSetDto,
+  ExcludeCooldownStretchDto,
   FinishWorkoutDto,
   ReplaceWorkoutItemDto,
   StartWorkoutDto,
@@ -14,6 +15,7 @@ import type {
   WorkoutControllerAddSet200,
   WorkoutControllerAnalogs200,
   WorkoutControllerCooldown200,
+  WorkoutControllerCooldownExclude200,
   WorkoutControllerCooldownFinish200,
   WorkoutControllerCooldownStart200,
   WorkoutControllerCurrent200,
@@ -213,6 +215,20 @@ export const workoutControllerCooldownFinish = (
       );
     }
   /**
+ * @summary Не предлагать растяжку: исключить навсегда и заменить в этой заминке
+ */
+export const workoutControllerCooldownExclude = (
+    id: number,
+    excludeCooldownStretchDto: ExcludeCooldownStretchDto,
+ ) => {
+      return customInstance<WorkoutControllerCooldownExclude200>(
+      {url: `/workout/cooldown/exclude/${id}`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: excludeCooldownStretchDto
+    },
+      );
+    }
+  /**
  * @summary Поделиться: бот присылает в чат карточку результата для пересылки
  */
 export const workoutControllerShare = (
@@ -281,6 +297,7 @@ export type WorkoutControllerReplaceResult = NonNullable<Awaited<ReturnType<type
 export type WorkoutControllerWarmupFinishResult = NonNullable<Awaited<ReturnType<typeof workoutControllerWarmupFinish>>>
 export type WorkoutControllerCooldownStartResult = NonNullable<Awaited<ReturnType<typeof workoutControllerCooldownStart>>>
 export type WorkoutControllerCooldownFinishResult = NonNullable<Awaited<ReturnType<typeof workoutControllerCooldownFinish>>>
+export type WorkoutControllerCooldownExcludeResult = NonNullable<Awaited<ReturnType<typeof workoutControllerCooldownExclude>>>
 export type WorkoutControllerShareResult = NonNullable<Awaited<ReturnType<typeof workoutControllerShare>>>
 export type WorkoutControllerSharedResult = NonNullable<Awaited<ReturnType<typeof workoutControllerShared>>>
 export type WorkoutControllerSummaryResult = NonNullable<Awaited<ReturnType<typeof workoutControllerSummary>>>

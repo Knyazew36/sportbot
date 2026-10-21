@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 
 import { localToday } from '@/bot';
 import { SportAccountService } from '@/bot/sport-account.service';
+import { stretchImageCredit } from '@/catalog/dto/stretch-image-credit.response.dto';
 import { SportProfile } from '@/generated/prisma/client';
 import { LimitationService } from '@/limitation/limitation.service';
 import { PlanDayService } from '@/plan/plan-day.service';
@@ -11,6 +12,7 @@ import { UploadService } from '@/upload/upload.service';
 
 import { StretchFull } from '@/catalog/catalog.service';
 
+import { CooldownView } from './cooldown.service';
 import { CooldownStretchResponseDto } from './dto/cooldown-stretch.response.dto';
 import { CooldownResponseDto } from './dto/cooldown.response.dto';
 import { CreateWorkoutSetDto } from './dto/create-workout-set.dto';
@@ -259,24 +261,25 @@ export class WorkoutAppService {
     userId: number,
     workoutId: number,
   ): Promise<CooldownResponseDto> {
-    const [view, profile] = await Promise.all([
-      this.workouts.cooldown(userId, workoutId),
-      this.accounts.profile(userId),
-    ]);
-    const seconds = (list: StretchFull[]) =>
-      list.reduce((sum, s) => sum + s.holdSeconds * (s.perSide ? 2 : 1), 0);
+    const view = await this.workouts.cooldown(userId, workoutId);
     this.logger.log(
       `Заминка открыта: workoutId=${workoutId}, userId=${userId}, растяжек=${view.main.length}+${view.optional.length}`,
     );
-    return {
+    return this.cooldownView(userId, workoutId, view);
+  }
+
+  /** «Не предлагать» в заминке: ответ — заминка уже с заменой, экран перерисовывается без запроса. */
+  public async cooldownExclude(
+    userId: number,
+    workoutId: number,
+    stretchId: number,
+  ): Promise<CooldownResponseDto> {
+    const view = await this.workouts.cooldownExclude(
+      userId,
       workoutId,
-      minutes: view.minutes,
-      optionalMinutes: Math.ceil(seconds(view.optional) / 60),
-      timerSound: profile.timerSound,
-      timerVibration: profile.timerVibration,
-      main: view.main.map((s) => this.stretchView(s)),
-      optional: view.optional.map((s) => this.stretchView(s)),
-    };
+      stretchId,
+    );
+    return this.cooldownView(userId, workoutId, view);
   }
 
   public async warmupFinish(
@@ -312,6 +315,25 @@ export class WorkoutAppService {
     return totals;
   }
 
+  private async cooldownView(
+    userId: number,
+    workoutId: number,
+    view: CooldownView,
+  ): Promise<CooldownResponseDto> {
+    const profile = await this.accounts.profile(userId);
+    const seconds = (list: StretchFull[]) =>
+      list.reduce((sum, s) => sum + s.holdSeconds * (s.perSide ? 2 : 1), 0);
+    return {
+      workoutId,
+      minutes: view.minutes,
+      optionalMinutes: Math.ceil(seconds(view.optional) / 60),
+      timerSound: profile.timerSound,
+      timerVibration: profile.timerVibration,
+      main: view.main.map((s) => this.stretchView(s)),
+      optional: view.optional.map((s) => this.stretchView(s)),
+    };
+  }
+
   private stretchView(stretch: StretchFull): CooldownStretchResponseDto {
     return {
       id: stretch.id,
@@ -321,6 +343,9 @@ export class WorkoutAppService {
       mistakes: stretch.mistakes,
       imageUrl: this.uploads.toPublicUrl(stretch.imagePath),
       imageEndUrl: this.uploads.toPublicUrl(stretch.imageEndPath),
+      feel: stretch.feel,
+      videoUrl: stretch.videoUrl,
+      imageCredit: stretchImageCredit(stretch),
       holdSeconds: stretch.holdSeconds,
       perSide: stretch.perSide,
       muscles: stretch.muscles.map((m) => m.muscle.name).join(' · '),

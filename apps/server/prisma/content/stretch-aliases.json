@@ -1,0 +1,17 @@
+{
+  "_comment": "Английские и санскритские названия растяжек для поиска фото и текстов в sources/. У остальных растяжек название берётся из ссылки на фото free-exercise-db.",
+  "mid-delt-behind-back": ["behind the back shoulder stretch", "shoulder stretch behind back"],
+  "chest-wall": ["wall chest stretch", "chest stretch wall", "pec stretch"],
+  "chest-doorway": ["doorway chest stretch", "doorway pec stretch"],
+  "lats-hang": ["dead hang", "hanging", "bar hang", "passive hang"],
+  "biceps-wall": ["wall biceps stretch", "biceps stretch"],
+  "forearm-flexor": ["wrist flexor stretch", "forearm flexor stretch", "wrist stretch"],
+  "forearm-extensor": ["wrist extensor stretch", "forearm extensor stretch", "wrist stretch"],
+  "cobra": ["cobra pose", "cobra stretch", "bhujangasana"],
+  "pigeon": ["pigeon pose", "pigeon stretch", "kapotasana", "eka pada rajakapotasana"],
+  "quad-standing": ["standing quad stretch", "standing quadriceps stretch", "quad stretch"],
+  "couch-stretch": ["couch stretch", "kneeling hip flexor stretch", "rear foot elevated quad stretch"],
+  "butterfly": ["butterfly stretch", "bound angle pose", "baddha konasana"],
+  "side-lunge-stretch": ["side lunge stretch", "lateral lunge stretch", "skandasana"],
+  "calf-step": ["calf stretch step", "step calf stretch", "standing calf stretch"]
+}

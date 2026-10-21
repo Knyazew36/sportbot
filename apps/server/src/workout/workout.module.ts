@@ -4,6 +4,7 @@ import { LimitationModule } from '@/limitation/limitation.module';
 import { PlanModule } from '@/plan/plan.module';
 import { ProgramModule } from '@/program/program.module';
 import { StatsModule } from '@/stats/stats.module';
+import { StretchExclusionModule } from '@/stretch-exclusion/stretch-exclusion.module';
 import { UploadModule } from '@/upload/upload.module';
 
 import { CooldownService } from './cooldown.service';
@@ -21,6 +22,7 @@ import { WorkoutService } from './workout.service';
     LimitationModule,
     UploadModule,
     StatsModule,
+    StretchExclusionModule,
   ],
   controllers: [WorkoutController],
   providers: [

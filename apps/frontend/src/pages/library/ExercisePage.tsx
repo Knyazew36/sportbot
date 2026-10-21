@@ -32,6 +32,8 @@ const ExercisePage = () => {
   const exerciseId = Number(useParams().exerciseId)
   const [search] = useSearchParams()
   const back = search.get('from') ?? ROUTES.LIBRARY
+  // С тренировки пришли посмотреть технику — менять программу посреди подхода незачем
+  const fromWorkout = back === ROUTES.WORKOUT
   const exercise = useCatalogExercise(exerciseId)
   const limitations = useLimitations()
   const program = useActiveProgram()
@@ -61,17 +63,19 @@ const ExercisePage = () => {
             >
               <PencilLineIcon className='size-6' />
             </Button>
-            <Button
-              size='lg'
-              disabled={!program.data}
-              onClick={() => setAddOpen(true)}
-            >
-              <PlusIcon
-                className='size-6'
-                strokeWidth={2.5}
-              />
-              {program.data ? 'В тренировку' : 'Нет активной программы'}
-            </Button>
+            {!fromWorkout && (
+              <Button
+                size='lg'
+                disabled={!program.data}
+                onClick={() => setAddOpen(true)}
+              >
+                <PlusIcon
+                  className='size-6'
+                  strokeWidth={2.5}
+                />
+                {program.data ? 'В тренировку' : 'Нет активной программы'}
+              </Button>
+            )}
           </StickyFooter>
         )
       }
@@ -188,7 +192,7 @@ const ExercisePage = () => {
                 </Button>
               </ScreenSection>
 
-              {program.data && (
+              {program.data && !fromWorkout && (
                 <AddToComplexSheet
                   open={addOpen}
                   onOpenChange={setAddOpen}

@@ -1,0 +1,34 @@
+{
+  "exercises": [],
+  "stretches": [
+    {
+      "code": "cobra",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/d/d2/Bhujangasana_zamkovoi.jpg",
+      "imageSource": "https://commons.wikimedia.org/wiki/File:Bhujangasana_zamkovoi.jpg",
+      "imageLicense": "CC BY-SA 4.0",
+      "imageAuthor": "Sezam777"
+    },
+    {
+      "code": "pigeon",
+      "image": "https://wger.de/media/exercise-images/1872/df982df1-512a-4eb9-acd9-68cc1c265df6.png",
+      "imageSource": "https://wger.de/exercise/1872/view-base",
+      "imageLicense": "CC BY-SA 4.0",
+      "imageAuthor": "Davidgj32"
+    },
+    {
+      "code": "quad-standing",
+      "image": "https://wger.de/media/exercise-images/1873/c0ed299b-6d87-4d90-885d-bb3b5d85f1eb.png",
+      "imageSource": "https://wger.de/exercise/1873/view-base",
+      "imageLicense": "CC BY-SA 4.0",
+      "imageAuthor": "Davidgj32"
+    },
+    {
+      "code": "butterfly",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/6/64/Baddha_konasana.jpg",
+      "imageSource": "https://commons.wikimedia.org/wiki/File:Baddha_konasana.jpg",
+      "imageLicense": "CC BY-SA 3.0",
+      "imageAuthor": "Joseph RENGER"
+    }
+  ],
+  "programs": []
+}

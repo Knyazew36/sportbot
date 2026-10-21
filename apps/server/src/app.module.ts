@@ -35,6 +35,7 @@ import { BodyWeightModule } from './body-weight/body-weight.module';
 import { BotModule } from './bot';
 import { CatalogModule } from './catalog/catalog.module';
 import { LimitationModule } from './limitation/limitation.module';
+import { StretchExclusionModule } from './stretch-exclusion/stretch-exclusion.module';
 import { LinkModule } from './link/link.module';
 import { MiniappModule } from './miniapp/miniapp.module';
 import { OnboardingModule } from './onboarding/onboarding.module';
@@ -103,6 +104,7 @@ import { WorkoutModule } from './workout/workout.module';
     PlanPollModule,
     PauseModule,
     LimitationModule,
+    StretchExclusionModule,
     BodyWeightModule,
     StarsModule,
     StatsModule,

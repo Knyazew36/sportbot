@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="base.css" />
+  </head>
+  <body>
+    <!-- Слайд с настоящим скриншотом Mini App: promo.html?s=<ключ из SLIDES> -->
+    <div class="canvas promo">
+      <div class="head">
+        <p class="eyebrow blue" id="eyebrow"></p>
+        <h1 class="poster" id="title"></h1>
+        <p id="text"></p>
+      </div>
+      <div class="phone shot">
+        <div class="tg-bar"><span class="side">Закрыть</span>Спортбот<span class="side right">···</span></div>
+        <img id="shot" alt="" />
+      </div>
+    </div>
+    <script>
+      const SLIDES = {
+        today: ['Сегодня', 'План уже<br>готов', 'Бот помнит очередь тренировок. Открыл&nbsp;— и&nbsp;сразу видно, что делать.'],
+        set: ['В зале', 'Подход<br>под таймер', 'Жмёшь «Начать подход»&nbsp;— время и&nbsp;подходы считает приложение.'],
+        rest: ['Между подходами', 'Отдых тоже<br>по таймеру', 'Подскажет, когда идти на&nbsp;следующий подход. Нужно больше&nbsp;— «+30&nbsp;с».'],
+        progress: ['Прогресс', 'Видно, как<br>растут веса', 'Лучший подход и&nbsp;расчётный максимум по&nbsp;каждому упражнению.'],
+        finish: ['Итог', 'Серия<br>и рекорды', 'Тренировка засчитана&nbsp;— серия растёт, новые рекорды отмечены сами.'],
+        attendance: ['Посещения', 'Ни одной<br>потерянной', 'Календарь отметок и&nbsp;посещаемость по&nbsp;неделям.'],
+      }
+      const [eyebrow, title, text] = SLIDES[new URLSearchParams(location.search).get('s')]
+      document.getElementById('eyebrow').innerHTML = eyebrow
+      document.getElementById('title').innerHTML = title
+      document.getElementById('text').innerHTML = text
+      document.getElementById('shot').src = `shots/${new URLSearchParams(location.search).get('s')}.png`
+    </script>
+  </body>
+</html>

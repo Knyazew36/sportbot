@@ -26,7 +26,9 @@
     "content:migrate-cardio": "ts-node -r tsconfig-paths/register prisma/migrate-cardio.ts",
     "content:setup": "./content.sh",
     "start:render": "nest start --entryFile src/main-render",
-    "start:prod:render": "node dist/src/main-render.js"
+    "start:prod:render": "node dist/src/main-render.js",
+    "content:stretch-media": "ts-node -r tsconfig-paths/register prisma/stretch-media.ts",
+    "content:stretch-guides": "ts-node -r tsconfig-paths/register prisma/stretch-guides.ts"
   },
   "dependencies": {
     "@casl/ability": "^7.0.1",
