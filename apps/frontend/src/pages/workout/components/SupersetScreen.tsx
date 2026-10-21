@@ -1,3 +1,4 @@
+import { FlameIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 import { type SupersetRound, supersetLabels, type WorkoutItem } from '@/entities/workout'
@@ -49,7 +50,12 @@ export const SupersetScreen = ({ round, onEdit, onAddSet }: SupersetScreenProps)
           <Poster
             as='h1'
             size='2xl'
+            className='flex items-center gap-2'
           >
+            <FlameIcon
+              className='text-primary size-[0.9em] shrink-0'
+              aria-hidden
+            />
             Суперсет {round.letter}
           </Poster>
           <Eyebrow tone='primary'>

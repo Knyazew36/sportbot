@@ -221,6 +221,16 @@ export const useQueuedWorkout = <T extends Workout | null | undefined>(workout: 
 export const useFinishQueued = (workoutId: number | undefined): boolean =>
   useWorkoutQueue().some(entry => entry.kind === 'finish' && entry.variables.id === workoutId)
 
+/**
+ * Сервер засчитал завершение этой тренировки. Смотрим на саму мутацию, а не на колбэк mutate:
+ * её onSuccess убирает тренировку из кеша, экран тренировки размонтируется, и колбэк уже не вызовется
+ */
+export const useFinishSucceeded = (workoutId: number | undefined): boolean =>
+  useMutationState({
+    filters: { mutationKey: queueKeys.finish, status: 'success' },
+    select: mutation => (mutation.state.variables as FinishVars).id,
+  }).some(id => id === workoutId)
+
 /** Шапка тренировки: есть ли сеть, сколько действий ещё не отправлено и не застряла ли отправка */
 export const useWorkoutSync = () => {
   const online = useIsOnline()

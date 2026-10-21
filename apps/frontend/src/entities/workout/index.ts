@@ -5,6 +5,7 @@ export {
   registerWorkoutQueue,
   type SetRef,
   useFinishQueued,
+  useFinishSucceeded,
   useQueuedWorkout,
   useWorkoutSync,
 } from './model/queue'

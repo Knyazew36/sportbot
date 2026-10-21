@@ -5,6 +5,7 @@
  * OpenAPI spec version: 0.0.1
  */
 import type {
+  AddWorkoutItemsDto,
   ClientAtDto,
   CreateWorkoutSetDto,
   ExcludeCooldownStretchDto,
@@ -12,6 +13,7 @@ import type {
   ReplaceWorkoutItemDto,
   StartWorkoutDto,
   UpdateWorkoutSetDto,
+  WorkoutControllerAddItems200,
   WorkoutControllerAddSet200,
   WorkoutControllerAnalogs200,
   WorkoutControllerCooldown200,
@@ -173,6 +175,20 @@ export const workoutControllerReplace = (
       );
     }
   /**
+ * @summary Добавить упражнения в идущую тренировку
+ */
+export const workoutControllerAddItems = (
+    id: number,
+    addWorkoutItemsDto: AddWorkoutItemsDto,
+ ) => {
+      return customInstance<WorkoutControllerAddItems200>(
+      {url: `/workout/item/add/${id}`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: addWorkoutItemsDto
+    },
+      );
+    }
+  /**
  * @summary Разминка закончена или пропущена: пишется один раз
  */
 export const workoutControllerWarmupFinish = (
@@ -294,6 +310,7 @@ export type WorkoutControllerDeleteSetResult = NonNullable<Awaited<ReturnType<ty
 export type WorkoutControllerMarkDoneResult = NonNullable<Awaited<ReturnType<typeof workoutControllerMarkDone>>>
 export type WorkoutControllerAnalogsResult = NonNullable<Awaited<ReturnType<typeof workoutControllerAnalogs>>>
 export type WorkoutControllerReplaceResult = NonNullable<Awaited<ReturnType<typeof workoutControllerReplace>>>
+export type WorkoutControllerAddItemsResult = NonNullable<Awaited<ReturnType<typeof workoutControllerAddItems>>>
 export type WorkoutControllerWarmupFinishResult = NonNullable<Awaited<ReturnType<typeof workoutControllerWarmupFinish>>>
 export type WorkoutControllerCooldownStartResult = NonNullable<Awaited<ReturnType<typeof workoutControllerCooldownStart>>>
 export type WorkoutControllerCooldownFinishResult = NonNullable<Awaited<ReturnType<typeof workoutControllerCooldownFinish>>>

@@ -6,6 +6,7 @@
  */
 
 export * from './addComplexExercisesDto';
+export * from './addWorkoutItemsDto';
 export * from './adminCatalogControllerCreateExercise200';
 export * from './adminCatalogControllerCreateStretch200';
 export * from './adminCatalogControllerExercise200';
@@ -626,6 +627,7 @@ export * from './userResponseDto';
 export * from './verifyEmailDto';
 export * from './weekMark';
 export * from './workoutAnalogResponseDto';
+export * from './workoutControllerAddItems200';
 export * from './workoutControllerAddSet200';
 export * from './workoutControllerAnalogs200';
 export * from './workoutControllerCooldown200';

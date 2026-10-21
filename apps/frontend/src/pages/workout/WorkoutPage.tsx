@@ -9,6 +9,7 @@ import {
   supersetRound,
   useCurrentWorkout,
   useDiscardWorkout,
+  useFinishSucceeded,
   useFinishWorkout,
   useQueuedWorkout,
   type SetTiming,
@@ -223,7 +224,7 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
   const planDone = superset ? superset.done : item.plannedSets > 0 && item.sets.length >= item.plannedSets
 
   // Завершение встаёт в очередь со временем нажатия: без сети засчитается позже, а длительность не исказится.
-  // Колбэк mutate срабатывает, только пока экран открыт: после ухода на «Сегодня» итог туда уже не уведёт
+  // К заминке уводит WorkoutPage, когда сервер засчитал: этот экран к тому моменту уже размонтирован
   const onFinish = () => {
     timer.stop()
     stopwatch.stop()
@@ -231,13 +232,7 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
     local.remove(warmupKey)
     local.remove(warmupHiddenKey)
     local.remove(pickedKey)
-    finish.mutate(
-      { id: workout.id, finishedAt: new Date().toISOString() },
-      {
-        onSuccess: summary =>
-          navigate(buildPath(ROUTES.WORKOUT_FINISHED, { workoutId: summary.workoutId }), { replace: true }),
-      },
-    )
+    finish.mutate({ id: workout.id, finishedAt: new Date().toISOString() })
   }
 
   const onDiscard = () =>
@@ -636,6 +631,10 @@ const WorkoutPage = () => {
   const navigation = useNavigation()
   const hasWorkout = Boolean(current.data?.workout)
   const wantsStart = params.has('complexId') || params.has('start')
+  // Какую тренировку показывали: после «Завершить» кеш уже пуст, а увести надо к заминке именно её
+  const shownId = useRef<number | undefined>(undefined)
+  if (current.data?.workout) shownId.current = current.data.workout.id
+  const finished = useFinishSucceeded(shownId.current)
 
   // Начатая тренировка больше не нуждается в параметрах запуска: иначе после «Завершить» или отмены
   // тренировки нет, а complexId в адресе остался — StartWorkout тут же начал бы новую
@@ -647,8 +646,15 @@ const WorkoutPage = () => {
     <QueryScreen query={current}>
       {({ workout }) => {
         if (workout) return <WorkoutView workout={workout} />
-        // После «Завершить» кеш уже без тренировки, а экран итога ещё грузится (lazy-маршрут):
-        // редирект на «Сегодня» перебил бы переход к заминке
+        // Сервер засчитал завершение — дальше предложение заминки, а за ним итог
+        if (finished && shownId.current)
+          return (
+            <Navigate
+              to={buildPath(ROUTES.WORKOUT_FINISHED, { workoutId: shownId.current })}
+              replace
+            />
+          )
+        // Экран заминки ещё грузится (lazy-маршрут): редирект на «Сегодня» перебил бы переход
         if (navigation.state !== 'idle') return <PageLoader />
         // Без complexId и без начатой тренировки — например, её завершили в боте
         if (!params.has('complexId') && !params.has('start')) return <Navigate to={ROUTES.TODAY} replace />

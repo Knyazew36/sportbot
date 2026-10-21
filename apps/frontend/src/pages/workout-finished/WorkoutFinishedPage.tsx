@@ -1,3 +1,4 @@
+import { pluralize } from '@front-cmdt/utils/pluralize'
 import { ArrowRightIcon } from 'lucide-react'
 import { Navigate, useParams } from 'react-router'
 
@@ -7,13 +8,9 @@ import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Screen, StickyFooter } from '@/shared/ui/kit/Screen'
-import { Lead, Poster, Text } from '@/shared/ui/kit/Typography'
-import { pluralize } from '@front-cmdt/utils/pluralize'
+import { Lead, Poster } from '@/shared/ui/kit/Typography'
 
-// Мышцы основного блока без повторов: у растяжек они перечислены через запятую
-const musclesOf = (cooldown: Cooldown) => [
-  ...new Set(cooldown.main.flatMap(s => s.muscles.split(',').map(m => m.trim().toLowerCase())).filter(Boolean)),
-]
+import { StretchMuscles } from './components/StretchMuscles'
 
 const OfferView = ({ cooldown }: { cooldown: Cooldown }) => {
   const summary = buildPath(ROUTES.WORKOUT_SUMMARY, { workoutId: cooldown.workoutId })
@@ -26,8 +23,6 @@ const OfferView = ({ cooldown }: { cooldown: Cooldown }) => {
         replace
       />
     )
-
-  const muscles = musclesOf(cooldown)
 
   return (
     <Screen
@@ -74,20 +69,8 @@ const OfferView = ({ cooldown }: { cooldown: Cooldown }) => {
         >
           ~{cooldown.minutes} мин · {pluralize(count, ['растяжка', 'растяжки', 'растяжек'])}
         </Poster>
-        {muscles.length > 0 && (
-          <Text
-            tone='soft'
-            className='mt-3'
-          >
-            На мышцы, которые работали: {muscles.join(', ')}.
-          </Text>
-        )}
-        <Text
-          tone='soft'
-          className='mt-1'
-        >
-          Таймер каждой растяжки запускаешь сам. Итог тренировки — после заминки.
-        </Text>
+        <StretchMuscles stretches={cooldown.main} />
+
         <div className='sb-lanes mt-6 h-20 opacity-30' />
       </Rise>
     </Screen>
