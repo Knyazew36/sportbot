@@ -35,7 +35,7 @@ const ALL = FILTER_ALL
 // Поиск, фильтры и выбор живут в адресе: перезагрузка или «назад» из создания не сбрасывают подбор.
 // Тап по строке открывает карточку в шторке, не уводя со страницы подбора
 type ExercisePickerProps = {
-  /** Комплекс, куда добавляем: уже стоящие в нём упражнения выключены */
+  /** Комплекс, куда добавляем: уже стоящие в нём упражнения помечены, но их можно добавить ещё раз */
   complex: ProgramComplex | undefined
   /** Назад — на страницу комплекса */
   back: string
@@ -105,8 +105,7 @@ export const ExercisePicker = ({ complex, back, target, adding, onAdd, directCre
 
   // Нужного нет в справочнике — создаём своё и сразу добавляем в комплекс вместе с уже выбранными
   const addCreated = (created: CreatedExercise) => {
-    const ids = [...new Set([...picked, created.id])].filter(id => !present.has(id))
-    if (ids.length) onAdd(ids)
+    onAdd([...new Set([...picked, created.id])])
   }
 
   return (
@@ -206,12 +205,11 @@ export const ExercisePicker = ({ complex, back, target, adding, onAdd, directCre
                         <Button
                           variant={on ? 'default' : 'outline'}
                           size='icon-sm'
-                          disabled={inComplex}
                           aria-pressed={on}
                           aria-label={on ? `Убрать «${e.name}»` : `Выбрать «${e.name}»`}
                           onClick={() => toggle(e.id)}
                         >
-                          {on || inComplex ? <CheckIcon strokeWidth={3} /> : <PlusIcon strokeWidth={2.5} />}
+                          {on ? <CheckIcon strokeWidth={3} /> : <PlusIcon strokeWidth={2.5} />}
                         </Button>
                       }
                     />
@@ -228,29 +226,21 @@ export const ExercisePicker = ({ complex, back, target, adding, onAdd, directCre
         onOpenChange={open => !open && setPreview(null)}
         action={
           preview &&
-          (present.has(preview.id) ? (
-            <Button
-              size='lg'
-              variant='outline'
-              className='w-full'
-              disabled
-            >
-              <CheckIcon strokeWidth={3} />
-              Уже в тренировке
-            </Button>
-          ) : (
-            <Button
-              size='lg'
-              variant={picked.includes(preview.id) ? 'outline' : 'default'}
-              className='w-full'
-              onClick={() => {
-                toggle(preview.id)
-                setPreview(null)
-              }}
-            >
-              {picked.includes(preview.id) ? 'Убрать из выбора' : 'Выбрать'}
-            </Button>
-          ))
+          <Button
+            size='lg'
+            variant={picked.includes(preview.id) ? 'outline' : 'default'}
+            className='w-full'
+            onClick={() => {
+              toggle(preview.id)
+              setPreview(null)
+            }}
+          >
+            {picked.includes(preview.id)
+              ? 'Убрать из выбора'
+              : present.has(preview.id)
+                ? 'Выбрать ещё раз'
+                : 'Выбрать'}
+          </Button>
         }
       />
 

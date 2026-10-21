@@ -489,9 +489,8 @@ export class ProgramService {
     complexId: number,
     exerciseId: number,
   ) {
+    // Дубли разрешены: одно упражнение может стоять в комплексе дважды, например в двух суперсетах
     const complex = await this.findComplex(owner, complexId);
-    if (complex.exercises.some((item) => item.exerciseId === exerciseId))
-      throw new BadRequestException('Это упражнение уже есть в тренировке.');
     const visible = await this.prisma.exercise.findFirst({
       where: { id: exerciseId, ...visibleExercise(owner) },
       select: { id: true, measure: true },
@@ -512,7 +511,8 @@ export class ProgramService {
   }
 
   /**
-   * Подбор из справочника: несколько упражнений сразу, уже стоящие в комплексе пропускаются.
+   * Подбор из справочника: несколько упражнений сразу. Уже стоящие в комплексе добавляются ещё раз —
+   * одно упражнение бывает нужно в двух суперсетах.
    * joinItemId — встать в суперсет этого упражнения сразу за его участниками,
    * newSuperset — собрать выбранные в новый суперсет в конце комплекса.
    * @returns id программы.
@@ -524,13 +524,10 @@ export class ProgramService {
     target: { joinItemId?: number; newSuperset?: boolean } = {},
   ): Promise<number> {
     const complex = await this.findComplex(owner, complexId);
-    const present = new Set(complex.exercises.map((e) => e.exerciseId));
-    const fresh = [...new Set(exerciseIds)].filter((id) => !present.has(id));
-    if (!fresh.length)
-      throw new BadRequestException('Эти упражнения уже есть в тренировке.');
+    const fresh = [...new Set(exerciseIds)];
     if (target.newSuperset && fresh.length < 2)
       throw new BadRequestException(
-        'Для суперсета выбери хотя бы два новых упражнения.',
+        'Для суперсета выбери хотя бы два упражнения.',
       );
     const visible = await this.prisma.exercise.findMany({
       where: { id: { in: fresh }, ...visibleExercise(owner) },
@@ -718,29 +715,42 @@ export class ProgramService {
     return item;
   }
 
-  /** Замена «в комплексе»: план подходов и повторов остаётся прежним. */
+  /**
+   * Замена «в комплексе»: план подходов и повторов остаётся прежним.
+   * Меняется одна строка, а не все одинаковые: упражнение может стоять в комплексе дважды.
+   * superset — снимок из тренировки, по нему выбираем нужный дубль; не совпал — берём первый по порядку.
+   */
   public async replaceExercise(
     userId: number,
     complexId: number,
     fromExerciseId: number,
     toExerciseId: number,
+    superset: number | null,
   ): Promise<void> {
-    const { count } = await this.prisma.complexExercise.updateMany({
+    const candidates = await this.prisma.complexExercise.findMany({
       where: {
         complexId,
         exerciseId: fromExerciseId,
         complex: { program: { ownerId: userId } },
       },
+      orderBy: { position: 'asc' },
+      select: { id: true, superset: true, complex: { select: { programId: true } } },
+    });
+    const target =
+      candidates.find((c) => c.superset === superset) ?? candidates[0];
+    if (!target) {
+      this.logger.warn(
+        `Замена в комплексе: строки нет, complexId=${complexId}, exerciseId=${fromExerciseId}`,
+      );
+      return;
+    }
+    await this.prisma.complexExercise.update({
+      where: { id: target.id },
       data: { exerciseId: toExerciseId },
     });
-    if (!count) return;
-    const complex = await this.prisma.complex.findUnique({
-      where: { id: complexId },
-      select: { programId: true },
-    });
-    if (complex) await this.touch(complex.programId);
+    await this.touch(target.complex.programId);
     this.logger.log(
-      `Замена в комплексе: complexId=${complexId}, ${fromExerciseId} → ${toExerciseId}`,
+      `Замена в комплексе: complexId=${complexId}, itemId=${target.id}, ${fromExerciseId} → ${toExerciseId}`,
     );
   }
 

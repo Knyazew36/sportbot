@@ -606,6 +606,7 @@ export class WorkoutService {
         item.workout.complexId,
         originalId,
         newExerciseId,
+        item.superset,
       );
     this.logger.log(
       `Замена упражнения: workoutExerciseId=${itemId}, ${item.exerciseId} → ${newExerciseId}, в комплексе=${inComplex}`,
