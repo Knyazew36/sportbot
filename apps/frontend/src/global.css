@@ -498,6 +498,8 @@
     left: 0;
     z-index: -1;
     width: 40%;
+    /* За краем с самого начала: пока идёт задержка анимации, блик не должен стоять на кнопке */
+    translate: -140% 0;
     pointer-events: none;
     background-image: linear-gradient(
       105deg,
@@ -505,7 +507,7 @@
       color-mix(in oklab, var(--sb-gold-on-ink) 55%, transparent) 50%,
       transparent 85%
     );
-    animation: sb-share-sheen 5.5s cubic-bezier(0.45, 0, 0.25, 1) 1.2s infinite;
+    animation: sb-share-sheen 5.5s cubic-bezier(0.45, 0, 0.25, 1) 1.2s infinite both;
   }
   &:disabled::after {
     animation: none;

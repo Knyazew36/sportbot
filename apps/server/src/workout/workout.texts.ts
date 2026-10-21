@@ -289,13 +289,16 @@ const shareSetsText = (item: WorkoutExerciseFull): string => {
     .join(' · ');
 };
 
-/** Упражнение в карточке: номер, название, подходы; засчитанное без записи — без подходов. */
+/**
+ * Упражнение в карточке: номер-эмодзи и название, подходы строкой ниже; засчитанное без записи —
+ * без подходов. Блоки разделены пустой строкой: сплошной список читался одной простынёй.
+ */
 const shareExerciseText = (
   item: WorkoutExerciseFull,
   index: number,
 ): string => {
-  const name = `${index + 1}. ${supersetMark(item.superset)}${item.exercise.name}`;
-  return item.sets.length ? `${name} — ${shareSetsText(item)}` : name;
+  const name = `${numEmoji(index + 1)} ${supersetMark(item.superset)}${item.exercise.name}`;
+  return item.sets.length ? `${name}\n${shareSetsText(item)}` : name;
 };
 
 /**
@@ -305,22 +308,26 @@ const shareExerciseText = (
 export function shareCardMessage(view: ShareCardView): MessengerMessage {
   const { totals } = view;
   const cardio = cardioText(view);
+  // Каждая цифра своей строкой со своим значком — читается как табло, а не как перечисление
   const stats = [
     `⏱ ${totals.minutes} мин`,
     ...(totals.sets
-      ? [`${totals.sets} ${plural(totals.sets, 'подход', 'подхода', 'подходов')}`]
+      ? [
+          `🔁 ${totals.sets} ${plural(totals.sets, 'подход', 'подхода', 'подходов')}`,
+        ]
       : []),
-    ...(totals.tonnage ? [kg(totals.tonnage)] : []),
+    ...(totals.tonnage ? [`🏋️ ${kg(totals.tonnage)}`] : []),
   ];
   const lines = [
-    `🏁 Тренировка засчитана`,
+    `🏁 Результат есть`,
     `«${view.complexName}»`,
     '',
-    stats.join('  ·  '),
+    ...stats,
     '',
     `💪 Что сделано:`,
-    ...view.exercises.filter(isDone).map(shareExerciseText),
-    ...(cardio ? [cardio] : []),
+    '',
+    view.exercises.filter(isDone).map(shareExerciseText).join('\n\n'),
+    ...(cardio ? ['', cardio] : []),
   ];
   return msg(
     lines.join('\n'),
