@@ -62,7 +62,7 @@ const MemberRow = ({ member }: { member: OrganizationMember }) => {
           </span>
         </div>
       </div>
-      <div className='flex items-center gap-2'>
+      <div className='flex w-full items-center gap-2 md:w-auto'>
         {canEdit ? (
           <Select
             items={ROLES}
@@ -76,7 +76,7 @@ const MemberRow = ({ member }: { member: OrganizationMember }) => {
           >
             <SelectTrigger
               aria-label='Роль'
-              className='w-44 rounded-full'
+              className='min-w-0 flex-1 rounded-full md:w-44 md:flex-none'
             >
               <SelectValue />
             </SelectTrigger>

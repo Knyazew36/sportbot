@@ -7,7 +7,12 @@ import {
 import { PrismaService } from 'prisma/prisma.service';
 
 import { addDays, localToday } from '@/bot';
-import { isTimed, MEASURE_LIMITS, parseTime } from '@/catalog/measure';
+import {
+  defaultPlan,
+  isTimed,
+  MEASURE_LIMITS,
+  parseTime,
+} from '@/catalog/measure';
 import {
   ExerciseMeasure,
   Prisma,
@@ -612,6 +617,62 @@ export class WorkoutService {
       `Замена упражнения: workoutExerciseId=${itemId}, ${item.exerciseId} → ${newExerciseId}, в комплексе=${inComplex}`,
     );
     return item.workoutId;
+  }
+
+  // ── Добавление ──────────────────────────────────────────────────────────
+
+  /**
+   * Ещё упражнения в идущую тренировку — силы остались. Встают в конец со стандартным планом подходов;
+   * с inComplex — ещё и в конец комплекса, чтобы были и в следующий раз. Дубли разрешены, как в комплексе.
+   */
+  public async addItems(
+    userId: number,
+    workoutId: number,
+    exerciseIds: number[],
+    inComplex: boolean,
+  ): Promise<void> {
+    const workout = await this.prisma.workout.findFirst({
+      where: { id: workoutId, userId, status: 'IN_PROGRESS' },
+      select: {
+        complexId: true,
+        exercises: {
+          orderBy: { position: 'desc' },
+          take: 1,
+          select: { position: true },
+        },
+      },
+    });
+    if (!workout) throw new BadRequestException('Тренировка уже закрыта.');
+    const fresh = [...new Set(exerciseIds)];
+    const visible = await this.prisma.exercise.findMany({
+      where: {
+        id: { in: fresh },
+        OR: [{ status: 'CATALOG' }, { status: 'DRAFT', authorId: userId }],
+      },
+      select: { id: true, measure: true },
+    });
+    if (visible.length !== fresh.length)
+      throw new NotFoundException('Упражнение не найдено.');
+    const measureOf = new Map(visible.map((e) => [e.id, e.measure]));
+    const last = workout.exercises[0]?.position ?? 0;
+    await this.prisma.workoutExercise.createMany({
+      data: exerciseIds.map((exerciseId, index) => {
+        const plan = defaultPlan(measureOf.get(exerciseId)!);
+        return {
+          workoutId,
+          exerciseId,
+          position: last + index + 1,
+          plannedSets: plan.sets,
+          repsMin: plan.repsMin,
+          repsMax: plan.repsMax,
+        };
+      }),
+    });
+    if (inComplex && workout.complexId)
+      await this.programs.addExercises(userId, workout.complexId, exerciseIds);
+    this.logger.log(
+      `Упражнения добавлены в тренировку: workoutId=${workoutId}, exerciseIds=${exerciseIds.join(',')}, в комплексе=${inComplex && workout.complexId !== null}`,
+    );
   }
 
   // ── Разминка ────────────────────────────────────────────────────────────

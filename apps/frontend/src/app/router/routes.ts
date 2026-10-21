@@ -90,6 +90,7 @@ export const miniappRoutes: AppRoute[] = [
   { path: ROUTES.ONBOARDING, Component: OnboardingPage },
   { path: ROUTES.WORKOUT, Component: WorkoutPage },
   { path: ROUTES.WORKOUT_REPLACE, lazy: () => import('@/pages/workout/ReplaceExercisePage') },
+  { path: ROUTES.WORKOUT_ADD, lazy: () => import('@/pages/workout/AddWorkoutExercisePage') },
   { path: ROUTES.WORKOUT_FINISHED, lazy: () => import('@/pages/workout-finished/WorkoutFinishedPage') },
   { path: ROUTES.WORKOUT_SUMMARY, lazy: () => import('@/pages/workout/SummaryPage') },
   { path: ROUTES.WORKOUT_EDIT, lazy: () => import('@/pages/workout-edit/WorkoutEditPage') },

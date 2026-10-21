@@ -12,7 +12,7 @@ import {
   useCatalogExercises,
   useMuscles,
 } from '@/entities/catalog'
-import type { ProgramComplex, SupersetTarget } from '@/entities/program'
+import type { SupersetTarget } from '@/entities/program'
 import { toAssetUrl } from '@/shared/api'
 import { useDebouncedValue } from '@/shared/lib/hooks/use-debounced-value'
 import { List } from '@/shared/ui/kit/ListRow'
@@ -29,15 +29,17 @@ import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet'
 
 const ALL = FILTER_ALL
 
-// Подбор упражнений в комплекс программы или шаблона: поиск и фильтры, как в справочнике (frontend-tz, 10.3).
+// Подбор упражнений в комплекс программы, шаблона или в идущую тренировку: поиск и фильтры, как в справочнике (frontend-tz, 10.3).
 // Свои черновики приходят вместе со справочником с пометкой «не проверено».
 // Отдельная страница, а не шторка: список длинный, клавиатура съедает половину экрана.
 // Поиск, фильтры и выбор живут в адресе: перезагрузка или «назад» из создания не сбрасывают подбор.
 // Тап по строке открывает карточку в шторке, не уводя со страницы подбора
 type ExercisePickerProps = {
-  /** Комплекс, куда добавляем: уже стоящие в нём упражнения помечены, но их можно добавить ещё раз */
-  complex: ProgramComplex | undefined
-  /** Назад — на страницу комплекса */
+  /** Упражнения, которые уже стоят там, куда добавляем: помечены, но их можно добавить ещё раз */
+  presentIds: number[]
+  /** Куда добавляем — подпись под заголовком */
+  subtitle?: string
+  /** Назад — туда, куда добавляем */
   back: string
   /** Добавить в суперсет: к упражнению комплекса или новым суперсетом (тогда выбрать хотя бы два) */
   target?: SupersetTarget
@@ -47,7 +49,15 @@ type ExercisePickerProps = {
   directCreate?: boolean
 }
 
-export const ExercisePicker = ({ complex, back, target, adding, onAdd, directCreate }: ExercisePickerProps) => {
+export const ExercisePicker = ({
+  presentIds,
+  subtitle,
+  back,
+  target,
+  adding,
+  onAdd,
+  directCreate,
+}: ExercisePickerProps) => {
   const muscles = useMuscles()
   const [params, setParams] = useSearchParams()
 
@@ -85,16 +95,8 @@ export const ExercisePicker = ({ complex, back, target, adding, onAdd, directCre
   }
   const exercises = useCatalogExercises(filter)
 
-  const present = new Set(complex?.exercises.map(e => e.exerciseId))
+  const present = new Set(presentIds)
   const minPicked = target?.newSuperset ? 2 : 1
-  const joined = complex?.exercises.find(e => e.id === target?.joinItemId)
-  const subtitle = !complex
-    ? undefined
-    : target?.newSuperset
-      ? `новый суперсет в «${complex.name}»`
-      : joined
-        ? `в суперсет с «${joined.name}»`
-        : `в «${complex.name}»`
   const toggle = (id: number) =>
     patch({ picked: (picked.includes(id) ? picked.filter(x => x !== id) : [...picked, id]).join(',') })
 
@@ -103,7 +105,7 @@ export const ExercisePicker = ({ complex, back, target, adding, onAdd, directCre
     patch({ muscle: undefined, equipment: undefined })
   }
 
-  // Нужного нет в справочнике — создаём своё и сразу добавляем в комплекс вместе с уже выбранными
+  // Нужного нет в справочнике — создаём своё и сразу добавляем вместе с уже выбранными
   const addCreated = (created: CreatedExercise) => {
     onAdd([...new Set([...picked, created.id])])
   }

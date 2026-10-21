@@ -74,6 +74,16 @@ export const supersetTargetFromParams = (params: URLSearchParams): SupersetTarge
   return params.get(NEW_SUPERSET_PARAM) === 'new' ? { newSuperset: true } : {}
 }
 
+type PickerComplex = { name: string; exercises: { id: number; exerciseId: number; name: string }[] }
+
+/** Подпись подбора упражнений: куда встанут выбранные — в комплекс, в суперсет к упражнению или новым суперсетом */
+export const pickerSubtitle = (complex: PickerComplex | undefined, target?: SupersetTarget): string | undefined => {
+  if (!complex) return undefined
+  if (target?.newSuperset) return `новый суперсет в «${complex.name}»`
+  const joined = complex.exercises.find(e => e.id === target?.joinItemId)
+  return joined ? `в суперсет с «${joined.name}»` : `в «${complex.name}»`
+}
+
 export { planText } from '@/shared/lib/measure'
 
 /**

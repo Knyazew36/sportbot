@@ -8,7 +8,9 @@ import {
   TimerIcon,
 } from 'lucide-react'
 
+import { ROUTES } from '@/shared/config/paths'
 import { formatSeconds } from '@/shared/lib/hooks/use-deadline-timer'
+import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { StickyFooter } from '@/shared/ui/kit/Screen'
 import { Digits } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
@@ -170,12 +172,26 @@ export const WorkoutActions = ({
     </Button>
   )
 
+  // Всё сделано, а силы остались — ещё упражнение до завершения, пока тренировка открыта
+  const more = next === 'finish' && (
+    <ButtonLink
+      to={ROUTES.WORKOUT_ADD}
+      variant='outline'
+      size='lg'
+      className='w-full'
+    >
+      <PlusIcon strokeWidth={3} />
+      Ещё упражнение
+    </ButtonLink>
+  )
+
   return (
     <StickyFooter className='flex flex-col items-stretch gap-3'>
       {planDone ? forward : start}
       {!planDone && warmupBack}
       {planDone ? start : forward}
       {planDone && warmupBack}
+      {more}
     </StickyFooter>
   )
 }

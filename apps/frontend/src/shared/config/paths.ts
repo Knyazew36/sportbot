@@ -45,6 +45,7 @@ export const ROUTES = {
   ONBOARDING: '/onboarding',
   WORKOUT: '/workout',
   WORKOUT_REPLACE: '/workout/replace/:itemId',
+  WORKOUT_ADD: '/workout/add',
   WORKOUT_SUMMARY: '/workout/:workoutId/summary',
   WORKOUT_FINISHED: '/workout/:workoutId/finished',
   WORKOUT_EDIT: '/workout/:workoutId/edit',

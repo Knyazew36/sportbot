@@ -14,6 +14,7 @@ import { BotChannel, User } from '@/generated/prisma/client';
 import { AuthChannel } from '@/miniapp/decorators/auth-channel.decorator';
 import { SportAuth } from '@/miniapp/decorators/sport-auth.decorator';
 
+import { AddWorkoutItemsDto } from './dto/add-workout-items.dto';
 import { ClientAtDto } from './dto/client-at.dto';
 import { ExcludeCooldownStretchDto } from './dto/exclude-cooldown-stretch.dto';
 import { CooldownResponseDto } from './dto/cooldown.response.dto';
@@ -212,6 +213,27 @@ export class WorkoutController {
       userId,
       id,
       dto.exerciseId,
+      dto.inComplex,
+    );
+  }
+
+  @Post('item/add/:id')
+  @Swagger({
+    title: 'Добавить упражнения в идущую тренировку',
+    param: ID_PARAM,
+    body: AddWorkoutItemsDto,
+    response: WorkoutResponseDto,
+    bearerAuth: true,
+  })
+  public addItems(
+    @CurrentUser('id') userId: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: AddWorkoutItemsDto,
+  ) {
+    return this.workoutAppService.addItems(
+      userId,
+      id,
+      dto.exerciseIds,
       dto.inComplex,
     );
   }

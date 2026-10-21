@@ -10,7 +10,8 @@ import { Topbar } from './Topbar'
 const AppShell = () => (
   <SidebarProvider>
     <AppSidebar />
-    <SidebarInset className='bg-background min-h-svh'>
+    {/* min-w-0: иначе длинный текст без переносов (ссылка-приглашение) раздувает страницу шире экрана */}
+    <SidebarInset className='bg-background min-h-svh min-w-0'>
       <Topbar />
       {/* Нижний отступ на мобильном — под плавающее меню */}
       <main className='mx-auto flex w-full max-w-[1280px] flex-1 flex-col px-4 pt-2 pb-28 md:px-8 md:pt-4 md:pb-10'>

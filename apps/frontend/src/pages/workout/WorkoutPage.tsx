@@ -37,6 +37,7 @@ import { Stamp } from '@/shared/ui/kit/Stamp'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet'
 import { type EditingSet, EditSetSheet } from '@/widgets/workout/EditSetSheet'
+import { LiveWorkoutBar } from '@/widgets/miniapp/LiveWorkoutBar'
 import { SetList } from '@/widgets/workout/SetList'
 
 import { ExerciseCard } from './components/ExerciseCard'
@@ -202,6 +203,8 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
   // Подход в суперсете подписан «A1 ·»: видно, что это часть круга, а не одно упражнение
   const focusTitle = superset ? `${labelOf(entryItem.id)} · ${entryItem.name}` : entryItem.name
   const inRound = superset !== null && roundActive && superset.round.length > 1 && stopwatch.running
+  const restRunning = settings.showRestTimer && timer.status !== 'idle'
+  const restOpen = restRunning && !restHidden
 
   // Дальше — следующий несделанный блок по порядку, иначе первый несделанный. Пропуск ничего не отмечает:
   // упражнение без подходов остаётся несделанным и в итогах
@@ -480,10 +483,7 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
             setEntryOpen(true)
           }}
         />
-      ) : (
-        settings.showRestTimer &&
-        timer.status !== 'idle' &&
-        !restHidden && (
+      ) : restOpen ? (
           <FocusRest
             timer={timer}
             title={superset ? `Суперсет ${superset.letter}` : focusTitle}
@@ -503,12 +503,21 @@ const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
             onClose={() => setRestHidden(true)}
             planDone={planDone}
             next={forward}
+            // Отдых перед следующим упражнением продолжается: сворачиваем его, а не сбрасываем.
+            // Завершение тренировки останавливает таймер само
             onNext={() => {
-              timer.stop()
+              setRestHidden(true)
               onNext()
             }}
           />
-        )
+      ) : (
+        // Фокус свёрнут к экрану упражнения: полоса напоминает, что тренировка идёт, и возвращает в отдых или разминку
+        <LiveWorkoutBar
+          onReturn={() => {
+            if (restRunning) setRestHidden(false)
+            else if (warmupMinutes) setWarmupHidden(false)
+          }}
+        />
       )}
       <SetEntrySheet
         open={entryOpen}

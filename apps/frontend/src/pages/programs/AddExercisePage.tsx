@@ -1,6 +1,6 @@
 import { useNavigate, useParams, useSearchParams } from 'react-router'
 
-import { supersetTargetFromParams, useAddComplexExercises, useProgram } from '@/entities/program'
+import { pickerSubtitle, supersetTargetFromParams, useAddComplexExercises, useProgram } from '@/entities/program'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { ExercisePicker } from '@/widgets/program-editor/ExercisePicker'
 
@@ -14,11 +14,13 @@ const AddExercisePage = () => {
   const target = supersetTargetFromParams(search)
   const program = useProgram(programId)
   const add = useAddComplexExercises()
+  const complex = program.data?.complexes.find(c => c.id === complexId)
   const back = buildPath(ROUTES.PROGRAM_COMPLEX, { programId, complexId })
 
   return (
     <ExercisePicker
-      complex={program.data?.complexes.find(c => c.id === complexId)}
+      presentIds={complex?.exercises.map(e => e.exerciseId) ?? []}
+      subtitle={pickerSubtitle(complex, target)}
       back={back}
       target={target}
       adding={add.isPending}

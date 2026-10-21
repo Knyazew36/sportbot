@@ -57,15 +57,12 @@ export const FocusRest = ({
       title={title}
       startedAt={startedAt}
       status={
-        over
-          ? 'отдых закончился'
-          : planDone
-            ? 'отдых · план выполнен'
-            : round
-              ? `суперсет ${round.letter} · дальше круг ${round.number} из ${round.rounds}`
-              : undefined
+        planDone
+          ? 'отдых · план выполнен'
+          : round
+            ? `суперсет ${round.letter} · дальше круг ${round.number} из ${round.rounds}`
+            : undefined
       }
-      alert={over}
       // План выполнен — на табло сделанное «3/3», а не несуществующий четвёртый подход
       sets={
         round

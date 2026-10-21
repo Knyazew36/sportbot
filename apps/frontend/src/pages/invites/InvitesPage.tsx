@@ -25,7 +25,7 @@ const InviteRow = ({ invite }: { invite: Invite }) => {
   return (
     <li className='flex flex-col gap-3 rounded-3xl p-3 md:flex-row md:items-center'>
       <div className='flex min-w-0 flex-1 flex-col gap-1'>
-        <span className='text-body-sm truncate font-mono'>{url}</span>
+        <span className='text-body-sm block truncate font-mono'>{url}</span>
         <span className='mono-label text-smoke'>
           Создано {formatDate(invite.createdAt)} ·{' '}
           {invite.expiresAt ? `до ${formatDate(invite.expiresAt)}` : 'бессрочно'} ·{' '}

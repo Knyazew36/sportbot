@@ -2,8 +2,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { dayKeys } from '@/entities/day'
 import { statsKeys } from '@/entities/stats'
-import type { ReplaceWorkoutItemDto } from '@/shared/api/generated/model'
+import type { AddWorkoutItemsDto, ReplaceWorkoutItemDto } from '@/shared/api/generated/model'
 import {
+  workoutControllerAddItems,
   workoutControllerAnalogs,
   workoutControllerCooldown,
   workoutControllerCooldownFinish,
@@ -90,6 +91,17 @@ export const useReplaceItem = () => {
       workoutControllerReplace(itemId, body),
     scope: WORKOUT_QUEUE_SCOPE,
     meta: { successMessage: 'Упражнение заменено' },
+    onSuccess: apply,
+  })
+}
+
+export const useAddItems = () => {
+  const apply = useApplyWorkout()
+  return useMutation({
+    mutationFn: ({ workoutId, ...body }: AddWorkoutItemsDto & { workoutId: number }) =>
+      workoutControllerAddItems(workoutId, body),
+    scope: WORKOUT_QUEUE_SCOPE,
+    meta: { successMessage: 'Упражнение добавлено' },
     onSuccess: apply,
   })
 }

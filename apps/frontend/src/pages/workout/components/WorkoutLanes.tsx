@@ -1,8 +1,10 @@
-import { CheckIcon } from 'lucide-react'
+import { CheckIcon, PlusIcon } from 'lucide-react'
 import { motion, useReducedMotion } from 'motion/react'
 
 import { supersetCharge, supersetLetter, toBlocks, type WorkoutItem } from '@/entities/workout'
+import { ROUTES } from '@/shared/config/paths'
 import { cn } from '@/shared/lib/utils'
+import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { Poster } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
@@ -13,7 +15,8 @@ type WorkoutLanesProps = {
 }
 
 // Упражнения как беговые дорожки: сделано залито, текущее в синем контуре. Порядок не обязателен (frontend-tz, 8.1).
-// Суперсет — одна дорожка с буквой: заливается по сделанным подходам всех участников
+// Суперсет — одна дорожка с буквой: заливается по сделанным подходам всех участников.
+// Последняя ячейка «+» — добавить упражнение, если силы остались
 export const WorkoutLanes = ({ items, currentId, onPick }: WorkoutLanesProps) => {
   const still = useReducedMotion()
   const blocks = toBlocks(items)
@@ -21,7 +24,7 @@ export const WorkoutLanes = ({ items, currentId, onPick }: WorkoutLanesProps) =>
   return (
     <ol
       className='grid gap-1 px-gutter pt-3'
-      style={{ gridTemplateColumns: `repeat(${Math.min(blocks.length, 8)}, minmax(0, 1fr))` }}
+      style={{ gridTemplateColumns: `repeat(${Math.min(blocks.length + 1, 8)}, minmax(0, 1fr))` }}
     >
       {blocks.map(block => {
         const first = block.items[0]!
@@ -70,6 +73,20 @@ export const WorkoutLanes = ({ items, currentId, onPick }: WorkoutLanesProps) =>
           </li>
         )
       })}
+      <li>
+        <ButtonLink
+          to={ROUTES.WORKOUT_ADD}
+          variant='outline'
+          size='sm'
+          className='text-foreground/45 h-8 w-full px-1.5'
+          aria-label='Добавить упражнение'
+        >
+          <PlusIcon
+            className='size-4'
+            strokeWidth={3}
+          />
+        </ButtonLink>
+      </li>
     </ol>
   )
 }

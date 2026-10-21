@@ -1,7 +1,7 @@
 import { useNavigate, useParams, useSearchParams } from 'react-router'
 
 import { useAddTemplateExercises, useAdminTemplate } from '@/entities/admin'
-import { supersetTargetFromParams } from '@/entities/program'
+import { pickerSubtitle, supersetTargetFromParams } from '@/entities/program'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { ExercisePicker } from '@/widgets/program-editor/ExercisePicker'
 
@@ -15,11 +15,13 @@ const TemplateAddExercisePage = () => {
   const target = supersetTargetFromParams(search)
   const template = useAdminTemplate(templateId)
   const add = useAddTemplateExercises()
+  const complex = template.data?.complexes.find(c => c.id === complexId)
   const back = buildPath(ROUTES.ADMIN_TEMPLATE_COMPLEX, { templateId, complexId })
 
   return (
     <ExercisePicker
-      complex={template.data?.complexes.find(c => c.id === complexId)}
+      presentIds={complex?.exercises.map(e => e.exerciseId) ?? []}
+      subtitle={pickerSubtitle(complex, target)}
       back={back}
       target={target}
       adding={add.isPending}

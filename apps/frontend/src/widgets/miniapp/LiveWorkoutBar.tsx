@@ -10,21 +10,21 @@ import { useDeadlineTimer } from '@/shared/lib/hooks/use-deadline-timer'
 import { repaintMessengerChrome } from '@/shared/lib/hooks/use-messenger-theme'
 import { haptic, setMessengerHeaderAccent } from '@/shared/miniapp'
 
-/** Высота полосы под отступом мессенджера: тонкая заливка 8px и волна 12px. Без текста — цвет сам говорит, что идёт тренировка */
-const LIVE_H = '20px'
+/** Высота полосы под отступом мессенджера: тонкая заливка 6px и волна 10px. Без текста — цвет сам говорит, что идёт тренировка */
+const LIVE_H = '16px'
 
 // Тренировка идёт, а человек ушёл на другие экраны: зелёная полоса сверху возвращает к ней одним касанием.
 // Во время отдыха полоса абрикосовая. Опускает всё, что прилипает к верху, через --sb-live-h,
 // а в Telegram красит его шапку в тот же цвет
-export const LiveWorkoutBar = () => {
+export const LiveWorkoutBar = ({ onReturn }: LiveWorkoutBarProps) => {
   const current = useCurrentWorkout()
   const { workout, finishing } = useQueuedWorkout(current.data?.workout)
   // Завершение ждёт сети: возвращаться уже не к чему
   const live = workout && !finishing ? workout : null
   const visible = Boolean(live)
   const { resolvedTheme } = useTheme()
-  // Тот же таймер, что на экране тренировки: дедлайн в localStorage. На экране тренировки полосы нет, при уходе
-  // с него она монтируется заново и читает таймер свежим. Без onEnd — сигнал конца отдыха подаёт экран тренировки
+  // Тот же таймер, что на экране тренировки: дедлайн в localStorage. Полоса монтируется заново при уходе с фокуса
+  // и с экрана тренировки, поэтому читает таймер свежим. Без onEnd — сигнал конца отдыха подаёт экран тренировки
   const timer = useDeadlineTimer({ storageKey: live ? `rest-timer-${live.id}` : undefined })
   const resting = visible && timer.status === 'running' && timer.left > 0
 
@@ -62,13 +62,19 @@ export const LiveWorkoutBar = () => {
           key='live'
           complexName={live.complexName}
           resting={resting}
+          onReturn={onReturn}
         />
       )}
     </AnimatePresence>
   )
 }
 
-type LiveStripProps = {
+type LiveWorkoutBarProps = {
+  /** На экране тренировки: тап возвращает в свёрнутый фокус, а не ведёт по ссылке на этот же экран */
+  onReturn?: () => void
+}
+
+type LiveStripProps = LiveWorkoutBarProps & {
   complexName: string
   /** Идёт отдых: полоса абрикосовая */
   resting: boolean
@@ -77,7 +83,7 @@ type LiveStripProps = {
 // Цвета отдыха подменяют мятные прямо на полосе: заливка и волны берут их из --sb-live*
 const REST_COLORS = { '--sb-live': 'var(--sb-rest)', '--sb-live-deep': 'var(--sb-rest-deep)' } as CSSProperties
 
-const LiveStrip = ({ complexName, resting }: LiveStripProps) => {
+const LiveStrip = ({ complexName, resting, onReturn }: LiveStripProps) => {
   const still = useReducedMotion()
   const hidden = still ? { opacity: 0 } : { y: '-100%' }
 
@@ -91,24 +97,44 @@ const LiveStrip = ({ complexName, resting }: LiveStripProps) => {
       // Тень повторяет волну: drop-shadow идёт по маске, а не по прямоугольнику
       className='fixed inset-x-0 top-0 z-[45] mx-auto h-(--sb-top-inset) max-w-[440px] drop-shadow-[0_4px_6px_rgb(10_10_10/0.12)]'
     >
-      <Link
-        to={ROUTES.WORKOUT}
-        onClick={haptic.tap}
-        aria-label={`Вернуться к тренировке: ${complexName}`}
-        className='relative block h-full active:opacity-80'
-      >
-        {/* Две волны с разным шагом и встречным ходом: задняя темнее и выглядывает из-под передней.
-            Тело и передняя волна заходят друг на друга на 1px, чтобы на дробных пикселях не было щели */}
-        <span
-          aria-hidden
-          className='sb-wave-back absolute inset-x-0 bottom-0 h-3 bg-(--sb-live-deep) motion-reduce:animate-none'
-        />
-        <LiveFill className='inset-x-0 top-0 bottom-3' />
-        <LiveFill className='sb-wave-front inset-x-0 bottom-[3px] h-2.5 motion-reduce:animate-none' />
-      </Link>
+      {onReturn ? (
+        <button
+          type='button'
+          onClick={() => {
+            haptic.tap()
+            onReturn()
+          }}
+          aria-label={`Вернуться к тренировке: ${complexName}`}
+          className='relative block h-full w-full active:opacity-80'
+        >
+          <StripWaves />
+        </button>
+      ) : (
+        <Link
+          to={ROUTES.WORKOUT}
+          onClick={haptic.tap}
+          aria-label={`Вернуться к тренировке: ${complexName}`}
+          className='relative block h-full active:opacity-80'
+        >
+          <StripWaves />
+        </Link>
+      )}
     </motion.div>
   )
 }
+
+const StripWaves = () => (
+  <>
+    {/* Две волны с разным шагом и встречным ходом: задняя темнее и выглядывает из-под передней.
+        Тело и передняя волна заходят друг на друга на 1px, чтобы на дробных пикселях не было щели */}
+    <span
+      aria-hidden
+      className='sb-wave-back absolute inset-x-0 bottom-0 h-2.5 bg-(--sb-live-deep) motion-reduce:animate-none'
+    />
+    <LiveFill className='inset-x-0 top-0 bottom-2.5' />
+    <LiveFill className='sb-wave-front inset-x-0 bottom-[2px] h-2 motion-reduce:animate-none' />
+  </>
+)
 
 // Мятная заливка с переливом и бликом. Одинакова у тела полосы и у волны, поэтому они читаются одним целым
 const LiveFill = ({ className }: { className: string }) => (

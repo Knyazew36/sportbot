@@ -254,6 +254,16 @@ export class WorkoutAppService {
     return this.find(userId, workoutId);
   }
 
+  public async addItems(
+    userId: number,
+    workoutId: number,
+    exerciseIds: number[],
+    inComplex: boolean,
+  ): Promise<WorkoutResponseDto> {
+    await this.workouts.addItems(userId, workoutId, exerciseIds, inComplex);
+    return this.find(userId, workoutId);
+  }
+
   // ── Заминка ─────────────────────────────────────────────────────────────
 
   /** Заминка тренировки (business-tz, 7.5): набор собирается один раз и при повторном открытии не меняется. */
