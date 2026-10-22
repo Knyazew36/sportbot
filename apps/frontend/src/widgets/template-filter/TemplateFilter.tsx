@@ -4,6 +4,7 @@ import { type ReactNode, useState } from 'react'
 
 import type { ProgramTagGroup, TagSelection } from '@/entities/program'
 import { CHIP_ALL, ChipFilter } from '@/shared/ui/kit/ChipFilter'
+import { CountBadge } from '@/shared/ui/kit/CountBadge'
 import { SearchField } from '@/shared/ui/kit/SearchField'
 import { Eyebrow } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
@@ -77,11 +78,7 @@ export const TemplateFilter = ({
             aria-label={hidden ? `Фильтры, включено ${hidden}` : 'Фильтры'}
           >
             <SlidersHorizontalIcon className='size-5' />
-            {hidden > 0 && (
-              <span className='bg-primary text-primary-foreground border-foreground absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center border-[1.5px] text-[11px] font-bold'>
-                {hidden}
-              </span>
-            )}
+            <CountBadge count={hidden} />
           </Button>
         )}
       </div>

@@ -82,9 +82,3 @@ export const stretchGuide = (s: { howTo: string | null; steps: string[]; mistake
 
 /** «Все» в фильтрах справочника: ни мышцы, ни инвентаря */
 export const FILTER_ALL = 'ALL'
-
-/** Кнопки фильтра по мышце: API фильтрует по одной мышце, значение — её id строкой */
-export const muscleFilterOptions = (muscles: { id: number; name: string }[] | undefined) => [
-  { value: FILTER_ALL, label: 'Все' },
-  ...(muscles ?? []).map(m => ({ value: String(m.id), label: m.name })),
-]

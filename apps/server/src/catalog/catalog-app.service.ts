@@ -98,12 +98,12 @@ export class CatalogAppService {
       AND: [
         this.catalog.visibleExercises(userId),
         ...nameWords(query.search),
-        ...(query.filter_muscle
+        ...(query.filter_muscle?.length
           ? [
               {
                 muscles: {
                   some: {
-                    muscleId: query.filter_muscle,
+                    muscleId: { in: query.filter_muscle },
                     role: 'PRIMARY' as const,
                   },
                 },
@@ -152,7 +152,9 @@ export class CatalogAppService {
       include: { ...EXERCISE_INCLUDE, ...PENDING_REQUEST_INCLUDE },
     });
     if (!exercise) {
-      this.logger.warn(`Карточка упражнения не найдена: id=${id}, userId=${user.id}, admin=${admin}`);
+      this.logger.warn(
+        `Карточка упражнения не найдена: id=${id}, userId=${user.id}, admin=${admin}`,
+      );
       throw new NotFoundException('Упражнение не найдено.');
     }
     return {
@@ -185,8 +187,8 @@ export class CatalogAppService {
       AND: [
         this.catalog.visibleStretches(userId),
         ...nameWords(query.search),
-        ...(query.filter_muscle
-          ? [{ muscles: { some: { muscleId: query.filter_muscle } } }]
+        ...(query.filter_muscle?.length
+          ? [{ muscles: { some: { muscleId: { in: query.filter_muscle } } } }]
           : []),
       ],
     };

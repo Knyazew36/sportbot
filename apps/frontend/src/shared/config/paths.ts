@@ -11,6 +11,8 @@ export const ROUTES = {
   RESET_PASSWORD: '/reset-password',
 
   INVITE: '/invite/:token',
+  // Витрина иллюстраций
+  UI: '/ui',
   WORKSPACES: '/workspaces',
 
   APP: '/app/:orgId',

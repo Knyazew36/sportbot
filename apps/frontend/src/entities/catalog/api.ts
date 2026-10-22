@@ -158,6 +158,18 @@ export const useMyEntries = (kind: CatalogKind) =>
     staleTime: 0,
   })
 
+/** Сколько своих записей: упражнения и растяжки вместе — счётчик на кнопке «Мои» */
+export const useMyEntriesCount = () =>
+  useQuery({
+    queryKey: [...draftKeys.all, 'count'] as const,
+    queryFn: async () => {
+      const [exercises, stretches] = await Promise.all(
+        (['exercise', 'stretch'] as const).map(kind => draftControllerMine({ filter_kind: kind, limit: 1 })),
+      )
+      return (exercises?.meta?.total ?? 0) + (stretches?.meta?.total ?? 0)
+    },
+  })
+
 export const useCreateDraft = () => {
   const queryClient = useQueryClient()
   return useMutation({

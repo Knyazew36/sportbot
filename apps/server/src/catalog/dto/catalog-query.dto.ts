@@ -1,15 +1,27 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsIn, IsInt, IsOptional } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsArray, IsIn, IsInt, IsOptional } from 'class-validator';
 
 import { PaginationQueryDto } from '@/common/type/pagination-query.dto';
 
+/** «1,2» или повтор параметра → [1, 2]; нечисловое отсеет IsInt. */
+const toIds = ({ value }: { value: unknown }): unknown =>
+  (Array.isArray(value) ? value : String(value).split(','))
+    .filter((v) => v !== '')
+    .map(Number);
+
 export class CatalogQueryDto extends PaginationQueryDto {
-  @ApiPropertyOptional({ description: 'Мышца (у упражнений — среди основных)' })
+  @ApiPropertyOptional({
+    type: String,
+    example: '12,13',
+    description:
+      'Id мышц через запятую: подходит запись с любой из них (у упражнений — среди основных)',
+  })
   @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  filter_muscle?: number;
+  @Transform(toIds)
+  @IsArray()
+  @IsInt({ each: true })
+  filter_muscle?: number[];
 
   @ApiPropertyOptional({
     enum: ['BARBELL', 'DUMBBELL', 'MACHINE', 'BODYWEIGHT'],

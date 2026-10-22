@@ -32,9 +32,9 @@ order?: CatalogControllerExercisesOrder;
  */
 search?: string;
 /**
- * Мышца (у упражнений — среди основных)
+ * Id мышц через запятую: подходит запись с любой из них (у упражнений — среди основных)
  */
-filter_muscle?: number;
+filter_muscle?: string;
 /**
  * Инвентарь — только упражнения
  */

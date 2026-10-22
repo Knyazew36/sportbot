@@ -4,7 +4,7 @@ import { differenceInCalendarDays, parseISO } from 'date-fns'
 import { useState } from 'react'
 
 import type { DayToday } from '@/entities/day'
-import { complexLetter, useProgram, usePrograms } from '@/entities/program'
+import { complexLetter, useActiveProgram } from '@/entities/program'
 import { formatDate } from '@/shared/lib/format'
 import { EXERCISE_FORMS } from '@/shared/lib/plural-forms'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
@@ -27,9 +27,8 @@ const when = (date: string, today: string) => {
 // Что дальше: ближайший тренировочный день и комплекс по очереди. По нажатию — шторка с составом
 export const NextUp = ({ day, label = 'следующая' }: NextUpProps) => {
   const [open, setOpen] = useState(false)
-  const programs = usePrograms()
-  // Состав есть только в программе целиком — запрашиваем, когда шторку открыли
-  const program = useProgram(open ? programs.data?.find(p => p.active)?.id : undefined)
+  // Состав есть только в программе целиком — грузим сразу с экраном, чтобы шторка открывалась готовой, без спиннера
+  const program = useActiveProgram()
   const next = day.next
   if (!next) return null
   const index = day.complexes.findIndex(c => c.id === next.complexId)
@@ -71,7 +70,7 @@ export const NextUp = ({ day, label = 'следующая' }: NextUpProps) => {
         title={next.complexName}
         description={heading}
         complex={program.data?.complexes.find(c => c.id === next.complexId)}
-        loading={programs.isPending || program.isPending}
+        loading={program.isPending}
       />
     </Rise>
   )

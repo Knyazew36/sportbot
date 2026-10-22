@@ -25,8 +25,8 @@ export interface CatalogQueryDto {
   order?: CatalogQueryDtoOrder;
   /** Поиск/фильтр (опционально) */
   search?: string;
-  /** Мышца (у упражнений — среди основных) */
-  filter_muscle?: number;
+  /** Id мышц через запятую: подходит запись с любой из них (у упражнений — среди основных) */
+  filter_muscle?: string;
   /** Инвентарь — только упражнения */
   filter_equipment?: CatalogQueryDtoFilterEquipment;
 }

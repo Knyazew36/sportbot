@@ -1,9 +1,10 @@
+import { pluralize } from '@front-cmdt/utils/pluralize'
+
 import type { DayToday } from '@/entities/day'
 import { DAY_FORMS } from '@/shared/lib/plural-forms'
-import { MedalArt } from '@/shared/ui/kit/Art'
+import { PodiumArt } from '@/shared/ui/kit/Art'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Eyebrow, Lead, Poster } from '@/shared/ui/kit/Typography'
-import { pluralize } from '@front-cmdt/utils/pluralize'
 
 const MILESTONES = [7, 14, 30, 50, 100, 365]
 
@@ -15,22 +16,14 @@ const streakNote = ({ current, best }: DayToday['streak']) => {
   return `до рекорда серии — ${pluralize(best - current, DAY_FORMS)}`
 }
 
-// Засчитано: серия на медали крупно, подпись про рекорд серии
+// Засчитано: гиря на пьедестале, серия крупно текстом, подпись про рекорд серии
 export const DoneHero = ({ day }: { day: DayToday }) => {
   const { current } = day.streak
 
   return (
     <>
-      <Rise className='relative mx-auto w-[160px]'>
-        <MedalArt />
-        <Poster
-          as='span'
-          size='4xl'
-          tone='primary'
-          className='absolute inset-x-0 top-[52%] text-center'
-        >
-          {current}
-        </Poster>
+      <Rise>
+        <PodiumArt />
       </Rise>
       <Rise className='px-gutter text-center'>
         <Eyebrow

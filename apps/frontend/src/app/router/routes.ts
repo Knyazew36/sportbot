@@ -102,6 +102,7 @@ export const miniappRoutes: AppRoute[] = [
 // ── Публичные: доступны всем ────────────────────────────────────────────────
 export const publicRoutes: AppRoute[] = [
   { path: ROUTES.INVITE, lazy: () => import('@/pages/invite/InvitePage') },
+  { path: ROUTES.UI, lazy: () => import('@/pages/ui/UiPage') },
   // 404 грузим сразу: страница крошечная, отдельный чанк не окупается
   { path: '*', Component: NotFoundPage },
 ]

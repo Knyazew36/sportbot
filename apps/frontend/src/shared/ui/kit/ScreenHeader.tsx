@@ -5,13 +5,18 @@ import type { ReactNode } from 'react'
 import { ButtonLink } from './ButtonLink'
 import { Eyebrow, Poster } from './Typography'
 
-type ScreenHeaderProps = { title: ReactNode; aside?: ReactNode }
+type ScreenHeaderProps = {
+  title: ReactNode
+  aside?: ReactNode
+  /** Кнопка справа вместо подписи: «Мои» в справочнике */
+  action?: ReactNode
+}
 
-// Шапка раздела, как выходные данные газеты: слева раздел синим, справа контекст
-export const ScreenHeader = ({ title, aside }: ScreenHeaderProps) => (
-  <header className='border-border flex items-center justify-between gap-3 border-b-[1.5px] px-gutter pt-5 pb-3'>
+// Шапка раздела, как выходные данные газеты: слева раздел синим, справа контекст или кнопка
+export const ScreenHeader = ({ title, aside, action }: ScreenHeaderProps) => (
+  <header className='border-border px-gutter flex items-center justify-between gap-3 border-b-[1.5px] pt-5 pb-3'>
     <Eyebrow tone='primary'>{title}</Eyebrow>
-    {aside && <Eyebrow className='text-right'>{aside}</Eyebrow>}
+    {action ?? (aside && <Eyebrow className='text-right'>{aside}</Eyebrow>)}
   </header>
 )
 
@@ -26,7 +31,7 @@ type TopBarProps = {
 
 // Шапка вложенного экрана: назад, заголовок, одно действие. Прилипает к верху при прокрутке
 export const TopBar = ({ back, title, subtitle, action }: TopBarProps) => (
-  <header className='border-border bg-background/90 sticky top-(--sb-top-inset) z-30 grid grid-cols-[40px_1fr_auto] items-center gap-3 border-b-[1.5px] px-gutter pt-2.5 pb-3 backdrop-blur-glass'>
+  <header className='border-border bg-background/90 px-gutter backdrop-blur-glass sticky top-(--sb-top-inset) z-30 grid grid-cols-[40px_1fr_auto] items-center gap-3 border-b-[1.5px] pt-2.5 pb-3'>
     <ButtonLink
       to={back}
       variant='outline'

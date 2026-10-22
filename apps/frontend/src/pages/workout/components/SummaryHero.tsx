@@ -1,9 +1,11 @@
+import { pluralize } from '@front-cmdt/utils/pluralize'
+
 import { useProfile } from '@/entities/profile'
 import { motivationFor, type WorkoutSummary } from '@/entities/workout'
+import { FinishArt } from '@/shared/ui/kit/Art'
 import { InkPanel } from '@/shared/ui/kit/InkPanel'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Eyebrow, Lead, Poster } from '@/shared/ui/kit/Typography'
-import { pluralize } from '@front-cmdt/utils/pluralize'
 
 // Шапка итога как табло финиша: вердикт с фразой, время на финише и серия.
 // Время — главное число экрана: раньше его на итоге не было вовсе
@@ -13,9 +15,7 @@ export const SummaryHero = ({ summary }: { summary: WorkoutSummary }) => {
 
   return (
     <>
-      <Rise className='relative overflow-hidden px-gutter'>
-        {/* Растр за вердиктом — печатный плакат, а не градиент */}
-        <div className='sb-halftone pointer-events-none absolute -top-12 -right-20 size-72 rounded-full opacity-25' />
+      <Rise className='px-gutter relative overflow-hidden'>
         <Lead className='relative'>тренировка</Lead>
         <Poster
           as='h1'
@@ -34,6 +34,9 @@ export const SummaryHero = ({ summary }: { summary: WorkoutSummary }) => {
             {motivationFor(summary.workoutId, profile.data.gender)}
           </Lead>
         )}
+
+        {/* Засчитана — гиря рвёт финишную ленту; пока идёт, финиша ещё не было */}
+        {counted && <FinishArt className='-mx-gutter mt-4 w-[calc(100%+2*var(--spacing-gutter))]' />}
 
         {/* Финишная черта: толстая линейка, под ней время */}
         <div className='border-foreground relative mt-6 flex items-end gap-4 border-t-[3px] pt-3'>
