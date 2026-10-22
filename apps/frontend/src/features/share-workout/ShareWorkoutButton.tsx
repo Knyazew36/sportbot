@@ -2,6 +2,7 @@ import { Share2Icon } from 'lucide-react'
 
 import { useShareWorkout } from '@/entities/workout'
 import { Button, type ButtonProps } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
+import { Spinner } from '@/shared/ui/shadcn/spinner'
 
 type ShareWorkoutButtonProps = {
   workoutId: number
@@ -20,11 +21,16 @@ export const ShareWorkoutButton = ({ workoutId, size, className }: ShareWorkoutB
       disabled={share.isPending}
       onClick={() => share.mutate(workoutId)}
     >
-      <Share2Icon
-        className='size-5'
-        strokeWidth={2.5}
-      />
-      Поделиться
+      {/* Картинку сервер рисует несколько секунд — без спиннера кажется, что нажатие не сработало */}
+      {share.isPending ? (
+        <Spinner className='size-5' />
+      ) : (
+        <Share2Icon
+          className='size-5'
+          strokeWidth={2.5}
+        />
+      )}
+      {share.isPending ? 'Готовим карточку…' : 'Поделиться'}
     </Button>
   )
 }
