@@ -9,17 +9,18 @@ import {
   workoutControllerCooldown,
   workoutControllerCooldownFinish,
   workoutControllerCooldownStart,
-  workoutControllerWarmupFinish,
   workoutControllerCurrent,
   workoutControllerDiscard,
   workoutControllerFind,
   workoutControllerMarkDone,
   workoutControllerRemove,
+  workoutControllerRemoveItem,
   workoutControllerReplace,
   workoutControllerShare,
   workoutControllerShared,
   workoutControllerStart,
   workoutControllerSummary,
+  workoutControllerWarmupFinish,
 } from '@/shared/api/generated/workout/workout'
 
 import {
@@ -31,7 +32,7 @@ import {
   type UpdateSetVars,
   WORKOUT_QUEUE_SCOPE,
 } from './model/queue'
-import { type Workout, type WorkoutSummary, workoutKeys } from './model/types'
+import { type Workout, workoutKeys, type WorkoutSummary } from './model/types'
 
 export * from './model/types'
 
@@ -66,7 +67,8 @@ export const useAddSet = () => useMutation<Workout, Error, AddSetVars>({ mutatio
 
 export const useUpdateSet = () => useMutation<Workout, Error, UpdateSetVars>({ mutationKey: queueKeys.updateSet })
 
-export const useDeleteSet = () => useMutation<Workout | null, Error, DeleteSetVars>({ mutationKey: queueKeys.deleteSet })
+export const useDeleteSet = () =>
+  useMutation<Workout | null, Error, DeleteSetVars>({ mutationKey: queueKeys.deleteSet })
 
 export const useMarkDone = () => {
   const apply = useApplyWorkout()
@@ -102,6 +104,17 @@ export const useAddItems = () => {
       workoutControllerAddItems(workoutId, body),
     scope: WORKOUT_QUEUE_SCOPE,
     meta: { successMessage: 'Упражнение добавлено' },
+    onSuccess: apply,
+  })
+}
+
+/** Убрать упражнение из прошедшей тренировки вместе с подходами — лишнее или добавленное по ошибке */
+export const useRemoveItem = () => {
+  const apply = useApplyWorkout()
+  return useMutation({
+    mutationFn: (itemId: number) => workoutControllerRemoveItem(itemId),
+    scope: WORKOUT_QUEUE_SCOPE,
+    meta: { successMessage: 'Упражнение убрано' },
     onSuccess: apply,
   })
 }

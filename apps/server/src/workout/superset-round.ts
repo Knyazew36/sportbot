@@ -41,8 +41,7 @@ const nextMember = <T extends RoundItem>(
   const index = members.indexOf(item);
   for (let step = 1; step < members.length; step++) {
     const next = members[(index + step) % members.length];
-    if (hasLeft(next))
-      return { next, wrapped: index + step >= members.length };
+    if (hasLeft(next)) return { next, wrapped: index + step >= members.length };
   }
   return null;
 };

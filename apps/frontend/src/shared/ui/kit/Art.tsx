@@ -318,8 +318,8 @@ export const MedalArt = ({ className }: { className?: string }) => {
   )
 }
 
-// Гиря-талисман: корпус и ручка общие для всех сцен, лицо и реквизит сцена кладёт детьми.
-// Координаты свои: центр корпуса в 0,0, низ корпуса на y=46 — сцена ставит гирю на пол через translate
+// Гиря-талисман: корпус, ручка и фактура общие для всех сцен, лицо и реквизит сцена кладёт детьми.
+// Координаты свои: центр корпуса в 0,0, донышко стоит на y=48 — сцена ставит гирю на пол через translate
 export const Kettlebell = ({ children, className }: { children?: ReactNode; className?: string }) => (
   <g className={className}>
     <path
@@ -329,87 +329,193 @@ export const Kettlebell = ({ children, className }: { children?: ReactNode; clas
       strokeWidth='14'
       strokeLinecap='round'
     />
+    {/* Плоское донышко */}
+    <rect
+      x='-30'
+      y='36'
+      width='60'
+      height='12'
+      rx='3'
+      fill='var(--sb-blue)'
+    />
     <circle
       r='46'
       fill='var(--sb-blue)'
     />
+    {/* Блик литого чугуна */}
+    <path
+      d='M-36 -12 A38 38 0 0 1 -16 -36'
+      fill='none'
+      stroke='var(--sb-paper)'
+      strokeWidth='5'
+      strokeLinecap='round'
+      opacity='0.45'
+    />
+    <circle
+      cx='-10'
+      cy='-39'
+      r='2.5'
+      fill='var(--sb-paper)'
+      opacity='0.45'
+    />
+    {/* Выдавленный вес */}
+    <text
+      y='26'
+      textAnchor='middle'
+      fill='var(--sb-ink)'
+      opacity='0.3'
+      fontFamily='var(--font-display)'
+      fontWeight='600'
+      fontSize='11'
+    >
+      16 кг
+    </text>
     {children}
   </g>
 )
 
-// Отдых: гиря спит под пледом в ночном колпаке. Дышит, рот похрапывает, кисточка колпака качается, к луне летят «z»
+// Четырёхлучевая звезда для ночного неба
+const Star = ({ x, y, size = 6, delay }: { x: number; y: number; size?: number; delay: number }) => {
+  const t = size / 4
+  return (
+    <path
+      d={`M${x} ${y - size} L${x + t} ${y - t} L${x + size} ${y} L${x + t} ${y + t} L${x} ${y + size} L${x - t} ${y + t} L${x - size} ${y} L${x - t} ${y - t} Z`}
+      fill='var(--sb-blue)'
+      className='sb-twinkle'
+      style={{ animationDelay: `-${delay}s` }}
+    />
+  )
+}
+
+// Отдых: гиря спит, привалившись к подушке, под клетчатым пледом в ночном колпаке.
+// Дышит, рот похрапывает, кисточка колпака качается, звёзды мерцают, к небу летят «z»
 export const RestArt = ({ className }: { className?: string }) => {
   const dots = useId()
+  const plaid = useId()
+  const blanket = 'M92 236 L96 206 C124 198 152 206 182 204 C212 202 240 196 270 204 L276 236 Z'
   return (
     <svg
-      viewBox='0 0 360 200'
+      viewBox='0 0 360 260'
       className={cn('w-full', className)}
       aria-hidden
     >
       <defs>
         <Halftone id={dots} />
+        <clipPath id={plaid}>
+          <path d={blanket} />
+        </clipPath>
       </defs>
       {/* Растровая луна: полный круг, срезанный кругом цвета бумаги */}
       <circle
-        cx='296'
-        cy='62'
-        r='42'
+        cx='58'
+        cy='58'
+        r='34'
         fill={`url(#${dots})`}
         opacity='0.35'
       />
       <circle
-        cx='296'
-        cy='62'
-        r='42'
+        cx='58'
+        cy='58'
+        r='34'
         fill='none'
         stroke='var(--sb-blue)'
         strokeWidth='1.5'
       />
       <circle
-        cx='318'
-        cy='46'
-        r='38'
+        cx='78'
+        cy='44'
+        r='30'
         fill='var(--sb-paper)'
+      />
+      <Star
+        x={120}
+        y={28}
+        delay={0}
+      />
+      <Star
+        x={330}
+        y={30}
+        size={5}
+        delay={0.8}
+      />
+      <Star
+        x={28}
+        y={130}
+        size={4}
+        delay={1.6}
+      />
+      <Star
+        x={334}
+        y={136}
+        size={7}
+        delay={2.2}
       />
       <line
         x1='0'
         x2='360'
-        y1='170'
-        y2='170'
+        y1='236'
+        y2='236'
         stroke='var(--sb-ink)'
         strokeWidth='1.5'
       />
       <path
-        d='M104 170 L250 170 L278 188 L132 188 Z'
+        d='M96 236 L272 236 L300 252 L124 252 Z'
         fill='var(--sb-ink)'
         opacity='0.85'
       />
-      <g transform='translate(170 124)'>
+      {/* Подушка, на которую завалилась гиря */}
+      <g transform='rotate(-14 105 152)'>
+        <rect
+          x='48'
+          y='120'
+          width='112'
+          height='64'
+          rx='26'
+          fill='var(--sb-paper)'
+          stroke='var(--sb-ink)'
+          strokeWidth='2.5'
+        />
+        <path
+          d='M60 138 C80 146 104 146 124 138'
+          fill='none'
+          stroke='var(--sb-blue)'
+          strokeWidth='2'
+          strokeLinecap='round'
+          opacity='0.6'
+        />
+      </g>
+      <g transform='translate(184 158) rotate(-8) scale(1.55)'>
         <Kettlebell className='sb-breathe'>
-          {/* Закрытые глаза, румянец и храпящий рот */}
+          {/* Закрытые глаза с ресницами, румянец и храпящий рот */}
           <path
-            d='M-24 -6 Q-17 1 -10 -6 M10 -6 Q17 1 24 -6'
+            d='M-24 -10 Q-17 -3 -10 -10 M10 -10 Q17 -3 24 -10'
             fill='none'
             stroke='var(--sb-paper)'
             strokeWidth='3'
             strokeLinecap='round'
           />
+          <path
+            d='M-20 -5 L-21 -1 M-15 -5 L-15 -1 M15 -5 L15 -1 M20 -5 L21 -1'
+            stroke='var(--sb-paper)'
+            strokeWidth='1.5'
+            strokeLinecap='round'
+          />
           <circle
             cx='-30'
-            cy='6'
+            cy='2'
             r='5'
             fill='var(--sb-paper)'
             opacity='0.3'
           />
           <circle
             cx='30'
-            cy='6'
+            cy='2'
             r='5'
             fill='var(--sb-paper)'
             opacity='0.3'
           />
           <ellipse
-            cy='11'
+            cy='8'
             rx='4'
             ry='5'
             fill='var(--sb-ink)'
@@ -446,32 +552,61 @@ export const RestArt = ({ className }: { className?: string }) => {
           />
         </Kettlebell>
       </g>
-      {/* Плед в клетку до подбородка */}
+      {/* Плед в клетку: клетка обрезана по краю пледа, по бокам бахрома, правый угол отогнут */}
       <path
-        d='M108 170 L112 146 C130 138 150 142 170 146 C190 150 214 140 232 146 L240 170 Z'
+        d={blanket}
         fill='var(--sb-paper)'
+      />
+      <g
+        clipPath={`url(#${plaid})`}
+        stroke='var(--sb-blue)'
+        opacity='0.6'
+      >
+        <path
+          d='M122 194 L120 240 M154 194 L154 240 M186 194 L186 240 M218 194 L220 240 M250 194 L252 240'
+          strokeWidth='6'
+        />
+        <path
+          d='M86 224 L282 224'
+          strokeWidth='5'
+        />
+        <path
+          d='M138 194 L138 240 M202 194 L202 240 M234 194 L234 240 M86 214 L282 214 M86 232 L282 232'
+          strokeWidth='1.5'
+        />
+      </g>
+      <path
+        d={blanket}
+        fill='none'
         stroke='var(--sb-ink)'
         strokeWidth='2.5'
         strokeLinejoin='round'
       />
       <path
-        d='M138 143 L136 170 M168 146 L168 170 M200 147 L202 170 M112 158 L238 158'
-        stroke='var(--sb-blue)'
-        strokeWidth='5'
-        opacity='0.6'
+        d='M248 200 L270 204 L265 222 Z'
+        fill='var(--sb-blue)'
+        stroke='var(--sb-ink)'
+        strokeWidth='2'
+        strokeLinejoin='round'
       />
-      {/* Поток «z»: три буквы одного такта со сдвигом, рождаются у колпака и тают у луны */}
+      <path
+        d='M95 212 L87 214 M94 220 L86 222 M93 228 L85 230 M273 212 L281 214 M274 220 L282 222 M275 228 L283 230'
+        stroke='var(--sb-ink)'
+        strokeWidth='1.5'
+        strokeLinecap='round'
+      />
+      {/* Поток «z»: три буквы одного такта со сдвигом, рождаются у кисточки и тают в небе */}
       <g
         fill='var(--sb-blue)'
         fontFamily='var(--font-display)'
         fontWeight='600'
-        fontSize='24'
+        fontSize='28'
       >
         {[0, 1.4, 2.8].map(delay => (
           <text
             key={delay}
-            x='222'
-            y='64'
+            x='266'
+            y='84'
             className='sb-snore'
             style={{ animationDelay: `-${delay}s` }}
           >

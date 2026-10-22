@@ -219,7 +219,7 @@ export class WorkoutController {
 
   @Post('item/add/:id')
   @Swagger({
-    title: 'Добавить упражнения в идущую тренировку',
+    title: 'Добавить упражнения в тренировку: идущую или прошедшую',
     param: ID_PARAM,
     body: AddWorkoutItemsDto,
     response: WorkoutResponseDto,
@@ -239,6 +239,20 @@ export class WorkoutController {
   }
 
   // ── Разминка ────────────────────────────────────────────────────────────
+
+  @Post('item/remove/:id')
+  @Swagger({
+    title: 'Убрать упражнение из тренировки вместе с подходами',
+    param: ID_PARAM,
+    response: WorkoutResponseDto,
+    bearerAuth: true,
+  })
+  public removeItem(
+    @CurrentUser('id') userId: number,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.workoutAppService.removeItem(userId, id);
+  }
 
   @Post('warmup/finish/:id')
   @Swagger({

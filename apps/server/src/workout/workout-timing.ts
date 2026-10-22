@@ -27,8 +27,7 @@ export function workoutTiming(workout: WorkoutFull): WorkoutTiming | null {
       item.sets.map((set) => ({
         ...set,
         // Круг суперсета — один блок: его участники записаны одним моментом
-        group:
-          item.superset === null ? `e${item.id}` : `s${item.superset}`,
+        group: item.superset === null ? `e${item.id}` : `s${item.superset}`,
       })),
     )
     .filter((s): s is typeof s & { doneAt: Date } => s.doneAt !== null)

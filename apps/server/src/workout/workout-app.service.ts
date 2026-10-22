@@ -264,6 +264,14 @@ export class WorkoutAppService {
     return this.find(userId, workoutId);
   }
 
+  public async removeItem(
+    userId: number,
+    itemId: number,
+  ): Promise<WorkoutResponseDto> {
+    const workoutId = await this.workouts.removeItem(userId, itemId);
+    return this.find(userId, workoutId);
+  }
+
   // ── Заминка ─────────────────────────────────────────────────────────────
 
   /** Заминка тренировки (business-tz, 7.5): набор собирается один раз и при повторном открытии не меняется. */
@@ -376,7 +384,8 @@ export class WorkoutAppService {
     profile: SportProfile,
     workout: WorkoutFull,
   ): Promise<WorkoutResponseDto> {
-    const restBefore = workoutTiming(workout)?.restBefore ?? new Map<number, number>();
+    const restBefore =
+      workoutTiming(workout)?.restBefore ?? new Map<number, number>();
     const [limited, last] = await Promise.all([
       this.limitations.activeJointIds(profile),
       Promise.all(

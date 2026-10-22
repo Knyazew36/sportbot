@@ -27,6 +27,7 @@ import type {
   WorkoutControllerFinish200,
   WorkoutControllerMarkDone200,
   WorkoutControllerRemove200,
+  WorkoutControllerRemoveItem200,
   WorkoutControllerReplace200,
   WorkoutControllerShare200,
   WorkoutControllerShared200,
@@ -175,7 +176,7 @@ export const workoutControllerReplace = (
       );
     }
   /**
- * @summary Добавить упражнения в идущую тренировку
+ * @summary Добавить упражнения в тренировку: идущую или прошедшую
  */
 export const workoutControllerAddItems = (
     id: number,
@@ -185,6 +186,17 @@ export const workoutControllerAddItems = (
       {url: `/workout/item/add/${id}`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: addWorkoutItemsDto
+    },
+      );
+    }
+  /**
+ * @summary Убрать упражнение из тренировки вместе с подходами
+ */
+export const workoutControllerRemoveItem = (
+    id: number,
+ ) => {
+      return customInstance<WorkoutControllerRemoveItem200>(
+      {url: `/workout/item/remove/${id}`, method: 'POST'
     },
       );
     }
@@ -311,6 +323,7 @@ export type WorkoutControllerMarkDoneResult = NonNullable<Awaited<ReturnType<typ
 export type WorkoutControllerAnalogsResult = NonNullable<Awaited<ReturnType<typeof workoutControllerAnalogs>>>
 export type WorkoutControllerReplaceResult = NonNullable<Awaited<ReturnType<typeof workoutControllerReplace>>>
 export type WorkoutControllerAddItemsResult = NonNullable<Awaited<ReturnType<typeof workoutControllerAddItems>>>
+export type WorkoutControllerRemoveItemResult = NonNullable<Awaited<ReturnType<typeof workoutControllerRemoveItem>>>
 export type WorkoutControllerWarmupFinishResult = NonNullable<Awaited<ReturnType<typeof workoutControllerWarmupFinish>>>
 export type WorkoutControllerCooldownStartResult = NonNullable<Awaited<ReturnType<typeof workoutControllerCooldownStart>>>
 export type WorkoutControllerCooldownFinishResult = NonNullable<Awaited<ReturnType<typeof workoutControllerCooldownFinish>>>

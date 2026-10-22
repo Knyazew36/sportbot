@@ -624,6 +624,7 @@ export class WorkoutService {
   /**
    * Ещё упражнения в идущую тренировку — силы остались. Встают в конец со стандартным планом подходов;
    * с inComplex — ещё и в конец комплекса, чтобы были и в следующий раз. Дубли разрешены, как в комплексе.
+   * В прошедшую — забытое упражнение из статистики: только в эту тренировку, комплекс не трогаем.
    */
   public async addItems(
     userId: number,
@@ -632,8 +633,9 @@ export class WorkoutService {
     inComplex: boolean,
   ): Promise<void> {
     const workout = await this.prisma.workout.findFirst({
-      where: { id: workoutId, userId, status: 'IN_PROGRESS' },
+      where: { id: workoutId, userId },
       select: {
+        status: true,
         complexId: true,
         exercises: {
           orderBy: { position: 'desc' },
@@ -642,7 +644,11 @@ export class WorkoutService {
         },
       },
     });
-    if (!workout) throw new BadRequestException('Тренировка уже закрыта.');
+    if (!workout) throw new NotFoundException('Тренировка не найдена.');
+    if (inComplex && workout.status !== 'IN_PROGRESS')
+      throw new BadRequestException(
+        'В комплекс добавляют только из идущей тренировки.',
+      );
     const fresh = [...new Set(exerciseIds)];
     const visible = await this.prisma.exercise.findMany({
       where: {
@@ -673,6 +679,26 @@ export class WorkoutService {
     this.logger.log(
       `Упражнения добавлены в тренировку: workoutId=${workoutId}, exerciseIds=${exerciseIds.join(',')}, в комплексе=${inComplex && workout.complexId !== null}`,
     );
+  }
+
+  /**
+   * Убрать упражнение вместе с подходами — лишнее или ошибочно добавленное в прошедшую тренировку.
+   * Последнее не убираем: пустая тренировка — это удаление тренировки целиком.
+   */
+  public async removeItem(userId: number, itemId: number): Promise<number> {
+    const item = await this.findItem(userId, itemId);
+    const count = await this.prisma.workoutExercise.count({
+      where: { workoutId: item.workoutId },
+    });
+    if (count <= 1)
+      throw new BadRequestException(
+        'Это последнее упражнение — удали тренировку целиком.',
+      );
+    await this.prisma.workoutExercise.delete({ where: { id: itemId } });
+    this.logger.log(
+      `Упражнение убрано из тренировки: workoutExerciseId=${itemId}, workoutId=${item.workoutId}, подходов=${item.sets.length}`,
+    );
+    return item.workoutId;
   }
 
   // ── Разминка ────────────────────────────────────────────────────────────
@@ -863,7 +889,10 @@ export class WorkoutService {
     item: Awaited<ReturnType<WorkoutService['findItem']>>,
     timing: SetTiming,
     closed: boolean,
-  ): Pick<Prisma.WorkoutSetUncheckedCreateInput, 'doneAt' | 'workSeconds' | 'restTargetSeconds'> {
+  ): Pick<
+    Prisma.WorkoutSetUncheckedCreateInput,
+    'doneAt' | 'workSeconds' | 'restTargetSeconds'
+  > {
     const { userId, id: workoutId, startedAt } = item.workout;
     if (closed) {
       if (timing.doneAt)

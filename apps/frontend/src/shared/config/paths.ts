@@ -49,6 +49,7 @@ export const ROUTES = {
   WORKOUT_SUMMARY: '/workout/:workoutId/summary',
   WORKOUT_FINISHED: '/workout/:workoutId/finished',
   WORKOUT_EDIT: '/workout/:workoutId/edit',
+  WORKOUT_EDIT_ADD: '/workout/:workoutId/edit/add',
   COOLDOWN: '/workout/:workoutId/cooldown',
   WORKOUT_RESULT: '/result/:token',
   PROGRAM: '/programs/:programId',

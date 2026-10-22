@@ -380,7 +380,7 @@
   }
 }
 
-/* Гиря-талисман спит: один медленный такт дыхания на всё — корпус, рот, кисточка колпака и «z».
+/* Гиря-талисман спит: один медленный такт дыхания на всё — корпус, рот, кисточка колпака, звёзды и «z».
    Темп нарочно медленный: отдых — единственный экран, где ничего не торопит */
 @keyframes sb-breathe {
   50% {
@@ -400,6 +400,17 @@
   }
   to {
     rotate: 6deg;
+  }
+}
+
+@keyframes sb-twinkle {
+  from {
+    opacity: 0.25;
+    scale: 0.6;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
   }
 }
 
@@ -438,6 +449,13 @@
   animation: sb-sway 2.1s ease-in-out infinite alternate;
 }
 
+/* Звёзды мерцают вразнобой: сдвиг задаёт разметка через animation-delay */
+@utility sb-twinkle {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: sb-twinkle 1.6s ease-in-out infinite alternate;
+}
+
 @utility sb-snore {
   transform-box: fill-box;
   transform-origin: 50% 50%;
@@ -447,7 +465,8 @@
 @media (prefers-reduced-motion: reduce) {
   .sb-breathe,
   .sb-snore-mouth,
-  .sb-sway {
+  .sb-sway,
+  .sb-twinkle {
     animation: none;
   }
   /* Без движения оставляем одну «z» — сон читается и в статике */
