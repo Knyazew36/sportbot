@@ -16,7 +16,7 @@ import type { ExerciseMeasure } from '@/generated/prisma/client';
 import { MessengerButton, MessengerMessage } from '@/messengers';
 import { ComplexFull } from '@/program/program.service';
 import { cardioText, exercisesCount, planText } from '@/program/program.texts';
-import { supersetMark } from '@/program/superset';
+import { supersetLetter, supersetMark, supersetRuns } from '@/program/superset';
 
 import { CooldownView } from './cooldown.service';
 import { roundInfo } from './superset-round';
@@ -289,16 +289,35 @@ const shareSetsText = (item: WorkoutExerciseFull): string => {
     .join(' · ');
 };
 
-/**
- * Упражнение в карточке: номер-эмодзи и название, подходы строкой ниже; засчитанное без записи —
- * без подходов. Блоки разделены пустой строкой: сплошной список читался одной простынёй.
- */
-const shareExerciseText = (
+/** Упражнение в карточке: номер-эмодзи и название, подходы строкой ниже; засчитанное без записи — без подходов. */
+const shareExerciseLines = (
   item: WorkoutExerciseFull,
   index: number,
-): string => {
-  const name = `${numEmoji(index + 1)} ${supersetMark(item.superset)}${item.exercise.name}`;
-  return item.sets.length ? `${name}\n${shareSetsText(item)}` : name;
+): string[] => {
+  const name = `${numEmoji(index + 1)} ${item.exercise.name}`;
+  return item.sets.length ? [name, shareSetsText(item)] : [name];
+};
+
+/**
+ * Что сделано: одиночные упражнения и суперсеты блоками через пустую строку — сплошной список
+ * читался одной простынёй. Суперсет — заголовком и полосой «┃» слева, как блок в Mini App:
+ * видно, что упражнения шли вместе по кругу. Из суперсета сделано одно — оно уже не группа.
+ */
+const shareExercisesText = (items: WorkoutExerciseFull[]): string => {
+  let index = 0;
+  return supersetRuns(items)
+    .map((block) => {
+      const lines = block.items.flatMap((item) =>
+        shareExerciseLines(item, index++),
+      );
+      if (block.superset === null || block.items.length < 2)
+        return lines.join('\n');
+      return [
+        `🔥 Суперсет ${supersetLetter(block.superset)}`,
+        ...lines.map((line) => `┃ ${line}`),
+      ].join('\n');
+    })
+    .join('\n\n');
 };
 
 /**
@@ -319,14 +338,14 @@ export function shareCardMessage(view: ShareCardView): MessengerMessage {
     ...(totals.tonnage ? [`🏋️ ${kg(totals.tonnage)}`] : []),
   ];
   const lines = [
-    `🏁 Результат есть`,
-    `«${view.complexName}»`,
+    // «Результат есть» уже крупно на картинке — в подписи только название
+    `🏁 ${view.complexName}`,
     '',
     ...stats,
     '',
     `💪 Что сделано:`,
     '',
-    view.exercises.filter(isDone).map(shareExerciseText).join('\n\n'),
+    shareExercisesText(view.exercises.filter(isDone)),
     ...(cardio ? ['', cardio] : []),
   ];
   return msg(

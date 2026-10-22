@@ -199,6 +199,7 @@ export class WorkoutShareService {
           name: item.exercise.name,
           sets: item.sets.length,
           best: bestSet(item),
+          superset: item.superset,
         }));
       const png = renderShareCard({
         complexName: workout.complexName,

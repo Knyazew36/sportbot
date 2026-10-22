@@ -1,4 +1,5 @@
 import type { DayToday } from '@/entities/day'
+import { RestArt } from '@/shared/ui/kit/Art'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Lead, Poster } from '@/shared/ui/kit/Typography'
 
@@ -19,16 +20,14 @@ export const RestDay = ({ day }: { day: DayToday }) => (
       >
         отдых
       </Poster>
-      <div className='sb-lanes mt-4 h-24 opacity-40' />
+      <RestArt className='mt-2' />
     </Rise>
     {/* «Потренироваться» — в липком низу экрана, над меню */}
     <NextUp
       day={day}
       label='следующая по расписанию'
     />
-    <WeekStreak
-      week={day.week}
-    />
+    <WeekStreak week={day.week} />
     <ForgottenMuscles />
   </>
 )

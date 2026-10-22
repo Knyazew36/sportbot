@@ -1,4 +1,4 @@
-import { useId } from 'react'
+import { type ReactNode, useId } from 'react'
 
 import { cn } from '@/shared/lib/utils'
 
@@ -314,6 +314,171 @@ export const MedalArt = ({ className }: { className?: string }) => {
         strokeWidth='1'
         strokeDasharray='2 4'
       />
+    </svg>
+  )
+}
+
+// Гиря-талисман: корпус и ручка общие для всех сцен, лицо и реквизит сцена кладёт детьми.
+// Координаты свои: центр корпуса в 0,0, низ корпуса на y=46 — сцена ставит гирю на пол через translate
+export const Kettlebell = ({ children, className }: { children?: ReactNode; className?: string }) => (
+  <g className={className}>
+    <path
+      d='M-26 -26 C-38 -78 38 -78 26 -26'
+      fill='none'
+      stroke='var(--sb-blue)'
+      strokeWidth='14'
+      strokeLinecap='round'
+    />
+    <circle
+      r='46'
+      fill='var(--sb-blue)'
+    />
+    {children}
+  </g>
+)
+
+// Отдых: гиря спит под пледом в ночном колпаке. Дышит, рот похрапывает, кисточка колпака качается, к луне летят «z»
+export const RestArt = ({ className }: { className?: string }) => {
+  const dots = useId()
+  return (
+    <svg
+      viewBox='0 0 360 200'
+      className={cn('w-full', className)}
+      aria-hidden
+    >
+      <defs>
+        <Halftone id={dots} />
+      </defs>
+      {/* Растровая луна: полный круг, срезанный кругом цвета бумаги */}
+      <circle
+        cx='296'
+        cy='62'
+        r='42'
+        fill={`url(#${dots})`}
+        opacity='0.35'
+      />
+      <circle
+        cx='296'
+        cy='62'
+        r='42'
+        fill='none'
+        stroke='var(--sb-blue)'
+        strokeWidth='1.5'
+      />
+      <circle
+        cx='318'
+        cy='46'
+        r='38'
+        fill='var(--sb-paper)'
+      />
+      <line
+        x1='0'
+        x2='360'
+        y1='170'
+        y2='170'
+        stroke='var(--sb-ink)'
+        strokeWidth='1.5'
+      />
+      <path
+        d='M104 170 L250 170 L278 188 L132 188 Z'
+        fill='var(--sb-ink)'
+        opacity='0.85'
+      />
+      <g transform='translate(170 124)'>
+        <Kettlebell className='sb-breathe'>
+          {/* Закрытые глаза, румянец и храпящий рот */}
+          <path
+            d='M-24 -6 Q-17 1 -10 -6 M10 -6 Q17 1 24 -6'
+            fill='none'
+            stroke='var(--sb-paper)'
+            strokeWidth='3'
+            strokeLinecap='round'
+          />
+          <circle
+            cx='-30'
+            cy='6'
+            r='5'
+            fill='var(--sb-paper)'
+            opacity='0.3'
+          />
+          <circle
+            cx='30'
+            cy='6'
+            r='5'
+            fill='var(--sb-paper)'
+            opacity='0.3'
+          />
+          <ellipse
+            cy='11'
+            rx='4'
+            ry='5'
+            fill='var(--sb-ink)'
+            className='sb-snore-mouth'
+          />
+          {/* Ночной колпак на ручке: шапка с отворотом, кончик с кисточкой качается */}
+          <path
+            d='M-22 -68 C-14 -90 16 -94 28 -72 C14 -66 -8 -64 -22 -68 Z'
+            fill='var(--sb-ink)'
+          />
+          <g
+            className='sb-sway'
+            style={{ transformOrigin: '5% 15%' }}
+          >
+            <path
+              d='M14 -90 C34 -88 48 -68 50 -44 C40 -54 30 -62 20 -66 Z'
+              fill='var(--sb-ink)'
+            />
+            <circle
+              cx='51'
+              cy='-40'
+              r='7'
+              fill='var(--sb-paper)'
+              stroke='var(--sb-ink)'
+              strokeWidth='2.5'
+            />
+          </g>
+          <path
+            d='M-24 -68 C-8 -63 10 -63 30 -72'
+            fill='none'
+            stroke='var(--sb-paper)'
+            strokeWidth='5'
+            strokeLinecap='round'
+          />
+        </Kettlebell>
+      </g>
+      {/* Плед в клетку до подбородка */}
+      <path
+        d='M108 170 L112 146 C130 138 150 142 170 146 C190 150 214 140 232 146 L240 170 Z'
+        fill='var(--sb-paper)'
+        stroke='var(--sb-ink)'
+        strokeWidth='2.5'
+        strokeLinejoin='round'
+      />
+      <path
+        d='M138 143 L136 170 M168 146 L168 170 M200 147 L202 170 M112 158 L238 158'
+        stroke='var(--sb-blue)'
+        strokeWidth='5'
+        opacity='0.6'
+      />
+      {/* Поток «z»: три буквы одного такта со сдвигом, рождаются у колпака и тают у луны */}
+      <g
+        fill='var(--sb-blue)'
+        fontFamily='var(--font-display)'
+        fontWeight='600'
+        fontSize='24'
+      >
+        {[0, 1.4, 2.8].map(delay => (
+          <text
+            key={delay}
+            x='222'
+            y='64'
+            className='sb-snore'
+            style={{ animationDelay: `-${delay}s` }}
+          >
+            z
+          </text>
+        ))}
+      </g>
     </svg>
   )
 }

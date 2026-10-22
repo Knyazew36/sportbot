@@ -141,10 +141,7 @@
   /* Верх под кнопками Telegram в полноэкранном режиме: вырез телефона + «Закрыть» и меню мессенджера.
      Переменные --tg-* ставит SDK Telegram; вне fullscreen и вне Telegram они 0.
      Потолок — на случай кривых отступов от клиента: полоса цвета фона под ними не должна закрыть весь экран */
-  --sb-safe-top: min(
-    160px,
-    calc(var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px))
-  );
+  --sb-safe-top: min(160px, calc(var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px)));
   /* Над экраном может стоять живая полоса тренировки: её высоту (--sb-live-h) ставит сама полоса,
      и всё, что прилипает к верху, опускается под неё без своих правил */
   --sb-top-inset: calc(var(--sb-safe-top) + var(--sb-live-h, 0px));
@@ -380,6 +377,87 @@
 
   @media (prefers-reduced-motion: reduce) {
     animation: none;
+  }
+}
+
+/* Гиря-талисман спит: один медленный такт дыхания на всё — корпус, рот, кисточка колпака и «z».
+   Темп нарочно медленный: отдых — единственный экран, где ничего не торопит */
+@keyframes sb-breathe {
+  50% {
+    scale: 1.02 1.05;
+  }
+}
+
+@keyframes sb-snore-mouth {
+  50% {
+    scale: 1.3 1.6;
+  }
+}
+
+@keyframes sb-sway {
+  from {
+    rotate: -6deg;
+  }
+  to {
+    rotate: 6deg;
+  }
+}
+
+@keyframes sb-snore {
+  0% {
+    opacity: 0;
+    translate: 0 0;
+    scale: 0.5;
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    translate: 40px -44px;
+    scale: 1.5;
+  }
+}
+
+/* Дышит от пола: низ стоит, верх поднимается */
+@utility sb-breathe {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: sb-breathe 4.2s ease-in-out infinite;
+}
+
+@utility sb-snore-mouth {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: sb-snore-mouth 4.2s ease-in-out infinite;
+}
+
+/* Точку качания задаёт разметка: transform-origin в долях самой фигуры */
+@utility sb-sway {
+  transform-box: fill-box;
+  animation: sb-sway 2.1s ease-in-out infinite alternate;
+}
+
+@utility sb-snore {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: sb-snore 4.2s ease-out infinite both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sb-breathe,
+  .sb-snore-mouth,
+  .sb-sway {
+    animation: none;
+  }
+  /* Без движения оставляем одну «z» — сон читается и в статике */
+  .sb-snore {
+    animation: none;
+    opacity: 0;
+  }
+  .sb-snore:first-of-type {
+    opacity: 1;
+    translate: 14px -14px;
   }
 }
 

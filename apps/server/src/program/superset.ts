@@ -8,8 +8,10 @@ export const supersetLetter = (superset: number): string =>
 export const supersetMark = (superset: number | null): string =>
   superset === null ? '' : `🔗${supersetLetter(superset)} `;
 
-/** Подряд идущие упражнения с одним номером суперсета. */
-const runs = <T extends { superset: number | null }>(items: T[]) => {
+/** Подряд идущие упражнения с одним номером суперсета; одиночное — отдельным блоком. */
+export const supersetRuns = <T extends { superset: number | null }>(
+  items: T[],
+) => {
   const result: { superset: number | null; items: T[] }[] = [];
   for (const item of items) {
     const last = result.at(-1);
@@ -26,7 +28,7 @@ const runs = <T extends { superset: number | null }>(items: T[]) => {
  * Так перетаскивание мимо границы блока просто выводит упражнение из суперсета.
  */
 export function normalizeSupersets(items: SupersetSlot[]): SupersetSlot[] {
-  const blocks = runs(items);
+  const blocks = supersetRuns(items);
   const longest = new Map<number, (typeof blocks)[number]>();
   for (const block of blocks) {
     if (block.superset === null) continue;
@@ -49,7 +51,7 @@ export function normalizeSupersets(items: SupersetSlot[]): SupersetSlot[] {
 export function supersetError(
   items: { superset?: number | null }[],
 ): string | null {
-  const blocks = runs(
+  const blocks = supersetRuns(
     items.map((item) => ({ superset: item.superset ?? null })),
   ).filter((block) => block.superset !== null);
   // Сначала разрыв: у разорванного суперсета куски часто по одному, и «нужно два» сбивало бы с толку

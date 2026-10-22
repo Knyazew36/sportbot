@@ -1,15 +1,15 @@
+import { pluralize } from '@front-cmdt/utils/pluralize'
+
 import type { ReactNode } from 'react'
 
-import { complexLetter, planText, type ProgramComplex } from '@/entities/program'
-import { ExerciseBlocks } from '@/shared/ui/kit/ExerciseBlocks'
-import { List, ListRow } from '@/shared/ui/kit/ListRow'
+import { complexLetter, type ProgramComplex } from '@/entities/program'
+import { SET_FORMS } from '@/shared/lib/plural-forms'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
-import { Poster, Text } from '@/shared/ui/kit/Typography'
+import { Text } from '@/shared/ui/kit/Typography'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'
 import { Spinner } from '@/shared/ui/shadcn/spinner'
 
-import { pluralize } from '@front-cmdt/utils/pluralize'
-import { SET_FORMS } from '@/shared/lib/plural-forms'
+import { ComplexPlanList } from './ComplexPlanList'
 
 export type PreviewProgram = {
   name: string
@@ -62,26 +62,7 @@ export const ProgramPreviewSheet = ({ program, onOpenChange, note, action, loadi
               SET_FORMS,
             )}
           >
-            <List>
-              <ExerciseBlocks items={c.exercises}>
-                {e => (
-                <ListRow
-                  key={e.id}
-                  title={e.name}
-                  meta={e.muscles}
-                  trail={
-                    <Poster
-                      as='span'
-                      size='xs'
-                      className='whitespace-nowrap'
-                    >
-                      {planText(e.sets, e.repsMin, e.repsMax, e.measure)}
-                    </Poster>
-                  }
-                />
-                )}
-              </ExerciseBlocks>
-            </List>
+            <ComplexPlanList complex={c} />
           </ScreenSection>
         ))}
         {note && (
