@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 
-import { parseUserTime } from '@/bot';
+import { localToday, parseUserTime, weekdayOf } from '@/bot';
 import { Prisma, SportProfile } from '@/generated/prisma/client';
 import { UploadService } from '@/upload/upload.service';
 
@@ -53,7 +53,29 @@ export class ProfileService {
     this.logger.log(
       `Настройки изменены: userId=${userId}, поля: ${Object.keys(data).join(', ')}`,
     );
+    if (data.trainingDays) await this.dropUnscheduledToday(profile);
     return profile;
+  }
+
+  /**
+   * Сегодня убрали из расписания: заведённый утром день плана без ответа снимается,
+   * иначе он ждёт тренировку на главном экране и вечерний вопрос. Перенесённый день остаётся.
+   */
+  private async dropUnscheduledToday(profile: SportProfile): Promise<void> {
+    const today = localToday(profile.timeZone);
+    if (profile.trainingDays.includes(weekdayOf(today))) return;
+    const { count } = await this.prisma.planDay.deleteMany({
+      where: {
+        userId: profile.userId,
+        date: today,
+        type: 'PLANNED',
+        status: 'PENDING',
+      },
+    });
+    if (count)
+      this.logger.log(
+        `День плана снят с расписания: userId=${profile.userId}, ${today.toISOString().slice(0, 10)}`,
+      );
   }
 
   /**
