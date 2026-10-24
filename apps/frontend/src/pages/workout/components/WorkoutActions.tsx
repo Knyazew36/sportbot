@@ -160,7 +160,7 @@ export const WorkoutActions = ({
       disabled={nextPending}
     >
       {/* Капсом «Следующее упражнение» шире узкого экрана — переносим на вторую строку, а не режем */}
-      <span className='text-left whitespace-normal'>{NEXT_LABEL[next]}</span>
+      <span className='text-left leading-[1.1] whitespace-normal'>{NEXT_LABEL[next]}</span>
       {next === 'skip' ? (
         <SkipForwardIcon className='size-6' />
       ) : (

@@ -5,6 +5,7 @@ import { Digits, Eyebrow, Poster } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
 import { FocusShell } from './FocusShell'
+import { RestRays } from './RestRays'
 import { TimeBumps, useTimeBumps } from './TimeBumps'
 import { NEXT_LABEL, type NextMode } from './WorkoutActions'
 
@@ -45,6 +46,8 @@ export const FocusRest = ({
   onNext,
 }: FocusRestProps) => {
   const over = timer.left <= 0
+  // Впереди последний подход (или круг) плана — отдых перед ним провожаем лучами
+  const lastAhead = !planDone && (round ? round.number === round.rounds : nextSet === plannedSets)
   // total растёт с каждым «+30 с», поэтому прошедшее считаем от него: видно, сколько отдыхали всего, с добавками
   const rested = Math.max(0, timer.total - timer.left)
   const bumps = useTimeBumps()
@@ -107,9 +110,9 @@ export const FocusRest = ({
                 К упражнению
               </Button>
             ) : (
+              // Отдых окончен — добавить всё равно можно: таймер снова пойдёт от текущего момента
               <Button
                 variant='outline'
-                disabled={over}
                 onClick={addRest}
               >
                 <PlusIcon strokeWidth={3} />
@@ -158,6 +161,7 @@ export const FocusRest = ({
           track='color-mix(in oklab, var(--foreground) 14%, transparent)'
           className='h-auto w-[min(300px,80vw,36svh)]'
         />
+        {over && lastAhead && <RestRays />}
         <div className='absolute inset-0 flex flex-col items-center justify-center'>
           {over ? (
             // Подпись «с назад» висит под словом, не в потоке: иначе её появление сдвигает «Вперёд» вверх

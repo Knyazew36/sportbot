@@ -95,8 +95,11 @@ export const useDeadlineTimer = ({ storageKey, onEnd }: Options = {}) => {
     total: state.status === 'idle' ? 0 : state.total,
     start: (seconds: number) => update({ status: 'running', endsAt: Date.now() + seconds * 1000, total: seconds }),
     add: (seconds: number) => {
-      if (state.status === 'running')
-        update({ ...state, endsAt: Math.max(state.endsAt, Date.now()) + seconds * 1000, total: state.total + seconds })
+      if (state.status !== 'running') return
+      const now = Date.now()
+      // Время уже вышло: перерасход входит в total, иначе «всего отдыхали» потеряет секунды после конца
+      const overdue = Math.max(0, Math.round((now - state.endsAt) / 1000))
+      update({ ...state, endsAt: Math.max(state.endsAt, now) + seconds * 1000, total: state.total + overdue + seconds })
     },
     pause: () => {
       if (state.status === 'running') update({ status: 'paused', left: Math.max(left, 0), total: state.total })

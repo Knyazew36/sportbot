@@ -26,9 +26,12 @@ export const WorkoutTotals = ({ workoutId, complexName }: { workoutId: number; c
     >
       {s => (
         <>
-          <Rise className='px-gutter'>
-            <CooldownOffer workoutId={workoutId} />
-          </Rise>
+          {/* Сделанную заминку не предлагаем повторно — как и напоминание на итоге */}
+          {s.timing?.cooldownSeconds == null && (
+            <Rise className='px-gutter'>
+              <CooldownOffer workoutId={workoutId} />
+            </Rise>
+          )}
           {s.records.length > 0 && (
             <ScreenSection
               title='Рекорды сегодня'
