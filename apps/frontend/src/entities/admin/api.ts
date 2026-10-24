@@ -15,12 +15,16 @@ import {
   adminControllerReject,
   adminControllerRequest,
   adminControllerRequests,
+  adminControllerStats,
   adminControllerUnblock,
+  adminControllerUser,
   adminControllerUsers,
 } from '@/shared/api/generated/admin/admin'
 import type {
   AdminComplaintResponseDto,
   AdminRequestResponseDto,
+  AdminStatsResponseDto,
+  AdminUserDetailResponseDto,
   AdminUserResponseDto,
   ApproveRequestDto,
   CloseComplaintDto,
@@ -32,6 +36,8 @@ import { adminCatalogKeys } from './catalog-api'
 export type AdminRequest = AdminRequestResponseDto
 export type AdminComplaint = AdminComplaintResponseDto
 export type AdminUser = AdminUserResponseDto
+export type AdminUserDetail = AdminUserDetailResponseDto
+export type AdminStats = AdminStatsResponseDto
 export type ImportReport = ImportReportResponseDto
 
 const PAGE_SIZE = 30
@@ -46,7 +52,9 @@ export const adminKeys = {
   requests: ['admin', 'requests'] as const,
   request: (id: number) => ['admin', 'request', id] as const,
   complaints: ['admin', 'complaints'] as const,
+  stats: ['admin', 'stats'] as const,
   users: (search: string) => ['admin', 'users', search] as const,
+  user: (id: number) => ['admin', 'user', id] as const,
 }
 
 /** Счётчики на вкладках и в нижнем меню: заявки и жалобы ждут реакции */
@@ -56,6 +64,14 @@ export const useAdminCounters = ({ enabled = true }: { enabled?: boolean } = {})
     queryFn: () => adminControllerCounters(),
     staleTime: 0,
     enabled,
+  })
+
+/** Обзор: сколько пользователей и кто тренируется */
+export const useAdminStats = () =>
+  useQuery({
+    queryKey: adminKeys.stats,
+    queryFn: () => adminControllerStats(),
+    staleTime: 0,
   })
 
 // ── Модерация ───────────────────────────────────────────────────────────────
@@ -165,9 +181,21 @@ export const useAdminUsers = (search: string) =>
     placeholderData: keepPreviousData,
   })
 
+export const useAdminUser = (id: number) =>
+  useQuery({
+    queryKey: adminKeys.user(id),
+    queryFn: () => adminControllerUser(id),
+    staleTime: 0,
+  })
+
+// Блокировка видна и в списке, и в карточке
 const useInvalidateUsers = () => {
   const queryClient = useQueryClient()
-  return () => queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
+  return (_: unknown, id: number) =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] }),
+      queryClient.invalidateQueries({ queryKey: adminKeys.user(id) }),
+    ])
 }
 
 export const useBlockUser = () => {

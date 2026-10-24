@@ -22,4 +22,9 @@ export interface AdminUserResponseDto {
   onboarded: boolean;
   isAdmin: boolean;
   createdAt: string;
+  /**
+     * Начало последней тренировки
+     * @nullable
+     */
+  lastActiveAt: string | null;
 }

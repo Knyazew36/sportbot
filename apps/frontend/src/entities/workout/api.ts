@@ -183,7 +183,7 @@ export const useCooldownFinish = () => {
   return useMutation({
     mutationFn: (workoutId: number) => workoutControllerCooldownFinish(workoutId, { at: new Date().toISOString() }),
     scope: WORKOUT_QUEUE_SCOPE,
-    // Прохождение заминки и так видно на экране — финальный «Готово»
+    // После заминки сразу уходим на итог — там и видно её время
     meta: { skipSuccessToast: true },
     // Итог показывает время заминки — после неё ведём туда
     onSuccess: (_, workoutId) => queryClient.invalidateQueries({ queryKey: workoutKeys.summary(workoutId) }),

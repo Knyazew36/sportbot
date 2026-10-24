@@ -31,4 +31,11 @@ export class AdminUserResponseDto {
 
   @ApiProperty()
   createdAt: Date;
+
+  @ApiProperty({
+    type: Date,
+    nullable: true,
+    description: 'Начало последней тренировки',
+  })
+  lastActiveAt: Date | null;
 }

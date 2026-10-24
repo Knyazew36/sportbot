@@ -23,7 +23,9 @@ import { AdminComplaintResponseDto } from './dto/admin-complaint.response.dto';
 import { AdminComplaintsQueryDto } from './dto/admin-complaints-query.dto';
 import { AdminCountersResponseDto } from './dto/admin-counters.response.dto';
 import { AdminRequestResponseDto } from './dto/admin-request.response.dto';
+import { AdminStatsResponseDto } from './dto/admin-stats.response.dto';
 import { AdminUserResponseDto } from './dto/admin-user.response.dto';
+import { AdminUserDetailResponseDto } from './dto/admin-user-detail.response.dto';
 import { ApproveRequestDto } from './dto/approve-request.dto';
 import { CloseComplaintDto } from './dto/close-complaint.dto';
 import { DuplicateRequestDto } from './dto/duplicate-request.dto';
@@ -56,6 +58,16 @@ export class AdminController {
   })
   public counters() {
     return this.adminAppService.counters();
+  }
+
+  @Get('stats')
+  @Swagger({
+    title: 'Обзор: пользователи, активность, ряд по дням за 30 дней',
+    response: AdminStatsResponseDto,
+    bearerAuth: true,
+  })
+  public stats() {
+    return this.adminAppService.stats();
   }
 
   // ── Модерация ───────────────────────────────────────────────────────────
@@ -178,6 +190,17 @@ export class AdminController {
   })
   public users(@Query() query: PaginationQueryDto) {
     return this.adminAppService.users(query);
+  }
+
+  @Get('users/:id')
+  @Swagger({
+    title: 'Карточка пользователя: профиль и активность',
+    param: ID_PARAM,
+    response: AdminUserDetailResponseDto,
+    bearerAuth: true,
+  })
+  public user(@Param('id', ParseIntPipe) id: number) {
+    return this.adminAppService.user(id);
   }
 
   @Post('users/block/:id')

@@ -142,7 +142,7 @@ export const PublishSheet = ({ program, open, onOpenChange }: PublishSheetProps)
       open={open}
       onOpenChange={onOpenChange}
     >
-      <SheetContent className='max-h-[92dvh] overflow-y-auto'>
+      <SheetContent className='data-[side=bottom]:max-h-[min(92dvh,var(--sheet-ceiling))] overflow-y-auto'>
         <SheetHeader>
           <SheetTitle>{program.publication === 'PUBLISHED' ? 'Публикация' : 'Опубликовать в каталог'}</SheetTitle>
           <SheetDescription>

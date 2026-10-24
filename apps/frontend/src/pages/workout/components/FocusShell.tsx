@@ -7,7 +7,7 @@ import { MessengerTitle } from '@/widgets/miniapp/MessengerTitle'
 import { FocusScoreboard, type FocusSets } from './FocusScoreboard'
 
 type FocusShellProps = {
-  /** Что происходит: «идёт подход», «пауза», «отдых»; в круге суперсета — только пауза, цепочка и так видна */
+  /** Что происходит: «пауза», «отдых»; в круге суперсета — только пауза, цепочка и так видна */
   status?: string
   /** Акцентом, когда статус требует действия: пауза, отдых закончился */
   alert?: boolean

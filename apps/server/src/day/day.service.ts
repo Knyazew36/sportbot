@@ -434,6 +434,9 @@ export class DayService {
     if (inPause) return 'PAUSED';
     // Прошедший день без отметки — вопрос не задавался (например, до настройки)
     if (date < today && !day) return 'REST';
+    // Вчерашний день крон закроет позже, но на экране это уже пропуск — как в календаре статистики
+    if (day?.status === 'PENDING' && date < today)
+      return day.type === 'RESCHEDULED' ? 'REST' : 'MISSED';
     if (day?.status === 'PENDING') return 'PLAN';
     return profile.trainingDays.includes(weekdayOf(date)) ? 'PLAN' : 'REST';
   }

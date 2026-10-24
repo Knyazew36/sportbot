@@ -1,38 +1,34 @@
-import { BanIcon, RotateCcwIcon } from 'lucide-react'
-
 import { useState } from 'react'
 
-import { type AdminUser, useAdminUsers, useBlockUser, useUnblockUser } from '@/entities/admin'
-import { useSportUser } from '@/entities/sport-user'
+import { type AdminUser, useAdminUsers } from '@/entities/admin'
+import { buildPath, ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
 import { useDebouncedValue } from '@/shared/lib/hooks/use-debounced-value'
-import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
-import { List, ListRow } from '@/shared/ui/kit/ListRow'
+import { List, ListLinkRow } from '@/shared/ui/kit/ListRow'
 import { LoadMore } from '@/shared/ui/kit/LoadMore'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { SearchField } from '@/shared/ui/kit/SearchField'
-import { Eyebrow } from '@/shared/ui/kit/Typography'
-import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
-import { Badge } from '@/shared/ui/shadcn/badge'
+import { Eyebrow, Text } from '@/shared/ui/kit/Typography'
 
-const messengers = (u: AdminUser) =>
+export const messengers = (u: AdminUser) =>
   [u.telegramId && 'Telegram', u.maxId && 'MAX', u.username && `@${u.username}`].filter(Boolean).join(' · ')
 
-// Пользователи: поиск, блокировка и разблокировка с подтверждением (frontend-tz, 14.5)
+// Состояние, ради которого админ открывает карточку: блок, недонастройка
+const flags = (u: AdminUser) =>
+  [u.isAdmin && 'админ', u.blocked && 'заблокирован', !u.onboarded && 'не прошёл настройку'].filter(Boolean).join(' · ')
+
+// Пользователи: поиск и переход в карточку, где активность и блокировка (frontend-tz, 14.5)
 export const UsersTab = () => {
   const [query, setQuery] = useState('')
   const users = useAdminUsers(useDebouncedValue(query.trim()))
-  const me = useSportUser()
-  const block = useBlockUser()
-  const unblock = useUnblockUser()
 
   return (
     <Rise className='px-gutter flex flex-col gap-3'>
       <SearchField
         value={query}
         onValueChange={setQuery}
-        placeholder='Имя или @username'
+        placeholder='Имя, @username или id'
       />
       <Eyebrow>найдено: {users.data?.pages[0]?.meta?.total ?? '—'}</Eyebrow>
       <QueryScreen
@@ -46,43 +42,28 @@ export const UsersTab = () => {
             {data.pages
               .flatMap(page => page.items ?? [])
               .map(u => (
-                <ListRow
+                <ListLinkRow
                   key={u.id}
+                  to={buildPath(ROUTES.ADMIN_USER, { userId: u.id })}
                   title={u.displayName}
-                  meta={[messengers(u), `с ${formatDate(u.createdAt, 'd MMM yyyy')}`].filter(Boolean).join(' · ')}
-                  trail={
-                    // Админа и себя не блокируем: бэк это тоже запрещает
-                    u.isAdmin || u.id === me.data?.userId ? (
-                      <Badge>админ</Badge>
-                    ) : (
-                      <ConfirmAction
-                        trigger={
-                          <Button
-                            variant={u.blocked ? 'outline' : 'destructive'}
-                            size='xs'
-                          />
-                        }
-                        title={u.blocked ? `Разблокировать ${u.displayName}?` : `Заблокировать ${u.displayName}?`}
-                        description={
-                          u.blocked
-                            ? 'Пользователь снова сможет открыть приложение и писать боту.'
-                            : 'Приложение покажет «Доступ закрыт», бот перестанет отвечать. Данные сохранятся.'
-                        }
-                        confirmLabel={u.blocked ? 'Разблокировать' : 'Заблокировать'}
-                        confirmVariant={u.blocked ? 'default' : 'destructive'}
-                        onConfirm={() => (u.blocked ? unblock.mutateAsync(u.id) : block.mutateAsync(u.id))}
-                      >
-                        {u.blocked ? <RotateCcwIcon /> : <BanIcon />}
-                        {u.blocked ? 'Вернуть' : 'Блок'}
-                      </ConfirmAction>
-                    )
-                  }
+                  meta={[
+                    messengers(u),
+                    `с ${formatDate(u.createdAt, 'd MMM yyyy')}`,
+                    u.lastActiveAt ? `тренировка ${formatDate(u.lastActiveAt, 'd MMM')}` : 'не тренировался',
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')}
                 >
-                  <div className='mt-2 flex flex-wrap gap-1.5'>
-                    {u.blocked && <Badge variant='destructive'>заблокирован</Badge>}
-                    {!u.onboarded && <Badge variant='outline'>не прошёл настройку</Badge>}
-                  </div>
-                </ListRow>
+                  {flags(u) && (
+                    <Text
+                      size='xs'
+                      tone={u.blocked ? 'danger' : 'muted'}
+                      className='mt-1'
+                    >
+                      {flags(u)}
+                    </Text>
+                  )}
+                </ListLinkRow>
               ))}
           </List>
         )}

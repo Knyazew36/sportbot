@@ -1,5 +1,5 @@
 import { ArrowRightIcon, BanIcon, InfoIcon, ListIcon, SkipBackIcon, SkipForwardIcon } from 'lucide-react'
-import { useParams, useSearchParams } from 'react-router'
+import { useNavigate, useParams, useSearchParams } from 'react-router'
 
 import { useEffect, useRef, useState } from 'react'
 
@@ -32,10 +32,10 @@ import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet'
 import { SideTrack } from './components/SideTrack'
 import { StretchListSheet } from './components/StretchListSheet'
 
-type Phase = { kind: 'overview' } | { kind: 'step'; index: number; side: 1 | 2 } | { kind: 'more' } | { kind: 'done' }
+type Phase = { kind: 'overview' } | { kind: 'step'; index: number; side: 1 | 2 } | { kind: 'more' }
 
 // Заминка тренировки (frontend-tz, 9): состав и порядок — с сервера, при повторном открытии не меняется.
-// В статистику идёт только время заминки: начало первой растяжки и выход на «Готово»
+// В статистику идёт только время заминки: начало первой растяжки и выход к итогу
 // start — пришли с предложения после финиша: список уже не показываем, сразу первая растяжка
 const CooldownView = ({ cooldown, start }: { cooldown: Cooldown; start: boolean }) => {
   const [phase, setPhase] = useState<Phase>(start ? { kind: 'step', index: 0, side: 1 } : { kind: 'overview' })
@@ -47,6 +47,7 @@ const CooldownView = ({ cooldown, start }: { cooldown: Cooldown; start: boolean 
   const { mutate: markFinish } = useCooldownFinish()
   const marked = useRef<{ start?: boolean; finish?: boolean }>({})
   const exclude = useExcludeCooldownStretch()
+  const navigate = useNavigate()
 
   // Отметка один раз за открытие; повторное открытие сервер не перезапишет
   useEffect(() => {
@@ -54,11 +55,16 @@ const CooldownView = ({ cooldown, start }: { cooldown: Cooldown; start: boolean 
       marked.current.start = true
       markStart(cooldown.workoutId)
     }
-    if (phase.kind === 'done' && marked.current.start && !marked.current.finish) {
+  }, [phase.kind, cooldown.workoutId, markStart])
+
+  // Без промежуточного «Готово» — сразу к итогу, время заминки видно там
+  const finish = () => {
+    if (marked.current.start && !marked.current.finish) {
       marked.current.finish = true
       markFinish(cooldown.workoutId)
     }
-  }, [phase.kind, cooldown.workoutId, markStart, markFinish])
+    navigate(back, { replace: true })
+  }
 
   const go = (index: number) => setPhase({ kind: 'step', index, side: 1 })
 
@@ -69,7 +75,7 @@ const CooldownView = ({ cooldown, start }: { cooldown: Cooldown; start: boolean 
     // После основного блока — вопрос, хватит ли времени на остальное (frontend-tz, 9.1)
     if (phase.index === cooldown.main.length - 1 && cooldown.optional.length) return setPhase({ kind: 'more' })
     if (phase.index < all.length - 1) return go(phase.index + 1)
-    setPhase({ kind: 'done' })
+    finish()
   }
 
   const prev = () => {
@@ -88,7 +94,7 @@ const CooldownView = ({ cooldown, start }: { cooldown: Cooldown; start: boolean 
           if (phase.kind !== 'step') return
           const length = next.main.length + next.optional.length
           const wasMain = phase.index < cooldown.main.length
-          if (phase.index >= length) return setPhase({ kind: 'done' })
+          if (phase.index >= length) return finish()
           if (wasMain && phase.index >= next.main.length && next.optional.length) return setPhase({ kind: 'more' })
           setPhase({ kind: 'step', index: phase.index, side: 1 })
         },
@@ -235,60 +241,44 @@ const CooldownView = ({ cooldown, start }: { cooldown: Cooldown; start: boolean 
       </Screen>
     )
 
-  if (phase.kind === 'more' || phase.kind === 'done')
+  if (phase.kind === 'more')
     return (
       <Screen
         header={
           <TopBar
             back={back}
             title='Заминка'
-            subtitle={phase.kind === 'done' ? 'готово' : 'основной блок пройден'}
+            subtitle='основной блок пройден'
           />
         }
         footer={
           <StickyFooter>
-            {phase.kind === 'more' ? (
-              <>
-                <Button
-                  variant='outline'
-                  size='lg'
-                  onClick={() => setPhase({ kind: 'done' })}
-                >
-                  Нет
-                </Button>
-                <Button
-                  size='lg'
-                  onClick={() => go(cooldown.main.length)}
-                >
-                  Да
-                </Button>
-              </>
-            ) : (
-              <ButtonLink
-                to={back}
-                replace
-                size='lg'
-              >
-                К итогу тренировки
-                <ArrowRightIcon
-                  className='size-7'
-                  strokeWidth={2.5}
-                />
-              </ButtonLink>
-            )}
+            <Button
+              variant='outline'
+              size='lg'
+              onClick={finish}
+            >
+              Нет
+            </Button>
+            <Button
+              size='lg'
+              onClick={() => go(cooldown.main.length)}
+            >
+              Да
+            </Button>
           </StickyFooter>
         }
         className='px-gutter'
       >
         <Rise className='flex flex-1 flex-col justify-center'>
-          <Lead>{phase.kind === 'more' ? 'есть время ещё —' : 'растянулись —'}</Lead>
+          <Lead>есть время ещё —</Lead>
           <Poster
             as='h1'
             size='display'
             tone='primary'
             className='mt-1'
           >
-            {phase.kind === 'more' ? `на ${cooldown.optionalMinutes} мин?` : 'Готово'}
+            на {cooldown.optionalMinutes} мин?
           </Poster>
           <div className='sb-lanes mt-6 h-20 opacity-30' />
         </Rise>
@@ -339,7 +329,7 @@ const CooldownView = ({ cooldown, start }: { cooldown: Cooldown; start: boolean 
                     variant='destructive'
                     size='sm'
                     className='h-10'
-                    onClick={() => setPhase({ kind: 'done' })}
+                    onClick={finish}
                   >
                     Завершить
                   </Button>

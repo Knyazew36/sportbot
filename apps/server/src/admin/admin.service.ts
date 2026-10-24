@@ -6,6 +6,8 @@ import { User } from '@/generated/prisma/client';
 import { ModerationService } from '@/moderation/moderation.service';
 import { PROGRAM_REVIEW_QUEUE } from '@/program-publication/program-publication.service';
 
+import { AdminStatsResponseDto } from './dto/admin-stats.response.dto';
+
 @Injectable()
 export class AdminService {
   private readonly logger = new Logger(`🛠 ${AdminService.name}`);
@@ -51,6 +53,81 @@ export class AdminService {
       programReviews,
       exercises,
       stretches,
+    };
+  }
+
+  /** Обзор: сколько пользователей, кто тренируется, ряд по дням за 30 дней. Дни — по UTC, как у счётчиков. */
+  public async stats(): Promise<AdminStatsResponseDto> {
+    const today = new Date(new Date().setUTCHours(0, 0, 0, 0));
+    const from7 = addDays(today, -6);
+    const from30 = addDays(today, -29);
+    const [
+      usersTotal,
+      usersOnboarded,
+      usersNew7,
+      usersNew30,
+      workoutsTotal,
+      [activity],
+      days,
+    ] = await Promise.all([
+      this.prisma.sportProfile.count(),
+      this.prisma.sportProfile.count({ where: { onboardedAt: { not: null } } }),
+      this.prisma.sportProfile.count({ where: { createdAt: { gte: from7 } } }),
+      this.prisma.sportProfile.count({ where: { createdAt: { gte: from30 } } }),
+      this.prisma.workout.count({
+        where: { status: { in: ['FINISHED', 'AUTO_CLOSED'] } },
+      }),
+      // Активный — начал тренировку: в боте и в приложении она создаётся одинаково
+      this.prisma.$queryRaw<
+        {
+          activeToday: number;
+          active7: number;
+          active30: number;
+          workouts7: number;
+          workouts30: number;
+        }[]
+      >`
+        SELECT
+          count(DISTINCT "userId") FILTER (WHERE "date" = ${today}::date)::int AS "activeToday",
+          count(DISTINCT "userId") FILTER (WHERE "date" >= ${from7}::date)::int AS "active7",
+          count(DISTINCT "userId")::int AS "active30",
+          count(*) FILTER (WHERE "status" <> 'IN_PROGRESS' AND "date" >= ${from7}::date)::int AS "workouts7",
+          count(*) FILTER (WHERE "status" <> 'IN_PROGRESS')::int AS "workouts30"
+        FROM "Workout"
+        WHERE "date" >= ${from30}::date`,
+      this.prisma.$queryRaw<
+        {
+          date: Date;
+          newUsers: number;
+          activeUsers: number;
+          workouts: number;
+        }[]
+      >`
+        SELECT
+          d::date AS "date",
+          (SELECT count(*) FROM "SportProfile" p
+            WHERE p."createdAt" >= d AND p."createdAt" < d + interval '1 day')::int AS "newUsers",
+          (SELECT count(DISTINCT w."userId") FROM "Workout" w
+            WHERE w."date" = d::date)::int AS "activeUsers",
+          (SELECT count(*) FROM "Workout" w
+            WHERE w."date" = d::date AND w."status" <> 'IN_PROGRESS')::int AS "workouts"
+        FROM generate_series(${from30}::date, ${today}::date, interval '1 day') d
+        ORDER BY 1`,
+    ]);
+    this.logger.debug(
+      `Обзор: пользователей=${usersTotal}, активных за 7 дней=${activity.active7}`,
+    );
+    return {
+      usersTotal,
+      usersOnboarded,
+      usersNew7,
+      usersNew30,
+      workoutsTotal,
+      ...activity,
+      days: days.map((d) => ({
+        ...d,
+        date: d.date.toISOString().slice(0, 10),
+      })),
     };
   }
 

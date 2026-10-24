@@ -20,34 +20,34 @@ export const ExerciseCard = ({ item, label }: ExerciseCardProps) => {
   // Аналоги и замена — только с сервера: без сети ссылка гасится, чтобы не вести на вечную загрузку
   const online = useIsOnline()
   const offlineLink = online ? undefined : 'pointer-events-none opacity-50'
+  // Над текущим упражнением подписи нет: и так понятно, что оно сейчас на экране
+  const eyebrow = [
+    item.done ? 'Сделано' : item.replaced ? 'Замена на сегодня' : null,
+    label,
+    item.draft && 'не проверено',
+  ]
+    .filter(Boolean)
+    .join(' · ')
 
   return (
     <>
       <Rise>
-        <Eyebrow
-          as='p'
-          tone='primary'
-        >
-          {item.done ? 'Сделано' : item.replaced ? 'Замена на сегодня' : 'Текущее'}
-          {label && ` · ${label}`}
-          {item.draft && ' · не проверено'}
-        </Eyebrow>
+        {eyebrow && (
+          <Eyebrow
+            as='p'
+            tone='primary'
+            className='mb-3'
+          >
+            {eyebrow}
+          </Eyebrow>
+        )}
         <Poster
           as='h1'
           size='2xl'
-          className='mt-3 hyphens-auto'
+          className='hyphens-auto'
         >
           {item.name}
         </Poster>
-        {item.muscles && (
-          <Text
-            size='sm'
-            tone='soft'
-            className='mt-2'
-          >
-            {item.muscles}
-          </Text>
-        )}
 
         {item.limitedZones.length > 0 && (
           <ButtonLink

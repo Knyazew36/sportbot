@@ -1,7 +1,20 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 
-import { APP_SCREEN, appBtn, BotSender, isAdmin, msg } from '@/bot';
+import {
+  addDays,
+  APP_SCREEN,
+  appBtn,
+  BotSender,
+  isAdmin,
+  msg,
+  weekStart,
+} from '@/bot';
 import {
   CatalogService,
   EXERCISE_INCLUDE,
@@ -15,7 +28,7 @@ import {
 } from '@/catalog/catalog-proposal';
 import { paginatePrisma } from '@/common/prisma';
 import { PaginationQueryDto } from '@/common/type/pagination-query.dto';
-import { Prisma } from '@/generated/prisma/client';
+import { Prisma, User } from '@/generated/prisma/client';
 import { UploadService } from '@/upload/upload.service';
 import {
   Decision,
@@ -30,6 +43,7 @@ import { AdminComplaintResponseDto } from './dto/admin-complaint.response.dto';
 import { AdminComplaintsQueryDto } from './dto/admin-complaints-query.dto';
 import { AdminRequestResponseDto } from './dto/admin-request.response.dto';
 import { AdminUserResponseDto } from './dto/admin-user.response.dto';
+import { AdminUserDetailResponseDto } from './dto/admin-user-detail.response.dto';
 import { ApproveRequestDto } from './dto/approve-request.dto';
 import { ImportReportResponseDto } from './dto/import-report.response.dto';
 import { ImportService } from './import.service';
@@ -49,6 +63,30 @@ const USER_INCLUDE = {
 } satisfies Prisma.UserInclude;
 
 type UserRow = Prisma.UserGetPayload<{ include: typeof USER_INCLUDE }>;
+
+const USER_DETAIL_INCLUDE = {
+    sportProfile: {
+      include: { activeProgram: { select: { name: true } } },
+    },
+    pauses: { where: { endedAt: null }, select: { id: true }, take: 1 },
+    workouts: {
+      orderBy: { startedAt: 'desc' },
+      take: 20,
+      include: {
+        exercises: { select: { _count: { select: { sets: true } } } },
+      },
+    },
+    _count: {
+      select: {
+        workouts: { where: { status: { in: ['FINISHED', 'AUTO_CLOSED'] } } },
+        programs: { where: { isTemplate: false } },
+        friendshipsA: true,
+        friendshipsB: true,
+        moderationRequests: true,
+        complaints: true,
+      },
+    },
+} satisfies Prisma.UserInclude;
 
 const username = (data: unknown): string | null => {
   const value = (data as { username?: unknown } | null)?.username;
@@ -73,6 +111,10 @@ export class AdminAppService {
 
   public counters() {
     return this.admin.counters();
+  }
+
+  public stats() {
+    return this.admin.stats();
   }
 
   // ── Модерация ───────────────────────────────────────────────────────────
@@ -190,43 +232,95 @@ export class AdminAppService {
       include: USER_INCLUDE,
     });
     const users = page.items as unknown as UserRow[];
-    const blocked = await this.prisma.blockedAccount.findMany({
-      where: {
-        OR: [
-          {
-            channel: 'TELEGRAM',
-            externalId: {
-              in: users.flatMap((u) => (u.telegramId ? [u.telegramId] : [])),
-            },
-          },
-          {
-            channel: 'MAX',
-            externalId: {
-              in: users.flatMap((u) => (u.maxId ? [u.maxId] : [])),
-            },
-          },
-        ],
-      },
-    });
-    const isBlocked = (u: UserRow) =>
-      blocked.some(
-        (b) =>
-          (b.channel === 'TELEGRAM' && b.externalId === u.telegramId) ||
-          (b.channel === 'MAX' && b.externalId === u.maxId),
-      );
+    const ids = users.map((u) => u.id);
+    const [isBlocked, lastActive] = await Promise.all([
+      this.blockedOf(users),
+      this.prisma.workout.groupBy({
+        by: ['userId'],
+        where: { userId: { in: ids } },
+        _max: { startedAt: true },
+      }),
+    ]);
+    const lastActiveOf = (userId: number) =>
+      lastActive.find((w) => w.userId === userId)?._max.startedAt ?? null;
     return {
-      items: users.map((u): AdminUserResponseDto => ({
-        id: u.id,
-        displayName: u.sportProfile?.displayName ?? u.name ?? 'Без имени',
-        telegramId: u.telegramId,
-        maxId: u.maxId,
-        username: username(u.telegramData) ?? username(u.maxData),
-        blocked: isBlocked(u),
-        onboarded: !!u.sportProfile?.onboardedAt,
-        isAdmin: isAdmin(u),
-        createdAt: u.createdAt,
-      })),
+      items: users.map((u) =>
+        this.userView(u, isBlocked(u), lastActiveOf(u.id)),
+      ),
       meta: page.meta,
+    };
+  }
+
+  /** Карточка: профиль, счётчики, активность по неделям и последние тренировки. */
+  public async user(userId: number): Promise<AdminUserDetailResponseDto> {
+    const since30 = addDays(new Date(new Date().setUTCHours(0, 0, 0, 0)), -29);
+    const monday = weekStart(new Date(new Date().setUTCHours(0, 0, 0, 0)));
+    const from12 = addDays(monday, -7 * 11);
+    const [user, planDays, weeks] = await Promise.all([
+      this.prisma.user.findUnique({
+        where: { id: userId },
+        include: USER_DETAIL_INCLUDE,
+      }),
+      this.prisma.planDay.groupBy({
+        by: ['status'],
+        where: { userId, date: { gte: since30 } },
+        _count: true,
+      }),
+      this.prisma.$queryRaw<{ week: Date; workouts: number }[]>`
+        SELECT date_trunc('week', "date")::date AS "week", count(*)::int AS "workouts"
+        FROM "Workout"
+        WHERE "userId" = ${userId} AND "status" <> 'IN_PROGRESS' AND "date" >= ${from12}::date
+        GROUP BY 1`,
+    ]);
+    if (!user?.sportProfile)
+      throw new NotFoundException('Пользователь не найден.');
+    this.logger.debug(`Карточка пользователя: userId=${userId}`);
+
+    const profile = user.sportProfile;
+    const days = (status: 'DONE' | 'MISSED') =>
+      planDays.find((d) => d.status === status)?._count ?? 0;
+    const isBlocked = await this.blockedOf([user]);
+    const recent = user.workouts;
+    return {
+      ...this.userView(user, isBlocked(user), recent[0]?.startedAt ?? null),
+      onboardedAt: profile.onboardedAt,
+      timeZone: profile.timeZone,
+      gender: profile.gender,
+      trainingDays: profile.trainingDays,
+      questionsEnabled: profile.questionsEnabled,
+      activeProgram: profile.activeProgram?.name ?? null,
+      currentStreak: profile.currentStreak,
+      bestStreak: profile.bestStreak,
+      missedInRow: profile.missedInRow,
+      paused: user.pauses.length > 0,
+      workoutsTotal: user._count.workouts,
+      programs: user._count.programs,
+      friends: user._count.friendshipsA + user._count.friendshipsB,
+      requests: user._count.moderationRequests,
+      complaints: user._count.complaints,
+      daysDone: days('DONE'),
+      daysMissed: days('MISSED'),
+      // Пустые недели тоже в ряду: без них график сжимает перерывы
+      weeks: Array.from({ length: 12 }, (_, i) => {
+        const week = addDays(from12, i * 7).toISOString().slice(0, 10);
+        return {
+          week,
+          workouts:
+            weeks.find((w) => w.week.toISOString().slice(0, 10) === week)
+              ?.workouts ?? 0,
+        };
+      }),
+      recentWorkouts: recent.map((w) => ({
+        id: w.id,
+        complexName: w.complexName,
+        date: w.date.toISOString().slice(0, 10),
+        status: w.status,
+        mode: w.mode,
+        unplanned: w.unplanned,
+        startedAt: w.startedAt,
+        finishedAt: w.finishedAt,
+        sets: w.exercises.reduce((sum, e) => sum + e._count.sets, 0),
+      })),
     };
   }
 
@@ -257,6 +351,53 @@ export class AdminAppService {
   }
 
   // ── Внутреннее ──────────────────────────────────────────────────────────
+
+  private userView(
+    u: UserRow,
+    blocked: boolean,
+    lastActiveAt: Date | null,
+  ): AdminUserResponseDto {
+    return {
+      id: u.id,
+      displayName: u.sportProfile?.displayName ?? u.name ?? 'Без имени',
+      telegramId: u.telegramId,
+      maxId: u.maxId,
+      username: username(u.telegramData) ?? username(u.maxData),
+      blocked,
+      onboarded: !!u.sportProfile?.onboardedAt,
+      isAdmin: isAdmin(u),
+      createdAt: u.createdAt,
+      lastActiveAt,
+    };
+  }
+
+  /** Блокировка хранится по аккаунтам мессенджеров — одним запросом на всю страницу. */
+  private async blockedOf(users: User[]): Promise<(user: User) => boolean> {
+    const blocked = await this.prisma.blockedAccount.findMany({
+      where: {
+        OR: [
+          {
+            channel: 'TELEGRAM',
+            externalId: {
+              in: users.flatMap((u) => (u.telegramId ? [u.telegramId] : [])),
+            },
+          },
+          {
+            channel: 'MAX',
+            externalId: {
+              in: users.flatMap((u) => (u.maxId ? [u.maxId] : [])),
+            },
+          },
+        ],
+      },
+    });
+    return (u) =>
+      blocked.some(
+        (b) =>
+          (b.channel === 'TELEGRAM' && b.externalId === u.telegramId) ||
+          (b.channel === 'MAX' && b.externalId === u.maxId),
+      );
+  }
 
   private async notifyAuthor(decision: Decision): Promise<void> {
     if (decision.authorId)

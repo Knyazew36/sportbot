@@ -381,6 +381,10 @@ export class StatsAppService {
     if (day?.status === 'MISSED') return 'MISSED';
     if (day?.status === 'PAUSED') return 'PAUSED';
     if (date > today) return 'FUTURE';
+    // Прошедший день крон закроет только через сутки (окно, чтобы отметить вчерашнюю тренировку),
+    // но для календаря он уже пропуск; несостоявшийся перенос крон снимет — значит, отдых
+    if (day?.status === 'PENDING' && date < today)
+      return day.type === 'RESCHEDULED' ? 'REST' : 'MISSED';
     if (day?.status === 'PENDING')
       return day.type === 'RESCHEDULED' ? 'RESCHEDULED' : 'PENDING';
     const paused = pauses.some(

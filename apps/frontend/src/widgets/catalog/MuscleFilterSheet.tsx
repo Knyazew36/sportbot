@@ -34,7 +34,7 @@ export const MuscleFilterSheet = ({
     onOpenChange={onOpenChange}
   >
     {/* Две фигуры и списки мышц не влезают в обычные 88% — шторке можно до 95% высоты */}
-    <SheetContent className='data-[side=bottom]:max-h-[95svh]'>
+    <SheetContent className='data-[side=bottom]:max-h-[min(95svh,var(--sheet-ceiling))]'>
       {/* Новый черновик на каждое открытие: закрыли без «Показать» — выбор не меняется */}
       {open && (
         <Draft

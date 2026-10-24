@@ -19,7 +19,9 @@ import type {
   AdminControllerRequest200,
   AdminControllerRequests200,
   AdminControllerRequestsParams,
+  AdminControllerStats200,
   AdminControllerUnblock200,
+  AdminControllerUser200,
   AdminControllerUsers200,
   AdminControllerUsersParams,
   ApproveRequestDto,
@@ -41,6 +43,17 @@ export const adminControllerCounters = (
  ) => {
       return customInstance<AdminControllerCounters200>(
       {url: `/admin/counters`, method: 'GET'
+    },
+      );
+    }
+  /**
+ * @summary Обзор: пользователи, активность, ряд по дням за 30 дней
+ */
+export const adminControllerStats = (
+
+ ) => {
+      return customInstance<AdminControllerStats200>(
+      {url: `/admin/stats`, method: 'GET'
     },
       );
     }
@@ -159,6 +172,17 @@ export const adminControllerUsers = (
       );
     }
   /**
+ * @summary Карточка пользователя: профиль и активность
+ */
+export const adminControllerUser = (
+    id: number,
+ ) => {
+      return customInstance<AdminControllerUser200>(
+      {url: `/admin/users/${id}`, method: 'GET'
+    },
+      );
+    }
+  /**
  * @summary Заблокировать пользователя
  */
 export const adminControllerBlock = (
@@ -211,6 +235,7 @@ formData.append(`file`, importFileDto.file);
       );
     }
   export type AdminControllerCountersResult = NonNullable<Awaited<ReturnType<typeof adminControllerCounters>>>
+export type AdminControllerStatsResult = NonNullable<Awaited<ReturnType<typeof adminControllerStats>>>
 export type AdminControllerRequestsResult = NonNullable<Awaited<ReturnType<typeof adminControllerRequests>>>
 export type AdminControllerRequestResult = NonNullable<Awaited<ReturnType<typeof adminControllerRequest>>>
 export type AdminControllerApproveResult = NonNullable<Awaited<ReturnType<typeof adminControllerApprove>>>
@@ -220,6 +245,7 @@ export type AdminControllerComplaintsResult = NonNullable<Awaited<ReturnType<typ
 export type AdminControllerCloseComplaintResult = NonNullable<Awaited<ReturnType<typeof adminControllerCloseComplaint>>>
 export type AdminControllerApplyComplaintResult = NonNullable<Awaited<ReturnType<typeof adminControllerApplyComplaint>>>
 export type AdminControllerUsersResult = NonNullable<Awaited<ReturnType<typeof adminControllerUsers>>>
+export type AdminControllerUserResult = NonNullable<Awaited<ReturnType<typeof adminControllerUser>>>
 export type AdminControllerBlockResult = NonNullable<Awaited<ReturnType<typeof adminControllerBlock>>>
 export type AdminControllerUnblockResult = NonNullable<Awaited<ReturnType<typeof adminControllerUnblock>>>
 export type AdminControllerImportCheckResult = NonNullable<Awaited<ReturnType<typeof adminControllerImportCheck>>>

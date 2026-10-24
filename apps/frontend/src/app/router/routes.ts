@@ -82,6 +82,7 @@ export const miniappRoutes: AppRoute[] = [
   { path: ROUTES.FRIEND, lazy: () => import('@/pages/friend/FriendPage') },
   { path: ROUTES.ADMIN, lazy: () => import('@/pages/admin/AdminPage') },
   { path: ROUTES.ADMIN_REQUEST, lazy: () => import('@/pages/admin/ModerationRequestPage') },
+  { path: ROUTES.ADMIN_USER, lazy: () => import('@/pages/admin/AdminUserPage') },
   { path: ROUTES.ADMIN_PROGRAM_REVIEW, lazy: () => import('@/pages/admin/ProgramReviewPage') },
   { path: ROUTES.ADMIN_CATALOG_ITEM, lazy: () => import('@/pages/admin/CatalogItemPage') },
   { path: ROUTES.ADMIN_TEMPLATE, lazy: () => import('@/pages/admin/TemplateEditorPage') },
