@@ -51,6 +51,7 @@ const VerifyEmailPage = () => {
   return (
     <LayoutAuth
       title="Подтверждение почты"
+      lead="последний шаг —"
       description="Мы отправили письмо с 6-значным кодом. Введите его, чтобы войти."
       footer={
         <Button variant="link" size="sm" onPress={() => router.push(ROUTES.LOGIN)}>

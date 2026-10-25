@@ -45,6 +45,7 @@ const ResetPasswordPage = () => {
   return (
     <LayoutAuth
       title="Новый пароль"
+      lead="почти готово —"
       description="Введите код из письма и придумайте новый пароль."
       footer={
         <Button variant="link" size="sm" onPress={() => router.push(ROUTES.LOGIN)}>

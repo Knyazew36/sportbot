@@ -34,6 +34,7 @@ const ForgotPasswordPage = () => {
   return (
     <LayoutAuth
       title="Сброс пароля"
+      lead="бывает —"
       description="Укажите email аккаунта — пришлём код для смены пароля."
       footer={
         <Button variant="link" size="sm" onPress={() => router.push(ROUTES.LOGIN)}>

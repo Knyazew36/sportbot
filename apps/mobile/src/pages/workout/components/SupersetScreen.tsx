@@ -28,9 +28,16 @@ const GAP = 12;
 export const SupersetScreen = ({ round, onEdit, onAddSet }: SupersetScreenProps) => {
   const { width } = useWindowDimensions();
   const listRef = useRef<FlatList<WorkoutItem>>(null);
-  const [selected, setSelected] = useState(0);
   const labels = supersetLabels(round.members);
   const startId = round.round[0]?.id;
+  const startIndex = Math.max(0, round.members.findIndex((e) => e.id === startId));
+  const [selected, setSelected] = useState(startIndex);
+  // Начало круга сменилось — текущим звеном становится оно (правка состояния при рендере, а не в эффекте)
+  const [shownStart, setShownStart] = useState(startId);
+  if (startId !== shownStart) {
+    setShownStart(startId);
+    setSelected(startIndex);
+  }
   // Карточка на 92% ширины экрана, как basis-[92%] во фронте: край следующей виден — ясно, что листается
   const card = Math.round((width - GUTTER * 2) * 0.92);
   const step = card + GAP;
@@ -42,11 +49,8 @@ export const SupersetScreen = ({ round, onEdit, onAddSet }: SupersetScreenProps)
 
   // После круга и отдыха — к упражнению, с которого начнётся следующий круг
   useEffect(() => {
-    const index = round.members.findIndex((e) => e.id === startId);
-    if (index < 0) return;
-    listRef.current?.scrollToOffset({ offset: index * step, animated: true });
-    setSelected(index);
-  }, [startId, round.members, step]);
+    listRef.current?.scrollToOffset({ offset: startIndex * step, animated: true });
+  }, [startIndex, step]);
 
   return (
     <>

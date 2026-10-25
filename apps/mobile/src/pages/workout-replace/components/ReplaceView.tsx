@@ -1,4 +1,3 @@
-import { View } from 'react-native';
 import { Plus, Repeat } from 'lucide-react-native';
 
 import { useAnalogs, type Workout } from '@sportbot/api/entities/workout';
@@ -7,7 +6,8 @@ import { QueryState } from '@/shared/ui/kit/QueryState';
 import { Rise } from '@/shared/ui/kit/Reveal';
 import { Screen } from '@/shared/ui/kit/Screen';
 import { TopBar } from '@/shared/ui/kit/ScreenHeader';
-import { Eyebrow, Lead, Text } from '@/shared/ui/kit/Typography';
+import { ScreenSection } from '@/shared/ui/kit/ScreenSection';
+import { Lead, Text } from '@/shared/ui/kit/Typography';
 import { ExerciseCreateSheet } from '@/widgets/catalog/ExerciseCreateSheet';
 import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet';
 
@@ -32,11 +32,7 @@ export const ReplaceView = ({ itemId, workout }: ReplaceViewProps) => {
         <Text tone="soft">Подходы этого упражнения на сегодня удалятся: у аналога своя история весов.</Text>
       </Rise>
 
-      <Rise index={1} className="gap-3">
-        <View className="flex-row items-end justify-between">
-          <Eyebrow tone="primary">Аналоги</Eyebrow>
-          {analogs.data ? <Eyebrow>{String(analogs.data.length)}</Eyebrow> : null}
-        </View>
+      <ScreenSection title="Аналоги" aside={analogs.data ? `${analogs.data.length}` : undefined}>
         <QueryState
           query={analogs}
           isEmpty={(list) => list.length === 0}
@@ -57,7 +53,7 @@ export const ReplaceView = ({ itemId, workout }: ReplaceViewProps) => {
             Нет нужного — создать своё
           </Button>
         )}
-      </Rise>
+      </ScreenSection>
 
       <ExerciseSheet
         exercise={flow.preview}

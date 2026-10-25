@@ -48,6 +48,7 @@ const MessengerLoginPage = () => {
   return (
     <LayoutAuth
       title={`Вход через ${providerName}`}
+      lead="без пароля —"
       description={`Откроем чат с ботом — подтвердите вход кнопкой внутри ${providerName}.`}
     >
       <View className="gap-4">

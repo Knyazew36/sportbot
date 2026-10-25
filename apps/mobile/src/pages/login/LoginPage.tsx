@@ -1,11 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
 import { View } from 'react-native';
+import { ArrowRight, MessageCircle, Send } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 
 import { getApiErrorMessage, getApiErrorStatus } from '@/shared/api';
 import { ROUTES } from '@/shared/config/routes';
-import { AuthLink, LayoutAuth } from '@/shared/layouts/layout-auth/LayoutAuth';
+import { AuthDivider, AuthLink, LayoutAuth } from '@/shared/layouts/layout-auth/LayoutAuth';
 import { Button } from '@/shared/ui/kit/Button';
 import { ErrorText } from '@/shared/ui/kit/ErrorText';
 import { TextField } from '@/shared/ui/kit/TextField';
@@ -40,18 +41,19 @@ const LoginPage = () => {
   return (
     <LayoutAuth
       title="Вход"
+      lead="с возвращением —"
       footer={
-        <View className="items-center gap-2">
-          <View className="flex-row gap-1">
+        <>
+          <View className="flex-row items-center gap-1">
             <AuthLink>Нет аккаунта?</AuthLink>
             <Button variant="link" size="sm" onPress={() => router.push(ROUTES.REGISTER)}>
               Зарегистрироваться
             </Button>
           </View>
-          <Button variant="link" size="sm" onPress={() => router.push(ROUTES.FORGOT_PASSWORD)}>
+          <Button variant="ghost" size="sm" onPress={() => router.push(ROUTES.FORGOT_PASSWORD)}>
             Забыли пароль?
           </Button>
-        </View>
+        </>
       }
     >
       <View className="gap-4">
@@ -87,21 +89,28 @@ const LoginPage = () => {
           )}
         />
         {login.isError && <ErrorText>{getApiErrorMessage(login.error)}</ErrorText>}
-        <Button loading={login.isPending} onPress={onSubmit}>
+        <Button size="lg" spread iconRight={ArrowRight} loading={login.isPending} onPress={onSubmit} className="mt-2">
           Войти
         </Button>
-        <Button
-          variant="outline"
-          onPress={() => router.push({ pathname: ROUTES.MESSENGER_LOGIN, params: { provider: 'telegram' } })}
-        >
-          Войти через Telegram
-        </Button>
-        <Button
-          variant="outline"
-          onPress={() => router.push({ pathname: ROUTES.MESSENGER_LOGIN, params: { provider: 'max' } })}
-        >
-          Войти через MAX
-        </Button>
+        <AuthDivider>или через бота</AuthDivider>
+        <View className="flex-row gap-3">
+          <Button
+            variant="outline"
+            icon={Send}
+            className="flex-1"
+            onPress={() => router.push({ pathname: ROUTES.MESSENGER_LOGIN, params: { provider: 'telegram' } })}
+          >
+            Telegram
+          </Button>
+          <Button
+            variant="outline"
+            icon={MessageCircle}
+            className="flex-1"
+            onPress={() => router.push({ pathname: ROUTES.MESSENGER_LOGIN, params: { provider: 'max' } })}
+          >
+            MAX
+          </Button>
+        </View>
       </View>
     </LayoutAuth>
   );
