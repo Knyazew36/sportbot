@@ -8,3 +8,56 @@ Read `docs/README.md` inside that installed package first, then read the relevan
 
 This block is written and re-added by `turbo` before repository-scoped commands when an AI agent is detected. In the Turborepo source repository, its template is defined in `crates/turborepo-cli/src/cli/agent_guidance.rs`. Removing the managed block while updates are enabled means a later qualifying invocation will add it again. Set `"agentGuidance": false` in the root `turbo.json` or `turbo.jsonc` to opt out; this does not remove an existing block. Keep the block committed with your work to avoid an uncommitted change on the next agent invocation.
 <!-- END:turborepo-agent-rules -->
+
+# Правила проекта
+
+## Этап: блоки с логикой, а не макеты
+
+Статичные макеты закончены. Страницы переводим на настоящую логику — запросы через query-хуки.
+
+- Страницу разбиваем на логические блоки.
+- Блок нужен только этой странице — кладём в `src/pages/<page>/components/`.
+
+## Структура страниц (мобилка — копия веба)
+
+Логику отделяем от разметки: в `apps/mobile` логика переносится как есть, разметка пишется заново.
+
+- Одна страница — одна папка `src/pages/<page>/`, названная как маршрут (`program-editor`, `workout-replace`).
+- Файл страницы тонкий: параметры маршрута, запрос, `QueryScreen`, раскладка блоков. Вложенных компонентов в нём нет.
+- Состояние экрана с переходами (фазы, таймеры, несколько связанных `useState`) — хук в `src/pages/<page>/model/use-<page>-flow.ts`, без JSX. Компоненты только показывают состояние и вызывают действия хука.
+- Блок понадобился второй странице — в `src/widgets/<name>/`; если это действие с мутацией — в `src/features/<name>/`. Импорты между страницами запрещены.
+- Сущности живут в общем пакете `packages/api` (`@sportbot/api`) — без UI (иконок, `ROUTES`, компонентов), без DOM и без алиаса `@/`: внутри пакета импорты относительные. Импорт в приложении: `@sportbot/api/entities/<entity>`.
+- Константы и функции — не в файлах компонентов, а рядом отдельным `.ts` (иначе ломается fast refresh).
+
+
+
+
+## Запросы
+
+- orval генерирует только функции и типы в `packages/api/generated` (импорт `@sportbot/api/generated/...`). Хуки и ключи react-query пишем руками в `packages/api/entities/<entity>`.
+- Клиент (axios, токен, ошибки, `http`) — `packages/api/client`. Приложение подключает его один раз через `configureApi()` (веб — `src/shared/api/setup.ts`): адрес, хранилище токена, заголовки. Типы `meta` мутаций объявлены там же (`client/query-meta.ts`).
+- Настройки query едины — `src/shared/api/query-client.ts`. Ошибки запросов и мутаций показывает общий тост оттуда; свой `onError` ради тоста в хуках не пишем.
+- Успех любой мутации (каждый POST) показывает общий тост: мутации ставим `meta: { successMessage: '…' }`. Свой `onSuccess` ради тоста не пишем.
+- Тост об успехе есть всегда. Молчит только мутация, где он выключен явно: `meta: { skipSuccessToast: true }` и комментарий рядом — почему (результат и так виден на экране). Без `successMessage` и без `skipSuccessToast` покажется общий «Готово» — это признак незаконченного хука.
+- Ошибки полей формы (422 с `errors`) показываем под инпутом: мутации ставим `meta: { inlineFieldErrors: true }`, тогда тост для них не дублируется.
+- Текст ошибки достаём через `errorCatch` из `@front-cmdt/utils/error-catch`.
+- Авторизация и заголовки ставятся в интерцепторах `$api` пакета, в хуках про них думать не нужно.
+- Действие, которое трогает несколько мест (выход: запрос, кэш, редирект), собираем в одном хуке в `src/features`.
+
+## Лейауты
+
+- Все лейауты лежат в `src/shared/layouts`, каждый в своей папке: `src/shared/layouts/layout-<name>/Layout<Name>.tsx`.
+- Название компонента всегда начинается с `Layout`: `LayoutRoot`, `LayoutAuth` — не `RootLayout`.
+- То, что нужно только этому лейауту, кладём в его `components/`: `src/shared/layouts/layout-auth/components/Showcase.tsx`.
+
+## Формы
+
+- Формы — только на react-hook-form, без ручного `useState` под поля. Кастомные инпуты (например `InputOTP`) подключаем через `Controller`.
+- Валидация — только zod-схемы через `zodResolver` из `@hookform/resolvers/zod`. Самописные правила для `register()` не пишем.
+- Схемы и типы значений (`z.infer`) лежат в `packages/api/entities/<entity>/model/schemas.ts`, наружу — через `index.ts` сущности.
+- `trim` и прочую нормализацию делаем в схеме, а не в submit.
+
+## Контент справочника
+
+- Справочник (упражнения, растяжки, теги, программы) правим только по циклу из `apps/server/prisma/content/README.md`: выкачать прод → патч или `guides.json` → `--dry-run` → залить → `content:merge` в `catalog.json`.
+- `catalog.json` целиком на прод не импортируем: он затрёт правки, сделанные на проде.
