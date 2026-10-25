@@ -374,7 +374,8 @@ export class ProgramService {
       where: { shareToken },
       select: { id: true },
     });
-    if (!source) throw new NotFoundException('Ссылка устарела: программу удалили.');
+    if (!source)
+      throw new NotFoundException('Ссылка устарела: программу удалили.');
     this.logger.log(
       `Программа по ссылке: programId=${source.id}, userId=${userId}`,
     );
@@ -414,6 +415,79 @@ export class ProgramService {
       `Комплекс создан: complexId=${complex.id}, programId=${programId}`,
     );
     return complex;
+  }
+
+  /**
+   * Копия одной тренировки в конец активной программы пользователя. Источник — то, что пользователь
+   * и так видит: каталог, свои программы, программы друзей или программа по ссылке (нужен её токен).
+   * Возвращает id активной программы.
+   */
+  public async copyComplex(
+    userId: number,
+    complexId: number,
+    shareToken?: string,
+    targetProgramId?: number,
+  ): Promise<number> {
+    const visible: Prisma.ProgramWhereInput[] = [
+      PUBLISHED_TEMPLATE,
+      PUBLISHED_USER_PROGRAM,
+      { ownerId: userId },
+      // Друзья: то же условие, что friendOf в social.service (импорт оттуда дал бы цикл модулей)
+      {
+        isTemplate: false,
+        owner: {
+          OR: [
+            { friendshipsA: { some: { userBId: userId } } },
+            { friendshipsB: { some: { userAId: userId } } },
+          ],
+        },
+      },
+    ];
+    if (shareToken) visible.push({ shareToken });
+    const source = await this.prisma.complex.findFirst({
+      where: { id: complexId, program: { OR: visible } },
+      include: PROGRAM_INCLUDE.complexes.include,
+    });
+    if (!source) {
+      this.logger.warn(
+        `Копия недоступной тренировки: complexId=${complexId}, userId=${userId}`,
+      );
+      throw new NotFoundException('Тренировка не найдена.');
+    }
+    const programId = targetProgramId ?? (await this.activeProgramId(userId));
+    if (!programId)
+      throw new BadRequestException(
+        'Нет активной программы — сначала выбери или создай программу.',
+      );
+    // Целевая программа — только своя
+    await this.find(userId, programId);
+    const created = await this.prisma.$transaction(async (tx) => {
+      const last = await tx.complex.aggregate({
+        where: { programId },
+        _max: { position: true },
+      });
+      return this.copyComplexInto(
+        tx,
+        programId,
+        source,
+        (last._max.position ?? 0) + 1,
+        userId,
+      );
+    });
+    await this.touch(programId);
+    await this.repairPointer(userId);
+    this.logger.log(
+      `Тренировка скопирована: complexId=${complexId} → complexId=${created.id}, programId=${programId}, userId=${userId}`,
+    );
+    return programId;
+  }
+
+  private async activeProgramId(userId: number): Promise<number | null> {
+    const profile = await this.prisma.sportProfile.findUnique({
+      where: { userId },
+      select: { activeProgramId: true },
+    });
+    return profile?.activeProgramId ?? null;
   }
 
   public async renameComplex(
@@ -684,7 +758,10 @@ export class ProgramService {
   public async setPlan(userId: number, itemId: number, input: string) {
     const item = await this.findItem(userId, itemId);
     const { measure } = item.exercise;
-    const parts = input.trim().split(/[\s×xх*–-]+/i).filter(Boolean);
+    const parts = input
+      .trim()
+      .split(/[\s×xх*–-]+/i)
+      .filter(Boolean);
     const sets = Number(parts[0]);
     const values = parts
       .slice(1)
@@ -734,7 +811,11 @@ export class ProgramService {
         complex: { program: { ownerId: userId } },
       },
       orderBy: { position: 'asc' },
-      select: { id: true, superset: true, complex: { select: { programId: true } } },
+      select: {
+        id: true,
+        superset: true,
+        complex: { select: { programId: true } },
+      },
     });
     const target =
       candidates.find((c) => c.superset === superset) ?? candidates[0];
@@ -811,9 +892,7 @@ export class ProgramService {
       complex.exercises.map((e) => e.id),
       ids,
     );
-    const supersets = new Map(
-      complex.exercises.map((e) => [e.id, e.superset]),
-    );
+    const supersets = new Map(complex.exercises.map((e) => [e.id, e.superset]));
     await this.prisma.$transaction((tx) =>
       this.applyOrder(
         tx,
@@ -866,7 +945,11 @@ export class ProgramService {
       // Утром крон закрепляет за днём комплекс, и он перекрыл бы новый выбор на «Сегодня».
       // Ручной выбор свежее — переносим его на ещё не отмеченный сегодняшний день
       const { count } = await this.prisma.planDay.updateMany({
-        where: { userId, date: localToday(profile.timeZone), status: 'PENDING' },
+        where: {
+          userId,
+          date: localToday(profile.timeZone),
+          status: 'PENDING',
+        },
         data: { suggestedComplexId: complexId },
       });
       this.logger.log(
@@ -878,7 +961,9 @@ export class ProgramService {
         e instanceof Prisma.PrismaClientKnownRequestError &&
         e.code === 'P2025'
       ) {
-        throw new NotFoundException('Тренировка не найдена в активной программе.');
+        throw new NotFoundException(
+          'Тренировка не найдена в активной программе.',
+        );
       }
       throw e;
     }
@@ -1018,41 +1103,60 @@ export class ProgramService {
   ): Promise<void> {
     /** Черновик автора → черновик получателя: одна копия на оригинал, даже в нескольких комплексах. */
     const draftCopies = new Map<number, number>();
-    for (const complex of source.complexes) {
-      const created = await tx.complex.create({
+    for (const complex of source.complexes)
+      await this.copyComplexInto(
+        tx,
+        programId,
+        complex,
+        complex.position,
+        ownerId,
+        draftCopies,
+      );
+  }
+
+  /** Копия одного комплекса со всеми упражнениями в программу programId на позицию position. */
+  private async copyComplexInto(
+    tx: Tx,
+    programId: number,
+    complex: ProgramFull['complexes'][number],
+    position: number,
+    ownerId: number,
+    draftCopies = new Map<number, number>(),
+  ) {
+    const created = await tx.complex.create({
+      data: {
+        programId,
+        name: complex.name,
+        position,
+        cardioName: complex.cardioName,
+        cardioMinutes: complex.cardioMinutes,
+        warmupMinutes: complex.warmupMinutes,
+      },
+    });
+    for (const item of complex.exercises) {
+      let exerciseId = item.exerciseId;
+      if (
+        item.exercise.status === 'DRAFT' &&
+        item.exercise.authorId !== ownerId
+      ) {
+        exerciseId =
+          draftCopies.get(item.exerciseId) ??
+          (await this.copyDraft(tx, item.exerciseId, ownerId));
+        draftCopies.set(item.exerciseId, exerciseId);
+      }
+      await tx.complexExercise.create({
         data: {
-          programId,
-          name: complex.name,
-          position: complex.position,
-          cardioName: complex.cardioName,
-          cardioMinutes: complex.cardioMinutes,
-          warmupMinutes: complex.warmupMinutes,
+          complexId: created.id,
+          exerciseId,
+          position: item.position,
+          sets: item.sets,
+          repsMin: item.repsMin,
+          repsMax: item.repsMax,
+          superset: item.superset,
         },
       });
-      for (const item of complex.exercises) {
-        let exerciseId = item.exerciseId;
-        if (
-          item.exercise.status === 'DRAFT' &&
-          item.exercise.authorId !== ownerId
-        ) {
-          exerciseId =
-            draftCopies.get(item.exerciseId) ??
-            (await this.copyDraft(tx, item.exerciseId, ownerId));
-          draftCopies.set(item.exerciseId, exerciseId);
-        }
-        await tx.complexExercise.create({
-          data: {
-            complexId: created.id,
-            exerciseId,
-            position: item.position,
-            sets: item.sets,
-            repsMin: item.repsMin,
-            repsMax: item.repsMax,
-            superset: item.superset,
-          },
-        });
-      }
     }
+    return created;
   }
 
   /** Тот же порядок упражнений комплекса, только с починкой суперсетов. */

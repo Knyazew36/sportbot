@@ -13,12 +13,14 @@ import { StatusFromMeta } from '@/shared/ui/kit/StatusBadge'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
 import { ComplexQueue } from '@/widgets/complex-queue/ComplexQueue'
 
+import { AddComplexTicket } from './AddComplexTicket'
+
 import { PublishSheet } from '@/features/publish-program/PublishSheet'
 import { ShowOthers } from '@/features/publish-program/ShowOthers'
 import { pluralize } from '@front-cmdt/utils/pluralize'
 import { EXERCISE_FORMS, SET_FORMS } from '@/shared/lib/plural-forms'
 
-// Активная программа — плакат: название, очередь комплексов билетами, сводка и правка.
+// Активная программа — плакат: название, очередь комплексов билетами (последний билет — «добавить»), сводка и правка.
 // Билет открывает состав комплекса в шторке. Свою программу публикуют прямо отсюда, без захода в редактор
 export const ActiveProgram = ({ programId }: { programId: number }) => {
   const program = useProgram(programId)
@@ -65,15 +67,19 @@ export const ActiveProgram = ({ programId }: { programId: number }) => {
                 </Text>
               )}
             </Rise>
-            {p.complexes.length > 0 && (
-              <ComplexQueue
-                complexes={p.complexes}
-                activeId={p.complexes.find(c => c.isNext)?.id}
-                aside='следующая подсвечена'
-                onPick={id => makeNext.mutate(id)}
-                pickLabel='Сделать следующей'
-              />
-            )}
+            <ComplexQueue
+              complexes={p.complexes}
+              activeId={p.complexes.find(c => c.isNext)?.id}
+              aside={p.complexes.length > 0 ? 'следующая подсвечена' : undefined}
+              onPick={id => makeNext.mutate(id)}
+              pickLabel='Сделать следующей'
+              trailing={
+                <AddComplexTicket
+                  programId={p.id}
+                  count={p.complexes.length}
+                />
+              }
+            />
             <Rise className='px-gutter flex flex-col gap-4'>
               <StatGrid
                 items={[

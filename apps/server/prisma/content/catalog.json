@@ -6457,7 +6457,7 @@
         "Выжми себя обратно до прямых рук."
       ],
       "mistakes": [],
-      "image": "https://wger.de/media/exercise-images/454/447f3c17-405f-46e0-b138-65c2a8caaab0.png",
+      "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/Downward-Facing-Dog.JPG/1280px-Downward-Facing-Dog.JPG",
       "equipment": "BODYWEIGHT",
       "primary": [
         "front-delts"
@@ -6470,7 +6470,10 @@
         "shoulder",
         "elbow",
         "wrist"
-      ]
+      ],
+      "imageSource": "https://commons.wikimedia.org/wiki/File:Downward-Facing-Dog.JPG",
+      "imageLicense": "CC BY 3.0",
+      "imageAuthor": "Iveto"
     },
     {
       "code": "inverted-row",
@@ -6852,7 +6855,8 @@
       "joints": [
         "hip"
       ],
-      "measure": "REPS"
+      "measure": "REPS",
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Front_Leg_Raises/1.jpg"
     },
     {
       "code": "leg-swing-side",
@@ -6879,7 +6883,8 @@
       "joints": [
         "hip"
       ],
-      "measure": "REPS"
+      "measure": "REPS",
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Leg_Raises/1.jpg"
     },
     {
       "code": "low-lunge-hold",
@@ -7024,7 +7029,11 @@
         "hip",
         "knee"
       ],
-      "measure": "TIME"
+      "measure": "TIME",
+      "image": "https://wger.de/media/exercise-images/1872/df982df1-512a-4eb9-acd9-68cc1c265df6.png",
+      "imageSource": "https://wger.de/exercise/1872/view-base",
+      "imageLicense": "CC BY-SA 4.0",
+      "imageAuthor": "Davidgj32"
     },
     {
       "code": "front-split-hold",
@@ -7055,7 +7064,11 @@
         "hip",
         "knee"
       ],
-      "measure": "TIME"
+      "measure": "TIME",
+      "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/77/Hanumanasana_-_Monkey_Pose_-_Side_view.jpg/1280px-Hanumanasana_-_Monkey_Pose_-_Side_view.jpg",
+      "imageSource": "https://commons.wikimedia.org/wiki/File:Hanumanasana_-_Monkey_Pose_-_Side_view.jpg",
+      "imageLicense": "CC BY 2.0",
+      "imageAuthor": "lululemon athletica"
     },
     {
       "code": "front-split-pnf",
@@ -7086,7 +7099,11 @@
         "hip",
         "knee"
       ],
-      "measure": "TIME"
+      "measure": "TIME",
+      "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/77/Hanumanasana_-_Monkey_Pose_-_Side_view.jpg/1280px-Hanumanasana_-_Monkey_Pose_-_Side_view.jpg",
+      "imageSource": "https://commons.wikimedia.org/wiki/File:Hanumanasana_-_Monkey_Pose_-_Side_view.jpg",
+      "imageLicense": "CC BY 2.0",
+      "imageAuthor": "lululemon athletica"
     },
     {
       "code": "frog-hold",
@@ -7170,7 +7187,11 @@
         "hip",
         "knee"
       ],
-      "measure": "TIME"
+      "measure": "TIME",
+      "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c8/Sifu_gustavo_milazzo_en_shaolin_templo.jpg/1280px-Sifu_gustavo_milazzo_en_shaolin_templo.jpg",
+      "imageSource": "https://commons.wikimedia.org/wiki/File:Sifu_gustavo_milazzo_en_shaolin_templo.jpg",
+      "imageLicense": "CC BY 4.0",
+      "imageAuthor": "Gusmilazzo"
     },
     {
       "code": "cossack-squat",
@@ -7253,7 +7274,11 @@
       "joints": [
         "hip"
       ],
-      "measure": "TIME"
+      "measure": "TIME",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/6/64/Baddha_konasana.jpg",
+      "imageSource": "https://commons.wikimedia.org/wiki/File:Baddha_konasana.jpg",
+      "imageLicense": "CC BY-SA 3.0",
+      "imageAuthor": "Joseph RENGER"
     },
     {
       "code": "straddle-hold",
@@ -7313,7 +7338,11 @@
         "hip",
         "knee"
       ],
-      "measure": "TIME"
+      "measure": "TIME",
+      "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/05/Samakonasana.jpg/1280px-Samakonasana.jpg",
+      "imageSource": "https://commons.wikimedia.org/wiki/File:Samakonasana.jpg",
+      "imageLicense": "CC BY-SA 4.0",
+      "imageAuthor": "Mohan Yoga India"
     }
   ],
   "stretches": [

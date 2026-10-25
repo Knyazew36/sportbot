@@ -19,6 +19,7 @@ import { PublishProgramDto } from '@/program-publication/dto/publish-program.dto
 import { ProgramTagGroupService } from '@/program-tag/program-tag-group.service';
 
 import { AddComplexExercisesDto } from './dto/add-complex-exercises.dto';
+import { CopyComplexDto } from './dto/copy-complex.dto';
 import { CreateComplexDto } from './dto/create-complex.dto';
 import { CreateProgramDto } from './dto/create-program.dto';
 import { ProgramListItemResponseDto } from './dto/program-list-item.response.dto';
@@ -313,6 +314,28 @@ export class ProgramController {
     @Param('id', ParseIntPipe) id: number,
   ) {
     return this.programAppService.makeNext(userId, id);
+  }
+
+  @Post('complex/copy/:id')
+  @Swagger({
+    title:
+      'Скопировать тренировку в конец своей программы (по умолчанию — активной)',
+    param: ID_PARAM,
+    body: CopyComplexDto,
+    response: ProgramResponseDto,
+    bearerAuth: true,
+  })
+  public copyComplex(
+    @CurrentUser('id') userId: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: CopyComplexDto,
+  ) {
+    return this.programAppService.copyComplex(
+      userId,
+      id,
+      dto.shareToken,
+      dto.programId,
+    );
   }
 
   @Post('complex/update/:id')

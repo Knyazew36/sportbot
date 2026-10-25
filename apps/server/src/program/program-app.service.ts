@@ -483,6 +483,22 @@ export class ProgramAppService {
     return this.view(owner, programId);
   }
 
+  /** Копия чужой или своей тренировки в конец своей программы (по умолчанию — активной). */
+  public async copyComplex(
+    userId: number,
+    complexId: number,
+    shareToken?: string,
+    targetProgramId?: number,
+  ) {
+    const programId = await this.programs.copyComplex(
+      userId,
+      complexId,
+      shareToken,
+      targetProgramId,
+    );
+    return this.view(userId, programId);
+  }
+
   public async updateComplex(
     owner: ProgramOwner,
     complexId: number,
@@ -492,11 +508,7 @@ export class ProgramAppService {
     if (dto.name !== undefined)
       await this.programs.renameComplex(owner, complexId, dto.name);
     if (dto.warmupMinutes !== undefined)
-      await this.programs.setComplexWarmup(
-        owner,
-        complexId,
-        dto.warmupMinutes,
-      );
+      await this.programs.setComplexWarmup(owner, complexId, dto.warmupMinutes);
     return this.view(owner, complex.programId);
   }
 

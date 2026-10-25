@@ -13,6 +13,7 @@ import {
   programControllerActivate,
   programControllerAddComplex,
   programControllerAddExercises,
+  programControllerCopyComplex,
   programControllerCreate,
   programControllerDismissUpdate,
   programControllerList,
@@ -312,6 +313,17 @@ export const useAddComplex = () => {
       programControllerAddComplex(programId, { name }),
     // После добавления сразу открывается страница нового комплекса — результат и так виден
     meta: { skipSuccessToast: true, inlineFieldErrors: true },
+    onSuccess: apply,
+  })
+}
+
+/** Копия тренировки из любой видимой программы (каталог, друг, ссылка) в конец своей; без programId — в активную */
+export const useCopyComplex = () => {
+  const apply = useApplyProgram()
+  return useMutation({
+    mutationFn: ({ complexId, ...dto }: { complexId: number; shareToken?: string; programId?: number }) =>
+      programControllerCopyComplex(complexId, dto),
+    meta: { successMessage: 'Тренировка скопирована' },
     onSuccess: apply,
   })
 }

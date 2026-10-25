@@ -1,5 +1,7 @@
 import { CalendarCheckIcon } from 'lucide-react'
 
+import type { ReactNode } from 'react'
+
 import { EXERCISE_FORMS } from '@/shared/lib/plural-forms'
 import { pluralize } from '@front-cmdt/utils/pluralize'
 import { useProfile } from '@sportbot/api/entities/profile'
@@ -20,6 +22,8 @@ type ComplexSheetProps = {
   onPick?: (id: number) => void
   /** Подпись кнопки выбора: на «Сегодня» — на сегодня, в программах — следующий в очереди */
   pickLabel?: string
+  /** Своё действие под составом, например «Скопировать к себе»; close закрывает шторку */
+  action?: (complex: ProgramComplex, close: () => void) => ReactNode
 }
 
 // Состав комплекса из очереди: что в нём за упражнения и сколько подходов, без перехода в редактор
@@ -29,6 +33,7 @@ export const ComplexSheet = ({
   activeId,
   onPick,
   pickLabel = 'Буду делать сегодня',
+  action,
 }: ComplexSheetProps) => {
   const c = complex?.complex
   // У комплекса без своей разминки — разминка из профиля, как на старте тренировки
@@ -107,7 +112,10 @@ export const ComplexSheet = ({
                 </List>
               )}
             </div>
-            {onPick && c.id !== activeId && (
+            {action && (
+              <SheetFooter className='border-foreground/15 border-t-[1.5px]'>{action(c, onClose)}</SheetFooter>
+            )}
+            {!action && onPick && c.id !== activeId && (
               <SheetFooter className='border-foreground/15 border-t-[1.5px]'>
                 <Button
                   size='lg'

@@ -13,12 +13,20 @@ import { Rise } from '@/shared/ui/kit/Reveal'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { StatGrid } from '@/shared/ui/kit/StatGrid'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
+import { CopyComplexButton } from '@/features/copy-complex/CopyComplexButton'
 import { ComplexQueue } from '@/widgets/complex-queue/ComplexQueue'
 import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet'
 import { pluralize } from '@front-cmdt/utils/pluralize'
 
-// Чужая программа целиком, прежде чем взять себе: из каталога и по ссылке «Поделиться» (frontend-tz, 10.2)
-export const ProgramDetails = ({ program }: { program: Program }) => {
+type ProgramDetailsProps = {
+  program: Program
+  /** Программа открыта по ссылке «Поделиться»: токен нужен, чтобы скопировать из неё тренировку */
+  shareToken?: string
+}
+
+// Чужая программа целиком, прежде чем взять себе: из каталога и по ссылке «Поделиться» (frontend-tz, 10.2).
+// Тренировку из очереди можно скопировать к себе по одной — в шторке билета
+export const ProgramDetails = ({ program, shareToken }: ProgramDetailsProps) => {
   // Упражнение, открытое в шторке: состав видно, не уходя со страницы программы
   const [opened, setOpened] = useState<{ id: number; name: string } | null>(null)
   const exercises = program.complexes.reduce((sum, c) => sum + c.exercises.length, 0)
@@ -78,6 +86,13 @@ export const ProgramDetails = ({ program }: { program: Program }) => {
         complexes={program.complexes}
         activeId={program.complexes[0]?.id}
         aside='по кругу, с первого'
+        action={(c, close) => (
+          <CopyComplexButton
+            complexId={c.id}
+            shareToken={shareToken}
+            onDone={close}
+          />
+        )}
       />
 
       {program.complexes.map((c, i) => (
@@ -132,7 +147,7 @@ export const ProgramDetails = ({ program }: { program: Program }) => {
           size='xs'
           tone='muted'
         >
-          После «Взять» копия становится твоей программой — её можно править.
+          После «Взять» копия становится твоей программой — её можно править. Нужна одна тренировка — открой её билет и скопируй в любую свою программу.
         </Text>
       </Rise>
 

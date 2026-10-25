@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { type ReactNode, useEffect, useRef, useState } from 'react'
 
 import { EXERCISE_FORMS } from '@/shared/lib/plural-forms'
 import { pluralize } from '@front-cmdt/utils/pluralize'
@@ -17,10 +17,22 @@ type ComplexQueueProps = {
   /** Выбор комплекса из шторки; без него шторка только показывает состав */
   onPick?: (id: number) => void
   pickLabel?: string
+  /** Своё действие в шторке комплекса вместо выбора */
+  action?: (complex: ProgramComplex, close: () => void) => ReactNode
+  /** Последний билет ленты, например «Добавить тренировку» */
+  trailing?: ReactNode
 }
 
 // Очередь комплексов программы билетами. Билет открывает состав комплекса в шторке
-export const ComplexQueue = ({ complexes, activeId, aside, onPick, pickLabel }: ComplexQueueProps) => {
+export const ComplexQueue = ({
+  complexes,
+  activeId,
+  aside,
+  onPick,
+  pickLabel,
+  action,
+  trailing,
+}: ComplexQueueProps) => {
   const [opened, setOpened] = useState<{ complex: ProgramComplex; index: number } | null>(null)
   const listRef = useRef<HTMLOListElement>(null)
 
@@ -60,6 +72,7 @@ export const ComplexQueue = ({ complexes, activeId, aside, onPick, pickLabel }: 
             </Ticket>
           </li>
         ))}
+        {trailing && <li>{trailing}</li>}
       </ol>
       <ComplexSheet
         complex={opened}
@@ -67,6 +80,7 @@ export const ComplexQueue = ({ complexes, activeId, aside, onPick, pickLabel }: 
         activeId={activeId}
         onPick={onPick}
         pickLabel={pickLabel}
+        action={action}
       />
     </ScreenSection>
   )

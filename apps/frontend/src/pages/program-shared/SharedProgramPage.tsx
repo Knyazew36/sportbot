@@ -53,7 +53,14 @@ const SharedProgramPage = () => {
         )
       }
     >
-      <QueryScreen query={program}>{p => <ProgramDetails program={p} />}</QueryScreen>
+      <QueryScreen query={program}>
+        {p => (
+          <ProgramDetails
+            program={p}
+            shareToken={token}
+          />
+        )}
+      </QueryScreen>
     </Screen>
   )
 }

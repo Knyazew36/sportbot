@@ -6,11 +6,13 @@
  */
 import type {
   AddComplexExercisesDto,
+  CopyComplexDto,
   CreateComplexDto,
   CreateProgramDto,
   ProgramControllerActivate200,
   ProgramControllerAddComplex200,
   ProgramControllerAddExercises200,
+  ProgramControllerCopyComplex200,
   ProgramControllerCreate200,
   ProgramControllerDismissUpdate200,
   ProgramControllerList200,
@@ -264,6 +266,20 @@ export const programControllerMakeNextComplex = (
       );
     }
   /**
+ * @summary Скопировать тренировку в конец своей программы (по умолчанию — активной)
+ */
+export const programControllerCopyComplex = (
+    id: number,
+    copyComplexDto: CopyComplexDto,
+ ) => {
+      return customInstance<ProgramControllerCopyComplex200>(
+      {url: `/program/complex/copy/${id}`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: copyComplexDto
+    },
+      );
+    }
+  /**
  * @summary Комплекс: название
  */
 export const programControllerUpdateComplex = (
@@ -395,6 +411,7 @@ export type ProgramControllerUnpublishResult = NonNullable<Awaited<ReturnType<ty
 export type ProgramControllerAddComplexResult = NonNullable<Awaited<ReturnType<typeof programControllerAddComplex>>>
 export type ProgramControllerReorderComplexesResult = NonNullable<Awaited<ReturnType<typeof programControllerReorderComplexes>>>
 export type ProgramControllerMakeNextComplexResult = NonNullable<Awaited<ReturnType<typeof programControllerMakeNextComplex>>>
+export type ProgramControllerCopyComplexResult = NonNullable<Awaited<ReturnType<typeof programControllerCopyComplex>>>
 export type ProgramControllerUpdateComplexResult = NonNullable<Awaited<ReturnType<typeof programControllerUpdateComplex>>>
 export type ProgramControllerRemoveComplexResult = NonNullable<Awaited<ReturnType<typeof programControllerRemoveComplex>>>
 export type ProgramControllerAddExercisesResult = NonNullable<Awaited<ReturnType<typeof programControllerAddExercises>>>
