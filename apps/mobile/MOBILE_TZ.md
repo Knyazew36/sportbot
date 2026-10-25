@@ -210,17 +210,19 @@ JWT живёт `JWT_EXPIRES_IN=7d`, refresh-токена нет. Для моби
 ### Шрифты
 Onest (основной), Oswald (display), JetBrains Mono, Cormorant (serif). Через `expo-font` (плагин в `app.config`) + пакеты `@expo-google-fonts/*`. Variable-шрифты в RN поддерживаются плохо — брать статические начертания нужных весов.
 
-### Стилизация — решение нужно принять
-| Вариант | Комментарий |
-|---|---|
-| **Uniwind** (Tailwind v4 для RN) | Классы как во фронте, проще переносить разметку. Проверить совместимость с RN 0.88 / SDK 58 перед стартом |
-| NativeWind | То же, но поддержка Tailwind v4 — проверить статус |
-| `StyleSheet` + тема | Без зависимостей, но вся разметка пишется заново |
+### Стилизация и кит — решение принято
+**React Native Reusables + Uniwind.** Запасной вариант — Reusables + NativeWind, если Uniwind не заведётся на SDK 58.
 
-Рекомендация: Uniwind, если совместим с SDK 58; иначе `StyleSheet` + хук темы.
+- **React Native Reusables** (reactnativereusables.com) — порт shadcn/ui для RN: те же компоненты и API (`variant`, `size`, `cva`), CLI копирует исходник в проект, как shadcn. Под капотом `@rn-primitives/*` — порт Radix.
+- **Uniwind** — Tailwind v4 для RN: классы почти совпадают с вебом, разметку кита переносим правкой классов.
+- Почему: веб уже на shadcn + Tailwind, поэтому кит (`shared/ui`) переносится с теми же именами, пропсами и вариантами, а не пишется с нуля.
+
+Первая задача подготовки — проверка связки на SDK 58 / RN 0.88: поставить Uniwind и Reusables, собрать dev-сборку с одним `Button` на iOS и Android. Не собралось на Uniwind — переходим на NativeWind, остальное без изменений.
+
+Что в RN не переносится из CSS и переписывается: `color-mix(...)` (считаем в токенах заранее), сложные селекторы и `:has`, анимации через классы (→ Reanimated), `@media (max-height)` (→ `useWindowDimensions`).
 
 ### Компоненты
-shadcn/radix/base-ui в RN не работают — кит пишется заново, имена и API компонентов сохраняем (`Typography` → `Poster/Lead/Eyebrow/Text`, `Screen`, `ScreenHeader`, `ListRow`, `Segmented`, `StatGrid`, `Ring`, `Sparkline`, `StepChart`, `BodyMap`, `TimerButton`, `UndoBar`, `QueryState`/`QueryScreen` и т.д.). Правила из памяти проекта действуют: кнопки с жёсткой тенью (не пилюли), тексты — компонентами типографики, бейджи только для тегов, экраны только из `shared/ui`.
+Компоненты shadcn берём из Reusables; чего там нет (animate-ui, шторки, тосты) — отдельными библиотеками из таблицы ниже. Имена и API компонентов кита сохраняем (`Typography` → `Poster/Lead/Eyebrow/Text`, `Screen`, `ScreenHeader`, `ListRow`, `Segmented`, `StatGrid`, `Ring`, `Sparkline`, `StepChart`, `BodyMap`, `TimerButton`, `UndoBar`, `QueryState`/`QueryScreen` и т.д.). Правила из памяти проекта действуют: кнопки с жёсткой тенью (не пилюли), тексты — компонентами типографики, бейджи только для тегов, экраны только из `shared/ui`.
 
 | Веб | Мобилка |
 |---|---|
@@ -314,7 +316,9 @@ shadcn/radix/base-ui в RN не работают — кит пишется за�
 | `expo-apple-authentication` | Sign in with Apple (если вход через Telegram/VK остаётся) |
 | `expo-dev-client` | Dev-сборка: MMKV, bottom-sheet и др. не работают в Expo Go |
 | `expo-updates` | OTA-обновления через EAS Update |
-| `uniwind` (или выбранная стилизация) | Стили |
+| `uniwind` (запасной — `nativewind`) | Tailwind-классы в RN |
+| `@rn-primitives/*` | Примитивы под компоненты Reusables (ставит CLI Reusables вместе с компонентом) |
+| `class-variance-authority`, `clsx`, `tailwind-merge` | `cva`/`cn` — как во фронте |
 
 ### Этап 2
 | Пакет | Зачем |
@@ -393,7 +397,7 @@ shadcn/radix/base-ui в RN не работают — кит пишется за�
 ## 18. Открытые вопросы
 
 1. Общий код: вариант A (копия) или B (пакет `@sportbot/api`) — и когда.
-2. Стилизация: Uniwind / NativeWind / StyleSheet.
+2. ~~Стилизация~~ — решено: React Native Reusables + Uniwind (запасной NativeWind), см. раздел 8.
 3. Вход через Telegram/VK в iOS-версии: оставить (тогда обязателен Sign in with Apple) или только email + Apple.
 4. Редактор роликов и админка — в мобилке или только в вебе.
 5. Нужна ли веб-сборка мобилки (`react-native-web`) — скорее нет.
