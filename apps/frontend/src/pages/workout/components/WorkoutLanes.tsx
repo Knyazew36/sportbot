@@ -1,7 +1,7 @@
 import { CheckIcon, PlusIcon } from 'lucide-react'
 import { motion, useReducedMotion } from 'motion/react'
 
-import { supersetCharge, supersetLetter, toBlocks, type WorkoutItem } from '@/entities/workout'
+import { supersetCharge, supersetLetter, toBlocks, type WorkoutItem } from '@sportbot/api/entities/workout'
 import { ROUTES } from '@/shared/config/paths'
 import { cn } from '@/shared/lib/utils'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'

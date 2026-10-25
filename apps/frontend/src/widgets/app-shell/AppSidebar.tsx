@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router'
 
-import { useAbility, useCurrentOrganization } from '@/entities/session'
+import { useAbility, useCurrentOrganization } from '@/shared/auth/ability'
 import { APP_NAME } from '@/shared/config/app'
 import { ROUTES } from '@/shared/config/paths'
 import { ThemeTogglerButton } from '@/shared/ui/shadcn/animate-ui/components/buttons/theme-toggler'

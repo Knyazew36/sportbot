@@ -2,7 +2,8 @@ import { ChevronDownIcon, LayoutGridIcon, LogOutIcon, MonitorIcon, MoonIcon, Sun
 import { useTheme } from 'next-themes'
 import { Link } from 'react-router'
 
-import { logout, ORG_ROLE_LABEL, useCurrentOrganization, useMe } from '@/entities/session'
+import { logout, ORG_ROLE_LABEL, useMe } from '@sportbot/api/entities/session'
+import { useCurrentOrganization } from '@/shared/auth/ability'
 import { toAssetUrl } from '@/shared/api'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { displayName } from '@/shared/lib/format'

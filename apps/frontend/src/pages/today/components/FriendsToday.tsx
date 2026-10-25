@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
 
-import { useFriends } from '@/entities/social'
+import { useFriends } from '@sportbot/api/entities/social'
 import { toAssetUrl } from '@/shared/api'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { PersonAvatar } from '@/shared/ui/kit/PersonAvatar'

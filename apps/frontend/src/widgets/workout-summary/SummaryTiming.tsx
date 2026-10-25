@@ -1,4 +1,4 @@
-import type { WorkoutSummary } from '@/entities/workout'
+import type { WorkoutSummary } from '@sportbot/api/entities/workout'
 import { formatSeconds } from '@/shared/lib/hooks/use-deadline-timer'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'

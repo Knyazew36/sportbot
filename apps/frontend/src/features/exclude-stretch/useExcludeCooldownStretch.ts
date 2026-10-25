@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-import { stretchExclusionKeys } from '@/entities/stretch-exclusion'
-import { workoutKeys } from '@/entities/workout'
-import { workoutControllerCooldownExclude } from '@/shared/api/generated/workout/workout'
+import { stretchExclusionKeys } from '@sportbot/api/entities/stretch-exclusion'
+import { workoutKeys } from '@sportbot/api/entities/workout'
+import { workoutControllerCooldownExclude } from '@sportbot/api/generated/workout/workout'
 
 type Vars = { workoutId: number; stretchId: number }
 

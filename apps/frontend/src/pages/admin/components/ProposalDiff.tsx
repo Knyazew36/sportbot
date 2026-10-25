@@ -1,6 +1,6 @@
 import { ArrowRightIcon } from 'lucide-react'
 
-import type { AdminComplaint } from '@/entities/admin'
+import type { AdminComplaint } from '@sportbot/api/entities/admin'
 import { toAssetUrl } from '@/shared/api'
 import { CatalogImage } from '@/shared/ui/kit/CatalogImage'
 import { Eyebrow, Text } from '@/shared/ui/kit/Typography'

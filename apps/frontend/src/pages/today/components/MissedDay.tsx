@@ -1,4 +1,4 @@
-import { type DayToday, useFixDay, useRescheduleAnswer } from '@/entities/day'
+import { type DayToday, useFixDay, useRescheduleAnswer } from '@sportbot/api/entities/day'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'

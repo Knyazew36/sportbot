@@ -1,4 +1,4 @@
-import type { StretchImageCreditResponseDto } from '@/shared/api/generated/model'
+import type { StretchImageCreditResponseDto } from '@sportbot/api/generated/model'
 import { Text } from '@/shared/ui/kit/Typography'
 
 type ImageCreditProps = {

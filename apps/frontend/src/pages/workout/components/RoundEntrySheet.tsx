@@ -12,8 +12,8 @@ import {
   type SupersetRound,
   supersetLabels,
   useAddSet,
-} from '@/entities/workout'
-import { timeInput, timeLabel } from '@/shared/lib/measure'
+} from '@sportbot/api/entities/workout'
+import { timeInput, timeLabel } from '@sportbot/api/lib/measure'
 import { cn } from '@/shared/lib/utils'
 import { BoxInput } from '@/shared/ui/kit/BoxInput'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'

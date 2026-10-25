@@ -2,8 +2,8 @@ import { Controller, useFormContext, useWatch } from 'react-hook-form'
 
 import type { ComponentProps, ReactNode } from 'react'
 
-import { type Equipment, EQUIPMENT_LABEL, type ExerciseFormInput, useJoints, useMuscles } from '@/entities/catalog'
-import { type Measure, MEASURE_LABEL } from '@/shared/lib/measure'
+import { type Equipment, EQUIPMENT_LABEL, type ExerciseFormInput, useJoints, useMuscles } from '@sportbot/api/entities/catalog'
+import { type Measure, MEASURE_LABEL } from '@sportbot/api/lib/measure'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'

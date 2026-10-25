@@ -1,7 +1,7 @@
 import { pluralize } from '@front-cmdt/utils/pluralize'
 import { useParams } from 'react-router'
 
-import { useStatsDay } from '@/entities/stats'
+import { useStatsDay } from '@sportbot/api/entities/stats'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
 import { EXERCISE_FORMS } from '@/shared/lib/plural-forms'

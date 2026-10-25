@@ -1,0 +1,69 @@
+import { useEffect, useRef } from 'react'
+
+import { useStartWorkout } from '@sportbot/api/entities/workout'
+import { ROUTES } from '@/shared/config/paths'
+import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
+import { PageLoader } from '@/shared/ui/kit/PageLoader'
+import { Screen } from '@/shared/ui/kit/Screen'
+import { TopBar } from '@/shared/ui/kit/ScreenHeader'
+import { ScreenState } from '@/shared/ui/kit/ScreenState'
+
+/** Начать тренировку, если её ещё нет: «Начать» с «Сегодня» ведёт сюда с complexId */
+export const StartWorkout = ({ complexId }: { complexId?: number }) => {
+  const start = useStartWorkout()
+  const started = useRef(false)
+
+  useEffect(() => {
+    if (started.current) return
+    started.current = true
+    start.mutate(complexId)
+  }, [complexId, start])
+
+  // Старт создаёт тренировку на сервере: без сети мутация стоит на паузе и сама уйдёт, когда сеть появится
+  if (start.isPaused)
+    return (
+      <Screen
+        header={
+          <TopBar
+            back={ROUTES.TODAY}
+            title='Тренировка'
+          />
+        }
+        className='px-gutter'
+      >
+        <ScreenState
+          state='error'
+          title='Нет сети'
+          description='Начнём тренировку, как только появится связь. Экран можно не закрывать.'
+        />
+      </Screen>
+    )
+
+  if (start.isError)
+    return (
+      <Screen
+        header={
+          <TopBar
+            back={ROUTES.TODAY}
+            title='Тренировка'
+          />
+        }
+        className='px-gutter'
+      >
+        <ScreenState
+          state='error'
+          title='Не получилось начать'
+          description='Проверь, что в активной программе есть тренировка с упражнениями.'
+          action={
+            <ButtonLink
+              to={ROUTES.TODAY}
+              variant='outline'
+            >
+              На «Сегодня»
+            </ButtonLink>
+          }
+        />
+      </Screen>
+    )
+  return <PageLoader />
+}

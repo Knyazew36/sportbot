@@ -12,8 +12,8 @@ import {
   useUngroupTemplateExercise,
   useUngroupTemplateSuperset,
   useUpdateTemplateExercise,
-} from '@/entities/admin'
-import { complexLetter, type Program } from '@/entities/program'
+} from '@sportbot/api/entities/admin'
+import { complexLetter, type Program } from '@sportbot/api/entities/program'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'

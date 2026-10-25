@@ -1,4 +1,4 @@
-import { planText, type ProgramComplex } from '@/entities/program'
+import { planText, type ProgramComplex } from '@sportbot/api/entities/program'
 import { ExerciseBlocks } from '@/shared/ui/kit/ExerciseBlocks'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { Poster } from '@/shared/ui/kit/Typography'

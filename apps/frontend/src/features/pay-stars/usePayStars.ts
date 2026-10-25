@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 
-import type { StarPaymentPurpose } from '@/shared/api/generated/model'
-import { starsControllerCreate } from '@/shared/api/generated/stars/stars'
+import type { StarPaymentPurpose } from '@sportbot/api/generated/model'
+import { starsControllerCreate } from '@sportbot/api/generated/stars/stars'
 import { type InvoiceStatus, openStarsInvoice } from '@/shared/miniapp'
 
 /**

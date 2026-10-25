@@ -1,6 +1,6 @@
 import { RENDER_FORMATS, type RenderFormat } from '@sportbot/render-contract'
 
-import type { RenderJob } from '@/entities/render'
+import type { RenderJob } from '@sportbot/api/entities/render'
 import { slotOfJob } from '@/features/render-video'
 
 export const isKnownFormat = (format: string): format is RenderFormat => format in RENDER_FORMATS

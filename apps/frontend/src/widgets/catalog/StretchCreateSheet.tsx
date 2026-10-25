@@ -5,14 +5,14 @@ import { useNavigate } from 'react-router'
 
 import { useState } from 'react'
 
-import { useSaveStretch } from '@/entities/admin'
+import { useSaveStretch } from '@sportbot/api/entities/admin'
 import {
   type StretchFormInput,
   stretchFormSchema,
   type StretchFormValues,
   useCreateDraft,
   useUploadEntryImage,
-} from '@/entities/catalog'
+} from '@sportbot/api/entities/catalog'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'

@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 
-import { onboardingDaysSchema, type OnboardingDaysValues } from '@/entities/onboarding'
+import { onboardingDaysSchema, type OnboardingDaysValues } from '@sportbot/api/entities/onboarding'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { WEEKDAYS } from '@/shared/lib/weekdays'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'

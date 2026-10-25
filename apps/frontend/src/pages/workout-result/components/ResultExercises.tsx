@@ -1,6 +1,6 @@
 import { CheckIcon, MinusIcon } from 'lucide-react'
 
-import { lastText, type SharedWorkout } from '@/entities/workout'
+import { lastText, type SharedWorkout } from '@sportbot/api/entities/workout'
 import { ExerciseBlocks } from '@/shared/ui/kit/ExerciseBlocks'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'

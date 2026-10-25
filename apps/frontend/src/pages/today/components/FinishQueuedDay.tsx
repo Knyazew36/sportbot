@@ -1,6 +1,6 @@
 import { CloudOffIcon } from 'lucide-react'
 
-import type { DayToday } from '@/entities/day'
+import type { DayToday } from '@sportbot/api/entities/day'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Eyebrow, Lead, Poster, Text } from '@/shared/ui/kit/Typography'
 

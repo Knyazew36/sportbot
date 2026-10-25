@@ -1,6 +1,6 @@
 import { Trash2Icon } from 'lucide-react'
 
-import { useRemoveItem, type WorkoutItem } from '@/entities/workout'
+import { useRemoveItem, type WorkoutItem } from '@sportbot/api/entities/workout'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 

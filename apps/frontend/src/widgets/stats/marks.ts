@@ -1,7 +1,7 @@
 // Отметки дней календаря тренировок и их подписи
 export type DayMark = 'done' | 'skip' | 'pause' | 'moved' | 'pending' | 'rest' | 'future'
 
-import type { CalendarMark } from '@/shared/api/generated/model'
+import type { CalendarMark } from '@sportbot/api/generated/model'
 
 /** Отметка дня из API — в отметку клетки календаря */
 export const DAY_MARK: Record<CalendarMark, DayMark> = {

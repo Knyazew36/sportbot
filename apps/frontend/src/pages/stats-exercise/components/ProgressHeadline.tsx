@@ -1,4 +1,4 @@
-import { deltaText, setText, type StatsProgress, type StatsProgressItem } from '@/entities/stats'
+import { deltaText, setText, type StatsProgress, type StatsProgressItem } from '@sportbot/api/entities/stats'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
 

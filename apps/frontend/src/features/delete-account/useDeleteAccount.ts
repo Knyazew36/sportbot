@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router'
 
-import { profileControllerRemove } from '@/shared/api/generated/profile/profile'
+import { profileControllerRemove } from '@sportbot/api/generated/profile/profile'
 import { ROUTES } from '@/shared/config/paths'
 
 /**

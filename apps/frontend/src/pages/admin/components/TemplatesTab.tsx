@@ -12,8 +12,8 @@ import {
   useCreateTemplate,
   useReorderTemplates,
   useTemplateFromProgram,
-} from '@/entities/admin'
-import { usePrograms } from '@/entities/program'
+} from '@sportbot/api/entities/admin'
+import { usePrograms } from '@sportbot/api/entities/program'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { pluralize } from '@front-cmdt/utils/pluralize'

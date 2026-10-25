@@ -1,8 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider, useForm } from 'react-hook-form'
 
-import { type AdminStretch, useUploadCatalogImage } from '@/entities/admin'
-import { type StretchFormInput, stretchFormSchema, type StretchFormValues, toTextList } from '@/entities/catalog'
+import { type AdminStretch, useUploadCatalogImage } from '@sportbot/api/entities/admin'
+import { type StretchFormInput, stretchFormSchema, type StretchFormValues, toTextList } from '@sportbot/api/entities/catalog'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { StretchFields } from '@/widgets/catalog/StretchFields'
 

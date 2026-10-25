@@ -1,25 +1,20 @@
-import { pluralize } from '@front-cmdt/utils/pluralize'
-import { PencilIcon, Trash2Icon } from 'lucide-react'
-import { useNavigate, useParams, useSearchParams } from 'react-router'
+import { useParams, useSearchParams } from 'react-router'
 
-import { useDeleteWorkout, useWorkout, useWorkoutSummary } from '@/entities/workout'
-import { ShareWorkoutButton } from '@/features/share-workout/ShareWorkoutButton'
+import { useWorkout, useWorkoutSummary } from '@sportbot/api/entities/workout'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
-import { EXERCISE_FORMS, SET_FORMS } from '@/shared/lib/plural-forms'
-import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
-import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Rise } from '@/shared/ui/kit/Reveal'
-import { Screen, StickyFooter } from '@/shared/ui/kit/Screen'
+import { Screen } from '@/shared/ui/kit/Screen'
 import { TopBar } from '@/shared/ui/kit/ScreenHeader'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
-import { StatGrid } from '@/shared/ui/kit/StatGrid'
-import { Lead, Poster, Text } from '@/shared/ui/kit/Typography'
-import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
+import { Lead, Poster } from '@/shared/ui/kit/Typography'
 import { WorkoutRecords } from '@/widgets/workout-records/WorkoutRecords'
 import { SummaryTiming } from '@/widgets/workout-summary/SummaryTiming'
 import { WorkoutProtocol } from '@/widgets/workout-summary/WorkoutProtocol'
+
+import { WorkoutFacts } from './components/WorkoutFacts'
+import { WorkoutStatsFooter } from './components/WorkoutStatsFooter'
 
 // Прошедшая тренировка из календаря посещений: что сделано, рекорды того дня, время, протокол.
 // В отличие от итога сразу после тренировки здесь нет серии и заминки — только разбор и правка
@@ -29,10 +24,8 @@ const StatsWorkoutPage = () => {
   const month = params.get('month')
   // Пришли с разводящей дня (в тот день тренировок несколько) — туда и возвращаемся
   const day = params.get('day')
-  const navigate = useNavigate()
   const summary = useWorkoutSummary(workoutId)
   const workout = useWorkout(workoutId)
-  const remove = useDeleteWorkout()
   // Назад — на разводящую дня или в посещения на тот же месяц календаря
   const back = day
     ? buildPath(ROUTES.STATS_DAY, { date: day })
@@ -49,27 +42,10 @@ const StatsWorkoutPage = () => {
       }
       footer={
         summary.data && (
-          <StickyFooter className='grid grid-cols-[1fr_auto] gap-2'>
-            <ShareWorkoutButton
-              workoutId={workoutId}
-              size='lg'
-            />
-            <ConfirmAction
-              trigger={
-                <Button
-                  variant='outline'
-                  size='lg'
-                  aria-label='Удалить тренировку'
-                />
-              }
-              title='Удалить тренировку?'
-              description='Подходы пропадут из статистики, а день в календаре станет пропуском.'
-              confirmLabel='Удалить'
-              onConfirm={() => remove.mutateAsync(workoutId).then(() => navigate(back, { replace: true }))}
-            >
-              <Trash2Icon />
-            </ConfirmAction>
-          </StickyFooter>
+          <WorkoutStatsFooter
+            workoutId={workoutId}
+            back={back}
+          />
         )
       }
       className='gap-8 pb-10'
@@ -89,48 +65,11 @@ const StatsWorkoutPage = () => {
               </Poster>
             </Rise>
 
-            <Rise className='px-gutter flex flex-col gap-3'>
-              <StatGrid
-                framed
-                items={[
-                  { label: pluralize(s.sets, SET_FORMS, { withCount: false }), value: s.sets },
-                  {
-                    label: pluralize(s.exercisesTotal, EXERCISE_FORMS, { withCount: false }),
-                    value: `${s.exercisesDone}/${s.exercisesTotal}`,
-                  },
-                  { label: 'минут', value: s.minutes },
-                ]}
-              />
-              {s.tonnage > 0 && (
-                <Text
-                  size='sm'
-                  tone='soft'
-                >
-                  Поднято за тренировку: {s.tonnage.toLocaleString('ru-RU')} кг
-                </Text>
-              )}
-              {s.cardioName && (
-                <Text
-                  size='sm'
-                  tone='soft'
-                >
-                  Кардио в конце: {s.cardioName}
-                  {s.cardioMinutes ? `, ${s.cardioMinutes} мин` : ''}
-                </Text>
-              )}
-              {/* Подходы есть — их можно поправить; в простом режиме править нечего */}
-              {s.sets > 0 && (
-                <ButtonLink
-                  // Те же day/month — правка вернёт сюда же, а отсюда — туда, откуда пришли
-                  to={`${buildPath(ROUTES.WORKOUT_EDIT, { workoutId })}?${params.toString()}`}
-                  variant='outline'
-                  className='w-full'
-                >
-                  <PencilIcon />
-                  Исправить подходы
-                </ButtonLink>
-              )}
-            </Rise>
+            <WorkoutFacts
+              summary={s}
+              // Те же day/month — правка вернёт сюда же, а отсюда — туда, откуда пришли
+              editTo={`${buildPath(ROUTES.WORKOUT_EDIT, { workoutId })}?${params.toString()}`}
+            />
 
             {s.records.length > 0 && (
               <ScreenSection

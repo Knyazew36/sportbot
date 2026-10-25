@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { COMPOSITIONS, LOWER_THIRD_SECONDS, type LowerThirdProps } from '@sportbot/render-contract'
 import { useForm } from 'react-hook-form'
 
-import { renderPropsSchema } from '@/entities/render'
+import { renderPropsSchema } from '@sportbot/api/entities/render'
 import { FILL_OPTIONS, secondsOptions } from '@/features/render-video'
 import { usePaletteChoice } from '@/shared/lib/hooks/use-palette'
 import { Segmented } from '@/shared/ui/kit/Segmented'

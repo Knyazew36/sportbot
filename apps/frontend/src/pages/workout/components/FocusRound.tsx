@@ -1,13 +1,13 @@
 import { CheckIcon, PauseIcon, PlayIcon, TimerResetIcon, XIcon } from 'lucide-react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 
-import { type SupersetRound, supersetLabels } from '@/entities/workout'
+import { type SupersetRound, supersetLabels } from '@sportbot/api/entities/workout'
 import { formatSeconds } from '@/shared/lib/hooks/use-deadline-timer'
 import type { useStopwatch } from '@/shared/lib/hooks/use-stopwatch'
 import { cn } from '@/shared/lib/utils'
 import { haptic } from '@/shared/miniapp'
 import { Digits, Poster, Text } from '@/shared/ui/kit/Typography'
-import { isTimed, type Measure, rangeText } from '@/shared/lib/measure'
+import { isTimed, type Measure, rangeText } from '@sportbot/api/lib/measure'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
 import { FocusShell } from './FocusShell'

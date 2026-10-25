@@ -1,6 +1,6 @@
 import { ArrowRightIcon } from 'lucide-react'
 
-import { useCooldown } from '@/entities/workout'
+import { useCooldown } from '@sportbot/api/entities/workout'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { cn } from '@/shared/lib/utils'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'

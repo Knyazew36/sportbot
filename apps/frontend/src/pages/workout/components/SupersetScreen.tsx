@@ -1,7 +1,7 @@
 import { FlameIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
-import { type SupersetRound, supersetLabels, type WorkoutItem } from '@/entities/workout'
+import { type SupersetRound, supersetLabels, type WorkoutItem } from '@sportbot/api/entities/workout'
 import type { EditingSet } from '@/widgets/workout/EditSetSheet'
 import { haptic } from '@/shared/miniapp'
 import { ChargeChain } from '@/shared/ui/kit/ChargeChain'

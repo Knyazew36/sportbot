@@ -10,7 +10,7 @@ import {
   useCatalogExercises,
   useCatalogStretches,
   useMuscles,
-} from '@/entities/catalog'
+} from '@sportbot/api/entities/catalog'
 import { toAssetUrl } from '@/shared/api'
 import { useDebouncedValue } from '@/shared/lib/hooks/use-debounced-value'
 import { List } from '@/shared/ui/kit/ListRow'

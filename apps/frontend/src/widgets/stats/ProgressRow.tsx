@@ -1,7 +1,7 @@
 import { pluralize } from '@front-cmdt/utils/pluralize'
 import { Link } from 'react-router'
 
-import { deltaText, setText, type StatsProgressItem } from '@/entities/stats'
+import { deltaText, setText, type StatsProgressItem } from '@sportbot/api/entities/stats'
 import { ListRow } from '@/shared/ui/kit/ListRow'
 import { Sparkline } from '@/shared/ui/kit/Sparkline'
 import { Poster } from '@/shared/ui/kit/Typography'

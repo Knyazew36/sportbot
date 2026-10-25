@@ -1,4 +1,4 @@
-import type { CooldownStretch } from '@/entities/workout'
+import type { CooldownStretch } from '@sportbot/api/entities/workout'
 import { toAssetUrl } from '@/shared/api'
 import { List } from '@/shared/ui/kit/ListRow'
 import { Eyebrow } from '@/shared/ui/kit/Typography'

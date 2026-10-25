@@ -1,5 +1,3 @@
-import { useSearchParams } from 'react-router'
-
 import { PosterTabs } from '@/shared/ui/kit/PosterTabs'
 import { Screen } from '@/shared/ui/kit/Screen'
 import { ScreenHeader } from '@/shared/ui/kit/ScreenHeader'
@@ -11,29 +9,7 @@ import { usePeriod } from '@/widgets/stats/periods'
 import { ProgressListSection } from '@/widgets/stats/ProgressListSection'
 import { RecordsSection } from '@/widgets/stats/RecordsSection'
 
-const TABS = [
-  { value: 'progress', label: 'Прогресс' },
-  { value: 'muscles', label: 'Мышцы' },
-  { value: 'attendance', label: 'Посещения' },
-] as const
-
-type Tab = (typeof TABS)[number]['value']
-
-/** Вкладка из адреса (?tab=): на неё ведут ссылки с «Сегодня», и она переживает возврат со страницы упражнения */
-const useTab = () => {
-  const [params, setParams] = useSearchParams()
-  const raw = params.get('tab')
-  const tab: Tab = TABS.find(t => t.value === raw)?.value ?? 'progress'
-  const setTab = (next: Tab) =>
-    setParams(
-      prev => {
-        prev.set('tab', next)
-        return prev
-      },
-      { replace: true },
-    )
-  return [tab, setTab] as const
-}
+import { TABS, useTab } from './model/use-tab'
 
 // Статистика (frontend-tz, 12): три вопроса, каждый на своей вкладке — «я расту?», «всё ли тело работает?»,
 // «хожу ли регулярно?». С главной в посещения ведёт ссылка в шапке. Вес тела — в профиле. Цифры считает бэк — те же, что в боте

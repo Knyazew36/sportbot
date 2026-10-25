@@ -1,4 +1,4 @@
-import type { DayToday } from '@/entities/day'
+import type { DayToday } from '@sportbot/api/entities/day'
 import { RestArt } from '@/shared/ui/kit/Art'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Lead, Poster } from '@/shared/ui/kit/Typography'

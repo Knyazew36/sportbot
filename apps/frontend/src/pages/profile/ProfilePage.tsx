@@ -2,14 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
-import {
-  type Me,
-  useChangePassword,
-  useDeleteAccount,
-  useMe,
-  useUpdateProfile,
-  useUploadAvatar,
-} from '@/entities/session'
+import { type Me, useChangePassword, useDeleteAccount, useMe, useUpdateProfile, useUploadAvatar } from '@sportbot/api/entities/session'
 import { toAssetUrl } from '@/shared/api'
 import { displayName } from '@/shared/lib/format'
 import { notifyError, notifySuccess } from '@/shared/lib/notify'

@@ -1,4 +1,4 @@
-import type { StatsE1rmResponseDto, StatsE1rmSetResponseDto } from '@/shared/api/generated/model'
+import type { StatsE1rmResponseDto, StatsE1rmSetResponseDto } from '@sportbot/api/generated/model'
 import { formatDate } from '@/shared/lib/format'
 import { StepChart } from '@/shared/ui/kit/StepChart'
 import { Eyebrow, Poster, Text, Unit } from '@/shared/ui/kit/Typography'

@@ -1,4 +1,4 @@
-import { useMyEntriesCount } from '@/entities/catalog'
+import { useMyEntriesCount } from '@sportbot/api/entities/catalog'
 import { CountBadge } from '@/shared/ui/kit/CountBadge'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 

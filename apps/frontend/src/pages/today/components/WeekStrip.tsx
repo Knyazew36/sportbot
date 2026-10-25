@@ -3,8 +3,8 @@ import { CheckIcon, ChevronLeftIcon, ChevronRightIcon, PauseIcon, XIcon } from '
 
 import { useState } from 'react'
 
-import type { DayToday } from '@/entities/day'
-import { useCalendarMonths, usePrefetchStatsDays } from '@/entities/stats'
+import type { DayToday } from '@sportbot/api/entities/day'
+import { useCalendarMonths, usePrefetchStatsDays } from '@sportbot/api/entities/stats'
 import { formatDate } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 import { weekdayShort } from '@/shared/lib/weekdays'

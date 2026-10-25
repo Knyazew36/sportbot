@@ -1,4 +1,4 @@
-import { type ProgressUnit, setText, useProgressSessions } from '@/entities/stats'
+import { type ProgressUnit, setText, useProgressSessions } from '@sportbot/api/entities/stats'
 import { formatDate } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'

@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
 
-import { useInvitePreview, useRedeemInvite } from '@/entities/invite/api'
-import { sessionKeys } from '@/entities/session'
+import { useInvitePreview, useRedeemInvite } from '@sportbot/api/entities/invite/api'
+import { sessionKeys } from '@sportbot/api/entities/session'
 import { queryClient, toAssetUrl } from '@/shared/api'
 import { useIsAuthenticated } from '@/shared/auth'
 import { APP_NAME } from '@/shared/config/app'

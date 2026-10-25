@@ -1,2 +1,1 @@
-export * from './session-events'
-export * from './useIsAuthenticated'
+export { emitSessionChange, isAuthenticated, subscribeSession, useIsAuthenticated } from '@sportbot/api/client'

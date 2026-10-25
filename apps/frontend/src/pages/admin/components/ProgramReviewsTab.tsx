@@ -1,7 +1,7 @@
 import { ArrowRightIcon } from 'lucide-react'
 import { useSearchParams } from 'react-router'
 
-import { type ProgramReviewFilter, useProgramReviews } from '@/entities/admin'
+import { type ProgramReviewFilter, useProgramReviews } from '@sportbot/api/entities/admin'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
 import { pluralize } from '@front-cmdt/utils/pluralize'

@@ -2,8 +2,8 @@ import { Navigate, useLocation, useNavigate } from 'react-router'
 
 import { useEffect, useRef } from 'react'
 
-import { useAdminCounters } from '@/entities/admin'
-import { useSportUser } from '@/entities/sport-user'
+import { useAdminCounters } from '@sportbot/api/entities/admin'
+import { useSportUser } from '@sportbot/api/entities/sport-user'
 import { EntryErrorScreen } from '@/pages/entry/EntryErrorScreen'
 import { getApiErrorCode, getApiErrorStatus } from '@/shared/api'
 import { ROUTES } from '@/shared/config/paths'

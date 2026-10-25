@@ -2,7 +2,7 @@ import { CheckIcon, PencilIcon, XIcon } from 'lucide-react'
 
 import { useState } from 'react'
 
-import { useApplyComplaint, useCloseComplaint, useComplaints } from '@/entities/admin'
+import { useApplyComplaint, useCloseComplaint, useComplaints } from '@sportbot/api/entities/admin'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'

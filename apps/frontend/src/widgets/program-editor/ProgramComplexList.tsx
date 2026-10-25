@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router'
 
 import { useState } from 'react'
 
-import { complexLetter, type ProgramComplex } from '@/entities/program'
+import { complexLetter, type ProgramComplex } from '@sportbot/api/entities/program'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'

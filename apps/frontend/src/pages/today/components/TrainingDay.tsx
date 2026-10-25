@@ -2,7 +2,7 @@ import { ShuffleIcon } from 'lucide-react'
 
 import { useState } from 'react'
 
-import { type DayToday, useSkipDay } from '@/entities/day'
+import { type DayToday, useSkipDay } from '@sportbot/api/entities/day'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'

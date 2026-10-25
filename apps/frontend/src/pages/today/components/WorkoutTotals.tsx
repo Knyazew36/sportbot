@@ -1,6 +1,6 @@
 import { ArrowRightIcon } from 'lucide-react'
 
-import { useWorkoutSummary } from '@/entities/workout'
+import { useWorkoutSummary } from '@sportbot/api/entities/workout'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { EXERCISE_OF_FORMS, SET_FORMS } from '@/shared/lib/plural-forms'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'

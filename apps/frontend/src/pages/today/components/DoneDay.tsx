@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router'
 
 import { useState } from 'react'
 
-import type { DayToday } from '@/entities/day'
+import type { DayToday } from '@sportbot/api/entities/day'
 import { ROUTES } from '@/shared/config/paths'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { Rise } from '@/shared/ui/kit/Reveal'

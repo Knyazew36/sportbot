@@ -6,7 +6,7 @@ import {
   useNotifications,
   useReadAllNotifications,
   useReadNotification,
-} from '@/entities/notification/api'
+} from '@sportbot/api/entities/notification/api'
 import { formatDateTime } from '@/shared/lib/format'
 import { usePageParam } from '@/shared/lib/hooks/use-page-param'
 import { notifyError } from '@/shared/lib/notify'

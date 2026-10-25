@@ -1,4 +1,4 @@
-import { useEveningAnswer } from '@/entities/day'
+import { useEveningAnswer } from '@sportbot/api/entities/day'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Eyebrow, Poster } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'

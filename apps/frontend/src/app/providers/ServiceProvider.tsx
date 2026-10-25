@@ -3,7 +3,7 @@ import { ThemeProvider } from 'next-themes'
 
 import { type ReactNode, useState } from 'react'
 
-import { registerWorkoutQueue } from '@/entities/workout'
+import { registerWorkoutQueue } from '@sportbot/api/entities/workout'
 import { getPersistOptions, queryClient, resumePersistedMutations } from '@/shared/api/query-client'
 import { TooltipProvider } from '@/shared/ui/shadcn/animate-ui/components/animate/tooltip'
 import { Toaster } from '@/shared/ui/shadcn/toast'

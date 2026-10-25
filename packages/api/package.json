@@ -1,0 +1,16 @@
+{
+  "name": "@sportbot/api",
+  "private": true,
+  "version": "0.0.0",
+  "description": "API Спортбота для веба и мобилки: функции и типы orval (generated), query-хуки сущностей (entities), клиент axios (client), чистые функции домена (lib). Без сборки — приложения компилируют исходники сами",
+  "scripts": {
+    "check-types": "tsc -p tsconfig.json"
+  },
+  "peerDependencies": {
+    "@front-cmdt/utils": "*",
+    "@tanstack/react-query": "^5.104.1",
+    "axios": "^1.20.0",
+    "react": "^19",
+    "zod": "^4"
+  }
+}

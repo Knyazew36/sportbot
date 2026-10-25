@@ -1,7 +1,8 @@
 import { CheckIcon, ChevronsUpDownIcon, LayoutGridIcon } from 'lucide-react'
 import { Link } from 'react-router'
 
-import { ORG_ROLE_LABEL, useCurrentOrganization, useMe } from '@/entities/session'
+import { ORG_ROLE_LABEL, useMe } from '@sportbot/api/entities/session'
+import { useCurrentOrganization } from '@/shared/auth/ability'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import {
   DropdownMenu,

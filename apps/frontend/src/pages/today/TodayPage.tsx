@@ -2,9 +2,9 @@ import { ArrowRightIcon } from 'lucide-react'
 
 import { useState } from 'react'
 
-import { type DayToday, usePickComplex, useToday } from '@/entities/day'
-import { useSportUser } from '@/entities/sport-user'
-import { useFinishQueued } from '@/entities/workout'
+import { type DayToday, usePickComplex, useToday } from '@sportbot/api/entities/day'
+import { useSportUser } from '@sportbot/api/entities/sport-user'
+import { useFinishQueued } from '@sportbot/api/entities/workout'
 import { ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'

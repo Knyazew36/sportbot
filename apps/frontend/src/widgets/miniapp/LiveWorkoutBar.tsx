@@ -4,7 +4,7 @@ import { Link } from 'react-router'
 
 import { type CSSProperties, useEffect } from 'react'
 
-import { useCurrentWorkout, useQueuedWorkout } from '@/entities/workout'
+import { useCurrentWorkout, useQueuedWorkout } from '@sportbot/api/entities/workout'
 import { ROUTES } from '@/shared/config/paths'
 import { useDeadlineTimer } from '@/shared/lib/hooks/use-deadline-timer'
 import { repaintMessengerChrome } from '@/shared/lib/hooks/use-messenger-theme'

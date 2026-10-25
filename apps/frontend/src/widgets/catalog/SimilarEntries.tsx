@@ -1,4 +1,4 @@
-import { type CatalogKind, useSimilar } from '@/entities/catalog'
+import { type CatalogKind, useSimilar } from '@sportbot/api/entities/catalog'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { useDebouncedValue } from '@/shared/lib/hooks/use-debounced-value'
 import { List } from '@/shared/ui/kit/ListRow'

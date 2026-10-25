@@ -1,8 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormProvider, useForm } from 'react-hook-form'
 
-import { type AdminExercise, useUploadCatalogImage } from '@/entities/admin'
-import { type ExerciseFormInput, exerciseFormSchema, type ExerciseFormValues, toTextList } from '@/entities/catalog'
+import { type AdminExercise, useUploadCatalogImage } from '@sportbot/api/entities/admin'
+import { type ExerciseFormInput, exerciseFormSchema, type ExerciseFormValues, toTextList } from '@sportbot/api/entities/catalog'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { ExerciseFields } from '@/widgets/catalog/ExerciseFields'
 

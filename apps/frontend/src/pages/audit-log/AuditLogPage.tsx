@@ -1,5 +1,5 @@
-import { useAuditLog } from '@/entities/audit-log/api'
-import { useCurrentOrganization } from '@/entities/session'
+import { useAuditLog } from '@sportbot/api/entities/audit-log/api'
+import { useCurrentOrganization } from '@/shared/auth/ability'
 import { formatDateTime } from '@/shared/lib/format'
 import { usePageParam } from '@/shared/lib/hooks/use-page-param'
 import { PageHeader } from '@/shared/ui/kit/PageHeader'

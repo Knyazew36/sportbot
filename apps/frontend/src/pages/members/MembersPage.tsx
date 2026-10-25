@@ -5,8 +5,9 @@ import {
   useDeleteMember,
   useOrganizationMembers,
   useUpdateMember,
-} from '@/entities/organization/api'
-import { ORG_ROLE_LABEL, type OrgRole, useAbility, useCurrentOrganization, useMe } from '@/entities/session'
+} from '@sportbot/api/entities/organization/api'
+import { ORG_ROLE_LABEL, type OrgRole, useMe } from '@sportbot/api/entities/session'
+import { useAbility, useCurrentOrganization } from '@/shared/auth/ability'
 import { toAssetUrl } from '@/shared/api'
 import { ROUTES } from '@/shared/config/paths'
 import { displayName, formatDate } from '@/shared/lib/format'

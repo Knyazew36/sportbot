@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 
 import { useState } from 'react'
 
-import type { DayToday } from '@/entities/day'
+import type { DayToday } from '@sportbot/api/entities/day'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Eyebrow } from '@/shared/ui/kit/Typography'
 import { ATTENDANCE_LINK } from '@/widgets/stats/links'

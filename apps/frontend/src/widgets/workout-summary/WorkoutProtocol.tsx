@@ -1,6 +1,6 @@
 import { CheckIcon, MinusIcon } from 'lucide-react'
 
-import { doneOrder, lastText, useWorkout } from '@/entities/workout'
+import { doneOrder, lastText, useWorkout } from '@sportbot/api/entities/workout'
 import { ExerciseBlocks } from '@/shared/ui/kit/ExerciseBlocks'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'

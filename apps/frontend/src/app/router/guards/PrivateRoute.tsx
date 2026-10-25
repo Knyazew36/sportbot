@@ -1,6 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router'
 
-import { useMe } from '@/entities/session'
+import { useMe } from '@sportbot/api/entities/session'
 import { useIsAuthenticated } from '@/shared/auth'
 import { type AuthLocationState, ROUTES } from '@/shared/config/paths'
 import { PageLoader } from '@/shared/ui/kit/PageLoader'

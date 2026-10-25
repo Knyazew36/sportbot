@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { MUSCLE_GROUPS, muscleGroupOf } from '@/entities/catalog'
+import { MUSCLE_GROUPS, muscleGroupOf } from '@sportbot/api/entities/catalog'
 import { cn } from '@/shared/lib/utils'
 import { BodyMap } from '@/shared/ui/kit/BodyMap'
 import { Eyebrow, Text } from '@/shared/ui/kit/Typography'

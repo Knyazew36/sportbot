@@ -2,10 +2,10 @@ import { useParams, useSearchParams } from 'react-router'
 
 import { useState } from 'react'
 
-import { PROGRESS_UNIT, useProgress } from '@/entities/stats'
-import type { StatsProgressPointResponseDto } from '@/shared/api/generated/model'
+import { PROGRESS_UNIT, useProgress } from '@sportbot/api/entities/stats'
+import type { StatsProgressPointResponseDto } from '@sportbot/api/generated/model'
 import { formatDate } from '@/shared/lib/format'
-import { durationText } from '@/shared/lib/measure'
+import { durationText } from '@sportbot/api/lib/measure'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Screen } from '@/shared/ui/kit/Screen'
 import { TopBar } from '@/shared/ui/kit/ScreenHeader'

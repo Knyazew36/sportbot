@@ -30,9 +30,8 @@ export class AdminService {
       exercises,
       stretches,
     ] = await Promise.all([
-      this.prisma.sportProfile.count({
-        where: { onboardedAt: { not: null } },
-      }),
+      // То же условие, что у списка во вкладке «Пользователи»: иначе число на вкладке не сходится с «найдено»
+      this.prisma.user.count({ where: { sportProfile: { isNot: null } } }),
       this.prisma.workout.count({
         where: {
           status: { in: ['FINISHED', 'AUTO_CLOSED'] },

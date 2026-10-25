@@ -1,7 +1,7 @@
 import { TrophyIcon } from 'lucide-react'
 import { Link } from 'react-router'
 
-import { setText, type StatsRecord } from '@/entities/stats'
+import { setText, type StatsRecord } from '@sportbot/api/entities/stats'
 import { formatDate } from '@/shared/lib/format'
 import { ListRow } from '@/shared/ui/kit/ListRow'
 import { Poster } from '@/shared/ui/kit/Typography'

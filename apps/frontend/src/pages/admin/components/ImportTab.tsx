@@ -2,7 +2,7 @@ import { CheckIcon } from 'lucide-react'
 
 import { useState } from 'react'
 
-import { type ImportReport, useImportApply, useImportCheck } from '@/entities/admin'
+import { type ImportReport, useImportApply, useImportCheck } from '@sportbot/api/entities/admin'
 import { FileDrop } from '@/shared/ui/kit/FileDrop'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { Rise } from '@/shared/ui/kit/Reveal'

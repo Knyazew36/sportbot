@@ -1,4 +1,4 @@
-import { useTemplates } from '@/entities/program'
+import { useTemplates } from '@sportbot/api/entities/program'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { ProgramPreviewSheet } from '@/widgets/program-preview/ProgramPreviewSheet'
 

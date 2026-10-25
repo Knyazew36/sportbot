@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { type Equipment, EQUIPMENT_LABEL } from '@/entities/catalog'
+import { type Equipment, EQUIPMENT_LABEL } from '@sportbot/api/entities/catalog'
 import { BodyMap } from '@/shared/ui/kit/BodyMap'
 import { CountBadge } from '@/shared/ui/kit/CountBadge'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'

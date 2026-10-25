@@ -2,7 +2,7 @@ import { COMPOSITION_IDS } from '@sportbot/render-contract'
 import { ChevronRightIcon, FolderOpenIcon } from 'lucide-react'
 import { Link } from 'react-router'
 
-import { useRenderJobs } from '@/entities/render'
+import { useRenderJobs } from '@sportbot/api/entities/render'
 import { ROUTES } from '@/shared/config/paths'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Screen } from '@/shared/ui/kit/Screen'

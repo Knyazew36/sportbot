@@ -2,7 +2,7 @@ import { ChevronDownIcon, XIcon } from 'lucide-react'
 
 import { useState } from 'react'
 
-import { type Equipment, EQUIPMENT_LABEL, MUSCLE_GROUPS } from '@/entities/catalog'
+import { type Equipment, EQUIPMENT_LABEL, MUSCLE_GROUPS } from '@sportbot/api/entities/catalog'
 import { cn } from '@/shared/lib/utils'
 import { SearchField } from '@/shared/ui/kit/SearchField'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'

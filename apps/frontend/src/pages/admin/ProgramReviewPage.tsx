@@ -2,8 +2,9 @@ import { useNavigate, useParams, useSearchParams } from 'react-router'
 
 import { useState } from 'react'
 
-import { type ProgramReview, useApproveProgramReview, useProgramReview } from '@/entities/admin'
-import { complexLetter, planText, PUBLICATION_STATUS, useAllTagGroups } from '@/entities/program'
+import { type ProgramReview, useApproveProgramReview, useProgramReview } from '@sportbot/api/entities/admin'
+import { complexLetter, planText, useAllTagGroups } from '@sportbot/api/entities/program'
+import { PUBLICATION_STATUS } from '@/features/publish-program/publication-status'
 import { ROUTES } from '@/shared/config/paths'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'

@@ -2,7 +2,7 @@ import { ChevronRightIcon, GripVerticalIcon } from 'lucide-react'
 import { Reorder, useDragControls } from 'motion/react'
 import { Link } from 'react-router'
 
-import { complexLetter, type ProgramComplex } from '@/entities/program'
+import { complexLetter, type ProgramComplex } from '@sportbot/api/entities/program'
 import { pluralize } from '@front-cmdt/utils/pluralize'
 import { cn } from '@/shared/lib/utils'
 import { Poster, Text } from '@/shared/ui/kit/Typography'

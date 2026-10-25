@@ -1,5 +1,5 @@
-import type { StatsDay } from '@/entities/stats'
-import { durationText, isTimed, type Measure } from '@/shared/lib/measure'
+import type { StatsDay } from '@sportbot/api/entities/stats'
+import { durationText, isTimed, type Measure } from '@sportbot/api/lib/measure'
 import { ExerciseBlocks } from '@/shared/ui/kit/ExerciseBlocks'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { Poster, Text } from '@/shared/ui/kit/Typography'

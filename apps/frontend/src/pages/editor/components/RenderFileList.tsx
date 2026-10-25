@@ -1,7 +1,7 @@
 import { COMPOSITIONS, isCompositionId, RENDER_FORMATS, type RenderFormat } from '@sportbot/render-contract'
 import { ClockIcon, Trash2Icon } from 'lucide-react'
 
-import { type RenderJob, useDeleteRenderFile, useOrderRender, useOrderRenderToChat } from '@/entities/render'
+import { type RenderJob, useDeleteRenderFile, useOrderRender, useOrderRenderToChat } from '@sportbot/api/entities/render'
 import { ChatButton, downloadRender, FileButton, slotOfJob } from '@/features/render-video'
 import { getMiniappPlatform } from '@/shared/miniapp'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'

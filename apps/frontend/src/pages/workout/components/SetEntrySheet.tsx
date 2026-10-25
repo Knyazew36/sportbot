@@ -14,8 +14,8 @@ import {
   type WorkoutSetInput,
   workoutSetSchema,
   type WorkoutSetValues,
-} from '@/entities/workout'
-import { durationText, isTimed, timeInput, timeLabel } from '@/shared/lib/measure'
+} from '@sportbot/api/entities/workout'
+import { durationText, isTimed, timeInput, timeLabel } from '@sportbot/api/lib/measure'
 import { BoxInput } from '@/shared/ui/kit/BoxInput'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'

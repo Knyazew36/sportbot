@@ -10,7 +10,7 @@ import {
   type MyEntry,
   useMyEntries,
   usePublishEntry,
-} from '@/entities/catalog'
+} from '@sportbot/api/entities/catalog'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'

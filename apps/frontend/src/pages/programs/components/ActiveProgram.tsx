@@ -2,7 +2,8 @@ import { PencilIcon } from 'lucide-react'
 
 import { useState } from 'react'
 
-import { isPublishable, PUBLICATION_STATUS, useMakeNextComplex, useProgram } from '@/entities/program'
+import { isPublishable, useMakeNextComplex, useProgram } from '@sportbot/api/entities/program'
+import { PUBLICATION_STATUS } from '@/features/publish-program/publication-status'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
@@ -12,8 +13,8 @@ import { StatusFromMeta } from '@/shared/ui/kit/StatusBadge'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
 import { ComplexQueue } from '@/widgets/complex-queue/ComplexQueue'
 
-import { PublishSheet } from './PublishSheet'
-import { ShowOthers } from './ShowOthers'
+import { PublishSheet } from '@/features/publish-program/PublishSheet'
+import { ShowOthers } from '@/features/publish-program/ShowOthers'
 import { pluralize } from '@front-cmdt/utils/pluralize'
 import { EXERCISE_FORMS, SET_FORMS } from '@/shared/lib/plural-forms'
 

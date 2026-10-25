@@ -2,7 +2,7 @@ import { SlidersHorizontalIcon } from 'lucide-react'
 
 import { type ReactNode, useState } from 'react'
 
-import type { ProgramTagGroup, TagSelection } from '@/entities/program'
+import type { ProgramTagGroup, TagSelection } from '@sportbot/api/entities/program'
 import { CHIP_ALL, ChipFilter } from '@/shared/ui/kit/ChipFilter'
 import { CountBadge } from '@/shared/ui/kit/CountBadge'
 import { SearchField } from '@/shared/ui/kit/SearchField'

@@ -10,7 +10,7 @@ import {
   useSaveExercise,
   useSaveStretch,
   useUnpublishCatalogItem,
-} from '@/entities/admin'
+} from '@sportbot/api/entities/admin'
 import { ROUTES } from '@/shared/config/paths'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'

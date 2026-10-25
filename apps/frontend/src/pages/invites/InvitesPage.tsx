@@ -1,7 +1,7 @@
 import { PlusIcon } from 'lucide-react'
 
-import { type Invite, useCreateInvite, useDeleteInvite, useInvites } from '@/entities/invite/api'
-import { useCurrentOrganization } from '@/entities/session'
+import { type Invite, useCreateInvite, useDeleteInvite, useInvites } from '@sportbot/api/entities/invite/api'
+import { useCurrentOrganization } from '@/shared/auth/ability'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
 import { pluralize } from '@front-cmdt/utils/pluralize'

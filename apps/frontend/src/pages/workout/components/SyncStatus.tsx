@@ -1,6 +1,6 @@
 import { CloudOffIcon, RefreshCwIcon } from 'lucide-react'
 
-import { useWorkoutSync } from '@/entities/workout'
+import { useWorkoutSync } from '@sportbot/api/entities/workout'
 import { Text } from '@/shared/ui/kit/Typography'
 
 // Строка под шапкой тренировки: в зале сеть пропадает, и человек должен видеть, что подходы не потерялись.

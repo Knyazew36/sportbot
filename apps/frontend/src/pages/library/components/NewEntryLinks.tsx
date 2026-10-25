@@ -1,6 +1,6 @@
 import { PlusIcon } from 'lucide-react'
 
-import type { CatalogKind } from '@/entities/catalog'
+import type { CatalogKind } from '@sportbot/api/entities/catalog'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 

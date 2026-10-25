@@ -1,8 +1,8 @@
 import { BanIcon, RotateCcwIcon } from 'lucide-react'
 import { useParams } from 'react-router'
 
-import { type AdminUserDetail, useAdminUser, useBlockUser, useUnblockUser } from '@/entities/admin'
-import { useSportUser } from '@/entities/sport-user'
+import { type AdminUserDetail, useAdminUser, useBlockUser, useUnblockUser } from '@sportbot/api/entities/admin'
+import { useSportUser } from '@sportbot/api/entities/sport-user'
 import { ROUTES } from '@/shared/config/paths'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'

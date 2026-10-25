@@ -4,7 +4,7 @@ import { EXERCISE_FORMS } from '@/shared/lib/plural-forms'
 import { pluralize } from '@front-cmdt/utils/pluralize'
 import { useState } from 'react'
 
-import type { DayToday } from '@/entities/day'
+import type { DayToday } from '@sportbot/api/entities/day'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { cn } from '@/shared/lib/utils'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
@@ -14,7 +14,7 @@ import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Poster, Text } from '@/shared/ui/kit/Typography'
 import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet'
 
-import { planText } from '@/entities/program'
+import { planText } from '@sportbot/api/entities/program'
 
 type Complex = NonNullable<DayToday['complex']>
 

@@ -1,7 +1,7 @@
 import { ChevronRightIcon } from 'lucide-react'
 
 import { ShareWorkoutButton } from '@/features/share-workout/ShareWorkoutButton'
-import { useStatsDay } from '@/entities/stats'
+import { useStatsDay } from '@sportbot/api/entities/stats'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'

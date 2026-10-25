@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-import type { ProgramComplex } from '@/entities/program'
+import type { ProgramComplex } from '@sportbot/api/entities/program'
 import { Text } from '@/shared/ui/kit/Typography'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'
 import { Spinner } from '@/shared/ui/shadcn/spinner'

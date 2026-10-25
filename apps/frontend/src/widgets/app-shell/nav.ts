@@ -9,7 +9,7 @@ import {
   UsersIcon,
 } from 'lucide-react'
 
-import type { AppAbility, AppAction, AppSubject } from '@/entities/session'
+import type { AppAbility, AppAction, AppSubject } from '@/shared/auth/ability'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 
 export type NavItem = {

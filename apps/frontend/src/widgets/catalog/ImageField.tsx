@@ -2,7 +2,7 @@ import type { UseMutationResult } from '@tanstack/react-query'
 
 import { useState } from 'react'
 
-import { CATALOG_IMAGE_MAX_MB, CATALOG_IMAGE_TYPES, catalogImageFileSchema } from '@/entities/catalog'
+import { CATALOG_IMAGE_MAX_MB, CATALOG_IMAGE_TYPES, catalogImageFileSchema } from '@sportbot/api/entities/catalog'
 import { toAssetUrl } from '@/shared/api'
 import { CatalogImage } from '@/shared/ui/kit/CatalogImage'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'

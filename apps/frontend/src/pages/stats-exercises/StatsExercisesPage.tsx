@@ -2,7 +2,7 @@ import { useSearchParams } from 'react-router'
 
 import { useState } from 'react'
 
-import { useMuscleLoad, useProgressList } from '@/entities/stats'
+import { useMuscleLoad, useProgressList } from '@sportbot/api/entities/stats'
 import { useDebouncedValue } from '@/shared/lib/hooks/use-debounced-value'
 import { ChipFilter, CHIP_ALL } from '@/shared/ui/kit/ChipFilter'
 import { List } from '@/shared/ui/kit/ListRow'

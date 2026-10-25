@@ -16,7 +16,11 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      // Пакет @sportbot/api лежит вне фронта и без подсказки взял бы zod из корня (версию render-contract).
+      // Один экземпляр zod с формами — как dedupe в vite.config
+      "zod": ["./node_modules/zod"],
+      "zod/*": ["./node_modules/zod/*"]
     },
 
     /* Linting */

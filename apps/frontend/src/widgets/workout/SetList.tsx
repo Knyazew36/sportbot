@@ -1,8 +1,8 @@
 import { ClockIcon, PencilIcon, PlusIcon } from 'lucide-react'
 
-import { weightText, type WorkoutItem, type WorkoutSet } from '@/entities/workout'
+import { weightText, type WorkoutItem, type WorkoutSet } from '@sportbot/api/entities/workout'
 import { formatSeconds } from '@/shared/lib/hooks/use-deadline-timer'
-import { clockText, isTimed, type Measure } from '@/shared/lib/measure'
+import { clockText, isTimed, type Measure } from '@sportbot/api/lib/measure'
 import { cn } from '@/shared/lib/utils'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Eyebrow, Poster, Text, Unit } from '@/shared/ui/kit/Typography'

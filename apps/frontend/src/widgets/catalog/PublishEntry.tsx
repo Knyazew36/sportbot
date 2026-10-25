@@ -1,6 +1,6 @@
 import { SendIcon } from 'lucide-react'
 
-import { type CatalogKind, usePublishEntry } from '@/entities/catalog'
+import { type CatalogKind, usePublishEntry } from '@sportbot/api/entities/catalog'
 import { Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 

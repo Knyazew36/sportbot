@@ -8,8 +8,8 @@ import {
   useDeleteOrganization,
   useOrganization,
   useUpdateOrganization,
-} from '@/entities/organization/api'
-import { useCurrentOrganization } from '@/entities/session'
+} from '@sportbot/api/entities/organization/api'
+import { useCurrentOrganization } from '@/shared/auth/ability'
 import { forgetLastOrganizationId } from '@/shared/api'
 import { ROUTES } from '@/shared/config/paths'
 import { notifyError, notifySuccess } from '@/shared/lib/notify'

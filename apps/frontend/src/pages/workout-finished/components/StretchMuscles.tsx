@@ -1,6 +1,6 @@
 import { motion, useReducedMotion } from 'motion/react'
 
-import type { CooldownStretch } from '@/entities/workout'
+import type { CooldownStretch } from '@sportbot/api/entities/workout'
 import { pluralize } from '@front-cmdt/utils/pluralize'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
 

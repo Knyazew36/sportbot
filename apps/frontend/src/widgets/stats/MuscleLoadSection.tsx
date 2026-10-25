@@ -1,4 +1,4 @@
-import { useMuscleLoad } from '@/entities/stats'
+import { useMuscleLoad } from '@sportbot/api/entities/stats'
 import { ROUTES } from '@/shared/config/paths'
 
 import { statsLink } from './links'

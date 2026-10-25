@@ -1,6 +1,6 @@
 import { Share2Icon } from 'lucide-react'
 
-import { useShareWorkout } from '@/entities/workout'
+import { useShareWorkout } from '@sportbot/api/entities/workout'
 import { Button, type ButtonProps } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Spinner } from '@/shared/ui/shadcn/spinner'
 

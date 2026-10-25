@@ -2,7 +2,7 @@ import { pluralize } from '@front-cmdt/utils/pluralize'
 
 import type { ReactNode } from 'react'
 
-import { complexLetter, type ProgramComplex } from '@/entities/program'
+import { complexLetter, type ProgramComplex } from '@sportbot/api/entities/program'
 import { SET_FORMS } from '@/shared/lib/plural-forms'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Text } from '@/shared/ui/kit/Typography'

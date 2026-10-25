@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class AdminCountersResponseDto {
-  @ApiProperty({ description: 'Пользователей с пройденной настройкой' })
+  @ApiProperty({ description: 'Пользователей с профилем — все, кто в списке админки' })
   users: number;
 
   @ApiProperty({ description: 'Тренировок за эту неделю' })

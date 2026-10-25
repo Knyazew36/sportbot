@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { type AdminUser, useAdminUsers } from '@/entities/admin'
+import { type AdminUser, useAdminUsers } from '@sportbot/api/entities/admin'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
 import { useDebouncedValue } from '@/shared/lib/hooks/use-debounced-value'

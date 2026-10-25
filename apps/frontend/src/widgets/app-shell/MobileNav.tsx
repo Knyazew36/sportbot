@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router'
 
 import { useState } from 'react'
 
-import { useAbility, useCurrentOrganization } from '@/entities/session'
+import { useAbility, useCurrentOrganization } from '@/shared/auth/ability'
 import { cn } from '@/shared/lib/utils'
 import { ThemeTogglerButton } from '@/shared/ui/shadcn/animate-ui/components/buttons/theme-toggler'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'

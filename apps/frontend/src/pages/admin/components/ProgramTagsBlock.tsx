@@ -20,7 +20,7 @@ import {
   useReorderProgramTags,
   useUpdateProgramTag,
   useUpdateProgramTagGroup,
-} from '@/entities/admin'
+} from '@sportbot/api/entities/admin'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { pluralize } from '@front-cmdt/utils/pluralize'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'

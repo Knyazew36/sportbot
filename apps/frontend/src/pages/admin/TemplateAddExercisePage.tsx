@@ -1,7 +1,7 @@
 import { useNavigate, useParams, useSearchParams } from 'react-router'
 
-import { useAddTemplateExercises, useAdminTemplate } from '@/entities/admin'
-import { pickerSubtitle, supersetTargetFromParams } from '@/entities/program'
+import { useAddTemplateExercises, useAdminTemplate } from '@sportbot/api/entities/admin'
+import { pickerSubtitle, supersetTargetFromParams } from '@sportbot/api/entities/program'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { ExercisePicker } from '@/widgets/program-editor/ExercisePicker'
 

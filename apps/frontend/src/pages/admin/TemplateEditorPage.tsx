@@ -13,8 +13,8 @@ import {
   usePublishTemplate,
   useReorderTemplateComplexes,
   useUpdateTemplate,
-} from '@/entities/admin'
-import type { Program } from '@/entities/program'
+} from '@sportbot/api/entities/admin'
+import type { Program } from '@sportbot/api/entities/program'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { pluralize } from '@front-cmdt/utils/pluralize'

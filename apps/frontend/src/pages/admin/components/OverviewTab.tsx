@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { type AdminStats, useAdminStats } from '@/entities/admin'
+import { type AdminStats, useAdminStats } from '@sportbot/api/entities/admin'
 import { formatDate } from '@/shared/lib/format'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Rise } from '@/shared/ui/kit/Reveal'

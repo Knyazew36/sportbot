@@ -1,6 +1,6 @@
 import { pluralize } from '@front-cmdt/utils/pluralize'
 
-import type { DayToday } from '@/entities/day'
+import type { DayToday } from '@sportbot/api/entities/day'
 import { EXERCISE_FORMS, SET_FORMS } from '@/shared/lib/plural-forms'
 import { TrainingArt } from '@/shared/ui/kit/Art'
 import { Rise } from '@/shared/ui/kit/Reveal'

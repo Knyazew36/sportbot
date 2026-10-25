@@ -1,6 +1,6 @@
 import { BellOffIcon } from 'lucide-react'
 
-import { useAllowWriteAccess } from '@/entities/sport-user'
+import { useAllowWriteAccess } from '@sportbot/api/entities/sport-user'
 import { env } from '@/env'
 import { canRequestWriteAccess, requestWriteAccess } from '@/shared/miniapp'
 import { Text } from '@/shared/ui/kit/Typography'

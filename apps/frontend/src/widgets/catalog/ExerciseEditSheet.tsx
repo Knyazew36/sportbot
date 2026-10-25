@@ -12,7 +12,7 @@ import {
   toTextList,
   useProposeExercise,
   useUploadEntryImage,
-} from '@/entities/catalog'
+} from '@sportbot/api/entities/catalog'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'

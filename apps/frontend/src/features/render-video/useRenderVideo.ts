@@ -7,7 +7,7 @@ import {
   type RenderFormat,
 } from '@sportbot/render-contract'
 
-import { type RenderJob, useOrderRender, useOrderRenderToChat, useRenderJobs } from '@/entities/render'
+import { type RenderJob, useOrderRender, useOrderRenderToChat, useRenderJobs } from '@sportbot/api/entities/render'
 import { toAssetUrl } from '@/shared/api'
 import { downloadFile } from '@/shared/miniapp'
 

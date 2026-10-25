@@ -6,8 +6,8 @@ import {
   type JoinRequestStatus,
   useDecideJoinRequest,
   useJoinRequests,
-} from '@/entities/join-request/api'
-import { useCurrentOrganization } from '@/entities/session'
+} from '@sportbot/api/entities/join-request/api'
+import { useCurrentOrganization } from '@/shared/auth/ability'
 import { toAssetUrl } from '@/shared/api'
 import { displayName, formatDateTime } from '@/shared/lib/format'
 import { usePageParam } from '@/shared/lib/hooks/use-page-param'

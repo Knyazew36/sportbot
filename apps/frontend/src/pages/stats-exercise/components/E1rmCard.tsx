@@ -1,7 +1,7 @@
 import { ArrowDownRightIcon, ArrowRightIcon, ArrowUpRightIcon, ChevronRightIcon } from 'lucide-react'
 import { motion, useReducedMotion } from 'motion/react'
 
-import type { StatsE1rmSetResponseDto } from '@/shared/api/generated/model'
+import type { StatsE1rmSetResponseDto } from '@sportbot/api/generated/model'
 import { cn } from '@/shared/lib/utils'
 import { haptic } from '@/shared/miniapp'
 import { Eyebrow, Lead, Poster, Unit } from '@/shared/ui/kit/Typography'

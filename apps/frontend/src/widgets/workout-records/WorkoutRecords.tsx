@@ -1,7 +1,7 @@
 import { TrophyIcon } from 'lucide-react'
 
-import type { WorkoutRecordResponseDto } from '@/shared/api/generated/model'
-import { durationText } from '@/shared/lib/measure'
+import type { WorkoutRecordResponseDto } from '@sportbot/api/generated/model'
+import { durationText } from '@sportbot/api/lib/measure'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { Poster, Text } from '@/shared/ui/kit/Typography'
 

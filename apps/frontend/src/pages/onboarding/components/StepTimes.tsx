@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from 'react-hook-form'
 
-import { onboardingTimesSchema, type OnboardingTimesValues } from '@/entities/onboarding'
+import { onboardingTimesSchema, type OnboardingTimesValues } from '@sportbot/api/entities/onboarding'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'
 import { Rise } from '@/shared/ui/kit/Reveal'

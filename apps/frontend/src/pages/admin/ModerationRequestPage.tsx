@@ -13,8 +13,8 @@ import {
   useModerationRequest,
   useRejectRequest,
   useUploadCatalogImage,
-} from '@/entities/admin'
-import { type Equipment, EQUIPMENT_LABEL, useJoints } from '@/entities/catalog'
+} from '@sportbot/api/entities/admin'
+import { type Equipment, EQUIPMENT_LABEL, useJoints } from '@sportbot/api/entities/catalog'
 import { ROUTES } from '@/shared/config/paths'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { formatDate } from '@/shared/lib/format'

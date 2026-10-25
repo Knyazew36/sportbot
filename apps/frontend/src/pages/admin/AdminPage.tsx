@@ -1,6 +1,6 @@
 import { useSearchParams } from 'react-router'
 
-import { useAdminCounters } from '@/entities/admin'
+import { useAdminCounters } from '@sportbot/api/entities/admin'
 import { Screen } from '@/shared/ui/kit/Screen'
 import { ScreenHeader } from '@/shared/ui/kit/ScreenHeader'
 import { Segmented } from '@/shared/ui/kit/Segmented'

@@ -9,7 +9,7 @@ import {
   planText,
   type ProgramExercise,
   supersetLetter,
-} from '@/entities/program'
+} from '@sportbot/api/entities/program'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { Eyebrow, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'

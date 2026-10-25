@@ -10,9 +10,9 @@ import {
   complexExerciseTimeSchema,
   type ComplexExerciseValues,
   type ProgramExercise,
-} from '@/entities/program'
+} from '@sportbot/api/entities/program'
 import { applyFieldErrors } from '@/shared/lib/form'
-import { isTimed, timeInput } from '@/shared/lib/measure'
+import { isTimed, timeInput } from '@sportbot/api/lib/measure'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'
 import { Poster, Text } from '@/shared/ui/kit/Typography'
 import { Input } from '@/shared/ui/shadcn/input'

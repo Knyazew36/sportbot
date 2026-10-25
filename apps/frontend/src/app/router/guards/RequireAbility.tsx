@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router'
 
-import { type AppAction, type AppSubject, useAbility } from '@/entities/session'
+import { type AppAction, type AppSubject, useAbility } from '@/shared/auth/ability'
 import { StateView } from '@/shared/ui/kit/StateView'
 
 // Страница кабинета по праву роли: без права вместо неё заглушка, запросы страницы не уходят

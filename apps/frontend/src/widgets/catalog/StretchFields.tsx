@@ -2,7 +2,7 @@ import { Controller, useFormContext, useWatch } from 'react-hook-form'
 
 import type { ComponentProps, ReactNode } from 'react'
 
-import { type StretchFormInput, useMuscles } from '@/entities/catalog'
+import { type StretchFormInput, useMuscles } from '@sportbot/api/entities/catalog'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'

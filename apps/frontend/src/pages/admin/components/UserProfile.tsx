@@ -1,4 +1,4 @@
-import type { AdminUserDetail } from '@/entities/admin'
+import type { AdminUserDetail } from '@sportbot/api/entities/admin'
 import { formatDate, formatDateTime, NO_DATA } from '@/shared/lib/format'
 import { WEEKDAYS } from '@/shared/lib/weekdays'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'

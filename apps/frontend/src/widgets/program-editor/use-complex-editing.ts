@@ -1,6 +1,6 @@
-import type { ComplexExerciseValues, ProgramComplex } from '@/entities/program'
+import type { ComplexExerciseValues, ProgramComplex } from '@sportbot/api/entities/program'
 import { useUndoableQueue } from '@/shared/lib/hooks/use-undoable-queue'
-import { normalizeSupersets } from '@/shared/lib/superset'
+import { normalizeSupersets } from '@sportbot/api/lib/superset'
 
 import { arrangeBy } from './arrange'
 import type { ComplexActions } from './ComplexEditor'

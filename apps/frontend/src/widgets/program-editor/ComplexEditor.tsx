@@ -12,7 +12,7 @@ import {
   type ProgramComplex,
   toBlocks,
   withSupersetTarget,
-} from '@/entities/program'
+} from '@sportbot/api/entities/program'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'

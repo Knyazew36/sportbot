@@ -1,7 +1,7 @@
 import { XIcon } from 'lucide-react'
 
-import type { DayToday } from '@/entities/day'
-import { useDiscardWorkout } from '@/entities/workout'
+import type { DayToday } from '@sportbot/api/entities/day'
+import { useDiscardWorkout } from '@sportbot/api/entities/workout'
 import { useIsOnline } from '@/shared/api'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
 import { Rise } from '@/shared/ui/kit/Reveal'

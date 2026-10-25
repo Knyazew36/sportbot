@@ -1,6 +1,6 @@
 import { BookOpenIcon, RepeatIcon, TriangleAlertIcon } from 'lucide-react'
 
-import { lastText, planText, type WorkoutItem } from '@/entities/workout'
+import { lastText, planText, type WorkoutItem } from '@sportbot/api/entities/workout'
 import { useIsOnline } from '@/shared/api'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { cn } from '@/shared/lib/utils'

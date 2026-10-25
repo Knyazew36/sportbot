@@ -1,8 +1,8 @@
 import { BellIcon } from 'lucide-react'
 import { Link } from 'react-router'
 
-import { useUnreadCount } from '@/entities/notification/api'
-import { useCurrentOrganization } from '@/entities/session'
+import { useUnreadCount } from '@sportbot/api/entities/notification/api'
+import { useCurrentOrganization } from '@/shared/auth/ability'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 
 // Колокольчик в шапке: счётчик непрочитанных, по клику — лента уведомлений

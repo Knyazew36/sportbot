@@ -1,7 +1,7 @@
 import { Controller, useForm, useWatch } from 'react-hook-form'
 
-import { useApproveProgramTag, useRejectProgramTag, useReplaceProgramTag } from '@/entities/admin'
-import type { ProgramTag, ProgramTagGroup } from '@/entities/program'
+import { useApproveProgramTag, useRejectProgramTag, useReplaceProgramTag } from '@sportbot/api/entities/admin'
+import type { ProgramTag, ProgramTagGroup } from '@sportbot/api/entities/program'
 import { SelectField } from '@/shared/ui/kit/SelectField'
 import { Eyebrow, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'

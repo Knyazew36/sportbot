@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 
-import { rejectComplaintSchema, type RejectComplaintValues, useCloseComplaint } from '@/entities/admin'
+import { rejectComplaintSchema, type RejectComplaintValues, useCloseComplaint } from '@sportbot/api/entities/admin'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'

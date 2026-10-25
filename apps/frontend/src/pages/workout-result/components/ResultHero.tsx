@@ -1,4 +1,4 @@
-import type { SharedWorkout } from '@/entities/workout'
+import type { SharedWorkout } from '@sportbot/api/entities/workout'
 import { formatDate } from '@/shared/lib/format'
 import { MedalArt } from '@/shared/ui/kit/Art'
 import { Rise } from '@/shared/ui/kit/Reveal'

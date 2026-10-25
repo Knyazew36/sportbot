@@ -3,8 +3,8 @@ import { useSearchParams } from 'react-router'
 
 import { useEffect, useState } from 'react'
 
-import { type Equipment, EQUIPMENT_LABEL } from '@/entities/catalog'
-import type { SupersetTarget } from '@/entities/program'
+import { type Equipment, EQUIPMENT_LABEL } from '@sportbot/api/entities/catalog'
+import type { SupersetTarget } from '@sportbot/api/entities/program'
 import { toAssetUrl } from '@/shared/api'
 import { useDebouncedValue } from '@/shared/lib/hooks/use-debounced-value'
 import { Screen, StickyFooter } from '@/shared/ui/kit/Screen'

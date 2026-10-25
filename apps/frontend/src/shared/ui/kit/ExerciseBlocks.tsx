@@ -1,6 +1,6 @@
 import { Fragment, type ReactNode } from 'react'
 
-import { supersetLabels, supersetLetter } from '@/shared/lib/superset'
+import { supersetLabels, supersetLetter } from '@sportbot/api/lib/superset'
 
 import { Eyebrow } from './Typography'
 

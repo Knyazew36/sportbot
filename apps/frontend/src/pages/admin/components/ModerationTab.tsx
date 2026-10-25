@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
 
-import { useModerationQueue } from '@/entities/admin'
+import { useModerationQueue } from '@sportbot/api/entities/admin'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'

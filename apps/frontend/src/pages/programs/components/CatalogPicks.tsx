@@ -1,11 +1,11 @@
 import { ArrowRightIcon } from 'lucide-react'
 
-import { useTemplates } from '@/entities/program'
+import { useTemplates } from '@sportbot/api/entities/program'
 import { ROUTES } from '@/shared/config/paths'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 
-import { TemplateTile } from './TemplateTile'
+import { TemplateTile } from '@/widgets/program-templates/TemplateTile'
 
 /** Сколько шаблонов в ленте: остальное — в каталоге с фильтрами */
 const PICKS = 6

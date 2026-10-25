@@ -1,4 +1,4 @@
-import type { AdminUserDetail } from '@/entities/admin'
+import type { AdminUserDetail } from '@sportbot/api/entities/admin'
 import { formatDate } from '@/shared/lib/format'
 import { StatGrid } from '@/shared/ui/kit/StatGrid'
 import { StepChart } from '@/shared/ui/kit/StepChart'

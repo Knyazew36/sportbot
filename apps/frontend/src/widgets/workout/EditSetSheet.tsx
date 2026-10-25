@@ -11,8 +11,8 @@ import {
   type WorkoutSetInput,
   workoutSetSchema,
   type WorkoutSetValues,
-} from '@/entities/workout'
-import { isTimed, type Measure, timeInput, timeLabel } from '@/shared/lib/measure'
+} from '@sportbot/api/entities/workout'
+import { isTimed, type Measure, timeInput, timeLabel } from '@sportbot/api/lib/measure'
 import { BoxInput } from '@/shared/ui/kit/BoxInput'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'

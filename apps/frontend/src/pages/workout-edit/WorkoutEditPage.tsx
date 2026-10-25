@@ -3,10 +3,10 @@ import { useLocation, useParams } from 'react-router'
 
 import { useState } from 'react'
 
-import { useQueuedWorkout, useWorkout } from '@/entities/workout'
+import { useQueuedWorkout, useWorkout } from '@sportbot/api/entities/workout'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
-import { supersetLabels } from '@/shared/lib/superset'
+import { supersetLabels } from '@sportbot/api/lib/superset'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Screen } from '@/shared/ui/kit/Screen'

@@ -7,7 +7,7 @@ import {
   type RejectProgramValues,
   useRejectProgramReview,
   useTakeDownProgram,
-} from '@/entities/admin'
+} from '@sportbot/api/entities/admin'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'

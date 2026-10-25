@@ -1,5 +1,5 @@
-import type { DayToday } from '@/entities/day'
-import { useEndPause } from '@/entities/pause'
+import type { DayToday } from '@sportbot/api/entities/day'
+import { useEndPause } from '@sportbot/api/entities/pause'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'

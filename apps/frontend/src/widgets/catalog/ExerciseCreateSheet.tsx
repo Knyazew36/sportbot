@@ -5,14 +5,14 @@ import { useNavigate } from 'react-router'
 
 import { useState } from 'react'
 
-import { useSaveExercise } from '@/entities/admin'
+import { useSaveExercise } from '@sportbot/api/entities/admin'
 import {
   type ExerciseCreateInput,
   exerciseCreateSchema,
   type ExerciseCreateValues,
   useCreateDraft,
   useUploadEntryImage,
-} from '@/entities/catalog'
+} from '@sportbot/api/entities/catalog'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { applyFieldErrors } from '@/shared/lib/form'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'

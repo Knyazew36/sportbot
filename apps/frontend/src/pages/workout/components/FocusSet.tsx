@@ -3,7 +3,7 @@ import { CheckIcon, PauseIcon, PlayIcon, TimerResetIcon, XIcon } from 'lucide-re
 import { useEffect, useRef } from 'react'
 
 import { formatSeconds } from '@/shared/lib/hooks/use-deadline-timer'
-import { type Measure, rangeText } from '@/shared/lib/measure'
+import { type Measure, rangeText } from '@sportbot/api/lib/measure'
 import type { useStopwatch } from '@/shared/lib/hooks/use-stopwatch'
 import { cn } from '@/shared/lib/utils'
 import { haptic } from '@/shared/miniapp'

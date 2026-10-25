@@ -1,4 +1,4 @@
-import type { DayToday } from '@/entities/day'
+import type { DayToday } from '@sportbot/api/entities/day'
 import { EXERCISE_FORMS } from '@/shared/lib/plural-forms'
 import { pluralize } from '@front-cmdt/utils/pluralize'
 import { ROUTES } from '@/shared/config/paths'
@@ -7,7 +7,7 @@ import { OptionButton } from '@/shared/ui/kit/OptionButton'
 import { Text } from '@/shared/ui/kit/Typography'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'
 
-import { complexLetter } from '@/entities/program'
+import { complexLetter } from '@sportbot/api/entities/program'
 
 type OtherComplexSheetProps = {
   open: boolean

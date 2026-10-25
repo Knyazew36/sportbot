@@ -4,8 +4,8 @@ import { Controller, useForm } from 'react-hook-form'
 
 import { useEffect, useState } from 'react'
 
-import { onboardingProgramSchema, type OnboardingProgramValues, type OnboardingState } from '@/entities/onboarding'
-import { selectedTagIds, type TagSelection, useTemplates, useTemplateTagGroups } from '@/entities/program'
+import { onboardingProgramSchema, type OnboardingProgramValues, type OnboardingState } from '@sportbot/api/entities/onboarding'
+import { selectedTagIds, type TagSelection, useTemplates, useTemplateTagGroups } from '@sportbot/api/entities/program'
 import { pluralize } from '@front-cmdt/utils/pluralize'
 import { useDebouncedValue } from '@/shared/lib/hooks/use-debounced-value'
 import { OptionButton } from '@/shared/ui/kit/OptionButton'

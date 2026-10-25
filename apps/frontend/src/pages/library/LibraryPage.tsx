@@ -2,7 +2,7 @@ import { useSearchParams } from 'react-router'
 
 import { useState } from 'react'
 
-import type { CatalogKind } from '@/entities/catalog'
+import type { CatalogKind } from '@sportbot/api/entities/catalog'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { Screen, StickyFooter } from '@/shared/ui/kit/Screen'
 import { ScreenHeader } from '@/shared/ui/kit/ScreenHeader'

@@ -1,4 +1,4 @@
-import { useAttendanceWeeks } from '@/entities/stats'
+import { useAttendanceWeeks } from '@sportbot/api/entities/stats'
 import { formatDate } from '@/shared/lib/format'
 
 import { PERIOD_TEXT, type Period } from './periods'

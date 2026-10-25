@@ -1,4 +1,4 @@
-import { useActiveProgram } from '@/entities/program'
+import { useActiveProgram } from '@sportbot/api/entities/program'
 import { ComplexQueue as ComplexQueueWidget } from '@/widgets/complex-queue/ComplexQueue'
 
 // Очередь на «Сегодня»: в ответе дня у комплексов нет состава — для шторки берём активную программу целиком

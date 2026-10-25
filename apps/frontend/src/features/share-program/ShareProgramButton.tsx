@@ -1,6 +1,6 @@
 import { Share2Icon } from 'lucide-react'
 
-import { useShareProgram } from '@/entities/program'
+import { useShareProgram } from '@sportbot/api/entities/program'
 import { notifySuccess } from '@/shared/lib/notify'
 import { shareLink } from '@/shared/miniapp'
 import { Button, type ButtonProps } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'

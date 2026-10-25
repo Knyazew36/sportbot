@@ -1,4 +1,4 @@
-import type { SharedWorkout } from '@/entities/workout'
+import type { SharedWorkout } from '@sportbot/api/entities/workout'
 import { pluralize } from '@front-cmdt/utils/pluralize'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { StatGrid } from '@/shared/ui/kit/StatGrid'

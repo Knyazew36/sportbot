@@ -1,6 +1,6 @@
 import { pluralize } from '@front-cmdt/utils/pluralize'
 
-import type { AdminUserDetail } from '@/entities/admin'
+import type { AdminUserDetail } from '@sportbot/api/entities/admin'
 import { formatDate } from '@/shared/lib/format'
 import { SET_FORMS } from '@/shared/lib/plural-forms'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'

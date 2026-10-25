@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import { EXERCISE_FORMS } from '@/shared/lib/plural-forms'
 import { pluralize } from '@front-cmdt/utils/pluralize'
-import { complexLetter, type ProgramComplex } from '@/entities/program'
+import { complexLetter, type ProgramComplex } from '@sportbot/api/entities/program'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Ticket } from '@/shared/ui/kit/Ticket'
 import { Eyebrow } from '@/shared/ui/kit/Typography'

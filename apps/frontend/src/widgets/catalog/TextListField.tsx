@@ -1,7 +1,7 @@
 import { PlusIcon, XIcon } from 'lucide-react'
 import { useFieldArray, useFormContext } from 'react-hook-form'
 
-import { TEXT_LIST_MAX, type TextListInput } from '@/entities/catalog'
+import { TEXT_LIST_MAX, type TextListInput } from '@sportbot/api/entities/catalog'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'
 import { Poster } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'

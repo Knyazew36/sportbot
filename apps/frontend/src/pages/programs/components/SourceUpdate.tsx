@@ -1,6 +1,6 @@
 import { RefreshCwIcon, SparklesIcon } from 'lucide-react'
 
-import { type ProgramListItem, useDismissProgramUpdate, useResyncProgram } from '@/entities/program'
+import { type ProgramListItem, useDismissProgramUpdate, useResyncProgram } from '@sportbot/api/entities/program'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Eyebrow, Text } from '@/shared/ui/kit/Typography'

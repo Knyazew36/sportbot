@@ -1,4 +1,4 @@
-import { useStatsSummary } from '@/entities/stats'
+import { useStatsSummary } from '@sportbot/api/entities/stats'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 
 import { StatsSection } from './StatsSection'

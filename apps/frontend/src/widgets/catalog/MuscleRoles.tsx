@@ -1,4 +1,4 @@
-import type { CatalogRef } from '@/entities/catalog'
+import type { CatalogRef } from '@sportbot/api/entities/catalog'
 import { cn } from '@/shared/lib/utils'
 import { Eyebrow } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'

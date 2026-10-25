@@ -1,6 +1,6 @@
 import { useSearchParams } from 'react-router'
 
-import { useRecords } from '@/entities/stats'
+import { useRecords } from '@sportbot/api/entities/stats'
 import { List } from '@/shared/ui/kit/ListRow'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Screen } from '@/shared/ui/kit/Screen'

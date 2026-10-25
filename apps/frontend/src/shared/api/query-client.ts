@@ -3,33 +3,18 @@ import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persist
 import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query'
 import type { PersistQueryClientOptions } from '@tanstack/react-query-persist-client'
 
-import { subscribeSession } from '@/shared/auth/session-events'
+import {
+  getAccessToken,
+  getApiErrorStatus,
+  hasFieldErrors,
+  isRetryableError,
+  PERSIST_GC_TIME,
+  subscribeSession,
+} from '@sportbot/api/client'
+
 import { local } from '@/shared/lib/storage'
 import { getMiniappUserKey, haptic } from '@/shared/miniapp'
 import { toast } from '@/shared/ui/shadcn/toast'
-
-import { getAccessToken } from './model/access-token'
-import { getApiErrorStatus, hasFieldErrors, isRetryableError } from './model/api-error'
-
-// Единые договорённости о тостах (CLAUDE.md, «Запросы»): хуки не пишут onError/onSuccess ради уведомлений
-declare module '@tanstack/react-query' {
-  interface Register {
-    queryMeta: {
-      /** Данные переживают закрытие приложения: экран открывается и без сети */
-      persist?: boolean
-    }
-    mutationMeta: {
-      /** Мутация из офлайн-очереди: переживает закрытие приложения и доезжает, когда появится сеть */
-      persist?: boolean
-      /** Текст тоста об успехе. Без него и без skipSuccessToast покажется общий «Готово» */
-      successMessage?: string
-      /** Успех и так виден на экране — тост не нужен. Рядом с флагом — комментарий почему */
-      skipSuccessToast?: boolean
-      /** 422 с ошибками полей показывается под инпутами формы, тост не дублируется */
-      inlineFieldErrors?: boolean
-    }
-  }
-}
 
 const DEFAULT_SUCCESS = 'Готово'
 
@@ -69,9 +54,6 @@ export const queryClient = new QueryClient({
     },
   },
 })
-
-/** gcTime сохраняемых запросов: не меньше maxAge, иначе запрос уйдёт из кеша, а с ним и из хранилища */
-export const PERSIST_GC_TIME = 24 * 60 * 60 * 1000
 
 const persister = createSyncStoragePersister({
   key: 'query-cache',

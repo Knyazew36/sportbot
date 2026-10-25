@@ -2,7 +2,7 @@ import { PlusIcon } from 'lucide-react'
 
 import { useState } from 'react'
 
-import { type AdminCatalogKind, useAdminCatalog } from '@/entities/admin'
+import { type AdminCatalogKind, useAdminCatalog } from '@sportbot/api/entities/admin'
 import { toAssetUrl } from '@/shared/api'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { useDebouncedValue } from '@/shared/lib/hooks/use-debounced-value'

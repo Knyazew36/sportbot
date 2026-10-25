@@ -3,7 +3,7 @@ import { addMonths, format, getDaysInMonth, parseISO } from 'date-fns'
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 
-import { type StatsDay, useCalendar, useStatsDay } from '@/entities/stats'
+import { type StatsDay, useCalendar, useStatsDay } from '@sportbot/api/entities/stats'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'

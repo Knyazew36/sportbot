@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-import { type CatalogKind, exerciseGuide, stretchGuide, useCatalogExercise, useCatalogStretch } from '@/entities/catalog'
+import { type CatalogKind, exerciseGuide, stretchGuide, useCatalogExercise, useCatalogStretch } from '@sportbot/api/entities/catalog'
 import { toAssetUrl } from '@/shared/api'
 import { MistakeList } from '@/shared/ui/kit/MistakeList'
 import { PhotoPair } from '@/shared/ui/kit/PhotoPair'

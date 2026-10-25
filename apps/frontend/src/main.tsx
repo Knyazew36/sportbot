@@ -2,6 +2,8 @@ import { createRoot } from 'react-dom/client'
 
 import { StrictMode } from 'react'
 
+// Первым: общий API-клиент настраивается до любого запроса
+import '@/shared/api/setup'
 import { initMiniapp } from '@/shared/miniapp'
 
 import './global.css'

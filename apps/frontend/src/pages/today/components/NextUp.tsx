@@ -3,8 +3,8 @@ import { differenceInCalendarDays, parseISO } from 'date-fns'
 
 import { useState } from 'react'
 
-import type { DayToday } from '@/entities/day'
-import { complexLetter, useActiveProgram } from '@/entities/program'
+import type { DayToday } from '@sportbot/api/entities/day'
+import { complexLetter, useActiveProgram } from '@sportbot/api/entities/program'
 import { formatDate } from '@/shared/lib/format'
 import { EXERCISE_FORMS } from '@/shared/lib/plural-forms'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'

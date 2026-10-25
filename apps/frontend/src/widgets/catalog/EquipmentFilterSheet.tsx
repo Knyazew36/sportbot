@@ -1,4 +1,4 @@
-import { type Equipment, EQUIPMENT_LABEL } from '@/entities/catalog'
+import { type Equipment, EQUIPMENT_LABEL } from '@sportbot/api/entities/catalog'
 import { OptionButton } from '@/shared/ui/kit/OptionButton'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'
 

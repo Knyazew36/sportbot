@@ -1,7 +1,7 @@
 import { GripVerticalIcon, Link2Icon, Trash2Icon } from 'lucide-react'
 import { Reorder, useDragControls } from 'motion/react'
 
-import type { ComplexExerciseValues, ProgramExercise } from '@/entities/program'
+import type { ComplexExerciseValues, ProgramExercise } from '@sportbot/api/entities/program'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'

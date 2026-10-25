@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react'
 
-import type { AppAction, AppSubject } from '@/entities/session'
+import type { AppAction, AppSubject } from '@/shared/auth/ability'
 import LibraryPage from '@/pages/library/LibraryPage'
 import MePage from '@/pages/me/MePage'
 import NotFoundPage from '@/pages/not-found/NotFoundPage'
@@ -43,11 +43,11 @@ export const privateRoutes: AppRoute[] = [
 
 // ── Гостевые: только без входа, иначе редирект на главную ───────────────────
 export const guestRoutes: AppRoute[] = [
-  { path: ROUTES.LOGIN, lazy: () => import('@/pages/auth/LoginPage') },
-  { path: ROUTES.REGISTER, lazy: () => import('@/pages/auth/RegisterPage') },
-  { path: ROUTES.VERIFY_EMAIL, lazy: () => import('@/pages/auth/VerifyEmailPage') },
-  { path: ROUTES.FORGOT_PASSWORD, lazy: () => import('@/pages/auth/ForgotPasswordPage') },
-  { path: ROUTES.RESET_PASSWORD, lazy: () => import('@/pages/auth/ResetPasswordPage') },
+  { path: ROUTES.LOGIN, lazy: () => import('@/pages/login/LoginPage') },
+  { path: ROUTES.REGISTER, lazy: () => import('@/pages/register/RegisterPage') },
+  { path: ROUTES.VERIFY_EMAIL, lazy: () => import('@/pages/verify-email/VerifyEmailPage') },
+  { path: ROUTES.FORGOT_PASSWORD, lazy: () => import('@/pages/forgot-password/ForgotPasswordPage') },
+  { path: ROUTES.RESET_PASSWORD, lazy: () => import('@/pages/reset-password/ResetPasswordPage') },
 ]
 
 // ── Mini App: внутри MiniappRoute (вход из бота, нижнее меню) ──────────────
@@ -56,16 +56,16 @@ export const guestRoutes: AppRoute[] = [
 export const miniappRoutes: AppRoute[] = [
   { path: ROUTES.TODAY, Component: TodayPage },
   { path: ROUTES.PROGRAMS, Component: ProgramsPage },
-  { path: ROUTES.PROGRAM_TEMPLATES, lazy: () => import('@/pages/programs/TemplatesPage') },
-  { path: ROUTES.PROGRAMS_MINE, lazy: () => import('@/pages/programs/MyProgramsPage') },
-  { path: ROUTES.PROGRAM_TEMPLATE, lazy: () => import('@/pages/programs/TemplatePage') },
-  { path: ROUTES.PROGRAM_SHARED, lazy: () => import('@/pages/programs/SharedProgramPage') },
-  { path: ROUTES.PROGRAM, lazy: () => import('@/pages/programs/ProgramEditorPage') },
-  { path: ROUTES.PROGRAM_COMPLEX, lazy: () => import('@/pages/programs/ComplexPage') },
-  { path: ROUTES.PROGRAM_ADD_EXERCISE, lazy: () => import('@/pages/programs/AddExercisePage') },
+  { path: ROUTES.PROGRAM_TEMPLATES, lazy: () => import('@/pages/program-templates/TemplatesPage') },
+  { path: ROUTES.PROGRAMS_MINE, lazy: () => import('@/pages/programs-mine/MyProgramsPage') },
+  { path: ROUTES.PROGRAM_TEMPLATE, lazy: () => import('@/pages/program-template/TemplatePage') },
+  { path: ROUTES.PROGRAM_SHARED, lazy: () => import('@/pages/program-shared/SharedProgramPage') },
+  { path: ROUTES.PROGRAM, lazy: () => import('@/pages/program-editor/ProgramEditorPage') },
+  { path: ROUTES.PROGRAM_COMPLEX, lazy: () => import('@/pages/program-complex/ComplexPage') },
+  { path: ROUTES.PROGRAM_ADD_EXERCISE, lazy: () => import('@/pages/program-add-exercise/AddExercisePage') },
   { path: ROUTES.LIBRARY, Component: LibraryPage },
-  { path: ROUTES.EXERCISE, lazy: () => import('@/pages/library/ExercisePage') },
-  { path: ROUTES.STRETCH, lazy: () => import('@/pages/library/StretchPage') },
+  { path: ROUTES.EXERCISE, lazy: () => import('@/pages/exercise/ExercisePage') },
+  { path: ROUTES.STRETCH, lazy: () => import('@/pages/stretch/StretchPage') },
   { path: ROUTES.STATS, Component: StatsPage },
   { path: ROUTES.STATS_EXERCISES, lazy: () => import('@/pages/stats-exercises/StatsExercisesPage') },
   { path: ROUTES.STATS_EXERCISE, lazy: () => import('@/pages/stats-exercise/StatsExercisePage') },
@@ -73,7 +73,7 @@ export const miniappRoutes: AppRoute[] = [
   { path: ROUTES.STATS_WORKOUT, lazy: () => import('@/pages/stats-workout/StatsWorkoutPage') },
   { path: ROUTES.STATS_DAY, lazy: () => import('@/pages/stats-day/StatsDayPage') },
   { path: ROUTES.ME, Component: MePage },
-  { path: ROUTES.ME_SECTION, lazy: () => import('@/pages/me/MeSectionPage') },
+  { path: ROUTES.ME_SECTION, lazy: () => import('@/pages/me-section/MeSectionPage') },
   { path: ROUTES.ME_DEVELOPER, lazy: () => import('@/pages/developer/DeveloperPage') },
   { path: ROUTES.ME_EDITOR, lazy: () => import('@/pages/editor/EditorPage') },
   { path: ROUTES.ME_EDITOR_FILES, lazy: () => import('@/pages/editor/EditorFilesPage') },
@@ -90,12 +90,12 @@ export const miniappRoutes: AppRoute[] = [
   { path: ROUTES.ADMIN_TEMPLATE_ADD_EXERCISE, lazy: () => import('@/pages/admin/TemplateAddExercisePage') },
   { path: ROUTES.ONBOARDING, Component: OnboardingPage },
   { path: ROUTES.WORKOUT, Component: WorkoutPage },
-  { path: ROUTES.WORKOUT_REPLACE, lazy: () => import('@/pages/workout/ReplaceExercisePage') },
-  { path: ROUTES.WORKOUT_ADD, lazy: () => import('@/pages/workout/AddWorkoutExercisePage') },
+  { path: ROUTES.WORKOUT_REPLACE, lazy: () => import('@/pages/workout-replace/ReplaceExercisePage') },
+  { path: ROUTES.WORKOUT_ADD, lazy: () => import('@/pages/workout-add/AddWorkoutExercisePage') },
   { path: ROUTES.WORKOUT_FINISHED, lazy: () => import('@/pages/workout-finished/WorkoutFinishedPage') },
-  { path: ROUTES.WORKOUT_SUMMARY, lazy: () => import('@/pages/workout/SummaryPage') },
+  { path: ROUTES.WORKOUT_SUMMARY, lazy: () => import('@/pages/workout-summary/SummaryPage') },
   { path: ROUTES.WORKOUT_EDIT, lazy: () => import('@/pages/workout-edit/WorkoutEditPage') },
-  { path: ROUTES.WORKOUT_EDIT_ADD, lazy: () => import('@/pages/workout-edit/WorkoutEditAddPage') },
+  { path: ROUTES.WORKOUT_EDIT_ADD, lazy: () => import('@/pages/workout-edit-add/WorkoutEditAddPage') },
   { path: ROUTES.COOLDOWN, lazy: () => import('@/pages/cooldown/CooldownPage') },
   { path: ROUTES.WORKOUT_RESULT, lazy: () => import('@/pages/workout-result/WorkoutResultPage') },
 ]

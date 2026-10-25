@@ -2,7 +2,7 @@ import { PlusIcon } from 'lucide-react'
 
 import { useState } from 'react'
 
-import { usePrograms } from '@/entities/program'
+import { usePrograms } from '@sportbot/api/entities/program'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Screen, StickyFooter } from '@/shared/ui/kit/Screen'
@@ -12,7 +12,7 @@ import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
 import { ActiveProgram } from './components/ActiveProgram'
 import { CatalogPicks } from './components/CatalogPicks'
-import { MyPrograms } from './components/MyPrograms'
+import { MyPrograms } from '@/widgets/my-programs/MyPrograms'
 import { NewProgramSheet } from './components/NewProgramSheet'
 import { SourceUpdate } from './components/SourceUpdate'
 

@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router'
 
-import { useCreateProgram } from '@/entities/program'
+import { useCreateProgram } from '@sportbot/api/entities/program'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 
 // Название не спрашиваем: его меняют в редакторе, куда сразу и попадаем

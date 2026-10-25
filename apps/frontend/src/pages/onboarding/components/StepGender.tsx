@@ -1,10 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from 'react-hook-form'
 
-import { onboardingGenderSchema, type OnboardingGenderValues } from '@/entities/onboarding'
-import { GENDERS } from '@/entities/profile'
+import { onboardingGenderSchema, type OnboardingGenderValues } from '@sportbot/api/entities/onboarding'
+import { GENDERS } from '@sportbot/api/entities/profile'
 import { applyFieldErrors } from '@/shared/lib/form'
-import type { Gender } from '@/shared/lib/hooks/use-palette'
+import type { Gender } from '@sportbot/api/entities/profile'
 import { ErrorText } from '@/shared/ui/kit/ErrorText'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Segmented } from '@/shared/ui/kit/Segmented'
