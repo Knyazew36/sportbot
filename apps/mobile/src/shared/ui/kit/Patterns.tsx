@@ -1,6 +1,6 @@
 import { useId } from 'react';
 import { StyleSheet } from 'react-native';
-import Svg, { Circle, Defs, Line, Pattern, Rect } from 'react-native-svg';
+import Svg, { Circle, Defs, Line, Mask, Pattern, RadialGradient, Rect, Stop } from 'react-native-svg';
 
 // Фоновые узоры вместо CSS-утилит фронта (sb-lanes, hatch, sb-halftone): в RN нет repeating-linear-gradient.
 // Растягиваются на родителя, нажатия не перехватывают
@@ -51,6 +51,32 @@ export const Halftone = ({ color, opacity = 1 }: PatternProps) => {
         </Pattern>
       </Defs>
       <Rect width="100%" height="100%" fill={`url(#${id})`} />
+    </Svg>
+  );
+};
+
+/**
+ * Растр кольцом — sb-halftone с радиальной маской из меню фронта: в центре пусто,
+ * точки проступают к середине радиуса и гаснут к краю
+ */
+export const HalftoneRing = ({ color, opacity = 1 }: PatternProps) => {
+  const id = useSvgId();
+  return (
+    <Svg pointerEvents="none" style={[StyleSheet.absoluteFill, { opacity }]}>
+      <Defs>
+        <Pattern id={`${id}p`} width={7} height={7} patternUnits="userSpaceOnUse">
+          <Circle cx={3.5} cy={3.5} r={1.15} fill={color} />
+        </Pattern>
+        <RadialGradient id={`${id}g`} cx="50%" cy="50%" r="50%">
+          <Stop offset="0.42" stopColor="#fff" stopOpacity={0} />
+          <Stop offset="0.62" stopColor="#fff" stopOpacity={1} />
+          <Stop offset="1" stopColor="#fff" stopOpacity={0} />
+        </RadialGradient>
+        <Mask id={`${id}m`}>
+          <Rect width="100%" height="100%" fill={`url(#${id}g)`} />
+        </Mask>
+      </Defs>
+      <Rect width="100%" height="100%" fill={`url(#${id}p)`} mask={`url(#${id}m)`} />
     </Svg>
   );
 };

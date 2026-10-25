@@ -1,56 +1,130 @@
-# Welcome to your Expo app 👋
+# Спортбот — мобильное приложение
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Expo (React Native) + expo-router. Порт Mini App из `apps/frontend`, план и статус переноса — в [MOBILE_TZ.md](./MOBILE_TZ.md).
 
-## Get started
+Expo Go не подходит: в проекте нативные модули (mmkv, uniwind, notifications). Нужна своя сборка — dev-клиент или release APK.
 
-1. Install dependencies
+## Что нужно на компьютере
 
-   ```bash
-   npm install
-   ```
+- Node.js и зависимости монорепо: `yarn` в корне репозитория.
+- Java 21 и Android SDK (Android Studio), переменная `ANDROID_HOME`.
+- `adb` — из `$ANDROID_HOME/platform-tools`.
 
-2. Start the app
+## Адрес API
 
-   ```bash
-   npx expo start
-   ```
+`apps/mobile/.env` (образец — `.env.example`):
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+EXPO_PUBLIC_API_URL=https://<прод-домен>/api   # прод — тот же, что VITE_API_URL фронта
+# EXPO_PUBLIC_API_URL=http://10.0.2.2:4003/api # эмулятор → сервер на этом ПК
+# EXPO_PUBLIC_API_URL=http://192.168.x.x:4003/api # телефон → сервер на этом ПК по Wi-Fi
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+`EXPO_PUBLIC_*` вшивается в бандл. После правки `.env` — перезапуск Metro с `-c`, в release APK — пересборка.
 
-### Other setup steps
+> Сборка, смотрящая на прод, работает с боевыми данными: тренировки, профиль, удаление аккаунта — всё по-настоящему.
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+## Dev-сборка: правки видны сразу
 
-## Learn more
+Dev-клиент содержит только нативную часть, JS он берёт с Metro на компьютере. Правки в `src/` прилетают на телефон за секунду (Fast Refresh). Без запущенного Metro приложение не откроется.
 
-To learn more about developing your project with Expo, look at the following resources:
+### 1. Подключить телефон (один раз)
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+1. Настройки → Сведения о телефоне → Сведения о ПО → 7 раз нажать «Номер сборки».
+2. Параметры разработчика → «Отладка по USB».
+3. Кабель **с передачей данных** (не только зарядка), на телефоне разрешить отладку.
+4. Проверить: `adb devices` — телефон в статусе `device`. Статус `offline` или телефона нет — другой кабель или порт.
 
-## Join the community
+### 2. Собрать и поставить dev-клиент
 
-Join our community of developers creating universal apps.
+Нужно в первый раз и после каждого изменения нативной части (см. «Когда пересобирать»).
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```bash
+cd apps/mobile/android
+./gradlew assembleDebug -PreactNativeArchitectures=arm64-v8a
+adb -d install -r app/build/outputs/apk/debug/app-debug.apk
+```
+
+`arm64-v8a` — для телефона. APK под эмулятор (x86_64) на телефон не встанет: `INSTALL_FAILED_NO_MATCHING_ABIS`. Под эмулятор: `-PreactNativeArchitectures=x86_64` или просто `yarn android`.
+
+`-d` — установить на телефон по USB, если подключён ещё и эмулятор.
+
+### 3. Запустить Metro
+
+```bash
+cd apps/mobile
+npx expo start --dev-client -c
+```
+
+Подключить телефон к Metro — один из способов:
+
+- **USB (надёжнее всего):**
+  ```bash
+  adb -d reverse tcp:8081 tcp:8081
+  ```
+  В «Спортбот Dev» выбрать `http://localhost:8081`. `adb reverse` сбрасывается при переподключении кабеля или перезапуске adb — повторить.
+
+- **Wi-Fi:** телефон и ПК в одной сети (стационарный ПК кабелем в тот же роутер — тоже подходит; гостевая сеть — нет). Сканировать QR из терминала. Если висит «Connecting to the development server» — Windows не пускает входящие на 8081. В PowerShell от администратора:
+  ```powershell
+  New-NetFirewallRule -DisplayName "Metro 8081" -Direction Inbound -Protocol TCP -LocalPort 8081 -Action Allow -Profile Private
+  ```
+  и сеть в Windows должна быть «Частная».
+
+- **Туннель через интернет** (любая сеть, медленнее): `npx expo start --dev-client --tunnel`.
+
+Открыть приложение на нужном Metro прямо с ПК:
+
+```bash
+adb -d shell am start -a android.intent.action.VIEW -d "exp+sportbot://expo-development-client/?url=http%3A%2F%2Flocalhost%3A8081" ru.sportbot.app.dev
+```
+
+## Когда пересобирать
+
+| Что поменялось | Что сделать |
+| --- | --- |
+| Код в `src/`, стили, тексты | Ничего — Fast Refresh |
+| `.env` | Перезапустить Metro: `npx expo start --dev-client -c` |
+| Новый нативный пакет (`expo-image-picker` и т. п.), `app.config.ts` (иконка, имя, плагины) | `npx expo prebuild`, затем пересобрать и поставить dev-клиент (шаг 2) |
+| Странное поведение после смены веток | `npx expo prebuild --clean` и пересборка |
+
+## Release APK: без компьютера
+
+JS и адрес API вшиты внутрь, Metro не нужен — ставится как обычное приложение. Правки сразу не видны: после каждой — пересборка.
+
+```bash
+cd apps/mobile/android
+./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a
+adb -d install -r app/build/outputs/apk/release/app-release.apk
+```
+
+Или перекинуть `app-release.apk` на телефон (Telegram, USB) и установить, разрешив «неизвестные источники».
+
+- Подписан debug-ключом: для своего телефона достаточно, для Google Play — нет.
+- Release Android по умолчанию не пускает `http://` — адрес API должен быть `https` (прод).
+
+## Варианты приложения
+
+`APP_VARIANT` (по умолчанию `development`) задаёт имя и id пакета, см. `app.config.ts`:
+
+| Вариант | Имя | Пакет |
+| --- | --- | --- |
+| `development` | Спортбот Dev | `ru.sportbot.app.dev` |
+| `preview` | Спортбот Preview | `ru.sportbot.app.preview` |
+| `production` | Спортбот | `ru.sportbot.app` |
+
+Папка `android/` генерируется под вариант. Сменить: `APP_VARIANT=preview npx expo prebuild --clean`, затем сборка. Варианты ставятся рядом, не заменяя друг друга.
+
+## Проверки
+
+```bash
+yarn check-types   # tsc
+yarn lint          # expo lint
+```
+
+## Частые проблемы
+
+- **`adb devices` пусто или `offline`** — кабель только для зарядки, плохой порт или хаб; на телефоне «Отозвать авторизацию отладки по USB» и подключить заново.
+- **`INSTALL_FAILED_NO_MATCHING_ABIS`** — APK собран под эмулятор, пересобрать с `arm64-v8a`.
+- **Бесконечное «Connecting to the development server»** — Wi-Fi и брандмауэр, см. выше; либо USB + `adb reverse`.
+- **Старый адрес API** — Metro запущен до правки `.env`: перезапустить с `-c`.
+- **iOS** — без Mac только облачная сборка EAS и аккаунт Apple Developer.

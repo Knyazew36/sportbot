@@ -1,45 +1,26 @@
-import { View } from 'react-native';
+import { useProfile } from '@sportbot/api/entities/profile';
 
-import { useMe } from '@sportbot/api/entities/session';
-
-import { PALETTES } from '@/features/change-theme/options';
+import { QueryState } from '@/shared/ui/kit/QueryState';
 import { Screen } from '@/shared/ui/kit/Screen';
 import { ScreenHeader } from '@/shared/ui/kit/ScreenHeader';
-import { Segmented } from '@/shared/ui/kit/Segmented';
-import { QueryState } from '@/shared/ui/kit/QueryState';
-import { Text } from '@/shared/ui/kit/Typography';
-import { useTheme } from '@/shared/theme/ThemeProvider';
 
 import { AccountCard } from './components/AccountCard';
-import { DeleteAccountSection } from './components/DeleteAccountSection';
-import { LogoutButton } from './components/LogoutButton';
+import { DeveloperTicket } from './components/DeveloperTicket';
+import { SectionButtons } from './components/SectionButtons';
 
-// Профиль: карта участника, оформление, выход и удаление аккаунта — порт pages/me.
-// Остальные разделы профиля (расписание, таймеры, поддержка) — этап 2
+// Профиль — порт pages/me: карта участника и кнопки разделов, пункты — на экранах разделов
 const MePage = () => {
-  const me = useMe();
-  const { palette, setPalette } = useTheme();
+  const profile = useProfile();
 
   return (
-    <Screen header={<ScreenHeader title="Профиль" />}>
-      <QueryState query={me}>
-        {(user) => (
-          <View className="gap-6">
-            <AccountCard user={user} />
-
-            <View className="px-gutter gap-2">
-              <Text size="sm" tone="soft">
-                Оформление
-              </Text>
-              <Segmented options={PALETTES} value={palette} onValueChange={setPalette} stretch />
-              <Text size="xs" tone="muted">
-                Тема — как в системе телефона
-              </Text>
-            </View>
-
-            <LogoutButton />
-            <DeleteAccountSection hasPassword={!!user.email} />
-          </View>
+    <Screen header={<ScreenHeader title="Профиль" />} className="gap-10">
+      <QueryState query={profile}>
+        {(p) => (
+          <>
+            <AccountCard profile={p} />
+            <SectionButtons profile={p} />
+            <DeveloperTicket />
+          </>
         )}
       </QueryState>
     </Screen>

@@ -3,6 +3,8 @@
 
 export type Scheme = 'light' | 'dark';
 export type Palette = 'classic' | 'rose';
+/** Выбор схемы: auto — как в системе телефона */
+export type ThemeChoice = 'auto' | Scheme;
 
 /** Тема Uniwind из пары «палитра × схема»: синяя — штатные light/dark, розовая — rose-light/rose-dark */
 export type ThemeName = Scheme | `rose-${Scheme}`;

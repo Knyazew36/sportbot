@@ -11,10 +11,11 @@ export const sportUserKeys = {
 }
 
 /** Кто открыл приложение: профиль, админ ли, пройден ли первый запуск */
-export const useSportUser = () =>
+export const useSportUser = ({ enabled = true }: { enabled?: boolean } = {}) =>
   useQuery({
     queryKey: sportUserKeys.me,
     queryFn: () => miniappControllerMe(),
+    enabled,
     // Блокировка и плохие данные запуска повтором не лечатся; сеть — повторит кнопка «Повторить»
     retry: false,
     // Открыть приложение в зале без сети: гард входа пускает по сохранённому профилю

@@ -7,9 +7,10 @@ import { Uniwind, useCSSVariable } from 'uniwind';
 
 import { storage } from '@/shared/lib/storage';
 
-import { themeName, type Palette, type Scheme } from './tokens';
+import { themeName, type Palette, type Scheme, type ThemeChoice } from './tokens';
 
 const PALETTE_KEY = 'theme:palette';
+const CHOICE_KEY = 'theme:choice';
 
 // Цвета для мест, куда className не доходит: SVG, нативные шторки, системные панели.
 // Значения читаются из тех же CSS-переменных темы, что и классы, — второго источника цветов нет
@@ -39,20 +40,33 @@ type ThemeContextValue = {
   colors: Colors;
   scheme: Scheme;
   palette: Palette;
-  /** Выбранная палитра. Схема (свет/тёмная) следует за системой */
   setPalette: (palette: Palette) => void;
+  /** Выбор схемы: auto — как в системе, иначе своя на этом устройстве */
+  choice: ThemeChoice;
+  setChoice: (choice: ThemeChoice) => void;
 };
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 const readPalette = (): Palette => (storage.getString(PALETTE_KEY) === 'rose' ? 'rose' : 'classic');
 
+const readChoice = (): ThemeChoice => {
+  const value = storage.getString(CHOICE_KEY);
+  return value === 'light' || value === 'dark' ? value : 'auto';
+};
+
+// Своя схема ставится и системе приложения: нативные шторки, алерты и клавиатура должны совпадать с экраном
+const applyChoice = (choice: ThemeChoice) => Appearance.setColorScheme(choice === 'auto' ? 'unspecified' : choice);
+
 // Тему ставим до первой отрисовки: иначе экран мигнёт синей светлой, пока не сработает эффект
+applyChoice(readChoice());
 Uniwind.setTheme(themeName(readPalette(), Appearance.getColorScheme() === 'dark' ? 'dark' : 'light'));
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
+  const [choice, setChoiceState] = useState<ThemeChoice>(readChoice);
+  // Системная схема решает только в auto; свой выбор ставится сразу, без ожидания события Appearance
   const systemScheme = useColorScheme();
-  const scheme: Scheme = systemScheme === 'dark' ? 'dark' : 'light';
+  const scheme: Scheme = choice === 'auto' ? (systemScheme === 'dark' ? 'dark' : 'light') : choice;
   const [palette, setPaletteState] = useState<Palette>(readPalette);
 
   useEffect(() => {
@@ -77,8 +91,14 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
         storage.set(PALETTE_KEY, next);
         setPaletteState(next);
       },
+      choice,
+      setChoice: (next: ThemeChoice) => {
+        storage.set(CHOICE_KEY, next);
+        applyChoice(next);
+        setChoiceState(next);
+      },
     }),
-    [colors, scheme, palette],
+    [colors, scheme, palette, choice],
   );
 
   // Фон системных поверхностей (подложка статус-бара, свитчер приложений) — цвет бумаги темы

@@ -28,16 +28,21 @@
 - ✅ Инфраструктура: axios-клиент, токен в SecureStore, query-client (`focusManager`/`onlineManager`, персист в MMKV, `buster` по пользователю, тосты `sonner-native`, хаптика), тема и обе палитры, шрифты
 - ✅ Вход: email (вход, регистрация, код, восстановление), через бота Telegram и MAX. ❌ VK — нужна регенерация orval
 - ✅ Онбординг
-- ⚠️ Нижнее меню: ✅ «Сегодня» — все состояния дня, неделя, очередь, шторки; ⚠️ Профиль — карта, палитра, выход, удаление аккаунта; Программы, Библиотека, Статистика — заглушки (содержимое — этап 2)
+- ⚠️ Нижнее меню: ✅ «Сегодня» — все состояния дня, неделя, очередь, шторки; ⚠️ Профиль — карта участника и билеты разделов как во фронте, «Оформление» (палитра и тема авто/светлая/тёмная), «Аккаунт» (выход, удаление); остальные разделы — заглушки; Программы, Библиотека, Статистика — заглушки (содержимое — этап 2)
 - ✅ Удаление аккаунта (`auth/delete-account`) — на устройстве не проверено
-- ❌ Тренировка целиком: `workout`, замена/добавление, заминка, завершение, итог, редактирование — роуты есть, экраны «Скоро»
-- ❌ Офлайн-очередь подходов и таймеры отдыха, keep-awake, уведомление об окончании отдыха
+- ✅ Тренировка целиком: `workout` (фокус, суперсеты, разминка, ввод подходов), замена и добавление упражнения, заминка, завершение, итог, правка прошедшей (`workout/[id]/edit`, `edit/add`)
+  - ⚠️ на правку пока не ведёт ни один экран: вход — со страницы тренировки в статистике (`/stats/workouts/[id]`, этап 2)
+  - ⚠️ в шторке «Новое упражнение» нет картинки: нужен `expo-image-picker` и загрузка через FormData; поле необязательное
+- ✅ Офлайн-очередь подходов и таймеры отдыха, keep-awake, уведомление об окончании отдыха
+- ✅ Блок справочника для этапа 2 уже есть: `widgets/catalog` (поиск, чипы мышц и инвентаря, карта тела, выдача страницами, создание своего), `widgets/program-editor/ExercisePicker`
 
 ### Кит (`shared/ui/kit`)
-✅ Всё на className (Uniwind): Typography, Icon, Button, ButtonLink, Screen/StickyFooter, ScreenHeader/TopBar, ScreenSection, QueryState/StateView, ListRow, StatGrid, ExerciseBlocks, InkPanel, Notice, Ticket, Badge, PersonAvatar, Image, CatalogImage/PhotoPair, StepList/MistakeList, OptionButton, Segmented, StepBar, Input, TextField, CodeField, ErrorText, Sheet (`@gorhom/bottom-sheet`), AlertDialog + ConfirmAction, Patterns (дорожки, штриховка, растр), Art (сгенерирован из фронта, без CSS-анимаций), Rise
+✅ Всё на className (Uniwind): Typography, Icon, Button, ButtonLink, Screen/StickyFooter, ScreenHeader/TopBar, ScreenSection, QueryState/StateView, ListRow, StatGrid, ExerciseBlocks, InkPanel, Notice, Ticket, Badge, PersonAvatar, Image, CatalogImage/PhotoPair, StepList/MistakeList, OptionButton, Segmented, StepBar, Input, TextField, CodeField, ErrorText, Sheet (`@gorhom/bottom-sheet`), AlertDialog + ConfirmAction, Patterns (дорожки, штриховка, растр), Art (сгенерирован из фронта, без CSS-анимаций), Rise, SearchField, LoadMore, Grid (замена CSS grid), BodyMap (полигоны react-body-highlighter на react-native-svg)
 
 ### Не проверено
 - Запуск на iOS/Android (dev-сборка) — пока только tsc и сборка бандла
+- Таблица подходов `widgets/workout/SetList.tsx` на классах `grid grid-cols-[...]`: CSS grid в RN нет, колонки могут съехать — переделать на ряды или `Grid`
+- Тап по карте тела (`BodyMap`) и возврат «назад» после замены/добавления упражнения
 
 ---
 

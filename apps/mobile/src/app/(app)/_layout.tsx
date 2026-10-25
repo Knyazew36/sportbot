@@ -3,6 +3,7 @@ import { ActivityIndicator, View } from 'react-native';
 import { Stack, usePathname, useRouter } from 'expo-router';
 
 import { useOnboarding } from '@sportbot/api/entities/onboarding';
+import { useSportUser } from '@sportbot/api/entities/sport-user';
 
 import { useIsAuthenticated } from '@/shared/api';
 import { ROUTES } from '@/shared/config/routes';
@@ -10,7 +11,9 @@ import { ROUTES } from '@/shared/config/routes';
 // Гвард приложения: без токена — на вход; не пройден онбординг — на настройку, пройден — с настройки на «Сегодня»
 const AppGuard = () => {
   const isAuthenticated = useIsAuthenticated();
-  const onboarding = useOnboarding({ enabled: isAuthenticated });
+  // Профиль создаётся первым запросом (miniapp/me) — без него онбординг отвечает 404
+  const me = useSportUser({ enabled: isAuthenticated });
+  const onboarding = useOnboarding({ enabled: isAuthenticated && me.isSuccess });
   const pathname = usePathname();
   const router = useRouter();
 

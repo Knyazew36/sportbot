@@ -1,33 +1,104 @@
 import { View } from 'react-native';
+import { Check } from 'lucide-react-native';
 
-import type { Me } from '@sportbot/api/entities/session';
+import { MESSENGER_LABEL, useLinkState } from '@sportbot/api/entities/link';
+import type { Profile } from '@sportbot/api/entities/profile';
+import { useSportUser } from '@sportbot/api/entities/sport-user';
+import { useStatsSummary } from '@sportbot/api/entities/stats';
 
+import { toAssetUrl } from '@/shared/api';
+import { Icon } from '@/shared/ui/kit/Icon';
 import { InkPanel } from '@/shared/ui/kit/InkPanel';
+import { PersonAvatar } from '@/shared/ui/kit/PersonAvatar';
+import { Rise } from '@/shared/ui/kit/Reveal';
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography';
 
-// Карта участника — упрощённый порт AccountCard.tsx: кто ты в Спортботе одним взглядом.
-// Чёрная плашка с синей жёсткой тенью — та же «нажимаемость», но в масштабе вещи. Фото и мессенджеры — этап 2
-export const AccountCard = ({ user }: { user: Me }) => {
-  const displayName = [user.name, user.lastName].filter(Boolean).join(' ') || 'Спортсмен';
+const ROLE = { MALE: 'спортсмен', FEMALE: 'спортсменка' } as const;
+
+// Вырез-перфорация поперёк карты — тот же корешок, что у билетов комплексов
+const Perforation = () => (
+  <View className="-mx-5 my-5 justify-center">
+    <View className="border-background/25 border-t-[1.5px] border-dashed" />
+    <View className="bg-background absolute -left-2 size-4 rounded-full" />
+    <View className="bg-background absolute -right-2 size-4 rounded-full" />
+  </View>
+);
+
+const Figure = ({ label, value }: { label: string; value: number | undefined }) => (
+  <View className="gap-1.5">
+    <Eyebrow tone="inverseMuted">{label}</Eyebrow>
+    <Poster size="xl" tone="inverse" numeric>
+      {value == null ? '—' : String(value)}
+    </Poster>
+  </View>
+);
+
+// Карта участника — порт pages/me/components/AccountCard.tsx: фото, имя, номер, серия и где на связи.
+// Камеры на фото нет: выбор фото с телефона — этап 2 (нужен expo-image-picker)
+export const AccountCard = ({ profile }: { profile: Profile }) => {
+  const me = useSportUser();
+  const summary = useStatsSummary();
+  const links = useLinkState();
+  const linked = links.data?.linked ?? [];
 
   return (
-    <View className="px-gutter">
-      <InkPanel shadow className="gap-4 p-5">
+    <Rise className="px-gutter">
+      <InkPanel shadow className="p-5">
         <View className="flex-row items-baseline justify-between gap-3">
           <Eyebrow tone="inverseMuted">Спортбот · карта участника</Eyebrow>
-          <Poster size="xs" numeric>
-            {`№ ${String(user.id).padStart(6, '0')}`}
-          </Poster>
+          {me.data ? (
+            <Poster size="xs" tone="inverse" numeric>
+              {`№ ${String(me.data.userId).padStart(6, '0')}`}
+            </Poster>
+          ) : null}
         </View>
-        <Poster size="xl" numberOfLines={1}>
-          {displayName}
-        </Poster>
-        {user.email ? (
-          <Text size="sm" tone="inverseMuted">
-            {user.email}
-          </Text>
-        ) : null}
+
+        <View className="mt-6 flex-row items-end gap-5">
+          <View className="border-background/90 rounded-full border-[1.5px] p-1">
+            <PersonAvatar
+              name={profile.displayName}
+              src={toAssetUrl(profile.avatarUrl)}
+              tone="accent"
+              className="size-[84px]"
+            />
+          </View>
+          <View className="min-w-0 flex-1 pb-1">
+            {profile.gender ? (
+              <Eyebrow tone="inverseMuted" className="mb-1">
+                {ROLE[profile.gender]}
+              </Eyebrow>
+            ) : null}
+            <Poster size="3xl" tone="inverse" fit>
+              {profile.displayName}
+            </Poster>
+          </View>
+        </View>
+
+        <Perforation />
+
+        <View className="flex-row items-end gap-4">
+          <View className="flex-1">
+            <Figure label="серия" value={summary.data?.currentStreak} />
+          </View>
+          <View className="flex-1">
+            <Figure label="рекорд" value={summary.data?.bestStreak} />
+          </View>
+          <View className="items-end gap-1.5">
+            <Eyebrow tone="inverseMuted">на связи</Eyebrow>
+            <View className="flex-row gap-1.5">
+              {linked.map((m) => (
+                // Печать мессенджера: штамп на карте, а не бейдж — это факт, а не тег
+                <View key={m} className="border-background/70 flex-row items-center gap-1 border-[1.5px] px-1.5 py-0.5">
+                  <Icon as={Check} className="text-background size-3" />
+                  <Text size="xs" tone="inverse" className="tracking-[0.06em] uppercase">
+                    {MESSENGER_LABEL[m]}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        </View>
       </InkPanel>
-    </View>
+    </Rise>
   );
 };

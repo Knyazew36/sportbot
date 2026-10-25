@@ -1,8 +1,11 @@
+import type { ComponentRef, Ref } from 'react';
 import { TextInput, type TextInputProps } from 'react-native';
 
 import { cn } from '@/shared/lib/utils';
 
-type InputProps = TextInputProps & { className?: string; invalid?: boolean };
+export type InputRef = ComponentRef<typeof TextInput>;
+
+type InputProps = TextInputProps & { className?: string; invalid?: boolean; ref?: Ref<InputRef> };
 
 // Инпут — Input из React Native Reusables со стилем shared/ui/shadcn/input фронта: рамка 1.5, без скруглений
 export const Input = ({ className, invalid, editable, ...props }: InputProps) => (

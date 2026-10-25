@@ -5,6 +5,7 @@ import { View } from 'react-native';
 import {
   deleteAccountSchema,
   useDeleteAccount,
+  useMe,
   type DeleteAccountInput,
   type DeleteAccountValues,
 } from '@sportbot/api/entities/session';
@@ -15,15 +16,12 @@ import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction';
 import { TextField } from '@/shared/ui/kit/TextField';
 import { Text } from '@/shared/ui/kit/Typography';
 
-type DeleteAccountSectionProps = {
-  /** Пароль задан (вход по email) — без него сервер не удалит */
-  hasPassword: boolean;
-};
-
 // Удаление аккаунта — обязательно для App Store (MOBILE_TZ.md, этап 1). Порт DeleteAccount из pages/profile.
 // Слово «удалить» сервер требует как защиту от случайного вызова — его даёт диалог подтверждения
-export const DeleteAccountSection = ({ hasPassword }: DeleteAccountSectionProps) => {
+export const DeleteAccountSection = () => {
   const remove = useDeleteAccount();
+  // Пароль задан у входа по email — без него сервер не удалит
+  const hasPassword = !!useMe().data?.email;
 
   const {
     control,

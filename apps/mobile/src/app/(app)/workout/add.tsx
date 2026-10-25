@@ -1,3 +1,3 @@
-import SoonPage from '@/pages/soon/SoonPage';
+import AddWorkoutExercisePage from '@/pages/workout-add/AddWorkoutExercisePage';
 
-export default SoonPage;
+export default AddWorkoutExercisePage;
