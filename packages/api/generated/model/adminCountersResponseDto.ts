@@ -6,7 +6,7 @@
  */
 
 export interface AdminCountersResponseDto {
-  /** Пользователей с пройденной настройкой */
+  /** Пользователей с профилем — все, кто в списке админки */
   users: number;
   /** Тренировок за эту неделю */
   workouts: number;

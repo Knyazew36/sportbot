@@ -25,8 +25,9 @@ import {
 
 /**
  * Упражнение справочника. Без primary — частичная запись существующего упражнения:
- * меняются только переданные поля (measure, equipment, videoUrl, technique, steps, mistakes),
- * название, мышцы и картинки не трогаются. Так меняют меру, не затирая правки на проде.
+ * меняются только переданные поля (measure, equipment, videoUrl, technique, steps, mistakes,
+ * image, imageEnd и атрибуция фото), название и мышцы не трогаются. Так меняют меру
+ * или докладывают фото, не затирая правки на проде.
  */
 interface ImportExercise {
   code: string;
@@ -38,6 +39,10 @@ interface ImportExercise {
   /** Фото финишного положения: ссылка или путь, как у image. */
   imageEnd?: string;
   image?: string;
+  /** Атрибуция фото: страница, лицензия, автор — для подписи под CC BY / CC BY-SA. */
+  imageSource?: string;
+  imageLicense?: string;
+  imageAuthor?: string;
   videoUrl?: string;
   equipment?: Equipment;
   /** Чем меряется: повторы или время. Поля нет — у новой записи REPS, у существующей не меняется. */
@@ -167,11 +172,20 @@ const guideData = (item: { steps?: string[]; mistakes?: string[] }) => ({
   ...(item.mistakes && { mistakes: item.mistakes.map((m) => m.trim()) }),
 });
 
-/** Атрибуция, видео, «где тянет» и положение растяжки — только переданные поля. */
-const stretchExtras = (item: ImportStretch) => ({
+/** Атрибуция фото — только переданные поля; общая у упражнения и растяжки. */
+const creditData = (item: {
+  imageSource?: string;
+  imageLicense?: string;
+  imageAuthor?: string;
+}) => ({
   ...(item.imageSource !== undefined && { imageSource: item.imageSource }),
   ...(item.imageLicense !== undefined && { imageLicense: item.imageLicense }),
   ...(item.imageAuthor !== undefined && { imageAuthor: item.imageAuthor }),
+});
+
+/** Атрибуция, видео, «где тянет» и положение растяжки — только переданные поля. */
+const stretchExtras = (item: ImportStretch) => ({
+  ...creditData(item),
   ...(item.videoUrl !== undefined && { videoUrl: item.videoUrl }),
   ...(item.feel !== undefined && { feel: item.feel.trim() }),
   ...(item.techniqueSources && { techniqueSources: item.techniqueSources }),
@@ -280,6 +294,9 @@ export class ImportService {
         errors.push(`${at}: неизвестный инвентарь ${String(item.equipment)}`);
       if (!isTextList(item?.steps) || !isTextList(item?.mistakes))
         errors.push(`${at}: steps/mistakes — до 20 непустых строк по 300 символов`);
+      // Частичная запись с фото — замена фото: без лицензии подпись под ним не показать
+      if (partial && isText(item?.image) && !isText(item?.imageLicense))
+        errors.push(`${at}: новое фото без imageLicense`);
     });
 
     duplicates('stretches', file.stretches);
@@ -523,8 +540,8 @@ export class ImportService {
     ]);
     const withImages = [
       ...file.exercises.flatMap((e) => [
-        { key: `e:${e.code}`, image: e.image },
-        { key: `e:${e.code}:end`, image: e.imageEnd },
+        { key: `e:${e.code}`, image: e.image, replace: !e.primary },
+        { key: `e:${e.code}:end`, image: e.imageEnd, replace: !e.primary },
       ]),
       ...file.stretches.flatMap((s) => [
         { key: `s:${s.code}`, image: s.image, replace: !s.muscles },
@@ -534,8 +551,8 @@ export class ImportService {
     for (const item of withImages) {
       if (!isText(item.image)) continue;
       // Уже скачанную по ссылке картинку повторный импорт не качает заново.
-      // Частичная запись растяжки — это и есть замена фото, её качаем всегда.
-      const replace = 'replace' in item && item.replace;
+      // Частичная запись — это и есть замена фото, её качаем всегда.
+      const { replace } = item;
       if (!replace && /^https?:\/\//i.test(item.image) && current.get(item.key))
         continue;
       images.set(item.key, await resolveCatalogImage(item.image));
@@ -552,9 +569,18 @@ export class ImportService {
 
         for (const item of file.exercises) {
           if (item.primary === undefined) {
+            const imagePath = images.get(`e:${item.code}`);
+            const imageEndPath = images.get(`e:${item.code}:end`);
             await tx.exercise.update({
               where: { code: item.code },
               data: {
+                ...(imagePath && {
+                  imagePath,
+                  imageTelegramFileId: null,
+                  imageMaxToken: null,
+                }),
+                ...(imageEndPath && { imageEndPath }),
+                ...creditData(item),
                 ...(item.measure && { measure: item.measure }),
                 ...(item.equipment !== undefined && {
                   equipment: item.equipment,
@@ -577,6 +603,7 @@ export class ImportService {
             nameNormalized: normalizeName(name),
             technique: item.technique ?? null,
             ...guideData(item),
+            ...creditData(item),
             ...(imageEndPath && { imageEndPath }),
             videoUrl: item.videoUrl ?? null,
             equipment: item.equipment ?? null,

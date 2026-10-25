@@ -26,7 +26,7 @@ import { CatalogListItemResponseDto } from './dto/catalog-list-item.response.dto
 import { CatalogQueryDto } from './dto/catalog-query.dto';
 import { CatalogRefResponseDto } from './dto/catalog-ref.response.dto';
 import { CatalogStretchResponseDto } from './dto/catalog-stretch.response.dto';
-import { stretchImageCredit } from './dto/stretch-image-credit.response.dto';
+import { imageCredit } from './dto/image-credit.response.dto';
 import { ComplaintCreatedResponseDto } from './dto/complaint-created.response.dto';
 import { CreateComplaintDto } from './dto/create-complaint.dto';
 import { CreateExerciseProposalDto } from './dto/create-exercise-proposal.dto';
@@ -165,6 +165,7 @@ export class CatalogAppService {
       steps: exercise.steps,
       mistakes: exercise.mistakes,
       imageEndUrl: this.uploads.toPublicUrl(exercise.imageEndPath),
+      imageCredit: imageCredit(exercise),
       videoUrl: exercise.videoUrl,
       equipment: exercise.equipment,
       measure: exercise.measure,
@@ -231,7 +232,7 @@ export class CatalogAppService {
       imageEndUrl: this.uploads.toPublicUrl(stretch.imageEndPath),
       feel: stretch.feel,
       videoUrl: stretch.videoUrl,
-      imageCredit: stretchImageCredit(stretch),
+      imageCredit: imageCredit(stretch),
       holdSeconds: stretch.holdSeconds,
       perSide: stretch.perSide,
       muscles: stretch.muscles.map((m) => ref(m.muscle)),

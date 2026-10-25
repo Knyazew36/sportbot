@@ -18,6 +18,7 @@ import { AdminCatalogQueryDto } from './dto/admin-catalog-query.dto';
 import { AdminExerciseResponseDto } from './dto/admin-exercise.response.dto';
 import { AdminStretchResponseDto } from './dto/admin-stretch.response.dto';
 import { CatalogImageResponseDto } from '@/catalog/dto/catalog-image.response.dto';
+import { NO_CREDIT } from '@/catalog/dto/image-credit.response.dto';
 import { SaveExerciseDto } from './dto/save-exercise.dto';
 import { SaveStretchDto } from './dto/save-stretch.dto';
 
@@ -48,11 +49,22 @@ const words = (search?: string) =>
     .filter(Boolean)
     .map((word) => ({ nameNormalized: { contains: word } }));
 
-/** Новая картинка сбрасывает кэш файла, уже загруженного в мессенджеры. */
-const imageData = (imagePath: string | null | undefined) =>
-  imagePath === undefined
+/**
+ * Новая картинка сбрасывает кэш файла, уже загруженного в мессенджеры, и подпись автора:
+ * она относилась к старому фото. Та же картинка (форма шлёт путь при каждом сохранении) — без изменений.
+ */
+const imageData = (
+  imagePath: string | null | undefined,
+  current: string | null = null,
+) =>
+  imagePath === undefined || imagePath === current
     ? {}
-    : { imagePath, imageTelegramFileId: null, imageMaxToken: null };
+    : {
+        imagePath,
+        imageTelegramFileId: null,
+        imageMaxToken: null,
+        ...NO_CREDIT,
+      };
 
 /**
  * Справочник в админке (frontend-tz, 14.1): списки с фильтрами «без картинки» и «без мышц»,
@@ -150,12 +162,16 @@ export class AdminCatalogService {
   }
 
   public async updateExercise(id: number, dto: SaveExerciseDto) {
+    const current = await this.prisma.exercise.findUnique({
+      where: { id },
+      select: { imagePath: true },
+    });
     await this.guard(() =>
       this.prisma.exercise.update({
         where: { id },
         data: {
           ...this.exerciseFields(dto),
-          ...imageData(dto.imagePath),
+          ...imageData(dto.imagePath, current?.imagePath),
           muscles: { deleteMany: {}, create: this.exerciseMuscles(dto) },
           joints: {
             deleteMany: {},
@@ -242,12 +258,16 @@ export class AdminCatalogService {
   }
 
   public async updateStretch(id: number, dto: SaveStretchDto) {
+    const current = await this.prisma.stretch.findUnique({
+      where: { id },
+      select: { imagePath: true },
+    });
     await this.guard(() =>
       this.prisma.stretch.update({
         where: { id },
         data: {
           ...this.stretchFields(dto),
-          ...imageData(dto.imagePath),
+          ...imageData(dto.imagePath, current?.imagePath),
           muscles: {
             deleteMany: {},
             create: dto.muscles.map((muscleId) => ({ muscleId })),

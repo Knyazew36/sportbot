@@ -4,6 +4,7 @@
  * api
  * OpenAPI spec version: 0.0.1
  */
+import type { ImageCreditResponseDto } from './imageCreditResponseDto';
 import type { WorkoutItemResponseDtoMeasure } from './workoutItemResponseDtoMeasure';
 import type { WorkoutLastResultResponseDto } from './workoutLastResultResponseDto';
 import type { WorkoutSetResponseDto } from './workoutSetResponseDto';
@@ -34,6 +35,8 @@ export interface WorkoutItemResponseDto {
      * @nullable
      */
   imageEndUrl: string | null;
+  /** @nullable */
+  imageCredit: ImageCreditResponseDto | null;
   /** @nullable */
   videoUrl: string | null;
   /** Упражнение с собственным весом: вес необязателен */

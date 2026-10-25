@@ -1,0 +1,61 @@
+{
+  "exercises": [
+    {
+      "code": "pike-push-ups",
+      "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/Downward-Facing-Dog.JPG/1280px-Downward-Facing-Dog.JPG",
+      "imageSource": "https://commons.wikimedia.org/wiki/File:Downward-Facing-Dog.JPG",
+      "imageLicense": "CC BY 3.0",
+      "imageAuthor": "Iveto"
+    },
+    {
+      "code": "butterfly-hold",
+      "image": "https://upload.wikimedia.org/wikipedia/commons/6/64/Baddha_konasana.jpg",
+      "imageSource": "https://commons.wikimedia.org/wiki/File:Baddha_konasana.jpg",
+      "imageLicense": "CC BY-SA 3.0",
+      "imageAuthor": "Joseph RENGER"
+    },
+    {
+      "code": "front-split-hold",
+      "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/77/Hanumanasana_-_Monkey_Pose_-_Side_view.jpg/1280px-Hanumanasana_-_Monkey_Pose_-_Side_view.jpg",
+      "imageSource": "https://commons.wikimedia.org/wiki/File:Hanumanasana_-_Monkey_Pose_-_Side_view.jpg",
+      "imageLicense": "CC BY 2.0",
+      "imageAuthor": "lululemon athletica"
+    },
+    {
+      "code": "front-split-pnf",
+      "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/77/Hanumanasana_-_Monkey_Pose_-_Side_view.jpg/1280px-Hanumanasana_-_Monkey_Pose_-_Side_view.jpg",
+      "imageSource": "https://commons.wikimedia.org/wiki/File:Hanumanasana_-_Monkey_Pose_-_Side_view.jpg",
+      "imageLicense": "CC BY 2.0",
+      "imageAuthor": "lululemon athletica"
+    },
+    {
+      "code": "middle-split-pnf",
+      "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/05/Samakonasana.jpg/1280px-Samakonasana.jpg",
+      "imageSource": "https://commons.wikimedia.org/wiki/File:Samakonasana.jpg",
+      "imageLicense": "CC BY-SA 4.0",
+      "imageAuthor": "Mohan Yoga India"
+    },
+    {
+      "code": "horse-stance",
+      "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c8/Sifu_gustavo_milazzo_en_shaolin_templo.jpg/1280px-Sifu_gustavo_milazzo_en_shaolin_templo.jpg",
+      "imageSource": "https://commons.wikimedia.org/wiki/File:Sifu_gustavo_milazzo_en_shaolin_templo.jpg",
+      "imageLicense": "CC BY 4.0",
+      "imageAuthor": "Gusmilazzo"
+    },
+    {
+      "code": "pigeon-hold",
+      "image": "https://wger.de/media/exercise-images/1872/df982df1-512a-4eb9-acd9-68cc1c265df6.png",
+      "imageSource": "https://wger.de/exercise/1872/view-base",
+      "imageLicense": "CC BY-SA 4.0",
+      "imageAuthor": "Davidgj32"
+    },
+    {
+      "code": "leg-swing-front",
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Front_Leg_Raises/1.jpg"
+    },
+    {
+      "code": "leg-swing-side",
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Leg_Raises/1.jpg"
+    }
+  ]
+}

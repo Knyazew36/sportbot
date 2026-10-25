@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 
 import { localToday } from '@/bot';
 import { SportAccountService } from '@/bot/sport-account.service';
-import { stretchImageCredit } from '@/catalog/dto/stretch-image-credit.response.dto';
+import { imageCredit } from '@/catalog/dto/image-credit.response.dto';
 import { SportProfile } from '@/generated/prisma/client';
 import { LimitationService } from '@/limitation/limitation.service';
 import { PlanDayService } from '@/plan/plan-day.service';
@@ -363,7 +363,7 @@ export class WorkoutAppService {
       imageEndUrl: this.uploads.toPublicUrl(stretch.imageEndPath),
       feel: stretch.feel,
       videoUrl: stretch.videoUrl,
-      imageCredit: stretchImageCredit(stretch),
+      imageCredit: imageCredit(stretch),
       holdSeconds: stretch.holdSeconds,
       perSide: stretch.perSide,
       muscles: stretch.muscles.map((m) => m.muscle.name).join(' · '),
@@ -436,6 +436,7 @@ export class WorkoutAppService {
       steps: exercise.steps,
       mistakes: exercise.mistakes,
       imageEndUrl: this.uploads.toPublicUrl(exercise.imageEndPath),
+      imageCredit: imageCredit(exercise),
       videoUrl: exercise.videoUrl,
       bodyweight: exercise.equipment === 'BODYWEIGHT',
       measure: exercise.measure,

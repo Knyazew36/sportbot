@@ -4,6 +4,7 @@ import { PrismaService } from 'prisma/prisma.service';
 import { APP_SCREEN, appBtn, btn, msg } from '@/bot';
 import { CatalogKind, normalizeName } from '@/catalog/catalog.service';
 import { guideLines } from '@/catalog/catalog.texts';
+import { NO_CREDIT } from '@/catalog/dto/image-credit.response.dto';
 import { paginatePrisma } from '@/common/prisma';
 import {
   CatalogStatus,
@@ -335,6 +336,7 @@ export class ModerationService {
                   imagePath: edits.imagePath,
                   imageTelegramFileId: null,
                   imageMaxToken: null,
+                  ...NO_CREDIT,
                 }
               : {}),
             ...(edits?.equipment ? { equipment: edits.equipment } : {}),
@@ -370,6 +372,7 @@ export class ModerationService {
                 imagePath: edits.imagePath,
                 imageTelegramFileId: null,
                 imageMaxToken: null,
+                ...NO_CREDIT,
               }
             : {}),
         },

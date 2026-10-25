@@ -651,6 +651,9 @@ model Exercise {
   /// Кэш уже загруженной в мессенджер картинки; сбрасывается при смене imagePath.
   imageTelegramFileId String?
   imageMaxToken       String?
+  imageSource         String? /// страница, откуда взято фото, — для атрибуции
+  imageLicense        String? /// лицензия фото (CC BY-SA 4.0, Unlicense…); сбрасывается при смене фото
+  imageAuthor         String? /// автор фото, если лицензия требует указать
   videoUrl            String? /// ссылка на внешнее видео, свои видео бот не хранит
   equipment           Equipment?
   measure             ExerciseMeasure @default(REPS)

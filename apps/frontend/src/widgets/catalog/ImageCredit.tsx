@@ -1,8 +1,8 @@
-import type { StretchImageCreditResponseDto } from '@sportbot/api/generated/model'
+import type { ImageCreditResponseDto } from '@sportbot/api/generated/model'
 import { Text } from '@/shared/ui/kit/Typography'
 
 type ImageCreditProps = {
-  credit: StretchImageCreditResponseDto | null
+  credit: ImageCreditResponseDto | null
 }
 
 // Подпись под фото: CC BY и CC BY-SA обязывают указать автора, лицензию и источник

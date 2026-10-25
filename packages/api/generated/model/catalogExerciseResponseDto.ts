@@ -7,6 +7,7 @@
 import type { CatalogExerciseResponseDtoEquipment } from './catalogExerciseResponseDtoEquipment';
 import type { CatalogExerciseResponseDtoMeasure } from './catalogExerciseResponseDtoMeasure';
 import type { CatalogRefResponseDto } from './catalogRefResponseDto';
+import type { ImageCreditResponseDto } from './imageCreditResponseDto';
 
 export interface CatalogExerciseResponseDto {
   id: number;
@@ -27,6 +28,8 @@ export interface CatalogExerciseResponseDto {
      * @nullable
      */
   imageEndUrl: string | null;
+  /** @nullable */
+  imageCredit: ImageCreditResponseDto | null;
   /** @nullable */
   videoUrl: string | null;
   /** @nullable */

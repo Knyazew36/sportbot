@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+import { ImageCreditResponseDto } from '@/catalog/dto/image-credit.response.dto';
+
 import { WorkoutLastResultResponseDto } from './workout-last-result.response.dto';
 import { WorkoutSetResponseDto } from './workout-set.response.dto';
 
@@ -41,6 +43,9 @@ export class WorkoutItemResponseDto {
     description: 'Фото финишного положения',
   })
   imageEndUrl: string | null;
+
+  @ApiProperty({ type: ImageCreditResponseDto, nullable: true })
+  imageCredit: ImageCreditResponseDto | null;
 
   @ApiProperty({ type: String, nullable: true })
   videoUrl: string | null;

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 import { CatalogRefResponseDto } from './catalog-ref.response.dto';
-import { StretchImageCreditResponseDto } from './stretch-image-credit.response.dto';
+import { ImageCreditResponseDto } from './image-credit.response.dto';
 
 export class CatalogStretchResponseDto {
   @ApiProperty()
@@ -46,8 +46,8 @@ export class CatalogStretchResponseDto {
   })
   videoUrl: string | null;
 
-  @ApiProperty({ type: StretchImageCreditResponseDto, nullable: true })
-  imageCredit: StretchImageCreditResponseDto | null;
+  @ApiProperty({ type: ImageCreditResponseDto, nullable: true })
+  imageCredit: ImageCreditResponseDto | null;
 
   @ApiProperty({ description: 'Удержание, с' })
   holdSeconds: number;

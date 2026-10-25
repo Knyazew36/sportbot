@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 import { CatalogRefResponseDto } from './catalog-ref.response.dto';
+import { ImageCreditResponseDto } from './image-credit.response.dto';
 
 export class CatalogExerciseResponseDto {
   @ApiProperty()
@@ -34,6 +35,9 @@ export class CatalogExerciseResponseDto {
     description: 'Фото финишного положения',
   })
   imageEndUrl: string | null;
+
+  @ApiProperty({ type: ImageCreditResponseDto, nullable: true })
+  imageCredit: ImageCreditResponseDto | null;
 
   @ApiProperty({ type: String, nullable: true })
   videoUrl: string | null;

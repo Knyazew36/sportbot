@@ -9,6 +9,7 @@ import { StepList } from '@/shared/ui/kit/StepList'
 import { Eyebrow, Text } from '@/shared/ui/kit/Typography'
 import { Badge } from '@/shared/ui/shadcn/badge'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'
+import { ImageCredit } from '@/widgets/catalog/ImageCredit'
 
 type ExerciseSheetProps = {
   /** Открытое упражнение; null — шторка закрыта. Название сразу в заголовке, пока карточка грузится */
@@ -37,6 +38,7 @@ const ExerciseDetails = ({ id }: { id: number }) => {
               end={toAssetUrl(e.imageEndUrl) ?? null}
               alt={e.name}
             />
+            <ImageCredit credit={e.imageCredit} />
             <div className='flex flex-wrap gap-1.5'>
               {e.primaryMuscles.map(m => (
                 <Badge key={m.id}>{m.name}</Badge>
@@ -86,6 +88,7 @@ const StretchDetails = ({ id }: { id: number }) => {
             end={toAssetUrl(s.imageEndUrl) ?? null}
             alt={s.name}
           />
+          <ImageCredit credit={s.imageCredit} />
           <div className='flex flex-wrap gap-1.5'>
             {s.muscles.map(m => (
               <Badge key={m.id}>{m.name}</Badge>
