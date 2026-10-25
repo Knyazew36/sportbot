@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
 
 import { haptic } from '@/shared/lib/haptics';
@@ -9,6 +9,7 @@ import { useTheme } from '@/shared/theme/ThemeProvider';
 import { Icon } from './Icon';
 import { Hatch } from './Patterns';
 import { Eyebrow, Poster, Text } from './Typography';
+import { Pressable } from './Pressable';
 
 type NoticeProps = {
   /** Метка над заголовком: что это за подсказка */

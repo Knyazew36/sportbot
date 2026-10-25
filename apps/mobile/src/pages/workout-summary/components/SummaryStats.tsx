@@ -1,15 +1,15 @@
-import { View } from 'react-native';
 import { pluralize } from '@front-cmdt/utils/pluralize';
 
 import { type WorkoutSummary } from '@sportbot/api/entities/workout';
 import { EXERCISE_FORMS, SET_FORMS } from '@/shared/lib/plural-forms';
+import { Rise } from '@/shared/ui/kit/Reveal';
 import { StatGrid } from '@/shared/ui/kit/StatGrid';
 import { Text } from '@/shared/ui/kit/Typography';
 
 // Объём тренировки строкой между линейками. Серия ушла в плашку с медалью — здесь не повторяется,
 // а тоннаж стал полноценной цифрой вместо подписи мелким шрифтом
 export const SummaryStats = ({ summary }: { summary: WorkoutSummary }) => (
-  <View className="px-gutter">
+  <Rise className="px-gutter">
     <StatGrid
       items={[
         { label: pluralize(summary.sets, SET_FORMS, { withCount: false }), value: summary.sets },
@@ -26,5 +26,5 @@ export const SummaryStats = ({ summary }: { summary: WorkoutSummary }) => (
         {summary.cardioMinutes ? `, ${summary.cardioMinutes} мин` : ''}
       </Text>
     )}
-  </View>
+  </Rise>
 );

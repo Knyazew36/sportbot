@@ -4,10 +4,14 @@ import { router } from 'expo-router';
 import { useStartWorkout } from '@sportbot/api/entities/workout';
 import { ROUTES } from '@/shared/config/routes';
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink';
+import { PageLoader } from '@/shared/ui/kit/PageLoader';
 import { Screen } from '@/shared/ui/kit/Screen';
 import { TopBar } from '@/shared/ui/kit/ScreenHeader';
-import { StateView } from '@/shared/ui/kit/StateView';
+import { ScreenState } from '@/shared/ui/kit/ScreenState';
 
+const header = <TopBar back={() => router.replace(ROUTES.TODAY)} title="Тренировка" />;
+
+/** Начать тренировку, если её ещё нет: «Начать» с «Сегодня» ведёт сюда с complexId */
 export const StartWorkout = ({ complexId }: { complexId?: number }) => {
   const start = useStartWorkout();
   const started = useRef(false);
@@ -18,40 +22,33 @@ export const StartWorkout = ({ complexId }: { complexId?: number }) => {
     start.mutate(complexId);
   }, [complexId, start]);
 
+  // Старт создаёт тренировку на сервере: без сети мутация стоит на паузе и сама уйдёт, когда сеть появится
   if (start.isPaused)
     return (
-      <Screen
-        fullscreen
-        header={<TopBar back={() => router.replace(ROUTES.TODAY)} title="Тренировка" />}
-        className="px-gutter"
-      >
-        <StateView
+      <Screen fullscreen header={header} className="px-gutter">
+        <ScreenState
           state="error"
-          error={{
-            title: 'Нет сети',
-            description: 'Начнём тренировку, как только появится связь. Экран можно не закрывать.',
-          }}
+          title="Нет сети"
+          description="Начнём тренировку, как только появится связь. Экран можно не закрывать."
         />
       </Screen>
     );
 
   if (start.isError)
     return (
-      <Screen fullscreen header={<TopBar back={() => router.replace(ROUTES.TODAY)} title="Тренировка" />} className="px-gutter">
-        <StateView
+      <Screen fullscreen header={header} className="px-gutter">
+        <ScreenState
           state="error"
-          error={{
-            title: 'Не получилось начать',
-            description: 'Проверь, что в активной программе есть тренировка с упражнениями.',
-            action: (
-              <ButtonLink href={ROUTES.TODAY} variant="outline">
-                На «Сегодня»
-              </ButtonLink>
-            ),
-          }}
+          title="Не получилось начать"
+          description="Проверь, что в активной программе есть тренировка с упражнениями."
+          action={
+            <ButtonLink href={ROUTES.TODAY} replace variant="outline">
+              На «Сегодня»
+            </ButtonLink>
+          }
         />
       </Screen>
     );
 
-  return <StateView state="loading" />;
+  return <PageLoader />;
 };

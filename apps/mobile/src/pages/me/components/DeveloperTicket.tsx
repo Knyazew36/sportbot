@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 import { CodeXml } from 'lucide-react-native';
 
-import { ROUTES } from '@/shared/config/routes';
+import { routeHref, ROUTES } from '@/shared/config/routes';
 import { Rise } from '@/shared/ui/kit/Reveal';
 import { Eyebrow } from '@/shared/ui/kit/Typography';
 
@@ -14,7 +14,7 @@ export const DeveloperTicket = () => (
     <View className="border-foreground/45 gap-4 border-t-[1.5px] border-dashed pt-4">
       <Eyebrow>Создатели</Eyebrow>
       <SectionTicket
-        href={{ pathname: ROUTES.ME_SECTION, params: { section: 'developer' } }}
+        href={routeHref(ROUTES.ME_DEVELOPER)}
         icon={CodeXml}
         title="Разработчик"
         meta="KM Team · сделаем ваш проект"

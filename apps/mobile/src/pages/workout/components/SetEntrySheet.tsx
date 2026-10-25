@@ -21,7 +21,7 @@ import { Button } from '@/shared/ui/kit/Button';
 import { ErrorText } from '@/shared/ui/kit/ErrorText';
 import { Icon } from '@/shared/ui/kit/Icon';
 import { Sheet } from '@/shared/ui/kit/Sheet';
-import { TextField } from '@/shared/ui/kit/TextField';
+import { BoxInput } from '@/shared/ui/kit/BoxInput';
 
 import { setCaption } from './set-caption';
 
@@ -44,16 +44,15 @@ const SetEntryForm = ({ item, onSubmit }: SetEntryFormProps) => {
           control={control}
           name="weight"
           render={({ field }) => (
-            <TextField
+            <BoxInput large
               label={item.bodyweight ? 'вес, если есть' : 'вес, кг'}
               placeholder={hint ? weightText(hint.weight) : item.bodyweight ? 'свой' : '0'}
               keyboardType="decimal-pad"
               autoFocus={!item.bodyweight}
-              error={formState.errors.weight}
               {...field}
               onChangeText={field.onChange}
               value={field.value}
-              className="flex-1"
+              className="flex-1 py-2"
             />
           )}
         />
@@ -61,16 +60,15 @@ const SetEntryForm = ({ item, onSubmit }: SetEntryFormProps) => {
           control={control}
           name="reps"
           render={({ field }) => (
-            <TextField
+            <BoxInput large
               label="повторы"
               placeholder={hint ? String(hint.reps) : String(item.repsMax)}
               keyboardType="number-pad"
               autoFocus={item.bodyweight}
-              error={formState.errors.reps}
               {...field}
               onChangeText={field.onChange}
               value={field.value}
-              className="flex-1"
+              className="flex-1 py-2"
             />
           )}
         />
@@ -102,15 +100,15 @@ const TimeEntryForm = ({ item, elapsed, onSubmit }: TimeEntryFormProps) => {
         control={control}
         name="time"
         render={({ field }) => (
-          <TextField
+          <BoxInput large
             label={`время, ${timeLabel(item.measure)}`}
             keyboardType={item.measure === 'TIME' ? 'default' : 'number-pad'}
             placeholder={timeInput(item.measure, item.repsMax)}
             autoFocus={!elapsed}
-            error={formState.errors.time}
             {...field}
             onChangeText={field.onChange}
             value={field.value}
+            className="py-2"
           />
         )}
       />
@@ -132,6 +130,9 @@ type SetEntrySheetProps = {
   onSaved: () => void;
 };
 
+// Ввод подхода после «Закончил подход»: два крупных поля и одна кнопка.
+// Отправка не держит экран: подход встаёт в офлайн-очередь, шторка закрывается сразу,
+// подход виден в списке с меткой «ждёт отправки», пока сервер его не принял
 export const SetEntrySheet = ({ open, item, timing, onClose, onSubmitStart, onSaved }: SetEntrySheetProps) => {
   const add = useAddSet();
   const hint = lastSetHint(item.last, item.sets.length + 1);

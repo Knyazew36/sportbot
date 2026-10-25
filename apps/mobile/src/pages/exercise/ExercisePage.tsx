@@ -39,18 +39,28 @@ const ExercisePage = () => {
         />
       }
       footer={
-        exercise.data && (
-          <StickyFooter>
-            <Button variant="outline" size="icon-lg" accessibilityLabel="Предложить правку" onPress={() => setEditOpen(true)}>
-              <Icon as={PencilLine} className="size-6" />
+        <StickyFooter>
+          <Button
+            variant="outline"
+            size="icon-lg"
+            disabled={!exercise.data}
+            accessibilityLabel="Предложить правку"
+            onPress={() => setEditOpen(true)}
+          >
+            <Icon as={PencilLine} className="size-6" />
+          </Button>
+          {!fromWorkout && (
+            <Button
+              size="lg"
+              icon={Plus}
+              disabled={!exercise.data || !program.data}
+              onPress={() => setAddOpen(true)}
+              className="flex-1"
+            >
+              {program.data ? 'В тренировку' : 'Нет активной программы'}
             </Button>
-            {!fromWorkout && (
-              <Button size="lg" icon={Plus} disabled={!program.data} onPress={() => setAddOpen(true)} className="flex-1">
-                {program.data ? 'В тренировку' : 'Нет активной программы'}
-              </Button>
-            )}
-          </StickyFooter>
-        )
+          )}
+        </StickyFooter>
       }
       className="gap-7"
     >

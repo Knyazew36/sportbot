@@ -1,6 +1,7 @@
 import { ArrowRight } from 'lucide-react-native';
 
 import { type WorkoutSummary } from '@sportbot/api/entities/workout';
+import { ShareWorkoutButton } from '@/features/share-workout/ShareWorkoutButton';
 import { ROUTES } from '@/shared/config/routes';
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink';
 import { Icon } from '@/shared/ui/kit/Icon';
@@ -15,6 +16,7 @@ import { CooldownNudge } from './CooldownNudge';
 import { SummaryHero } from './SummaryHero';
 import { SummaryStats } from './SummaryStats';
 
+// Итог тренировки: время, серия, рекорды, объём, протокол; поделиться — в футере
 export const SummaryView = ({ summary }: { summary: WorkoutSummary }) => {
   const counted = summary.status !== 'IN_PROGRESS';
   // Без замера времени (старые тренировки, простой режим) не знаем, была ли заминка — напоминаем
@@ -24,8 +26,19 @@ export const SummaryView = ({ summary }: { summary: WorkoutSummary }) => {
     <Screen
       header={<ScreenHeader title="Финиш" aside={summary.complexName} />}
       footer={
-        <StickyFooter>
-          <ButtonLink href={ROUTES.TODAY} replace size="lg">
+        // Поделиться — главное действие итога: карточка уходит из бота в любой чат
+        <StickyFooter className="flex-nowrap">
+          {counted && (
+            <ShareWorkoutButton workoutId={summary.workoutId} size="lg" className="min-w-0 flex-1" contentClassName="px-3" />
+          )}
+          <ButtonLink
+            href={ROUTES.TODAY}
+            replace
+            variant="outline"
+            size="lg"
+            className="min-w-0 flex-1"
+            contentClassName="px-3"
+          >
             Домой
             <Icon as={ArrowRight} className="size-6" strokeWidth={2.5} />
           </ButtonLink>

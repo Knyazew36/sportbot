@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import type { LucideIcon } from 'lucide-react-native';
 import { Play, Pause } from 'lucide-react-native';
 
@@ -8,6 +8,7 @@ import { Button } from '@/shared/ui/kit/Button';
 import { Icon } from '@/shared/ui/kit/Icon';
 import { Ring } from '@/shared/ui/kit/Ring';
 import { Eyebrow, Lead, Poster } from '@/shared/ui/kit/Typography';
+import { Pressable } from '@/shared/ui/kit/Pressable';
 
 type SideAction = { label: string; icon: LucideIcon; onPress: () => void };
 

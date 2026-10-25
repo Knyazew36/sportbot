@@ -1,5 +1,5 @@
 import { View } from 'react-native';
-import { ArrowRight, ClipboardPen, Play, Plus, SkipForward, Timer } from 'lucide-react-native';
+import { ArrowRight, ClipboardPen, Flame, Play, Plus, SkipForward, Timer } from 'lucide-react-native';
 
 import { ROUTES } from '@/shared/config/routes';
 import { formatSeconds } from '@/shared/lib/hooks/use-deadline-timer';
@@ -7,7 +7,6 @@ import { Button } from '@/shared/ui/kit/Button';
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink';
 import { Icon } from '@/shared/ui/kit/Icon';
 import { StickyFooter } from '@/shared/ui/kit/Screen';
-import { Digits, Text } from '@/shared/ui/kit/Typography';
 
 export type NextMode = 'skip' | 'next' | 'finish';
 
@@ -51,26 +50,26 @@ export const WorkoutActions = ({
   const superset = round !== undefined;
   const resting = restLeft !== null && restLeft > 0;
 
+  // Свёрнутый отдых ещё идёт — вместо подхода кнопка отдыха с остатком, тап разворачивает его.
+  // Время строкой, а не Digits: голые строки из Digits вне Text роняют RN
   const restBack = resting && (
-    <Button variant="rest" size="lg" className="min-w-0 flex-1 shrink" onPress={onRestOpen}>
+    <Button variant="rest" size="lg" className="min-w-0 flex-1" onPress={onRestOpen}>
       <Icon as={Timer} className="size-6" />
-      Отдых
-      <Digits fontSize={18}>{formatSeconds(restLeft)}</Digits>
+      {`Отдых ${formatSeconds(restLeft)}`}
     </Button>
   );
 
   const restButton = restLeft === null && restSeconds !== null && (
     <Button variant="outline" size="lg" onPress={onRest} accessibilityLabel="Начать отдых">
       <Icon as={Timer} className="size-5" />
-      <Digits fontSize={18}>{formatSeconds(restSeconds)}</Digits>
+      {formatSeconds(restSeconds)}
     </Button>
   );
 
   const warmupBack = warmupLeft !== null && (
-    <Button variant="rest" size="lg" className="w-full" onPress={onWarmupOpen} accessibilityLabel="Вернуться к разминке">
-      <Icon as={Timer} className="size-6" />
-      Разминка
-      <Digits fontSize={18}>{formatSeconds(warmupLeft)}</Digits>
+    <Button variant="rest" size="lg" block onPress={onWarmupOpen} accessibilityLabel="Вернуться к разминке">
+      <Icon as={Flame} className="size-6" />
+      {`Разминка ${formatSeconds(warmupLeft)}`}
     </Button>
   );
 
@@ -78,7 +77,7 @@ export const WorkoutActions = ({
     round !== null && (
       <View className="flex-row gap-3">
         {restBack || (
-          <Button size="lg" className="min-w-0 flex-1 shrink" onPress={onStartSet}>
+          <Button size="lg" className="min-w-0 flex-1" onPress={onStartSet}>
             <Icon as={Play} className="size-6" />
             Начать круг {round}
           </Button>
@@ -110,11 +109,13 @@ export const WorkoutActions = ({
     <Button
       variant={next === 'finish' ? 'success' : next === 'next' && planDone ? 'ink' : 'outline'}
       size="lg"
-      className="w-full justify-between"
+      block
+      // Капсом «Следующее упражнение» шире узкого экрана — подпись переносится на вторую строку, а не режется
+      spread
       onPress={onNext}
       disabled={nextPending}
     >
-      <><Text >{NEXT_LABEL[next]}</Text></>
+      {NEXT_LABEL[next]}
       {next === 'skip' ? (
         <Icon as={SkipForward} className="size-6" />
       ) : (
@@ -124,7 +125,7 @@ export const WorkoutActions = ({
   );
 
   const more = next === 'finish' && (
-    <ButtonLink href={ROUTES.WORKOUT_ADD} variant="outline" size="lg" className="w-full">
+    <ButtonLink href={ROUTES.WORKOUT_ADD} variant="outline" size="lg" block>
       <Icon as={Plus} strokeWidth={3} />
       Ещё упражнение
     </ButtonLink>

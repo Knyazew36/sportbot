@@ -1,5 +1,5 @@
 import { Children, type ReactNode } from 'react';
-import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 import type { LucideIcon } from 'lucide-react-native';
 import { cva, type VariantProps } from 'class-variance-authority';
 
@@ -8,6 +8,7 @@ import { cn } from '@/shared/lib/utils';
 
 import { Icon } from './Icon';
 import { TextClassContext } from './Typography';
+import { Pressable } from './Pressable';
 
 // Кнопка Спортбота — порт shared/ui/shadcn/animate-ui/components/buttons/button.tsx на основе Button из
 // React Native Reusables. Рамка и жёсткая тень: тень — единственный признак «нажимается».
@@ -206,10 +207,12 @@ export const Button = ({
         className={cn(block ? 'self-stretch' : 'self-start', className)}
       >
         {({ pressed }) => (
-          <View>
+          // grow: высота и ширина, заданные снаружи (h-24, flex-1), доходят до рамки — иначе рамка остаётся по содержимому
+          <View className="grow">
             {!flat && <View className={cn('absolute inset-0', PRESS[variant], SHIFT[size], disabled && 'opacity-30')} />}
             <View
               className={cn(
+                'grow',
                 buttonVariants({ variant, size }),
                 spread && 'justify-between',
                 pressed && !disabled && !flat && SHIFT[size],

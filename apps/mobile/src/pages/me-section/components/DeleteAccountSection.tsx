@@ -14,7 +14,9 @@ import { applyFieldErrors } from '@/shared/lib/form';
 import { Button } from '@/shared/ui/kit/Button';
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction';
 import { TextField } from '@/shared/ui/kit/TextField';
-import { Text } from '@/shared/ui/kit/Typography';
+import { Eyebrow, Text } from '@/shared/ui/kit/Typography';
+
+import { ERASED, KEPT } from '../model/delete-account';
 
 // Удаление аккаунта — обязательно для App Store (MOBILE_TZ.md, этап 1). Порт DeleteAccount из pages/profile.
 // Слово «удалить» сервер требует как защиту от случайного вызова — его даёт диалог подтверждения
@@ -43,9 +45,26 @@ export const DeleteAccountSection = () => {
 
   return (
     <View className="px-gutter gap-3">
-      <Text size="sm" tone="muted">
-        Аккаунт удаляется безвозвратно вместе с историей тренировок.
-      </Text>
+      <View className="border-destructive/60 gap-4 border-[1.5px] border-dashed p-4">
+        <View className="gap-1">
+          <Eyebrow tone="danger" className="mb-0.5">
+            Сотрётся
+          </Eyebrow>
+          {ERASED.map((item) => (
+            <Text key={item} size="xs" tone="soft">
+              {`• ${item}`}
+            </Text>
+          ))}
+        </View>
+        <View className="gap-1">
+          <Eyebrow className="mb-0.5">Останется</Eyebrow>
+          {KEPT.map((item) => (
+            <Text key={item} size="xs" tone="soft">
+              {`• ${item}`}
+            </Text>
+          ))}
+        </View>
+      </View>
       {hasPassword && (
         <Controller
           control={control}
@@ -65,8 +84,8 @@ export const DeleteAccountSection = () => {
       )}
       <ConfirmAction
         trigger={<Button variant="destructive" />}
-        title="Удалить аккаунт?"
-        description="Это действие нельзя отменить."
+        title="Удалить все данные?"
+        description="Это не отменить. После удаления приложение начнётся с первого запуска."
         confirmLabel="Удалить навсегда"
         onConfirm={() => confirm()}
       >

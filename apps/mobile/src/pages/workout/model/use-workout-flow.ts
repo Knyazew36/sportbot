@@ -23,6 +23,7 @@ import { haptic } from '@/shared/lib/haptics';
 import { timerEndSignal } from '@/shared/lib/signal';
 
 import type { EditingSet } from '@/widgets/workout/EditSetSheet';
+import { restTimerKey } from '@/widgets/live-workout-bar/constants';
 
 import type { NextMode } from '../components/WorkoutActions';
 
@@ -62,7 +63,7 @@ export const useWorkoutFlow = (saved: Workout) => {
   const [entryOpen, setEntryOpen] = useState(false);
   const [restHidden, setRestHidden] = useState(false);
   const timer = useDeadlineTimer({
-    storageKey: `rest-timer-${workout.id}`,
+    storageKey: restTimerKey(workout.id),
     onEnd: () => timerEndSignal(settings),
   });
   const stopwatch = useStopwatch({ storageKey: `set-stopwatch-${workout.id}` });
@@ -153,6 +154,8 @@ export const useWorkoutFlow = (saved: Workout) => {
   const inRound = superset !== null && roundActive && superset.round.length > 1 && stopwatch.running;
   const restRunning = settings.showRestTimer && timer.status !== 'idle';
   const restOpen = restRunning && !restHidden;
+  // Что-то идёт поверх экрана упражнения; когда ничего — сверху живая полоса
+  const focusOpen = Boolean(warmupMinutes && !warmupHidden) || inRound || stopwatch.running || restOpen;
 
   const lastIndex = items.indexOf(block.at(-1)!);
   const others = items.filter((e) => !block.includes(e) && !e.done);
@@ -292,6 +295,7 @@ export const useWorkoutFlow = (saved: Workout) => {
       restHidden,
       restRunning,
       restOpen,
+      focusOpen,
       inRound,
       burstKey,
       entryOpen,

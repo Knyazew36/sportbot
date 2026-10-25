@@ -41,10 +41,13 @@ export const TopBar = ({ back, title, subtitle, action }: TopBarProps) => (
       <Poster size="sm" numberOfLines={1}>
         {title}
       </Poster>
-      {subtitle ? (
+      {/* Строка — подписью капсом; элемент (живое время тренировки) рисует себя сам: View внутри Text в RN не работает */}
+      {typeof subtitle === 'string' ? (
         <Eyebrow className="mt-0.5" numberOfLines={1}>
           {subtitle}
         </Eyebrow>
+      ) : subtitle ? (
+        <View className="mt-0.5">{subtitle}</View>
       ) : null}
     </View>
     {action ?? <View className="w-10" />}

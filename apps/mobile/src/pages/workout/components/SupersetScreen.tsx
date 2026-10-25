@@ -1,11 +1,14 @@
-import { useRef, useState } from 'react';
-import { FlatList, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { FlatList, useWindowDimensions, View } from 'react-native';
 import { Flame } from 'lucide-react-native';
 
 import { type SupersetRound, supersetLabels, type WorkoutItem } from '@sportbot/api/entities/workout';
-import type { EditingSet } from '@/widgets/workout/EditSetSheet';
+import { GUTTER } from '@/shared/theme/tokens';
+import { ChargeChain } from '@/shared/ui/kit/ChargeChain';
 import { Icon } from '@/shared/ui/kit/Icon';
+import { Rise } from '@/shared/ui/kit/Reveal';
 import { Eyebrow, Poster } from '@/shared/ui/kit/Typography';
+import type { EditingSet } from '@/widgets/workout/EditSetSheet';
 import { SetList } from '@/widgets/workout/SetList';
 
 import { ExerciseCard } from './ExerciseCard';
@@ -13,66 +16,84 @@ import { ExerciseCard } from './ExerciseCard';
 type SupersetScreenProps = {
   round: SupersetRound;
   onEdit: (editing: EditingSet) => void;
+  /** Дописать забытый подход одному упражнению */
   onAddSet: (item: WorkoutItem) => void;
 };
 
+// Промежуток между карточками ленты
+const GAP = 12;
+
+// Экран суперсета: цепочка-пагинация и лента карточек участников. Свайп только смотрит —
+// круг всегда начинается с первого упражнения, у которого остались подходы, и лента сама к нему едет
 export const SupersetScreen = ({ round, onEdit, onAddSet }: SupersetScreenProps) => {
-  const listRef = useRef<FlatList>(null);
+  const { width } = useWindowDimensions();
+  const listRef = useRef<FlatList<WorkoutItem>>(null);
   const [selected, setSelected] = useState(0);
   const labels = supersetLabels(round.members);
   const startId = round.round[0]?.id;
-  const startIndex = Math.max(0, round.members.findIndex((e) => e.id === startId));
+  // Карточка на 92% ширины экрана, как basis-[92%] во фронте: край следующей виден — ясно, что листается
+  const card = Math.round((width - GUTTER * 2) * 0.92);
+  const step = card + GAP;
+
+  const scrollTo = (index: number) => {
+    listRef.current?.scrollToOffset({ offset: index * step, animated: true });
+    setSelected(index);
+  };
+
+  // После круга и отдыха — к упражнению, с которого начнётся следующий круг
+  useEffect(() => {
+    const index = round.members.findIndex((e) => e.id === startId);
+    if (index < 0) return;
+    listRef.current?.scrollToOffset({ offset: index * step, animated: true });
+    setSelected(index);
+  }, [startId, round.members, step]);
 
   return (
-    <View className="gap-5">
-      <View className="gap-3">
-        <View className="flex-row items-baseline justify-between gap-3">
-          <Poster size="2xl" className="flex-row items-center gap-2">
-            <Icon as={Flame} className="text-primary size-[0.9em] shrink-0" />
-            Суперсет {round.letter}
-          </Poster>
-          <Eyebrow tone="primary">{round.done ? 'готово' : `круг ${round.number} из ${round.rounds}`}</Eyebrow>
+    <>
+      <Rise className="gap-3">
+        <View className="flex-row items-end justify-between gap-3">
+          <View className="min-w-0 flex-1 flex-row items-center gap-2">
+            <Icon as={Flame} className="text-primary size-10 shrink-0" />
+            <Poster size="2xl" className="shrink">
+              Суперсет {round.letter}
+            </Poster>
+          </View>
+          <Eyebrow tone="primary" className="mb-1.5">
+            {round.done ? 'готово' : `круг ${round.number} из ${round.rounds}`}
+          </Eyebrow>
         </View>
         <Eyebrow>по кругу без отдыха · отдых после круга</Eyebrow>
-        <View className="flex-row gap-2">
-          {round.members.map((e, i) => {
-            const done = e.sets.length >= e.plannedSets;
-            return (
-              <View
-                key={e.id}
-                className="flex-1 items-center gap-1"
-                accessibilityLabel={`${labels[i]}${done ? ', сделано' : i === selected ? ', текущее' : ''}`}
-              >
-                <View className={`h-1.5 w-full rounded-full ${done ? 'bg-primary' : 'bg-border'}`} />
-                <Eyebrow tone={i === selected ? 'primary' : done ? 'muted' : 'faint'}>{labels[i]}</Eyebrow>
-              </View>
-            );
-          })}
-        </View>
-      </View>
+        <ChargeChain
+          links={round.members.map((e, i) => ({
+            label: labels[i]!,
+            charge: e.plannedSets ? Math.min(e.sets.length, e.plannedSets) / e.plannedSets : 0,
+            state: i === selected ? 'current' : e.sets.length >= e.plannedSets ? 'done' : 'idle',
+          }))}
+          // Вибрацию на тап даёт сама цепочка
+          onPick={scrollTo}
+        />
+      </Rise>
+      {/* Лента во всю ширину экрана: отступ экрана снимаем и возвращаем внутрь ленты */}
       <FlatList
         ref={listRef}
         data={round.members}
         horizontal
-        pagingEnabled
         showsHorizontalScrollIndicator={false}
-        initialScrollIndex={startIndex}
-        getItemLayout={(_, index) => ({ length: 320, offset: 320 * index, index })}
-        onMomentumScrollEnd={(e) => {
-          const index = Math.round(e.nativeEvent.contentOffset.x / 320);
-          setSelected(index);
-        }}
-        onScrollToIndexFailed={() => {}}
+        snapToInterval={step}
+        decelerationRate="fast"
+        disableIntervalMomentum
+        style={{ marginHorizontal: -GUTTER }}
+        contentContainerStyle={{ paddingHorizontal: GUTTER, gap: GAP }}
+        getItemLayout={(_, index) => ({ length: step, offset: step * index, index })}
+        onMomentumScrollEnd={(e) => setSelected(Math.round(e.nativeEvent.contentOffset.x / step))}
+        keyExtractor={(e) => String(e.id)}
         renderItem={({ item: e, index: i }) => (
-          <View className="w-[320px] px-1">
-            <View className="border-border gap-5 border-[1.5px] p-4">
-              <ExerciseCard item={e} label={`${labels[i]} из ${round.members.length}`} />
-              <SetList item={e} onEdit={onEdit} onAdd={() => onAddSet(e)} />
-            </View>
+          <View style={{ width: card }} className="border-border gap-5 border-[1.5px] p-4">
+            <ExerciseCard item={e} label={`${labels[i]} из ${round.members.length}`} />
+            <SetList item={e} onEdit={onEdit} onAdd={() => onAddSet(e)} />
           </View>
         )}
-        keyExtractor={(e) => String(e.id)}
       />
-    </View>
+    </>
   );
 };

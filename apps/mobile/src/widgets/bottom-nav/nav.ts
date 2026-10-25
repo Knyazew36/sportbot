@@ -33,6 +33,7 @@ export const NAV_SIDES = {
 export const TAB_ORDER: NavItem[] = [...NAV_SIDES.left, ...(HERO ? [HERO] : []), ...NAV_SIDES.right];
 
 // Вложенные экраны со своей кнопкой «Назад» — без меню, как focus во фронте
-const FOCUS_PATTERNS = [/^\/library\/exercises\//, /^\/me\/[^/]+/];
+// Вложенные экраны программ — все без меню, как во фронте (MINIAPP_NAV.focus)
+const FOCUS_PATTERNS = [/^\/library\/exercises\//, /^\/me\/[^/]+/, /^\/programs\/.+/];
 
 export const isFocusPath = (pathname: string) => FOCUS_PATTERNS.some((pattern) => pattern.test(pathname));

@@ -1,5 +1,5 @@
 import { View } from 'react-native';
-import { Check } from 'lucide-react-native';
+import { Camera, Check } from 'lucide-react-native';
 
 import { MESSENGER_LABEL, useLinkState } from '@sportbot/api/entities/link';
 import type { Profile } from '@sportbot/api/entities/profile';
@@ -7,11 +7,14 @@ import { useSportUser } from '@sportbot/api/entities/sport-user';
 import { useStatsSummary } from '@sportbot/api/entities/stats';
 
 import { toAssetUrl } from '@/shared/api';
+import { Button } from '@/shared/ui/kit/Button';
 import { Icon } from '@/shared/ui/kit/Icon';
 import { InkPanel } from '@/shared/ui/kit/InkPanel';
 import { PersonAvatar } from '@/shared/ui/kit/PersonAvatar';
 import { Rise } from '@/shared/ui/kit/Reveal';
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography';
+
+import { usePickAvatar } from '../model/use-pick-avatar';
 
 const ROLE = { MALE: 'спортсмен', FEMALE: 'спортсменка' } as const;
 
@@ -33,8 +36,36 @@ const Figure = ({ label, value }: { label: string; value: number | undefined }) 
   </View>
 );
 
-// Карта участника — порт pages/me/components/AccountCard.tsx: фото, имя, номер, серия и где на связи.
-// Камеры на фото нет: выбор фото с телефона — этап 2 (нужен expo-image-picker)
+// Фото на карте: камера поверх — сменить; при первом входе фото берётся из мессенджера
+const CardPhoto = ({ profile }: { profile: Profile }) => {
+  const avatar = usePickAvatar();
+
+  return (
+    <View>
+      <View className="border-background/90 rounded-full border-[1.5px] p-1">
+        <PersonAvatar
+          name={profile.displayName}
+          src={toAssetUrl(profile.avatarUrl)}
+          tone="accent"
+          className="size-[84px]"
+        />
+      </View>
+      <View className="absolute -right-2 -bottom-1">
+        <Button
+          variant="paper"
+          size="icon-sm"
+          accessibilityLabel={profile.avatarUrl ? 'Сменить фото' : 'Загрузить фото'}
+          loading={avatar.pending}
+          onPress={() => void avatar.pick()}
+        >
+          <Icon as={Camera} className="size-4" />
+        </Button>
+      </View>
+    </View>
+  );
+};
+
+// Карта участника — порт pages/me/components/AccountCard.tsx: фото, имя, номер, серия и где на связи
 export const AccountCard = ({ profile }: { profile: Profile }) => {
   const me = useSportUser();
   const summary = useStatsSummary();
@@ -54,14 +85,7 @@ export const AccountCard = ({ profile }: { profile: Profile }) => {
         </View>
 
         <View className="mt-6 flex-row items-end gap-5">
-          <View className="border-background/90 rounded-full border-[1.5px] p-1">
-            <PersonAvatar
-              name={profile.displayName}
-              src={toAssetUrl(profile.avatarUrl)}
-              tone="accent"
-              className="size-[84px]"
-            />
-          </View>
+          <CardPhoto profile={profile} />
           <View className="min-w-0 flex-1 pb-1">
             {profile.gender ? (
               <Eyebrow tone="inverseMuted" className="mb-1">

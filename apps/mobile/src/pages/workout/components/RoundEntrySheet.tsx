@@ -20,7 +20,7 @@ import { Button } from '@/shared/ui/kit/Button';
 import { ErrorText } from '@/shared/ui/kit/ErrorText';
 import { Icon } from '@/shared/ui/kit/Icon';
 import { Sheet } from '@/shared/ui/kit/Sheet';
-import { TextField } from '@/shared/ui/kit/TextField';
+import { BoxInput } from '@/shared/ui/kit/BoxInput';
 import { Poster, Text } from '@/shared/ui/kit/Typography';
 
 type RoundEntryFormProps = {
@@ -55,6 +55,7 @@ const RoundEntryForm = ({ round, onSubmit }: RoundEntryFormProps) => {
           const item = round.round.find((e) => e.id === field.itemId)!;
           const row = rows[i]!;
           const rowErrors = formState.errors.rows?.[i];
+          const pair = !item.bodyweight && row.measure === 'REPS';
           return (
             <View key={field.id} className="border-border gap-2 border-b-[1.5px] py-3">
               <View className="flex-row items-center gap-2">
@@ -74,21 +75,22 @@ const RoundEntryForm = ({ round, onSubmit }: RoundEntryFormProps) => {
                 </Button>
               </View>
               {!row.skip && (
-                <View className={cn('gap-2', item.bodyweight || row.measure !== 'REPS' ? 'flex-col' : 'flex-row')}>
+                // Два поля в ряд только у упражнения с весом: flex-1 в столбце схлопнул бы поле до нуля
+                <View className={cn('gap-2', pair && 'flex-row')}>
                   {!item.bodyweight && row.measure === 'REPS' && (
                     <Controller
                       control={control}
                       name={`rows.${i}.weight`}
                       render={({ field }) => (
-                        <TextField
+                        <BoxInput
                           label="вес, кг"
                           placeholder="?"
                           keyboardType="decimal-pad"
-                          error={rowErrors?.weight}
                           {...field}
                           onChangeText={field.onChange}
                           value={field.value}
-                          className="flex-1"
+                          // Вес пустой — рамка акцентом: без веса круг не записать
+                          className={cn('flex-1 py-1.5', !row.weight.trim() && 'border-primary')}
                         />
                       )}
                     />
@@ -97,15 +99,14 @@ const RoundEntryForm = ({ round, onSubmit }: RoundEntryFormProps) => {
                     control={control}
                     name={`rows.${i}.reps`}
                     render={({ field }) => (
-                      <TextField
+                      <BoxInput
                         label={row.measure === 'REPS' ? 'повторы' : `время, ${timeLabel(row.measure)}`}
                         keyboardType={row.measure === 'TIME' ? 'default' : 'number-pad'}
                         placeholder={row.measure === 'REPS' ? String(item.repsMin) : timeInput(row.measure, item.repsMin)}
-                        error={rowErrors?.reps}
                         {...field}
                         onChangeText={field.onChange}
                         value={field.value}
-                        className="flex-1"
+                        className={cn('py-1.5', pair && 'flex-1')}
                       />
                     )}
                   />

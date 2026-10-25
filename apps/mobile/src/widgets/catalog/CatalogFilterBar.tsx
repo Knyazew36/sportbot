@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { ChevronDown, X } from 'lucide-react-native';
 
 import { type Equipment, EQUIPMENT_LABEL } from '@sportbot/api/entities/catalog';
@@ -12,6 +12,7 @@ import { Text } from '@/shared/ui/kit/Typography';
 import { musclesLabel } from './catalog-labels';
 import { EquipmentFilterSheet } from './EquipmentFilterSheet';
 import { MuscleFilterSheet } from './MuscleFilterSheet';
+import { Pressable } from '@/shared/ui/kit/Pressable';
 
 type ChipProps = { label: string; active: boolean; onPress: () => void };
 

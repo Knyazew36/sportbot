@@ -76,7 +76,7 @@ export const Screen = ({
   );
 };
 
-type StickyFooterProps = { children: ReactNode; className?: string };
+type StickyFooterProps = { children?: ReactNode; className?: string };
 
 // Главное действие у большого пальца: прилипает к низу экрана. Кнопки — размера lg, прижаты вправо
 export const StickyFooter = ({ children, className }: StickyFooterProps) => (

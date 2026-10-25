@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { router } from 'expo-router';
 import { ArrowRight } from 'lucide-react-native';
 import { pluralize } from '@front-cmdt/utils/pluralize';
 
@@ -6,17 +6,20 @@ import { toAssetUrl } from '@/shared/api';
 import { STRETCH_FORMS } from '@/shared/lib/plural-forms';
 import { Button } from '@/shared/ui/kit/Button';
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink';
-import { CatalogImage } from '@/shared/ui/kit/CatalogImage';
 import { Icon } from '@/shared/ui/kit/Icon';
-import { List, ListRow } from '@/shared/ui/kit/ListRow';
+import { List } from '@/shared/ui/kit/ListRow';
+import { Rise } from '@/shared/ui/kit/Reveal';
 import { Screen, StickyFooter } from '@/shared/ui/kit/Screen';
+import { TopBar } from '@/shared/ui/kit/ScreenHeader';
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection';
 import { Lead, Poster } from '@/shared/ui/kit/Typography';
+
+import { CatalogRow } from '@/widgets/catalog/CatalogRow';
 
 import type { CooldownFlow } from '../model/use-cooldown-flow';
 import { CooldownDetailSheet } from './CooldownSheets';
 
-// Обзор перед стартом: сколько минут и какие растяжки в основном блоке и «если есть время"
+// Обзор перед стартом: сколько минут и какие растяжки в основном блоке и «если есть время»
 export const CooldownOverview = ({ flow }: { flow: CooldownFlow }) => {
   const { cooldown } = flow;
   const blocks = [
@@ -27,18 +30,7 @@ export const CooldownOverview = ({ flow }: { flow: CooldownFlow }) => {
   return (
     <Screen
       fullscreen
-      header={
-        <View className="px-gutter flex-row items-center gap-3 py-2">
-          <View className="min-w-0 flex-1">
-            <Poster size="sm" numberOfLines={1}>
-              Заминка
-            </Poster>
-            <Lead size="sm" tone="muted" numberOfLines={1}>
-              ~{cooldown.minutes} мин
-            </Lead>
-          </View>
-        </View>
-      }
+      header={<TopBar back={() => router.replace(flow.back)} title="Заминка" subtitle={`~${cooldown.minutes} мин`} />}
       footer={
         <StickyFooter>
           <ButtonLink href={flow.back} replace variant="outline" size="lg">
@@ -52,12 +44,12 @@ export const CooldownOverview = ({ flow }: { flow: CooldownFlow }) => {
       }
       className="px-gutter"
     >
-      <View>
+      <Rise>
         <Lead>растяжка на отработавшие мышцы —</Lead>
-        <Poster size="display" tone="primary" numeric>
-          ~{cooldown.minutes} мин
+        <Poster size="display" tone="primary">
+          {`~${cooldown.minutes} мин`}
         </Poster>
-      </View>
+      </Rise>
       {blocks.map((block) => (
         <ScreenSection
           key={block.title}
@@ -66,10 +58,10 @@ export const CooldownOverview = ({ flow }: { flow: CooldownFlow }) => {
         >
           <List>
             {block.list.map((s) => (
-              <ListRow
+              <CatalogRow
                 key={s.id}
-                lead={<CatalogImage src={toAssetUrl(s.imageUrl) ?? null} alt={s.name} />}
-                title={s.name}
+                name={s.name}
+                imageUrl={toAssetUrl(s.imageUrl) ?? null}
                 meta={`${s.muscles} · ${s.holdSeconds} с${s.perSide ? ' × 2' : ''}`}
                 onPress={() => flow.open(s)}
               />

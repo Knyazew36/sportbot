@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { router, type Href } from 'expo-router';
 
 import { type Cooldown, useCooldownFinish, useCooldownStart } from '@sportbot/api/entities/workout';
+import { useExcludeCooldownStretch } from '@/features/exclude-stretch/useExcludeCooldownStretch';
 import { ROUTES } from '@/shared/config/routes';
 
 export type CooldownPhase = { kind: 'overview' } | { kind: 'step'; index: number; side: 1 | 2 } | { kind: 'more' };
@@ -24,6 +25,7 @@ export const useCooldownFlow = (cooldown: Cooldown, start: boolean) => {
   const { mutate: markStart } = useCooldownStart();
   const { mutate: markFinish } = useCooldownFinish();
   const marked = useRef<{ start?: boolean; finish?: boolean }>({});
+  const exclude = useExcludeCooldownStretch();
 
   // Отметка один раз за открытие; повторное открытие сервер не перезапишет
   useEffect(() => {
@@ -61,6 +63,23 @@ export const useCooldownFlow = (cooldown: Cooldown, start: boolean) => {
     if (phase.index > 0) go(phase.index - 1);
   };
 
+  // Замена встаёт на место убранной; если замены не нашлось — список короче, номер поправляем
+  const excludeStretch = (stretchId: number) =>
+    exclude.mutate(
+      { workoutId: cooldown.workoutId, stretchId },
+      {
+        onSuccess: (next) => {
+          setOpened(null);
+          if (phase.kind !== 'step') return;
+          const length = next.main.length + next.optional.length;
+          const wasMain = phase.index < cooldown.main.length;
+          if (phase.index >= length) return finish();
+          if (wasMain && phase.index >= next.main.length && next.optional.length) return setPhase({ kind: 'more' });
+          setPhase({ kind: 'step', index: phase.index, side: 1 });
+        },
+      },
+    );
+
   return {
     cooldown,
     phase,
@@ -71,6 +90,8 @@ export const useCooldownFlow = (cooldown: Cooldown, start: boolean) => {
     opened,
     open: (stretch: OpenedStretch) => setOpened({ id: stretch.id, name: stretch.name }),
     closeOpened: () => setOpened(null),
+    excludePending: exclude.isPending,
+    excludeStretch,
     go,
     next,
     prev,

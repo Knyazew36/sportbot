@@ -6,6 +6,7 @@ import { pluralize } from '@front-cmdt/utils/pluralize';
 
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction';
 import { Screen } from '@/shared/ui/kit/Screen';
+import { Stamp } from '@/shared/ui/kit/Stamp';
 import { TopBar } from '@/shared/ui/kit/ScreenHeader';
 import { Button } from '@/shared/ui/kit/Button';
 import { ROUTES } from '@/shared/config/routes';
@@ -28,6 +29,7 @@ import { WorkoutActions } from './WorkoutActions';
 import { WorkoutFocus } from './WorkoutFocus';
 import { WorkoutLanes } from './WorkoutLanes';
 import { EditSetSheet } from '@/widgets/workout/EditSetSheet';
+import { LiveWorkoutBar } from '@/widgets/live-workout-bar/LiveWorkoutBar';
 
 export const WorkoutView = ({ workout: saved }: { workout: import('@sportbot/api/entities/workout').Workout }) => {
   useKeepAwake();
@@ -44,6 +46,13 @@ export const WorkoutView = ({ workout: saved }: { workout: import('@sportbot/api
 
   return (
     <View className="flex-1">
+      {/* Фокус свёрнут или ничего не идёт — живая полоса напоминает, что тренировка продолжается */}
+      <LiveWorkoutBar
+        visible={!active.focusOpen}
+        resting={active.timer.status === 'running' && active.timer.left > 0}
+        label={workout.complexName}
+        onReturn={active.returnToFocus}
+      >
       <Screen
         key={superset ? `s${superset.superset}` : item.id}
         fullscreen
@@ -107,6 +116,7 @@ export const WorkoutView = ({ workout: saved }: { workout: import('@sportbot/api
           </>
         )}
       </Screen>
+      </LiveWorkoutBar>
       <WorkoutFocus flow={active} startedAt={workout.startedAt} />
       <SetEntrySheet
         open={active.entryOpen}
@@ -134,6 +144,7 @@ export const WorkoutView = ({ workout: saved }: { workout: import('@sportbot/api
           )
         }
       />
+      <Stamp text={flow.stamp} />
       <EditSetSheet editing={flow.editing} onClose={() => flow.setEditing(null)} />
     </View>
   );

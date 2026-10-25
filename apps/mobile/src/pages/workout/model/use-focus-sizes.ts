@@ -32,5 +32,7 @@ export const useFocusSizes = () => {
     timerRing: Math.round(Math.min(300, 80 * vw, 36 * vh)),
     /** Кольцо минуты подхода и кнопка «дальше» на паузе круга */
     pauseButton: Math.round(Math.min(140, 20 * vh)),
+    /** Рамка заголовка «Отдых» / «Разминка»: постоянная высота, чтобы кольцо не прыгало */
+    headline: Math.round(Math.min(72, 16 * vw)),
   };
 };

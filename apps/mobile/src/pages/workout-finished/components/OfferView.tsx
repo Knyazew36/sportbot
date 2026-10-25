@@ -8,30 +8,31 @@ import { ROUTES } from '@/shared/config/routes';
 import { STRETCH_FORMS } from '@/shared/lib/plural-forms';
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink';
 import { Icon } from '@/shared/ui/kit/Icon';
+import { Lanes } from '@/shared/ui/kit/Lanes';
+import { Rise } from '@/shared/ui/kit/Reveal';
 import { Screen, StickyFooter } from '@/shared/ui/kit/Screen';
 import { Lead, Poster } from '@/shared/ui/kit/Typography';
 
 import { StretchMuscles } from './StretchMuscles';
 
+// Сразу после «Завершить»: один вопрос — растянуться сейчас или к итогу
 export const OfferView = ({ cooldown }: { cooldown: Cooldown }) => {
+  const summary = { pathname: ROUTES.WORKOUT_SUMMARY, params: { workoutId: String(cooldown.workoutId) } };
   const count = cooldown.main.length + cooldown.optional.length;
-  if (!count) return <Redirect href={{ pathname: ROUTES.WORKOUT_SUMMARY, params: { workoutId: String(cooldown.workoutId) } }} />;
+  // Растяжек под эти мышцы нет — предлагать нечего, сразу итог
+  if (!count) return <Redirect href={summary} />;
 
   return (
     <Screen
       fullscreen
       footer={
         <StickyFooter>
-          <ButtonLink
-            href={{ pathname: ROUTES.WORKOUT_SUMMARY, params: { workoutId: String(cooldown.workoutId) } }}
-            replace
-            variant="outline"
-            size="lg"
-          >
+          <ButtonLink href={summary} replace variant="outline" size="lg">
             Пропустить
           </ButtonLink>
+          {/* Сразу к первой растяжке: обзор списка здесь был бы вторым предложением подряд */}
           <ButtonLink
-            href={`${ROUTES.COOLDOWN.replace('[workoutId]', String(cooldown.workoutId))}?start=1`}
+            href={{ pathname: ROUTES.COOLDOWN, params: { workoutId: String(cooldown.workoutId), start: '1' } }}
             replace
             size="lg"
           >
@@ -40,18 +41,21 @@ export const OfferView = ({ cooldown }: { cooldown: Cooldown }) => {
           </ButtonLink>
         </StickyFooter>
       }
-      className="px-gutter"
+      className="grow px-gutter"
     >
-      <View className="flex flex-1 flex-col justify-center">
+      <Rise className="flex-1 justify-center">
         <Lead>тренировка засчитана, теперь —</Lead>
         <Poster size="display" tone="primary" className="mt-1">
           заминка
         </Poster>
-        <Poster size="xl" numeric className="mt-4">
-          ~{cooldown.minutes} мин · {pluralize(count, STRETCH_FORMS)}
+        <Poster size="xl" className="mt-4">
+          {`~${cooldown.minutes} мин · ${pluralize(count, STRETCH_FORMS)}`}
         </Poster>
         <StretchMuscles stretches={cooldown.main} />
-      </View>
+        <View className="mt-6 h-20">
+          <Lanes className="opacity-30" />
+        </View>
+      </Rise>
     </Screen>
   );
 };

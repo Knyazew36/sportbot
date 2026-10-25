@@ -1,5 +1,12 @@
 import { createContext, useContext } from 'react';
-import { Text as RNText, type TextProps as RNTextProps } from 'react-native';
+import {
+  StyleSheet,
+  Text as RNText,
+  View,
+  type StyleProp,
+  type TextProps as RNTextProps,
+  type TextStyle,
+} from 'react-native';
 
 import { cn } from '@/shared/lib/utils';
 
@@ -87,7 +94,8 @@ type PosterProps = BaseProps & {
   fit?: boolean;
 };
 
-// Равноширокие цифры: у Oswald нет табличных цифр, поэтому каждая — в ячейке своей ширины
+// Равноширокие цифры: у Oswald нет табличных цифр, поэтому каждая — в ячейке своей ширины.
+// Внутри Text ширина вложенного Text не действует — для тикающего времени нужен Clock
 export const Digits = ({ children, fontSize }: { children: string; fontSize: number }) => (
   <>
     {children.split(/(\d)/).map((part, i) =>
@@ -112,6 +120,49 @@ export const Poster = ({ size = 'md', tone = 'inherit', numeric, fit, className,
     {typeof children === 'string' && numeric ? <Digits fontSize={POSTER_FONT_SIZE[size]}>{children}</Digits> : children}
   </RNText>
 );
+
+type ClockProps = {
+  size?: PosterSize;
+  tone?: Tone;
+  /** Кегль, если он задан через style, а не размером шкалы: ширина ячейки считается от него */
+  fontSize?: number;
+  style?: StyleProp<TextStyle>;
+  /** Раскладка и прозрачность строки целиком */
+  className?: string;
+  children: string;
+};
+
+// Идущее время плакатным шрифтом: каждая цифра — отдельный Text в строке View. Только так ячейка
+// держит ширину — у вложенного Text в RN её нет, и время дёргалось бы каждую секунду («1» уже «0»).
+// Межстрочный не задаём: у Oswald высокие выносные, и любой lineHeight меньше родной высоты шрифта
+// Android срезает снизу. Плакатный leading из класса и style поэтому сюда не берём — только кегль
+export const Clock = ({ size = 'hero', tone = 'inherit', fontSize, style, className, children }: ClockProps) => {
+  const text = cn('font-display uppercase', useToneClass(tone));
+  const font = fontSize ?? POSTER_FONT_SIZE[size];
+  const { lineHeight: _leading, ...rest } = StyleSheet.flatten(style) ?? {};
+  const glyph = [rest, { fontSize: font, includeFontPadding: false }];
+  return (
+    <View
+      accessible
+      accessibilityRole="timer"
+      accessibilityLabel={children}
+      className={cn('flex-row items-center', className)}
+    >
+      {children
+        .split(/(\d)/)
+        .filter(Boolean)
+        .map((part, i) => (
+          <RNText
+            key={i}
+            className={text}
+            style={[...glyph, /\d/.test(part) && { width: 0.56 * font, textAlign: 'center' }]}
+          >
+            {part}
+          </RNText>
+        ))}
+    </View>
+  );
+};
 
 /** Единица измерения рядом с плакатной цифрой: «кг», «раз», «с». Цвет — от родителя */
 export const Unit = ({ className, ...props }: RNTextProps & { className?: string }) => (

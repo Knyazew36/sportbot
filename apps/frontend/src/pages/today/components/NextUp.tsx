@@ -4,13 +4,13 @@ import { differenceInCalendarDays, parseISO } from 'date-fns'
 import { useState } from 'react'
 
 import type { DayToday } from '@sportbot/api/entities/day'
-import { complexLetter, useActiveProgram } from '@sportbot/api/entities/program'
+import { complexLetter } from '@sportbot/api/entities/program'
 import { formatDate } from '@/shared/lib/format'
 import { EXERCISE_FORMS } from '@/shared/lib/plural-forms'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Eyebrow, Poster } from '@/shared/ui/kit/Typography'
-import { ComplexPreviewSheet } from '@/widgets/program-preview/ComplexPreviewSheet'
+import { NextUpWorkoutSheet } from '@/widgets/next-up/NextUpWorkoutSheet'
 
 type NextUpProps = {
   day: DayToday
@@ -27,8 +27,6 @@ const when = (date: string, today: string) => {
 // Что дальше: ближайший тренировочный день и комплекс по очереди. По нажатию — шторка с составом
 export const NextUp = ({ day, label = 'следующая' }: NextUpProps) => {
   const [open, setOpen] = useState(false)
-  // Состав есть только в программе целиком — грузим сразу с экраном, чтобы шторка открывалась готовой, без спиннера
-  const program = useActiveProgram()
   const next = day.next
   if (!next) return null
   const index = day.complexes.findIndex(c => c.id === next.complexId)
@@ -44,7 +42,7 @@ export const NextUp = ({ day, label = 'следующая' }: NextUpProps) => {
           title={
             <button
               type='button'
-              className='text-left after:absolute after:inset-0'
+              className="text-left after:absolute after:inset-0 after:content-[''] block w-full"
               onClick={() => setOpen(true)}
             >
               {next.complexName}
@@ -64,13 +62,12 @@ export const NextUp = ({ day, label = 'следующая' }: NextUpProps) => {
           }
         />
       </List>
-      <ComplexPreviewSheet
+      <NextUpWorkoutSheet
         open={open}
         onOpenChange={setOpen}
         title={next.complexName}
         description={heading}
-        complex={program.data?.complexes.find(c => c.id === next.complexId)}
-        loading={program.isPending}
+        complexId={next.complexId}
       />
     </Rise>
   )

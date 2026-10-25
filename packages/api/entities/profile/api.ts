@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
+import type { NativeFile } from '../../client'
 import { dayKeys } from '../day'
 import { statsKeys } from '../stats'
 import { bodyWeightControllerCreate } from '../../generated/body-weight/body-weight'
@@ -79,7 +80,8 @@ const useApplyAvatar = () => {
 export const useUploadAvatar = () => {
   const apply = useApplyAvatar()
   return useMutation({
-    mutationFn: (file: File) => profileControllerUploadAvatar({ file }),
+    // В мобилке файл — объект с uri: FormData RN принимает его вместо Blob
+    mutationFn: (file: File | NativeFile) => profileControllerUploadAvatar({ file: file as Blob }),
     meta: { successMessage: 'Фото обновлено' },
     onSuccess: apply,
   })

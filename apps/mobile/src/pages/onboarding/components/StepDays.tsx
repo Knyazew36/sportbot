@@ -1,5 +1,5 @@
 import { forwardRef, useImperativeHandle } from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 
@@ -12,6 +12,7 @@ import { Eyebrow } from '@/shared/ui/kit/Typography';
 import { cn } from '@/shared/lib/utils';
 
 import type { StepHandle } from '../model/steps';
+import { Pressable } from '@/shared/ui/kit/Pressable';
 
 type StepDaysProps = {
   defaultValues: OnboardingDaysValues;

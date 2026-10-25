@@ -40,6 +40,5 @@ export const useSectionMeta = (profile: Profile): Partial<Record<MeSectionSlug, 
     app: [PALETTES.find((p) => p.value === palette)?.label, THEME_OPTIONS.find((o) => o.value === choice)?.label]
       .filter(Boolean)
       .join(' · '),
-    editor: 'плашки для своих видео',
   };
 };

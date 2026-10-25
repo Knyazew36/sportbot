@@ -1,10 +1,10 @@
 import { View } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { Redirect, useLocalSearchParams } from 'expo-router';
 
 import { useProfile } from '@sportbot/api/entities/profile';
 
-import { SoonScreen } from '@/widgets/soon/SoonScreen';
 import { findMeSection } from '@/shared/config/me-sections';
+import { ROUTES } from '@/shared/config/routes';
 import { QueryState } from '@/shared/ui/kit/QueryState';
 import { Rise } from '@/shared/ui/kit/Reveal';
 import { Screen } from '@/shared/ui/kit/Screen';
@@ -17,11 +17,11 @@ import { SECTION_ITEMS } from './sections';
 const MeSectionPage = () => {
   const { section: slug } = useLocalSearchParams<{ section: string }>();
   const section = findMeSection(slug);
-  const items = section ? (SECTION_ITEMS[section.slug] ?? []) : [];
+  const items = section ? SECTION_ITEMS[section.slug] : [];
   const profile = useProfile();
 
-  // Раздел ещё не перенесён (или ссылка выдуманная) — заглушка с «Назад», а не пустой экран
-  if (!section || !items.length) return <SoonScreen />;
+  // Старая или выдуманная ссылка — в меню профиля, а не на пустой экран
+  if (!section) return <Redirect href={ROUTES.ME} />;
 
   // Пункт один — его шапку заменяет заголовок экрана
   const numbered = items.length > 1;

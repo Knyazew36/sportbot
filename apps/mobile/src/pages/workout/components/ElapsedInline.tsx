@@ -1,15 +1,16 @@
-import { useEffect, useState } from 'react';
+import { View } from 'react-native';
 
-import { formatSeconds } from '@/shared/lib/hooks/use-deadline-timer';
+import { useWorkoutElapsed } from '@/shared/lib/hooks/use-workout-elapsed';
+import { LiveDot } from '@/shared/ui/kit/LiveDot';
+import { Text } from '@/shared/ui/kit/Typography';
 
-/** Прошедшее время тренировки в шапке: обновляется каждую секунду */
-export const ElapsedInline = ({ startedAt }: { startedAt: string }) => {
-  const [seconds, setSeconds] = useState(() => Math.floor((Date.now() - Date.parse(startedAt)) / 1000));
-
-  useEffect(() => {
-    const id = setInterval(() => setSeconds(Math.floor((Date.now() - Date.parse(startedAt)) / 1000)), 1000);
-    return () => clearInterval(id);
-  }, [startedAt]);
-
-  return <>{formatSeconds(seconds)}</>;
-};
+// Время в подписи шапки: без разрядки капса и с равной шириной цифр, иначе строка подрагивает каждую секунду.
+// Отдельный компонент, чтобы ежесекундный тик перерисовывал только его, а не весь экран
+export const ElapsedInline = ({ startedAt }: { startedAt: string }) => (
+  <View className="flex-row items-center gap-1.5">
+    <LiveDot />
+    <Text size="xs" className="tabular-nums">
+      {useWorkoutElapsed(startedAt)}
+    </Text>
+  </View>
+);

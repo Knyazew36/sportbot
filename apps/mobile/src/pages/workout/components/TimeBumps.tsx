@@ -1,8 +1,19 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
+import Animated, {
+  Easing,
+  interpolate,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { Poster } from '@/shared/ui/kit/Typography';
 
+const DURATION = 1100;
+
+// Каждое нажатие — своя всплывашка: при быстрых нажатиях они летят друг за другом, а не перезапускают одну
 export const useTimeBumps = () => {
   const [bumps, setBumps] = useState<number[]>([]);
   const bumpId = useRef(0);
@@ -12,21 +23,45 @@ export const useTimeBumps = () => {
       bumpId.current += 1;
       const id = bumpId.current;
       setBumps((list) => [...list, id]);
-      setTimeout(() => setBumps((list) => list.filter((item) => item !== id)), 1100);
+      // Снимаем по таймеру, а не по концу анимации: так не нужен переход с UI-потока обратно в JS
+      setTimeout(() => setBumps((list) => list.filter((item) => item !== id)), DURATION);
     },
   };
 };
 
-type TimeBumpsProps = ReturnType<typeof useTimeBumps> & { label: string };
+// Всплывает вверх и гаснет — как motion во фронте: opacity [0, 1, 1, 0] на долях [0, .15, .6, 1]
+const Bump = ({ label }: { label: string }) => {
+  const still = useReducedMotion();
+  const progress = useSharedValue(0);
 
+  useEffect(() => {
+    progress.set(withTiming(1, { duration: DURATION, easing: Easing.out(Easing.quad) }));
+  }, [progress]);
+
+  const style = useAnimatedStyle(() => ({
+    opacity: interpolate(progress.value, [0, 0.15, 0.6, 1], [0, 1, 1, 0]),
+    transform: [
+      { translateY: still ? 0 : interpolate(progress.value, [0, 1], [8, -56]) },
+      { scale: interpolate(progress.value, [0, 0.15], [0.9, 1], 'clamp') },
+    ],
+  }));
+
+  return (
+    <Animated.View className="absolute right-0 bottom-0 left-0 items-center" style={style}>
+      <Poster size="lg" tone="primary" numeric numberOfLines={1}>
+        {label}
+      </Poster>
+    </Animated.View>
+  );
+};
+
+type TimeBumpsProps = Pick<ReturnType<typeof useTimeBumps>, 'bumps'> & { label: string };
+
+// Над цифрами и вне потока: всплывашка не двигает таймер. По ширине цифр — чтобы стоять по центру над ними
 export const TimeBumps = ({ bumps, label }: TimeBumpsProps) => (
-  <View className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2">
+  <View pointerEvents="none" style={{ bottom: '100%' }} className="absolute right-0 left-0">
     {bumps.map((id) => (
-      <View key={id} className="absolute bottom-0 left-1/2 -translate-x-1/2">
-        <Poster size="lg" tone="primary" numeric>
-          {label}
-        </Poster>
-      </View>
+      <Bump key={id} label={label} />
     ))}
   </View>
 );

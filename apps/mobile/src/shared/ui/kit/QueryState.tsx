@@ -7,7 +7,8 @@ import { Button } from './Button';
 import { StateView } from './StateView';
 
 type QueryStateProps<T> = {
-  query: UseQueryResult<T>;
+  // Не весь UseQueryResult: склейка нескольких запросов (useCatalog) отдаёт только эти поля — как во фронте
+  query: Pick<UseQueryResult<T>, 'data' | 'isPending' | 'isError'> & { error?: unknown; refetch: () => unknown };
   /** Данные есть, но показывать нечего (пустой список) */
   isEmpty?: (data: T) => boolean;
   empty?: { title?: string; description?: ReactNode; action?: ReactNode };
@@ -38,7 +39,9 @@ export const QueryState = <T,>({ query, isEmpty, empty, children }: QueryStatePr
     );
   }
 
-  if (isEmpty?.(query.data))
+  // Не в загрузке и без ошибки — данные пришли
+  const data = query.data as T;
+  if (isEmpty?.(data))
     return (
       <StateView
         state="empty"
@@ -46,5 +49,5 @@ export const QueryState = <T,>({ query, isEmpty, empty, children }: QueryStatePr
       />
     );
 
-  return children(query.data);
+  return children(data);
 };

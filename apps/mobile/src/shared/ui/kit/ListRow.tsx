@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
 
 import { haptic } from '@/shared/lib/haptics';
@@ -7,6 +7,7 @@ import { cn } from '@/shared/lib/utils';
 
 import { Icon } from './Icon';
 import { Poster, Text } from './Typography';
+import { Pressable } from './Pressable';
 
 export const List = ({ children, className }: { children: ReactNode; className?: string }) => (
   <View className={cn('border-border border-t-[1.5px]', className)}>{children}</View>

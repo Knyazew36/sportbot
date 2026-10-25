@@ -4,7 +4,7 @@ import { doneOrder, lastText, useWorkout } from '@sportbot/api/entities/workout'
 import { ExerciseBlocks } from '@/shared/ui/kit/ExerciseBlocks';
 import { Icon } from '@/shared/ui/kit/Icon';
 import { List, ListRow } from '@/shared/ui/kit/ListRow';
-import { QueryScreen } from '@/shared/ui/kit/QueryScreen';
+import { QueryState } from '@/shared/ui/kit/QueryState';
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection';
 import { Poster, Text } from '@/shared/ui/kit/Typography';
 
@@ -13,7 +13,7 @@ export const WorkoutProtocol = ({ workoutId }: { workoutId: number }) => {
   const workout = useWorkout(workoutId);
   return (
     <ScreenSection title="Протокол">
-      <QueryScreen query={workout}>
+      <QueryState query={workout}>
         {(w) => {
           const order = doneOrder(w.exercises);
           return (
@@ -47,7 +47,7 @@ export const WorkoutProtocol = ({ workoutId }: { workoutId: number }) => {
             </>
           );
         }}
-      </QueryScreen>
+      </QueryState>
     </ScreenSection>
   );
 };

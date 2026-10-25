@@ -3,14 +3,16 @@ import { ArrowRight, Play, Plus } from 'lucide-react-native';
 
 import { formatSeconds, type useDeadlineTimer } from '@/shared/lib/hooks/use-deadline-timer';
 import { Ring } from '@/shared/ui/kit/Ring';
-import { Digits, Eyebrow, Poster } from '@/shared/ui/kit/Typography';
+import { Clock, Eyebrow, Poster } from '@/shared/ui/kit/Typography';
 import { Button } from '@/shared/ui/kit/Button';
 import { Icon } from '@/shared/ui/kit/Icon';
 
-import { FocusShell } from './FocusShell';
-import { TimeBumps, useTimeBumps } from './TimeBumps';
-import { NEXT_LABEL, type NextMode } from './WorkoutActions';
 import { useFocusSizes } from '../model/use-focus-sizes';
+import { FocusShell } from './FocusShell';
+import { RestRays } from './RestRays';
+import { TimeBumps, useTimeBumps } from './TimeBumps';
+import { UnderClock } from './UnderClock';
+import { NEXT_LABEL, type NextMode } from './WorkoutActions';
 
 type FocusRestProps = {
   timer: ReturnType<typeof useDeadlineTimer>;
@@ -18,16 +20,22 @@ type FocusRestProps = {
   startedAt: string;
   nextSet: number;
   plannedSets: number;
+  /** Отдых между кругами суперсета: табло считает круги */
   round: { letter: string; number: number; rounds: number } | null;
+  /** Отдых закончен или пропущен — сразу следующий подход */
   onToSet: () => void;
+  /** К экрану упражнения: отдых сворачивается, таймер идёт и виден на кнопке отдыха */
   onClose: () => void;
+  /** План по подходам выполнен — главная кнопка ведёт дальше, а не в лишний подход */
   planDone: boolean;
   next: NextMode | null;
   onNext: () => void;
 };
 
+// Сверх минуты — целыми минутами: «134 с назад» приходится пересчитывать в уме
 const agoLabel = (seconds: number) => (seconds > 59 ? `${Math.floor(seconds / 60)} мин назад` : `${seconds} с назад`);
 
+// Отдых между подходами: обратный отсчёт на весь экран, «+30 с», «К подходу»
 export const FocusRest = ({
   timer,
   title,
@@ -43,7 +51,9 @@ export const FocusRest = ({
 }: FocusRestProps) => {
   const sizes = useFocusSizes();
   const over = timer.left <= 0;
+  // Впереди последний подход (или круг) плана — отдых перед ним провожаем лучами
   const lastAhead = !planDone && (round ? round.number === round.rounds : nextSet === plannedSets);
+  // total растёт с каждым «+30 с», поэтому прошедшее считаем от него: видно, сколько отдыхали всего, с добавками
   const rested = Math.max(0, timer.total - timer.left);
   const bumps = useTimeBumps();
   const addRest = () => {
@@ -62,6 +72,7 @@ export const FocusRest = ({
             ? `суперсет ${round.letter} · дальше круг ${round.number} из ${round.rounds}`
             : undefined
       }
+      // План выполнен — на табло сделанное «3/3», а не несуществующий четвёртый подход
       sets={
         round
           ? { number: round.number, done: round.number - 1, planned: round.rounds, unit: 'круг' }
@@ -70,8 +81,14 @@ export const FocusRest = ({
       actions={
         <>
           {planDone ? (
-            <Button variant={next === 'finish' ? 'success' : 'default'} size="xl" block className="h-24" onPress={next ? onNext : onClose}>
-              <>{next ? NEXT_LABEL[next] : 'К упражнению'}</>
+            <Button
+              variant={next === 'finish' ? 'success' : 'default'}
+              size="xl"
+              block
+              className="h-24"
+              onPress={next ? onNext : onClose}
+            >
+              {next ? NEXT_LABEL[next] : 'К упражнению'}
               <Icon as={ArrowRight} className="size-7" strokeWidth={2.5} />
             </Button>
           ) : (
@@ -81,23 +98,26 @@ export const FocusRest = ({
             </Button>
           )}
           <View className="flex-row gap-3">
+            {/* Дальше только завершение: продлевать отдых незачем, а вернуться может понадобиться —
+                добить подход в другом упражнении */}
             {planDone && next === 'finish' ? (
-              <Button variant="outline" block onPress={onClose}>
+              <Button variant="outline" className="flex-1" onPress={onClose}>
                 К упражнению
               </Button>
             ) : (
-              <Button variant="outline" block onPress={addRest}>
+              // Отдых окончен — добавить всё равно можно: таймер снова пойдёт от текущего момента
+              <Button variant="outline" className="flex-1" onPress={addRest}>
                 <Icon as={Plus} strokeWidth={3} />
                 30 с
               </Button>
             )}
             {planDone ? (
-              <Button variant="outline" block onPress={onToSet}>
+              <Button variant="outline" className="flex-1" onPress={onToSet}>
                 <Icon as={Plus} strokeWidth={3} />
                 Ещё подход
               </Button>
             ) : (
-              <Button variant="outline" block onPress={onClose}>
+              <Button variant="outline" className="flex-1" onPress={onClose}>
                 К упражнению
               </Button>
             )}
@@ -105,32 +125,38 @@ export const FocusRest = ({
         </>
       }
     >
-      <View className="flex h-[72px] w-full items-center">
+      {/* Заголовок не пропадает по окончании, а высота у него постоянная: «Отдых окончен» длиннее, fit ужимает кегль,
+          и без рамки по высоте кольцо съезжало бы вверх */}
+      <View className="w-full justify-center" style={{ height: sizes.headline }}>
         <Poster size="4xl" tone={over ? 'muted' : 'primary'} fit className="w-full text-center">
           {over ? 'Отдых окончен' : 'Отдых'}
         </Poster>
       </View>
-      <View className="relative flex items-center justify-center">
-        <Ring value={timer.fraction} size={sizes.timerRing} stroke={6} />
-        {over && lastAhead && <View className="bg-rest absolute inset-0 rounded-full opacity-20" />}
-        <View className="absolute inset-0 flex flex-col items-center justify-center">
+      <View className="items-center justify-center">
+        <Ring value={timer.fraction} size={sizes.timerRing} stroke={6} transitionMs={250} />
+        {over && lastAhead && <RestRays size={sizes.timerRing} />}
+        <View className="absolute inset-0 items-center justify-center">
           {over ? (
-            <View className="relative">
+            // Подпись «с назад» висит под словом, не в потоке: иначе её появление сдвигает «Вперёд» вверх
+            <View>
               <Poster size="4xl">Вперёд</Poster>
-              <Eyebrow className="absolute top-full left-1/2 mt-2 flex -translate-x-1/2 flex-col items-center gap-1 whitespace-nowrap">
-                <Digits fontSize={11}>{`всего ${formatSeconds(rested)}`}</Digits>
-                {-timer.left > 1 && <Digits fontSize={11}>{agoLabel(-timer.left)}</Digits>}
-              </Eyebrow>
+              <UnderClock className="mt-2 gap-1">
+                <Eyebrow className="tabular-nums">всего {formatSeconds(rested)}</Eyebrow>
+                {-timer.left > 1 && <Eyebrow className="tabular-nums">{agoLabel(-timer.left)}</Eyebrow>}
+              </UnderClock>
             </View>
           ) : (
-            <View className="relative">
+            // Подпись под цифрами тоже вне потока, чтобы цифры стояли ровно по центру кольца
+            <View>
               <TimeBumps {...bumps} label="+30 с" />
-              <Poster size="hero" numeric style={sizes.countdownStyle}>
-                <Digits fontSize={sizes.countdown}>{formatSeconds(timer.left)}</Digits>
-              </Poster>
-              <Eyebrow className="absolute top-full left-1/2 -translate-x-1/2 whitespace-nowrap">
-                <Digits fontSize={11}>{`${formatSeconds(rested)} из ${formatSeconds(timer.total)}`}</Digits>
-              </Eyebrow>
+              <Clock fontSize={sizes.countdown} style={sizes.countdownStyle}>
+                {formatSeconds(timer.left)}
+              </Clock>
+              <UnderClock>
+                <Eyebrow className="tabular-nums">
+                  {formatSeconds(rested)} из {formatSeconds(timer.total)}
+                </Eyebrow>
+              </UnderClock>
             </View>
           )}
         </View>

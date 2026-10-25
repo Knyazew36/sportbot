@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 
 import { haptic } from '@/shared/lib/haptics';
 import { cn } from '@/shared/lib/utils';
 
 import { Eyebrow, Poster, Text } from './Typography';
+import { Pressable } from './Pressable';
 
 type TicketProps = {
   /** Буква комплекса */

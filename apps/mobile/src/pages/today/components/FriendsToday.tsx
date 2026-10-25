@@ -1,4 +1,4 @@
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { router } from 'expo-router';
 
 import { useFriends } from '@sportbot/api/entities/social';
@@ -9,6 +9,7 @@ import { cn } from '@/shared/lib/utils';
 import { PersonAvatar } from '@/shared/ui/kit/PersonAvatar';
 import { Rise } from '@/shared/ui/kit/Reveal';
 import { Eyebrow, Text } from '@/shared/ui/kit/Typography';
+import { Pressable } from '@/shared/ui/kit/Pressable';
 
 const AVATARS = 4;
 

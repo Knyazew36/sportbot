@@ -29,7 +29,9 @@ const COLOR_VARS = {
   slate: '--color-slate',
   hatch: '--color-hatch',
   live: '--color-live',
+  liveDeep: '--color-live-deep',
   rest: '--color-rest',
+  restDeep: '--color-rest-deep',
 } as const;
 
 export type Colors = Record<keyof typeof COLOR_VARS, string>;

@@ -49,6 +49,15 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           dark: { backgroundColor: '#070d1a' },
         },
       ],
+      // Фото профиля из галереи: камеру и микрофон не просим — приложение получает только выбранный снимок
+      [
+        'expo-image-picker',
+        {
+          photosPermission: 'Фото нужно для аватара в профиле',
+          cameraPermission: false,
+          microphonePermission: false,
+        },
+      ],
     ],
     experiments: {
       typedRoutes: true,

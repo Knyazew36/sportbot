@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Pressable } from 'react-native';
 import { router } from 'expo-router';
 import { ChevronRight } from 'lucide-react-native';
 
@@ -12,6 +11,7 @@ import { Eyebrow } from '@/shared/ui/kit/Typography';
 
 import { StreakDaySheet } from './StreakDaySheet';
 import { WeekStrip } from './WeekStrip';
+import { Pressable } from '@/shared/ui/kit/Pressable';
 
 type WeekStreakProps = Pick<DayToday, 'week'> & {
   /** Вход в посещения: нужен, только когда шапки с ним нет — во время тренировки */

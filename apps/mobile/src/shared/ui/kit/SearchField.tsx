@@ -1,11 +1,12 @@
 import { useRef } from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { Search, X } from 'lucide-react-native';
 
 import { cn } from '@/shared/lib/utils';
 
 import { Icon } from './Icon';
 import { Input, type InputRef } from './Input';
+import { Pressable } from './Pressable';
 
 type SearchFieldProps = {
   value: string;

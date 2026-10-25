@@ -1,4 +1,4 @@
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { router, type Href } from 'expo-router';
 import { ChevronRight, type LucideIcon } from 'lucide-react-native';
 
@@ -8,6 +8,7 @@ import { useTheme } from '@/shared/theme/ThemeProvider';
 import { Icon } from '@/shared/ui/kit/Icon';
 import { Hatch } from '@/shared/ui/kit/Patterns';
 import { Poster, Text } from '@/shared/ui/kit/Typography';
+import { Pressable } from '@/shared/ui/kit/Pressable';
 
 type SectionTicketProps = {
   href: Href;

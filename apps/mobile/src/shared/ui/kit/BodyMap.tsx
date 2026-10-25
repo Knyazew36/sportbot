@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import Svg, { Polygon } from 'react-native-svg';
 
 import { haptic } from '@/shared/lib/haptics';
@@ -7,6 +7,7 @@ import { cn } from '@/shared/lib/utils';
 import { useTheme } from '@/shared/theme/ThemeProvider';
 
 import { ANTERIOR, type BodyPolygon, type BodyZone, POSTERIOR } from './body-map-data';
+import { Pressable } from './Pressable';
 
 export type BodySide = 'front' | 'back';
 

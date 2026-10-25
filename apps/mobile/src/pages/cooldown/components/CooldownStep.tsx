@@ -1,47 +1,29 @@
-import { View } from 'react-native';
-import { Info, List, SkipBack, SkipForward } from 'lucide-react-native';
+import { useWindowDimensions, View } from 'react-native';
+import { Ban, Info, List, SkipBack, SkipForward } from 'lucide-react-native';
 
 import { stretchGuide } from '@sportbot/api/entities/catalog/lib';
-import type { ImageCreditResponseDto } from '@sportbot/api/generated/model';
 import { toAssetUrl } from '@/shared/api';
 import { timerEndSignal } from '@/shared/lib/signal';
-import { ButtonLink } from '@/shared/ui/kit/ButtonLink';
+import { Button } from '@/shared/ui/kit/Button';
 import { PhotoPair } from '@/shared/ui/kit/CatalogImage';
 import { Icon } from '@/shared/ui/kit/Icon';
-import { MistakeList, StepList } from '@/shared/ui/kit/StepList';
+import { Rise } from '@/shared/ui/kit/Reveal';
 import { Screen } from '@/shared/ui/kit/Screen';
 import { TopBar } from '@/shared/ui/kit/ScreenHeader';
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection';
+import { MistakeList, StepList } from '@/shared/ui/kit/StepList';
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography';
-import { Button } from '@/shared/ui/kit/Button';
 import { HoldControls } from '@/widgets/catalog/HoldControls';
+import { ImageCredit } from '@/widgets/catalog/ImageCredit';
+import { VideoLink } from '@/widgets/catalog/VideoLink';
 
 import type { CooldownFlow } from '../model/use-cooldown-flow';
 import { CooldownProgress } from './CooldownProgress';
 import { CooldownDetailSheet, CooldownListSheet } from './CooldownSheets';
 import { SideTrack } from './SideTrack';
 
-// Подпись под фото: CC BY и CC BY-SA обязывают указать автора, лицензию и источник
-const ImageCredit = ({ credit }: { credit: ImageCreditResponseDto | null }) => {
-  if (!credit) return null;
-  const label = [credit.author, credit.license].filter(Boolean).join(' · ');
-  if (!label) return null;
-  return (
-    <Text size="2xs" tone="muted">
-      Фото: {label}
-    </Text>
-  );
-};
-
-// Ссылка на видео техники
-const VideoLink = ({ name, videoUrl }: { name: string; videoUrl: string | null }) => {
-  if (!videoUrl) return null;
-  return (
-    <ButtonLink href={videoUrl} variant="outline" size="sm">
-      Видео: {name}
-    </ButtonLink>
-  );
-};
+/** Ниже этой высоты экрана фото позы прячем ради таймера — [@media(max-height:620px)]:hidden фронта */
+const PHOTO_MIN_HEIGHT = 620;
 
 type CooldownStepProps = {
   flow: CooldownFlow;
@@ -51,6 +33,7 @@ type CooldownStepProps = {
 
 // Одна растяжка: фото позы, шаги, ошибки и таймер удержания. Следующую человек открывает сам
 export const CooldownStep = ({ flow, index, side }: CooldownStepProps) => {
+  const { height } = useWindowDimensions();
   const { cooldown, all } = flow;
   const stretch = all[index];
   // Растяжку убрали без замены, номер шага поправится следующим рендером
@@ -65,7 +48,6 @@ export const CooldownStep = ({ flow, index, side }: CooldownStepProps) => {
     <Screen
       key={`screen-${key}`}
       fullscreen
-      scroll
       header={
         <>
           <TopBar
@@ -74,13 +56,15 @@ export const CooldownStep = ({ flow, index, side }: CooldownStepProps) => {
             subtitle={`растяжка ${index + 1} из ${all.length} · ~${cooldown.minutes} мин`}
             action={
               <View className="flex-row items-center gap-2">
-                <Button variant="outline" size="icon" accessibilityLabel="Карточка растяжки" onPress={() => flow.open(stretch)}>
-                  <Icon as={Info} className="size-5" strokeWidth={2.5} />
+                {/* Шторка поверх: таймер удержания под ней продолжает идти */}
+                <Button variant="alert" size="icon" accessibilityLabel="Карточка растяжки" onPress={() => flow.open(stretch)}>
+                  <Icon as={Info} className="size-5" />
                 </Button>
-                <Button variant="outline" size="icon" accessibilityLabel="Весь список" onPress={() => flow.setListOpen(true)}>
-                  <Icon as={List} className="size-5" strokeWidth={2.5} />
+                <Button variant="alert" size="icon" accessibilityLabel="Весь список" onPress={() => flow.setListOpen(true)}>
+                  <Icon as={List} className="size-5" />
                 </Button>
-                <Button variant="destructive" size="sm" onPress={flow.finish}>
+                {/* Заминка не влияет на засчитывание — выйти можно в любой момент без подтверждения */}
+                <Button variant="destructive" size="sm" contentClassName="h-10" onPress={flow.finish}>
                   Завершить
                 </Button>
               </View>
@@ -90,6 +74,7 @@ export const CooldownStep = ({ flow, index, side }: CooldownStepProps) => {
         </>
       }
       footer={
+        // Ключи соседей разные: одинаковые сломали бы сверку React и старый таймер остался бы рядом с новым
         <HoldControls
           key={`hold-${key}`}
           holdSeconds={stretch.holdSeconds}
@@ -104,39 +89,59 @@ export const CooldownStep = ({ flow, index, side }: CooldownStepProps) => {
           onEnd={() => timerEndSignal(cooldown)}
         />
       }
-      className="px-gutter pt-4"
+      className="gap-5 px-gutter pt-4"
     >
-      <View className="gap-5">
-        <View className="gap-1.5">
+      {/* Старт и финиш рядом: поза читается без видео. На низком экране фото прячем ради таймера */}
+      {height >= PHOTO_MIN_HEIGHT && (
+        <Rise className="gap-1.5">
           <PhotoPair start={toAssetUrl(stretch.imageUrl) ?? null} end={toAssetUrl(stretch.imageEndUrl) ?? null} alt={stretch.name} />
           <ImageCredit credit={stretch.imageCredit} />
-        </View>
-        <View>
-          <Eyebrow tone="primary">
-            {inMain ? 'Основной блок' : 'Если есть время'} · {stretch.muscles}
-          </Eyebrow>
-          <Poster size="2xl" className="mt-2">
-            {stretch.name}
-          </Poster>
-          {stretch.feel && (
-            <Text tone="soft" className="mt-2">
-              Тянет: {stretch.feel}
-            </Text>
-          )}
-        </View>
-        {stretch.perSide && <SideTrack side={side} />}
-        {steps.length > 0 && (
-          <ScreenSection title="Как делать">
-            <StepList items={steps} size="lg" />
-          </ScreenSection>
+        </Rise>
+      )}
+      <Rise>
+        <Eyebrow tone="primary">
+          {inMain ? 'Основной блок' : 'Если есть время'} · {stretch.muscles}
+        </Eyebrow>
+        <Poster size="2xl" className="mt-2">
+          {stretch.name}
+        </Poster>
+        {stretch.feel && (
+          <Text tone="soft" className="mt-2">
+            Тянет: {stretch.feel}
+          </Text>
         )}
-        {mistakes.length > 0 && (
+        {/* Не подходит — сервер сразу ставит другую на те же мышцы, дальше эта не попадётся */}
+        <Button
+          variant="outline"
+          size="sm"
+          className="mt-3"
+          icon={Ban}
+          disabled={flow.excludePending}
+          onPress={() => flow.excludeStretch(stretch.id)}
+        >
+          Не предлагать
+        </Button>
+      </Rise>
+      {stretch.perSide && (
+        <Rise>
+          <SideTrack side={side} />
+        </Rise>
+      )}
+      {steps.length > 0 && (
+        <Rise>
+          <StepList items={steps} size="lg" />
+        </Rise>
+      )}
+      {mistakes.length > 0 && (
+        <Rise>
           <ScreenSection title="Типичные ошибки">
             <MistakeList items={mistakes} />
           </ScreenSection>
-        )}
+        </Rise>
+      )}
+      <Rise className="pb-4">
         <VideoLink name={stretch.name} videoUrl={stretch.videoUrl} />
-      </View>
+      </Rise>
       <CooldownListSheet flow={flow} />
       <CooldownDetailSheet flow={flow} />
     </Screen>

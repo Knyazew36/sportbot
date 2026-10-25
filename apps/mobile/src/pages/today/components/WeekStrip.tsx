@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 import { addDays, addWeeks, format, parseISO } from 'date-fns';
 import { Check, ChevronLeft, ChevronRight, Pause, X, type LucideIcon } from 'lucide-react-native';
 
@@ -17,6 +17,7 @@ import { Eyebrow, Poster, Text, TextClassContext } from '@/shared/ui/kit/Typogra
 import { DAY_MARK, MARK_LABEL, type DayMark } from '@/widgets/stats/marks';
 
 import { TODAY_MARK, weekTitle, workoutsText } from '../model/week';
+import { Pressable } from '@/shared/ui/kit/Pressable';
 
 type WeekCell = { date: string; weekday: number; mark: DayMark; isToday: boolean };
 
