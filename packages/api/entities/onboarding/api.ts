@@ -22,10 +22,11 @@ export const onboardingKeys = {
   state: ['onboarding'] as const,
 }
 
-export const useOnboarding = () =>
+export const useOnboarding = ({ enabled = true }: { enabled?: boolean } = {}) =>
   useQuery({
     queryKey: onboardingKeys.state,
     queryFn: () => onboardingControllerState(),
+    enabled,
     // Шаг мог сдвинуться в боте, пока приложение было свёрнуто
     staleTime: 0,
   })

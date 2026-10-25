@@ -1,206 +1,178 @@
-import { Text as RNText, type TextProps as RNTextProps, type TextStyle } from 'react-native';
+import { createContext, useContext } from 'react';
+import { Text as RNText, type TextProps as RNTextProps } from 'react-native';
 
-import { fonts } from '@/shared/theme/fonts';
-import { useTheme } from '@/shared/theme/ThemeProvider';
+import { cn } from '@/shared/lib/utils';
 
-// Типографика Спортбота — порт shared/ui/kit/Typography.tsx.
-// Четыре голоса: Poster (плакат), Lead (антиква-курсив), Eyebrow (метка капсом), Text (гротеск).
-// На страницах выбирают size и tone, а не подбирают стили.
+// Типографика Спортбота — порт shared/ui/kit/Typography.tsx. Четыре голоса:
+//   Poster  — плакатный кондензированный: заголовки и цифры
+//   Lead    — волосяная антиква-курсив: вводная строка перед плакатом
+//   Eyebrow — метка капсом с разрядкой: заголовок секции, подпись над значением
+//   Text    — основной гротеск: абзацы, строки списков, пояснения
+// На страницах выбирают size и tone, а не подбирают классы; className — для раскладки.
+// Кегль, межстрочный и разрядка — в px: в RN нет относительных единиц для line-height и letter-spacing
 
-export type Tone =
-  | 'default'
-  | 'primary'
-  | 'positive'
-  | 'muted'
-  | 'soft'
-  | 'faint'
-  | 'danger'
-  | 'inverse'
-  | 'inverseMuted'
-  | 'inherit';
+/**
+ * Цвет текста от контейнера — как TextClassContext в React Native Reusables.
+ * В RN цвет не наследуется через View: чёрная плашка и кнопка кладут сюда свой цвет, tone="inherit" его берёт
+ */
+export const TextClassContext = createContext<string | undefined>(undefined);
 
-const useToneColor = (tone: Tone): string | undefined => {
-  const { colors } = useTheme();
-  switch (tone) {
-    case 'default':
-      return colors.ink;
-    case 'primary':
-      return colors.blue;
-    case 'positive':
-      return colors.positive;
-    case 'muted':
-      return colors.slate;
-    case 'soft':
-      return colors.graphite;
-    case 'faint':
-      return colors.smoke;
-    case 'danger':
-      return colors.danger;
-    case 'inverse':
-      return colors.paper;
-    case 'inverseMuted':
-      return colors.hatch;
-    case 'inherit':
-      return undefined;
-  }
-};
+const TONE = {
+  default: 'text-foreground',
+  primary: 'text-primary',
+  /** «Активно, в работе»: активная программа */
+  positive: 'text-positive',
+  /** Вторичный текст: подписи, пояснения, мета */
+  muted: 'text-muted-foreground',
+  /** Слегка приглушённый текст абзацев */
+  soft: 'text-foreground/80',
+  /** Фоновая цифра или буква: номер комплекса, неактивный билет */
+  faint: 'text-foreground/35',
+  danger: 'text-destructive',
+  /** На чёрной плашке InkPanel */
+  inverse: 'text-background',
+  inverseMuted: 'text-background/60',
+  /** Цвет у контейнера (TextClassContext), иначе обычный. По умолчанию у Poster, Lead и Text */
+  inherit: '',
+} as const;
 
-type BaseProps = RNTextProps & {
-  tone?: Tone;
+export type Tone = keyof typeof TONE;
+
+type BaseProps = RNTextProps & { tone?: Tone; className?: string };
+
+const useToneClass = (tone: Tone) => {
+  const inherited = useContext(TextClassContext);
+  return cn('text-foreground', inherited, TONE[tone]);
 };
 
 // ── Poster ──────────────────────────────────────────────────────────────────
 
+// Шкала с шагом ~1.25. Межстрочный привязан к кеглю: плакатные 0.86 хороши для крупных слов,
+// а мелкие строки при таком интервале слипаются с подписью под ними
 const POSTER_SIZE = {
-  xs: { fontSize: 16, lineHeight: 17.6 },
-  sm: { fontSize: 20, lineHeight: 22 },
-  md: { fontSize: 24, lineHeight: 25.2 },
-  lg: { fontSize: 28, lineHeight: 28 },
-  xl: { fontSize: 34, lineHeight: 32.3 },
-  '2xl': { fontSize: 44, lineHeight: 39.6 },
-  '3xl': { fontSize: 56, lineHeight: 49.3 },
-  '4xl': { fontSize: 72, lineHeight: 62 },
-  '5xl': { fontSize: 88, lineHeight: 75.7 },
-  display: { fontSize: 104, lineHeight: 89.4 },
-  hero: { fontSize: 128, lineHeight: 110 },
+  xs: 'text-[16px] leading-[17.6px]',
+  sm: 'text-[20px] leading-[22px]',
+  md: 'text-[24px] leading-[25.2px]',
+  lg: 'text-[28px] leading-[28px] tracking-[-0.56px]',
+  xl: 'text-[34px] leading-[32.3px] tracking-[-0.68px]',
+  '2xl': 'text-[44px] leading-[39.6px] tracking-[-0.88px]',
+  '3xl': 'text-[56px] leading-[49.3px] tracking-[-1.12px]',
+  '4xl': 'text-[72px] leading-[62px] tracking-[-1.44px]',
+  '5xl': 'text-[88px] leading-[75.7px] tracking-[-1.76px]',
+  display: 'text-[104px] leading-[89.4px] tracking-[-2.08px]',
+  hero: 'text-[128px] leading-[110px] tracking-[-2.56px]',
 } as const;
+
+const POSTER_FONT_SIZE: Record<PosterSize, number> = {
+  xs: 16,
+  sm: 20,
+  md: 24,
+  lg: 28,
+  xl: 34,
+  '2xl': 44,
+  '3xl': 56,
+  '4xl': 72,
+  '5xl': 88,
+  display: 104,
+  hero: 128,
+};
 
 export type PosterSize = keyof typeof POSTER_SIZE;
 
 type PosterProps = BaseProps & {
   size?: PosterSize;
-  /** Одна строка с многоточием */
-  numberOfLines?: number;
   /** Цифры: равная ширина знаков — таймеры, веса */
   numeric?: boolean;
+  /** Ужать кегль, пока строка не влезет в ширину — fit фронта */
+  fit?: boolean;
 };
 
-// Равноширокие цифры: Oswald не имеет табличных цифр, поэтому каждая — в ячейке.
-// Разбивает строку посимвольно, сохраняя общий стиль
-export const Digits = ({ children, style }: { children: string; style?: TextStyle }) => {
-  const parts = children.split(/(\d)/);
-  return (
-    <RNText style={style}>
-      {parts.map((part, i) =>
-        /\d/.test(part) ? (
-          <RNText key={i} style={{ width: 0.56 * ((style?.fontSize as number) ?? 24), textAlign: 'center' }}>
-            {part}
-          </RNText>
-        ) : (
-          <RNText key={i}>{part}</RNText>
-        ),
-      )}
-    </RNText>
-  );
-};
+// Равноширокие цифры: у Oswald нет табличных цифр, поэтому каждая — в ячейке своей ширины
+export const Digits = ({ children, fontSize }: { children: string; fontSize: number }) => (
+  <>
+    {children.split(/(\d)/).map((part, i) =>
+      /\d/.test(part) ? (
+        <RNText key={i} style={{ width: 0.56 * fontSize, textAlign: 'center' }}>
+          {part}
+        </RNText>
+      ) : (
+        part
+      ),
+    )}
+  </>
+);
 
-export const Poster = ({ size = 'md', tone = 'inherit', numeric, style, children, ...props }: PosterProps) => {
-  const color = useToneColor(tone);
-  const s = POSTER_SIZE[size];
-  return (
-    <RNText
-      {...props}
-      style={[
-        {
-          fontFamily: fonts.display,
-          fontSize: s.fontSize,
-          lineHeight: numeric ? s.fontSize * 0.82 : s.lineHeight,
-          letterSpacing: -0.02,
-          textTransform: 'uppercase',
-          color,
-        },
-        style,
-      ]}
-    >
-      {typeof children === 'string' && numeric ? <Digits style={{}}>{children}</Digits> : children}
-    </RNText>
-  );
-};
-
-/** Единица измерения рядом с плакатной цифрой: «кг», «раз», «с» */
-export const Unit = (props: RNTextProps) => (
+export const Poster = ({ size = 'md', tone = 'inherit', numeric, fit, className, children, ...props }: PosterProps) => (
   <RNText
+    numberOfLines={fit ? 1 : undefined}
+    adjustsFontSizeToFit={fit}
     {...props}
-    style={[{ fontFamily: fonts.sans, fontSize: 10, letterSpacing: 0, opacity: 0.5, textTransform: 'none' }, props.style]}
-  />
+    className={cn('font-display uppercase', POSTER_SIZE[size], useToneClass(tone), className)}
+  >
+    {typeof children === 'string' && numeric ? <Digits fontSize={POSTER_FONT_SIZE[size]}>{children}</Digits> : children}
+  </RNText>
+);
+
+/** Единица измерения рядом с плакатной цифрой: «кг», «раз», «с». Цвет — от родителя */
+export const Unit = ({ className, ...props }: RNTextProps & { className?: string }) => (
+  <RNText {...props} className={cn('font-sans text-[10px] normal-case tracking-normal opacity-50', className)} />
 );
 
 /** Знак при плакатной цифре тем же шрифтом, но мельче: «%» */
-export const Suffix = (props: RNTextProps) => <RNText {...props} style={[{ fontSize: 10 }, props.style]} />;
+export const Suffix = ({ className, ...props }: RNTextProps & { className?: string }) => (
+  <RNText {...props} className={cn('text-[10px]', className)} />
+);
 
 // ── Lead ────────────────────────────────────────────────────────────────────
 
 const LEAD_SIZE = {
-  sm: { fontSize: 22, lineHeight: 23.1 },
-  md: { fontSize: 26, lineHeight: 27.3 },
-  lg: { fontSize: 34, lineHeight: 35.7 },
-  xl: { fontSize: 40, lineHeight: 42 },
+  sm: 'text-[22px] leading-[23.1px] tracking-[-0.44px]',
+  md: 'text-[26px] leading-[27.3px] tracking-[-0.52px]',
+  lg: 'text-[34px] leading-[35.7px] tracking-[-0.68px]',
+  xl: 'text-[40px] leading-[42px] tracking-[-0.8px]',
 } as const;
 
 type LeadProps = BaseProps & { size?: keyof typeof LEAD_SIZE };
 
 // Вводная строка перед плакатным заголовком: «сегодня на очереди —»
-export const Lead = ({ size = 'lg', tone = 'inherit', style, ...props }: LeadProps) => {
-  const color = useToneColor(tone);
-  const s = LEAD_SIZE[size];
-  return (
-    <RNText
-      {...props}
-      style={[{ fontFamily: fonts.serif, fontSize: s.fontSize, lineHeight: s.lineHeight, letterSpacing: -0.02, color }, style]}
-    />
-  );
-};
+export const Lead = ({ size = 'lg', tone = 'inherit', className, ...props }: LeadProps) => (
+  <RNText {...props} className={cn('font-serif', LEAD_SIZE[size], useToneClass(tone), className)} />
+);
 
 // ── Eyebrow ─────────────────────────────────────────────────────────────────
 
 const EYEBROW_SIZE = {
-  sm: 10.5,
-  md: 11,
+  sm: 'text-[10.5px] leading-[13px] tracking-[1.47px]',
+  md: 'text-[11px] leading-[13.75px] tracking-[1.54px]',
 } as const;
 
 type EyebrowProps = BaseProps & { size?: keyof typeof EYEBROW_SIZE };
 
 // Метка над значением или заголовок секции: капс с разрядкой вместо жирности
-export const Eyebrow = ({ size = 'md', tone = 'muted', style, ...props }: EyebrowProps) => {
-  const color = useToneColor(tone);
-  return (
-    <RNText
-      {...props}
-      style={[
-        {
-          fontFamily: fonts.sans,
-          fontSize: EYEBROW_SIZE[size],
-          lineHeight: EYEBROW_SIZE[size] * 1.25,
-          letterSpacing: 0.14 * EYEBROW_SIZE[size],
-          textTransform: 'uppercase',
-          color,
-        },
-        style,
-      ]}
-    />
-  );
-};
+export const Eyebrow = ({ size = 'md', tone = 'muted', className, ...props }: EyebrowProps) => (
+  <RNText {...props} className={cn('font-sans uppercase', EYEBROW_SIZE[size], useToneClass(tone), className)} />
+);
 
 // ── Text ────────────────────────────────────────────────────────────────────
 
 const TEXT_SIZE = {
-  '2xs': { fontSize: 12, lineHeight: 15.6 },
-  xs: { fontSize: 13, lineHeight: 16.9 },
-  sm: { fontSize: 14, lineHeight: 18.2 },
-  md: { fontSize: 15, lineHeight: 18.75 },
-  lg: { fontSize: 16, lineHeight: 20 },
+  '2xs': 'text-[12px] leading-[15.6px] tracking-[-0.24px]',
+  xs: 'text-[13px] leading-[16.9px] tracking-[-0.26px]',
+  sm: 'text-[14px] leading-[18.2px] tracking-[-0.28px]',
+  md: 'text-[15px] leading-[18.75px] tracking-[-0.3px]',
+  lg: 'text-[16px] leading-[20px] tracking-[-0.32px]',
 } as const;
 
-type TextProps = BaseProps & { size?: keyof typeof TEXT_SIZE };
+type TextProps = BaseProps & {
+  size?: keyof typeof TEXT_SIZE;
+  /** Полужирное начертание Onest 500 — у загруженного шрифта веса через font-weight в RN нет */
+  medium?: boolean;
+};
 
 // Основной текст: абзацы, названия строк, пояснения
-export const Text = ({ size = 'md', tone = 'inherit', style, ...props }: TextProps) => {
-  const color = useToneColor(tone);
-  const s = TEXT_SIZE[size];
-  return (
-    <RNText
-      {...props}
-      style={[{ fontFamily: fonts.sans, fontSize: s.fontSize, lineHeight: s.lineHeight, letterSpacing: -0.02, color }, style]}
-    />
-  );
-};
+export const Text = ({ size = 'md', tone = 'inherit', medium, className, ...props }: TextProps) => (
+  <RNText
+    {...props}
+    className={cn(medium ? 'font-sans-medium' : 'font-sans', TEXT_SIZE[size], useToneClass(tone), className)}
+  />
+);

@@ -28,6 +28,7 @@ const LOCALHOST_ORIGINS = [
   'https://localhost:5173',
   'https://localhost:5172',
   'http://localhost:5172',
+  'http://localhost:8081',
   'https://localhost:10004',
 ];
 

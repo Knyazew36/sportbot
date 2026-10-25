@@ -1,0 +1,30 @@
+import { Share2 } from 'lucide-react-native';
+
+import { useShareWorkout } from '@sportbot/api/entities/workout';
+
+import { Button, type ButtonSize } from '@/shared/ui/kit/Button';
+
+type ShareWorkoutButtonProps = {
+  workoutId: number;
+  size?: ButtonSize;
+  block?: boolean;
+};
+
+// Карточку присылает бот — порт features/share-workout: её можно переслать в любой чат,
+// а кнопка в ней откроет страницу результата. Нативный «Поделиться» картинкой — этап 2 (MOBILE_TZ.md, раздел 6)
+export const ShareWorkoutButton = ({ workoutId, size, block }: ShareWorkoutButtonProps) => {
+  const share = useShareWorkout();
+  return (
+    <Button
+      variant="share"
+      size={size}
+      block={block}
+      // Картинку сервер рисует несколько секунд — без индикатора кажется, что нажатие не сработало
+      loading={share.isPending}
+      icon={Share2}
+      onPress={() => share.mutate(workoutId)}
+    >
+      {share.isPending ? 'Готовим карточку…' : 'Поделиться'}
+    </Button>
+  );
+};

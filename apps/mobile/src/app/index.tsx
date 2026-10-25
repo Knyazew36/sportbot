@@ -1,16 +1,21 @@
-import { Text, View } from 'react-native';
+import { useEffect } from 'react';
+import { ActivityIndicator, View } from 'react-native';
+import { router } from 'expo-router';
 
+import { useIsAuthenticated } from '@/shared/api';
+import { ROUTES } from '@/shared/config/routes';
+
+// Корень: с токеном — в приложение, без — на вход. Дальше (app) решает про онбординг
 export default function Index() {
+  const isAuthenticated = useIsAuthenticated();
+
+  useEffect(() => {
+    router.replace(isAuthenticated ? ROUTES.TODAY : ROUTES.LOGIN);
+  }, [isAuthenticated]);
+
   return (
-    <View
-      style={{
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#fff8f1',
-      }}
-    >
-      <Text style={{ color: '#0a0a0a', fontSize: 20 }}>Спортбот</Text>
+    <View className="bg-background flex-1 items-center justify-center">
+      <ActivityIndicator colorClassName="accent-primary" size="large" />
     </View>
   );
 }

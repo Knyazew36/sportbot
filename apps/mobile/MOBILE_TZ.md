@@ -4,6 +4,43 @@
 
 Исходная точка: `apps/mobile` — чистый шаблон Expo SDK 58 (RN 0.88, React 19.3, expo-router, typed routes, React Compiler).
 
+## Статус (на 2026-10-25)
+
+✅ сделано · ⚠️ частично · ❌ не начато
+
+### Подготовка (раздел 0)
+- ✅ 0.1–0.3 вложенный `.git` и `package-lock.json` удалены, пакет — `@sportbot/mobile`
+- ✅ 0.4 React: фронт поднят до 19.3
+- ✅ 0.5 metro — штатный `expo/metro-config`, `packages/*` резолвятся (бандл `expo export` собирается)
+- ✅ 0.6 `check-types` в мобилке; ⚠️ `lint` через `expo lint`, в turbo отдельно не настраивали
+- ✅ 0.7 демо шаблона удалено, ✅ 0.8 алиас `@/*`
+- ⚠️ 0.9 `app.config.ts` с вариантами dev/preview/prod есть; `.env` и `eas.json` — нет
+
+### Решения
+- Общий код — вариант **B** сразу: пакет `@sportbot/api` (`generated`, `entities`, `client`, `lib`), мобилка подключает через `configureApi()`
+- Стилизация: ✅ **Uniwind 1.13 (Tailwind v4) + React Native Reusables** — заведено на SDK 58 / RN 0.88, бандл собирается
+  - `src/global.css` — источник цветов: имена токенов как во фронте (`bg-background`, `text-primary`, `border-border`, `px-gutter`, `bg-sb-blue`…), 4 темы Uniwind: `light`/`dark` (синяя) и `rose-light`/`rose-dark` (`extraThemes` в `metro.config.js`), `color-mix` посчитан заранее
+  - тему ставит `ThemeProvider` (`Uniwind.setTheme` по палитре и системной схеме); цвета для SVG и нативных шторок — `useCSSVariable` из тех же переменных
+  - из Reusables: `cn`, `TextClassContext` (цвет текста от контейнера), `Icon` (lucide через `withUniwind`), `Badge`, `Input`, `AlertDialog` (+ `PortalHost` в корне); `Button` — на их основе с вариантами и жёсткой тенью фронта
+  - `src/uniwind-types.d.ts` генерирует Metro — файл коммитим, иначе `check-types` без Metro падает
+
+### Этап 1
+- ✅ Инфраструктура: axios-клиент, токен в SecureStore, query-client (`focusManager`/`onlineManager`, персист в MMKV, `buster` по пользователю, тосты `sonner-native`, хаптика), тема и обе палитры, шрифты
+- ✅ Вход: email (вход, регистрация, код, восстановление), через бота Telegram и MAX. ❌ VK — нужна регенерация orval
+- ✅ Онбординг
+- ⚠️ Нижнее меню: ✅ «Сегодня» — все состояния дня, неделя, очередь, шторки; ⚠️ Профиль — карта, палитра, выход, удаление аккаунта; Программы, Библиотека, Статистика — заглушки (содержимое — этап 2)
+- ✅ Удаление аккаунта (`auth/delete-account`) — на устройстве не проверено
+- ❌ Тренировка целиком: `workout`, замена/добавление, заминка, завершение, итог, редактирование — роуты есть, экраны «Скоро»
+- ❌ Офлайн-очередь подходов и таймеры отдыха, keep-awake, уведомление об окончании отдыха
+
+### Кит (`shared/ui/kit`)
+✅ Всё на className (Uniwind): Typography, Icon, Button, ButtonLink, Screen/StickyFooter, ScreenHeader/TopBar, ScreenSection, QueryState/StateView, ListRow, StatGrid, ExerciseBlocks, InkPanel, Notice, Ticket, Badge, PersonAvatar, Image, CatalogImage/PhotoPair, StepList/MistakeList, OptionButton, Segmented, StepBar, Input, TextField, CodeField, ErrorText, Sheet (`@gorhom/bottom-sheet`), AlertDialog + ConfirmAction, Patterns (дорожки, штриховка, растр), Art (сгенерирован из фронта, без CSS-анимаций), Rise
+
+### Не проверено
+- Запуск на iOS/Android (dev-сборка) — пока только tsc и сборка бандла
+
+---
+
 > Expo меняет API каждый SDK. Перед кодом с Expo/RN API сверяться с `https://docs.expo.dev/versions/v58.0.0/` (см. `apps/mobile/AGENTS.md`). Пакеты ставить только `npx expo install <pkg>` — он подбирает версии под SDK.
 
 ---
@@ -396,7 +433,7 @@ Onest (основной), Oswald (display), JetBrains Mono, Cormorant (serif). �
 
 ## 18. Открытые вопросы
 
-1. Общий код: вариант A (копия) или B (пакет `@sportbot/api`) — и когда.
+1. ~~Общий код~~ — решено: вариант B, пакет `@sportbot/api` (см. «Статус»).
 2. ~~Стилизация~~ — решено: React Native Reusables + Uniwind (запасной NativeWind), см. раздел 8.
 3. Вход через Telegram/VK в iOS-версии: оставить (тогда обязателен Sign in with Apple) или только email + Apple.
 4. Редактор роликов и админка — в мобилке или только в вебе.

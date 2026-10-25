@@ -38,3 +38,15 @@ export type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>
 
 export const resetPasswordSchema = z.object({ email: emailSchema, code: codeSchema, newPassword: newPasswordSchema })
 export type ResetPasswordValues = z.infer<typeof resetPasswordSchema>
+
+// ── Свой аккаунт ─────────────────────────────────────────────────────────────
+
+// Пароль нужен, только если он задан (вход через бота пароля не даёт) — пустую строку не шлём
+export const deleteAccountSchema = z.object({
+  currentPassword: z
+    .string()
+    .max(72)
+    .transform(value => value || undefined),
+})
+export type DeleteAccountInput = z.input<typeof deleteAccountSchema>
+export type DeleteAccountValues = z.output<typeof deleteAccountSchema>

@@ -1,0 +1,242 @@
+@import 'tailwindcss';
+@import 'uniwind';
+
+/*
+  Стили Спортбота для мобилки — Uniwind (Tailwind v4). Имена токенов те же, что в apps/frontend/src/global.css,
+  поэтому классы разметки переносятся из веба как есть: bg-background, text-primary, border-border, px-gutter.
+  Отличия от веба:
+  - color-mix() в RN нет — производные цвета (mist, smoke, slate, tint…) посчитаны заранее для каждой темы;
+  - палитра и схема — одна ось тем Uniwind: light/dark — синяя, rose-light/rose-dark — розовая
+    (переключает shared/theme/ThemeProvider, темы зарегистрированы в metro.config.js → extraThemes);
+  - шрифт = конкретное начертание (Oswald_700Bold): веса через font-bold у загруженных шрифтов в RN не работают.
+*/
+
+@theme {
+  --spacing-gutter: 12px;
+
+  /* Начертания из shared/theme/fonts.ts — имена, под которыми их загружает expo-font */
+  --font-sans: 'Onest_400Regular';
+  --font-sans-medium: 'Onest_500Medium';
+  --font-display: 'Oswald_700Bold';
+  --font-display-medium: 'Oswald_500Medium';
+  --font-mono: 'JetBrainsMono_400Regular';
+  --font-serif: 'Cormorant_300Light_Italic';
+  --font-serif-regular: 'Cormorant_400Regular_Italic';
+
+  /* Углов нет нигде, как во фронте: --radius 0 */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+
+  /* Одинаковы в любой теме и палитре */
+  --color-mint: #d1ffca;
+  --color-success: #d1ffca;
+  --color-voltage: #fff100;
+  --color-attention: #fff100;
+  --color-live: #d1ffca;
+  --color-live-deep: #b4f5a8;
+  --color-live-ink: #0a0a0a;
+  --color-rest: #ffdcae;
+  --color-rest-deep: #ffc98a;
+}
+
+@layer theme {
+  :root {
+    /* Синяя светлая */
+    @variant light {
+      --color-sb-paper: #fff8f1;
+      --color-sb-sheet: #fffdf9;
+      --color-sb-ink: #0a0a0a;
+      --color-sb-blue: #006eff;
+      --color-sb-rule: #e2e8f0;
+      --color-sb-tint: rgba(0, 110, 255, 0.09);
+      --color-sb-danger: #d92d20;
+      --color-sb-gold: #a8720a;
+      --color-sb-gold-tint: rgba(168, 114, 10, 0.12);
+      --color-sb-gold-on-ink: #f2c14e;
+
+      --color-canvas: #f5eee8;
+      --color-paper: #fffdf9;
+      --color-carbon: #0a0a0a;
+      --color-mist: #f3ece6;
+      --color-ash: #e2e8f0;
+      --color-smoke: #918989;
+      --color-slate: #54544f;
+      --color-graphite: #2f2f2d;
+      --color-hatch: #c9c9be;
+      --color-positive: #12893a;
+
+      --color-background: #fff8f1;
+      --color-foreground: #0a0a0a;
+      --color-card: #fffdf9;
+      --color-card-foreground: #0a0a0a;
+      --color-popover: #fff8f1;
+      --color-popover-foreground: #0a0a0a;
+      --color-primary: #006eff;
+      --color-primary-foreground: #fff8f1;
+      --color-secondary: #f3ece6;
+      --color-secondary-foreground: #0a0a0a;
+      --color-muted: #f3ece6;
+      --color-muted-foreground: #54544f;
+      --color-accent: rgba(0, 110, 255, 0.09);
+      --color-accent-foreground: #0a0a0a;
+      --color-destructive: #d92d20;
+      --color-border: #e2e8f0;
+      --color-input: rgba(10, 10, 10, 0.25);
+      --color-ring: #006eff;
+      --color-chart-1: #006eff;
+      --color-chart-2: #0a0a0a;
+      --color-chart-3: #73acf8;
+      --color-chart-4: #918989;
+      --color-chart-5: #e2e8f0;
+    }
+
+    /* Синяя тёмная — «ночной стадион» */
+    @variant dark {
+      --color-sb-paper: #070d1a;
+      --color-sb-sheet: #0c1527;
+      --color-sb-ink: #fff8f1;
+      --color-sb-blue: #4c97ff;
+      --color-sb-rule: #1b2740;
+      --color-sb-tint: rgba(76, 151, 255, 0.13);
+      --color-sb-danger: #ff6b5e;
+      --color-sb-gold: #f2c14e;
+      --color-sb-gold-tint: rgba(242, 193, 78, 0.12);
+      --color-sb-gold-on-ink: #a8720a;
+
+      --color-canvas: #111723;
+      --color-paper: #0c1527;
+      --color-carbon: #fff8f1;
+      --color-mist: #131925;
+      --color-ash: #1b2740;
+      --color-smoke: #8f8e90;
+      --color-slate: #b5b1b0;
+      --color-graphite: #dad5d1;
+      --color-hatch: #3e4049;
+      --color-positive: #5ee08a;
+
+      --color-background: #070d1a;
+      --color-foreground: #fff8f1;
+      --color-card: #0c1527;
+      --color-card-foreground: #fff8f1;
+      --color-popover: #070d1a;
+      --color-popover-foreground: #fff8f1;
+      --color-primary: #4c97ff;
+      --color-primary-foreground: #070d1a;
+      --color-secondary: #131925;
+      --color-secondary-foreground: #fff8f1;
+      --color-muted: #131925;
+      --color-muted-foreground: #b5b1b0;
+      --color-accent: rgba(76, 151, 255, 0.13);
+      --color-accent-foreground: #fff8f1;
+      --color-destructive: #ff6b5e;
+      --color-border: #1b2740;
+      --color-input: rgba(255, 248, 241, 0.25);
+      --color-ring: #4c97ff;
+      --color-chart-1: #4c97ff;
+      --color-chart-2: #fff8f1;
+      --color-chart-3: #2d5998;
+      --color-chart-4: #8f8e90;
+      --color-chart-5: #1b2740;
+    }
+
+    /* Розовая светлая. --sb-blue здесь — «голос палитры» (малиновый), имя не трогаем, как во фронте */
+    @variant rose-light {
+      --color-sb-paper: #fff5f8;
+      --color-sb-sheet: #fffafc;
+      --color-sb-ink: #1f0a14;
+      --color-sb-blue: #d6246e;
+      --color-sb-rule: #f3dbe5;
+      --color-sb-tint: rgba(214, 36, 110, 0.09);
+      --color-sb-danger: #c2410c;
+      --color-sb-gold: #a8720a;
+      --color-sb-gold-tint: rgba(168, 114, 10, 0.12);
+      --color-sb-gold-on-ink: #f2c14e;
+
+      --color-canvas: #f6ebef;
+      --color-paper: #fffafc;
+      --color-carbon: #1f0a14;
+      --color-mist: #f6e9ec;
+      --color-ash: #f3dbe5;
+      --color-smoke: #9a8c8d;
+      --color-slate: #625156;
+      --color-graphite: #402d35;
+      --color-hatch: #cec1c6;
+      --color-positive: #12893a;
+
+      --color-background: #fff5f8;
+      --color-foreground: #1f0a14;
+      --color-card: #fffafc;
+      --color-card-foreground: #1f0a14;
+      --color-popover: #fff5f8;
+      --color-popover-foreground: #1f0a14;
+      --color-primary: #d6246e;
+      --color-primary-foreground: #fff5f8;
+      --color-secondary: #f6e9ec;
+      --color-secondary-foreground: #1f0a14;
+      --color-muted: #f6e9ec;
+      --color-muted-foreground: #625156;
+      --color-accent: rgba(214, 36, 110, 0.09);
+      --color-accent-foreground: #1f0a14;
+      --color-destructive: #c2410c;
+      --color-border: #f3dbe5;
+      --color-input: rgba(31, 10, 20, 0.25);
+      --color-ring: #d6246e;
+      --color-chart-1: #d6246e;
+      --color-chart-2: #1f0a14;
+      --color-chart-3: #e882ac;
+      --color-chart-4: #9a8c8d;
+      --color-chart-5: #f3dbe5;
+    }
+
+    /* Розовая тёмная — «сливовая ночь» */
+    @variant rose-dark {
+      --color-sb-paper: #1a0b14;
+      --color-sb-sheet: #241020;
+      --color-sb-ink: #fff5f8;
+      --color-sb-blue: #ff6fa8;
+      --color-sb-rule: #3a1e2f;
+      --color-sb-tint: rgba(255, 111, 168, 0.13);
+      --color-sb-danger: #ff8a5b;
+      --color-sb-gold: #f2c14e;
+      --color-sb-gold-tint: rgba(242, 193, 78, 0.12);
+      --color-sb-gold-on-ink: #a8720a;
+
+      --color-canvas: #23141d;
+      --color-paper: #241020;
+      --color-carbon: #fff5f8;
+      --color-mist: #25161d;
+      --color-ash: #3a1e2f;
+      --color-smoke: #988b91;
+      --color-slate: #baaeb4;
+      --color-graphite: #ded2d7;
+      --color-hatch: #4c3e46;
+      --color-positive: #5ee08a;
+
+      --color-background: #1a0b14;
+      --color-foreground: #fff5f8;
+      --color-card: #241020;
+      --color-card-foreground: #fff5f8;
+      --color-popover: #1a0b14;
+      --color-popover-foreground: #fff5f8;
+      --color-primary: #ff6fa8;
+      --color-primary-foreground: #1a0b14;
+      --color-secondary: #25161d;
+      --color-secondary-foreground: #fff5f8;
+      --color-muted: #25161d;
+      --color-muted-foreground: #baaeb4;
+      --color-accent: rgba(255, 111, 168, 0.13);
+      --color-accent-foreground: #fff5f8;
+      --color-destructive: #ff8a5b;
+      --color-border: #3a1e2f;
+      --color-input: rgba(255, 245, 248, 0.25);
+      --color-ring: #ff6fa8;
+      --color-chart-1: #ff6fa8;
+      --color-chart-2: #fff5f8;
+      --color-chart-3: #984265;
+      --color-chart-4: #988b91;
+      --color-chart-5: #3a1e2f;
+    }
+  }
+}

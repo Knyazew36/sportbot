@@ -99,5 +99,6 @@ export const useChangePassword = () =>
 export const useDeleteAccount = () =>
   useMutation({
     mutationFn: (body: DeleteAccountBody) => http.post<MessageResponse>('/auth/delete-account', body),
+    meta: { successMessage: 'Аккаунт удалён', inlineFieldErrors: true },
     onSuccess: logout,
   })
