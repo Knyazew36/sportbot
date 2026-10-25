@@ -19,6 +19,19 @@ export const NAV_ITEMS: NavItem[] = [
   { name: 'me', label: 'Профиль', icon: UserRound },
 ];
 
+const HERO = NAV_ITEMS.find((item) => item.hero);
+const REST = NAV_ITEMS.filter((item) => item !== HERO);
+
+/** Раскладка меню: «Сегодня» по центру, остальные поровну по бокам */
+export const NAV_SIDES = {
+  hero: HERO,
+  left: REST.slice(0, Math.floor(REST.length / 2)),
+  right: REST.slice(Math.floor(REST.length / 2)),
+};
+
+// Порядок страниц пейджера = порядок пунктов в меню слева направо, иначе свайп уводит не в соседний пункт
+export const TAB_ORDER: NavItem[] = [...NAV_SIDES.left, ...(HERO ? [HERO] : []), ...NAV_SIDES.right];
+
 // Вложенные экраны со своей кнопкой «Назад» — без меню, как focus во фронте
 const FOCUS_PATTERNS = [/^\/library\/exercises\//, /^\/me\/[^/]+/];
 

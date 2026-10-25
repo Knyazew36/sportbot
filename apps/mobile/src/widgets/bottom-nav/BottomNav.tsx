@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Pressable, View } from 'react-native';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { usePathname } from 'expo-router';
-import type { BottomTabBarProps } from 'expo-router/js-tabs';
+import type { MaterialTopTabBarProps } from 'expo-router/js-top-tabs';
 
 import { haptic } from '@/shared/lib/haptics';
 import { useKeyboardShown } from '@/shared/lib/hooks/use-keyboard-shown';
@@ -12,7 +12,7 @@ import { Icon } from '@/shared/ui/kit/Icon';
 import { HalftoneRing } from '@/shared/ui/kit/Patterns';
 import { Poster, Text } from '@/shared/ui/kit/Typography';
 
-import { isFocusPath, NAV_ITEMS, type NavItem } from './nav';
+import { isFocusPath, NAV_SIDES, type NavItem } from './nav';
 
 // Плавный выход, как ease-[cubic-bezier(0.22,1,0.36,1)] во фронте
 const EASE_OUT = Easing.bezier(0.22, 1, 0.36, 1);
@@ -22,7 +22,7 @@ type TabProps = { item: NavItem; focused: boolean; onPress: () => void };
 // Нижнее меню — порт widgets/miniapp/BottomNav фронта: «Сегодня» — число дня по центру,
 // остальные разделы делятся по бокам. Активный раздел отмечен отрезком беговой дорожки сверху.
 // Низ отступает от жестовой полосы: без этого подписи уходят под системную навигацию
-export const BottomNav = ({ state, emitter, navigateToTab, insets }: BottomTabBarProps) => {
+export const BottomNav = ({ state, emitter, navigateToTab, insets }: MaterialTopTabBarProps) => {
   const pathname = usePathname();
   const keyboardShown = useKeyboardShown();
 
@@ -41,10 +41,7 @@ export const BottomNav = ({ state, emitter, navigateToTab, insets }: BottomTabBa
     navigateToTab(route.key);
   };
 
-  const hero = NAV_ITEMS.find((item) => item.hero);
-  const rest = NAV_ITEMS.filter((item) => item !== hero);
-  const left = rest.slice(0, Math.floor(rest.length / 2));
-  const right = rest.slice(left.length);
+  const { hero, left, right } = NAV_SIDES;
 
   const renderSide = (items: NavItem[]) => (
     <View className="flex-1 flex-row">

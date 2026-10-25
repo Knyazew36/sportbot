@@ -35,6 +35,7 @@
   - ⚠️ в шторке «Новое упражнение» нет картинки: нужен `expo-image-picker` и загрузка через FormData; поле необязательное
 - ✅ Офлайн-очередь подходов и таймеры отдыха, keep-awake, уведомление об окончании отдыха
 - ✅ Блок справочника для этапа 2 уже есть: `widgets/catalog` (поиск, чипы мышц и инвентаря, карта тела, выдача страницами, создание своего), `widgets/program-editor/ExercisePicker`
+- ✅ Карточка упражнения `/library/exercises/[exerciseId]`: фото, мышцы и суставы с ⚠️ ограничений, техника, видео, «В тренировку», «Предложить правку», «Опубликовать». Входы: шторка «Сегодня», «Техника» на тренировке (`from=workout` прячет «В тренировку»). плашки для своего видео нет — видеоредактор в мобилку не ставим; ⚠️ в правке нет смены фото (expo-image-picker)
 
 ### Кит (`shared/ui/kit`)
 ✅ Всё на className (Uniwind): Typography, Icon, Button, ButtonLink, Screen/StickyFooter, ScreenHeader/TopBar, ScreenSection, QueryState/StateView, ListRow, StatGrid, ExerciseBlocks, InkPanel, Notice, Ticket, Badge, PersonAvatar, Image, CatalogImage/PhotoPair, StepList/MistakeList, OptionButton, Segmented, StepBar, Input, TextField, CodeField, ErrorText, Sheet (`@gorhom/bottom-sheet`), AlertDialog + ConfirmAction, Patterns (дорожки, штриховка, растр), Art (сгенерирован из фронта, без CSS-анимаций), Rise, SearchField, LoadMore, Grid (замена CSS grid), BodyMap (полигоны react-body-highlighter на react-native-svg)
@@ -84,7 +85,7 @@
 - Deep links / universal links.
 
 ### Этап 3 (по решению)
-- Редактор роликов (`/me/editor*`, рендер видео) — тяжёлый, вероятно оставить в Mini App.
+- Редактор роликов (`/me/editor*`, рендер видео, плашка на карточке упражнения) — в мобилку не ставим, только Mini App (решение 2026-10-25).
 - Админка (`/admin/*`) — оставить в вебе.
 - Developer-экран.
 - Донаты звёздами — см. раздел 9 (ограничения сторов).
@@ -441,6 +442,6 @@ Onest (основной), Oswald (display), JetBrains Mono, Cormorant (serif). �
 1. ~~Общий код~~ — решено: вариант B, пакет `@sportbot/api` (см. «Статус»).
 2. ~~Стилизация~~ — решено: React Native Reusables + Uniwind (запасной NativeWind), см. раздел 8.
 3. Вход через Telegram/VK в iOS-версии: оставить (тогда обязателен Sign in with Apple) или только email + Apple.
-4. Редактор роликов и админка — в мобилке или только в вебе.
+4. Админка — в мобилке или только в вебе. Редактор роликов решён: только веб.
 5. Нужна ли веб-сборка мобилки (`react-native-web`) — скорее нет.
 6. Bundle id, название в сторах, аккаунты разработчика.

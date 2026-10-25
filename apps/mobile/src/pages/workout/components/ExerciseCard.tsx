@@ -63,7 +63,8 @@ export const ExerciseCard = ({ item, label }: ExerciseCardProps) => {
 
       <View className="flex-row gap-3">
         <ButtonLink
-          href={{ pathname: ROUTES.EXERCISE, params: { exerciseId: String(item.exerciseId) } }}
+          // from=workout прячет «В тренировку»: менять программу посреди подхода незачем
+          href={{ pathname: ROUTES.EXERCISE, params: { exerciseId: String(item.exerciseId), from: 'workout' } }}
           variant="outline"
           size="sm"
         >

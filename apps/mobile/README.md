@@ -39,6 +39,16 @@ Dev-клиент содержит только нативную часть, JS �
 
 Нужно в первый раз и после каждого изменения нативной части (см. «Когда пересобирать»).
 
+Одной командой из корня (телефон по USB):
+
+```bash
+yarn mobile:dev              # prebuild → сборка → установка → adb reverse → открыть на localhost:8081
+yarn mobile:dev --clean      # android/ с нуля: после смены веток или если нативный модуль «не найден»
+yarn mobile:dev --no-install # только собрать APK
+```
+
+Вручную:
+
 ```bash
 cd apps/mobile/android
 ./gradlew assembleDebug -PreactNativeArchitectures=arm64-v8a
@@ -66,9 +76,16 @@ npx expo start --dev-client -c
 
 - **Wi-Fi:** телефон и ПК в одной сети (стационарный ПК кабелем в тот же роутер — тоже подходит; гостевая сеть — нет). Сканировать QR из терминала. Если висит «Connecting to the development server» — Windows не пускает входящие на 8081. В PowerShell от администратора:
   ```powershell
+  # сеть должна быть «Частная»: правило ниже действует только в Private, в Public — нет
+  Get-NetConnectionProfile                       # найти адаптер домашней сети и его профиль
+  Set-NetConnectionProfile -InterfaceAlias "Ethernet 5" -NetworkCategory Private
   New-NetFirewallRule -DisplayName "Metro 8081" -Direction Inbound -Protocol TCP -LocalPort 8081 -Action Allow -Profile Private
   ```
-  и сеть в Windows должна быть «Частная».
+  Если включены VPN (Outline, Radmin и т.п.), Expo может вшить в QR адрес VPN-адаптера, а телефон по нему ПК не найдёт. Указать IP домашней сети явно (смотреть в `ipconfig`):
+  ```powershell
+  $env:REACT_NATIVE_PACKAGER_HOSTNAME="192.168.1.136"; npx expo start --dev-client
+  ```
+  Outline на время разработки лучше выключить: он может заворачивать трафик мимо локальной сети.
 
 - **Туннель через интернет** (любая сеть, медленнее): `npx expo start --dev-client --tunnel`.
 
@@ -91,6 +108,26 @@ adb -d shell am start -a android.intent.action.VIEW -d "exp+sportbot://expo-deve
 
 JS и адрес API вшиты внутрь, Metro не нужен — ставится как обычное приложение. Правки сразу не видны: после каждой — пересборка.
 
+### Одной командой из корня (чтобы скинуть)
+
+```bash
+yarn mobile:apk                  # «Спортбот Preview» → dist/apk/sportbot-preview-1.0.0-<дата>.apk
+yarn mobile:apk production       # «Спортбот», пакет ru.sportbot.app
+yarn mobile:apk preview --keep   # оставить android/ под preview (не возвращать под dev-клиент)
+```
+
+Скрипт `build-apk.sh`:
+
+1. проверяет, что `EXPO_PUBLIC_API_URL` в `.env` — `https://` (release по `http` не ходит);
+2. генерирует `android/` под вариант (`expo prebuild --clean`);
+3. собирает release под `arm64-v8a` и `armeabi-v7a` — встанет на любой телефон;
+4. кладёт файл в `dist/apk/` с вариантом, версией и датой в имени;
+5. возвращает `android/` под dev-клиент.
+
+Preview и production — другие id пакета: ставятся рядом с dev-клиентом, а не поверх. После скрипта `android/` сгенерирован заново, поэтому следующая сборка dev-клиента (шаг 2) пойдёт с нуля, несколько минут. Уже установленный dev-клиент на телефоне не трогается.
+
+### Вручную (текущий вариант android/)
+
 ```bash
 cd apps/mobile/android
 ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a
@@ -98,6 +135,8 @@ adb -d install -r app/build/outputs/apk/release/app-release.apk
 ```
 
 Или перекинуть `app-release.apk` на телефон (Telegram, USB) и установить, разрешив «неизвестные источники».
+
+Если `android/` сгенерирован под development, такой APK встанет **поверх dev-клиента** (тот же пакет `ru.sportbot.app.dev`). Чтобы скинуть другим — лучше `yarn mobile:apk`.
 
 - Подписан debug-ключом: для своего телефона достаточно, для Google Play — нет.
 - Release Android по умолчанию не пускает `http://` — адрес API должен быть `https` (прод).

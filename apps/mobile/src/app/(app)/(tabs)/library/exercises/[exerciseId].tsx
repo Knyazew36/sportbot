@@ -1,4 +1,3 @@
-import SoonPage from '@/pages/soon/SoonPage';
+import ExercisePage from '@/pages/exercise/ExercisePage';
 
-// Экран ещё не перенесён из Mini App
-export default SoonPage;
+export default ExercisePage;

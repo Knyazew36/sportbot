@@ -12,6 +12,7 @@ import { Icon } from '@/shared/ui/kit/Icon';
 import { Digits, Poster, Text } from '@/shared/ui/kit/Typography';
 import { Ring } from '@/shared/ui/kit/Ring';
 
+import { useFocusSizes } from '../model/use-focus-sizes';
 import { FocusShell } from './FocusShell';
 
 type FocusSetProps = {
@@ -26,6 +27,7 @@ type FocusSetProps = {
 };
 
 export const FocusSet = ({ stopwatch, title, startedAt, setNumber, plannedSets, onDone, target, onTarget }: FocusSetProps) => {
+  const sizes = useFocusSizes();
   const signalled = useRef(false);
   const reached = !!target && stopwatch.elapsed >= target.min;
   useEffect(() => {
@@ -65,8 +67,8 @@ export const FocusSet = ({ stopwatch, title, startedAt, setNumber, plannedSets, 
         </>
       }
     >
-      <Poster size="hero" numeric className={cn('text-[min(150px,34vw)]', stopwatch.paused && 'opacity-50')}>
-        <Digits fontSize={128}>{formatSeconds(stopwatch.elapsed)}</Digits>
+      <Poster size="hero" numeric style={sizes.setClockStyle} className={cn(stopwatch.paused && 'opacity-50')}>
+        <Digits fontSize={sizes.setClock}>{formatSeconds(stopwatch.elapsed)}</Digits>
       </Poster>
       {target && (
         <Text size="sm" tone={reached ? 'primary' : 'muted'}>
@@ -84,9 +86,8 @@ export const FocusSet = ({ stopwatch, title, startedAt, setNumber, plannedSets, 
         <Ring
           key={Math.floor(stopwatch.elapsedMs / 60_000)}
           value={(stopwatch.elapsedMs % 60_000) / 60_000}
-          size={140}
+          size={sizes.pauseButton}
           stroke={5}
-          className="h-auto w-[min(140px,20svh)]"
         />
         <Pressable
           onPress={() => {

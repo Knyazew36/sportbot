@@ -9,7 +9,9 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
     "setup": "bash ./setup.sh",
-    "deploy": "./deploy.sh"
+    "deploy": "./deploy.sh",
+    "mobile:apk": "bash ./build-apk.sh",
+    "mobile:dev": "bash ./build-dev.sh"
   },
   "devDependencies": {
     "@front-cmdt/format": "^1.5.0",

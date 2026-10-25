@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
-import * as WebBrowser from 'expo-web-browser';
 
 import {
   exerciseGuide,
@@ -9,7 +8,6 @@ import {
   useCatalogStretch,
   type CatalogKind,
 } from '@sportbot/api/entities/catalog';
-import type { ImageCreditResponseDto } from '@sportbot/api/generated/model';
 
 import { toAssetUrl } from '@/shared/api';
 import { Badge } from '@/shared/ui/kit/Badge';
@@ -18,6 +16,7 @@ import { QueryState } from '@/shared/ui/kit/QueryState';
 import { Sheet } from '@/shared/ui/kit/Sheet';
 import { MistakeList, StepList } from '@/shared/ui/kit/StepList';
 import { Eyebrow, Text } from '@/shared/ui/kit/Typography';
+import { ImageCredit } from '@/widgets/catalog/ImageCredit';
 
 type ExerciseSheetProps = {
   /** Открытое упражнение; null — шторка закрыта. Название сразу в заголовке, пока карточка грузится */
@@ -27,23 +26,6 @@ type ExerciseSheetProps = {
   onOpenChange: (open: boolean) => void;
   /** Действие внизу шторки: «Заменить на это», «Подробнее» */
   action?: ReactNode;
-};
-
-// Подпись под фото: CC BY и CC BY-SA обязывают указать автора, лицензию и источник
-const ImageCredit = ({ credit }: { credit: ImageCreditResponseDto | null }) => {
-  if (!credit) return null;
-  const label = [credit.author, credit.license].filter(Boolean).join(' · ');
-  const source = credit.source;
-  return (
-    <Text
-      size="2xs"
-      tone="muted"
-      onPress={source ? () => void WebBrowser.openBrowserAsync(source) : undefined}
-      className={source ? 'underline' : undefined}
-    >
-      Фото: {label}
-    </Text>
-  );
 };
 
 const Block = ({ title, children }: { title: string; children: ReactNode }) => (

@@ -10,6 +10,7 @@ import { Icon } from '@/shared/ui/kit/Icon';
 import { FocusShell } from './FocusShell';
 import { TimeBumps, useTimeBumps } from './TimeBumps';
 import { NEXT_LABEL, type NextMode } from './WorkoutActions';
+import { useFocusSizes } from '../model/use-focus-sizes';
 
 type FocusRestProps = {
   timer: ReturnType<typeof useDeadlineTimer>;
@@ -40,6 +41,7 @@ export const FocusRest = ({
   next,
   onNext,
 }: FocusRestProps) => {
+  const sizes = useFocusSizes();
   const over = timer.left <= 0;
   const lastAhead = !planDone && (round ? round.number === round.rounds : nextSet === plannedSets);
   const rested = Math.max(0, timer.total - timer.left);
@@ -109,7 +111,7 @@ export const FocusRest = ({
         </Poster>
       </View>
       <View className="relative flex items-center justify-center">
-        <Ring value={timer.fraction} size={300} stroke={6} className="h-auto w-[min(300px,80vw,36svh)]" />
+        <Ring value={timer.fraction} size={sizes.timerRing} stroke={6} />
         {over && lastAhead && <View className="bg-rest absolute inset-0 rounded-full opacity-20" />}
         <View className="absolute inset-0 flex flex-col items-center justify-center">
           {over ? (
@@ -123,8 +125,8 @@ export const FocusRest = ({
           ) : (
             <View className="relative">
               <TimeBumps {...bumps} label="+30 с" />
-              <Poster size="hero" numeric className="text-[min(96px,22vw,12svh)]">
-                <Digits fontSize={96}>{formatSeconds(timer.left)}</Digits>
+              <Poster size="hero" numeric style={sizes.countdownStyle}>
+                <Digits fontSize={sizes.countdown}>{formatSeconds(timer.left)}</Digits>
               </Poster>
               <Eyebrow className="absolute top-full left-1/2 -translate-x-1/2 whitespace-nowrap">
                 <Digits fontSize={11}>{`${formatSeconds(rested)} из ${formatSeconds(timer.total)}`}</Digits>

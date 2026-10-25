@@ -7,6 +7,7 @@ import { Digits, Eyebrow, Poster } from '@/shared/ui/kit/Typography';
 import { Button } from '@/shared/ui/kit/Button';
 import { Icon } from '@/shared/ui/kit/Icon';
 
+import { useFocusSizes } from '../model/use-focus-sizes';
 import { FocusShell } from './FocusShell';
 import { TimeBumps, useTimeBumps } from './TimeBumps';
 
@@ -17,6 +18,7 @@ type FocusWarmupProps = {
 };
 
 export const FocusWarmup = ({ timer, first, onClose }: FocusWarmupProps) => {
+  const sizes = useFocusSizes();
   const over = timer.status === 'running' && timer.left <= 0;
   const bumps = useTimeBumps();
   const addMinute = () => {
@@ -46,15 +48,15 @@ export const FocusWarmup = ({ timer, first, onClose }: FocusWarmupProps) => {
         </Poster>
       </View>
       <View className="relative flex items-center justify-center">
-        <Ring value={timer.fraction} size={300} stroke={6} className="h-auto w-[min(300px,80vw,36svh)]" />
+        <Ring value={timer.fraction} size={sizes.timerRing} stroke={6} />
         <View className="absolute inset-0 flex flex-col items-center justify-center">
           {over ? (
             <Poster size="4xl">Вперёд</Poster>
           ) : (
             <View className="relative">
               <TimeBumps {...bumps} label="+1 мин" />
-              <Poster size="hero" numeric className="text-[min(96px,22vw,12svh)]">
-                <Digits fontSize={96}>{formatSeconds(timer.left)}</Digits>
+              <Poster size="hero" numeric style={sizes.countdownStyle}>
+                <Digits fontSize={sizes.countdown}>{formatSeconds(timer.left)}</Digits>
               </Poster>
               <Eyebrow className="absolute top-full left-1/2 -translate-x-1/2 whitespace-nowrap">
                 <Digits fontSize={11}>{`из ${formatSeconds(timer.total)}`}</Digits>

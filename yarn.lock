@@ -8749,6 +8749,16 @@ expo-asset@~58.0.18:
     "@expo/image-utils" "^0.12.5"
     expo-constants "~58.0.13"
 
+expo-blur@~58.0.5:
+  version "58.0.5"
+  resolved "https://registry.yarnpkg.com/expo-blur/-/expo-blur-58.0.5.tgz#55f32f4817e91f06a996c40cc65913eb515d3f69"
+  integrity sha512-l8MEObIh0opwIUf+SD9MfqD0JnOirGuetAW/V3phXQRJaTPKLtb0IukgyLmnOsfWMAWTdJrcl5l/2ezcDHrkHQ==
+
+expo-clipboard@~58.0.4:
+  version "58.0.4"
+  resolved "https://registry.yarnpkg.com/expo-clipboard/-/expo-clipboard-58.0.4.tgz#0e26322b86bd66bac3bc2556c0d54a5259cff46a"
+  integrity sha512-b2eEJMwdWXLTrmrkg/otsmL2OV6s9D90tytSNBsY87UswrWf6JwxcB2OaWegyUWD9XnvtBVNeVK7lej0zZh+5A==
+
 expo-constants@~58.0.13:
   version "58.0.13"
   resolved "https://registry.npmjs.org/expo-constants/-/expo-constants-58.0.13.tgz"
@@ -12942,6 +12952,11 @@ react-native-nitro-modules@^0.37.1:
   resolved "https://registry.yarnpkg.com/react-native-nitro-modules/-/react-native-nitro-modules-0.37.1.tgz#368bda3038ebe796b219d98e0a364f9166e2cc7c"
   integrity sha512-KpW6EQVQ/bfegpCGxN9Be+ndvsfj56t4IESEvCASu9gWpJa/NDfHpIeIwCOvZQ3eXmLEj6YD4wCLqcC1FJPr2w==
 
+react-native-pager-view@9.0.7:
+  version "9.0.7"
+  resolved "https://registry.yarnpkg.com/react-native-pager-view/-/react-native-pager-view-9.0.7.tgz#2190e3341e4fcec72139009550bb3ed9687b9493"
+  integrity sha512-71kLSrjZy8onJTXkoAWF/0UtInkF+xqmqudiV/axZe8PVGG+CK6jVdh8NYFJLKetQ6UQ9ScPNliagpvLBp1xkQ==
+
 react-native-reanimated@4.7.1:
   version "4.7.1"
   resolved "https://registry.npmjs.org/react-native-reanimated/-/react-native-reanimated-4.7.1.tgz"
@@ -12970,6 +12985,13 @@ react-native-svg@15.16.0:
   dependencies:
     css-select "^5.1.0"
     css-tree "^1.1.3"
+
+react-native-tab-view@^4.3.4:
+  version "4.3.4"
+  resolved "https://registry.yarnpkg.com/react-native-tab-view/-/react-native-tab-view-4.3.4.tgz#2e14d7d9d7ae0f496d3e0624eb35556092edb656"
+  integrity sha512-z8eXgVmfLx2aSMeppQkuZPbb2N00H76T7OwtGcZYua5g2h9AYBbkYrYN4rKY0wSl1g0YRQ+NS6LLVkxppGr68g==
+  dependencies:
+    use-latest-callback "^0.2.4"
 
 react-native-web@~0.21.4:
   version "0.21.4"

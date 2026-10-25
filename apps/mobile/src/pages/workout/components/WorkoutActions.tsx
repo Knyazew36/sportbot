@@ -7,7 +7,7 @@ import { Button } from '@/shared/ui/kit/Button';
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink';
 import { Icon } from '@/shared/ui/kit/Icon';
 import { StickyFooter } from '@/shared/ui/kit/Screen';
-import { Digits } from '@/shared/ui/kit/Typography';
+import { Digits, Text } from '@/shared/ui/kit/Typography';
 
 export type NextMode = 'skip' | 'next' | 'finish';
 
@@ -114,7 +114,7 @@ export const WorkoutActions = ({
       onPress={onNext}
       disabled={nextPending}
     >
-      <>{NEXT_LABEL[next]}</>
+      <><Text >{NEXT_LABEL[next]}</Text></>
       {next === 'skip' ? (
         <Icon as={SkipForward} className="size-6" />
       ) : (

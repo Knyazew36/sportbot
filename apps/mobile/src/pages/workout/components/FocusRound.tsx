@@ -11,6 +11,7 @@ import { Icon } from '@/shared/ui/kit/Icon';
 import { Digits, Poster, Text } from '@/shared/ui/kit/Typography';
 import { isTimed, type Measure, rangeText } from '@sportbot/api/lib/measure';
 
+import { useFocusSizes } from '../model/use-focus-sizes';
 import { FocusShell } from './FocusShell';
 
 const repsText = (min: number, max: number, measure: Measure) =>
@@ -27,6 +28,7 @@ type FocusRoundProps = {
 };
 
 export const FocusRound = ({ stopwatch, round, startedAt, burstKey, onFinish, onRestart, onCancel }: FocusRoundProps) => {
+  const sizes = useFocusSizes();
   const labels = supersetLabels(round.members);
   const label = (id: number) => labels[round.members.findIndex((e) => e.id === id)]!;
 
@@ -64,8 +66,8 @@ export const FocusRound = ({ stopwatch, round, startedAt, burstKey, onFinish, on
         </>
       }
     >
-      <Poster size="hero" numeric className={cn('text-[min(110px,26vw)]', stopwatch.paused && 'opacity-50')}>
-        <Digits fontSize={128}>{formatSeconds(stopwatch.elapsed)}</Digits>
+      <Poster size="hero" numeric style={sizes.roundClockStyle} className={cn(stopwatch.paused && 'opacity-50')}>
+        <Digits fontSize={sizes.roundClock}>{formatSeconds(stopwatch.elapsed)}</Digits>
       </Poster>
       <View
         className={cn(
@@ -79,7 +81,8 @@ export const FocusRound = ({ stopwatch, round, startedAt, burstKey, onFinish, on
           <Pressable
             onPress={togglePause}
             accessibilityLabel="Продолжить круг"
-            className="bg-primary text-primary-foreground pointer-events-auto flex size-[min(140px,20svh)] flex-col items-center justify-center rounded-full"
+            style={{ width: sizes.pauseButton, height: sizes.pauseButton }}
+            className="bg-primary text-primary-foreground pointer-events-auto flex flex-col items-center justify-center rounded-full"
           >
             <Icon as={Play} className="size-7" fill="currentColor" />
             <Poster size="xs" tone="inherit" className="mt-1.5">
