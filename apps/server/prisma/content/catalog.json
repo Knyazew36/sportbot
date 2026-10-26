@@ -7364,9 +7364,16 @@
         "Держи и смени сторону."
       ],
       "mistakes": [
-        "Давишь рукой на голову — наклоняй голову без нажима."
+        "Давишь рукой на голову — наклоняй голову без нажима.",
+        "Поднимаешь противоположное плечо — держи его опущенным."
       ],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Neck_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Neck_Stretch/1.jpg",
+      "feel": "боковая поверхность шеи и верх трапеции",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Side_Neck_Stretch",
+        "https://exercise-dataset.com/exercise/neck-side-stretch/"
+      ]
     },
     {
       "code": "traps-chin-down",
@@ -7385,7 +7392,12 @@
         "Мягко опусти подбородок к груди и держи."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Chin_To_Chest_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Chin_To_Chest_Stretch/1.jpg",
+      "feel": "задняя поверхность шеи и верх спины",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Chin_To_Chest_Stretch"
+      ]
     },
     {
       "code": "front-delt-behind",
@@ -7405,7 +7417,12 @@
         "Отведи их назад-вверх, раскрывая грудь, и держи."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Biceps_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Biceps_Stretch/1.jpg",
+      "feel": "передняя часть плеч и грудь",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Standing_Biceps_Stretch"
+      ]
     },
     {
       "code": "cross-body-shoulder",
@@ -7427,7 +7444,12 @@
       "mistakes": [
         "Поднимаешь плечо — держи его опущенным."
       ],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Shoulder_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Shoulder_Stretch/1.jpg",
+      "feel": "задняя часть плеча",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Shoulder_Stretch"
+      ]
     },
     {
       "code": "mid-delt-behind-back",
@@ -7445,7 +7467,9 @@
         "Мягко тяни в противоположную сторону, наклоняя туда же голову.",
         "Держи и смени руку."
       ],
-      "mistakes": []
+      "mistakes": [],
+      "feel": "боковая часть плеча",
+      "position": "STANDING"
     },
     {
       "code": "chest-wall",
@@ -7464,7 +7488,9 @@
         "Плавно разворачивай корпус от стены и держи.",
         "Смени сторону."
       ],
-      "mistakes": []
+      "mistakes": [],
+      "feel": "грудь и передняя часть плеча",
+      "position": "STANDING"
     },
     {
       "code": "chest-doorway",
@@ -7481,7 +7507,15 @@
         "Упрись предплечьями в косяки на уровне плеч.",
         "Подай корпус вперёд до растяжения груди и держи."
       ],
-      "mistakes": []
+      "mistakes": [
+        "Прогибаешь поясницу — держи рёбра опущенными.",
+        "Тянешь до боли — остановись на лёгком натяжении."
+      ],
+      "feel": "грудь и передняя часть плеч",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://exercise-dataset.com/exercise/doorway-chest-stretch/"
+      ]
     },
     {
       "code": "lats-hang",
@@ -7499,7 +7533,9 @@
         "Расслабь плечи и спину.",
         "Дыши ровно и держи."
       ],
-      "mistakes": []
+      "mistakes": [],
+      "feel": "широчайшие и предплечья",
+      "position": "STANDING"
     },
     {
       "code": "lats-side-bend",
@@ -7521,7 +7557,12 @@
       "mistakes": [
         "Заваливаешься на одно бедро — держи вес поровну на обеих ногах."
       ],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Lateral_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Lateral_Stretch/1.jpg",
+      "feel": "бок от таза до подмышки",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Standing_Lateral_Stretch"
+      ]
     },
     {
       "code": "child-pose",
@@ -7541,8 +7582,17 @@
         "Вытяни руки по полу, лоб опусти на пол.",
         "Тянись пальцами вперёд и держи."
       ],
-      "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Childs_Pose/1.jpg"
+      "mistakes": [
+        "Задерживаешь дыхание — расслабься и дыши ровно."
+      ],
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Childs_Pose/1.jpg",
+      "feel": "широчайшие и поясница",
+      "position": "KNEELING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Childs_Pose",
+        "https://exercise-dataset.com/exercise/childs-pose/",
+        "https://wger.de/exercise/1002/view-base"
+      ]
     },
     {
       "code": "biceps-wall",
@@ -7561,7 +7611,9 @@
         "Разворачивай корпус от руки и держи.",
         "Смени руку."
       ],
-      "mistakes": []
+      "mistakes": [],
+      "feel": "бицепс и передняя часть плеча",
+      "position": "STANDING"
     },
     {
       "code": "triceps-overhead",
@@ -7581,7 +7633,12 @@
         "Смени руку."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Triceps_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Triceps_Stretch/1.jpg",
+      "feel": "трицепс",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Triceps_Stretch"
+      ]
     },
     {
       "code": "forearm-flexor",
@@ -7598,7 +7655,12 @@
         "Второй рукой потяни пальцы вниз и на себя и держи.",
         "Смени руку."
       ],
-      "mistakes": []
+      "mistakes": [],
+      "feel": "внутренняя сторона предплечья",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://wger.de/exercise/2686/view-base"
+      ]
     },
     {
       "code": "forearm-extensor",
@@ -7616,7 +7678,12 @@
         "Второй рукой потяни её на себя и держи.",
         "Смени руку."
       ],
-      "mistakes": []
+      "mistakes": [],
+      "feel": "наружная сторона предплечья",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://wger.de/exercise/2686/view-base"
+      ]
     },
     {
       "code": "cobra",
@@ -7634,7 +7701,19 @@
         "Подними грудь, таз оставь на полу, и держи."
       ],
       "mistakes": [
-        "Запрокидываешь голову — держи шею продолжением спины."
+        "Запрокидываешь голову — держи шею продолжением спины.",
+        "Выпрямляешь руки через силу — держи локти чуть согнутыми.",
+        "Плечи поднимаются к ушам — опусти их."
+      ],
+      "image": "https://upload.wikimedia.org/wikipedia/commons/d/d2/Bhujangasana_zamkovoi.jpg",
+      "imageSource": "https://commons.wikimedia.org/wiki/File:Bhujangasana_zamkovoi.jpg",
+      "imageLicense": "CC BY-SA 4.0",
+      "imageAuthor": "Sezam777",
+      "feel": "пресс и передняя поверхность корпуса",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://exercise-dataset.com/exercise/cobra-stretch/",
+        "https://wger.de/exercise/1450/view-base"
       ]
     },
     {
@@ -7655,7 +7734,12 @@
         "Тянись вверх, слегка прогибаясь назад, и держи."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Overhead_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Overhead_Stretch/1.jpg",
+      "feel": "передняя и задняя поверхность корпуса",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Overhead_Stretch"
+      ]
     },
     {
       "code": "knees-to-chest",
@@ -7678,7 +7762,12 @@
       "mistakes": [
         "Держишь руки поверх коленей — обхватывай под коленями."
       ],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Hug_Knees_To_Chest/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Hug_Knees_To_Chest/1.jpg",
+      "feel": "поясница и ягодицы",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Hug_Knees_To_Chest"
+      ]
     },
     {
       "code": "cat-stretch",
@@ -7696,8 +7785,16 @@
         "Подтяни живот и округли спину вверх.",
         "Опусти подбородок к груди и задержись."
       ],
-      "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cat_Stretch/1.jpg"
+      "mistakes": [
+        "Задерживаешь дыхание — расслабься и дыши ровно."
+      ],
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Cat_Stretch/1.jpg",
+      "feel": "спина вдоль позвоночника",
+      "position": "KNEELING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Cat_Stretch",
+        "https://exercise-dataset.com/exercise/cat-stretch/"
+      ]
     },
     {
       "code": "lying-twist",
@@ -7720,7 +7817,12 @@
       "mistakes": [
         "Плечи отрываются от пола — опускай колено только пока плечи на полу."
       ],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Knee_Across_The_Body/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Knee_Across_The_Body/1.jpg",
+      "feel": "поясница и ягодица согнутой ноги",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Knee_Across_The_Body"
+      ]
     },
     {
       "code": "figure-four",
@@ -7739,8 +7841,15 @@
         "Возьмись за бедро нижней ноги и подтяни её к груди, держи.",
         "Смени сторону."
       ],
-      "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Ankle_On_The_Knee/1.jpg"
+      "mistakes": [
+        "Напрягаешь шею и плечи — расслабь их."
+      ],
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Ankle_On_The_Knee/1.jpg",
+      "feel": "ягодица ноги, лежащей сверху",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Ankle_On_The_Knee"
+      ]
     },
     {
       "code": "pigeon",
@@ -7759,7 +7868,19 @@
         "Опусти таз и наклонись корпусом к передней ноге, держи.",
         "Смени ногу."
       ],
-      "mistakes": []
+      "mistakes": [
+        "Таз заваливается на бок — держи его ровно, при необходимости подложи подушку под бедро."
+      ],
+      "image": "https://wger.de/media/exercise-images/1872/df982df1-512a-4eb9-acd9-68cc1c265df6.png",
+      "imageSource": "https://wger.de/exercise/1872/view-base",
+      "imageLicense": "CC BY-SA 4.0",
+      "imageAuthor": "Davidgj32",
+      "feel": "ягодица и наружная часть бедра передней ноги",
+      "position": "KNEELING",
+      "techniqueSources": [
+        "https://exercise-dataset.com/exercise/pigeon-stretch/",
+        "https://wger.de/exercise/1872/view-base"
+      ]
     },
     {
       "code": "quad-standing",
@@ -7777,7 +7898,19 @@
         "Подкрути таз вперёд и держи.",
         "Смени ногу."
       ],
-      "mistakes": []
+      "mistakes": [
+        "Колено уходит вперёд или в сторону — держи колени рядом."
+      ],
+      "image": "https://wger.de/media/exercise-images/1873/c0ed299b-6d87-4d90-885d-bb3b5d85f1eb.png",
+      "imageSource": "https://wger.de/exercise/1873/view-base",
+      "imageLicense": "CC BY-SA 4.0",
+      "imageAuthor": "Davidgj32",
+      "feel": "передняя поверхность бедра",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://exercise-dataset.com/exercise/standing-quad-stretch/",
+        "https://wger.de/exercise/1873/view-base"
+      ]
     },
     {
       "code": "couch-stretch",
@@ -7795,7 +7928,15 @@
         "Выпрями корпус, подкрути таз и держи.",
         "Смени ногу."
       ],
-      "mistakes": []
+      "mistakes": [
+        "Прогибаешь поясницу — напряги ягодицу задней ноги."
+      ],
+      "feel": "передняя поверхность бедра и сгибатели бедра задней ноги",
+      "position": "KNEELING",
+      "techniqueSources": [
+        "https://exercise-dataset.com/exercise/kneeling-hip-flexor-stretch/",
+        "https://wger.de/exercise/2525/view-base"
+      ]
     },
     {
       "code": "hamstring-forward-fold",
@@ -7817,7 +7958,12 @@
       "mistakes": [
         "Округляешь спину рывком — наклоняйся плавно от бёдер."
       ],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Toe_Touches/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Toe_Touches/1.jpg",
+      "feel": "задняя поверхность бёдер и поясница",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Standing_Toe_Touches"
+      ]
     },
     {
       "code": "hamstring-seated",
@@ -7836,7 +7982,12 @@
         "Смени ногу."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Floor_Hamstring_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Floor_Hamstring_Stretch/1.jpg",
+      "feel": "задняя поверхность бедра прямой ноги",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Seated_Floor_Hamstring_Stretch"
+      ]
     },
     {
       "code": "butterfly",
@@ -7853,7 +8004,17 @@
         "Локтями мягко дави на колени вниз.",
         "Держи спину прямой."
       ],
-      "mistakes": []
+      "mistakes": [],
+      "image": "https://upload.wikimedia.org/wikipedia/commons/6/64/Baddha_konasana.jpg",
+      "imageSource": "https://commons.wikimedia.org/wiki/File:Baddha_konasana.jpg",
+      "imageLicense": "CC BY-SA 3.0",
+      "imageAuthor": "Joseph RENGER",
+      "feel": "внутренняя поверхность бёдер",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://exercise-dataset.com/exercise/butterfly-stretch/",
+        "https://wger.de/exercise/1843/view-base"
+      ]
     },
     {
       "code": "side-lunge-stretch",
@@ -7872,7 +8033,9 @@
         "Вторую ногу держи прямой, стопа на полу, и держи.",
         "Смени сторону."
       ],
-      "mistakes": []
+      "mistakes": [],
+      "feel": "внутренняя поверхность бедра прямой ноги",
+      "position": "STANDING"
     },
     {
       "code": "calf-wall",
@@ -7895,7 +8058,12 @@
       "mistakes": [
         "Пятка отрывается от пола — прижми её."
       ],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Calf_Stretch_Hands_Against_Wall/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Calf_Stretch_Hands_Against_Wall/1.jpg",
+      "feel": "икра задней ноги",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Calf_Stretch_Hands_Against_Wall"
+      ]
     },
     {
       "code": "calf-step",
@@ -7912,7 +8080,15 @@
         "Опусти пятку вниз, колено прямое, и держи.",
         "Смени ногу."
       ],
-      "mistakes": []
+      "mistakes": [
+        "Носок смотрит в сторону — направь его вперёд."
+      ],
+      "feel": "икра",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://exercise-dataset.com/exercise/standing-calf-stretch/",
+        "https://wger.de/exercise/1239/view-base"
+      ]
     },
     {
       "code": "all-fours-quad",
@@ -7935,7 +8111,12 @@
       "mistakes": [
         "Прогибаешь поясницу — подай таз вниз, а не прогибайся."
       ],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/All_Fours_Quad_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/All_Fours_Quad_Stretch/1.jpg",
+      "feel": "передняя поверхность бедра и сгибатели бедра",
+      "position": "KNEELING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/All_Fours_Quad_Stretch"
+      ]
     },
     {
       "code": "calf-wall-elbows",
@@ -7956,7 +8137,12 @@
       "mistakes": [
         "Пятки отрываются от пола — подойди ближе к стене."
       ],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Calf_Stretch_Elbows_Against_Wall/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Calf_Stretch_Elbows_Against_Wall/1.jpg",
+      "feel": "икры",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Calf_Stretch_Elbows_Against_Wall"
+      ]
     },
     {
       "code": "bench-side-bend",
@@ -7979,7 +8165,12 @@
       "mistakes": [
         "Таз отрывается от скамьи — держи его на месте."
       ],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Chair_Lower_Back_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Chair_Lower_Back_Stretch/1.jpg",
+      "feel": "бок",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Chair_Lower_Back_Stretch"
+      ]
     },
     {
       "code": "bench-upper-body",
@@ -8000,7 +8191,12 @@
         "Выпрями руки и подай корпус вперёд с прямой спиной до растяжения в груди и плечах, держи."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Chair_Upper_Body_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Chair_Upper_Body_Stretch/1.jpg",
+      "feel": "грудь и передняя часть плеч",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Chair_Upper_Body_Stretch"
+      ]
     },
     {
       "code": "stick-overhead-chest",
@@ -8022,7 +8218,12 @@
       "mistakes": [
         "Прогибаешься в пояснице — отводи палку только пока корпус ровный."
       ],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Chest_And_Front_Of_Shoulder_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Chest_And_Front_Of_Shoulder_Stretch/1.jpg",
+      "feel": "грудь и передняя часть плеч",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Chest_And_Front_Of_Shoulder_Stretch"
+      ]
     },
     {
       "code": "chest-fitball",
@@ -8043,7 +8244,12 @@
         "Смени руку."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Chest_Stretch_on_Stability_Ball/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Chest_Stretch_on_Stability_Ball/1.jpg",
+      "feel": "грудь и передняя часть плеча",
+      "position": "KNEELING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Chest_Stretch_on_Stability_Ball"
+      ]
     },
     {
       "code": "seated-spinal-twist",
@@ -8065,7 +8271,12 @@
         "Смени сторону."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dancers_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Dancers_Stretch/1.jpg",
+      "feel": "поясница и ягодица согнутой ноги",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Dancers_Stretch"
+      ]
     },
     {
       "code": "elbows-back",
@@ -8085,7 +8296,12 @@
         "Плавно своди локти за спиной, раскрывая грудь, и держи."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Elbows_Back/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Elbows_Back/1.jpg",
+      "feel": "грудь и передняя часть плеч",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Elbows_Back"
+      ]
     },
     {
       "code": "lying-hamstring-strap",
@@ -8106,7 +8322,13 @@
         "Смени ногу."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Hamstring_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Hamstring_Stretch/1.jpg",
+      "feel": "задняя поверхность бедра и икра",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Hamstring_Stretch",
+        "https://wger.de/exercise/2688/view-base"
+      ]
     },
     {
       "code": "hug-fitball",
@@ -8125,8 +8347,15 @@
         "Поставь стопы на пол, колени над щиколотками.",
         "Обними мяч и расслабь спину, опуская таз вниз, держи."
       ],
-      "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Hug_A_Ball/1.jpg"
+      "mistakes": [
+        "Отпускаешь мяч — держи его крепко, иначе он укатится."
+      ],
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Hug_A_Ball/1.jpg",
+      "feel": "поясница",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Hug_A_Ball"
+      ]
     },
     {
       "code": "it-band-strap",
@@ -8148,7 +8377,12 @@
       "mistakes": [
         "Плечи отрываются от пола — уводи ногу только пока плечи на полу."
       ],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/IT_Band_and_Glute_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/IT_Band_and_Glute_Stretch/1.jpg",
+      "feel": "наружная поверхность бедра и ягодица",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/IT_Band_and_Glute_Stretch"
+      ]
     },
     {
       "code": "lying-groin-strap",
@@ -8171,7 +8405,12 @@
       "mistakes": [
         "Таз разворачивается — отводи ногу только пока таз ровный."
       ],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Intermediate_Groin_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Intermediate_Groin_Stretch/1.jpg",
+      "feel": "внутренняя и задняя поверхность бедра",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Intermediate_Groin_Stretch"
+      ]
     },
     {
       "code": "prone-quad-strap",
@@ -8191,7 +8430,12 @@
         "Смени ногу."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Intermediate_Hip_Flexor_and_Quad_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Intermediate_Hip_Flexor_and_Quad_Stretch/1.jpg",
+      "feel": "передняя поверхность бедра и сгибатели бедра",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Intermediate_Hip_Flexor_and_Quad_Stretch"
+      ]
     },
     {
       "code": "kneeling-forearm",
@@ -8210,7 +8454,12 @@
         "Плавно отклоняйся назад, не отрывая ладони, до растяжения и держи."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Kneeling_Forearm_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Kneeling_Forearm_Stretch/1.jpg",
+      "feel": "запястья и предплечья",
+      "position": "KNEELING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Kneeling_Forearm_Stretch"
+      ]
     },
     {
       "code": "kneeling-hip-flexor",
@@ -8230,7 +8479,12 @@
         "Смени ногу."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Kneeling_Hip_Flexor/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Kneeling_Hip_Flexor/1.jpg",
+      "feel": "передняя часть бедра задней ноги",
+      "position": "KNEELING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Kneeling_Hip_Flexor"
+      ]
     },
     {
       "code": "leg-up-hamstring",
@@ -8250,7 +8504,12 @@
         "Смени ногу."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg-Up_Hamstring_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg-Up_Hamstring_Stretch/1.jpg",
+      "feel": "задняя поверхность бедра поднятой ноги",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Leg-Up_Hamstring_Stretch"
+      ]
     },
     {
       "code": "kneeling-backbend",
@@ -8272,7 +8531,12 @@
       "mistakes": [
         "Дискомфорт в пояснице — уменьши прогиб."
       ],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Looking_At_Ceiling/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Looking_At_Ceiling/1.jpg",
+      "feel": "передняя поверхность бёдер и пресс",
+      "position": "KNEELING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Looking_At_Ceiling"
+      ]
     },
     {
       "code": "standing-twist",
@@ -8294,7 +8558,12 @@
       "mistakes": [
         "Таз поворачивается вместе с корпусом — держи таз на месте."
       ],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Middle_Back_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Middle_Back_Stretch/1.jpg",
+      "feel": "поясница и косые мышцы живота",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Middle_Back_Stretch"
+      ]
     },
     {
       "code": "bench-quad",
@@ -8316,7 +8585,12 @@
       "mistakes": [
         "Прогибаешь поясницу — подтяни пупок к позвоночнику."
       ],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/On-Your-Back_Quad_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/On-Your-Back_Quad_Stretch/1.jpg",
+      "feel": "передняя поверхность бедра",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/On-Your-Back_Quad_Stretch"
+      ]
     },
     {
       "code": "side-lying-quad",
@@ -8336,7 +8610,12 @@
         "Смени сторону."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/On_Your_Side_Quad_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/On_Your_Side_Quad_Stretch/1.jpg",
+      "feel": "передняя поверхность бедра и сгибатели бедра",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/On_Your_Side_Quad_Stretch"
+      ]
     },
     {
       "code": "half-locust",
@@ -8358,7 +8637,12 @@
         "Смени сторону."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/One_Half_Locust/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/One_Half_Locust/1.jpg",
+      "feel": "передняя поверхность бедра, грудь и плечи",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/One_Half_Locust"
+      ]
     },
     {
       "code": "one-hand-hang",
@@ -8379,7 +8663,12 @@
         "Смени руку."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/One_Handed_Hang/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/One_Handed_Hang/1.jpg",
+      "feel": "широчайшая и бицепс",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/One_Handed_Hang"
+      ]
     },
     {
       "code": "one-knee-to-chest",
@@ -8400,7 +8689,12 @@
         "Смени ногу."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/One_Knee_To_Chest/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/One_Knee_To_Chest/1.jpg",
+      "feel": "ягодица и поясница согнутой ноги",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/One_Knee_To_Chest"
+      ]
     },
     {
       "code": "pyramid-fitball",
@@ -8420,7 +8714,12 @@
         "Расслабь спину и шею и держи."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Pyramid/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Pyramid/1.jpg",
+      "feel": "поясница и широчайшие",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Pyramid"
+      ]
     },
     {
       "code": "side-lying-quad-strap",
@@ -8440,7 +8739,13 @@
         "Смени сторону."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Quad_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Quad_Stretch/1.jpg",
+      "feel": "передняя поверхность бедра",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Quad_Stretch",
+        "https://wger.de/exercise/1873/view-base"
+      ]
     },
     {
       "code": "stick-behind-back",
@@ -8463,7 +8768,12 @@
         "Наклоняешься вперёд — стой прямо.",
         "Поднимаешь через силу — остановись там, где становится тяжело."
       ],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Round_The_World_Shoulder_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Round_The_World_Shoulder_Stretch/1.jpg",
+      "feel": "передняя часть плеч и грудь",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Round_The_World_Shoulder_Stretch"
+      ]
     },
     {
       "code": "runners-stretch",
@@ -8486,7 +8796,12 @@
       "mistakes": [
         "Пятка передней ноги отрывается — отставь заднюю ногу дальше."
       ],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Runners_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Runners_Stretch/1.jpg",
+      "feel": "задняя поверхность передней ноги и сгибатели бедра задней",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Runners_Stretch"
+      ]
     },
     {
       "code": "seated-calf",
@@ -8507,7 +8822,12 @@
         "Смени ногу."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Calf_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Calf_Stretch/1.jpg",
+      "feel": "икра и задняя поверхность бедра прямой ноги",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Seated_Calf_Stretch"
+      ]
     },
     {
       "code": "seated-hamstring-strap",
@@ -8528,7 +8848,12 @@
         "Смени ногу."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Hamstring_and_Calf_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Hamstring_and_Calf_Stretch/1.jpg",
+      "feel": "задняя поверхность бедра и икра",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Seated_Hamstring_and_Calf_Stretch"
+      ]
     },
     {
       "code": "seated-side-bend",
@@ -8549,7 +8874,12 @@
         "Смени сторону."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Overhead_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Overhead_Stretch/1.jpg",
+      "feel": "бок",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Seated_Overhead_Stretch"
+      ]
     },
     {
       "code": "side-lying-reach",
@@ -8570,7 +8900,12 @@
         "Смени сторону."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side-Lying_Floor_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side-Lying_Floor_Stretch/1.jpg",
+      "feel": "весь бок",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Side-Lying_Floor_Stretch"
+      ]
     },
     {
       "code": "side-lying-groin",
@@ -8591,7 +8926,12 @@
         "Смени сторону."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Lying_Groin_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Lying_Groin_Stretch/1.jpg",
+      "feel": "внутренняя и задняя поверхность бедра",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Side_Lying_Groin_Stretch"
+      ]
     },
     {
       "code": "side-wrist-pull",
@@ -8614,7 +8954,12 @@
       "mistakes": [
         "Сильно тянешь плечо — тяни мягко, растяжение в спине."
       ],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Wrist_Pull/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Wrist_Pull/1.jpg",
+      "feel": "спина под лопаткой",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Side_Wrist_Pull"
+      ]
     },
     {
       "code": "bench-quad-standing",
@@ -8637,7 +8982,12 @@
       "mistakes": [
         "Опорное колено выходит за носок — держи его над стопой."
       ],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Elevated_Quad_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Elevated_Quad_Stretch/1.jpg",
+      "feel": "передняя поверхность бедра",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Standing_Elevated_Quad_Stretch"
+      ]
     },
     {
       "code": "calf-heel-on-step",
@@ -8658,7 +9008,12 @@
         "Смени ногу."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Gastrocnemius_Calf_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Gastrocnemius_Calf_Stretch/1.jpg",
+      "feel": "икра и задняя поверхность бедра",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Standing_Gastrocnemius_Calf_Stretch"
+      ]
     },
     {
       "code": "standing-hamstring-strap",
@@ -8679,7 +9034,12 @@
         "Смени ногу."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Hamstring_and_Calf_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Hamstring_and_Calf_Stretch/1.jpg",
+      "feel": "задняя поверхность бедра и икра передней ноги",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Standing_Hamstring_and_Calf_Stretch"
+      ]
     },
     {
       "code": "standing-hip-flexor",
@@ -8699,7 +9059,12 @@
         "Смени ногу."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Hip_Flexors/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Hip_Flexors/1.jpg",
+      "feel": "сгибатели бедра задней ноги",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Standing_Hip_Flexors"
+      ]
     },
     {
       "code": "standing-pelvic-tilt",
@@ -8719,7 +9084,12 @@
         "Подкрути копчик вперёд и удержи, вытягивая поясницу."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Pelvic_Tilt/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Pelvic_Tilt/1.jpg",
+      "feel": "поясница",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Standing_Pelvic_Tilt"
+      ]
     },
     {
       "code": "soleus-stretch",
@@ -8741,7 +9111,12 @@
       "mistakes": [
         "Задняя пятка отрывается — прижми её к полу."
       ],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Soleus_And_Achilles_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Soleus_And_Achilles_Stretch/1.jpg",
+      "feel": "низ икры и ахилл",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Standing_Soleus_And_Achilles_Stretch"
+      ]
     },
     {
       "code": "straddle",
@@ -8761,7 +9136,12 @@
         "Наклоняйся вперёд с прямой спиной и держи."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/The_Straddle/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/The_Straddle/1.jpg",
+      "feel": "задняя и внутренняя поверхность бёдер",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/The_Straddle"
+      ]
     },
     {
       "code": "triceps-cross-shoulder",
@@ -8782,7 +9162,12 @@
         "Смени руку."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Tricep_Side_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Tricep_Side_Stretch/1.jpg",
+      "feel": "трицепс",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Tricep_Side_Stretch"
+      ]
     },
     {
       "code": "seated-thigh-hug",
@@ -8803,7 +9188,12 @@
         "Округли спину вверх, не отпуская руки, и держи."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Upper_Back-Leg_Grab/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Upper_Back-Leg_Grab/1.jpg",
+      "feel": "верх и середина спины",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Upper_Back-Leg_Grab"
+      ]
     },
     {
       "code": "upper-back-reach",
@@ -8823,7 +9213,12 @@
         "Округли верх спины, разводя лопатки, и держи."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Upper_Back_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Upper_Back_Stretch/1.jpg",
+      "feel": "верх спины между лопатками",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Upper_Back_Stretch"
+      ]
     },
     {
       "code": "upward-reach",
@@ -8844,7 +9239,12 @@
       "mistakes": [
         "Выпячиваешь рёбра — держи спину прямой."
       ],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Upward_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Upward_Stretch/1.jpg",
+      "feel": "бока и плечи",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Upward_Stretch"
+      ]
     },
     {
       "code": "lats-wall",
@@ -8864,7 +9264,12 @@
         "Смени сторону."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/One_Arm_Against_Wall/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/One_Arm_Against_Wall/1.jpg",
+      "feel": "широчайшая",
+      "position": "STANDING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/One_Arm_Against_Wall"
+      ]
     },
     {
       "code": "adductor-roll",
@@ -8885,7 +9290,11 @@
         "Смени ногу."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Adductor/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Adductor/1.jpg",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Adductor"
+      ]
     },
     {
       "code": "tibialis-roll",
@@ -8907,7 +9316,11 @@
       "mistakes": [
         "Катаешь по кости — катай только мышцы снаружи от неё."
       ],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Anterior_Tibialis-SMR/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Anterior_Tibialis-SMR/1.jpg",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Anterior_Tibialis-SMR"
+      ]
     },
     {
       "code": "brachialis-roll",
@@ -8927,7 +9340,11 @@
         "Смени руку."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Brachialis-SMR/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Brachialis-SMR/1.jpg",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Brachialis-SMR"
+      ]
     },
     {
       "code": "calf-roll",
@@ -8950,7 +9367,11 @@
       "mistakes": [
         "Заезжаешь под колено — останавливайся ниже подколенной ямки."
       ],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Calves-SMR/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Calves-SMR/1.jpg",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Calves-SMR"
+      ]
     },
     {
       "code": "foot-roll",
@@ -8970,7 +9391,11 @@
         "Смени ногу."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Foot-SMR/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Foot-SMR/1.jpg",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Foot-SMR"
+      ]
     },
     {
       "code": "hamstring-roll",
@@ -8990,7 +9415,11 @@
         "Смени ногу."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Hamstring-SMR/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Hamstring-SMR/1.jpg",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Hamstring-SMR"
+      ]
     },
     {
       "code": "it-band-roll",
@@ -9011,7 +9440,11 @@
         "Смени ногу."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Iliotibial_Tract-SMR/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Iliotibial_Tract-SMR/1.jpg",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Iliotibial_Tract-SMR"
+      ]
     },
     {
       "code": "lat-roll",
@@ -9031,7 +9464,11 @@
         "Смени сторону."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Latissimus_Dorsi-SMR/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Latissimus_Dorsi-SMR/1.jpg",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Latissimus_Dorsi-SMR"
+      ]
     },
     {
       "code": "lower-back-roll",
@@ -9053,7 +9490,11 @@
       "mistakes": [
         "Катаешь по позвоночнику — смести вес на мышцы сбоку от него."
       ],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Lower_Back-SMR/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Lower_Back-SMR/1.jpg",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Lower_Back-SMR"
+      ]
     },
     {
       "code": "neck-roll",
@@ -9074,7 +9515,11 @@
       "mistakes": [
         "Давишь на позвоночник — разверни ролл на мышцы сбоку."
       ],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Neck-SMR/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Neck-SMR/1.jpg",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Neck-SMR"
+      ]
     },
     {
       "code": "peroneal-roll",
@@ -9094,7 +9539,11 @@
         "Смени ногу."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Peroneals-SMR/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Peroneals-SMR/1.jpg",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Peroneals-SMR"
+      ]
     },
     {
       "code": "peroneal-strap",
@@ -9113,7 +9562,12 @@
         "Смени ногу."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Peroneals_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Peroneals_Stretch/1.jpg",
+      "feel": "наружная сторона голени",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Peroneals_Stretch"
+      ]
     },
     {
       "code": "piriformis-roll",
@@ -9133,7 +9587,12 @@
         "Смени сторону."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Piriformis-SMR/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Piriformis-SMR/1.jpg",
+      "feel": "верх ягодицы",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Piriformis-SMR"
+      ]
     },
     {
       "code": "tibialis-strap",
@@ -9152,7 +9611,12 @@
         "Смени ногу."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Posterior_Tibialis_Stretch/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Posterior_Tibialis_Stretch/1.jpg",
+      "feel": "внутренняя сторона голени",
+      "position": "SITTING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Posterior_Tibialis_Stretch"
+      ]
     },
     {
       "code": "quad-roll",
@@ -9172,7 +9636,11 @@
         "Смени ногу."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Quadriceps-SMR/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Quadriceps-SMR/1.jpg",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Quadriceps-SMR"
+      ]
     },
     {
       "code": "rhomboid-roll",
@@ -9192,7 +9660,11 @@
         "Смещай вес то на одну, то на другую сторону."
       ],
       "mistakes": [],
-      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Rhomboids-SMR/1.jpg"
+      "imageEnd": "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Rhomboids-SMR/1.jpg",
+      "position": "LYING",
+      "techniqueSources": [
+        "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Rhomboids-SMR"
+      ]
     },
     {
       "code": "leg-swing-90-90",

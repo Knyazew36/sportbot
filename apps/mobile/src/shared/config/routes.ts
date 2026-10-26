@@ -18,6 +18,8 @@ export const ROUTES = {
   TODAY: '/today',
   PROGRAMS: '/programs',
   LIBRARY: '/library',
+  // Свои записи — в стеке справочника: «Назад» возвращает на вкладку, с которой ушли
+  LIBRARY_MINE: '/library/mine',
   EXERCISE: '/library/exercises/[exerciseId]',
   STATS: '/stats',
   STATS_WORKOUT: '/stats/workouts/[workoutId]',

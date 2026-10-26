@@ -55,7 +55,6 @@ const TemplatePage = () => {
             <ButtonLink
               to={users ? `${ROUTES.PROGRAM_TEMPLATES}?${SOURCE_PARAM}=users` : ROUTES.PROGRAM_TEMPLATES}
               variant='outline'
-              size='sm'
             >
               В каталог
             </ButtonLink>

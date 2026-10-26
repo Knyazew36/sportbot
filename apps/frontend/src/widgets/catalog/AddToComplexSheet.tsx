@@ -1,11 +1,7 @@
-import { CheckIcon } from 'lucide-react'
-
 import { EXERCISE_FORMS } from '@/shared/lib/plural-forms'
 import { pluralize } from '@front-cmdt/utils/pluralize'
-import { useState } from 'react'
 
 import { OptionButton } from '@/shared/ui/kit/OptionButton'
-import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'
 
 type ComplexOption = { id: number; letter: string; title: string; count: number }
@@ -13,70 +9,40 @@ type ComplexOption = { id: number; letter: string; title: string; count: number 
 type AddToComplexSheetProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  exercise: string
   program: string
   complexes: ComplexOption[]
-  /** Комплекс выбран: сообщение «Добавлено» — когда промис выполнится */
+  /** Комплекс выбран: шторка закроется, когда промис выполнится */
   onPick: (complexId: number) => Promise<unknown> | void
 }
 
-// «Добавить в комплекс» из карточки упражнения: выбор комплекса активной программы (frontend-tz, 11.2)
-export const AddToComplexSheet = ({
-  open,
-  onOpenChange,
-  exercise,
-  program,
-  complexes,
-  onPick,
-}: AddToComplexSheetProps) => {
-  const [added, setAdded] = useState<number | null>(null)
-  const target = complexes.find(c => c.id === added)
-
-  return (
-    <Sheet
-      open={open}
-      onOpenChange={next => {
-        onOpenChange(next)
-        if (!next) setAdded(null)
-      }}
-    >
-      <SheetContent>
-        <SheetHeader>
-          <SheetTitle>{target ? 'Добавлено' : 'В какую тренировку?'}</SheetTitle>
-          <SheetDescription>
-            {target
-              ? `«${exercise}» — в конце тренировки «${target.title}». Подходы можно поправить в редакторе программы.`
-              : program}
-          </SheetDescription>
-        </SheetHeader>
-        <div className='px-gutter flex flex-col gap-2 pb-6'>
-          {target ? (
-            <Button
-              variant='outline'
-              className='w-full'
-              onClick={() => onOpenChange(false)}
-            >
-              <CheckIcon strokeWidth={3} />
-              Готово
-            </Button>
-          ) : (
-            complexes.map(c => (
-              <OptionButton
-                key={c.id}
-                mark={c.letter}
-                title={c.title}
-                meta={`${pluralize(c.count, EXERCISE_FORMS)}`}
-                onClick={() =>
-                  Promise.resolve(onPick(c.id))
-                    .then(() => setAdded(c.id))
-                    // Ошибку уже показал общий тост — шторка остаётся на выборе
-                    .catch(() => undefined)
-                }
-              />
-            ))
-          )}
-        </div>
-      </SheetContent>
-    </Sheet>
-  )
-}
+// «Добавить в комплекс» из карточки упражнения: выбор комплекса активной программы (frontend-tz, 11.2).
+// Об успехе говорит общий тост мутации — отдельный экран «Добавлено» в шторке не нужен
+export const AddToComplexSheet = ({ open, onOpenChange, program, complexes, onPick }: AddToComplexSheetProps) => (
+  <Sheet
+    open={open}
+    onOpenChange={onOpenChange}
+  >
+    <SheetContent>
+      <SheetHeader>
+        <SheetTitle>В какую тренировку?</SheetTitle>
+        <SheetDescription>{program}</SheetDescription>
+      </SheetHeader>
+      <div className='px-gutter flex flex-col gap-2 pb-6'>
+        {complexes.map(c => (
+          <OptionButton
+            key={c.id}
+            mark={c.letter}
+            title={c.title}
+            meta={`${pluralize(c.count, EXERCISE_FORMS)}`}
+            onClick={() =>
+              Promise.resolve(onPick(c.id))
+                .then(() => onOpenChange(false))
+                // Ошибку уже показал общий тост — шторка остаётся на выборе
+                .catch(() => undefined)
+            }
+          />
+        ))}
+      </div>
+    </SheetContent>
+  </Sheet>
+)

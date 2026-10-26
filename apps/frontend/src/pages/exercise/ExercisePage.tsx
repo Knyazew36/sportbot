@@ -88,7 +88,6 @@ const ExercisePage = () => {
                 <AddToComplexSheet
                   open={addOpen}
                   onOpenChange={setAddOpen}
-                  exercise={e.name}
                   program={program.data.name}
                   complexes={program.data.complexes.map((c, i) => ({
                     id: c.id,

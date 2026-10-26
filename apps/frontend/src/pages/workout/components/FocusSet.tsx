@@ -56,8 +56,6 @@ export const FocusSet = ({
   <FocusShell
     title={title}
     startedAt={startedAt}
-    status={stopwatch.paused ? 'пауза — время подхода стоит' : undefined}
-    alert={stopwatch.paused}
     sets={{ number: setNumber, done: setNumber - 1, planned: plannedSets }}
     actions={
       <>

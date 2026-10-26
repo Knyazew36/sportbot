@@ -1,8 +1,13 @@
 import type { ReactNode } from 'react';
-import { RefreshControl, ScrollView, View } from 'react-native';
+import { RefreshControl, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { withUniwind } from 'uniwind';
 
 import { cn } from '@/shared/lib/utils';
+
+// Поле в фокусе само докручивается над клавиатурой. className доходят до стилей только через withUniwind
+const AwareScroll = withUniwind(KeyboardAwareScrollView);
 
 type ScreenProps = {
   header?: ReactNode;
@@ -44,8 +49,9 @@ export const Screen = ({
     <View className="bg-background flex-1" style={{ paddingTop: insets.top }}>
       {header}
       {scroll ? (
-        <ScrollView
+        <AwareScroll
           className="flex-1"
+          bottomOffset={32}
           contentContainerClassName={content}
           contentContainerStyle={{ paddingBottom: 32 + bottom }}
           keyboardShouldPersistTaps="handled"
@@ -61,7 +67,7 @@ export const Screen = ({
           }
         >
           {children}
-        </ScrollView>
+        </AwareScroll>
       ) : (
         <View className={cn('flex-1', content)} style={{ paddingBottom: 32 + bottom }}>
           {children}

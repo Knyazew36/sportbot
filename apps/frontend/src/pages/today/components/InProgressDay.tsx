@@ -6,7 +6,7 @@ import { useIsOnline } from '@/shared/api'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { StatGrid } from '@/shared/ui/kit/StatGrid'
-import { Eyebrow, Lead, Poster } from '@/shared/ui/kit/Typography'
+import { Lead, Poster } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
 import { WeekStreak } from './WeekStreak'
@@ -24,13 +24,7 @@ export const InProgressDay = ({ day }: { day: DayToday }) => {
   return (
     <>
       <Rise className='px-gutter'>
-        <Eyebrow
-          as='p'
-          tone='primary'
-        >
-          Тренировка идёт
-        </Eyebrow>
-        <Lead className='mt-4'>сейчас —</Lead>
+        <Lead>сейчас —</Lead>
         <Poster
           as='h1'
           size='4xl'

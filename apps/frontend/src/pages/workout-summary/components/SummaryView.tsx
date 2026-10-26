@@ -7,7 +7,6 @@ import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { Screen, StickyFooter } from '@/shared/ui/kit/Screen'
 import { ScreenHeader } from '@/shared/ui/kit/ScreenHeader'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
-import { cn } from '@/shared/lib/utils'
 import { WorkoutRecords } from '@/widgets/workout-records/WorkoutRecords'
 import { SummaryTiming } from '@/widgets/workout-summary/SummaryTiming'
 import { WorkoutProtocol } from '@/widgets/workout-summary/WorkoutProtocol'
@@ -31,28 +30,26 @@ export const SummaryView = ({ summary }: { summary: WorkoutSummary }) => {
       }
       footer={
         // Поделиться — главное действие итога: карточка уходит из бота в любой чат
-        <StickyFooter className='block'>
-          <div className={cn('grid gap-2', counted ? 'grid-cols-2' : 'grid-cols-1')}>
-            {counted && (
-              <ShareWorkoutButton
-                workoutId={summary.workoutId}
-                size='lg'
-                className='min-w-0 px-3'
-              />
-            )}
-            <ButtonLink
-              to={ROUTES.TODAY}
-              variant='outline'
+        // «Домой» — по ширине надписи, «Поделиться» забирает всё остальное место
+        <StickyFooter className='flex-nowrap'>
+          {counted && (
+            <ShareWorkoutButton
+              workoutId={summary.workoutId}
               size='lg'
-              className='min-w-0 px-3'
-            >
-              Домой
-              <ArrowRightIcon
-                className='size-6'
-                strokeWidth={2.5}
-              />
-            </ButtonLink>
-          </div>
+              className='min-w-0 flex-1 px-3'
+            />
+          )}
+          <ButtonLink
+            to={ROUTES.TODAY}
+            variant='outline'
+            size='lg'
+          >
+            Домой
+            <ArrowRightIcon
+              className='size-6'
+              strokeWidth={2.5}
+            />
+          </ButtonLink>
         </StickyFooter>
       }
     >

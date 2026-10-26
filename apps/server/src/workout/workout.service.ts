@@ -928,6 +928,15 @@ export class WorkoutService {
   ): Promise<WorkoutFull> {
     const userId = profile.userId;
     const complex = await this.programs.findComplex(userId, complexId);
+    // Детальную без упражнений вести нечем; простая (вечернее «да») просто отмечает день
+    if (mode === 'DETAILED' && !complex.exercises.length) {
+      this.logger.warn(
+        `Старт пустого комплекса отклонён: userId=${userId}, complexId=${complexId}`,
+      );
+      throw new BadRequestException(
+        'В тренировке нет упражнений — добавь их в программе.',
+      );
+    }
     const workout = await this.prisma.workout.create({
       data: {
         userId,

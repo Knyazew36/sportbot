@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { View } from 'react-native';
 import type { LucideIcon } from 'lucide-react-native';
 import { Play, Pause } from 'lucide-react-native';
 
-import { formatSeconds } from '@/shared/lib/hooks/use-deadline-timer';
+import { formatSeconds, useDeadlineTimer } from '@/shared/lib/hooks/use-deadline-timer';
 import { Button } from '@/shared/ui/kit/Button';
 import { Icon } from '@/shared/ui/kit/Icon';
 import { Ring } from '@/shared/ui/kit/Ring';
@@ -27,39 +27,24 @@ type HoldControlsProps = {
 // Низ экрана удержания растяжки: таймер вокруг кнопки паузы и два перехода по бокам.
 // В заминке отсчёт ждёт нажатия: сначала прочитать, как встать, и только потом держать
 export const HoldControls = ({ holdSeconds, side, back, next, onEnd, autoStart = false }: HoldControlsProps) => {
-  const [started, setStarted] = useState(autoStart);
-  const [paused, setPaused] = useState(!autoStart);
-  const [left, setLeft] = useState(holdSeconds);
-  const over = left <= 0;
-  const endedRef = useRef(false);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Отсчёт от отметки времени: на паузе кольцо замирает ровно там, где стояло
+  const timer = useDeadlineTimer({ onEnd });
+  const started = timer.status !== 'idle';
+  const paused = timer.status !== 'running';
+  const over = timer.status === 'running' && timer.left <= 0;
 
+  // «Попробовать» в карточке растяжки: человек уже нажал старт
+  const autoStarted = useRef(false);
   useEffect(() => {
-    if (over || endedRef.current) return;
-    if (!started || paused) return;
-
-    intervalRef.current = setInterval(() => {
-      setLeft((prev) => {
-        const nextLeft = prev - 0.25;
-        if (nextLeft <= 0) {
-          if (!endedRef.current) {
-            endedRef.current = true;
-            onEnd?.();
-          }
-          return 0;
-        }
-        return nextLeft;
-      });
-    }, 250);
-
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [started, paused, over, onEnd]);
+    if (!autoStart || autoStarted.current) return;
+    autoStarted.current = true;
+    timer.start(holdSeconds);
+  }, [autoStart, holdSeconds, timer]);
 
   const toggle = () => {
-    setStarted(true);
-    setPaused((p) => !p);
+    if (timer.status === 'idle') timer.start(holdSeconds);
+    else if (timer.status === 'running') timer.pause();
+    else timer.resume();
   };
 
   const timerSize = 120;
@@ -81,8 +66,7 @@ export const HoldControls = ({ holdSeconds, side, back, next, onEnd, autoStart =
           variant="outline"
           size="sm"
           onPress={back.onPress}
-          className="h-14 flex-col gap-0.5 px-3"
-          contentClassName="flex-col gap-0.5"
+          contentClassName="h-14 flex-col gap-0.5 px-3"
         >
           <Icon as={back.icon} strokeWidth={2.5} className="size-5" />
           <Eyebrow>{back.label}</Eyebrow>
@@ -90,7 +74,12 @@ export const HoldControls = ({ holdSeconds, side, back, next, onEnd, autoStart =
 
         <Pressable onPress={toggle} accessibilityRole="button" accessibilityLabel={paused ? 'Старт' : 'Пауза'}>
           <View className="relative items-center justify-center">
-            <Ring value={over ? 1 : Math.min(1, Math.max(0, left / holdSeconds))} size={timerSize} stroke={8} />
+            <Ring
+              value={over || !started ? 1 : timer.fraction}
+              sweep={over ? undefined : timer.sweep}
+              size={timerSize}
+              stroke={8}
+            />
             <View className="absolute">
               {over ? (
                 <Poster size="xl" numeric>
@@ -100,7 +89,7 @@ export const HoldControls = ({ holdSeconds, side, back, next, onEnd, autoStart =
                 <View className="items-center">
                   <Icon as={paused ? Play : Pause} strokeWidth={2.5} className="size-6" />
                   <Poster size="sm" numeric>
-                    {formatSeconds(Math.ceil(left))}
+                    {formatSeconds(started ? timer.left : holdSeconds)}
                   </Poster>
                 </View>
               )}
@@ -112,8 +101,7 @@ export const HoldControls = ({ holdSeconds, side, back, next, onEnd, autoStart =
           variant={over ? 'default' : 'outline'}
           size="sm"
           onPress={next.onPress}
-          className="h-14 flex-col gap-0.5 px-3"
-          contentClassName="flex-col gap-0.5"
+          contentClassName="h-14 flex-col gap-0.5 px-3"
         >
           <Icon as={next.icon} strokeWidth={2.5} className="size-5" />
           <Eyebrow>{next.label}</Eyebrow>

@@ -1,13 +1,16 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Appearance, useColorScheme } from 'react-native';
 import { NavigationBar } from 'expo-navigation-bar';
+import { DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { setBackgroundColorAsync } from 'expo-system-ui';
 import { Uniwind, useCSSVariable } from 'uniwind';
 
 import { storage } from '@/shared/lib/storage';
 
+import { ThemeTransitionView } from './ThemeTransitionView';
 import { themeName, type Palette, type Scheme, type ThemeChoice } from './tokens';
+import { useThemeTransition } from './use-theme-transition';
 
 const PALETTE_KEY = 'theme:palette';
 const CHOICE_KEY = 'theme:choice';
@@ -58,7 +61,8 @@ const readChoice = (): ThemeChoice => {
 };
 
 // Своя схема ставится и системе приложения: нативные шторки, алерты и клавиатура должны совпадать с экраном
-const applyChoice = (choice: ThemeChoice) => Appearance.setColorScheme(choice === 'auto' ? 'unspecified' : choice);
+// На вебе setColorScheme нет — превью в браузере иначе падает на старте
+const applyChoice = (choice: ThemeChoice) => Appearance.setColorScheme?.(choice === 'auto' ? 'unspecified' : choice);
 
 // Тему ставим до первой отрисовки: иначе экран мигнёт синей светлой, пока не сработает эффект
 applyChoice(readChoice());
@@ -70,6 +74,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const systemScheme = useColorScheme();
   const scheme: Scheme = choice === 'auto' ? (systemScheme === 'dark' ? 'dark' : 'light') : choice;
   const [palette, setPaletteState] = useState<Palette>(readPalette);
+  const { transition, ...transitionView } = useThemeTransition();
 
   useEffect(() => {
     Uniwind.setTheme(themeName(palette, scheme));
@@ -90,18 +95,42 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
       scheme,
       palette,
       setPalette: (next: Palette) => {
-        storage.set(PALETTE_KEY, next);
-        setPaletteState(next);
+        if (next === palette) return;
+        transition(() => {
+          storage.set(PALETTE_KEY, next);
+          setPaletteState(next);
+        });
       },
       choice,
       setChoice: (next: ThemeChoice) => {
-        storage.set(CHOICE_KEY, next);
-        applyChoice(next);
-        setChoiceState(next);
+        if (next === choice) return;
+        transition(() => {
+          storage.set(CHOICE_KEY, next);
+          applyChoice(next);
+          setChoiceState(next);
+        });
       },
     }),
-    [colors, scheme, palette, choice],
+    [colors, scheme, palette, choice, transition],
   );
+
+  // Тема навигатора: без неё под экранами при переходе мелькает светлый фон react-navigation по умолчанию
+  const navigationTheme = useMemo(() => {
+    const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
+    return {
+      ...base,
+      dark: scheme === 'dark',
+      colors: {
+        ...base.colors,
+        primary: colors.blue,
+        background: colors.paper,
+        card: colors.paper,
+        text: colors.ink,
+        border: colors.rule,
+        notification: colors.danger,
+      },
+    };
+  }, [scheme, colors]);
 
   // Фон системных поверхностей (подложка статус-бара, свитчер приложений) — цвет бумаги темы
   useEffect(() => {
@@ -112,7 +141,9 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     <ThemeContext.Provider value={value}>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
       <NavigationBar style={scheme === 'dark' ? 'dark' : 'light'} />
-      {children}
+      <NavigationThemeProvider value={navigationTheme}>
+        <ThemeTransitionView {...transitionView}>{children}</ThemeTransitionView>
+      </NavigationThemeProvider>
     </ThemeContext.Provider>
   );
 };

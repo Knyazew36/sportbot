@@ -196,10 +196,11 @@ export const ComplexEditor = ({ complex, actions, addExerciseTo }: ComplexEditor
             Пока пусто. Добавь упражнения — у каждого задашь подходы и повторы, например 3 × 8–12.
           </Text>
         )}
-        <div className='grid grid-cols-2 gap-2'>
+        <div className='flex gap-2'>
           <ButtonLink
             to={addExerciseTo}
             variant={ids.length ? 'outline' : 'default'}
+            className='flex-1'
           >
             <PlusIcon strokeWidth={2.5} />
             Упражнения
@@ -207,6 +208,7 @@ export const ComplexEditor = ({ complex, actions, addExerciseTo }: ComplexEditor
           <ButtonLink
             to={withSupersetTarget(addExerciseTo, { newSuperset: true })}
             variant='outline'
+            className='shrink-0'
           >
             <Link2Icon />
             Суперсет

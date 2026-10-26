@@ -8,13 +8,12 @@ import Animated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
-import { CloudOff, Inbox, type LucideIcon } from 'lucide-react-native';
+import { CloudOff, type LucideIcon } from 'lucide-react-native';
 
 import { cn } from '@/shared/lib/utils';
-import { useTheme } from '@/shared/theme/ThemeProvider';
 
+import { EmptyState } from './EmptyState';
 import { Icon } from './Icon';
-import { Hatch } from './Patterns';
 import { Poster, Text } from './Typography';
 
 type ScreenStateProps = {
@@ -23,6 +22,7 @@ type ScreenStateProps = {
   description?: ReactNode;
   /** «Повторить» для ошибки, подсказка-действие для пустого списка */
   action?: ReactNode;
+  /** Иконка ошибки; у пустоты иконки нет */
   icon?: LucideIcon;
   /** Сколько строк-скелетов показать при загрузке */
   rows?: number;
@@ -30,7 +30,7 @@ type ScreenStateProps = {
 };
 
 const DEFAULTS = {
-  empty: { icon: Inbox, title: 'Пока пусто', description: 'Здесь появятся записи.' },
+  empty: { title: 'Пока пусто', description: 'Здесь появятся записи.' },
   error: {
     icon: CloudOff,
     title: 'Нет связи',
@@ -56,8 +56,6 @@ export const Skeleton = ({ className }: { className?: string }) => {
 // Три обязательных состояния списка и экрана данных — порт shared/ui/kit/ScreenState.tsx.
 // Загрузка повторяет форму списка строками, а не крутит абстрактный спиннер
 export const ScreenState = ({ state, title, description, action, icon, rows = 4, className }: ScreenStateProps) => {
-  const { colors } = useTheme();
-
   if (state === 'loading') {
     return (
       <View
@@ -78,34 +76,31 @@ export const ScreenState = ({ state, title, description, action, icon, rows = 4,
     );
   }
 
-  const error = state === 'error';
-  const StateIcon = icon ?? DEFAULTS[state].icon;
+  if (state === 'empty') {
+    return (
+      <EmptyState
+        title={title ?? DEFAULTS.empty.title}
+        description={description ?? DEFAULTS.empty.description}
+        action={action}
+        className={className}
+      />
+    );
+  }
+
+  const StateIcon = icon ?? DEFAULTS.error.icon;
+  const text = description ?? DEFAULTS.error.description;
 
   return (
     <View
-      accessibilityRole={error ? 'alert' : undefined}
-      className={cn(
-        'items-start gap-3 overflow-hidden border-[1.5px] p-5',
-        error ? 'border-destructive/60 border-dashed' : 'border-border',
-        className,
-      )}
+      accessibilityRole="alert"
+      className={cn('border-destructive/60 items-start gap-3 border-[1.5px] border-dashed p-5', className)}
     >
-      {!error && <Hatch color={colors.hatch} />}
-      <View
-        className={cn(
-          'bg-background size-12 items-center justify-center border-[1.5px]',
-          error ? 'border-destructive' : 'border-foreground/70',
-        )}
-      >
-        <Icon as={StateIcon} className={cn('size-6', error && 'text-destructive')} />
+      <View className="bg-background border-destructive size-12 items-center justify-center border-[1.5px]">
+        <Icon as={StateIcon} className="text-destructive size-6" />
       </View>
       <View className="bg-background gap-1 pr-2">
-        <Poster size="lg">{title ?? DEFAULTS[state].title}</Poster>
-        {typeof (description ?? DEFAULTS[state].description) === 'string' ? (
-          <Text tone="soft">{description ?? DEFAULTS[state].description}</Text>
-        ) : (
-          description
-        )}
+        <Poster size="lg">{title ?? DEFAULTS.error.title}</Poster>
+        {typeof text === 'string' ? <Text tone="soft">{text}</Text> : text}
       </View>
       {action}
     </View>

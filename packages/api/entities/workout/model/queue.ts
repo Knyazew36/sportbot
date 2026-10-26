@@ -41,11 +41,19 @@ type QueueEntry =
   | { kind: 'set-delete'; variables: DeleteSetVars }
   | { kind: 'finish'; variables: FinishVars }
 
+/** Случайный байт: в React Native (Hermes) глобального crypto нет вовсе — там Math.random.
+ *  clientId нужен только для отсева дублей при повторе, криптостойкость не требуется */
+const randomByte = (): number => {
+  const webCrypto = globalThis.crypto as Crypto | undefined
+  if (webCrypto?.getRandomValues) return webCrypto.getRandomValues(new Uint8Array(1))[0]!
+  return Math.floor(Math.random() * 256)
+}
+
 export const newClientId = (): string =>
-  // randomUUID есть не во всех webview мессенджеров — запасной uuid v4 из getRandomValues
-  crypto.randomUUID?.() ??
+  // randomUUID есть не во всех webview мессенджеров и нет в мобилке — запасной uuid v4
+  (globalThis.crypto as Crypto | undefined)?.randomUUID?.() ??
   '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, c =>
-    (Number(c) ^ (crypto.getRandomValues(new Uint8Array(1))[0]! & (15 >> (Number(c) / 4)))).toString(16),
+    (Number(c) ^ (randomByte() & (15 >> (Number(c) / 4)))).toString(16),
   )
 
 /** Любой ответ с тренировкой обновляет экран сразу, без повторного запроса */

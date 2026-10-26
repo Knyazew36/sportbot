@@ -3,13 +3,15 @@ import { TextInput, type TextInputProps } from 'react-native';
 
 import { cn } from '@/shared/lib/utils';
 
+import { KitTextInput } from './KitTextInput';
+
 export type InputRef = ComponentRef<typeof TextInput>;
 
 type InputProps = TextInputProps & { className?: string; invalid?: boolean; ref?: Ref<InputRef> };
 
 // Инпут — Input из React Native Reusables со стилем shared/ui/shadcn/input фронта: рамка 1.5, без скруглений
 export const Input = ({ className, invalid, editable, ...props }: InputProps) => (
-  <TextInput
+  <KitTextInput
     placeholderTextColorClassName="accent-smoke"
     aria-invalid={invalid}
     editable={editable}

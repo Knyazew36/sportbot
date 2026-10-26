@@ -68,12 +68,12 @@ export const CatalogBrowser = ({
     ));
 
   const empty = (
-    <View className="w-full gap-2">
-      <Button variant="outline" size="sm" onPress={() => onFilterChange(EMPTY_CATALOG_FILTER)}>
+    <>
+      <Button variant="outline" onPress={() => onFilterChange(EMPTY_CATALOG_FILTER)}>
         Сбросить фильтры
       </Button>
       {emptyAction}
-    </View>
+    </>
   );
 
   const results = { renderItem: row, emptyAction: empty };

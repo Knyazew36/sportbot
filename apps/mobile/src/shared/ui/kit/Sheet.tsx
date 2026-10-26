@@ -6,13 +6,10 @@ import {
   BottomSheetScrollView,
   type BottomSheetBackdropProps,
 } from '@gorhom/bottom-sheet';
-import { X } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/shared/theme/ThemeProvider';
 
-import { Button } from './Button';
-import { Icon } from './Icon';
 import { Eyebrow, Poster, Text } from './Typography';
 
 type SheetProps = {
@@ -29,7 +26,7 @@ type SheetProps = {
 };
 
 // Нижняя шторка — порт shared/ui/shadcn/sheet (side=bottom) на @gorhom/bottom-sheet.
-// Высота по содержимому, потолок — 88% экрана, как во фронте; смахивается вниз.
+// Высота по содержимому, потолок — 88% экрана, как во фронте. Кнопки закрытия нет: шторка смахивается вниз и закрывается тапом по подложке.
 // Подложку и ручку шторка рисует сама и className не принимает — им цвета темы стилем.
 // Низ с действием прокручивается вместе с содержимым: при динамической высоте шторка обычно не упирается в потолок
 export const Sheet = ({ open, onOpenChange, title, kicker, description, footer, children }: SheetProps) => {
@@ -38,10 +35,24 @@ export const Sheet = ({ open, onOpenChange, title, kicker, description, footer, 
   const { height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
 
+  // Закрываем только реально показанную шторку. dismiss() у непоказанной модалки gorhom переводит её в DISMISSING,
+  // и следующий present() молча не рисует портал — шторка открывалась раз через раз
+  const presented = useRef(false);
+
   useEffect(() => {
-    if (open) ref.current?.present();
-    else ref.current?.dismiss();
+    if (open) {
+      presented.current = true;
+      ref.current?.present();
+    } else if (presented.current) {
+      presented.current = false;
+      ref.current?.dismiss();
+    }
   }, [open]);
+
+  const handleDismiss = useCallback(() => {
+    presented.current = false;
+    onOpenChange(false);
+  }, [onOpenChange]);
 
   const renderBackdrop = useCallback(
     (props: BottomSheetBackdropProps) => (
@@ -56,7 +67,9 @@ export const Sheet = ({ open, onOpenChange, title, kicker, description, footer, 
       enableDynamicSizing
       maxDynamicContentSize={height * 0.88}
       enablePanDownToClose
-      onDismiss={() => onOpenChange(false)}
+      // Клавиатура убрана — шторка возвращается к своей высоте, а не остаётся задранной
+      keyboardBlurBehavior="restore"
+      onDismiss={handleDismiss}
       backdropComponent={renderBackdrop}
       backgroundStyle={{ backgroundColor: colors.paper, borderRadius: 0, borderTopWidth: 2, borderColor: colors.ink }}
       handleIndicatorStyle={{ backgroundColor: colors.smoke, width: 48, height: 6 }}
@@ -65,7 +78,7 @@ export const Sheet = ({ open, onOpenChange, title, kicker, description, footer, 
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ paddingBottom: footer ? 0 : insets.bottom + 24 }}
       >
-        <View className="px-gutter gap-1.5 pt-3 pr-16 pb-3">
+        <View className="px-gutter gap-1.5 pt-3 pb-3">
           {kicker ? <Eyebrow>{kicker}</Eyebrow> : null}
           {title ? <Poster size="lg">{title}</Poster> : null}
           {typeof description === 'string' ? (
@@ -75,11 +88,6 @@ export const Sheet = ({ open, onOpenChange, title, kicker, description, footer, 
           ) : (
             description
           )}
-        </View>
-        <View className="right-gutter absolute top-2">
-          <Button variant="outline" size="icon-sm" accessibilityLabel="Закрыть" onPress={() => onOpenChange(false)}>
-            <Icon as={X} strokeWidth={2.5} className="size-4" />
-          </Button>
         </View>
         <View className="px-gutter">{children}</View>
         {footer ? (

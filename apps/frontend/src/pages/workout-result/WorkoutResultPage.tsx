@@ -1,4 +1,3 @@
-import { LinkIcon } from 'lucide-react'
 import { useParams } from 'react-router'
 
 import { useSharedWorkout } from '@sportbot/api/entities/workout'
@@ -16,7 +15,6 @@ const WorkoutResultPage = () => {
     return (
       <ScreenState
         state='empty'
-        icon={LinkIcon}
         title='Ссылка устарела'
         description='Этой тренировки больше нет.'
         className='mx-gutter mt-10'

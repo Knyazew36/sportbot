@@ -86,7 +86,12 @@ const LibraryPage = () => {
               ? buildPath(ROUTES.EXERCISE, { exerciseId: id })
               : buildPath(ROUTES.STRETCH, { stretchId: id })
           }
-          emptyAction={<NewEntryLinks onCreate={setCreating} />}
+          emptyAction={
+            <NewEntryLinks
+              onCreate={setCreating}
+              size='default'
+            />
+          }
         />
       )}
       <ExerciseCreateSheet

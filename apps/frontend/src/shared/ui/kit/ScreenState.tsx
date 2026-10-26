@@ -1,10 +1,11 @@
-import { CloudOffIcon, InboxIcon, type LucideIcon } from 'lucide-react'
+import { CloudOffIcon, type LucideIcon } from 'lucide-react'
 
 import type { ReactNode } from 'react'
 
 import { cn } from '@/shared/lib/utils'
 import { Skeleton } from '@/shared/ui/shadcn/skeleton'
 
+import { EmptyState } from './EmptyState'
 import { Poster, Text } from './Typography'
 
 type ScreenStateProps = {
@@ -13,6 +14,7 @@ type ScreenStateProps = {
   description?: ReactNode
   /** «Повторить» для ошибки, подсказка-действие для пустого списка */
   action?: ReactNode
+  /** Иконка ошибки; у пустоты иконки нет */
   icon?: LucideIcon
   /** Сколько строк-скелетов показать при загрузке */
   rows?: number
@@ -20,7 +22,7 @@ type ScreenStateProps = {
 }
 
 const DEFAULTS = {
-  empty: { icon: InboxIcon, title: 'Пока пусто', description: 'Здесь появятся записи.' },
+  empty: { title: 'Пока пусто', description: 'Здесь появятся записи.' },
   error: {
     icon: CloudOffIcon,
     title: 'Нет связи',
@@ -54,30 +56,32 @@ export const ScreenState = ({ state, title, description, action, icon, rows = 4,
     )
   }
 
-  const Icon = icon ?? DEFAULTS[state].icon
+  if (state === 'empty') {
+    return (
+      <EmptyState
+        title={title ?? DEFAULTS.empty.title}
+        description={description ?? DEFAULTS.empty.description}
+        action={action}
+        className={className}
+      />
+    )
+  }
+
+  const Icon = icon ?? DEFAULTS.error.icon
   return (
     <div
-      role={state === 'error' ? 'alert' : undefined}
-      className={cn(
-        'flex flex-col items-start gap-3 border-[1.5px] p-5',
-        state === 'error' ? 'border-destructive/60 border-dashed' : 'border-border hatch',
-        className,
-      )}
+      role='alert'
+      className={cn('border-destructive/60 flex flex-col items-start gap-3 border-[1.5px] border-dashed p-5', className)}
     >
-      <span
-        className={cn(
-          'bg-background flex size-12 items-center justify-center border-[1.5px]',
-          state === 'error' ? 'border-destructive text-destructive' : 'border-foreground/70',
-        )}
-      >
+      <span className='bg-background border-destructive text-destructive flex size-12 items-center justify-center border-[1.5px]'>
         <Icon
           className='size-6'
           aria-hidden
         />
       </span>
       <div className='bg-background flex flex-col gap-1 pr-2'>
-        <Poster size='lg'>{title ?? DEFAULTS[state].title}</Poster>
-        <Text tone='soft'>{description ?? DEFAULTS[state].description}</Text>
+        <Poster size='lg'>{title ?? DEFAULTS.error.title}</Poster>
+        <Text tone='soft'>{description ?? DEFAULTS.error.description}</Text>
       </div>
       {action}
     </div>

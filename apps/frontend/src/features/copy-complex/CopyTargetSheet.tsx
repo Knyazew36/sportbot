@@ -6,6 +6,7 @@ import type { ProgramListItem } from '@sportbot/api/entities/program'
 import { WORKOUT_FORMS } from '@/shared/lib/plural-forms'
 import { cn } from '@/shared/lib/utils'
 import { List, ListRow } from '@/shared/ui/kit/ListRow'
+import { EmptyState } from '@/shared/ui/kit/EmptyState'
 import { SearchField } from '@/shared/ui/kit/SearchField'
 import { Text } from '@/shared/ui/kit/Typography'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/shared/ui/shadcn/sheet'
@@ -50,7 +51,11 @@ export const CopyTargetSheet = ({ open, onOpenChange, programs, pending, onPick 
         )}
         <div className='px-gutter min-h-0 flex-1 overflow-y-auto pb-6'>
           {shown.length === 0 ? (
-            <Text tone='muted'>Ничего не нашлось.</Text>
+            <EmptyState
+              eyebrow='пусто · поиск'
+              title='Ничего не нашлось'
+              description='Попробуй другое название.'
+            />
           ) : (
             <List>
               {shown.map(p => (

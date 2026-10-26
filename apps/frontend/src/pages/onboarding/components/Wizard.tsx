@@ -8,11 +8,12 @@ import { StepBar } from '@/shared/ui/kit/StepBar'
 import { Lead, Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
-import { FORM_ID, STEPS } from '../model/steps'
+import { FORM_ID, SCREEN, STEPS } from '../model/steps'
 import { useOnboardingWizard } from '../model/use-onboarding-wizard'
 import { StepDays } from './StepDays'
 import { StepGender } from './StepGender'
 import { StepProgram } from './StepProgram'
+import { StepRemind } from './StepRemind'
 import { StepTimes } from './StepTimes'
 
 // Мастер первого запуска: шапка с шагом, вводная шага, форма шага и «Назад / Дальше»
@@ -38,14 +39,17 @@ export const Wizard = ({ state }: { state: OnboardingState }) => {
       }
       footer={
         <StickyFooter>
-          <Button
-            variant='outline'
-            size='lg'
-            disabled={step === 0 || pending}
-            onClick={wizard.back}
-          >
-            Назад
-          </Button>
+          {/* На первом шаге возвращаться некуда */}
+          {step > 0 && (
+            <Button
+              variant='outline'
+              size='lg'
+              disabled={pending}
+              onClick={wizard.back}
+            >
+              Назад
+            </Button>
+          )}
           <Button
             type='submit'
             form={FORM_ID}
@@ -88,21 +92,28 @@ export const Wizard = ({ state }: { state: OnboardingState }) => {
         </Text>
       </Rise>
 
-      {step === 0 && (
+      {step === SCREEN.gender && (
         <StepGender
           formId={FORM_ID}
           defaultValues={{ gender: state.gender ?? undefined }}
           onSubmit={wizard.submitGender}
         />
       )}
-      {step === 1 && (
+      {step === SCREEN.days && (
         <StepDays
           formId={FORM_ID}
           defaultValues={{ trainingDays: state.trainingDays }}
           onSubmit={wizard.submitDays}
         />
       )}
-      {step === 2 && (
+      {step === SCREEN.remind && (
+        <StepRemind
+          formId={FORM_ID}
+          defaultValues={{ remind: wizard.remind }}
+          onSubmit={wizard.submitRemind}
+        />
+      )}
+      {step === SCREEN.times && (
         <StepTimes
           formId={FORM_ID}
           defaultValues={{ morningTime: state.morningTime, eveningTime: state.eveningTime }}
@@ -110,7 +121,7 @@ export const Wizard = ({ state }: { state: OnboardingState }) => {
         />
       )}
       {/* После конца настройки гард сам уведёт на «Сегодня» */}
-      {step === 3 && (
+      {step === SCREEN.program && (
         <StepProgram
           formId={FORM_ID}
           templates={state.templates}

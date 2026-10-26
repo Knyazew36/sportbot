@@ -29,13 +29,15 @@ import { WorkoutActions } from './WorkoutActions';
 import { WorkoutFocus } from './WorkoutFocus';
 import { WorkoutLanes } from './WorkoutLanes';
 import { EditSetSheet } from '@/widgets/workout/EditSetSheet';
-import { LiveWorkoutBar } from '@/widgets/live-workout-bar/LiveWorkoutBar';
+import { useWorkoutScreenBar } from '@/widgets/live-workout-bar/workout-screen-bar';
 
 export const WorkoutView = ({ workout: saved }: { workout: import('@sportbot/api/entities/workout').Workout }) => {
   useKeepAwake();
   const flow = useWorkoutFlow(saved);
   useRestNotification(flow.active?.timer);
   const { workout, active, doneCount, items, online } = flow;
+  // Полоса общая на приложение; без упражнений возвращаться не к чему — прячем
+  useWorkoutScreenBar({ hidden: !active || active.focusOpen, onReturn: active?.returnToFocus });
 
   if (flow.finishing) return <FinishPending />;
 
@@ -46,13 +48,6 @@ export const WorkoutView = ({ workout: saved }: { workout: import('@sportbot/api
 
   return (
     <View className="flex-1">
-      {/* Фокус свёрнут или ничего не идёт — живая полоса напоминает, что тренировка продолжается */}
-      <LiveWorkoutBar
-        visible={!active.focusOpen}
-        resting={active.timer.status === 'running' && active.timer.left > 0}
-        label={workout.complexName}
-        onReturn={active.returnToFocus}
-      >
       <Screen
         key={superset ? `s${superset.superset}` : item.id}
         fullscreen
@@ -116,7 +111,6 @@ export const WorkoutView = ({ workout: saved }: { workout: import('@sportbot/api
           </>
         )}
       </Screen>
-      </LiveWorkoutBar>
       <WorkoutFocus flow={active} startedAt={workout.startedAt} />
       <SetEntrySheet
         open={active.entryOpen}

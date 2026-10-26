@@ -43,6 +43,7 @@ const ExercisePage = () => {
           <Button
             variant="outline"
             size="icon-lg"
+            contentClassName="size-[60px]"
             disabled={!exercise.data}
             accessibilityLabel="Предложить правку"
             onPress={() => setEditOpen(true)}
@@ -75,7 +76,6 @@ const ExercisePage = () => {
               <AddToComplexSheet
                 open={addOpen}
                 onOpenChange={setAddOpen}
-                exercise={e.name}
                 program={program.data.name}
                 complexes={program.data.complexes.map((c, i) => ({
                   id: c.id,

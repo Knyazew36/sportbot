@@ -9,11 +9,12 @@ import { StepBar } from '@/shared/ui/kit/StepBar';
 import { Lead, Poster, Text } from '@/shared/ui/kit/Typography';
 import { Button } from '@/shared/ui/kit/Button';
 
-import { STEPS, type StepHandle } from '../model/steps';
+import { SCREEN, STEPS, type StepHandle } from '../model/steps';
 import { useOnboardingWizard } from '../model/use-onboarding-wizard';
 import { StepDays } from './StepDays';
 import { StepGender } from './StepGender';
 import { StepProgram } from './StepProgram';
+import { StepRemind } from './StepRemind';
 import { StepTimes } from './StepTimes';
 
 // Мастер первого запуска: шапка с шагом, вводная шага, форма шага и «Назад / Дальше» — порт Wizard.tsx.
@@ -35,9 +36,12 @@ export const Wizard = ({ state }: { state: OnboardingState }) => {
       }
       footer={
         <StickyFooter>
-          <Button variant="outline" size="lg" disabled={step === 0 || pending} onPress={wizard.back}>
-            Назад
-          </Button>
+          {/* На первом шаге возвращаться некуда */}
+          {step > 0 && (
+            <Button variant="outline" size="lg" disabled={pending} onPress={wizard.back}>
+              Назад
+            </Button>
+          )}
           <Button size="lg" loading={pending} iconRight={last ? Check : undefined} onPress={() => stepRef.current?.submit()}>
             {last ? 'Начать' : 'Дальше'}
           </Button>
@@ -47,7 +51,7 @@ export const Wizard = ({ state }: { state: OnboardingState }) => {
       <ScrollView contentContainerClassName="px-gutter gap-6">
         <View className="gap-1">
           <Lead>{current.lead}</Lead>
-          <Poster size="display" tone="primary" numberOfLines={1}>
+          <Poster size="display" tone="primary" fit>
             {current.title}
           </Poster>
           <Text tone="soft" className="mt-2">
@@ -55,13 +59,21 @@ export const Wizard = ({ state }: { state: OnboardingState }) => {
           </Text>
         </View>
 
-        {step === 0 && (
-          <StepGender ref={stepRef} defaultValues={{ gender: state.gender ?? undefined }} onSubmit={wizard.submitGender} />
+        {step === SCREEN.gender && (
+          <StepGender
+            ref={stepRef}
+            defaultValues={{ gender: state.gender ?? undefined }}
+            onSubmit={wizard.submitGender}
+            onPick={wizard.previewGender}
+          />
         )}
-        {step === 1 && (
+        {step === SCREEN.days && (
           <StepDays ref={stepRef} defaultValues={{ trainingDays: state.trainingDays }} onSubmit={wizard.submitDays} />
         )}
-        {step === 2 && (
+        {step === SCREEN.remind && (
+          <StepRemind ref={stepRef} defaultValues={{ remind: wizard.remind }} onSubmit={wizard.submitRemind} />
+        )}
+        {step === SCREEN.times && (
           <StepTimes
             ref={stepRef}
             defaultValues={{ morningTime: state.morningTime, eveningTime: state.eveningTime }}
@@ -69,7 +81,7 @@ export const Wizard = ({ state }: { state: OnboardingState }) => {
           />
         )}
         {/* После конца настройки гвард сам уведёт на «Сегодня» */}
-        {step === 3 && <StepProgram ref={stepRef} templates={state.templates} onSubmit={wizard.submitProgram} />}
+        {step === SCREEN.program && <StepProgram ref={stepRef} templates={state.templates} onSubmit={wizard.submitProgram} />}
       </ScrollView>
     </Screen>
   );

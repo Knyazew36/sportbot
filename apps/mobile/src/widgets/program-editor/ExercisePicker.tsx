@@ -83,7 +83,7 @@ export const ExercisePicker = ({ presentIds, subtitle, back, target, adding, onA
         onFilterChange={(patch) => setFilter((prev) => ({ ...prev, ...patch }))}
         onSearchFocusChange={setTyping}
         emptyAction={
-          <Button variant="outline" size="sm" icon={Plus} onPress={() => setCreateOpen(true)}>
+          <Button variant="outline" icon={Plus} onPress={() => setCreateOpen(true)}>
             Добавить своё
           </Button>
         }

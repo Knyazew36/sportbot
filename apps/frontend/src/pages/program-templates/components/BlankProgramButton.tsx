@@ -8,7 +8,6 @@ export const BlankProgramButton = () => {
   const blank = useCreateBlankProgram()
   return (
     <Button
-      size='sm'
       disabled={blank.isPending}
       onClick={() => void blank.create()}
     >

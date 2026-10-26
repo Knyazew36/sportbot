@@ -193,7 +193,6 @@ export const ComplexEditor = ({ complex, actions, addExerciseTo }: ComplexEditor
             href={addExerciseTo}
             variant={ids.length ? 'outline' : 'default'}
             icon={Plus}
-            block
             className="flex-1"
           >
             Упражнения
@@ -202,8 +201,7 @@ export const ComplexEditor = ({ complex, actions, addExerciseTo }: ComplexEditor
             href={withSupersetTarget(addExerciseTo, { newSuperset: true })}
             variant="outline"
             icon={Link2}
-            block
-            className="flex-1"
+            className="shrink-0"
           >
             Суперсет
           </ButtonLink>

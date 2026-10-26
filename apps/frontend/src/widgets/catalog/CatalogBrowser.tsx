@@ -80,17 +80,15 @@ export const CatalogBrowser = ({
     ))
 
   const empty = (
-    <div className='flex w-full flex-col gap-2'>
+    <>
       <Button
         variant='outline'
-        size='sm'
-        className='self-start'
         onClick={() => onFilterChange(EMPTY_CATALOG_FILTER)}
       >
         Сбросить фильтры
       </Button>
       {emptyAction}
-    </div>
+    </>
   )
 
   const results = { renderItem: row, emptyAction: empty }

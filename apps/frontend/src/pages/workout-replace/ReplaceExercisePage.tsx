@@ -77,7 +77,6 @@ const ReplaceExercisePage = () => {
             action: (
               <Button
                 variant='outline'
-                size='sm'
                 onClick={() => setCreateOpen(true)}
               >
                 <PlusIcon />

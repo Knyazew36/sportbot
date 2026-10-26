@@ -1,4 +1,3 @@
-import { LinkIcon } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router'
 
 import { useSharedProgram, useTakeSharedProgram } from '@sportbot/api/entities/program'
@@ -23,7 +22,6 @@ const SharedProgramPage = () => {
     return (
       <ScreenState
         state='empty'
-        icon={LinkIcon}
         title='Ссылка устарела'
         description='Эту программу удалили.'
         className='mx-gutter mt-10'

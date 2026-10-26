@@ -17,10 +17,11 @@ export type { StepHandle };
 type StepGenderProps = {
   defaultValues: Partial<OnboardingGenderValues>;
   onSubmit: (values: OnboardingGenderValues) => Promise<unknown>;
+  onPick: (gender: Gender) => void;
 };
 
 // Шаг 0: пол — сразу задаёт расцветку приложения
-export const StepGender = forwardRef<StepHandle, StepGenderProps>(({ defaultValues, onSubmit }, ref) => {
+export const StepGender = forwardRef<StepHandle, StepGenderProps>(({ defaultValues, onSubmit, onPick }, ref) => {
   const {
     control,
     handleSubmit,
@@ -40,7 +41,11 @@ export const StepGender = forwardRef<StepHandle, StepGenderProps>(({ defaultValu
             options={GENDERS}
             // До выбора ни один сегмент не нажат
             value={(field.value as Gender | undefined) ?? ('' as Gender)}
-            onValueChange={field.onChange}
+            // Расцветку показываем сразу при выборе, сохранится она по «Дальше»
+            onValueChange={(value) => {
+              field.onChange(value);
+              onPick(value);
+            }}
             stretch
           />
         )}

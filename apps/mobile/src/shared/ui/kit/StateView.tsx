@@ -3,7 +3,8 @@ import { ActivityIndicator, View } from 'react-native';
 
 import { cn } from '@/shared/lib/utils';
 
-import { Eyebrow, Poster, Text } from './Typography';
+import { EmptyState } from './EmptyState';
+import { Poster, Text } from './Typography';
 
 type StateViewProps = {
   state: 'loading' | 'error' | 'empty' | 'denied';
@@ -53,16 +54,11 @@ export const StateView = ({ state, error, empty, className }: StateViewProps) =>
   }
 
   return (
-    <View className={frame}>
-      {empty?.title ? <Poster size="md">{empty.title}</Poster> : null}
-      {empty?.description ? (
-        <Text tone="muted" className="text-center">
-          {empty.description}
-        </Text>
-      ) : (
-        <Eyebrow>Здесь пока пусто</Eyebrow>
-      )}
-      {empty?.action}
-    </View>
+    <EmptyState
+      title={empty?.title ?? 'Пока пусто'}
+      description={empty?.description}
+      action={empty?.action}
+      className={className}
+    />
   );
 };

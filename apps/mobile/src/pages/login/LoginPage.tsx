@@ -1,8 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { router, useLocalSearchParams } from 'expo-router';
+import { ArrowRight, MessageCircle, Send } from 'lucide-react-native';
 import { Controller, useForm } from 'react-hook-form';
 import { View } from 'react-native';
-import { ArrowRight, MessageCircle, Send } from 'lucide-react-native';
-import { router, useLocalSearchParams } from 'expo-router';
 
 import { getApiErrorMessage, getApiErrorStatus } from '@/shared/api';
 import { ROUTES } from '@/shared/config/routes';
@@ -43,17 +43,12 @@ const LoginPage = () => {
       title="Вход"
       lead="с возвращением —"
       footer={
-        <>
-          <View className="flex-row items-center gap-1">
-            <AuthLink>Нет аккаунта?</AuthLink>
-            <Button variant="link" size="sm" onPress={() => router.push(ROUTES.REGISTER)}>
-              Зарегистрироваться
-            </Button>
-          </View>
-          <Button variant="ghost" size="sm" onPress={() => router.push(ROUTES.FORGOT_PASSWORD)}>
-            Забыли пароль?
+        <View className="flex-col items-center gap-1">
+          <AuthLink>Нет аккаунта?</AuthLink>
+          <Button variant="link" size="sm" className="self-center" onPress={() => router.push(ROUTES.REGISTER)}>
+            Зарегистрироваться
           </Button>
-        </>
+        </View>
       }
     >
       <View className="gap-4">
@@ -85,11 +80,17 @@ const LoginPage = () => {
               secureTextEntry
               autoComplete="current-password"
               error={errors.password}
+              // Рядом с паролем, а не в подвале: вспоминают о нём именно здесь
+              labelAction={
+                <Button variant="link" size="xs" onPress={() => router.push(ROUTES.FORGOT_PASSWORD)}>
+                  Забыли пароль?
+                </Button>
+              }
             />
           )}
         />
         {login.isError && <ErrorText>{getApiErrorMessage(login.error)}</ErrorText>}
-        <Button size="lg" spread iconRight={ArrowRight} loading={login.isPending} onPress={onSubmit} className="mt-2">
+        <Button size="lg" block spread className="mt-1" iconRight={ArrowRight} loading={login.isPending} onPress={onSubmit}>
           Войти
         </Button>
         <AuthDivider>или через бота</AuthDivider>

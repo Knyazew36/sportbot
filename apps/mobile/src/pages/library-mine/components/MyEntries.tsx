@@ -41,8 +41,8 @@ const entryPath = (e: MyEntry) =>
     ? routeHref(ROUTES.EXERCISE, { exerciseId: e.id })
     : routeHref(ROUTES.STRETCH, { stretchId: e.id });
 
-// Вкладка «Мои»: свои записи и их публикация в общий справочник (frontend-tz, 11.5)
-export const MineTab = () => {
+// Свои записи и их публикация в общий справочник (frontend-tz, 11.5)
+export const MyEntries = () => {
   const [kind, setKind] = useState<CatalogKind>('exercise');
   const entries = useMyEntries(kind);
   const publish = usePublishEntry();

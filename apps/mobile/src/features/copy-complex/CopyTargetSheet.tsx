@@ -9,6 +9,7 @@ import { WORKOUT_FORMS } from '@/shared/lib/plural-forms';
 import { cn } from '@/shared/lib/utils';
 import { Icon } from '@/shared/ui/kit/Icon';
 import { List, ListRow } from '@/shared/ui/kit/ListRow';
+import { EmptyState } from '@/shared/ui/kit/EmptyState';
 import { SearchField } from '@/shared/ui/kit/SearchField';
 import { Sheet } from '@/shared/ui/kit/Sheet';
 import { Text } from '@/shared/ui/kit/Typography';
@@ -43,7 +44,7 @@ export const CopyTargetSheet = ({ open, onOpenChange, programs, pending, onPick 
         <SearchField value={search} onValueChange={setSearch} placeholder="Название программы" className="pb-3" />
       )}
       {shown.length === 0 ? (
-        <Text tone="muted">Ничего не нашлось.</Text>
+        <EmptyState eyebrow="пусто · поиск" title="Ничего не нашлось" description="Попробуй другое название." />
       ) : (
         <List>
           {shown.map((p) => (

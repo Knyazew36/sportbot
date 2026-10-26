@@ -27,7 +27,6 @@ export const ShowOthers = ({ program: p, onPublish, size, className }: ShowOther
           variant={toCatalog ? 'share' : 'outline'}
           size={size}
           icon={toCatalog ? Globe : Pencil}
-          block
           className="min-w-0 flex-1"
           contentClassName="px-3"
           onPress={onPublish}
@@ -40,7 +39,6 @@ export const ShowOthers = ({ program: p, onPublish, size, className }: ShowOther
         size={size}
         variant={toCatalog ? 'outline' : 'share'}
         label={publishable ? 'Другу' : 'Поделиться с другом'}
-        block
         className={publishable ? 'min-w-0 flex-1' : 'flex-1'}
       />
     </View>

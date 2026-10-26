@@ -5,7 +5,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { UndoBar } from '@/shared/ui/kit/UndoBar';
 import { BottomNav } from '@/widgets/bottom-nav/BottomNav';
-import { CurrentWorkoutBar } from '@/widgets/live-workout-bar/CurrentWorkoutBar';
 import { isFocusPath, TAB_ORDER } from '@/widgets/bottom-nav/nav';
 
 // Высота пунктов меню (h-16 в BottomNav) — плашка отмены встаёт над ним
@@ -23,7 +22,6 @@ export default function LayoutTabs() {
 
   return (
     <View className="flex-1">
-      <CurrentWorkoutBar>
       <TopTabs
         tabBarPosition="bottom"
         tabBar={(props) => <BottomNav {...props} />}
@@ -37,11 +35,10 @@ export default function LayoutTabs() {
           <TopTabs.Screen key={item.name} name={item.name} options={{ title: item.label }} />
         ))}
       </TopTabs>
-      </CurrentWorkoutBar>
       <UndoBar bottom={undoBottom} />
     </View>
   );
 }
 
 // Страницы пейджера идут в порядке меню, а открываться приложение должно на «Сегодня» в центре
-export const unstable_settings = { initialRouteName: 'today' };
+export const unstable_settings = { anchor: 'today' };

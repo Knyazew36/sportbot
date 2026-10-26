@@ -1,5 +1,4 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { Link } from 'lucide-react-native';
 
 import { useSharedProgram, useTakeSharedProgram } from '@sportbot/api/entities/program';
 
@@ -51,7 +50,6 @@ const SharedProgramPage = () => {
       {gone ? (
         <ScreenState
           state="empty"
-          icon={Link}
           title="Ссылка устарела"
           description="Эту программу удалили."
           className="mx-gutter mt-10"

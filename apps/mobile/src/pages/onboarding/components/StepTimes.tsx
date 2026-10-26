@@ -10,6 +10,7 @@ import { Segmented } from '@/shared/ui/kit/Segmented';
 import { TextField } from '@/shared/ui/kit/TextField';
 import { Text } from '@/shared/ui/kit/Typography';
 
+import { ASK_MODE_HINT, ASK_MODES } from '../model/remind';
 import type { StepHandle } from '../model/steps';
 
 type StepTimesProps = {
@@ -18,19 +19,7 @@ type StepTimesProps = {
   onSubmit: (values: OnboardingTimesValues) => Promise<unknown>;
 };
 
-const ASK_MODES = [
-  { value: 'remind', label: 'Напоминать' },
-  { value: 'once', label: 'Один раз' },
-  { value: 'off', label: 'Не писать' },
-] as const;
-
-const ASK_MODE_HINT: Record<OnboardingTimesValues['askMode'], string> = {
-  remind: 'Не ответишь — утренний вопрос повторю через 2 часа, вечерний на следующее утро.',
-  once: 'Каждый вопрос приходит один раз, без повторов.',
-  off: 'Бот сам не пишет. Тренировки отмечаешь в приложении, день без отметки — пропуск.',
-};
-
-// Шаг 2: когда бот утром спросит про тренировку и вечером — как прошло, и повторять ли без ответа
+// Шаг 2, если напоминать: когда бот утром спросит про тренировку и вечером — как прошло, и повторять ли без ответа
 export const StepTimes = forwardRef<StepHandle, StepTimesProps>(({ defaultValues, onSubmit }, ref) => {
   const {
     control,
@@ -84,7 +73,7 @@ export const StepTimes = forwardRef<StepHandle, StepTimesProps>(({ defaultValues
       </Text>
       <View className="gap-2 mt-2">
         <Text size="sm" tone="soft">
-          Как спрашивать?
+          Если не ответишь?
         </Text>
         <Controller
           control={control}
@@ -98,7 +87,7 @@ export const StepTimes = forwardRef<StepHandle, StepTimesProps>(({ defaultValues
                 stretch
               />
               <Text size="xs" tone="muted">
-                {field.value ? ASK_MODE_HINT[field.value] : 'Поменять можно в профиле.'}
+                {field.value && ASK_MODE_HINT[field.value]}
               </Text>
             </>
           )}

@@ -26,7 +26,13 @@ export const TimerButton = ({ left, total, paused, onToggle, className }: TimerB
 
   return (
     <View className={cn('size-[124px] shrink-0', className)}>
-      <Ring value={total > 0 ? seconds / total : 0} size={124} stroke={6} className="absolute inset-0" />
+      <Ring
+        value={total > 0 ? seconds / total : 0}
+        sweep={paused || total <= 0 ? undefined : { to: 0, ms: seconds * 1000 }}
+        size={124}
+        stroke={6}
+        className="absolute inset-0"
+      />
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={paused ? `Продолжить, осталось ${seconds} секунд` : `Пауза, осталось ${seconds} секунд`}

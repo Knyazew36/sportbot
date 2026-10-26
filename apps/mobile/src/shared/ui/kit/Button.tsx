@@ -1,4 +1,4 @@
-import { Children, type ReactNode } from 'react';
+import { Children, useContext, type ReactNode } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import type { LucideIcon } from 'lucide-react-native';
 import { cva, type VariantProps } from 'class-variance-authority';
@@ -6,6 +6,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { haptic } from '@/shared/lib/haptics';
 import { cn } from '@/shared/lib/utils';
 
+import { ButtonBlockContext } from './button-block';
 import { Icon } from './Icon';
 import { TextClassContext } from './Typography';
 import { Pressable } from './Pressable';
@@ -174,7 +175,7 @@ export const Button = ({
   size = 'default',
   icon,
   iconRight,
-  block,
+  block: blockProp,
   spread,
   disabled,
   loading,
@@ -183,6 +184,8 @@ export const Button = ({
   contentClassName,
   accessibilityLabel,
 }: ButtonProps) => {
+  const stacked = useContext(ButtonBlockContext);
+  const block = blockProp ?? stacked;
   const flat = variant === 'ghost' || variant === 'link';
   const textClass = buttonTextVariants({ variant, size });
   // У «Поделиться» иконка золотая на чернильном — как блик медали во фронте
@@ -204,15 +207,18 @@ export const Button = ({
           haptic.tap();
           onPress?.();
         }}
+        // Ширина снаружи (flex-1) доходит до рамки через stretch по поперечной оси. grow у рамки Yoga
+        // раздувает на всё доступное место, если размер обёртки не задан точно: в строке — на всю ширину
+        // (квадратная «Назад» тянулась), с flex-1 в строке — на всю высоту экрана. Поэтому grow только
+        // у block: там высота задаётся снаружи (h-24), а ширина и так во всю строку
         className={cn(block ? 'self-stretch' : 'self-start', className)}
       >
         {({ pressed }) => (
-          // grow: высота и ширина, заданные снаружи (h-24, flex-1), доходят до рамки — иначе рамка остаётся по содержимому
-          <View className="grow">
+          <>
             {!flat && <View className={cn('absolute inset-0', PRESS[variant], SHIFT[size], disabled && 'opacity-30')} />}
             <View
               className={cn(
-                'grow',
+                block && 'grow',
                 buttonVariants({ variant, size }),
                 spread && 'justify-between',
                 pressed && !disabled && !flat && SHIFT[size],
@@ -228,7 +234,7 @@ export const Button = ({
               {content}
               {iconRight ? <Icon as={iconRight} strokeWidth={2.5} className={iconClass} /> : null}
             </View>
-          </View>
+          </>
         )}
       </Pressable>
     </TextClassContext.Provider>

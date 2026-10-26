@@ -55,8 +55,6 @@ export const FocusSet = ({ stopwatch, title, startedAt, setNumber, plannedSets, 
     <FocusShell
       title={title}
       startedAt={startedAt}
-      status={paused ? 'пауза — время подхода стоит' : undefined}
-      alert={paused}
       sets={{ number: setNumber, done: setNumber - 1, planned: plannedSets }}
       dim={paused}
       actions={
@@ -95,7 +93,8 @@ export const FocusSet = ({ stopwatch, title, startedAt, setNumber, plannedSets, 
           value={(stopwatch.elapsedMs % 60_000) / 60_000}
           size={ring}
           stroke={5}
-          transitionMs={250}
+          // Идёт — дуга сама доезжает до конца минуты; на паузе стоит
+          sweep={paused ? undefined : { to: 1, ms: 60_000 - (stopwatch.elapsedMs % 60_000) }}
         />
         <Pressable
           onPress={() => {

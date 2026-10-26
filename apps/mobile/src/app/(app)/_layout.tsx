@@ -1,23 +1,25 @@
 import { useEffect } from 'react';
-import { ActivityIndicator, View } from 'react-native';
 import { Stack, usePathname, useRouter } from 'expo-router';
 
-import { useOnboarding } from '@sportbot/api/entities/onboarding';
 import { useSportUser } from '@sportbot/api/entities/sport-user';
 
 import { useIsAuthenticated } from '@/shared/api';
 import { ROUTES } from '@/shared/config/routes';
+import { QueryState } from '@/shared/ui/kit/QueryState';
+import { Screen } from '@/shared/ui/kit/Screen';
+import { CurrentWorkoutBar } from '@/widgets/live-workout-bar/CurrentWorkoutBar';
 
 // Гвард приложения: без токена — на вход; не пройден онбординг — на настройку, пройден — с настройки на «Сегодня»
 const AppGuard = () => {
   const isAuthenticated = useIsAuthenticated();
-  // Профиль создаётся первым запросом (miniapp/me) — без него онбординг отвечает 404
+  // Профиль создаётся первым запросом (miniapp/me), в нём же флаг онбординга — второй запрос не нужен
   const me = useSportUser({ enabled: isAuthenticated });
-  const onboarding = useOnboarding({ enabled: isAuthenticated && me.isSuccess });
   const pathname = usePathname();
   const router = useRouter();
 
-  const onboarded = onboarding.data?.onboarded;
+  // Смотрим на данные, а не на isSuccess: после неудачного обновления без сети статус error,
+  // но сохранённый профиль остаётся — по нему и пускаем в зале
+  const onboarded = me.data?.onboarded;
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -30,20 +32,23 @@ const AppGuard = () => {
     if (onboarded && onOnboardingScreen) router.replace(ROUTES.TODAY);
   }, [isAuthenticated, onboarded, pathname, router]);
 
-  // Профиль ещё не доехал: не роняем разводку, держим фон темы
+  // Профиля ещё нет: загрузка или ошибка с «Повторить» — иначе без сервера вечный спиннер
   if (!isAuthenticated || onboarded === undefined) {
     return (
-      <View className="bg-background flex-1 items-center justify-center">
-        <ActivityIndicator colorClassName="accent-primary" size="large" />
-      </View>
+      <Screen fullscreen scroll={false}>
+        <QueryState query={me}>{() => null}</QueryState>
+      </Screen>
     );
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      {/* Тренировка — поверх табов целиком: меню на ней не нужно, а назад ведёт на «Сегодня» */}
-      <Stack.Screen name="workout" options={{ presentation: 'fullScreenModal' }} />
-    </Stack>
+    // Живая полоса — над всем стеком, одна на приложение: переходы между экранами её не перерисовывают
+    <CurrentWorkoutBar>
+      <Stack screenOptions={{ headerShown: false }}>
+        {/* Тренировка — поверх табов целиком: меню на ней не нужно, а назад ведёт на «Сегодня» */}
+        <Stack.Screen name="workout" options={{ presentation: 'fullScreenModal' }} />
+      </Stack>
+    </CurrentWorkoutBar>
   );
 };
 

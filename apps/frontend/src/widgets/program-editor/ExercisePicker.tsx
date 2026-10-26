@@ -144,8 +144,6 @@ export const ExercisePicker = ({
           emptyAction={
             <Button
               variant='outline'
-              size='sm'
-              className='self-start'
               onClick={() => setCreateOpen(true)}
             >
               <PlusIcon strokeWidth={2.5} />

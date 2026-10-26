@@ -62,7 +62,9 @@ export const ConfirmAction = ({
   return (
     <>
       {cloneElement(trigger, { onPress: () => change(true), children })}
-      <AlertDialog open={open} onOpenChange={change}>
+      {/* Корень диалога — пустой View рядом с триггером. В строке (шапка) он занимал место и добавлял gap
+          справа от кнопки; absolute выводит его из раскладки, окно всё равно рисуется в портале */}
+      <AlertDialog open={open} onOpenChange={change} className="absolute">
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{title}</AlertDialogTitle>

@@ -1,7 +1,9 @@
-import { CircleSlashIcon, CloudOffIcon, InboxIcon, LockIcon, type LucideIcon } from 'lucide-react'
+import { CircleSlashIcon, CloudOffIcon, LockIcon, type LucideIcon } from 'lucide-react'
 
 import { cn } from '@/shared/lib/utils'
 import { Skeleton } from '@/shared/ui/shadcn/skeleton'
+
+import { EmptyState } from './EmptyState'
 
 type StateCopy = {
   title: string
@@ -21,12 +23,12 @@ type StateViewProps = {
   className?: string
 }
 
-const DEFAULTS: Record<'empty' | 'error' | 'denied', StateCopy & { icon: LucideIcon }> = {
-  empty: {
-    icon: InboxIcon,
-    title: 'Пока пусто',
-    description: 'Здесь появятся записи, как только они будут созданы.',
-  },
+const EMPTY_DEFAULT: StateCopy = {
+  title: 'Пока пусто',
+  description: 'Здесь появятся записи, как только они будут созданы.',
+}
+
+const DEFAULTS: Record<'error' | 'denied', StateCopy & { icon: LucideIcon }> = {
   error: {
     icon: CloudOffIcon,
     title: 'Не удалось загрузить',
@@ -114,7 +116,19 @@ export const StateView = ({ state, empty, error, denied, skeleton = 'list', clas
     )
   }
 
-  const copy = { ...DEFAULTS[state], ...{ empty, error, denied }[state] }
+  if (state === 'empty') {
+    const copy = { ...EMPTY_DEFAULT, ...empty }
+    return (
+      <EmptyState
+        title={copy.title}
+        description={copy.description}
+        action={copy.action}
+        className={className}
+      />
+    )
+  }
+
+  const copy = { ...DEFAULTS[state], ...{ error, denied }[state] }
   const Icon = DEFAULTS[state].icon
   const lastSuccess = state === 'error' ? error?.lastSuccess : undefined
 
@@ -131,7 +145,6 @@ export const StateView = ({ state, empty, error, denied, skeleton = 'list', clas
         className={cn(
           'flex size-16 shrink-0 items-center justify-center rounded-full',
           state === 'error' && 'bg-attention text-black',
-          state === 'empty' && 'bg-mist text-slate',
           state === 'denied' && 'bg-background/10',
         )}
       >
@@ -142,7 +155,6 @@ export const StateView = ({ state, empty, error, denied, skeleton = 'list', clas
       </div>
       <div className='flex min-w-0 flex-1 flex-col gap-2'>
         <span className='mono-label text-smoke'>
-          {state === 'empty' && 'Состояние · пусто'}
           {state === 'error' && 'Состояние · ошибка получения'}
           {state === 'denied' && 'Состояние · нет права'}
         </span>

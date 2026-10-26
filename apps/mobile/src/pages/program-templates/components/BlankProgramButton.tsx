@@ -8,7 +8,6 @@ export const BlankProgramButton = () => {
   const blank = useCreateBlankProgram();
   return (
     <Button
-      size="sm"
       iconRight={ArrowRight}
       loading={blank.isPending}
       onPress={() => void blank.create().catch(() => undefined)}

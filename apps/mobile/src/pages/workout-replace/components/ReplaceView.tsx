@@ -40,7 +40,7 @@ export const ReplaceView = ({ itemId, workout }: ReplaceViewProps) => {
             title: 'Подходящих аналогов нет',
             description: 'Все упражнения на эти мышцы уже в тренировке или нагружают сустав с ограничением.',
             action: (
-              <Button variant="outline" size="sm" icon={Plus} onPress={openCreate}>
+              <Button variant="outline" icon={Plus} onPress={openCreate}>
                 Создать своё упражнение
               </Button>
             ),

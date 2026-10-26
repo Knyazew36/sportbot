@@ -7,15 +7,17 @@ import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 type NewEntryLinksProps = {
   /** Шторки создания живут на странице справочника: кнопки бывают в пустом состоянии, которое исчезает с первой записью */
   onCreate: (kind: CatalogKind) => void
+  /** В подвале — крупные, в пустом состоянии — как соседняя «Сбросить фильтры» */
+  size?: 'default' | 'lg'
   className?: string
 }
 
 // Нет нужного в справочнике — своя запись (frontend-tz, 11.4). Две кнопки в одну строку
-export const NewEntryLinks = ({ onCreate, className }: NewEntryLinksProps) => (
+export const NewEntryLinks = ({ onCreate, size = 'lg', className }: NewEntryLinksProps) => (
   <div className={cn('grid w-full grid-cols-2 gap-2', className)}>
     <Button
       variant='outline'
-      size='lg'
+      size={size}
       onClick={() => onCreate('exercise')}
     >
       <PlusIcon strokeWidth={2.5} />
@@ -23,7 +25,7 @@ export const NewEntryLinks = ({ onCreate, className }: NewEntryLinksProps) => (
     </Button>
     <Button
       variant='outline'
-      size='lg'
+      size={size}
       onClick={() => onCreate('stretch')}
     >
       <PlusIcon strokeWidth={2.5} />

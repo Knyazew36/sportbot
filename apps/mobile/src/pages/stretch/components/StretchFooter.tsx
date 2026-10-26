@@ -38,7 +38,13 @@ export const StretchFooter = ({ stretch: s, side, onSide, onEdit }: StretchFoote
 
   return (
     <View className="border-border bg-background px-gutter flex-row items-center gap-2 border-t-[1.5px] pt-3 pb-4">
-      <Button variant="outline" size="icon-lg" accessibilityLabel="Предложить правку" onPress={onEdit}>
+      <Button
+        variant="outline"
+        size="icon-lg"
+        contentClassName="size-[60px]"
+        accessibilityLabel="Предложить правку"
+        onPress={onEdit}
+      >
         <Icon as={PencilLine} className="size-6" />
       </Button>
       {/* Исключённую возвращают из строки под названием — тут кнопка только «убрать» */}
@@ -48,6 +54,7 @@ export const StretchFooter = ({ stretch: s, side, onSide, onEdit }: StretchFoote
           size="icon-lg"
           loading={exclude.isPending}
           onPress={() => exclude.mutate(s.id)}
+          contentClassName="size-[60px]"
           accessibilityLabel="Не предлагать в заминке"
         >
           <Icon as={Ban} className="size-6" />

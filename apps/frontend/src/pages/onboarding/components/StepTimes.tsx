@@ -10,6 +10,8 @@ import { TextField } from '@/shared/ui/kit/TextField'
 import { Text } from '@/shared/ui/kit/Typography'
 import { Label } from '@/shared/ui/shadcn/label'
 
+import { ASK_MODE_HINT, ASK_MODES } from '../model/remind'
+
 type StepTimesProps = {
   formId: string
   /** Режим вопросов не предзаполняем: на него отвечают явно */
@@ -17,19 +19,7 @@ type StepTimesProps = {
   onSubmit: (values: OnboardingTimesValues) => Promise<unknown>
 }
 
-const ASK_MODES = [
-  { value: 'remind', label: 'Напоминать' },
-  { value: 'once', label: 'Один раз' },
-  { value: 'off', label: 'Не писать' },
-] as const
-
-const ASK_MODE_HINT: Record<OnboardingTimesValues['askMode'], string> = {
-  remind: 'Не ответишь — утренний вопрос повторю через 2 часа, вечерний на следующее утро.',
-  once: 'Каждый вопрос приходит один раз, без повторов.',
-  off: 'Бот сам не пишет. Тренировки отмечаешь в приложении, день без отметки — пропуск.',
-}
-
-// Шаг 2: когда бот утром спросит про тренировку и вечером — как прошло, и повторять ли без ответа
+// Шаг 2, если напоминать: когда бот утром спросит про тренировку и вечером — как прошло, и повторять ли без ответа
 export const StepTimes = ({ formId, defaultValues, onSubmit }: StepTimesProps) => {
   const {
     control,
@@ -66,7 +56,7 @@ export const StepTimes = ({ formId, defaultValues, onSubmit }: StepTimesProps) =
           Время московское. Часовой пояс меняется в профиле.
         </Text>
         <div className='col-span-2 mt-3 flex flex-col gap-2'>
-          <Label>Как спрашивать?</Label>
+          <Label>Если не ответишь?</Label>
           <Controller
             control={control}
             name='askMode'
@@ -83,7 +73,7 @@ export const StepTimes = ({ formId, defaultValues, onSubmit }: StepTimesProps) =
                   size='xs'
                   tone='muted'
                 >
-                  {field.value ? ASK_MODE_HINT[field.value] : 'Поменять можно в профиле.'}
+                  {field.value && ASK_MODE_HINT[field.value]}
                 </Text>
               </>
             )}

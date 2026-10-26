@@ -66,7 +66,13 @@ export const useDeadlineTimer = ({ storageKey, onEnd }: Options = {}) => {
     state.status === 'running'
       ? Math.ceil((state.endsAt - now) / 1000)
       : state.status === 'paused'
-        ? state.left
+        ? Math.ceil(state.left)
+        : 0;
+  const leftMs =
+    state.status === 'running'
+      ? Math.max(0, state.endsAt - now)
+      : state.status === 'paused'
+        ? state.left * 1000
         : 0;
 
   useEffect(() => {
@@ -93,6 +99,8 @@ export const useDeadlineTimer = ({ storageKey, onEnd }: Options = {}) => {
     left,
     fraction,
     total: state.status === 'idle' ? 0 : state.total,
+    /** Ход кольца Ring, пока отсчёт идёт: к нулю ровно к концу */
+    sweep: state.status === 'running' ? { to: 0, ms: leftMs } : undefined,
     start: (seconds: number) => update({ status: 'running', endsAt: Date.now() + seconds * 1000, total: seconds }),
     add: (seconds: number) => {
       if (state.status !== 'running') return;
@@ -101,7 +109,9 @@ export const useDeadlineTimer = ({ storageKey, onEnd }: Options = {}) => {
       update({ ...state, endsAt: Math.max(state.endsAt, at) + seconds * 1000, total: state.total + overdue + seconds });
     },
     pause: () => {
-      if (state.status === 'running') update({ status: 'paused', left: Math.max(left, 0), total: state.total });
+      // Остаток с долями секунды: целые сдвигали бы кольцо на паузе назад
+      if (state.status === 'running')
+        update({ status: 'paused', left: Math.max(0, (state.endsAt - Date.now()) / 1000), total: state.total });
     },
     resume: () => {
       if (state.status === 'paused')

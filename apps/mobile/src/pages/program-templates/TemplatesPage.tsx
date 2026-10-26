@@ -1,4 +1,3 @@
-import { View } from 'react-native';
 import { pluralize } from '@front-cmdt/utils/pluralize';
 import { RotateCcw } from 'lucide-react-native';
 
@@ -51,12 +50,12 @@ const TemplatesPage = () => {
                 title: 'Ничего не нашлось',
                 description: 'Сбрось фильтры или собери программу сам.',
                 action: (
-                  <View className="flex-row flex-wrap justify-center gap-2">
-                    <Button variant="outline" size="sm" icon={RotateCcw} onPress={filter.reset}>
+                  <>
+                    <Button variant="outline" icon={RotateCcw} onPress={filter.reset}>
                       Сбросить фильтры
                     </Button>
                     <BlankProgramButton />
-                  </View>
+                  </>
                 ),
               }
             : { title: 'Каталог пока пуст', description: 'Собери программу с нуля.', action: <BlankProgramButton /> }

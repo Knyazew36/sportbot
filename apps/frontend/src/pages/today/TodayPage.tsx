@@ -45,6 +45,13 @@ const cta = (day: DayToday): Cta | null => {
 
 const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1)
 
+// Пока тренировка идёт, дата не важна — шапка говорит, что происходит
+const headerTitle = (day: DayToday | undefined, finishQueued: boolean) => {
+  if (!day) return 'Сегодня'
+  if (day.state === 'IN_PROGRESS' && !finishQueued) return 'Тренировка идёт'
+  return capitalize(formatDate(day.date, 'EEEE · d MMMM'))
+}
+
 // Главный экран (frontend-tz, 7): одно из состояний дня, серия, неделя и что дальше
 const TodayPage = () => {
   const today = useToday()
@@ -62,12 +69,7 @@ const TodayPage = () => {
     <Screen
       header={
         <>
-          {/* Тренировка идёт — место даты занимает живая полоса оболочки */}
-          {!(today.data?.state === 'IN_PROGRESS' && !finishQueued) && (
-            <ScreenHeader
-              title={today.data ? capitalize(formatDate(today.data.date, 'EEEE · d MMMM')) : 'Сегодня'}
-            />
-          )}
+          <ScreenHeader title={headerTitle(today.data, finishQueued)} />
           {me.data && !me.data.canMessage && <PermissionBanner />}
         </>
       }

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArrowRight } from 'lucide-react-native';
 
-import { usePickComplex, useToday } from '@sportbot/api/entities/day';
+import { type DayToday, usePickComplex, useToday } from '@sportbot/api/entities/day';
 import { useFinishQueued } from '@sportbot/api/entities/workout';
 
 import { capitalize, formatDate } from '@/shared/lib/format';
@@ -20,6 +20,13 @@ import { RestDay } from './components/RestDay';
 import { TrainingDay } from './components/TrainingDay';
 import { dayCta } from './model/cta';
 
+// Пока тренировка идёт, дата не важна — шапка говорит, что происходит
+const headerTitle = (day: DayToday | undefined, finishQueued: boolean) => {
+  if (!day) return 'Сегодня';
+  if (day.state === 'IN_PROGRESS' && !finishQueued) return 'Тренировка идёт';
+  return capitalize(formatDate(day.date, 'EEEE · d MMMM'));
+};
+
 // Главный экран (frontend-tz, 7) — порт pages/today: одно из состояний дня, серия, неделя и что дальше.
 // Баннера «бот не может писать» нет: в приложении напоминания придут push-уведомлениями (MOBILE_TZ.md, раздел 11)
 const TodayPage = () => {
@@ -37,7 +44,7 @@ const TodayPage = () => {
       onRefresh={() => void today.refetch()}
       refreshing={today.isRefetching}
       header={
-        <ScreenHeader title={today.data ? capitalize(formatDate(today.data.date, 'EEEE · d MMMM')) : 'Сегодня'} />
+        <ScreenHeader title={headerTitle(today.data, finishQueued)} />
       }
       footer={
         action && (

@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { TextInput, View, type TextInputProps } from 'react-native';
+import { View, type TextInputProps } from 'react-native';
 
 import { cn } from '@/shared/lib/utils';
 
 import type { InputRef } from './Input';
+import { KitTextInput } from './KitTextInput';
 import { Eyebrow } from './Typography';
 
 type BoxInputProps = TextInputProps & {
@@ -31,7 +32,7 @@ export const BoxInput = ({ label, className, large, onFocus, onBlur, ...props }:
         {label}
       </Eyebrow>
       {/* Число всегда вводится заново: автозаполнение и подсказки клавиатуры только мешают */}
-      <TextInput
+      <KitTextInput
         keyboardType="decimal-pad"
         autoComplete="off"
         autoCorrect={false}

@@ -1,5 +1,13 @@
 import { useEffect } from 'react';
-import Animated, { Easing, useAnimatedProps, useReducedMotion, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, {
+  cancelAnimation,
+  Easing,
+  useAnimatedProps,
+  useReducedMotion,
+  useSharedValue,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 import Svg, { Circle } from 'react-native-svg';
 
 import { cn } from '@/shared/lib/utils';
@@ -11,23 +19,41 @@ type RingProps = {
   value: number;
   size: number;
   stroke?: number;
-  /** Плавность хода дуги, как transition во фронте: отсчёт тикает раз в секунду, без неё дуга прыгает */
-  transitionMs?: number;
+  /**
+   * Таймер идёт: дуга сама едет от value к to и приходит ровно через ms.
+   * Нет — дуга стоит на value: пауза и остановка замирают сразу, без доезда
+   */
+  sweep?: { to: number; ms: number };
   className?: string;
 };
 
+const clamp = (n: number) => Math.min(1, Math.max(0, n));
+
 // Кольцо прогресса: value от 0 до 1
-export const Ring = ({ value, size, stroke = 6, transitionMs = 1000, className }: RingProps) => {
+export const Ring = ({ value, size, stroke = 6, sweep, className }: RingProps) => {
   const { colors } = useTheme();
   const still = useReducedMotion();
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
-  const progress = useSharedValue(Math.min(1, Math.max(0, value)));
+  const progress = useSharedValue(clamp(value));
+  const to = sweep ? clamp(sweep.to) : null;
+  const ms = sweep?.ms ?? 0;
 
   useEffect(() => {
-    const next = Math.min(1, Math.max(0, value));
-    progress.set(still ? next : withTiming(next, { duration: transitionMs, easing: Easing.linear }));
-  }, [progress, still, transitionMs, value]);
+    // Раньше дуга догоняла каждый тик анимацией и доезжала её уже после паузы. Теперь ход задаётся до конца
+    // отсчёта: на тике он лишь сверяется с часами, а без sweep анимация обрывается на месте
+    cancelAnimation(progress);
+    if (to === null || still) {
+      progress.set(clamp(value));
+      return;
+    }
+    progress.set(
+      withSequence(
+        withTiming(clamp(value), { duration: 0 }),
+        withTiming(to, { duration: Math.max(0, ms), easing: Easing.linear }),
+      ),
+    );
+  }, [ms, progress, still, to, value]);
 
   const arc = useAnimatedProps(() => ({ strokeDashoffset: circumference * (1 - progress.value) }));
 

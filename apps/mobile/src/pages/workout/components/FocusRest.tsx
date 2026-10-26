@@ -133,7 +133,7 @@ export const FocusRest = ({
         </Poster>
       </View>
       <View className="items-center justify-center">
-        <Ring value={timer.fraction} size={sizes.timerRing} stroke={6} transitionMs={250} />
+        <Ring value={timer.fraction} sweep={timer.sweep} size={sizes.timerRing} stroke={6} />
         {over && lastAhead && <RestRays size={sizes.timerRing} />}
         <View className="absolute inset-0 items-center justify-center">
           {over ? (

@@ -3,12 +3,17 @@ export const STEPS = [
   {
     lead: 'кто тренируется —',
     title: 'Пол',
-    hint: 'От него зависит расцветка приложения. Потом можно поменять в профиле.',
+    // hint: 'От него зависит расцветка приложения. Потом можно поменять в профиле.',
   },
   {
     lead: 'когда тренируемся —',
     title: 'Дни',
     hint: 'В эти дни бот утром предложит тренировку. Потом можно поменять в профиле.',
+  },
+  {
+    lead: 'писать ли тебе —',
+    title: 'Вопросы',
+    hint: 'Утром бот скажет, что по плану, вечером спросит, как прошло. Потом можно поменять в профиле.',
   },
   {
     lead: 'когда спрашивать —',
@@ -22,8 +27,13 @@ export const STEPS = [
   },
 ] as const;
 
-// Серверный шаг 1..3 совпадает с индексом экрана: экран 0 — пол, его спрашивает только приложение
-export const resumeStep = (serverStep: number) => Math.min(Math.max(serverStep, 1), STEPS.length - 1);
+export const SCREEN = { gender: 0, days: 1, remind: 2, times: 3, program: 4 } as const;
+
+// Серверные шаги 1..3: дни, напоминания со временем, программа. Экран пола спрашивает только приложение,
+// а «Напоминать?» и «Время» на сервере один шаг — продолжаем с вопроса
+const SCREEN_BY_SERVER_STEP = [SCREEN.days, SCREEN.remind, SCREEN.program];
+
+export const resumeStep = (serverStep: number) => SCREEN_BY_SERVER_STEP[Math.min(Math.max(serverStep, 1), 3) - 1]!;
 
 // Кнопка «Дальше» вне формы шага — шаг отдаёт сабмит наружу
 export type StepHandle = { submit: () => void };

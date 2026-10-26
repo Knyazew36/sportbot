@@ -99,12 +99,14 @@ export const FocusRest = ({
               {round ? (over ? 'Начать круг' : 'К кругу') : over ? 'Начать подход' : 'К подходу'}
             </Button>
           )}
-          <div className='grid grid-cols-2 gap-3'>
+          {/* «+30 с» по содержимому, остальное место отдаём соседней кнопке */}
+          <div className='flex gap-3'>
             {/* Дальше только завершение: продлевать отдых незачем, а вернуться может понадобиться —
                 добить подход в другом упражнении */}
             {planDone && next === 'finish' ? (
               <Button
                 variant='outline'
+                className='flex-1'
                 onClick={onClose}
               >
                 К упражнению
@@ -113,6 +115,7 @@ export const FocusRest = ({
               // Отдых окончен — добавить всё равно можно: таймер снова пойдёт от текущего момента
               <Button
                 variant='outline'
+                className='shrink-0'
                 onClick={addRest}
               >
                 <PlusIcon strokeWidth={3} />
@@ -122,6 +125,7 @@ export const FocusRest = ({
             {planDone ? (
               <Button
                 variant='outline'
+                className='flex-1'
                 onClick={onToSet}
               >
                 <PlusIcon strokeWidth={3} />
@@ -130,6 +134,7 @@ export const FocusRest = ({
             ) : (
               <Button
                 variant='outline'
+                className='flex-1'
                 onClick={onClose}
               >
                 К упражнению

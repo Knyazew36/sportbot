@@ -10,7 +10,7 @@ import { Button } from '@/shared/ui/kit/Button';
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction';
 import { Rise } from '@/shared/ui/kit/Reveal';
 import { StatGrid } from '@/shared/ui/kit/StatGrid';
-import { Eyebrow, Lead, Poster } from '@/shared/ui/kit/Typography';
+import { Lead, Poster } from '@/shared/ui/kit/Typography';
 
 import { WeekStreak } from './WeekStreak';
 
@@ -24,8 +24,7 @@ export const InProgressDay = ({ day }: { day: DayToday }) => {
   return (
     <>
       <Rise className="px-gutter">
-        <Eyebrow tone="primary">Тренировка идёт</Eyebrow>
-        <Lead className="mt-4">сейчас —</Lead>
+        <Lead>сейчас —</Lead>
         <Poster size="4xl" tone="primary" numberOfLines={2} adjustsFontSizeToFit className="mt-1">
           {workout.complexName}
         </Poster>

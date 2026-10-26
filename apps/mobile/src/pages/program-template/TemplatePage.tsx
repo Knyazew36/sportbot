@@ -57,7 +57,6 @@ const TemplatePage = () => {
               href={routeHref(ROUTES.PROGRAM_TEMPLATES, { [SOURCE_PARAM]: users ? 'users' : undefined })}
               replace
               variant="outline"
-              size="sm"
             >
               В каталог
             </ButtonLink>

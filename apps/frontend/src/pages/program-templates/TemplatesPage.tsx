@@ -56,17 +56,16 @@ const TemplatesPage = () => {
                 title: 'Ничего не нашлось',
                 description: 'Сбрось фильтры или собери программу сам.',
                 action: (
-                  <div className='flex flex-wrap justify-center gap-2'>
+                  <>
                     <Button
                       variant='outline'
-                      size='sm'
                       onClick={filter.reset}
                     >
                       <RotateCcwIcon />
                       Сбросить фильтры
                     </Button>
                     <BlankProgramButton />
-                  </div>
+                  </>
                 ),
               }
             : { title: 'Каталог пока пуст', description: 'Собери программу с нуля.', action: <BlankProgramButton /> }

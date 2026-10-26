@@ -27,6 +27,7 @@ export const SummaryView = ({ summary }: { summary: WorkoutSummary }) => {
       header={<ScreenHeader title="Финиш" aside={summary.complexName} />}
       footer={
         // Поделиться — главное действие итога: карточка уходит из бота в любой чат
+        // «Домой» — по ширине надписи, «Поделиться» забирает всё остальное место
         <StickyFooter className="flex-nowrap">
           {counted && (
             <ShareWorkoutButton workoutId={summary.workoutId} size="lg" className="min-w-0 flex-1" contentClassName="px-3" />
@@ -36,8 +37,6 @@ export const SummaryView = ({ summary }: { summary: WorkoutSummary }) => {
             replace
             variant="outline"
             size="lg"
-            className="min-w-0 flex-1"
-            contentClassName="px-3"
           >
             Домой
             <Icon as={ArrowRight} className="size-6" strokeWidth={2.5} />

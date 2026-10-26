@@ -107,7 +107,7 @@ const LiveStrip = ({ height, resting, label, onReturn }: LiveStripProps) => {
 
   return (
     <Animated.View
-      entering={still ? FadeIn : SlideInUp.springify().stiffness(380).damping(34)}
+      entering={still ? FadeIn : SlideInUp.duration(220).easing(Easing.out(Easing.cubic))}
       exiting={still ? FadeOut : SlideOutUp.duration(200)}
       className="absolute inset-x-0 top-0 z-[45]"
       style={{ height }}

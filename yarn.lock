@@ -13012,6 +13012,11 @@ react-native-tab-view@^4.3.4:
   dependencies:
     use-latest-callback "^0.2.4"
 
+react-native-view-shot@^6.2.1:
+  version "6.2.1"
+  resolved "https://registry.yarnpkg.com/react-native-view-shot/-/react-native-view-shot-6.2.1.tgz#d7e3868c3c7827b2f31d67656bfed251dce7f59a"
+  integrity sha512-gsvR347Rr1avrF5Gki14VQPn7jJBbaEp2ast8EWAWnJvfTSQWoR/ZrQ3cksACNpwGRjC5ysQKxyj0Zrnid6WMg==
+
 react-native-web@~0.21.4:
   version "0.21.4"
   resolved "https://registry.npmjs.org/react-native-web/-/react-native-web-0.21.4.tgz"

@@ -1,5 +1,3 @@
-import { WrenchIcon } from 'lucide-react'
-
 import { ROUTES } from '@/shared/config/paths'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { Screen } from '@/shared/ui/kit/Screen'
@@ -14,7 +12,6 @@ const SoonPage = () => (
   >
     <ScreenState
       state='empty'
-      icon={WrenchIcon}
       title='Скоро'
       description='Раздел подключается к серверу. Пока им можно пользоваться в боте.'
       action={
