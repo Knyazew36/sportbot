@@ -40,11 +40,11 @@ export const DoneDay = ({ day }: { day: DayToday }) => {
       <ForgottenMuscles />
       <FriendsToday />
 
-      <Rise className='grid grid-cols-2 gap-2 px-gutter'>
+      <Rise className='flex gap-2 px-gutter'>
         <Button
           variant='outline'
           size='sm'
-          className='h-auto min-h-9 min-w-0 px-2 py-1.5 leading-tight whitespace-normal'
+          className='min-w-0 flex-1'
           disabled={!day.complexes.length}
           onClick={() => setPickOpen(true)}
         >
@@ -54,11 +54,10 @@ export const DoneDay = ({ day }: { day: DayToday }) => {
         <ButtonLink
           to={ROUTES.STATS}
           variant='outline'
-          size='sm'
-          className='h-auto min-h-9 min-w-0 px-2 py-1.5 leading-tight whitespace-normal'
+          size='icon-sm'
+          aria-label='Статистика'
         >
           <ChartNoAxesColumnIcon />
-          Статистика
         </ButtonLink>
       </Rise>
 

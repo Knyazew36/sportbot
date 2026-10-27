@@ -1,4 +1,3 @@
-import { usePathname } from 'expo-router';
 import type { MaterialTopTabBarProps } from 'expo-router/js-top-tabs';
 
 import { Animated as RNAnimated, View } from 'react-native';
@@ -11,7 +10,7 @@ import { Icon } from '@/shared/ui/kit/Icon';
 import { HalftoneRing } from '@/shared/ui/kit/Patterns';
 import { Poster, Text } from '@/shared/ui/kit/Typography';
 
-import { isFocusPath, NAV_SIDES, type NavItem } from './nav';
+import { NAV_SIDES, type NavItem } from './nav';
 import { Pressable } from '@/shared/ui/kit/Pressable';
 
 type TabProps = {
@@ -25,7 +24,6 @@ type TabProps = {
 // остальные разделы делятся по бокам. Активный раздел отмечен отрезком беговой дорожки сверху.
 // Низ отступает от жестовой полосы: без этого подписи уходят под системную навигацию
 export const BottomNav = ({ state, emitter, navigateToTab, insets, position }: MaterialTopTabBarProps) => {
-  const pathname = usePathname();
   const keyboardShown = useKeyboardShown();
 
   // Прогресс для каждого таба — по позиции пейджера, чтобы индикатор двигался
@@ -38,7 +36,7 @@ export const BottomNav = ({ state, emitter, navigateToTab, insets, position }: M
     });
 
   // Пока открыта клавиатура (поиск в справочнике), меню не висит над ней — как во фронте
-  if (keyboardShown || isFocusPath(pathname)) return null;
+  if (keyboardShown) return null;
 
   const focusedName = state.routes[state.index]?.name;
 

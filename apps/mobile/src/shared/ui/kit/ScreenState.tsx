@@ -38,8 +38,8 @@ const DEFAULTS = {
   },
 };
 
-/** Заглушка строки при загрузке — Skeleton из shadcn фронта: мерцает, пока данных нет */
-export const Skeleton = ({ className }: { className?: string }) => {
+/** Мерцание того, что ещё грузится: Skeleton и блоки, у которых форма уже известна (клетки недели) */
+export const Pulse = ({ className, children }: { className?: string; children?: ReactNode }) => {
   const still = useReducedMotion();
   const pulse = useSharedValue(1);
 
@@ -50,8 +50,15 @@ export const Skeleton = ({ className }: { className?: string }) => {
 
   const style = useAnimatedStyle(() => ({ opacity: pulse.value }));
 
-  return <Animated.View className={cn('bg-mist', className)} style={style} />;
+  return (
+    <Animated.View className={className} style={style}>
+      {children}
+    </Animated.View>
+  );
 };
+
+/** Заглушка строки при загрузке — Skeleton из shadcn фронта: мерцает, пока данных нет */
+export const Skeleton = ({ className }: { className?: string }) => <Pulse className={cn('bg-mist', className)} />;
 
 // Три обязательных состояния списка и экрана данных — порт shared/ui/kit/ScreenState.tsx.
 // Загрузка повторяет форму списка строками, а не крутит абстрактный спиннер

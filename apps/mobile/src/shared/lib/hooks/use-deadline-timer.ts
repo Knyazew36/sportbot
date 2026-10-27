@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { local } from '../local';
+import { storage } from '../storage';
 
-type TimerState =
+export type TimerState =
   | { status: 'idle' }
   | { status: 'running'; endsAt: number; total: number }
   | { status: 'paused'; left: number; total: number };
 
-const read = (key?: string): TimerState => {
+export const readTimer = (key?: string): TimerState => {
   if (!key) return { status: 'idle' };
   try {
     const raw = local.get(key);
@@ -17,7 +18,7 @@ const read = (key?: string): TimerState => {
   }
 };
 
-const write = (key: string | undefined, state: TimerState) => {
+export const writeTimer = (key: string | undefined, state: TimerState) => {
   if (!key) return;
   try {
     if (state.status === 'idle') local.remove(key);
@@ -25,6 +26,16 @@ const write = (key: string | undefined, state: TimerState) => {
   } catch {
     // хранилище недоступно — таймер живёт до перезапуска
   }
+};
+
+/**
+ * Прибавить время идущему отсчёту: от конца или от момента at, если время уже вышло.
+ * Пересиженное идёт в total, иначе кольцо прыгнуло бы назад. Не идёт — без изменений
+ */
+export const addToTimer = (state: TimerState, seconds: number, at: number): TimerState => {
+  if (state.status !== 'running') return state;
+  const overdue = Math.max(0, Math.round((at - state.endsAt) / 1000));
+  return { ...state, endsAt: Math.max(state.endsAt, at) + seconds * 1000, total: state.total + overdue + seconds };
 };
 
 type Options = {
@@ -39,11 +50,11 @@ type Options = {
  * отсчёт не сбивают. left < 0 — время вышло столько секунд назад
  */
 export const useDeadlineTimer = ({ storageKey, onEnd }: Options = {}) => {
-  const [state, setState] = useState<TimerState>(() => read(storageKey));
+  const [state, setState] = useState<TimerState>(() => readTimer(storageKey));
   const [readKey, setReadKey] = useState(storageKey);
   if (readKey !== storageKey) {
     setReadKey(storageKey);
-    setState(read(storageKey));
+    setState(readTimer(storageKey));
   }
   const [now, setNow] = useState(() => Date.now());
   const endedRef = useRef(false);
@@ -52,12 +63,24 @@ export const useDeadlineTimer = ({ storageKey, onEnd }: Options = {}) => {
     onEndRef.current = onEnd;
   }, [onEnd]);
 
+  // Таймер меняют и снаружи: кнопки «+30 с» и «Пропустить» в уведомлении на экране блокировки
+  useEffect(() => {
+    if (!storageKey) return;
+    const listener = storage.addOnValueChangedListener((changed) => {
+      if (changed !== storageKey) return;
+      endedRef.current = false;
+      setState(readTimer(storageKey));
+      setNow(Date.now());
+    });
+    return () => listener.remove();
+  }, [storageKey]);
+
   const update = useCallback(
     (next: TimerState) => {
       endedRef.current = false;
       setState(next);
       setNow(Date.now());
-      write(storageKey, next);
+      writeTimer(storageKey, next);
     },
     [storageKey],
   );
@@ -96,6 +119,8 @@ export const useDeadlineTimer = ({ storageKey, onEnd }: Options = {}) => {
 
   return {
     status: state.status,
+    /** Конец отсчёта, мс; null — отсчёт не идёт */
+    endsAt: state.status === 'running' ? state.endsAt : null,
     left,
     fraction,
     total: state.status === 'idle' ? 0 : state.total,
@@ -103,10 +128,7 @@ export const useDeadlineTimer = ({ storageKey, onEnd }: Options = {}) => {
     sweep: state.status === 'running' ? { to: 0, ms: leftMs } : undefined,
     start: (seconds: number) => update({ status: 'running', endsAt: Date.now() + seconds * 1000, total: seconds }),
     add: (seconds: number) => {
-      if (state.status !== 'running') return;
-      const at = Date.now();
-      const overdue = Math.max(0, Math.round((at - state.endsAt) / 1000));
-      update({ ...state, endsAt: Math.max(state.endsAt, at) + seconds * 1000, total: state.total + overdue + seconds });
+      if (state.status === 'running') update(addToTimer(state, seconds, Date.now()));
     },
     pause: () => {
       // Остаток с долями секунды: целые сдвигали бы кольцо на паузе назад

@@ -91,7 +91,7 @@ export const WeekStrip = ({ week, onOpenDay }: WeekStripProps) => {
               as='p'
               tone='inverseMuted'
             >
-              {loading ? '…' : workoutsText(done.length)}
+              {loading ? 'Загружаю…' : workoutsText(done.length)}
             </Eyebrow>
             <Poster
               as='h3'
@@ -129,13 +129,14 @@ export const WeekStrip = ({ week, onOpenDay }: WeekStripProps) => {
         </div>
         <ol className='grid grid-cols-7 gap-1.5'>
           {cells.map(c => {
-            const Icon = MARK_ICON[c.mark]
+            const Icon = loading ? undefined : MARK_ICON[c.mark]
             const label = `${formatDate(c.date, 'd MMMM')}: ${MARK_LABEL[c.mark].toLowerCase()}`
             const cellClass = cn(
               'relative flex h-16 w-full flex-col items-center justify-center gap-1.5 border-[1.5px] transition-[translate,box-shadow] duration-100',
-              loading ? 'bg-background/10 animate-pulse border-transparent' : CELL[c.mark],
+              // Даты прошлой недели известны сразу — показываем их приглушёнными, пока грузятся отметки
+              loading ? 'border-background/25 bg-background/10 text-background/50 animate-pulse' : CELL[c.mark],
             )
-            const content = !loading && (
+            const content = (
               <>
                 <span className='text-[10px] leading-none font-medium tracking-[0.08em] uppercase opacity-75'>
                   {weekdayShort(c.weekday)}

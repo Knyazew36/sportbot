@@ -23,6 +23,8 @@ type CatalogImageProps = {
 export const CatalogImage = ({ src, alt, size = 'thumb', emptyLabel = 'картинку добавит админ' }: CatalogImageProps) => {
   const { colors } = useTheme();
   const [failed, setFailed] = useState(false);
+  // TODO временный лог: разбор пропавших картинок на телефоне
+  if (__DEV__ && !src) console.warn('[CatalogImage] src пустой', alt);
 
   return (
     <View
@@ -38,7 +40,11 @@ export const CatalogImage = ({ src, alt, size = 'thumb', emptyLabel = 'карт�
           contentFit="cover"
           transition={150}
           className="size-full"
-          onError={() => setFailed(true)}
+          onError={(e) => {
+            // TODO временный лог: разбор пропавших картинок на телефоне
+            if (__DEV__) console.warn('[CatalogImage] ошибка загрузки', src, e.error);
+            setFailed(true);
+          }}
         />
       ) : (
         <View className="bg-background flex-1 items-center justify-center">

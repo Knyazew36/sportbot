@@ -8,7 +8,7 @@ import { Eyebrow, Poster } from './Typography'
 type ScreenHeaderProps = {
   title: ReactNode
   aside?: ReactNode
-  /** Кнопка справа вместо подписи: «Мои» в справочнике */
+  /** Действие справа вместо подписи */
   action?: ReactNode
 }
 

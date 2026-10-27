@@ -54,7 +54,15 @@ export const CopyTargetSheet = ({ open, onOpenChange, programs, pending, onPick 
               className={cn('-mx-gutter px-gutter', pending && 'opacity-60')}
               title={p.name}
               meta={pluralize(p.complexCount, WORKOUT_FORMS)}
-              onPress={pending ? undefined : () => onPick(p.id)}
+              onPress={
+                pending
+                  ? undefined
+                  : () => {
+                      // Шторку после выбора закрывает родитель — onOpenChange не придёт, поиск чистим здесь
+                      setSearch('');
+                      onPick(p.id);
+                    }
+              }
               trail={
                 p.active ? (
                   <View className="flex-row items-center gap-1">

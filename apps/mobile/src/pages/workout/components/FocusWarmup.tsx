@@ -47,11 +47,9 @@ export const FocusWarmup = ({ timer, first, onClose }: FocusWarmupProps) => {
         </>
       }
     >
-      {/* Заголовок по центру над кольцом, как «Отдых»: высота постоянная, кольцо не прыгает.
-          Без fit: экран открывается на старте, пока раскладка не устоялась, и adjustsFontSizeToFit
-          ужимал кегль под временную ширину, а обратно не растил. Слово одно и влезает в 4xl от 375px */}
+      {/* Заголовок по центру над кольцом, как «Отдых»: высота постоянная, кольцо не прыгает */}
       <View className="w-full justify-center" style={{ height: sizes.headline }}>
-        <Poster size="4xl" tone={over ? 'muted' : 'primary'} className="w-full text-center">
+        <Poster size="4xl" tone={over ? 'muted' : 'primary'} fit className="w-full text-center">
           Разминка
         </Poster>
       </View>

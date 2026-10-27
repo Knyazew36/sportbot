@@ -1,6 +1,6 @@
 import type { DayToday } from '@sportbot/api/entities/day';
 
-import { RestArt } from '@/shared/ui/kit/Art';
+import { RestArt } from '@/shared/ui/kit/art-skia/RestArt';
 import { Rise } from '@/shared/ui/kit/Reveal';
 import { Lead, Poster } from '@/shared/ui/kit/Typography';
 

@@ -8,7 +8,7 @@ type MineButtonProps = {
   onPress: () => void;
 };
 
-// «Мои» в шапке справочника: свои записи и их заявки. Счётчик — сколько записей уже есть.
+// «Мои» под шапкой справочника: свои записи и их заявки. Счётчик — сколько записей уже есть.
 export const MineButton = ({ onPress }: MineButtonProps) => {
   const count = useMyEntriesCount();
   return (

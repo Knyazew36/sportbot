@@ -23,7 +23,7 @@ import {
 
 import { haptic } from '@/shared/lib/haptics';
 import { storage } from '@/shared/lib/storage';
-import { clearSessionUserId, getSessionUserId } from './model/session-user';
+import { clearSessionUserId, getSessionUserId, setSessionUserId } from './model/session-user';
 
 const DEFAULT_SUCCESS = 'Готово';
 
@@ -97,8 +97,9 @@ const persister = createAsyncStoragePersister({
 export const getPersistOptions = (): Omit<PersistQueryClientOptions, 'queryClient'> => ({
   persister,
   maxAge: PERSIST_GC_TIME,
-  // Другой аккаунт на том же телефоне не получит чужую тренировку и очередь
-  buster: `user:${getSessionUserId()}`,
+  // Постоянное значение: прежние версии писали именно его, смена сбросила бы неотправленную очередь
+  // при обновлении. Чужой аккаунт отсекает bindSessionUser, а не buster
+  buster: 'user:',
   dehydrateOptions: {
     shouldDehydrateQuery: (query) => Boolean(query.meta?.persist) && query.state.status === 'success',
     shouldDehydrateMutation: (mutation) =>
@@ -118,10 +119,29 @@ export const resumePersistedMutations = () => {
     .forEach((mutation) => void mutation.continue().catch(() => undefined));
 };
 
-// Выход или протухший токен: кеш прошлого пользователя не должен достаться следующему
-subscribeSession(() => {
-  if (getAccessToken()) return;
+const clearAll = () => {
   clearSessionUserId();
   queryClient.clear();
   void persister.removeClient();
+};
+
+// Выход — кеш прошлого пользователя не должен достаться следующему.
+// Протухший токен — не выход: неотправленные подходы ждут повторного входа (повтор на 401 в очереди)
+subscribeSession((reason) => {
+  if (getAccessToken() || reason === 'expired') return;
+  clearAll();
 });
+
+/**
+ * Профиль загружен — кому принадлежат кеш и очередь. После протухшего токена вошли другим
+ * аккаунтом: чужая тренировка и очередь выбрасываются, иначе они ушли бы на сервер от его имени
+ */
+export const bindSessionUser = (userId: number) => {
+  const previous = getSessionUserId();
+  if (previous === String(userId)) return;
+  if (previous) {
+    queryClient.getMutationCache().clear();
+    queryClient.removeQueries({ predicate: (query) => query.queryKey[0] !== 'sport-user' });
+  }
+  setSessionUserId(userId);
+};

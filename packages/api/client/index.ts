@@ -21,5 +21,5 @@ export {
   setAccessToken,
   useIsAuthenticated,
 } from './session'
-export { emitSessionChange, subscribeSession } from './session-events'
+export { emitSessionChange, subscribeSession, type SessionChangeReason } from './session-events'
 export type * from './type'

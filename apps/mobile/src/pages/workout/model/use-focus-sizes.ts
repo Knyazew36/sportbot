@@ -1,5 +1,7 @@
 import { useWindowDimensions } from 'react-native';
 
+import { fitLineHeight } from '@/shared/ui/kit/Typography';
+
 // Межстрочный плакатного hero: leading-[110px] при кегле 128
 const HERO_LEADING = 110 / 128;
 
@@ -32,7 +34,8 @@ export const useFocusSizes = () => {
     timerRing: Math.round(Math.min(300, 80 * vw, 36 * vh)),
     /** Кольцо минуты подхода и кнопка «дальше» на паузе круга */
     pauseButton: Math.round(Math.min(140, 20 * vh)),
-    /** Рамка заголовка «Отдых» / «Разминка»: постоянная высота, чтобы кольцо не прыгало */
-    headline: Math.round(Math.min(72, 16 * vw)),
+    /** Рамка заголовка «Отдых» / «Разминка»: постоянная высота, чтобы кольцо не прыгало.
+     *  Ровно строка 4xl: ниже неё рамка срезает слово, а ужатое «Отдых окончен» ниже и так влезает */
+    headline: fitLineHeight('4xl'),
   };
 };

@@ -23,7 +23,7 @@ const TABS = [
 ]
 
 // Справочник (frontend-tz, 11): упражнения и растяжки с поиском и фильтрами, «Мои» со статусами заявок.
-// Две вкладки и блок справочника; «Мои» — кнопкой в шапке: это не раздел справочника, а свои записи
+// Две вкладки и блок справочника; «Мои» — отдельный раздел, кнопка перехода расположена под шапкой
 const LibraryPage = () => {
   const [params, setParams] = useSearchParams()
   const tab = (params.get('tab') as Tab | null) ?? 'exercises'
@@ -39,21 +39,19 @@ const LibraryPage = () => {
     <Screen
       header={
         <>
-          <ScreenHeader
-            title={tab === 'mine' ? 'Справочник · мои' : 'Справочник'}
-            action={
-              <MineButton
-                active={tab === 'mine'}
-                onClick={() => {
-                  if (tab !== 'mine') setLastTab(tab)
-                  openTab(tab === 'mine' ? lastTab : 'mine')
-                }}
-              />
-            }
-          />
+          <ScreenHeader title={tab === 'mine' ? 'Справочник · мои' : 'Справочник'} />
+          <div className='px-gutter flex justify-end pt-3'>
+            <MineButton
+              active={tab === 'mine'}
+              onClick={() => {
+                if (tab !== 'mine') setLastTab(tab)
+                openTab(tab === 'mine' ? lastTab : 'mine')
+              }}
+            />
+          </div>
           {/* В «Моих» своя вкладка упражнений и растяжек — общая сверху её дублировала бы */}
           {tab !== 'mine' && (
-            <div className='px-gutter flex flex-col gap-3 pt-4'>
+            <div className='px-gutter flex flex-col gap-3 pt-3'>
               <Segmented
                 options={TABS}
                 value={tab}

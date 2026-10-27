@@ -7,8 +7,7 @@ type MineButtonProps = {
   onClick: () => void
 }
 
-// «Мои» в шапке справочника: свои записи и их заявки. Счётчик — сколько записей уже есть.
-// Отрицательный отступ — кнопка не раздувает шапку
+// «Мои» под шапкой справочника: свои записи и их заявки. Счётчик — сколько записей уже есть.
 export const MineButton = ({ active, onClick }: MineButtonProps) => {
   const count = useMyEntriesCount()
   return (
@@ -18,7 +17,7 @@ export const MineButton = ({ active, onClick }: MineButtonProps) => {
       size='sm'
       aria-pressed={active}
       aria-label={count.data ? `Мои, записей: ${count.data}` : 'Мои'}
-      className='relative -my-1.5'
+      className='relative'
       onClick={onClick}
     >
       Мои

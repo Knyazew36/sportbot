@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useState } from 'react';
 import {
   StyleSheet,
   Text as RNText,
@@ -110,16 +110,87 @@ export const Digits = ({ children, fontSize }: { children: string; fontSize: num
   </>
 );
 
-export const Poster = ({ size = 'md', tone = 'inherit', numeric, fit, className, children, ...props }: PosterProps) => (
-  <RNText
-    numberOfLines={fit ? 1 : undefined}
-    adjustsFontSizeToFit={fit}
-    {...props}
-    className={cn('font-display uppercase', POSTER_SIZE[size], useToneClass(tone), className)}
-  >
-    {typeof children === 'string' && numeric ? <Digits fontSize={POSTER_FONT_SIZE[size]}>{children}</Digits> : children}
-  </RNText>
-);
+export const Poster = ({ size = 'md', tone = 'inherit', numeric, fit, className, children, ...props }: PosterProps) => {
+  const toneClass = useToneClass(tone);
+  if (fit) {
+    return (
+      <FitPoster size={size} numeric={numeric} toneClass={toneClass} className={className} {...props}>
+        {children}
+      </FitPoster>
+    );
+  }
+  return (
+    <RNText {...props} className={cn('font-display uppercase', POSTER_SIZE[size], toneClass, className)}>
+      {typeof children === 'string' && numeric ? <Digits fontSize={POSTER_FONT_SIZE[size]}>{children}</Digits> : children}
+    </RNText>
+  );
+};
+
+// Межстрочный ужатой строки в долях кегля. У Oswald верх шрифта на 1.19 кегля над базовой, низ на 0.29 под ней,
+// заглавные — 0.81. Android урезает межстрочный поровну сверху и снизу: при 1.2 целы заглавные, «Й» и хвосты «Д», «Щ».
+// Плакатный leading шкалы (0.86) меньше, и рамка такой высоты срезала слово
+const FIT_LEADING = 1.2;
+
+/** Высота строки Poster с fit при кегле шкалы — под неё рамка, если строка должна стоять на месте */
+export const fitLineHeight = (size: PosterSize) => Math.ceil(POSTER_FONT_SIZE[size] * FIT_LEADING);
+
+type FitPosterProps = RNTextProps & {
+  size: PosterSize;
+  numeric?: boolean;
+  toneClass: string;
+  className?: string;
+};
+
+// Плакатная строка, ужатая под свою ширину, — как useFitText фронта: кегль считаем сами.
+// adjustsFontSizeToFit не годится: на Android он не масштабирует межстрочный и ужимает слово в разы мельче,
+// чем нужно по ширине. Ширину слова при кегле шкалы меряет невидимая копия без ограничения ширины.
+const FitPoster = ({ size, numeric, toneClass, className, style, children, ...props }: FitPosterProps) => {
+  const base = POSTER_FONT_SIZE[size];
+  const [natural, setNatural] = useState(0);
+  const [box, setBox] = useState(0);
+  const font = natural > 0 && box > 0 ? Math.min(base, Math.floor(((base * box) / natural) * 10) / 10) : base;
+  const glyph = (fontSize: number) => ({
+    fontSize,
+    lineHeight: Math.ceil(fontSize * FIT_LEADING),
+    // Разрядка шкалы от lg и крупнее — −2% кегля, вместе с кеглем и ужимается
+    letterSpacing: base >= 28 ? -0.02 * fontSize : 0,
+    includeFontPadding: false,
+  });
+  const content =
+    typeof children === 'string' && numeric ? <Digits fontSize={font}>{children}</Digits> : children;
+  const text = cn('font-display uppercase', toneClass);
+
+  return (
+    <>
+      <RNText
+        aria-hidden
+        importantForAccessibility="no-hide-descendants"
+        numberOfLines={1}
+        pointerEvents="none"
+        className={text}
+        style={[glyph(base), { position: 'absolute', width: 10000, opacity: 0 }]}
+        onTextLayout={(e) => setNatural(e.nativeEvent.lines[0]?.width ?? 0)}
+      >
+        {typeof children === 'string' && numeric ? <Digits fontSize={base}>{children}</Digits> : children}
+      </RNText>
+      <RNText
+        numberOfLines={1}
+        {...props}
+        className={cn(text, className)}
+        style={[style, glyph(font)]}
+        onLayout={(e) => {
+          props.onLayout?.(e);
+          const width = e.nativeEvent.layout.width;
+          // В строке со shrink ширина текста равна ширине ужатого слова — из неё выходит тот же кегль.
+          // Сдвиги меньше пикселя от округления не берём, иначе кегль сползал бы с каждой раскладкой
+          setBox((prev) => (Math.abs(prev - width) < 1 ? prev : width));
+        }}
+      >
+        {content}
+      </RNText>
+    </>
+  );
+};
 
 type ClockProps = {
   size?: PosterSize;

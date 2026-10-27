@@ -1,5 +1,15 @@
-import { useId, type ReactNode } from 'react';
+import { useEffect, useId, type ReactNode } from 'react';
 import { View } from 'react-native';
+import Animated, {
+  Easing,
+  interpolate,
+  useAnimatedProps,
+  useReducedMotion,
+  useSharedValue,
+  withDelay,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 import Svg, { Circle, ClipPath, Defs, Ellipse, G, Line, Path, Pattern, Rect, Text as SvgText } from 'react-native-svg';
 
 import { cn } from '@/shared/lib/utils';
@@ -8,13 +18,179 @@ import { useTheme } from '@/shared/theme/ThemeProvider';
 
 // СГЕНЕРИРОВАНО из apps/frontend/src/shared/ui/kit/Art.tsx скриптом конвертации (svg → react-native-svg).
 // Правки сцен вносим во фронт и перегоняем. Отличия: цвета из темы вместо CSS-переменных,
-// CSS-анимации (дыхание, маятник, мерцание) сняты — в RN сцены статичны
+// CSS-анимации sb-* портированы на reanimated — блок «Анимации сцен» ниже. Перегенерация
+// скриптом их снимает: после прогона scripts-convert-art.py анимации нужно вернуть
 
 // Раскладка снаружи (отступы, ширина) — classNames на обёртке; сама сцена тянется по ширине с пропорцией viewBox
 type ArtProps = { className?: string };
 
 // useId в React 19 даёт ««r0»» — в url(#…) react-native-svg такие символы не переварит
 const useSvgId = () => useId().replace(/[^a-zA-Z0-9]/g, '');
+
+// ── Анимации сцен: порт CSS-классов sb-* из apps/frontend/src/global.css на reanimated ──
+// Точки поворота и масштаба — те, что в CSS задавали transform-origin + transform-box,
+// пересчитаны в координаты сцены вручную: при правке разметки сцен во фронте их проверяем
+
+const AnimatedG = Animated.createAnimatedComponent(G);
+const AnimatedPath = Animated.createAnimatedComponent(Path);
+const AnimatedRect = Animated.createAnimatedComponent(Rect);
+const AnimatedEllipse = Animated.createAnimatedComponent(Ellipse);
+const AnimatedText = Animated.createAnimatedComponent(SvgText);
+
+const EASE_IN_OUT = Easing.inOut(Easing.ease);
+const EASE_OUT = Easing.out(Easing.ease);
+
+// CSS-задержки в разметке фронта отрицательные (старт с середины цикла) — reanimated ждёт только вперёд,
+// поэтому фазу переносим на положительный сдвиг внутри периода (для alternate период — два прогона)
+const phaseDelayMs = (delaySec: number, periodSec: number) => ((periodSec - (delaySec % periodSec)) % periodSec) * 1000;
+
+type CycleOptions = { reverse?: boolean; delayMs?: number; ease?: (value: number) => number; paused?: boolean };
+
+// Один бесконечный такт 0→1; reverse — CSS alternate «туда-обратно», paused — prefers-reduced-motion
+const useCycle = (durationMs: number, { reverse = false, delayMs = 0, ease = EASE_IN_OUT, paused = false }: CycleOptions = {}) => {
+  const t = useSharedValue(0);
+  useEffect(() => {
+    if (paused) return;
+    t.set(withDelay(delayMs, withRepeat(withTiming(1, { duration: durationMs, easing: ease }), -1, reverse)));
+  }, [t, durationMs, reverse, delayMs, ease, paused]);
+  return t;
+};
+
+type Still = { still: boolean };
+
+// transform отдаём массивом, не SVG-строкой: reanimated 4 парсит строку как CSS
+// и падает на UI-потоке на «translate(0 46)» / «rotate(a cx cy)» (нет запятых и единиц)
+type TransformStep = { translateX: number } | { translateY: number } | { scale: number } | { scaleX: number } | { scaleY: number } | { rotate: string };
+
+const IDENTITY: TransformStep[] = [{ scale: 1 }];
+
+// SVG «op(… cx cy)» — та же операция вокруг точки: сдвиг в точку, операция, сдвиг обратно
+const around = (x: number, y: number, steps: TransformStep[]): TransformStep[] => {
+  'worklet';
+  return [{ translateX: x }, { translateY: y }, ...steps, { translateX: -x }, { translateY: -y }];
+};
+
+// sb-breathe: корпус дышит от пола — низ стоит (origin — низ корпуса гири, y=46)
+const Breathe = ({ children, still }: Still & { children?: ReactNode }) => {
+  const t = useCycle(2100, { reverse: true, paused: still });
+  const props = useAnimatedProps(() => ({
+    transform: still ? IDENTITY : around(0, 46, [{ scaleX: 1 + 0.02 * t.value }, { scaleY: 1 + 0.05 * t.value }]),
+  }));
+  return <AnimatedG animatedProps={props}>{children}</AnimatedG>;
+};
+
+// sb-snore-mouth: рот похрапывает в такт дыханию
+const SnoreMouth = ({ still }: Still) => {
+  const { colors: c } = useTheme();
+  const t = useCycle(2100, { reverse: true, paused: still });
+  const props = useAnimatedProps(() => ({
+    transform: still ? IDENTITY : around(0, 8, [{ scaleX: 1 + 0.3 * t.value }, { scaleY: 1 + 0.6 * t.value }]),
+  }));
+  return <AnimatedEllipse cy="8" rx="4" ry="5" fill={c.ink} animatedProps={props} />;
+};
+
+// sb-sway / sb-flutter: качание -6°…6° вокруг точки крепления (origin — в координатах сцены)
+const Sway = ({
+  children,
+  still,
+  origin,
+  duration,
+  delay = 0,
+}: Still & { children?: ReactNode; origin: [number, number]; duration: number; delay?: number }) => {
+  const t = useCycle(duration, { reverse: true, delayMs: phaseDelayMs(delay, (duration * 2) / 1000), paused: still });
+  const [ox, oy] = origin;
+  const props = useAnimatedProps(() => ({
+    transform: still ? IDENTITY : around(ox, oy, [{ rotate: `${-6 + 12 * t.value}deg` }]),
+  }));
+  return <AnimatedG animatedProps={props}>{children}</AnimatedG>;
+};
+
+// sb-snore: «z» рождается у кисточки колпака и тает в небе; без движения остаётся одна — сон читается и в статике
+const SnoreZ = ({ delay, still, staticShown = false }: Still & { delay: number; staticShown?: boolean }) => {
+  const t = useCycle(4200, { ease: EASE_OUT, delayMs: phaseDelayMs(delay, 4.2), paused: still });
+  const props = useAnimatedProps(() => {
+    if (still) return { opacity: staticShown ? 1 : 0, transform: staticShown ? [{ translateX: 14 }, { translateY: -14 }] : IDENTITY };
+    return {
+      opacity: interpolate(t.value, [0, 0.25, 1], [0, 1, 0]),
+      transform: [{ translateX: 40 * t.value }, { translateY: -44 * t.value }, ...around(272, 72, [{ scale: 0.5 + t.value }])],
+    };
+  });
+  return (
+    <AnimatedText x="266" y="84" animatedProps={props}>
+      z
+    </AnimatedText>
+  );
+};
+
+// sb-pendulum: гиря качается на грифе вокруг точки подвеса (256, 80)
+const Pendulum = ({ children, still }: Still & { children?: ReactNode }) => {
+  const t = useCycle(2200, { reverse: true, paused: still });
+  const props = useAnimatedProps(() => ({
+    transform: still ? IDENTITY : around(256, 80, [{ rotate: `${-10 + 20 * t.value}deg` }]),
+  }));
+  return <AnimatedG animatedProps={props}>{children}</AnimatedG>;
+};
+
+// sb-pendulum-shadow: тень бегает за качанием гири (origin — центр тени, 264, 240.5)
+const PendulumShadow = ({ still }: Still) => {
+  const { colors: c } = useTheme();
+  const t = useCycle(2200, { reverse: true, paused: still });
+  const props = useAnimatedProps(() => ({
+    transform: still
+      ? IDENTITY
+      : [
+          { translateX: 24 - 48 * t.value },
+          ...around(264, 240.5, [{ scaleX: interpolate(t.value, [0, 0.5, 1], [0.85, 1.1, 0.85]) }]),
+        ],
+  }));
+  return <AnimatedPath d="M226 236 L290 236 L302 245 L238 245 Z" fill={c.ink} opacity="0.85" animatedProps={props} />;
+};
+
+// sb-bob: гиря подпрыгивает на бегу
+const Bob = ({ children, still }: Still & { children?: ReactNode }) => {
+  const t = useCycle(1100, { reverse: true, paused: still });
+  const props = useAnimatedProps(() => ({
+    transform: still ? IDENTITY : [{ translateY: -8 * t.value }],
+  }));
+  return <AnimatedG animatedProps={props}>{children}</AnimatedG>;
+};
+
+// sb-flash: вспышка камеры — короткий импульс в конце такта
+const FlashPath = ({ d, still, delay = 0 }: Still & { d: string; delay?: number }) => {
+  const { colors: c } = useTheme();
+  const t = useCycle(2400, { ease: Easing.linear, delayMs: phaseDelayMs(delay, 2.4), paused: still });
+  const props = useAnimatedProps(() => ({
+    opacity: still ? 1 : interpolate(t.value, [0, 0.7, 0.76, 1], [0, 0, 1, 0]),
+  }));
+  return <AnimatedPath d={d} stroke={c.ink} strokeWidth="3" strokeLinecap="round" animatedProps={props} />;
+};
+
+// sb-confetti: кусочек падает и кружится, темп и сдвиг свои у каждого
+const ConfettiPiece = ({
+  x,
+  y,
+  ink,
+  delay,
+  duration,
+  still,
+}: Still & { x: number; y: number; ink: boolean; delay: number; duration: number }) => {
+  const { colors: c } = useTheme();
+  const t = useCycle(duration * 1000, { ease: Easing.linear, delayMs: phaseDelayMs(delay, duration), paused: still });
+  const cx = x + 4;
+  const cy = y + 2;
+  const props = useAnimatedProps(() => {
+    if (still) return { opacity: 1, transform: IDENTITY };
+    return {
+      opacity: interpolate(t.value, [0, 0.1, 0.85, 1], [0, 1, 1, 0]),
+      transform: [
+        { translateX: 14 * t.value },
+        { translateY: -20 + 230 * t.value },
+        ...around(cx, cy, [{ rotate: `${540 * t.value}deg` }]),
+      ],
+    };
+  });
+  return <AnimatedRect x={x} y={y} width="8" height="4" fill={ink ? c.ink : c.blue} animatedProps={props} />;
+};
 
 
 // Плоские иллюстрации в духе плаката середины века: синий с прозрачностью для форм, чёрный для теней и деталей
@@ -250,14 +426,20 @@ export const Kettlebell = ({ children }: { children?: ReactNode }) => {
   )
 }
 
-// Четырёхлучевая звезда для ночного неба
-const Star = ({ x, y, size = 6, delay }: { x: number; y: number; size?: number; delay: number }) => {
+// Четырёхлучевая звезда для ночного неба: мерцает вразнобой (sb-twinkle), сдвиг задаёт разметка
+const Star = ({ x, y, size = 6, delay, still }: Still & { x: number; y: number; size?: number; delay: number }) => {
   const { colors: c } = useTheme()
-  const t = size / 4
+  const t = useCycle(1600, { reverse: true, delayMs: phaseDelayMs(delay, 3.2), paused: still });
+  const q = size / 4
+  const props = useAnimatedProps(() => ({
+    opacity: still ? 1 : 0.25 + 0.75 * t.value,
+    transform: still ? IDENTITY : around(x, y, [{ scale: 0.6 + 0.4 * t.value }]),
+  }));
   return (
-    <Path
-      d={`M${x} ${y - size} L${x + t} ${y - t} L${x + size} ${y} L${x + t} ${y + t} L${x} ${y + size} L${x - t} ${y + t} L${x - size} ${y} L${x - t} ${y - t} Z`}
+    <AnimatedPath
+      d={`M${x} ${y - size} L${x + q} ${y - q} L${x + size} ${y} L${x + q} ${y + q} L${x} ${y + size} L${x - q} ${y + q} L${x - size} ${y} L${x - q} ${y - q} Z`}
       fill={c.blue}
+      animatedProps={props}
     />
   )
 }
@@ -266,6 +448,7 @@ const Star = ({ x, y, size = 6, delay }: { x: number; y: number; size?: number; 
 // Дышит, рот похрапывает, кисточка колпака качается, звёзды мерцают, к небу летят «z»
 export const RestArt = ({ className }: ArtProps) => {
   const { colors: c } = useTheme()
+  const still = useReducedMotion();
   const dots = useSvgId()
   const plaid = useSvgId()
   const blanket = 'M92 236 L96 206 C124 198 152 206 182 204 C212 202 240 196 270 204 L276 236 Z'
@@ -307,24 +490,28 @@ export const RestArt = ({ className }: ArtProps) => {
         x={120}
         y={28}
         delay={0}
+        still={still}
       />
       <Star
         x={330}
         y={30}
         size={5}
         delay={0.8}
+        still={still}
       />
       <Star
         x={28}
         y={130}
         size={4}
         delay={1.6}
+        still={still}
       />
       <Star
         x={334}
         y={136}
         size={7}
         delay={2.2}
+        still={still}
       />
       <Line
         x1='0'
@@ -361,6 +548,7 @@ export const RestArt = ({ className }: ArtProps) => {
         />
       </G>
       <G transform='translate(184 158) rotate(-8) scale(1.55)'>
+        <Breathe still={still}>
         <Kettlebell>
           {/* Закрытые глаза с ресницами, румянец и храпящий рот */}
           <Path
@@ -390,19 +578,13 @@ export const RestArt = ({ className }: ArtProps) => {
             fill={c.paper}
             opacity='0.3'
           />
-          <Ellipse
-            cy='8'
-            rx='4'
-            ry='5'
-            fill={c.ink}
-          />
+          <SnoreMouth still={still} />
           {/* Ночной колпак на ручке: шапка с отворотом, кончик с кисточкой качается */}
           <Path
             d='M-22 -68 C-14 -90 16 -94 28 -72 C14 -66 -8 -64 -22 -68 Z'
             fill={c.ink}
           />
-          <G
-          >
+          <Sway still={still} origin={[16, -81]} duration={2100}>
             <Path
               d='M14 -90 C34 -88 48 -68 50 -44 C40 -54 30 -62 20 -66 Z'
               fill={c.ink}
@@ -415,7 +597,7 @@ export const RestArt = ({ className }: ArtProps) => {
               stroke={c.ink}
               strokeWidth='2.5'
             />
-          </G>
+          </Sway>
           <Path
             d='M-24 -68 C-8 -63 10 -63 30 -72'
             fill='none'
@@ -424,6 +606,7 @@ export const RestArt = ({ className }: ArtProps) => {
             strokeLinecap='round'
           />
         </Kettlebell>
+        </Breathe>
       </G>
       {/* Плед в клетку: клетка обрезана по краю пледа, по бокам бахрома, правый угол отогнут */}
       <Path
@@ -475,14 +658,8 @@ export const RestArt = ({ className }: ArtProps) => {
         fontWeight='600'
         fontSize='28'
       >
-        {[0, 1.4, 2.8].map(delay => (
-          <SvgText
-            key={delay}
-            x='266'
-            y='84'
-          >
-            z
-          </SvgText>
+        {[0, 1.4, 2.8].map((delay, i) => (
+          <SnoreZ key={delay} delay={delay} still={still} staticShown={i === 0} />
         ))}
       </G>
     </Svg>
@@ -493,6 +670,7 @@ export const RestArt = ({ className }: ArtProps) => {
 // День тренировки: штанга на стойках, слева блины, справа вместо блина висит гиря и качается маятником
 export const TrainingArt = ({ className }: ArtProps) => {
   const { colors: c } = useTheme()
+  const still = useReducedMotion();
   const dots = useSvgId()
   const half = useSvgId()
   return (
@@ -542,11 +720,7 @@ export const TrainingArt = ({ className }: ArtProps) => {
         fill={c.ink}
         opacity='0.85'
       />
-      <Path
-        d='M226 236 L290 236 L302 245 L238 245 Z'
-        fill={c.ink}
-        opacity='0.85'
-      />
+      <PendulumShadow still={still} />
       {/* Стойки с крюками */}
       <Path
         d='M74 64 L74 236 M158 64 L158 236 M58 233 L90 233 M142 233 L174 233'
@@ -561,8 +735,7 @@ export const TrainingArt = ({ className }: ArtProps) => {
         strokeLinejoin='round'
       />
       {/* Гиря висит ручкой на грифе: качание вокруг точки подвеса */}
-      <G
-      >
+      <Pendulum still={still}>
         <G transform='translate(256 160) scale(1.45)'>
           <Kettlebell>
             {/* Подмигивает и улыбается */}
@@ -605,7 +778,7 @@ export const TrainingArt = ({ className }: ArtProps) => {
             />
           </Kettlebell>
         </G>
-      </G>
+      </Pendulum>
       {/* Гриф продет сквозь ручку: перед левой стороной, за правой. Блины слева уходят за край */}
       <Rect
         x='0'
@@ -615,8 +788,7 @@ export const TrainingArt = ({ className }: ArtProps) => {
         fill={c.ink}
       />
       {/* Правая половина ручки поверх грифа — качается вместе с гирей */}
-      <G
-      >
+      <Pendulum still={still}>
         <Path
           d={KETTLEBELL_HANDLE}
           transform='translate(256 160) scale(1.45)'
@@ -626,7 +798,7 @@ export const TrainingArt = ({ className }: ArtProps) => {
           strokeWidth='14'
           strokeLinecap='round'
         />
-      </G>
+      </Pendulum>
       <Rect
         x='2'
         y='20'
@@ -731,6 +903,7 @@ const CONFETTI = [
 // Итог тренировки: гиря на бегу рвёт финишную ленту, обрывки трепещут, сверху сыплется конфетти
 export const FinishArt = ({ className }: ArtProps) => {
   const { colors: c } = useTheme()
+  const still = useReducedMotion();
   const dots = useSvgId()
   return (
     <View className={cn('w-full', className)}>
@@ -776,20 +949,24 @@ export const FinishArt = ({ className }: ArtProps) => {
         strokeWidth='6'
       />
       {/* Обрывки ленты трепещут от стоек */}
-      <Path
-        d='M40 122 C58 126 74 142 86 162 L77 167 C66 148 54 136 40 132 Z'
-        fill={c.paper}
-        stroke={c.ink}
-        strokeWidth='2'
-        strokeLinejoin='round'
-      />
-      <Path
-        d='M320 122 C300 118 288 104 282 84 L273 89 C280 112 298 128 320 132 Z'
-        fill={c.paper}
-        stroke={c.ink}
-        strokeWidth='2'
-        strokeLinejoin='round'
-      />
+      <Sway still={still} origin={[40, 126]} duration={500}>
+        <Path
+          d='M40 122 C58 126 74 142 86 162 L77 167 C66 148 54 136 40 132 Z'
+          fill={c.paper}
+          stroke={c.ink}
+          strokeWidth='2'
+          strokeLinejoin='round'
+        />
+      </Sway>
+      <Sway still={still} origin={[320, 127]} duration={500} delay={0.25}>
+        <Path
+          d='M320 122 C300 118 288 104 282 84 L273 89 C280 112 298 128 320 132 Z'
+          fill={c.paper}
+          stroke={c.ink}
+          strokeWidth='2'
+          strokeLinejoin='round'
+        />
+      </Sway>
       {/* Линии скорости позади */}
       <Path
         d='M58 168 L100 168 M66 186 L106 186 M58 204 L96 204'
@@ -798,7 +975,7 @@ export const FinishArt = ({ className }: ArtProps) => {
         strokeLinecap='round'
       />
       {/* Гиря подаётся вперёд и подпрыгивает на бегу */}
-      <G>
+      <Bob still={still}>
         <G transform='translate(186 150) rotate(12) scale(1.5)'>
           <Kettlebell>
             <HappyEyes />
@@ -806,16 +983,9 @@ export const FinishArt = ({ className }: ArtProps) => {
             <Blush />
           </Kettlebell>
         </G>
-      </G>
-      {CONFETTI.map(({ x, y, ink }) => (
-        <Rect
-          key={x}
-          x={x}
-          y={y}
-          width='8'
-          height='4'
-          fill={ink ? c.ink : c.blue}
-        />
+      </Bob>
+      {CONFETTI.map(({ x, y, ink, delay, duration }) => (
+        <ConfettiPiece key={x} x={x} y={y} ink={ink} delay={delay} duration={duration} still={still} />
       ))}
     </Svg>
     </View>
@@ -825,6 +995,7 @@ export const FinishArt = ({ className }: ArtProps) => {
 // «Засчитано»: гиря на верхней ступени пьедестала, по бокам вспыхивают камеры, вокруг мерцают искры
 export const PodiumArt = ({ className }: ArtProps) => {
   const { colors: c } = useTheme()
+  const still = useReducedMotion();
   const dots = useSvgId()
   return (
     <View className={cn('w-full', className)}>
@@ -917,48 +1088,51 @@ export const PodiumArt = ({ className }: ArtProps) => {
         </SvgText>
       </G>
       <G transform='translate(180 113) scale(1.45)'>
+        <Breathe still={still}>
         <Kettlebell>
           <HappyEyes />
           <Grin />
           <Blush />
         </Kettlebell>
+        </Breathe>
       </G>
       {/* Вспышки камер слева и справа — по очереди */}
-      <Path
+      <FlashPath
         d='M30 70 L44 80 M22 98 L40 98 M30 126 L44 116'
-        stroke={c.ink}
-        strokeWidth='3'
-        strokeLinecap='round'
+        still={still}
       />
-      <Path
+      <FlashPath
         d='M330 70 L316 80 M338 98 L320 98 M330 126 L316 116'
-        stroke={c.ink}
-        strokeWidth='3'
-        strokeLinecap='round'
+        still={still}
+        delay={1.2}
       />
       <Star
         x={64}
         y={52}
         size={8}
         delay={0}
+        still={still}
       />
       <Star
         x={296}
         y={160}
         size={6}
         delay={0.7}
+        still={still}
       />
       <Star
         x={92}
         y={150}
         size={5}
         delay={1.3}
+        still={still}
       />
       <Star
         x={290}
         y={40}
         size={5}
         delay={2}
+        still={still}
       />
     </Svg>
     </View>

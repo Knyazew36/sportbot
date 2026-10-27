@@ -49,7 +49,11 @@ export const Sheet = ({ open, onOpenChange, title, kicker, description, footer, 
     }
   }, [open]);
 
+  // Сообщаем о закрытии, только если закрыл человек (смахнул, тап по подложке). Закрытие через open=false
+  // начал сам родитель: эффект выше уже сбросил presented. Иначе onClose родителя срабатывает после его же
+  // «Сохранить» — на тренировке так закрытие шторки подхода возобновляло подход вместо отдыха
   const handleDismiss = useCallback(() => {
+    if (!presented.current) return;
     presented.current = false;
     onOpenChange(false);
   }, [onOpenChange]);

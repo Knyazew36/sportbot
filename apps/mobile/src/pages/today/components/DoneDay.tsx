@@ -49,11 +49,13 @@ export const DoneDay = ({ day }: { day: DayToday }) => {
             Ещё одна тренировка
           </Button>
         </View>
-        <View className="flex-1">
-          <ButtonLink href={ROUTES.STATS} variant="outline" size="sm" block icon={ChartNoAxesColumn}>
-            Статистика
-          </ButtonLink>
-        </View>
+        <ButtonLink
+          href={ROUTES.STATS}
+          variant="outline"
+          size="icon-sm"
+          icon={ChartNoAxesColumn}
+          accessibilityLabel="Статистика"
+        />
       </Rise>
 
       <OtherComplexSheet

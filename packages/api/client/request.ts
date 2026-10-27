@@ -50,7 +50,7 @@ $api.interceptors.response.use(
 
     // 401 на запросе с токеном — токен протух или отозван: гварды увидят пропажу токена и уведут на вход.
     // Без токена 401 — обычная ошибка формы входа
-    if (error.response?.status === 401 && getAccessToken()) clearAccessToken()
+    if (error.response?.status === 401 && getAccessToken()) clearAccessToken('expired')
 
     getApiConfig().log?.({
       name: `${logName(error.config)} → ${error.response?.status ?? error.code}`,

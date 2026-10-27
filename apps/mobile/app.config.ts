@@ -58,10 +58,17 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           microphonePermission: false,
         },
       ],
+      // Идущая тренировка на экране блокировки iOS: Live Activity (виджет-расширение генерирует плагин).
+      // Live Activity регистрируется в коде (widgets/workout-live), widgets[] пуст.
+      // На Android вместо неё свой модуль modules/workout-live: foreground service и Live Update
+      ['expo-widgets', { widgets: [] }],
     ],
     experiments: {
       typedRoutes: true,
       reactCompiler: true,
+      // При экспорте on-demand FS урезает watchFolders до apps/mobile, и бандл expo-widgets
+      // не находит metro-runtime в корневом node_modules монорепо (gradle падает на generateExpoWidgetsBundle)
+      onDemandFilesystem: false,
     },
   };
 };

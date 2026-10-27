@@ -79,7 +79,9 @@ const Swipeable = ({ id, enabled, children }: { id: number; enabled: boolean; ch
 
   return (
     <GestureDetector gesture={pan}>
-      <Animated.View style={style}>{children}</Animated.View>
+      <View collapsable={false}>
+        <Animated.View style={style}>{children}</Animated.View>
+      </View>
     </GestureDetector>
   );
 };

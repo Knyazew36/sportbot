@@ -97,6 +97,7 @@ export const FocusRest = ({
               {round ? (over ? 'Начать круг' : 'К кругу') : over ? 'Начать подход' : 'К подходу'}
             </Button>
           )}
+          {/* «+30 с» по содержимому, остальное место отдаём соседней кнопке */}
           <View className="flex-row gap-3">
             {/* Дальше только завершение: продлевать отдых незачем, а вернуться может понадобиться —
                 добить подход в другом упражнении */}
@@ -106,7 +107,7 @@ export const FocusRest = ({
               </Button>
             ) : (
               // Отдых окончен — добавить всё равно можно: таймер снова пойдёт от текущего момента
-              <Button variant="outline" className="flex-1" onPress={addRest}>
+              <Button variant="outline" className="shrink-0" onPress={addRest}>
                 <Icon as={Plus} strokeWidth={3} />
                 30 с
               </Button>

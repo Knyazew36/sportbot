@@ -4,6 +4,7 @@ import { ArrowRight, MessageCircle, Send } from 'lucide-react-native';
 import { Controller, useForm } from 'react-hook-form';
 import { View } from 'react-native';
 
+import { useOpenMessengerLogin } from '@/features/messenger-login/use-open-messenger-login';
 import { getApiErrorMessage, getApiErrorStatus } from '@/shared/api';
 import { ROUTES } from '@/shared/config/routes';
 import { AuthDivider, AuthLink, LayoutAuth } from '@/shared/layouts/layout-auth/LayoutAuth';
@@ -11,12 +12,24 @@ import { Button } from '@/shared/ui/kit/Button';
 import { ErrorText } from '@/shared/ui/kit/ErrorText';
 import { TextField } from '@/shared/ui/kit/TextField';
 
-import { loginSchema, useLogin, type LoginValues } from '@sportbot/api/entities/session';
+import {
+  loginSchema,
+  useLogin,
+  type LoginValues,
+  type MessengerProvider,
+} from '@sportbot/api/entities/session';
 
 // Вход по email — порт pages/login. После успеха токен сохранён — гвард (auth) сам уводит на «Сегодня»
 const LoginPage = () => {
   const { email: paramEmail } = useLocalSearchParams<{ email?: string }>();
   const login = useLogin();
+  const messenger = useOpenMessengerLogin();
+
+  // Один тап: ссылка → сразу мессенджер, а этот стек уже ждёт подтверждения на экране статуса
+  const openMessenger = (provider: MessengerProvider) =>
+    messenger.open(provider, ({ token, url }) =>
+      router.push({ pathname: ROUTES.MESSENGER_LOGIN, params: { provider, token, url } }),
+    );
 
   const {
     control,
@@ -99,7 +112,9 @@ const LoginPage = () => {
             variant="outline"
             icon={Send}
             className="flex-1"
-            onPress={() => router.push({ pathname: ROUTES.MESSENGER_LOGIN, params: { provider: 'telegram' } })}
+            loading={messenger.pendingProvider === 'telegram'}
+            disabled={!!messenger.pendingProvider}
+            onPress={() => openMessenger('telegram')}
           >
             Telegram
           </Button>
@@ -107,7 +122,9 @@ const LoginPage = () => {
             variant="outline"
             icon={MessageCircle}
             className="flex-1"
-            onPress={() => router.push({ pathname: ROUTES.MESSENGER_LOGIN, params: { provider: 'max' } })}
+            loading={messenger.pendingProvider === 'max'}
+            disabled={!!messenger.pendingProvider}
+            onPress={() => openMessenger('max')}
           >
             MAX
           </Button>

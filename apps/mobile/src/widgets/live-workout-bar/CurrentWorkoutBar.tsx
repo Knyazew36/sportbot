@@ -5,6 +5,8 @@ import { useCurrentWorkout, useQueuedWorkout } from '@sportbot/api/entities/work
 
 import { ROUTES } from '@/shared/config/routes';
 
+import { useWorkoutLive } from '@/widgets/workout-live/model/use-workout-live';
+
 import { restTimerKey } from './constants';
 import { LiveWorkoutBar } from './LiveWorkoutBar';
 import { useRestRunning } from './use-rest-running';
@@ -21,6 +23,8 @@ export const CurrentWorkoutBar = ({ children }: { children: ReactNode }) => {
   // Завершение ждёт сети: возвращаться уже не к чему
   const live = workout && !finishing ? workout : null;
   const resting = useRestRunning(live ? restTimerKey(live.id) : undefined);
+  // Пока запрос не ответил, не знаем, идёт ли тренировка: не снимаем экран блокировки зря
+  useWorkoutLive(current.data ? live : undefined);
   const onWorkout = pathname.startsWith(ROUTES.WORKOUT);
 
   return (

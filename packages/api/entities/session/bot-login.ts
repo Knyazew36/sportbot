@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { setAccessToken } from '../../client';
@@ -22,8 +21,13 @@ const startLogin: Record<MessengerProvider, () => Promise<MessengerLoginStart>> 
 
 const statusParams = (token: string) => ({ token });
 
-export const useStartMessengerLogin = (provider: MessengerProvider) =>
-  useMutation({ mutationFn: () => startLogin[provider]() });
+/** Провайдер — аргумент mutate: на экране входа одна мутация на обе кнопки */
+export const useStartMessengerLogin = () =>
+  useMutation({
+    mutationFn: (provider: MessengerProvider) => startLogin[provider](),
+    // Результат — сразу открытый чат с ботом, тост поверх него не нужен
+    meta: { skipSuccessToast: true },
+  });
 
 /** Поллинг статуса входа: refetchInterval ставит экран, пауза по фокусу — focusManager (query-client) */
 export const useMessengerLoginStatus = (provider: MessengerProvider, token: string | null) =>
@@ -35,6 +39,8 @@ export const useMessengerLoginStatus = (provider: MessengerProvider, token: stri
         : maxControllerLoginStatus(statusParams(token ?? '')),
     enabled: !!token,
     refetchInterval: 2_000,
+    // Всегда устаревший: при возврате из мессенджера статус перечитывается сразу, а не через интервал
+    staleTime: 0,
     // Код подтверждения не вечный: дальше polling бессмысленен
     retry: false,
   });
@@ -47,11 +53,4 @@ export const useCompleteMessengerLogin = () => {
     setAccessToken(status.accessToken);
     void queryClient.invalidateQueries();
   };
-};
-
-/** Открыть ссылку на бота и вернуться — сразу опросить статус, не ждать интервал */
-export const usePollOnActive = (refetch: () => void, active: boolean) => {
-  useEffect(() => {
-    if (active) refetch();
-  }, [active, refetch]);
 };

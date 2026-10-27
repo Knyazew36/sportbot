@@ -23,7 +23,7 @@ const TABS = [
 ] as const;
 
 // Справочник (frontend-tz, 11): упражнения и растяжки с поиском и фильтрами.
-// «Мои» — кнопкой в шапке на отдельный экран: это не раздел справочника, а свои записи
+// «Мои» — отдельный экран со своими записями, кнопка перехода расположена под шапкой
 const LibraryPage = () => {
   const [tab, setTab] = useState<Tab>('exercises');
   const [filter, setFilter] = useState<CatalogFilterState>(EMPTY_CATALOG_FILTER);
@@ -34,11 +34,11 @@ const LibraryPage = () => {
     <Screen
       header={
         <>
-          <ScreenHeader
-            title="Справочник"
-            action={<MineButton onPress={() => router.push(routeHref(ROUTES.LIBRARY_MINE))} />}
-          />
-          <View className="px-gutter gap-3 pt-4">
+          <ScreenHeader title="Справочник" />
+          <View className="px-gutter items-end pt-3">
+            <MineButton onPress={() => router.push(routeHref(ROUTES.LIBRARY_MINE))} />
+          </View>
+          <View className="px-gutter gap-3 pt-3">
             <Segmented options={TABS} value={tab} onValueChange={setTab} stretch />
           </View>
         </>

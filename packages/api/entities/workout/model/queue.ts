@@ -92,8 +92,9 @@ const resolveSetId = (queryClient: QueryClient, ref: SetRef): number => {
 
 const queueDefaults = {
   scope: WORKOUT_QUEUE_SCOPE,
-  // Без сети react-query сам ставит очередь на паузу; сбои в плохой сети повторяем без лимита
-  retry: (_failureCount: number, error: Error) => isRetryableError(error),
+  // Без сети react-query сам ставит очередь на паузу; сбои в плохой сети повторяем без лимита.
+  // 401 — токен протух посреди очереди: подходы ждут повторного входа, а не выбрасываются
+  retry: (_failureCount: number, error: Error) => isRetryableError(error) || getApiErrorStatus(error) === 401,
   retryDelay: (attempt: number) => Math.min(1000 * 2 ** attempt, 30_000),
 }
 

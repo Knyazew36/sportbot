@@ -7,7 +7,7 @@ import { ROUTES } from '@/shared/config/routes';
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink';
 import { Icon } from '@/shared/ui/kit/Icon';
 import { Rise } from '@/shared/ui/kit/Reveal';
-import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography';
+import { Eyebrow, Poster } from '@/shared/ui/kit/Typography';
 
 type ExerciseCardProps = {
   item: WorkoutItem;
@@ -53,20 +53,24 @@ export const ExerciseCard = ({ item, label }: ExerciseCardProps) => {
         )}
       </Rise>
 
-      {/* Справка мелко: план и прошлый раз не спорят с подходами за внимание. Каждое своей строкой */}
+      {/* Справка мелко: план и прошлый раз не спорят с подходами за внимание. Каждое своей строкой.
+          Метка и значение — соседи в View, а не вложенные Text: во вложенном Android берёт межстрочный
+          строки и срезает высокие выносные Oswald. По той же причине leading значения — родная высота шрифта */}
       <Rise className="gap-1">
-        <Text size="sm">
-          <Eyebrow>План </Eyebrow>
-          <Poster size="sm">{planText(item.plannedSets, item.repsMin, item.repsMax, item.measure)}</Poster>
-        </Text>
+        <View className="flex-row items-baseline gap-1.5">
+          <Eyebrow>План</Eyebrow>
+          <Poster size="sm" className="shrink leading-[30px]">
+            {planText(item.plannedSets, item.repsMin, item.repsMax, item.measure)}
+          </Poster>
+        </View>
         {/* Упражнение раньше не делали — сравнивать не с чем, строку не показываем */}
         {last ? (
-          <Text size="sm">
-            <Eyebrow>Прошлый раз </Eyebrow>
-            <Poster size="sm" tone="primary">
+          <View className="flex-row items-baseline gap-1.5">
+            <Eyebrow>Прошлый раз</Eyebrow>
+            <Poster size="sm" tone="primary" className="shrink leading-[30px]">
               {last}
             </Poster>
-          </Text>
+          </View>
         ) : null}
       </Rise>
 

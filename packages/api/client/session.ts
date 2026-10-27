@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react'
 
 import { getApiConfig } from './config'
-import { emitSessionChange, subscribeSession } from './session-events'
+import { emitSessionChange, subscribeSession, type SessionChangeReason } from './session-events'
 
 export const getAccessToken = (): string | null => getApiConfig().tokens.get()
 
@@ -10,9 +10,9 @@ export const setAccessToken = (token: string, remember = true): void => {
   emitSessionChange()
 }
 
-export const clearAccessToken = (): void => {
+export const clearAccessToken = (reason: Exclude<SessionChangeReason, 'login'> = 'logout'): void => {
   getApiConfig().tokens.clear()
-  emitSessionChange()
+  emitSessionChange(reason)
 }
 
 /** Есть токен или авторизация без него (данные запуска мини-приложения) */

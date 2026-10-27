@@ -1,5 +1,5 @@
-import { useId } from 'react';
-import { StyleSheet } from 'react-native';
+import { useId, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import Svg, { Circle, Defs, Line, Mask, Pattern, RadialGradient, Rect, Stop } from 'react-native-svg';
 
 // Фоновые узоры вместо CSS-утилит фронта (sb-lanes, hatch, sb-halftone): в RN нет repeating-linear-gradient.
@@ -10,18 +10,28 @@ const useSvgId = () => useId().replace(/[^a-zA-Z0-9]/g, '');
 
 type PatternProps = { color: string; opacity?: number };
 
-/** Беговые дорожки: вертикальные линии через 14 — подложка чёрных плашек (InkPanel) */
+const LANE_STEP = 14;
+
+/**
+ * Беговые дорожки: вертикальные линии через 14 — подложка чёрных плашек (InkPanel).
+ * Обычные View, а не SVG Pattern: узор с userSpaceOnUse на устройстве не рисовался вовсе
+ */
 export const Lanes = ({ color, opacity = 1 }: PatternProps) => {
-  const id = useSvgId();
+  const [width, setWidth] = useState(0);
+  const count = Math.ceil(width / LANE_STEP);
   return (
-    <Svg pointerEvents="none" style={[StyleSheet.absoluteFill, { opacity }]}>
-      <Defs>
-        <Pattern id={id} width={14} height={14} patternUnits="userSpaceOnUse">
-          <Rect x={0} y={0} width={1.5} height={14} fill={color} />
-        </Pattern>
-      </Defs>
-      <Rect width="100%" height="100%" fill={`url(#${id})`} />
-    </Svg>
+    <View
+      pointerEvents="none"
+      onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
+      style={[StyleSheet.absoluteFill, { opacity }]}
+    >
+      {Array.from({ length: count }, (_, i) => (
+        <View
+          key={i}
+          style={{ position: 'absolute', top: 0, bottom: 0, left: i * LANE_STEP, width: 1.5, backgroundColor: color }}
+        />
+      ))}
+    </View>
   );
 };
 

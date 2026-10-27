@@ -189,7 +189,11 @@ const SortableItem = ({
     };
   });
 
-  const handle = (child: ReactNode) => <GestureDetector gesture={pan}>{child}</GestureDetector>;
+  const handle = (child: ReactNode) => (
+    <GestureDetector gesture={pan}>
+      <View collapsable={false}>{child}</View>
+    </GestureDetector>
+  );
 
   return (
     <Animated.View
@@ -199,7 +203,7 @@ const SortableItem = ({
         next[index] = size;
         sizes.set(next);
       }}
-      style={[style, dragging && { boxShadow: `6px 6px 0 ${colors.blue}` }]}
+      style={[style, dragging && { boxShadow: `6px 6px 0 ${colors.blue}` },{flex:1}]}
     >
       {children(handle)}
     </Animated.View>

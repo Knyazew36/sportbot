@@ -73,7 +73,7 @@ export const ComplexQueue = ({
             <Eyebrow>{pluralize(c.exercises.length, EXERCISE_FORMS)}</Eyebrow>
           </Ticket>
         ))}
-        {trailing ? <View>{trailing}</View> : null}
+        {trailing ? <View className="self-start">{trailing}</View> : null}
       </ScrollView>
       <ComplexSheet
         complex={opened}
