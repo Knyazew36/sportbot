@@ -80,6 +80,7 @@ model User {
   accountLinkCodes   AccountLinkCode[]
   starPayments       StarPayment[]
   renderJobs         RenderJob[]
+  syncOps            SyncOp[]
 
   @@index([telegramId])
   @@index([maxId])
@@ -462,9 +463,11 @@ model SportProfile {
 
 /// Пауза: опросов нет, дни не считаются пропусками, серия заморожена.
 model Pause {
-  id     Int  @id @default(autoincrement())
-  userId Int
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id       Int    @id @default(autoincrement())
+  /// uuid с клиента: офлайн-синк ссылается на строку по нему, пока нет серверного id
+  clientId String @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId   Int
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   startDate  DateTime    @db.Date
   endDate    DateTime?   @db.Date /// null — до отмены
@@ -473,15 +476,19 @@ model Pause {
   endAskedAt DateTime? /// когда бот спросил «возвращаемся?»
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@index([userId, endedAt])
+  @@index([userId, updatedAt]) /// pull офлайн-синка
 }
 
 /// Ограничение по суставу: упражнения с этой зоной помечаются и исключаются из аналогов.
 model Limitation {
-  id     Int  @id @default(autoincrement())
-  userId Int
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id       Int    @id @default(autoincrement())
+  /// uuid с клиента: офлайн-синк ссылается на строку по нему, пока нет серверного id
+  clientId String @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId   Int
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   jointId Int
   joint   Joint @relation(fields: [jointId], references: [id], onDelete: Restrict)
@@ -491,23 +498,29 @@ model Limitation {
   cancelledAt DateTime? /// снято вручную раньше срока
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@index([userId, cancelledAt])
+  @@index([userId, updatedAt]) /// pull офлайн-синка
 }
 
 /// Вес тела. Приватные данные: не отдаются ни друзьям, ни группе.
 model BodyWeight {
-  id     Int  @id @default(autoincrement())
-  userId Int
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id       Int    @id @default(autoincrement())
+  /// uuid с клиента: офлайн-синк ссылается на строку по нему, пока нет серверного id
+  clientId String @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId   Int
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   date  DateTime @db.Date
   value Decimal  @db.Decimal(5, 2) /// кг
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   /// Повторный ввод за день заменяет значение.
   @@unique([userId, date])
+  @@index([userId, updatedAt]) /// pull офлайн-синка
 }
 
 /// Блокировка аккаунта мессенджера. Не привязана к User: должна пережить «удалить мои данные».
@@ -770,15 +783,19 @@ model StretchMuscle {
 
 /// Растяжка, которую человек попросил больше не предлагать в заминке. Действует до возврата.
 model StretchExclusion {
+  /// uuid с клиента: офлайн-синк ссылается на строку по нему, пока нет серверного id
+  clientId  String  @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId    Int
   user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   stretchId Int
   stretch   Stretch @relation(fields: [stretchId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@id([userId, stretchId])
   @@index([stretchId])
+  @@index([userId, updatedAt]) /// pull офлайн-синка
 }
 
 /// Заявка на модерацию своего упражнения или растяжки. Заполнено ровно одно из exerciseId / stretchId.
@@ -841,6 +858,8 @@ model Complaint {
 /// Программа пользователя или шаблон администратора (isTemplate, ownerId = null).
 model Program {
   id          Int     @id @default(autoincrement())
+  /// uuid с клиента: офлайн-синк ссылается на строку по нему, пока нет серверного id
+  clientId    String  @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name        String
   isTemplate  Boolean @default(false)
   code        String? @unique /// ключ шаблона для импорта
@@ -887,6 +906,7 @@ model Program {
   @@index([sourceProgramId])
   @@index([isTemplate, isPublished, position])
   @@index([publication, publishedAt])
+  @@index([ownerId, updatedAt]) /// pull офлайн-синка
 }
 
 enum ProgramPublication {
@@ -933,6 +953,8 @@ model ProgramTag {
 /// Комплекс — набор упражнений одной тренировки. Комплексы программы идут по кругу по position.
 model Complex {
   id        Int     @id @default(autoincrement())
+  /// uuid с клиента: офлайн-синк ссылается на строку по нему, пока нет серверного id
+  clientId  String  @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   programId Int
   program   Program @relation(fields: [programId], references: [id], onDelete: Cascade)
 
@@ -951,11 +973,15 @@ model Complex {
   workouts    Workout[]
   suggestedIn PlanDay[]
 
+  updatedAt DateTime @default(now()) @updatedAt
+
   @@index([programId, position])
 }
 
 model ComplexExercise {
   id        Int     @id @default(autoincrement())
+  /// uuid с клиента: офлайн-синк ссылается на строку по нему, пока нет серверного id
+  clientId  String  @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   complexId Int
   complex   Complex @relation(fields: [complexId], references: [id], onDelete: Cascade)
 
@@ -970,6 +996,8 @@ model ComplexExercise {
   repsMax  Int
   /// Номер суперсета внутри комплекса: участники идут подряд по position, их не меньше двух. null — одиночное.
   superset Int?
+
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@index([complexId, position])
   @@index([exerciseId])
@@ -1009,9 +1037,11 @@ enum CooldownBlock {
 
 /// День, в который бот ждёт тренировку. Дата — в поясе пользователя.
 model PlanDay {
-  id     Int  @id @default(autoincrement())
-  userId Int
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id       Int    @id @default(autoincrement())
+  /// uuid с клиента: офлайн-синк ссылается на строку по нему, пока нет серверного id
+  clientId String @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId   Int
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   date   DateTime      @db.Date
   type   PlanDayType   @default(PLANNED)
@@ -1041,13 +1071,16 @@ model PlanDay {
 
   @@unique([userId, date])
   @@index([status, date])
+  @@index([userId, updatedAt]) /// pull офлайн-синка
 }
 
 /// Факт выполнения комплекса в конкретный день.
 model Workout {
-  id     Int  @id @default(autoincrement())
-  userId Int
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id       Int    @id @default(autoincrement())
+  /// uuid с клиента: офлайн-синк ссылается на строку по нему, пока нет серверного id
+  clientId String @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId   Int
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   complexId   Int?
   complex     Complex? @relation(fields: [complexId], references: [id], onDelete: SetNull)
@@ -1080,12 +1113,17 @@ model Workout {
   stretches WorkoutStretch[]
   planDay   PlanDay?
 
+  updatedAt DateTime @default(now()) @updatedAt
+
   @@index([userId, date])
   @@index([userId, status])
+  @@index([userId, updatedAt]) /// pull офлайн-синка
 }
 
 model WorkoutExercise {
   id        Int     @id @default(autoincrement())
+  /// uuid с клиента: офлайн-синк ссылается на строку по нему, пока нет серверного id
+  clientId  String  @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   workoutId Int
   workout   Workout @relation(fields: [workoutId], references: [id], onDelete: Cascade)
 
@@ -1109,6 +1147,8 @@ model WorkoutExercise {
 
   sets WorkoutSet[]
 
+  updatedAt DateTime @default(now()) @updatedAt
+
   @@index([workoutId, position])
   /// По этому индексу ищется прошлый результат по упражнению.
   @@index([exerciseId])
@@ -1123,7 +1163,7 @@ model WorkoutSet {
   weight   Decimal @db.Decimal(6, 2) /// кг; 0 — упражнение без веса
   reps     Int /// повторы или секунды — по exercise.measure
   /// uuid с клиента: повтор запроса из офлайн-очереди не создаёт второй подход
-  clientId String? @unique @db.Uuid
+  clientId String  @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
 
   /// Время с клиента: подход доезжает через офлайн-очередь позже нажатия. null — записан до учёта времени.
   doneAt            DateTime?
@@ -1132,12 +1172,16 @@ model WorkoutSet {
   /// План отдыха перед подходом (настройка + «+30 с»); null — таймер не запускали.
   restTargetSeconds Int?
 
+  updatedAt DateTime @default(now()) @updatedAt
+
   @@unique([workoutExerciseId, number])
 }
 
 /// Растяжка заминки. Набор выбирается один раз и не меняется.
 model WorkoutStretch {
   id        Int     @id @default(autoincrement())
+  /// uuid с клиента: офлайн-синк ссылается на строку по нему, пока нет серверного id
+  clientId  String  @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   workoutId Int
   workout   Workout @relation(fields: [workoutId], references: [id], onDelete: Cascade)
 
@@ -1146,6 +1190,8 @@ model WorkoutStretch {
 
   block    CooldownBlock
   position Int
+
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@index([workoutId, position])
   @@index([stretchId])
@@ -1275,4 +1321,38 @@ model RenderJob {
 
   @@index([userId, createdAt])
   @@index([status, createdAt])
+}
+
+// ============================================================
+//  Офлайн-синк мобилки
+// ============================================================
+
+/// Удалённая строка данных пользователя: pull отдаёт её клиенту, чтобы тот удалил свою копию.
+/// Пишется триггером Postgres на DELETE — ловит и каскадные удаления, сервисы о ней не знают.
+/// Каскад от удалённого родителя не пишется: клиент удаляет детей сам вслед за родителем.
+model SyncTombstone {
+  id        Int      @id @default(autoincrement())
+  /// Без связи с User: строки удаляются и при удалении самого пользователя
+  userId    Int
+  entity    String /// имя таблицы: Workout, ComplexExercise, …
+  clientId  String   @db.Uuid
+  deletedAt DateTime @default(now())
+
+  @@index([userId, deletedAt])
+}
+
+/// Применённая операция из офлайн-очереди: повтор той же пачки возвращает прошлый результат.
+model SyncOp {
+  opId      String   @id @db.Uuid
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  /// applied | skipped | rejected
+  status    String
+  reason    String?
+  /// Серверные id созданных строк: { clientId: id }
+  result    Json?
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
 }

@@ -52,6 +52,7 @@ import { RenderModule } from './render/render.module';
 import { SocialModule } from './social/social.module';
 import { StarsModule } from './stars/stars.module';
 import { StatsModule } from './stats/stats.module';
+import { SyncModule } from './sync/sync.module';
 import { WorkoutModule } from './workout/workout.module';
 
 @Module({
@@ -108,6 +109,7 @@ import { WorkoutModule } from './workout/workout.module';
     BodyWeightModule,
     StarsModule,
     StatsModule,
+    SyncModule,
     SocialModule,
     LinkModule,
     AdminModule,
