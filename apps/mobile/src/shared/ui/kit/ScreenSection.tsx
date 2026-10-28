@@ -35,7 +35,9 @@ export const BlockHeading = ({ index, title, aside, action }: BlockHeadingProps)
           {String(index).padStart(2, '0')}
         </Poster>
       )}
-      <Poster size="lg">{title}</Poster>
+      <Poster size="lg" className="shrink">
+        {title}
+      </Poster>
     </View>
     {aside ? <Eyebrow className="pb-0.5 text-right">{aside}</Eyebrow> : null}
     {action}
