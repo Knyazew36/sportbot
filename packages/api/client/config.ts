@@ -25,7 +25,8 @@ let config: ApiConfig | null = null
 
 /** Вызывается один раз при старте приложения, до первого запроса */
 export const configureApi = (next: ApiConfig): void => {
-  config = next
+  // baseURL часто задают руками (EXPO_PUBLIC_API_URL), слэш на конце даёт двойной в asset-ссылках
+  config = { ...next, baseURL: next.baseURL.replace(/\/+$/, '') }
 }
 
 export const getApiConfig = (): ApiConfig => {

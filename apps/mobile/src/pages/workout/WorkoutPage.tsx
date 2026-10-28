@@ -25,6 +25,10 @@ const WorkoutPage = () => {
     }
   }, [hasWorkout, wantsStart]);
 
+  // Старт не ждёт запрос текущей тренировки: когда её нет, чтение уходит в сеть за пустым ответом.
+  // Тренировка создаётся на телефоне, так что сразу рисуем StartWorkout — он покажет разминку
+  if (wantsStart && !current.data?.workout) return <StartWorkout complexId={complexId} />;
+
   return (
     <QueryScreen query={current} fullscreen>
       {({ workout }) => {

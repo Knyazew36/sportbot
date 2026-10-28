@@ -120,7 +120,7 @@ export const MonthCalendar = ({ month, lead, days, selected, onSelect, children,
                     >
                       {cell.mark === 'pause' && <Hatch color={colors.hatch} />}
                       {cell.mark === 'skip' && (
-                        <Icon as={X} strokeWidth={1.25} className="text-foreground/30 absolute size-full" />
+                        <Icon as={X} strokeWidth={1.25} className="text-foreground/30 absolute size-8" />
                       )}
                       <Text
                         className={cn(

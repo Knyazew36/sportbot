@@ -1,6 +1,7 @@
 import { eq, inArray } from 'drizzle-orm';
 import { Image } from 'expo-image';
 
+import { toAssetUrl } from '@/shared/api';
 import type { LocalDb } from '@/shared/db/client';
 import { META_KEYS, readMeta, writeMeta } from '@/shared/db/meta';
 import { complexes, complexExercises, exercises, profile, stretches } from '@/shared/db/schema';
@@ -63,7 +64,9 @@ export const prefetchProgramMedia = (db: LocalDb): Promise<void> => {
     if (!urls.length || readMeta(db, META_KEYS.programMedia) === key) return;
     let ok = true;
     for (let i = 0; i < urls.length; i += MEDIA_CHUNK) {
-      ok &&= await Image.prefetch(urls.slice(i, i + MEDIA_CHUNK), 'disk').catch(() => false);
+      // Ключ дискового кеша — полный URL, как у CatalogImage (сырые /uploads/... ничего не качают)
+      const chunk = urls.slice(i, i + MEDIA_CHUNK).map((u) => toAssetUrl(u)!);
+      ok &&= await Image.prefetch(chunk, 'disk').catch(() => false);
     }
     if (ok) writeMeta(db, META_KEYS.programMedia, key);
     if (__DEV__) console.log(`[media] программа: картинок=${urls.length}, ok=${ok}`);
@@ -88,7 +91,7 @@ export const downloadCatalogMedia = async (
   onProgress({ done, total: urls.length });
   for (let i = 0; i < urls.length; i += MEDIA_CHUNK) {
     if (isCancelled()) return false;
-    const chunk = urls.slice(i, i + MEDIA_CHUNK);
+    const chunk = urls.slice(i, i + MEDIA_CHUNK).map((u) => toAssetUrl(u)!);
     const loaded = await Image.prefetch(chunk, 'disk').catch(() => false);
     ok &&= loaded;
     done += chunk.length;

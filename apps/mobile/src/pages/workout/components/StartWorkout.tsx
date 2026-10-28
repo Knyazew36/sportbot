@@ -10,28 +10,17 @@ import { ScreenState } from '@/shared/ui/kit/ScreenState';
 
 import { useStartWorkout } from '../model/use-start-workout';
 import { EmptyComplex } from './EmptyComplex';
+import { WarmupStart } from './WarmupStart';
 
 const header = <TopBar back={() => router.replace(ROUTES.TODAY)} title="Тренировка" />;
 
 /** Начать тренировку, если её ещё нет: «Начать» с «Сегодня» ведёт сюда с complexId */
 export const StartWorkout = ({ complexId }: { complexId?: number }) => {
-  const { start, empty } = useStartWorkout(complexId);
+  const { start, empty, warmup } = useStartWorkout(complexId);
 
   if (empty) return <EmptyComplex {...empty} />;
 
-  // Старт создаёт тренировку на сервере: без сети мутация стоит на паузе и сама уйдёт, когда сеть появится
-  if (start.isPaused)
-    return (
-      <Screen fullscreen header={header} className="px-gutter">
-        <ScreenState
-          state="error"
-          title="Нет сети"
-          description="Начнём тренировку, как только появится связь. Экран можно не закрывать."
-        />
-      </Screen>
-    );
-
-  // Сбой сети ставит старт на паузу (выше), так что здесь отказ сервера по делу — не «нет связи»
+  // Тренировка создаётся на телефоне сразу, сеть не нужна: отказ здесь — по делу (нет программы, пустой комплекс)
   if (start.isError)
     return (
       <Screen fullscreen header={header} className="px-gutter">
@@ -47,6 +36,9 @@ export const StartWorkout = ({ complexId }: { complexId?: number }) => {
         />
       </Screen>
     );
+
+  // Вместо лоадера сразу экран разминки: состав известен по комплексу, тренировка допишется под ним
+  if (warmup) return <WarmupStart {...warmup} />;
 
   return <PageLoader />;
 };

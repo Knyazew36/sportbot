@@ -4,7 +4,7 @@ import type { CatalogKind } from '@sportbot/api/entities/catalog';
 import { Screen, StickyFooter } from '@/shared/ui/kit/Screen';
 import { TopBar } from '@/shared/ui/kit/ScreenHeader';
 import { ExerciseCreateSheet } from '@/widgets/catalog/ExerciseCreateSheet';
-import { NewEntryLinks } from '@/widgets/catalog/NewEntryLinks';
+import { NewEntryButton } from '@/widgets/catalog/NewEntryButton';
 import { StretchCreateSheet } from '@/widgets/catalog/StretchCreateSheet';
 
 import { MyEntries } from './components/MyEntries';
@@ -16,10 +16,11 @@ const MyEntriesPage = () => {
   return (
     <Screen
       fullscreen
+      scroll={false}
       header={<TopBar title="Мои записи" />}
       footer={
         <StickyFooter>
-          <NewEntryLinks onCreate={setCreating} />
+          <NewEntryButton onCreate={setCreating} />
         </StickyFooter>
       }
       className="gap-5 pt-4"

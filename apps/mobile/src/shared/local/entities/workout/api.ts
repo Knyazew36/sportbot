@@ -165,7 +165,8 @@ export const useAddItems = () => {
       addItems(db(), vars);
       return viewOf(db(), vars.workoutId);
     },
-    meta: { successMessage: 'Упражнение добавлено' },
+    // Упражнение сразу появляется в списке тренировки — тост дублирует увиденное
+    meta: { skipSuccessToast: true },
   });
 };
 
@@ -253,6 +254,8 @@ export const useDeleteWorkout = () => {
 export const useShareWorkout = () => {
   const db = useDb();
   return useMutation({
+    // Серверное действие: без сети ждёт её, а не падает с ошибкой (локальные — offlineFirst по умолчанию)
+    networkMode: 'online',
     mutationFn: async (id: number) => {
       const serverId = id > 0 ? id : findWorkoutRow(db(), id)?.id;
       if (!serverId) throw new Error('Тренировка ещё не дошла до сервера — подключитесь к интернету');

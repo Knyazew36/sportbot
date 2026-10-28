@@ -203,7 +203,9 @@ const SortableItem = ({
         next[index] = size;
         sizes.set(next);
       }}
-      style={[style, dragging && { boxShadow: `6px 6px 0 ${colors.blue}` },{flex:1}]}
+      // flex: 1 только для вертикального списка: в горизонтальной ленте (ScrollView без заданной
+      // ширины) flex-basis 0 схлопывает обёртку и карточка суперсета обрезается
+      style={[style, dragging && { boxShadow: `6px 6px 0 ${colors.blue}` }, axis === 'y' && { flex: 1 }]}
     >
       {children(handle)}
     </Animated.View>

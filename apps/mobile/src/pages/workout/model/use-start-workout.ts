@@ -1,5 +1,8 @@
 import { useEffect, useRef } from 'react';
 
+import { resolveWarmup } from '@sportbot/api/lib/day';
+
+import { useProfile } from '@/shared/local/entities/profile';
 import { usePrograms, useProgram } from '@/shared/local/entities/program';
 import { useStartWorkout as useStartMutation } from '@/shared/local/entities/workout';
 
@@ -22,11 +25,18 @@ export const useStartWorkout = (complexId?: number) => {
       ? { programId: program.data.id, complexId: complex.id, title: complex.name }
       : null;
 
+  // Заставка разминки вместо лоадера, пока тренировка пишется в базу: минуты и первое упражнение
+  // известны по комплексу заранее, тикающий таймер запустит уже настоящий экран
+  const profile = useProfile();
+  const minutes = complex && profile.data ? resolveWarmup(complex, profile.data) : null;
+  const first = complex?.exercises[0]?.name;
+  const warmup = minutes && first ? { minutes, first } : null;
+
   useEffect(() => {
     if (started.current || checking || empty) return;
     started.current = true;
     start.mutate(complexId);
   }, [complexId, start, checking, empty]);
 
-  return { start, empty };
+  return { start, empty, warmup };
 };

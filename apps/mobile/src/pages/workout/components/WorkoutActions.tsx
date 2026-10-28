@@ -7,6 +7,9 @@ import { Button } from '@/shared/ui/kit/Button';
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink';
 import { Icon } from '@/shared/ui/kit/Icon';
 import { StickyFooter } from '@/shared/ui/kit/Screen';
+import { Clock } from '@/shared/ui/kit/Typography';
+
+import { BUTTON_LG_FONT } from './workout-actions.const';
 
 export type NextMode = 'skip' | 'next' | 'finish';
 
@@ -51,16 +54,17 @@ export const WorkoutActions = ({
   const resting = restLeft !== null && restLeft > 0;
 
   // Свёрнутый отдых ещё идёт — вместо подхода кнопка отдыха с остатком, тап разворачивает его.
-  // Время строкой, а не Digits: голые строки из Digits вне Text роняют RN
+  // Время — Clock с цифровыми ячейками: строкой оно прыгало бы по ширине каждую секунду («1» уже «0»)
   const restBack = resting && (
-    <Button variant="rest" size="lg" className="min-w-0 flex-1" onPress={onRestOpen}>
+    <Button variant="rest" size="lg" block onPress={onRestOpen}>
       <Icon as={Timer} className="size-6" />
-      {`Отдых ${formatSeconds(restLeft)}`}
+      Отдых
+      <Clock fontSize={BUTTON_LG_FONT}>{formatSeconds(restLeft)}</Clock>
     </Button>
   );
 
   const restButton = restLeft === null && restSeconds !== null && (
-    <Button variant="outline" size="lg" onPress={onRest} accessibilityLabel="Начать отдых">
+    <Button variant="outline" size="lg" block onPress={onRest} accessibilityLabel="Начать отдых">
       <Icon as={Timer} className="size-5" />
       {formatSeconds(restSeconds)}
     </Button>
@@ -69,15 +73,16 @@ export const WorkoutActions = ({
   const warmupBack = warmupLeft !== null && (
     <Button variant="rest" size="lg" block onPress={onWarmupOpen} accessibilityLabel="Вернуться к разминке">
       <Icon as={Flame} className="size-6" />
-      {`Разминка ${formatSeconds(warmupLeft)}`}
+      Разминка
+      <Clock fontSize={BUTTON_LG_FONT}>{formatSeconds(warmupLeft)}</Clock>
     </Button>
   );
 
   const start = superset ? (
     round !== null && (
-      <View className="flex-row gap-3">
+      <View className="flex-col gap-3">
         {restBack || (
-          <Button size="lg" className="min-w-0 flex-1" onPress={onStartSet}>
+          <Button size="lg" block onPress={onStartSet}>
             <Icon as={Play} className="size-6" />
             Начать круг {round}
           </Button>
@@ -85,18 +90,20 @@ export const WorkoutActions = ({
         <Button
           variant="outline"
           size="lg"
+          block
           onPress={onRecordRound}
           accessibilityLabel="Записать круг без секундомера"
         >
           <Icon as={ClipboardPen} className="size-5" />
+          Записать круг
         </Button>
         {restButton}
       </View>
     )
   ) : (
-    <View className="flex-row gap-3">
+    <View className="flex-col gap-3">
       {restBack || (
-        <Button variant={planDone ? 'outline' : 'default'} size="lg" className="flex-1" onPress={onStartSet}>
+        <Button variant={planDone ? 'outline' : 'default'} size="lg" block onPress={onStartSet}>
           {planDone ? <Icon as={Plus} strokeWidth={3} /> : <Icon as={Play} className="size-6" />}
           {planDone ? 'Ещё подход' : 'Начать подход'}
         </Button>

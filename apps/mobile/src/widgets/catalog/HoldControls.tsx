@@ -7,7 +7,7 @@ import { formatSeconds, useDeadlineTimer } from '@/shared/lib/hooks/use-deadline
 import { Button } from '@/shared/ui/kit/Button';
 import { Icon } from '@/shared/ui/kit/Icon';
 import { Ring } from '@/shared/ui/kit/Ring';
-import { Eyebrow, Lead, Poster } from '@/shared/ui/kit/Typography';
+import { Eyebrow, Clock, Lead } from '@/shared/ui/kit/Typography';
 import { Pressable } from '@/shared/ui/kit/Pressable';
 
 type SideAction = { label: string; icon: LucideIcon; onPress: () => void };
@@ -82,15 +82,11 @@ export const HoldControls = ({ holdSeconds, side, back, next, onEnd, autoStart =
             />
             <View className="absolute">
               {over ? (
-                <Poster size="xl" numeric>
-                  00
-                </Poster>
+                <Clock size="xl">00</Clock>
               ) : (
                 <View className="items-center">
                   <Icon as={paused ? Play : Pause} strokeWidth={2.5} className="size-6" />
-                  <Poster size="sm" numeric>
-                    {formatSeconds(started ? timer.left : holdSeconds)}
-                  </Poster>
+                  <Clock size="sm">{formatSeconds(started ? timer.left : holdSeconds)}</Clock>
                 </View>
               )}
             </View>

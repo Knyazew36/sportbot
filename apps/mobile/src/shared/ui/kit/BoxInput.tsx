@@ -39,6 +39,10 @@ export const BoxInput = ({ label, className, large, onFocus, onBlur, ...props }:
         spellCheck={false}
         placeholderTextColorClassName="accent-foreground/20"
         accessibilityLabel={label}
+        // Android: плейсхолдер и текст выравниваются по-разному, пока line-height ≠ высоте
+        // поля — плейсхолдер прыгает при вводе. Центрируем явно и убираем font padding.
+        textAlignVertical="center"
+        style={{ includeFontPadding: false }}
         onFocus={(e) => {
           setFocused(true);
           onFocus?.(e);
@@ -50,7 +54,8 @@ export const BoxInput = ({ label, className, large, onFocus, onBlur, ...props }:
         {...props}
         className={cn(
           'font-display text-foreground w-full p-0 uppercase',
-          large ? 'h-12 text-[40px] leading-[46px]' : 'h-9 text-[28px] leading-[32px]',
+          // line-height = высоте поля: цифра и плейсхолдер центрируются одинаково (font padding выключен)
+          large ? 'h-14 text-[40px] leading-[56px]' : 'h-10 text-[28px] leading-[40px]',
         )}
       />
     </View>

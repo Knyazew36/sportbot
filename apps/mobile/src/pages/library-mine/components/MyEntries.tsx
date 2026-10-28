@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { router } from 'expo-router';
 import { Send } from 'lucide-react-native';
-import { View } from 'react-native';
+import { ScrollView, useWindowDimensions, View } from 'react-native';
+import { TabView } from 'react-native-tab-view';
 
 import {
   type CatalogKind,
@@ -18,7 +19,6 @@ import { Button } from '@/shared/ui/kit/Button';
 import { List, ListRow } from '@/shared/ui/kit/ListRow';
 import { LoadMore } from '@/shared/ui/kit/LoadMore';
 import { QueryState } from '@/shared/ui/kit/QueryState';
-import { Rise } from '@/shared/ui/kit/Reveal';
 import { Segmented } from '@/shared/ui/kit/Segmented';
 import { Text } from '@/shared/ui/kit/Typography';
 
@@ -26,6 +26,8 @@ const KIND_OPTIONS = [
   { value: 'exercise' as const, label: 'Упражнения' },
   { value: 'stretch' as const, label: 'Растяжки' },
 ] as const;
+
+const ROUTES_CONFIG = KIND_OPTIONS.map(({ value, label }) => ({ key: value, title: label }));
 
 const STATE_HINT: Partial<Record<EntryState, string>> = {
   PRIVATE: 'видна только тебе',
@@ -41,21 +43,18 @@ const entryPath = (e: MyEntry) =>
     ? routeHref(ROUTES.EXERCISE, { exerciseId: e.id })
     : routeHref(ROUTES.STRETCH, { stretchId: e.id });
 
-// Свои записи и их публикация в общий справочник (frontend-tz, 11.5)
-export const MyEntries = () => {
-  const [kind, setKind] = useState<CatalogKind>('exercise');
+const EntriesList = ({ kind }: { kind: CatalogKind }) => {
   const entries = useMyEntries(kind);
   const publish = usePublishEntry();
 
   return (
-    <Rise className="px-gutter gap-4">
-      <Segmented options={KIND_OPTIONS} value={kind} onValueChange={setKind} stretch />
+    <ScrollView className="flex-1" contentContainerClassName="px-gutter gap-4 pt-4 pb-8">
       <QueryState
         query={entries}
         isEmpty={(data) => !data.pages[0]?.items?.length}
         empty={{
           title: kind === 'exercise' ? 'Своих упражнений нет' : 'Своих растяжек нет',
-          description: 'Не нашёл нужное в справочнике — добавь своё кнопками ниже. Оно сразу доступно тебе.',
+          description: 'Не нашёл нужное в справочнике — добавь своё кнопкой ниже. Оно сразу доступно тебе.',
         }}
       >
         {(data) => (
@@ -106,6 +105,29 @@ export const MyEntries = () => {
           </View>
         )}
       </QueryState>
-    </Rise>
+    </ScrollView>
+  );
+};
+
+// Свои записи и их публикация в общий справочник (frontend-tz, 11.5).
+// Вкладки «Упражнения»/«Растяжки» листаются свайпом, сегмент сверху — тот же TabView
+export const MyEntries = () => {
+  const { width } = useWindowDimensions();
+  const [index, setIndex] = useState(0);
+  const kind = ROUTES_CONFIG[index].key as CatalogKind;
+
+  return (
+    <TabView
+      style={{ flex: 1 }}
+      navigationState={{ index, routes: ROUTES_CONFIG }}
+      onIndexChange={setIndex}
+      initialLayout={{ width }}
+      renderScene={({ route }) => <EntriesList kind={route.key as CatalogKind} />}
+      renderTabBar={() => (
+        <View className="px-gutter">
+          <Segmented options={KIND_OPTIONS} value={kind} onValueChange={(k) => setIndex(k === 'exercise' ? 0 : 1)} stretch />
+        </View>
+      )}
+    />
   );
 };

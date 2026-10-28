@@ -29,6 +29,8 @@ export const useLocalQuery = <T>({ key, read, fallback, enabled = true, keepPrev
     // Источник в ключе: открылась база — запрос переключится на неё, не дожидаясь синка
     queryKey: [LOCAL_ROOT, db ? 'db' : 'rest', ...key],
     queryFn: () => (db && read(db)) ?? fallback(),
+    // Чтение базы телефона сети не ждёт: без связи экран открывается из базы сразу
+    networkMode: 'offlineFirst',
     enabled,
     // Перечитывает синк, а не фокус экрана: база на телефоне и так свежее некуда
     staleTime: Infinity,

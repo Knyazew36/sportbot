@@ -7,9 +7,10 @@ import { profileControllerView } from '@sportbot/api/generated/profile/profile';
 import { stretchExclusionControllerList } from '@sportbot/api/generated/stretch-exclusion/stretch-exclusion';
 import { CITY_ZONES } from '@sportbot/api/lib/timezone';
 
+import { queryClient } from '@/shared/api/query-client';
 import { type LocalDb, useLocalDb } from '@/shared/db';
 
-import { useLocalQuery } from '../../local-query';
+import { LOCAL_ROOT, useLocalQuery } from '../../local-query';
 import { readLimitations, readStretchExclusions } from './read-lists';
 import { readProfile } from './read-profile';
 import {
@@ -39,6 +40,14 @@ const profileOf = (db: LocalDb): Profile => {
   return profile;
 };
 
+/**
+ * Правка — сразу в кэш запроса: экран обновляется ответом мутации, не дожидаясь
+ * перечитывания по событию базы (SyncRunner): свичи и сегменты не дёргаются
+ */
+const PROFILE_KEY = [LOCAL_ROOT, 'db', 'profile'] as const;
+const applyProfile = (profile: Profile) => queryClient.setQueryData(PROFILE_KEY, profile);
+const refreshLocal = (key: string) => void queryClient.invalidateQueries({ queryKey: [LOCAL_ROOT, 'db', key] });
+
 /** Настройки пользователя из локальной базы: расписание, таймеры, пауза, последний вес */
 export const useProfile = () =>
   useLocalQuery({ key: ['profile'], read: readProfile, fallback: () => profileControllerView() });
@@ -54,6 +63,7 @@ export const useUpdateProfile = () => {
       updateProfile(db(), body);
       return profileOf(db());
     },
+    onSuccess: applyProfile,
     meta: { successMessage: 'Сохранил' },
   });
 };
@@ -65,6 +75,7 @@ export const useSetTimezone = () => {
       setTimezone(db(), body);
       return profileOf(db());
     },
+    onSuccess: applyProfile,
     meta: { successMessage: 'Часовой пояс сохранён' },
   });
 };
@@ -73,6 +84,11 @@ export const useAddBodyWeight = () => {
   const db = useDb();
   return useMutation({
     mutationFn: async (value: number) => addBodyWeight(db(), value),
+    // Вес входит в профиль (lastBodyWeight) и в график (stats body-weight) — обновляем оба
+    onSuccess: () => {
+      refreshLocal('profile');
+      refreshLocal('stats');
+    },
     meta: { successMessage: 'Вес записан' },
   });
 };
@@ -85,6 +101,7 @@ export const useCreateLimitation = () => {
   const db = useDb();
   return useMutation({
     mutationFn: async (body: { jointId: number; endDate?: string | null }) => createLimitation(db(), body),
+    onSuccess: () => refreshLocal('limitation'),
     meta: { successMessage: 'Ограничение добавлено' },
   });
 };
@@ -93,6 +110,7 @@ export const useDeleteLimitation = () => {
   const db = useDb();
   return useMutation({
     mutationFn: async (id: number) => deleteLimitation(db(), id),
+    onSuccess: () => refreshLocal('limitation'),
     meta: { successMessage: 'Ограничение снято' },
   });
 };
@@ -115,6 +133,7 @@ export const useCreateStretchExclusion = () => {
   const db = useDb();
   return useMutation({
     mutationFn: async (stretchId: number) => createStretchExclusion(db(), stretchId),
+    onSuccess: () => refreshLocal('stretch-exclusion'),
     meta: { successMessage: 'Больше не предложим в заминке' },
   });
 };
@@ -123,6 +142,7 @@ export const useDeleteStretchExclusion = () => {
   const db = useDb();
   return useMutation({
     mutationFn: async (stretchId: number) => deleteStretchExclusion(db(), stretchId),
+    onSuccess: () => refreshLocal('stretch-exclusion'),
     meta: { successMessage: 'Растяжка снова в заминке' },
   });
 };

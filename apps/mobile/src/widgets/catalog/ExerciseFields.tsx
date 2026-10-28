@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
-import { ScrollView, View } from 'react-native';
+import { View } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
+import { withUniwind } from 'uniwind';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
 
 import { type Equipment, EQUIPMENT_LABEL, type ExerciseCreateInput } from '@sportbot/api/entities/catalog';
@@ -15,6 +17,13 @@ import { Eyebrow, Text } from '@/shared/ui/kit/Typography';
 
 import { MuscleRoles } from './MuscleRoles';
 import { TextListField } from './TextListField';
+
+// Горизонтальная лента внутри шторки — только ScrollView из gesture-handler: у обычного из react-native
+// свайп вбок перехватывает жест шторки, лента не скроллится. className доходят через withUniwind
+const SheetScroll = withUniwind(ScrollView, {
+  style: { fromClassName: 'className' },
+  contentContainerStyle: { fromClassName: 'contentContainerClassName' },
+});
 
 const EQUIPMENT = (Object.keys(EQUIPMENT_LABEL) as Equipment[]).map((value) => ({ value, label: EQUIPMENT_LABEL[value] }));
 const MEASURES = (Object.keys(MEASURE_LABEL) as Measure[]).map((value) => ({ value, label: MEASURE_LABEL[value] }));
@@ -65,7 +74,7 @@ export const ExerciseFields = ({ afterName }: ExerciseFieldsProps) => {
       {afterName?.(name)}
 
       <Section title="Инвентарь">
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-gutter" contentContainerClassName="px-gutter">
+        <SheetScroll horizontal showsHorizontalScrollIndicator={false} className="-mx-gutter" contentContainerClassName="px-gutter">
           <Controller
             control={control}
             name="equipment"
@@ -78,7 +87,7 @@ export const ExerciseFields = ({ afterName }: ExerciseFieldsProps) => {
               />
             )}
           />
-        </ScrollView>
+        </SheetScroll>
       </Section>
 
       <Section title="Чем меряется">

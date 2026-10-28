@@ -3,9 +3,10 @@ import { useMutation } from '@tanstack/react-query';
 import type { DayFixDto } from '@sportbot/api/generated/model';
 import { dayControllerToday } from '@sportbot/api/generated/day/day';
 
+import { queryClient } from '@/shared/api/query-client';
 import { type LocalDb, useLocalDb } from '@/shared/db';
 
-import { useLocalQuery } from '../../local-query';
+import { LOCAL_ROOT, useLocalQuery } from '../../local-query';
 import { readToday } from './read-today';
 import { endPause, eveningAnswer, fixDay, pickComplex, rescheduleAnswer, skipDay, startPause } from './write-day';
 
@@ -71,11 +72,21 @@ export const useFixDay = () => {
   });
 };
 
+/**
+ * Пауза видна и в профиле, и в дне — после правки перечитываем оба сразу,
+ * не дожидаясь перечитывания по событию базы (SyncRunner)
+ */
+const refreshPauseScreens = () => {
+  void queryClient.invalidateQueries({ queryKey: [LOCAL_ROOT, 'db', 'profile'] });
+  void queryClient.invalidateQueries({ queryKey: [LOCAL_ROOT, 'db', 'day'] });
+};
+
 /** Пауза «до даты» (ГГГГ-ММ-ДД) или «до отмены» (null): бот молчит, серия не сгорает */
 export const useStartPause = () => {
   const db = useDb();
   return useMutation({
     mutationFn: async (endDate: string | null) => startPause(db(), endDate),
+    onSuccess: refreshPauseScreens,
     meta: { successMessage: 'Пауза поставлена. Бот замолчит до её конца' },
   });
 };
@@ -85,6 +96,7 @@ export const useEndPause = () => {
   const db = useDb();
   return useMutation({
     mutationFn: async () => endPause(db()),
+    onSuccess: refreshPauseScreens,
     meta: { successMessage: 'Паузу снял. Бот снова будет спрашивать про тренировки' },
   });
 };

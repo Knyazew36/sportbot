@@ -74,6 +74,12 @@ export const queryClient = new QueryClient({
     },
   }),
   defaultOptions: {
+    mutations: {
+      // Приложение локальное: правки пишутся в базу телефона и не ждут сеть — в зале без связи
+      // старт тренировки и подходы проходят сразу, на сервер уходит синком. Исключения —
+      // серверные действия (публикация, «поделиться») помечают networkMode: 'online' сами
+      networkMode: 'offlineFirst',
+    },
     queries: {
       // Ошибки клиента (нет прав, не найдено, не авторизован) повтор не исправит
       retry: (failureCount, error) => failureCount < 1 && isRetryableError(error),

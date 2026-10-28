@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { View } from 'react-native';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,16 +12,17 @@ import { ErrorText } from '@/shared/ui/kit/ErrorText';
 import { Button } from '@/shared/ui/kit/Button';
 import { Icon } from '@/shared/ui/kit/Icon';
 import { Sheet } from '@/shared/ui/kit/Sheet';
-import { TextField } from '@/shared/ui/kit/TextField';
+import { BoxInput } from '@/shared/ui/kit/BoxInput';
 
 export type EditingSet = { set: WorkoutSet; measure: Measure };
 
 type RepsFieldsProps = {
   set: WorkoutSet;
   onSave: (values: WorkoutSetValues) => void;
+  actions: ReactNode;
 };
 
-const RepsFields = ({ set, onSave }: RepsFieldsProps) => {
+const RepsFields = ({ set, onSave, actions }: RepsFieldsProps) => {
   const { control, handleSubmit, formState } = useForm<WorkoutSetInput, unknown, WorkoutSetValues>({
     resolver: zodResolver(workoutSetSchema),
     defaultValues: { weight: set.weight ? String(set.weight) : '', reps: String(set.reps) },
@@ -33,15 +35,14 @@ const RepsFields = ({ set, onSave }: RepsFieldsProps) => {
           control={control}
           name="weight"
           render={({ field }) => (
-            <TextField
+            <BoxInput large
               label="вес, кг"
               placeholder="свой"
               keyboardType="decimal-pad"
-              error={formState.errors.weight}
               {...field}
               onChangeText={field.onChange}
               value={field.value}
-              className="flex-1"
+              className="flex-1 py-2"
             />
           )}
         />
@@ -49,22 +50,24 @@ const RepsFields = ({ set, onSave }: RepsFieldsProps) => {
           control={control}
           name="reps"
           render={({ field }) => (
-            <TextField
+            <BoxInput large
               label="повторы"
               keyboardType="number-pad"
-              error={formState.errors.reps}
               {...field}
               onChangeText={field.onChange}
               value={field.value}
-              className="flex-1"
+              className="flex-1 py-2"
             />
           )}
         />
       </View>
       <ErrorText errors={[formState.errors.weight, formState.errors.reps]} />
-      <Button size="lg" block onPress={handleSubmit(onSave)}>
-        Сохранить
-      </Button>
+      <View className="flex-row gap-2">
+        <Button size="lg" className="flex-1" onPress={handleSubmit(onSave)}>
+          Сохранить
+        </Button>
+        {actions}
+      </View>
     </View>
   );
 };
@@ -73,9 +76,10 @@ type TimeFieldsProps = {
   set: WorkoutSet;
   measure: Measure;
   onSave: (values: WorkoutSetValues) => void;
+  actions: ReactNode;
 };
 
-const TimeFields = ({ set, measure, onSave }: TimeFieldsProps) => {
+const TimeFields = ({ set, measure, onSave, actions }: TimeFieldsProps) => {
   const { control, handleSubmit, formState } = useForm<TimeSetInput, unknown, WorkoutSetValues>({
     resolver: zodResolver(timeSetSchema(measure)),
     defaultValues: { time: timeInput(measure, set.reps) },
@@ -87,20 +91,23 @@ const TimeFields = ({ set, measure, onSave }: TimeFieldsProps) => {
         control={control}
         name="time"
         render={({ field }) => (
-          <TextField
+          <BoxInput large
             label={`время, ${timeLabel(measure)}`}
             keyboardType={measure === 'TIME' ? 'default' : 'number-pad'}
-            error={formState.errors.time}
             {...field}
             onChangeText={field.onChange}
             value={field.value}
+            className="py-2"
           />
         )}
       />
       <ErrorText errors={formState.errors.time} />
-      <Button size="lg" block onPress={handleSubmit(onSave)}>
-        Сохранить
-      </Button>
+      <View className="flex-row gap-2">
+        <Button size="lg" className="flex-1" onPress={handleSubmit(onSave)}>
+          Сохранить
+        </Button>
+        {actions}
+      </View>
     </View>
   );
 };
@@ -120,22 +127,25 @@ const EditSetForm = ({ editing: { set, measure }, onClose }: EditSetFormProps) =
     onClose();
   };
 
-  return (
-    <View className="gap-3">
-      {isTimed(measure) ? <TimeFields set={set} measure={measure} onSave={save} /> : <RepsFields set={set} onSave={save} />}
-      <ConfirmAction
-        trigger={<Button variant="destructive" block />}
-        title={`Удалить подход ${set.number}?`}
-        confirmLabel="Удалить"
-        onConfirm={() => {
-          remove.mutate(ref);
-          onClose();
-        }}
-      >
-        <Icon as={Trash2} className="size-4" />
-        Удалить подход
-      </ConfirmAction>
-    </View>
+  // Удаление — только иконка в ряд с «Сохранить», подтверждение через ConfirmAction
+  const deleteAction = (
+    <ConfirmAction
+      trigger={<Button variant="destructive" size="lg" accessibilityLabel="Удалить подход" />}
+      title={`Удалить подход ${set.number}?`}
+      confirmLabel="Удалить"
+      onConfirm={() => {
+        remove.mutate(ref);
+        onClose();
+      }}
+    >
+      <Icon as={Trash2} className="size-5" />
+    </ConfirmAction>
+  );
+
+  return isTimed(measure) ? (
+    <TimeFields set={set} measure={measure} onSave={save} actions={deleteAction} />
+  ) : (
+    <RepsFields set={set} onSave={save} actions={deleteAction} />
   );
 };
 

@@ -13,6 +13,7 @@ import { StretchCreateSheet } from '@/widgets/catalog/StretchCreateSheet'
 
 import { MineButton } from './components/MineButton'
 import { MineTab } from './components/MineTab'
+import { NewEntryButton } from './components/NewEntryButton'
 import { NewEntryLinks } from './components/NewEntryLinks'
 
 type Tab = 'exercises' | 'stretches' | 'mine'
@@ -66,7 +67,7 @@ const LibraryPage = () => {
       footer={
         tab === 'mine' && (
           <StickyFooter>
-            <NewEntryLinks onCreate={setCreating} />
+            <NewEntryButton onCreate={setCreating} />
           </StickyFooter>
         )
       }
