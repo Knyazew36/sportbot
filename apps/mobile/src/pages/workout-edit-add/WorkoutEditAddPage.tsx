@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 
-import { useAddItems, useWorkout } from '@sportbot/api/entities/workout';
+import { useAddItems, useWorkout } from '@/shared/local/entities/workout';
 import { ExercisePicker } from '@/widgets/program-editor/ExercisePicker';
 
 // Забытое упражнение в прошедшую тренировку из статистики. Только в неё: комплекс правят в программе.

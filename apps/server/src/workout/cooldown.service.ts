@@ -294,6 +294,94 @@ export class CooldownService {
     });
   }
 
+  // ── С телефона ──────────────────────────────────────────────────────────
+
+  /**
+   * Заминка, собранная на телефоне без сети. Свой набор у тренировки уже есть — телефонный не нужен
+   * (false): сервер не пересобирает показанную человеку заминку. Растяжки — только из предлагаемых
+   */
+  public async saveFromClient(
+    workoutId: number,
+    userId: number,
+    rows: {
+      clientId: string;
+      stretchId: number;
+      block: 'MAIN' | 'OPTIONAL';
+      position: number;
+    }[],
+  ): Promise<Record<string, number> | false> {
+    return this.prisma.$transaction(async (tx) => {
+      const saved = await tx.workoutStretch.count({ where: { workoutId } });
+      if (saved) {
+        this.logger.warn(
+          `Заминка с телефона опоздала, своя уже есть: workoutId=${workoutId}, userId=${userId}`,
+        );
+        return false;
+      }
+      const allowed = await tx.stretch.count({
+        where: {
+          ...this.candidateWhere(userId),
+          id: { in: [...new Set(rows.map((r) => r.stretchId))] },
+        },
+      });
+      if (allowed !== new Set(rows.map((r) => r.stretchId)).size)
+        throw new NotFoundException('Растяжка не найдена.');
+      await tx.workoutStretch.createMany({
+        data: rows.map((r) => ({
+          workoutId,
+          clientId: r.clientId,
+          stretchId: r.stretchId,
+          block: r.block,
+          position: r.position,
+        })),
+      });
+      const created = await tx.workoutStretch.findMany({
+        where: { workoutId },
+        select: { id: true, clientId: true },
+      });
+      this.logger.log(
+        `Заминка с телефона: workoutId=${workoutId}, userId=${userId}, растяжек=${rows.length}`,
+      );
+      return Object.fromEntries(created.map((c) => [c.clientId, c.id]));
+    });
+  }
+
+  /**
+   * «Не предлагать» с телефона: замену выбрал телефон (тот же расчёт, что exclude), сервер её проверяет.
+   * Строки уже нет — false: заминку пересобрали или тренировку удалили
+   */
+  public async excludeFromClient(
+    userId: number,
+    rowClientId: string,
+    stretchId: number,
+    nextStretchId: number | null,
+    exclusionClientId?: string,
+  ): Promise<boolean> {
+    return this.prisma.$transaction(async (tx) => {
+      const row = await tx.workoutStretch.findFirst({
+        where: { clientId: rowClientId, workout: { userId } },
+      });
+      await this.exclusions.ensure(userId, stretchId, tx, exclusionClientId);
+      if (!row) return false;
+      const next = nextStretchId
+        ? await tx.stretch.findFirst({
+            where: { ...this.candidateWhere(userId), id: nextStretchId },
+            select: { id: true },
+          })
+        : null;
+      if (next)
+        await tx.workoutStretch.update({
+          where: { id: row.id },
+          data: { stretchId: next.id },
+        });
+      else await tx.workoutStretch.delete({ where: { id: row.id } });
+      this.logger.log(
+        `Растяжка исключена с телефона: workoutId=${row.workoutId}, userId=${userId}, было=${stretchId}, стало=${next?.id ?? '—'}`,
+      );
+      return true;
+    });
+  }
+
   // ── Внутреннее ──────────────────────────────────────────────────────────
 
   /** Растяжки, которые можно предложить человеку: из справочника или свои, кроме исключённых. */

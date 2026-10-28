@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 
-import { useEveningAnswer } from '@sportbot/api/entities/day';
+import { useEveningAnswer } from '@/shared/local/entities/day';
 
 import { Button } from '@/shared/ui/kit/Button';
 import { Rise } from '@/shared/ui/kit/Reveal';

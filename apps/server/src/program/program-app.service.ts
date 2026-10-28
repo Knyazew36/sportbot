@@ -19,6 +19,12 @@ import {
 } from '@/program-tag/program-tag.service';
 
 import { COMPLEXES_INCLUDE, toComplexesDto } from './program-complexes';
+import {
+  friendName,
+  fromTemplate,
+  SOURCE_PROGRAM_SELECT,
+  sourceUpdated,
+} from './program-source';
 import { AddComplexExercisesDto } from './dto/add-complex-exercises.dto';
 import { ProgramListItemResponseDto } from './dto/program-list-item.response.dto';
 import { ProgramShareLinkResponseDto } from './dto/program-share-link.response.dto';
@@ -47,54 +53,15 @@ const VIEW_INCLUDE = {
     },
   },
   complexes: COMPLEXES_INCLUDE,
-  sourceProgram: {
-    select: {
-      isTemplate: true,
-      isPublished: true,
-      contentUpdatedAt: true,
-      owner: { select: { sportProfile: { select: { displayName: true } } } },
-    },
-  },
+  sourceProgram: SOURCE_PROGRAM_SELECT,
 } satisfies Prisma.ProgramInclude;
 
 type ProgramView = Prisma.ProgramGetPayload<{ include: typeof VIEW_INCLUDE }>;
-
-/** Всё, что нужно, чтобы понять, чья это копия и обновился ли источник. */
-type WithSource = Pick<
-  ProgramView,
-  'sourceProgram' | 'sourceSyncedAt' | 'sourceDismissedAt'
->;
 
 const LIST_INCLUDE = {
   _count: { select: { complexes: true } },
   sourceProgram: VIEW_INCLUDE.sourceProgram,
 } satisfies Prisma.ProgramInclude;
-
-/** Имя друга, с чьей программы снята копия; копия шаблона — не от друга. */
-const friendName = (program: WithSource): string | null =>
-  program.sourceProgram && !program.sourceProgram.isTemplate
-    ? (program.sourceProgram.owner?.sportProfile?.displayName ?? 'друга')
-    : null;
-
-const fromTemplate = (program: WithSource): boolean =>
-  !!program.sourceProgram?.isTemplate;
-
-/**
- * Друг или админ поменял источник после копирования (business-tz, 10.1). «Не сейчас» прячет
- * плашку до следующей правки источника.
- */
-const sourceUpdated = (program: WithSource): boolean => {
-  const source = program.sourceProgram;
-  if (!source || !program.sourceSyncedAt) return false;
-  // Снятый с публикации шаблон админ, скорее всего, ещё правит — не зовём обновляться
-  if (source.isTemplate && !source.isPublished) return false;
-  const seen =
-    program.sourceDismissedAt &&
-    program.sourceDismissedAt > program.sourceSyncedAt
-      ? program.sourceDismissedAt
-      : program.sourceSyncedAt;
-  return source.contentUpdatedAt > seen;
-};
 
 /**
  * Программы и шаблоны в Mini App (frontend-tz, 10 и 14.2). Один код для программы пользователя
@@ -346,9 +313,10 @@ export class ProgramAppService {
     owner: ProgramOwner,
     programId: number,
     dto: UpdateProgramDto & { tagIds?: number[]; isPublished?: boolean },
+    at?: Date,
   ) {
     if (dto.name !== undefined) {
-      await this.programs.rename(owner, programId, dto.name);
+      await this.programs.rename(owner, programId, dto.name, at);
       // У опубликованной программы новое название в каталог попадёт после проверки
       if (owner !== TEMPLATES) await this.publication.textChanged(programId);
     }
@@ -503,12 +471,18 @@ export class ProgramAppService {
     owner: ProgramOwner,
     complexId: number,
     dto: UpdateComplexDto,
+    at?: Date,
   ) {
     const complex = await this.programs.findComplex(owner, complexId);
     if (dto.name !== undefined)
-      await this.programs.renameComplex(owner, complexId, dto.name);
+      await this.programs.renameComplex(owner, complexId, dto.name, at);
     if (dto.warmupMinutes !== undefined)
-      await this.programs.setComplexWarmup(owner, complexId, dto.warmupMinutes);
+      await this.programs.setComplexWarmup(
+        owner,
+        complexId,
+        dto.warmupMinutes,
+        at,
+      );
     return this.view(owner, complex.programId);
   }
 

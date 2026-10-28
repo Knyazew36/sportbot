@@ -3,7 +3,8 @@ import { View } from 'react-native';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { addMonths, format, getDaysInMonth, parseISO } from 'date-fns';
 
-import { type StatsDay, useCalendar, useStatsDay } from '@sportbot/api/entities/stats';
+import { type StatsDay } from '@sportbot/api/entities/stats';
+import { useCalendar, useStatsDay } from '@/shared/local/entities/stats';
 
 import { routeHref, ROUTES } from '@/shared/config/routes';
 import { capitalize, formatDate } from '@/shared/lib/format';

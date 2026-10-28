@@ -1,6 +1,7 @@
 import { Check, Minus } from 'lucide-react-native';
 
-import { doneOrder, lastText, useWorkout } from '@sportbot/api/entities/workout';
+import { doneOrder, lastText } from '@sportbot/api/entities/workout';
+import { useWorkout } from '@/shared/local/entities/workout';
 import { ExerciseBlocks } from '@/shared/ui/kit/ExerciseBlocks';
 import { Icon } from '@/shared/ui/kit/Icon';
 import { List, ListRow } from '@/shared/ui/kit/ListRow';

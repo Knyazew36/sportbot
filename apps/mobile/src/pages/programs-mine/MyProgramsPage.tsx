@@ -1,6 +1,6 @@
 import { pluralize } from '@front-cmdt/utils/pluralize';
 
-import { usePrograms } from '@sportbot/api/entities/program';
+import { usePrograms } from '@/shared/local/entities/program';
 
 import { PROGRAM_FORMS } from '@/shared/lib/plural-forms';
 import { QueryState } from '@/shared/ui/kit/QueryState';

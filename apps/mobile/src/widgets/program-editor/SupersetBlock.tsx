@@ -2,13 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { ScrollView, View } from 'react-native';
 import { Plus, Trash2, Unlink2 } from 'lucide-react-native';
 
-import {
-  type ComplexExerciseValues,
-  type ExerciseBlock,
-  planText,
-  type ProgramExercise,
-  supersetLetter,
-} from '@sportbot/api/entities/program';
+import { type ComplexExerciseValues, type ExerciseBlock, planText, type ProgramExercise, supersetLetter } from '@sportbot/api/entities/program';
 
 import { haptic } from '@/shared/lib/haptics';
 import { Button } from '@/shared/ui/kit/Button';

@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 
 import type { CatalogStretch } from '@sportbot/api/entities/catalog';
-import { useDeleteStretchExclusion, useIsStretchExcluded } from '@sportbot/api/entities/stretch-exclusion';
+import { useDeleteStretchExclusion, useIsStretchExcluded } from '@/shared/local/entities/profile';
 import { toAssetUrl } from '@/shared/api';
 import { Badge } from '@/shared/ui/kit/Badge';
 import { Button } from '@/shared/ui/kit/Button';

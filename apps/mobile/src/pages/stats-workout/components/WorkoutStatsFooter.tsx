@@ -2,7 +2,7 @@ import { View } from 'react-native';
 import { router, type Href } from 'expo-router';
 import { Trash2 } from 'lucide-react-native';
 
-import { useDeleteWorkout } from '@sportbot/api/entities/workout';
+import { useDeleteWorkout } from '@/shared/local/entities/workout';
 
 import { ShareWorkoutButton } from '@/features/share-workout/ShareWorkoutButton';
 import { Button } from '@/shared/ui/kit/Button';

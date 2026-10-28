@@ -1,13 +1,6 @@
 import { format } from 'date-fns';
 
-import {
-  currentItem,
-  lastSetHint,
-  supersetRound,
-  weightText,
-  type Workout,
-  type WorkoutItem,
-} from '@sportbot/api/entities/workout';
+import { currentItem, lastSetHint, supersetRound, weightText, type Workout, type WorkoutItem } from '@sportbot/api/entities/workout';
 import { durationText, isTimed, rangeText } from '@sportbot/api/lib/measure';
 
 import { formatSeconds } from '@/shared/lib/hooks/use-deadline-timer';

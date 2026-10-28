@@ -1,8 +1,10 @@
 import { View } from 'react-native';
 import { RefreshCw, Sparkles } from 'lucide-react-native';
 
-import { type ProgramListItem, useDismissProgramUpdate, useResyncProgram } from '@sportbot/api/entities/program';
+import { type ProgramListItem } from '@sportbot/api/entities/program';
+import { useDismissProgramUpdate, useResyncProgram } from '@/shared/local/entities/program';
 
+import { useOnlineAction } from '@/shared/lib/hooks/use-online-action';
 import { Button } from '@/shared/ui/kit/Button';
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction';
 import { Icon } from '@/shared/ui/kit/Icon';
@@ -12,6 +14,7 @@ import { Eyebrow, Text } from '@/shared/ui/kit/Typography';
 export const SourceUpdate = ({ program }: { program: ProgramListItem }) => {
   const resync = useResyncProgram();
   const dismiss = useDismissProgramUpdate();
+  const net = useOnlineAction();
 
   return (
     <Rise className="px-gutter">
@@ -29,7 +32,7 @@ export const SourceUpdate = ({ program }: { program: ProgramListItem }) => {
         </Text>
         <View className="flex-row flex-wrap gap-2">
           <ConfirmAction
-            trigger={<Button variant="alert" size="sm" />}
+            trigger={<Button variant="alert" size="sm" disabled={net.disabled} />}
             title="Обновить у себя?"
             description="Твои правки в этой программе заменятся новой версией. История тренировок и весов сохранится."
             confirmLabel="Обновить"
@@ -37,9 +40,9 @@ export const SourceUpdate = ({ program }: { program: ProgramListItem }) => {
             onConfirm={() => resync.mutateAsync(program.id)}
           >
             <Icon as={RefreshCw} />
-            Обновить у себя
+            {net.label('Обновить у себя')}
           </ConfirmAction>
-          <Button variant="outline" size="sm" disabled={dismiss.isPending} onPress={() => dismiss.mutate(program.id)}>
+          <Button variant="outline" size="sm" disabled={dismiss.isPending || net.disabled} onPress={() => dismiss.mutate(program.id)}>
             Не сейчас
           </Button>
         </View>

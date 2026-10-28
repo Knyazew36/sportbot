@@ -12,6 +12,7 @@ import {
   WeightAskFrequency,
   WorkoutStatus,
 } from '@/generated/prisma/client';
+import { ProgramTagResponseDto } from '@/program-tag/dto/program-tag.response.dto';
 
 /**
  * Строки данных пользователя для локальной базы мобилки. У каждой строки есть
@@ -35,6 +36,12 @@ export class SyncProfileRowDto {
 
   @ApiProperty({ example: 'Europe/Moscow' })
   timeZone: string;
+
+  @ApiProperty({ ...nullableStr, description: 'Фото профиля; null — инициалы' })
+  avatarUrl: string | null;
+
+  @ApiProperty({ description: 'Город или UTC±N' })
+  timeZoneTitle: string;
 
   @ApiProperty({ enum: Gender, enumName: 'Gender', nullable: true })
   gender: Gender | null;
@@ -102,6 +109,9 @@ export class SyncProfileRowDto {
   @ApiProperty()
   warmupMinutes: number;
 
+  @ApiProperty({ ...time, description: 'Когда заведён профиль — баланс мышц новичка' })
+  createdAt: string;
+
   @ApiProperty(time)
   updatedAt: string;
 }
@@ -130,6 +140,33 @@ export class SyncProgramRowDto {
 
   @ApiProperty({ enum: ProgramPublication, enumName: 'ProgramPublication' })
   publication: ProgramPublication;
+
+  @ApiProperty(nullableStr)
+  description: string | null;
+
+  @ApiProperty({ ...nullableStr, description: 'Имя друга, с чьей программы снята копия' })
+  fromFriend: string | null;
+
+  @ApiProperty({ description: 'Копия шаблона' })
+  fromTemplate: boolean;
+
+  @ApiProperty({ description: 'Источник копии поменялся после копирования' })
+  sourceUpdated: boolean;
+
+  @ApiProperty()
+  isPublished: boolean;
+
+  @ApiProperty({ description: 'Сколько раз программу взяли себе' })
+  addedCount: number;
+
+  @ApiProperty({ description: 'Текст публикации ждёт проверки' })
+  textPending: boolean;
+
+  @ApiProperty(nullableStr)
+  rejectReason: string | null;
+
+  @ApiProperty({ type: [ProgramTagResponseDto] })
+  tags: ProgramTagResponseDto[];
 
   @ApiProperty(time)
   createdAt: string;
@@ -241,6 +278,12 @@ export class SyncPlanDayRowDto {
 
   @ApiProperty(nullableStr)
   workoutClientId: string | null;
+
+  @ApiProperty({ ...nullableTime, description: 'Бот предложил «напомнить завтра?»' })
+  rescheduleOfferedAt: string | null;
+
+  @ApiProperty({ ...nullableTime, description: 'Бот задал вечерний вопрос' })
+  eveningAskedAt: string | null;
 
   @ApiProperty(time)
   updatedAt: string;

@@ -1,13 +1,8 @@
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
 
-import {
-  exerciseGuide,
-  stretchGuide,
-  useCatalogExercise,
-  useCatalogStretch,
-  type CatalogKind,
-} from '@sportbot/api/entities/catalog';
+import { exerciseGuide, stretchGuide, type CatalogKind } from '@sportbot/api/entities/catalog';
+import { useCatalogExercise, useCatalogStretch } from '@/shared/local/entities/catalog';
 
 import { toAssetUrl } from '@/shared/api';
 import { Badge } from '@/shared/ui/kit/Badge';

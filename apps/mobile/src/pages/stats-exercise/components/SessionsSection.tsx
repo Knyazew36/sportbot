@@ -1,6 +1,7 @@
 import { View } from 'react-native';
 
-import { type ProgressUnit, setText, useProgressSessions } from '@sportbot/api/entities/stats';
+import { type ProgressUnit, setText } from '@sportbot/api/entities/stats';
+import { useProgressSessions } from '@/shared/local/entities/stats';
 
 import { formatDate } from '@/shared/lib/format';
 import { cn } from '@/shared/lib/utils';

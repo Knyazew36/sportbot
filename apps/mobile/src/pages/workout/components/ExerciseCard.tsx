@@ -2,7 +2,6 @@ import { View } from 'react-native';
 import { BookOpen, Repeat2, TriangleAlert } from 'lucide-react-native';
 
 import { lastText, planText, type WorkoutItem } from '@sportbot/api/entities/workout';
-import { useIsOnline } from '@/shared/api';
 import { ROUTES } from '@/shared/config/routes';
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink';
 import { Icon } from '@/shared/ui/kit/Icon';
@@ -19,8 +18,6 @@ type ExerciseCardProps = {
 // Три блока отдельно, как во фронте: расстояние между ними задаёт экран (gap-6), а в суперсете — карточка
 export const ExerciseCard = ({ item, label }: ExerciseCardProps) => {
   const last = lastText(item.last, item.measure);
-  // Аналоги и замена — только с сервера: без сети ссылка гасится, чтобы не вести на вечную загрузку
-  const online = useIsOnline();
   // Над текущим упражнением подписи нет: и так понятно, что оно сейчас на экране
   const eyebrow = [item.done ? 'Сделано' : item.replaced ? 'Замена на сегодня' : null, label, item.draft && 'не проверено']
     .filter(Boolean)
@@ -45,10 +42,9 @@ export const ExerciseCard = ({ item, label }: ExerciseCardProps) => {
             className="mt-4"
             // Подпись в две строки: рамка растёт по тексту, а не режет его
             contentClassName="min-h-0 py-1.5"
-            disabled={!online}
           >
             <Icon as={TriangleAlert} className="size-3.5" />
-            {`нагружает ${item.limitedZones.join(', ')} — ${online ? 'заменить?' : 'заменить можно при сети'}`}
+            {`нагружает ${item.limitedZones.join(', ')} — заменить?`}
           </ButtonLink>
         )}
       </Rise>
@@ -85,9 +81,9 @@ export const ExerciseCard = ({ item, label }: ExerciseCardProps) => {
             <Icon as={BookOpen} className="size-3.5" />
             Техника
           </ButtonLink>
-          <ButtonLink href={replaceHref} variant="outline" size="sm" disabled={!online}>
+          <ButtonLink href={replaceHref} variant="outline" size="sm">
             <Icon as={Repeat2} className="size-3.5" />
-            {online ? 'Заменить' : 'Нужна сеть'}
+            Заменить
           </ButtonLink>
         </View>
       </Rise>

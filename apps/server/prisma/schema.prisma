@@ -457,6 +457,8 @@ model SportProfile {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  /// Когда правили каждое поле, { поле: ISO }: офлайн-правка с телефона не затирает более позднюю
+  fieldUpdatedAt Json @default("{}")
 
   @@index([activeProgramId])
 }
@@ -896,6 +898,8 @@ model Program {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  /// Когда правили каждое поле, { поле: ISO }: офлайн-правка с телефона не затирает более позднюю
+  fieldUpdatedAt Json @default("{}")
 
   complexes Complex[]
   activeFor SportProfile[] @relation("ActiveProgram")
@@ -974,6 +978,8 @@ model Complex {
   suggestedIn PlanDay[]
 
   updatedAt DateTime @default(now()) @updatedAt
+  /// Когда правили каждое поле, { поле: ISO }: офлайн-правка с телефона не затирает более позднюю
+  fieldUpdatedAt Json @default("{}")
 
   @@index([programId, position])
 }
@@ -998,6 +1004,8 @@ model ComplexExercise {
   superset Int?
 
   updatedAt DateTime @default(now()) @updatedAt
+  /// Когда правили каждое поле, { поле: ISO }: офлайн-правка с телефона не затирает более позднюю
+  fieldUpdatedAt Json @default("{}")
 
   @@index([complexId, position])
   @@index([exerciseId])

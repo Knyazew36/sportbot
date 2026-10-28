@@ -3,9 +3,10 @@
 
 /**
  * Почему сменилась сессия. expired — сервер отверг токен (протух, отозван): офлайн-очередь
- * не выбрасываем, она дождётся входа. logout — человек вышел сам: кеш прошлого аккаунта чистим
+ * не выбрасываем, она дождётся входа. logout — человек вышел сам: кеш прошлого аккаунта чистим.
+ * refresh — тот же пользователь получил новый токен вместо старого: ни входа, ни выхода
  */
-export type SessionChangeReason = 'login' | 'logout' | 'expired'
+export type SessionChangeReason = 'login' | 'logout' | 'expired' | 'refresh'
 
 type Listener = (reason: SessionChangeReason) => void
 

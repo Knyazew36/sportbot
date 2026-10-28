@@ -1,4 +1,4 @@
-import { useStatsSummary } from '@sportbot/api/entities/stats';
+import { useStatsSummary } from '@/shared/local/entities/stats';
 
 import { QueryState } from '@/shared/ui/kit/QueryState';
 

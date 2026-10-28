@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { router } from 'expo-router';
 
-import { useAddItems, type Workout } from '@sportbot/api/entities/workout';
+import { type Workout } from '@sportbot/api/entities/workout';
+import { useAddItems } from '@/shared/local/entities/workout';
 import { ROUTES } from '@/shared/config/routes';
 import { local } from '@/shared/lib/local';
 

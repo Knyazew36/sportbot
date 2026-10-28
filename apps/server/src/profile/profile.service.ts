@@ -3,6 +3,7 @@ import { PrismaService } from 'prisma/prisma.service';
 
 import { localToday, parseUserTime, weekdayOf } from '@/bot';
 import { Prisma, SportProfile } from '@/generated/prisma/client';
+import { definedFields, stampFields } from '@/sync/field-stamps';
 import { UploadService } from '@/upload/upload.service';
 
 export const CITY_ZONES: { title: string; zone: string }[] = [
@@ -42,14 +43,17 @@ export class ProfileService {
 
   // ── Настройки ───────────────────────────────────────────────────────────
 
+  /** at — время правки для отметок полей: у офлайн-правки с телефона это время действия */
   public async update(
     userId: number,
     data: Prisma.SportProfileUncheckedUpdateInput,
+    at?: Date,
   ): Promise<SportProfile> {
     const profile = await this.prisma.sportProfile.update({
       where: { userId },
       data,
     });
+    await stampFields(this.prisma, 'profile', userId, definedFields(data), at);
     this.logger.log(
       `Настройки изменены: userId=${userId}, поля: ${Object.keys(data).join(', ')}`,
     );

@@ -1,11 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 
-import {
-  pickerSubtitle,
-  supersetTargetFromParams,
-  useAddComplexExercises,
-  useProgram,
-} from '@sportbot/api/entities/program';
+import { pickerSubtitle, supersetTargetFromParams } from '@sportbot/api/entities/program';
+import { useAddComplexExercises, useProgram } from '@/shared/local/entities/program';
 
 import { ExercisePicker } from '@/widgets/program-editor/ExercisePicker';
 

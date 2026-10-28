@@ -1,0 +1,1 @@
+ALTER TABLE `profile` ADD `createdAt` text DEFAULT '' NOT NULL;

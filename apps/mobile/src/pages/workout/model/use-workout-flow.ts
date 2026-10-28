@@ -1,20 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'expo-router';
 
-import {
-  currentItem,
-  type SetTiming,
-  supersetDoneWith,
-  supersetLabels,
-  supersetRound,
-  useDiscardWorkout,
-  useFinishWorkout,
-  useQueuedWorkout,
-  useWarmupFinish,
-  type Workout,
-  type WorkoutItem,
-} from '@sportbot/api/entities/workout';
-import { useIsOnline } from '@/shared/api';
+import { currentItem, type SetTiming, supersetDoneWith, supersetLabels, supersetRound, type Workout, type WorkoutItem } from '@sportbot/api/entities/workout';
+import { useDiscardWorkout, useFinishWorkout, useQueuedWorkout, useWarmupFinish } from '@/shared/local/entities/workout';
 import { ROUTES } from '@/shared/config/routes';
 import { useDeadlineTimer } from '@/shared/lib/hooks/use-deadline-timer';
 import { useStopwatch } from '@/shared/lib/hooks/use-stopwatch';
@@ -46,7 +34,6 @@ const useStoredFlag = (key: string) => {
 export const useWorkoutFlow = (saved: Workout) => {
   const router = useRouter();
   const { workout, finishing } = useQueuedWorkout(saved);
-  const online = useIsOnline();
   const finish = useFinishWorkout();
   const discard = useDiscardWorkout();
   const { settings } = workout;
@@ -130,7 +117,6 @@ export const useWorkoutFlow = (saved: Workout) => {
   const base = {
     workout,
     finishing,
-    online,
     items,
     doneCount,
     finishPending: finish.isPending,

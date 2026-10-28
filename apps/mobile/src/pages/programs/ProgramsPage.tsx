@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Plus } from 'lucide-react-native';
 
-import { usePrograms } from '@sportbot/api/entities/program';
+import { usePrograms } from '@/shared/local/entities/program';
 
 import { Button } from '@/shared/ui/kit/Button';
 import { QueryState } from '@/shared/ui/kit/QueryState';

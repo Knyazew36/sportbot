@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { router, useLocalSearchParams, type Href } from 'expo-router';
 
-import { useCurrentWorkout, useFinishSucceeded } from '@sportbot/api/entities/workout';
+import { useCurrentWorkout, useFinishSucceeded } from '@/shared/local/entities/workout';
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen';
 import { ROUTES } from '@/shared/config/routes';
 

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { CalendarCheck } from 'lucide-react-native';
 import { pluralize } from '@front-cmdt/utils/pluralize';
 
-import { useProfile } from '@sportbot/api/entities/profile';
+import { useProfile } from '@/shared/local/entities/profile';
 import { complexLetter, type ProgramComplex } from '@sportbot/api/entities/program';
 
 import { EXERCISE_FORMS } from '@/shared/lib/plural-forms';

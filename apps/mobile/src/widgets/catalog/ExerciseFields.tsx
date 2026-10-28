@@ -2,7 +2,8 @@ import type { ReactNode } from 'react';
 import { ScrollView, View } from 'react-native';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
 
-import { type Equipment, EQUIPMENT_LABEL, type ExerciseCreateInput, useJoints, useMuscles } from '@sportbot/api/entities/catalog';
+import { type Equipment, EQUIPMENT_LABEL, type ExerciseCreateInput } from '@sportbot/api/entities/catalog';
+import { useJoints, useMuscles } from '@/shared/local/entities/catalog';
 import { type Measure, MEASURE_LABEL } from '@sportbot/api/lib/measure';
 import { Button } from '@/shared/ui/kit/Button';
 import { ErrorText } from '@/shared/ui/kit/ErrorText';

@@ -2,12 +2,14 @@ import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 
+import { User } from '@/generated/prisma/client';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { Swagger } from '@/common/decorators/swagger/swagger.decorator';
 import { MultiAuthGuard } from '@/common/guards/multi-auth.guard';
 
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { DeleteAccountDto } from './dto/delete-account.dto';
+import { AuthResponseDto } from './dto/auth-response.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterResponseDto } from './dto/register-response.dto';
@@ -109,6 +111,19 @@ export class AuthController {
     @Body() dto: ChangePasswordDto,
   ) {
     return this.emailAuthService.changePassword(userId, dto);
+  }
+
+  @Post('refresh')
+  @UseGuards(MultiAuthGuard)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @Swagger({
+    title:
+      'Продлить сессию: новый токен вместо ещё действующего (мобилка зовёт после синка)',
+    response: AuthResponseDto,
+    bearerAuth: true,
+  })
+  refresh(@CurrentUser() user: User) {
+    return this.emailAuthService.refresh(user);
   }
 
   @Post('delete-account')

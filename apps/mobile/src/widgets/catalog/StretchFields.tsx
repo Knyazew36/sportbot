@@ -2,7 +2,8 @@ import type { ReactNode } from 'react';
 import { Switch, View } from 'react-native';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
 
-import { type StretchFormInput, useMuscles } from '@sportbot/api/entities/catalog';
+import { type StretchFormInput } from '@sportbot/api/entities/catalog';
+import { useMuscles } from '@/shared/local/entities/catalog';
 
 import { useTheme } from '@/shared/theme/ThemeProvider';
 import { Button } from '@/shared/ui/kit/Button';

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
-import { usePrograms, useProgram } from '@sportbot/api/entities/program';
-import { useStartWorkout as useStartMutation } from '@sportbot/api/entities/workout';
+import { usePrograms, useProgram } from '@/shared/local/entities/program';
+import { useStartWorkout as useStartMutation } from '@/shared/local/entities/workout';
 
 /**
  * Старт тренировки по complexId. Пустой комплекс не стартуем: возвращаем его, чтобы экран

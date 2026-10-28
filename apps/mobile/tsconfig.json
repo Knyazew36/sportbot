@@ -8,6 +8,9 @@
       ],
       "@/assets/*": [
         "./assets/*"
+      ],
+      "expo-sqlite": [
+        "./node_modules/expo-sqlite"
       ]
     }
   },

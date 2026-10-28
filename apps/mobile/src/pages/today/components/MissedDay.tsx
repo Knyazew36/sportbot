@@ -1,6 +1,7 @@
 import { View } from 'react-native';
 
-import { useFixDay, useRescheduleAnswer, type DayToday } from '@sportbot/api/entities/day';
+import { type DayToday } from '@sportbot/api/entities/day';
+import { useFixDay, useRescheduleAnswer } from '@/shared/local/entities/day';
 
 import { ROUTES } from '@/shared/config/routes';
 import { Button } from '@/shared/ui/kit/Button';

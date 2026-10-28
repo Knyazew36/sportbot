@@ -62,3 +62,24 @@ export const timeInput = (measure: Measure, seconds: number) => {
 
 /** Подпись поля времени */
 export const timeLabel = (measure: Measure) => (measure === 'MINUTES' ? 'минуты' : 'секунды')
+
+/** План нового упражнения: силовое 4 × 8–12, удержание 4 × 30–60 с, кардио 1 × 20 мин — как defaultPlan на сервере */
+export const defaultPlan = (measure: Measure) =>
+  measure === 'MINUTES'
+    ? { sets: 1, repsMin: 1200, repsMax: 1200 }
+    : measure === 'TIME'
+      ? { sets: 4, repsMin: 30, repsMax: 60 }
+      : { sets: 4, repsMin: 8, repsMax: 12 }
+
+/** Границы подхода, как isValidSet на сервере: вес 0..999 (на время — 0), повторы или секунды от 1 */
+export const isValidSet = (measure: Measure, weight: number, reps: number) =>
+  Number.isFinite(weight) &&
+  weight >= 0 &&
+  weight <= 999 &&
+  Number.isInteger(reps) &&
+  reps >= 1 &&
+  reps <= MEASURE_LIMITS[measure].set
+
+/** Текст отказа для неверного подхода — тот же, что у сервера */
+export const setError = (measure: Measure) =>
+  isTimed(measure) ? 'Время — от 1 секунды до 4 часов.' : 'Вес до 999 кг, повторы от 1 до 999.'

@@ -3,7 +3,8 @@ import { View } from 'react-native';
 import type { Href } from 'expo-router';
 import { Plus } from 'lucide-react-native';
 
-import { useQueuedWorkout, type Workout } from '@sportbot/api/entities/workout';
+import { type Workout } from '@sportbot/api/entities/workout';
+import { useQueuedWorkout } from '@/shared/local/entities/workout';
 import { supersetLabels } from '@sportbot/api/lib/superset';
 import { ROUTES } from '@/shared/config/routes';
 import { formatDate } from '@/shared/lib/format';

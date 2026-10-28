@@ -13,6 +13,7 @@ import { FriendsSection } from './components/FriendsSection';
 import { LimitsSection } from './components/LimitsSection';
 import { LogoutButton } from './components/LogoutButton';
 import { MessengersSection } from './components/MessengersSection';
+import { OfflineSection } from './components/OfflineSection';
 import { PauseSection } from './components/PauseSection';
 import { PhotoSection } from './components/PhotoSection';
 import { ScheduleSection } from './components/ScheduleSection';
@@ -44,5 +45,6 @@ export const SECTION_ITEMS: Record<MeSectionSlug, MeItem[]> = {
     { title: 'Выход', render: () => <LogoutButton /> },
     { title: 'Удаление данных', render: () => <DeleteAccountSection /> },
   ],
+  offline: [{ title: 'Офлайн', render: () => <OfflineSection /> }],
   app: [{ title: 'Оформление', render: () => <ThemeSection /> }],
 };

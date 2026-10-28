@@ -3,14 +3,7 @@ import { View } from 'react-native';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import {
-  type ComplexExerciseInput,
-  complexExerciseMinutesSchema,
-  complexExerciseSchema,
-  complexExerciseTimeSchema,
-  type ComplexExerciseValues,
-  type ProgramExercise,
-} from '@sportbot/api/entities/program';
+import { type ComplexExerciseInput, complexExerciseMinutesSchema, complexExerciseSchema, complexExerciseTimeSchema, type ComplexExerciseValues, type ProgramExercise } from '@sportbot/api/entities/program';
 import { isTimed, timeInput } from '@sportbot/api/lib/measure';
 
 import { applyFieldErrors } from '@/shared/lib/form';

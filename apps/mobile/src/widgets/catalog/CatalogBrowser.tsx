@@ -2,14 +2,8 @@ import type { InfiniteData, UseInfiniteQueryResult } from '@tanstack/react-query
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
 
-import {
-  type CatalogKind,
-  type CatalogListItem,
-  type Equipment,
-  useCatalogExercises,
-  useCatalogStretches,
-  useMuscles,
-} from '@sportbot/api/entities/catalog';
+import { type CatalogKind, type CatalogListItem, type Equipment } from '@sportbot/api/entities/catalog';
+import { useCatalogExercises, useCatalogStretches, useMuscles } from '@/shared/local/entities/catalog';
 import { toAssetUrl } from '@/shared/api';
 import { useDebouncedValue } from '@/shared/lib/hooks/use-debounced-value';
 import { Button } from '@/shared/ui/kit/Button';

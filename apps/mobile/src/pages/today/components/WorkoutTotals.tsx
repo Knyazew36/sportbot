@@ -1,7 +1,7 @@
 import { ArrowRight } from 'lucide-react-native';
 import { pluralize } from '@front-cmdt/utils/pluralize';
 
-import { useWorkoutSummary } from '@sportbot/api/entities/workout';
+import { useWorkoutSummary } from '@/shared/local/entities/workout';
 
 import { ROUTES } from '@/shared/config/routes';
 import { EXERCISE_OF_FORMS, SET_FORMS } from '@/shared/lib/plural-forms';

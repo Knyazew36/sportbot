@@ -1,6 +1,7 @@
 import { Trash2 } from 'lucide-react-native';
 
-import { useRemoveItem, type WorkoutItem } from '@sportbot/api/entities/workout';
+import { type WorkoutItem } from '@sportbot/api/entities/workout';
+import { useRemoveItem } from '@/shared/local/entities/workout';
 import { Button } from '@/shared/ui/kit/Button';
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction';
 import { Icon } from '@/shared/ui/kit/Icon';

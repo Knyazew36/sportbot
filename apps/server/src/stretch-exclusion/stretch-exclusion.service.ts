@@ -80,11 +80,13 @@ export class StretchExclusionService {
     userId: number,
     stretchId: number,
     tx: Prisma.TransactionClient = this.prisma,
+    /** clientId исключения с телефона: после синка у телефона та же строка */
+    clientId?: string,
   ): Promise<void> {
     try {
       await tx.stretchExclusion.upsert({
         where: { userId_stretchId: { userId, stretchId } },
-        create: { userId, stretchId },
+        create: { userId, stretchId, ...(clientId ? { clientId } : {}) },
         update: {},
       });
     } catch (error) {

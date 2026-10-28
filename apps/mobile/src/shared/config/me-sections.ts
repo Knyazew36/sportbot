@@ -1,6 +1,6 @@
-import { BellRing, HeartPulse, type LucideIcon, Palette, UserRound, UsersRound } from 'lucide-react-native';
+import { BellRing, CloudDownload, HeartPulse, type LucideIcon, Palette, UserRound, UsersRound } from 'lucide-react-native';
 
-export type MeSectionSlug = 'training' | 'body' | 'friends' | 'account' | 'app';
+export type MeSectionSlug = 'training' | 'body' | 'friends' | 'account' | 'offline' | 'app';
 
 export type MeSection = {
   slug: MeSectionSlug;
@@ -16,6 +16,7 @@ export const ME_SECTIONS: MeSection[] = [
   { slug: 'body', title: 'Тело', icon: HeartPulse },
   { slug: 'friends', title: 'Друзья', icon: UsersRound },
   { slug: 'account', title: 'Аккаунт', icon: UserRound },
+  { slug: 'offline', title: 'Офлайн', icon: CloudDownload },
   { slug: 'app', title: 'Оформление', icon: Palette },
 ];
 

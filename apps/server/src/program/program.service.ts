@@ -20,6 +20,7 @@ import {
 } from '@/program-tag/program-tag.service';
 
 import { localToday } from '@/bot/bot-time';
+import { stampFields } from '@/sync/field-stamps';
 import { normalizeSupersets, SupersetSlot } from './superset';
 
 type Tx = Prisma.TransactionClient;
@@ -141,9 +142,13 @@ export class ProgramService {
     return program;
   }
 
-  public async create(userId: number, name: string) {
+  public async create(userId: number, name: string, clientId?: string) {
     const program = await this.prisma.program.create({
-      data: { name: cleanName(name), ownerId: userId },
+      data: {
+        name: cleanName(name),
+        ownerId: userId,
+        ...(clientId ? { clientId } : {}),
+      },
     });
     this.logger.log(
       `Программа создана: programId=${program.id}, userId=${userId}`,
@@ -152,12 +157,18 @@ export class ProgramService {
     return program;
   }
 
-  public async rename(owner: ProgramOwner, programId: number, name: string) {
+  public async rename(
+    owner: ProgramOwner,
+    programId: number,
+    name: string,
+    at?: Date,
+  ) {
     const { count } = await this.prisma.program.updateMany({
       where: { id: programId, ...ownerWhere(owner) },
       data: { name: cleanName(name) },
     });
     if (!count) throw new NotFoundException('Программа не найдена.');
+    await stampFields(this.prisma, 'program', programId, ['name'], at);
     this.logger.log(`Программа переименована: programId=${programId}`);
   }
 
@@ -400,11 +411,14 @@ export class ProgramService {
     owner: ProgramOwner,
     programId: number,
     name: string,
+    /** clientId комплекса с телефона: после синка у телефона та же строка */
+    clientId?: string,
   ) {
     const program = await this.find(owner, programId);
     const complex = await this.prisma.complex.create({
       data: {
         programId,
+        ...(clientId ? { clientId } : {}),
         name: cleanName(name),
         position: (program.complexes.at(-1)?.position ?? 0) + 1,
       },
@@ -494,12 +508,14 @@ export class ProgramService {
     owner: ProgramOwner,
     complexId: number,
     name: string,
+    at?: Date,
   ) {
     const { count } = await this.prisma.complex.updateMany({
       where: { id: complexId, program: ownerWhere(owner) },
       data: { name: cleanName(name) },
     });
     if (!count) throw new NotFoundException('Тренировка не найдена.');
+    await stampFields(this.prisma, 'complex', complexId, ['name'], at);
   }
 
   /** Разминка комплекса: null — как в профиле, 0 — без разминки. */
@@ -507,12 +523,14 @@ export class ProgramService {
     owner: ProgramOwner,
     complexId: number,
     warmupMinutes: number | null,
+    at?: Date,
   ): Promise<void> {
     const { count } = await this.prisma.complex.updateMany({
       where: { id: complexId, program: ownerWhere(owner) },
       data: { warmupMinutes },
     });
     if (!count) throw new NotFoundException('Тренировка не найдена.');
+    await stampFields(this.prisma, 'complex', complexId, ['warmupMinutes'], at);
     this.logger.log(
       `Разминка комплекса: complexId=${complexId}, минут=${warmupMinutes ?? 'как в профиле'}`,
     );
@@ -596,6 +614,8 @@ export class ProgramService {
     complexId: number,
     exerciseIds: number[],
     target: { joinItemId?: number; newSuperset?: boolean } = {},
+    /** clientId новых строк с телефона — по порядку exerciseIds без повторов */
+    clientIds?: string[],
   ): Promise<number> {
     const complex = await this.findComplex(owner, complexId);
     const fresh = [...new Set(exerciseIds)];
@@ -632,11 +652,12 @@ export class ProgramService {
 
     await this.prisma.$transaction(async (tx) => {
       const created: SupersetSlot[] = [];
-      for (const exerciseId of fresh) {
+      for (const [index, exerciseId] of fresh.entries()) {
         const item = await tx.complexExercise.create({
           data: {
             complexId,
             exerciseId,
+            ...(clientIds?.[index] ? { clientId: clientIds[index] } : {}),
             position: 0,
             ...defaultPlan(measureOf.get(exerciseId)!),
           },
@@ -842,6 +863,7 @@ export class ProgramService {
     owner: ProgramOwner,
     itemId: number,
     plan: { sets: number; repsMin: number; repsMax: number },
+    at?: Date,
   ) {
     const item = await this.findItem(owner, itemId);
     this.checkPlan(item.exercise.measure, plan);
@@ -849,6 +871,8 @@ export class ProgramService {
       where: { id: itemId },
       data: plan,
     });
+    // План — одно значение «подходы × повторы»: отметка общая, половину чужой правки не смешиваем
+    await stampFields(this.prisma, 'complexItem', itemId, ['plan'], at);
     await this.touch(item.complex.programId);
     this.logger.log(
       `План упражнения: itemId=${itemId}, ${plan.sets}×${plan.repsMin}-${plan.repsMax}`,

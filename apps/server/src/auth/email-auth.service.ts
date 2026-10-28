@@ -248,6 +248,15 @@ export class EmailAuthService {
   // Общая проверка "докажи, что это правда ты" для чувствительных self-service действий
   // (смена пароля, удаление аккаунта). Если пароль уже задан — сверяем его. Если пароля нет
   // (юзер только через Telegram/MAX) — проверять нечего, полагаемся на аутентификацию по гварду.
+  /**
+   * Новый токен вместо ещё действующего: телефон зовёт после синка, и сессия не кончается,
+   * пока человек хоть раз в неделю выходит в сеть. Пользователь и версия токена уже проверены гвардом
+   */
+  public async refresh(user: User) {
+    this.logger.debug(`Продление токена userId=${user.id}`);
+    return this.buildAuthResponse(user);
+  }
+
   public async verifyCurrentPasswordOrNone(
     user: Pick<User, 'passwordHash'>,
     currentPassword?: string,

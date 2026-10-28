@@ -31,6 +31,8 @@ export class PauseService {
     profile: SportProfile,
     endDate: Date | null,
     origin: PauseOrigin,
+    /** clientId новой паузы с телефона: после синка у телефона та же строка */
+    clientId?: string,
   ): Promise<Pause> {
     const userId = profile.userId;
     const today = localToday(profile.timeZone);
@@ -41,7 +43,13 @@ export class PauseService {
           data: { endDate, endAskedAt: null },
         })
       : await this.prisma.pause.create({
-          data: { userId, startDate: today, endDate, origin },
+          data: {
+            userId,
+            startDate: today,
+            endDate,
+            origin,
+            ...(clientId ? { clientId } : {}),
+          },
         });
     // Уже созданный день, который ещё ждёт ответа, перестаёт быть кандидатом в пропуски
     const { count } = await this.prisma.planDay.updateMany({
@@ -87,6 +95,7 @@ export class PauseService {
   public async startByUser(
     userId: number,
     endDate: string | null,
+    clientId?: string,
   ): Promise<{ startDate: string; endDate: string | null }> {
     const profile = await this.prisma.sportProfile.findUniqueOrThrow({
       where: { userId },
@@ -94,7 +103,7 @@ export class PauseService {
     const end = endDate ? new Date(`${endDate}T00:00:00.000Z`) : null;
     if (end && end < localToday(profile.timeZone))
       throw new BadRequestException('Дата окончания уже прошла.');
-    const pause = await this.start(profile, end, 'MANUAL');
+    const pause = await this.start(profile, end, 'MANUAL', clientId);
     return {
       startDate: pause.startDate.toISOString().slice(0, 10),
       endDate: pause.endDate ? pause.endDate.toISOString().slice(0, 10) : null,

@@ -3,16 +3,8 @@ import { pluralize } from '@front-cmdt/utils/pluralize';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 
-import {
-  type Profile,
-  scheduleSchema,
-  type ScheduleValues,
-  timezoneSchema,
-  type TimezoneValues,
-  useCities,
-  useSetTimezone,
-  useUpdateProfile,
-} from '@sportbot/api/entities/profile';
+import { type Profile, scheduleSchema, type ScheduleValues, timezoneSchema, type TimezoneValues } from '@sportbot/api/entities/profile';
+import { useCities, useSetTimezone, useUpdateProfile } from '@/shared/local/entities/profile';
 
 import { applyFieldErrors } from '@/shared/lib/form';
 import { Button } from '@/shared/ui/kit/Button';

@@ -3,7 +3,8 @@ import { View } from 'react-native';
 import { router } from 'expo-router';
 import { Library, Plus } from 'lucide-react-native';
 
-import { complexLetter, useAddComplex } from '@sportbot/api/entities/program';
+import { complexLetter } from '@sportbot/api/entities/program';
+import { useAddComplex } from '@/shared/local/entities/program';
 
 import { routeHref, ROUTES } from '@/shared/config/routes';
 import { Button } from '@/shared/ui/kit/Button';

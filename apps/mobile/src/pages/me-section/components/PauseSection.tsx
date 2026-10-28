@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Pause } from 'lucide-react-native';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 
-import { useEndPause, useStartPause } from '@sportbot/api/entities/pause';
+import { useEndPause, useStartPause } from '@/shared/local/entities/day';
 import { type PauseInput, pauseSchema, type Profile } from '@sportbot/api/entities/profile';
 
 import { applyFieldErrors } from '@/shared/lib/form';

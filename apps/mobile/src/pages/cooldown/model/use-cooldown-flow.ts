@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { router, type Href } from 'expo-router';
 
-import { type Cooldown, useCooldownFinish, useCooldownStart } from '@sportbot/api/entities/workout';
+import { type Cooldown } from '@sportbot/api/entities/workout';
+import { useCooldownFinish, useCooldownStart } from '@/shared/local/entities/workout';
 import { useExcludeCooldownStretch } from '@/features/exclude-stretch/useExcludeCooldownStretch';
 import { ROUTES } from '@/shared/config/routes';
 

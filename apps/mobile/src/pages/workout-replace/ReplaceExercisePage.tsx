@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from 'expo-router';
 
-import { useCurrentWorkout } from '@sportbot/api/entities/workout';
+import { useCurrentWorkout } from '@/shared/local/entities/workout';
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen';
 
 import { ReplaceView } from './components/ReplaceView';

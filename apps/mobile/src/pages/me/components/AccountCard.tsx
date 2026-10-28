@@ -4,9 +4,9 @@ import { Camera, Check } from 'lucide-react-native';
 import { MESSENGER_LABEL, useLinkState } from '@sportbot/api/entities/link';
 import type { Profile } from '@sportbot/api/entities/profile';
 import { useSportUser } from '@sportbot/api/entities/sport-user';
-import { useStatsSummary } from '@sportbot/api/entities/stats';
 
 import { toAssetUrl } from '@/shared/api';
+import { useOnlineAction } from '@/shared/lib/hooks/use-online-action';
 import { Button } from '@/shared/ui/kit/Button';
 import { Icon } from '@/shared/ui/kit/Icon';
 import { InkPanel } from '@/shared/ui/kit/InkPanel';
@@ -27,18 +27,10 @@ const Perforation = () => (
   </View>
 );
 
-const Figure = ({ label, value }: { label: string; value: number | undefined }) => (
-  <View className="gap-1.5">
-    <Eyebrow tone="inverseMuted">{label}</Eyebrow>
-    <Poster size="xl" tone="inverse" numeric>
-      {value == null ? '—' : String(value)}
-    </Poster>
-  </View>
-);
-
 // Фото на карте: камера поверх — сменить; при первом входе фото берётся из мессенджера
 const CardPhoto = ({ profile }: { profile: Profile }) => {
   const avatar = usePickAvatar();
+  const net = useOnlineAction();
 
   return (
     <View>
@@ -56,6 +48,7 @@ const CardPhoto = ({ profile }: { profile: Profile }) => {
           size="icon-sm"
           accessibilityLabel={profile.avatarUrl ? 'Сменить фото' : 'Загрузить фото'}
           loading={avatar.pending}
+          disabled={net.disabled}
           onPress={() => void avatar.pick()}
         >
           <Icon as={Camera} className="size-4" />
@@ -65,10 +58,9 @@ const CardPhoto = ({ profile }: { profile: Profile }) => {
   );
 };
 
-// Карта участника — порт pages/me/components/AccountCard.tsx: фото, имя, номер, серия и где на связи
+// Карта участника — порт pages/me/components/AccountCard.tsx: фото, имя, номер и где на связи
 export const AccountCard = ({ profile }: { profile: Profile }) => {
   const me = useSportUser();
-  const summary = useStatsSummary();
   const links = useLinkState();
   const linked = links.data?.linked ?? [];
 
@@ -100,13 +92,7 @@ export const AccountCard = ({ profile }: { profile: Profile }) => {
 
         <Perforation />
 
-        <View className="flex-row items-end gap-4">
-          <View className="flex-1">
-            <Figure label="серия" value={summary.data?.currentStreak} />
-          </View>
-          <View className="flex-1">
-            <Figure label="рекорд" value={summary.data?.bestStreak} />
-          </View>
+        <View className="flex-row justify-end">
           <View className="items-end gap-1.5">
             <Eyebrow tone="inverseMuted">на связи</Eyebrow>
             <View className="flex-row gap-1.5">

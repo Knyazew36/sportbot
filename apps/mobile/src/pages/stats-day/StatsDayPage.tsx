@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { pluralize } from '@front-cmdt/utils/pluralize';
 
-import { useStatsDay } from '@sportbot/api/entities/stats';
+import { useStatsDay } from '@/shared/local/entities/stats';
 
 import { routeHref, ROUTES } from '@/shared/config/routes';
 import { formatDate } from '@/shared/lib/format';

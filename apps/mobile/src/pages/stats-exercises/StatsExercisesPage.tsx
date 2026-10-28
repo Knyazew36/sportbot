@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 
-import { useMuscleLoad, useProgressList } from '@sportbot/api/entities/stats';
+import { useMuscleLoad, useProgressList } from '@/shared/local/entities/stats';
 
 import { useDebouncedValue } from '@/shared/lib/hooks/use-debounced-value';
 import { CHIP_ALL, ChipFilter } from '@/shared/ui/kit/ChipFilter';

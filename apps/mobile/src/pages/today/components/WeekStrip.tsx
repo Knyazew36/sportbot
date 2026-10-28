@@ -4,7 +4,7 @@ import { addDays, addWeeks, format, parseISO } from 'date-fns';
 import { Check, ChevronLeft, ChevronRight, Pause, X, type LucideIcon } from 'lucide-react-native';
 
 import type { DayToday } from '@sportbot/api/entities/day';
-import { useCalendarMonths, usePrefetchStatsDays } from '@sportbot/api/entities/stats';
+import { useCalendarMonths, usePrefetchStatsDays } from '@/shared/local/entities/stats';
 
 import { formatDate } from '@/shared/lib/format';
 import { haptic } from '@/shared/lib/haptics';

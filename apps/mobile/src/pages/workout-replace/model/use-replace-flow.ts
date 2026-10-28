@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { router } from 'expo-router';
 
-import { useReplaceItem, type WorkoutAnalog } from '@sportbot/api/entities/workout';
+import { type WorkoutAnalog } from '@sportbot/api/entities/workout';
+import { useReplaceItem } from '@/shared/local/entities/workout';
 import { ROUTES } from '@/shared/config/routes';
 
 export type ReplaceChoice = { id: number; name: string; draft?: boolean };

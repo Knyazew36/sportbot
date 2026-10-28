@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 
-import { useRecords } from '@sportbot/api/entities/stats';
+import { useRecords } from '@/shared/local/entities/stats';
 
 import { List } from '@/shared/ui/kit/ListRow';
 import { QueryState } from '@/shared/ui/kit/QueryState';

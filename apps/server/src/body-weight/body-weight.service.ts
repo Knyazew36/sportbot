@@ -74,6 +74,26 @@ export class BodyWeightService {
     return { date: date.toISOString().slice(0, 10), value };
   }
 
+  /**
+   * Вес с телефона: за день, когда его ввели (без сети он доходит позже), повтор за день заменяет значение.
+   * Записи за этот день ещё нет — заводится с clientId телефона.
+   */
+  public async recordFromClient(
+    userId: number,
+    date: Date,
+    value: number,
+    clientId: string,
+  ): Promise<{ id: number; clientId: string }> {
+    const row = await this.prisma.bodyWeight.upsert({
+      where: { userId_date: { userId, date } },
+      update: { value },
+      create: { userId, date, value, clientId },
+      select: { id: true, clientId: true },
+    });
+    this.logger.log(`Вес тела записан с телефона: userId=${userId}`);
+    return row;
+  }
+
   // ── Периодический вопрос ────────────────────────────────────────────────
 
   /**

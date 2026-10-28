@@ -1,0 +1,1 @@
+ALTER TABLE `limitations` ADD `localId` integer;

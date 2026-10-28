@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import { PencilLine, Plus } from 'lucide-react-native';
 
-import { EQUIPMENT_LABEL, exerciseGuide, useCatalogExercise } from '@sportbot/api/entities/catalog';
-import { complexLetter, useActiveProgram, useAddComplexExercises } from '@sportbot/api/entities/program';
+import { EQUIPMENT_LABEL, exerciseGuide } from '@sportbot/api/entities/catalog';
+import { useCatalogExercise } from '@/shared/local/entities/catalog';
+import { complexLetter } from '@sportbot/api/entities/program';
+import { useAddComplexExercises, useActiveProgram } from '@/shared/local/entities/program';
 
 import { Button } from '@/shared/ui/kit/Button';
 import { Icon } from '@/shared/ui/kit/Icon';

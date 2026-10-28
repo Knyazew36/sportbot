@@ -3,14 +3,8 @@ import { View } from 'react-native';
 import { ArrowRight, Pencil, Trash2 } from 'lucide-react-native';
 import { pluralize } from '@front-cmdt/utils/pluralize';
 
-import {
-  isPublishable,
-  type Program,
-  type ProgramListItem,
-  useActivateProgram,
-  useDeleteProgram,
-  useProgram,
-} from '@sportbot/api/entities/program';
+import { isPublishable, type Program, type ProgramListItem } from '@sportbot/api/entities/program';
+import { useActivateProgram, useDeleteProgram, useProgram } from '@/shared/local/entities/program';
 
 import { PUBLICATION_STATUS } from '@/features/publish-program/publication-status';
 import { PublishSheet } from '@/features/publish-program/PublishSheet';

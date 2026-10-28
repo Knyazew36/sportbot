@@ -12,11 +12,8 @@ export interface WorkoutSetResponseDto {
   /** Вес, кг; 0 — без веса */
   weight: number;
   reps: number;
-  /**
-     * uuid с клиента; null — подход записан не из офлайн-очереди
-     * @nullable
-     */
-  clientId: string | null;
+  /** uuid подхода: с клиента из офлайн-очереди или выданный сервером */
+  clientId: string;
   /**
      * Когда записан; null — подход до учёта времени
      * @nullable

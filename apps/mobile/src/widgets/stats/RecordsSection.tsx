@@ -1,4 +1,4 @@
-import { useRecords } from '@sportbot/api/entities/stats';
+import { useRecords } from '@/shared/local/entities/stats';
 
 import { ROUTES } from '@/shared/config/routes';
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink';

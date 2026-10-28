@@ -9,6 +9,7 @@ import type {
   AuthControllerDeleteAccount200,
   AuthControllerForgotPassword200,
   AuthControllerLogin200,
+  AuthControllerRefresh200,
   AuthControllerRegister200,
   AuthControllerResendVerification200,
   AuthControllerResetPassword200,
@@ -119,6 +120,17 @@ export const authControllerChangePassword = (
       );
     }
   /**
+ * @summary Продлить сессию: новый токен вместо ещё действующего (мобилка зовёт после синка)
+ */
+export const authControllerRefresh = (
+
+ ) => {
+      return customInstance<AuthControllerRefresh200>(
+      {url: `/auth/refresh`, method: 'POST'
+    },
+      );
+    }
+  /**
  * @summary Удалить аккаунт безвозвратно: слово «удалить» и текущий пароль, если он задан
  */
 export const authControllerDeleteAccount = (
@@ -138,4 +150,5 @@ export type AuthControllerResendVerificationResult = NonNullable<Awaited<ReturnT
 export type AuthControllerForgotPasswordResult = NonNullable<Awaited<ReturnType<typeof authControllerForgotPassword>>>
 export type AuthControllerResetPasswordResult = NonNullable<Awaited<ReturnType<typeof authControllerResetPassword>>>
 export type AuthControllerChangePasswordResult = NonNullable<Awaited<ReturnType<typeof authControllerChangePassword>>>
+export type AuthControllerRefreshResult = NonNullable<Awaited<ReturnType<typeof authControllerRefresh>>>
 export type AuthControllerDeleteAccountResult = NonNullable<Awaited<ReturnType<typeof authControllerDeleteAccount>>>

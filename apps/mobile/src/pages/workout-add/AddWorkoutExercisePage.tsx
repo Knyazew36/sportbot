@@ -1,6 +1,6 @@
 import { Redirect } from 'expo-router';
 
-import { useCurrentWorkout } from '@sportbot/api/entities/workout';
+import { useCurrentWorkout } from '@/shared/local/entities/workout';
 import { ROUTES } from '@/shared/config/routes';
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen';
 

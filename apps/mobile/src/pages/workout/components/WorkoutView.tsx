@@ -35,13 +35,13 @@ export const WorkoutView = ({ workout: saved }: { workout: import('@sportbot/api
   useKeepAwake();
   const flow = useWorkoutFlow(saved);
   useRestNotification(flow.active?.timer);
-  const { workout, active, doneCount, items, online } = flow;
+  const { workout, active, doneCount, items } = flow;
   // Полоса общая на приложение; без упражнений возвращаться не к чему — прячем
   useWorkoutScreenBar({ hidden: !active || active.focusOpen, onReturn: active?.returnToFocus });
 
   if (flow.finishing) return <FinishPending />;
 
-  if (!active) return <EmptyWorkout title={workout.complexName} online={online} onDiscard={flow.onDiscard} />;
+  if (!active) return <EmptyWorkout title={workout.complexName} onDiscard={flow.onDiscard} />;
 
   const { item, superset, block } = active;
   const { settings } = workout;
@@ -60,7 +60,7 @@ export const WorkoutView = ({ workout: saved }: { workout: import('@sportbot/api
               subtitle={<ElapsedInline startedAt={workout.startedAt} />}
               action={
                 <ConfirmAction
-                  trigger={<Button variant="success" size="sm" disabled={!doneCount && !online} />}
+                  trigger={<Button variant="success" size="sm" />}
                   title={doneCount ? 'Завершить тренировку?' : 'Засчитывать нечего'}
                   description={
                     doneCount

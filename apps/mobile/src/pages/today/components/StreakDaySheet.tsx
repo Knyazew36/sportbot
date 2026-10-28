@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
 
-import { useStatsDay } from '@sportbot/api/entities/stats';
+import { useStatsDay } from '@/shared/local/entities/stats';
 
 import { ShareWorkoutButton } from '@/features/share-workout/ShareWorkoutButton';
 import { ROUTES } from '@/shared/config/routes';

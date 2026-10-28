@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 
+import { AvatarModule } from '@/avatar/avatar.module';
 import { CatalogModule } from '@/catalog/catalog.module';
 import { UploadModule } from '@/upload/upload.module';
 
@@ -9,7 +10,7 @@ import { SyncPushService } from './sync-push.service';
 import { SyncController } from './sync.controller';
 
 @Module({
-  imports: [CatalogModule, UploadModule],
+  imports: [AvatarModule, CatalogModule, UploadModule],
   controllers: [SyncController],
   providers: [SyncPullService, SyncPushService, SyncCatalogService],
   exports: [SyncPushService],

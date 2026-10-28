@@ -3,16 +3,8 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Trash2 } from 'lucide-react-native';
 
-import {
-  type TimeSetInput,
-  timeSetSchema,
-  useDeleteSet,
-  useUpdateSet,
-  type WorkoutSet,
-  type WorkoutSetInput,
-  workoutSetSchema,
-  type WorkoutSetValues,
-} from '@sportbot/api/entities/workout';
+import { type TimeSetInput, timeSetSchema, type WorkoutSet, type WorkoutSetInput, workoutSetSchema, type WorkoutSetValues } from '@sportbot/api/entities/workout';
+import { useDeleteSet, useUpdateSet } from '@/shared/local/entities/workout';
 import { isTimed, type Measure, timeInput, timeLabel } from '@sportbot/api/lib/measure';
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction';
 import { ErrorText } from '@/shared/ui/kit/ErrorText';

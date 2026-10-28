@@ -1,6 +1,6 @@
 import { pluralize } from '@front-cmdt/utils/pluralize';
 
-import { useLimitations } from '@sportbot/api/entities/limitation';
+import { useLimitations } from '@/shared/local/entities/profile';
 import { MESSENGER_LABEL, useLinkState } from '@sportbot/api/entities/link';
 import type { Profile } from '@sportbot/api/entities/profile';
 import { useFriends } from '@sportbot/api/entities/social';
@@ -37,6 +37,7 @@ export const useSectionMeta = (profile: Profile): Partial<Record<MeSectionSlug, 
         .join(' · ') || 'вес и ограничения',
     friends: friends.data?.length ? pluralize(friends.data.length, ['друг', 'друга', 'друзей']) : 'пригласи друзей',
     account: ['имя, пол, фото', ...(links.data?.linked.map((m) => MESSENGER_LABEL[m]) ?? [])].join(' · '),
+    offline: 'синхронизация и картинки для зала',
     app: [PALETTES.find((p) => p.value === palette)?.label, THEME_OPTIONS.find((o) => o.value === choice)?.label]
       .filter(Boolean)
       .join(' · '),

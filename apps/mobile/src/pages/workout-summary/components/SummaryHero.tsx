@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 import { pluralize } from '@front-cmdt/utils/pluralize';
 
-import { useProfile } from '@sportbot/api/entities/profile';
+import { useProfile } from '@/shared/local/entities/profile';
 import { motivationFor, type WorkoutSummary } from '@sportbot/api/entities/workout';
 import { DAY_FORMS } from '@/shared/lib/plural-forms';
 import { GUTTER } from '@/shared/theme/tokens';

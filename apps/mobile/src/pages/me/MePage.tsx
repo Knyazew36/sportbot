@@ -1,8 +1,10 @@
-import { useProfile } from '@sportbot/api/entities/profile';
+import { useProfile } from '@/shared/local/entities/profile';
 
 import { QueryState } from '@/shared/ui/kit/QueryState';
 import { Screen } from '@/shared/ui/kit/Screen';
 import { ScreenHeader } from '@/shared/ui/kit/ScreenHeader';
+
+import { SessionExpiredBanner } from '@/widgets/session-expired/SessionExpiredBanner';
 
 import { AccountCard } from './components/AccountCard';
 import { DeveloperTicket } from './components/DeveloperTicket';
@@ -14,6 +16,7 @@ const MePage = () => {
 
   return (
     <Screen header={<ScreenHeader title="Профиль" />} className="gap-10">
+      <SessionExpiredBanner />
       <QueryState query={profile}>
         {(p) => (
           <>

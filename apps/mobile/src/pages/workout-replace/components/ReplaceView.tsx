@@ -1,6 +1,7 @@
 import { Plus, Repeat } from 'lucide-react-native';
 
-import { useAnalogs, type Workout } from '@sportbot/api/entities/workout';
+import { type Workout } from '@sportbot/api/entities/workout';
+import { useAnalogs } from '@/shared/local/entities/workout';
 import { Button } from '@/shared/ui/kit/Button';
 import { QueryState } from '@/shared/ui/kit/QueryState';
 import { Rise } from '@/shared/ui/kit/Reveal';

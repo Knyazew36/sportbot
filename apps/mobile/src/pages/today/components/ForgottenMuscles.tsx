@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 
-import { useMuscleLoad } from '@sportbot/api/entities/stats';
+import { useMuscleLoad } from '@/shared/local/entities/stats';
 
 import { ROUTES } from '@/shared/config/routes';
 import { Notice } from '@/shared/ui/kit/Notice';

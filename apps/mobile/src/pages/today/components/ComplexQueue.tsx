@@ -1,4 +1,4 @@
-import { useActiveProgram } from '@sportbot/api/entities/program';
+import { useActiveProgram } from '@/shared/local/entities/program';
 
 import { ComplexQueue as ComplexQueueWidget } from '@/widgets/complex-queue/ComplexQueue';
 

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { useActiveProgram } from '@sportbot/api/entities/program';
+import { useActiveProgram } from '@/shared/local/entities/program';
 
 import { ComplexPreviewSheet } from '@/widgets/program-preview/ComplexPreviewSheet';
 

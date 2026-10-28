@@ -1,6 +1,7 @@
 import { View } from 'react-native';
 
-import { type Profile, useUpdateProfile } from '@sportbot/api/entities/profile';
+import { type Profile } from '@sportbot/api/entities/profile';
+import { useUpdateProfile } from '@/shared/local/entities/profile';
 
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection';
 import { Segmented } from '@/shared/ui/kit/Segmented';

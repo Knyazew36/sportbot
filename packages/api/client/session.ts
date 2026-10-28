@@ -5,9 +5,13 @@ import { emitSessionChange, subscribeSession, type SessionChangeReason } from '.
 
 export const getAccessToken = (): string | null => getApiConfig().tokens.get()
 
-export const setAccessToken = (token: string, remember = true): void => {
+export const setAccessToken = (
+  token: string,
+  remember = true,
+  reason: Extract<SessionChangeReason, 'login' | 'refresh'> = 'login',
+): void => {
   getApiConfig().tokens.set(token, remember)
-  emitSessionChange()
+  emitSessionChange(reason)
 }
 
 export const clearAccessToken = (reason: Exclude<SessionChangeReason, 'login'> = 'logout'): void => {

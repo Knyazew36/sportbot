@@ -23,6 +23,8 @@ import {
 
 import { haptic } from '@/shared/lib/haptics';
 import { storage } from '@/shared/lib/storage';
+import { requestSync } from '@/shared/sync/engine';
+import { isSessionExpired } from './model/session-expired';
 import { clearSessionUserId, getSessionUserId, setSessionUserId } from './model/session-user';
 
 const DEFAULT_SUCCESS = 'Готово';
@@ -48,8 +50,10 @@ onlineManager.setEventListener((setOnline) => {
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
     // Тост нужен, только когда на экране уже старые данные и молча не обновились.
-    // Сетевой сбой фонового обновления не тостим: в зале он каждые пять минут, данные на экране и так есть
+    // Сетевой сбой фонового обновления не тостим: в зале он каждые пять минут, данные на экране и так есть.
+    // Сессия закончилась — 401 у каждого запроса, об этом и так говорит плашка «Войти»
     onError: (error, query) => {
+      if (isSessionExpired()) return;
       if (query.state.data !== undefined && getApiErrorStatus(error) !== undefined)
         toast.error(errorText(error));
     },
@@ -62,6 +66,8 @@ export const queryClient = new QueryClient({
       toast.error(errorText(error));
     },
     onSuccess: (_data, _vars, _ctx, mutation) => {
+      // Правка ушла на сервер мимо локальной базы — экраны, читающие базу, увидят её после pull
+      requestSync();
       if (mutation.meta?.skipSuccessToast) return;
       haptic.success();
       toast.success(mutation.meta?.successMessage ?? DEFAULT_SUCCESS);

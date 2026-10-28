@@ -1,17 +1,7 @@
 import { useEffect, useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 
-import {
-  type CatalogScope,
-  SEARCH_PARAM,
-  selectedTagIds,
-  selectionFromParams,
-  SORT_PARAM,
-  SOURCE_PARAM,
-  type TagSelection,
-  useCatalog,
-  useTemplateTagGroups,
-} from '@sportbot/api/entities/program';
+import { type CatalogScope, SEARCH_PARAM, selectedTagIds, selectionFromParams, SORT_PARAM, SOURCE_PARAM, type TagSelection, useCatalog, useTemplateTagGroups } from '@sportbot/api/entities/program';
 
 import { useDebouncedValue } from '@/shared/lib/hooks/use-debounced-value';
 

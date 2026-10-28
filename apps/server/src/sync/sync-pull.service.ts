@@ -2,6 +2,19 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from 'prisma/prisma.service';
 
+import { AvatarService } from '@/avatar/avatar.service';
+import { zoneTitle } from '@/profile/profile.service';
+import {
+  friendName,
+  fromTemplate,
+  SOURCE_PROGRAM_SELECT,
+  sourceUpdated,
+} from '@/program/program-source';
+import {
+  PROGRAM_TAG_ORDER,
+  PROGRAM_TAG_SELECT,
+} from '@/program-tag/program-tag.service';
+
 import { SyncPullResponseDto } from './dto/sync-pull.response.dto';
 import {
   PULL_OVERLAP_MS,
@@ -16,7 +29,10 @@ const clientIdOf = { select: { clientId: true } } as const;
 export class SyncPullService {
   private readonly logger = new Logger(`🔄 ${SyncPullService.name}`);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly avatars: AvatarService,
+  ) {}
 
   /**
    * Изменённые с since строки пользователя и удалённые с since. Без since или с курсором
@@ -39,6 +55,7 @@ export class SyncPullService {
 
     const [
       profile,
+      user,
       programs,
       complexes,
       complexExercises,
@@ -53,12 +70,35 @@ export class SyncPullService {
       bodyWeights,
       deleted,
     ] = await Promise.all([
-      this.prisma.sportProfile.findFirst({
-        where: { userId, ...changed },
+      // Профиль — одна строка, отдаём всегда: аватар и пояс живут не только в ней,
+      // их смена updatedAt профиля не двигает
+      this.prisma.sportProfile.findUnique({
+        where: { userId },
         include: { activeProgram: clientIdOf, nextComplex: clientIdOf },
       }),
+      this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { avatarPath: true },
+      }),
       this.prisma.program.findMany({
-        where: { ownerId: userId, isTemplate: false, ...changed },
+        where: {
+          ownerId: userId,
+          isTemplate: false,
+          // Правка источника копии меняет плашку «обновилась», а строку копии не трогает
+          ...(full
+            ? {}
+            : {
+                OR: [
+                  changed,
+                  { sourceProgram: { contentUpdatedAt: { gt: sinceDate } } },
+                ],
+              }),
+        },
+        include: {
+          tags: { orderBy: PROGRAM_TAG_ORDER, select: PROGRAM_TAG_SELECT },
+          _count: { select: { copies: true } },
+          sourceProgram: SOURCE_PROGRAM_SELECT,
+        },
       }),
       this.prisma.complex.findMany({
         where: { program: { ownerId: userId, isTemplate: false }, ...changed },
@@ -108,7 +148,9 @@ export class SyncPullService {
       full,
       profile: profile && {
         displayName: profile.displayName,
+        avatarUrl: this.avatars.url(user?.avatarPath ?? null),
         timeZone: profile.timeZone,
+        timeZoneTitle: zoneTitle(profile.timeZone),
         gender: profile.gender,
         trainingDays: profile.trainingDays,
         morningTime: profile.morningTime,
@@ -131,6 +173,7 @@ export class SyncPullService {
         timerSound: profile.timerSound,
         timerVibration: profile.timerVibration,
         warmupMinutes: profile.warmupMinutes,
+        createdAt: timeOf(profile.createdAt),
         updatedAt: timeOf(profile.updatedAt),
       },
       programs: programs.map((p) => ({
@@ -142,6 +185,15 @@ export class SyncPullService {
         sourceDismissedAt: timeOrNull(p.sourceDismissedAt),
         contentUpdatedAt: timeOf(p.contentUpdatedAt),
         publication: p.publication,
+        description: p.description,
+        fromFriend: friendName(p),
+        fromTemplate: fromTemplate(p),
+        sourceUpdated: sourceUpdated(p),
+        isPublished: p.isPublished,
+        addedCount: p._count.copies,
+        textPending: !!p.reviewRequestedAt,
+        rejectReason: p.rejectReason,
+        tags: p.tags,
         createdAt: timeOf(p.createdAt),
         updatedAt: timeOf(p.updatedAt),
       })),
@@ -182,6 +234,8 @@ export class SyncPullService {
         suggestedComplexClientId: d.suggestedComplex?.clientId ?? null,
         workoutId: d.workoutId,
         workoutClientId: d.workout?.clientId ?? null,
+        rescheduleOfferedAt: timeOrNull(d.rescheduleOfferedAt),
+        eveningAskedAt: timeOrNull(d.eveningAskedAt),
         updatedAt: timeOf(d.updatedAt),
       })),
       workouts: workouts.map((w) => ({

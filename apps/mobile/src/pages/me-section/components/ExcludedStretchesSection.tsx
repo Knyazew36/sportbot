@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 
-import { useDeleteStretchExclusion, useStretchExclusions } from '@sportbot/api/entities/stretch-exclusion';
+import { useDeleteStretchExclusion, useStretchExclusions } from '@/shared/local/entities/profile';
 
 import { toAssetUrl } from '@/shared/api';
 import { routeHref, ROUTES } from '@/shared/config/routes';

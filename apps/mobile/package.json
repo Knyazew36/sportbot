@@ -25,6 +25,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
+    "drizzle-orm": "^0.45.4",
     "expo": "~58.0.19",
     "expo-apple-authentication": "~58.0.2",
     "expo-blur": "~58.0.5",
@@ -45,6 +46,7 @@
     "expo-router": "~58.0.26",
     "expo-secure-store": "~58.0.2",
     "expo-splash-screen": "~58.0.11",
+    "expo-sqlite": "~58.0.14",
     "expo-status-bar": "~58.0.4",
     "expo-symbols": "~58.0.4",
     "expo-system-ui": "~58.0.6",
@@ -78,6 +80,8 @@
   },
   "devDependencies": {
     "@types/react": "~19.3.0",
+    "babel-plugin-inline-import": "^3.0.0",
+    "drizzle-kit": "^0.31.11",
     "eslint": "^9.18.0",
     "eslint-config-expo": "~58.0.4",
     "typescript": "~6.0.3"
@@ -88,7 +92,8 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate"
   },
   "private": true
 }

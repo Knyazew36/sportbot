@@ -1,7 +1,8 @@
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { type Program, programNameSchema, type ProgramNameValues, useRenameProgram } from '@sportbot/api/entities/program';
+import { type Program, programNameSchema, type ProgramNameValues } from '@sportbot/api/entities/program';
+import { useRenameProgram } from '@/shared/local/entities/program';
 
 import { applyFieldErrors } from '@/shared/lib/form';
 import { TextField } from '@/shared/ui/kit/TextField';

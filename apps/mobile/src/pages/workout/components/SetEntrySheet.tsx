@@ -3,19 +3,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Check } from 'lucide-react-native';
 import { Keyboard, View } from 'react-native';
 
-import {
-  lastSetHint,
-  newClientId,
-  type SetTiming,
-  type TimeSetInput,
-  timeSetSchema,
-  useAddSet,
-  weightText,
-  type WorkoutItem,
-  type WorkoutSetInput,
-  workoutSetSchema,
-  type WorkoutSetValues,
-} from '@sportbot/api/entities/workout';
+import { lastSetHint, newClientId, type SetTiming, type TimeSetInput, timeSetSchema, weightText, type WorkoutItem, type WorkoutSetInput, workoutSetSchema, type WorkoutSetValues } from '@sportbot/api/entities/workout';
+import { useAddSet } from '@/shared/local/entities/workout';
 import { durationText, isTimed, timeInput, timeLabel } from '@sportbot/api/lib/measure';
 import { Button } from '@/shared/ui/kit/Button';
 import { ErrorText } from '@/shared/ui/kit/ErrorText';

@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 
-import { useWorkout, useWorkoutSummary } from '@sportbot/api/entities/workout';
+import { useWorkout, useWorkoutSummary } from '@/shared/local/entities/workout';
 
 import { routeHref, ROUTES } from '@/shared/config/routes';
 import { formatDate } from '@/shared/lib/format';

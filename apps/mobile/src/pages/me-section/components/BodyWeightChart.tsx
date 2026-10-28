@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View } from 'react-native';
 
-import { useBodyWeightStats } from '@sportbot/api/entities/stats';
+import { useBodyWeightStats } from '@/shared/local/entities/stats';
 
 import { formatDate } from '@/shared/lib/format';
 import { Segmented } from '@/shared/ui/kit/Segmented';

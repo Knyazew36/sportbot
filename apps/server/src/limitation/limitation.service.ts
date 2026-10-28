@@ -46,6 +46,8 @@ export class LimitationService {
     profile: SportProfile,
     jointId: number,
     endDate: Date | null,
+    /** clientId ограничения с телефона: после синка у телефона та же строка */
+    clientId?: string,
   ): Promise<{ jointName: string; showDisclaimer: boolean }> {
     const today = localToday(profile.timeZone);
     // Повторное включение той же зоны заменяет срок, а не плодит строки
@@ -54,7 +56,13 @@ export class LimitationService {
       data: { cancelledAt: new Date() },
     });
     const limitation = await this.prisma.limitation.create({
-      data: { userId: profile.userId, jointId, startDate: today, endDate },
+      data: {
+        userId: profile.userId,
+        jointId,
+        startDate: today,
+        endDate,
+        ...(clientId ? { clientId } : {}),
+      },
       include: { joint: true },
     });
     const showDisclaimer = !profile.jointDisclaimerShownAt;
@@ -90,6 +98,7 @@ export class LimitationService {
     userId: number,
     jointId: number,
     endDate: string | null,
+    clientId?: string,
   ) {
     const [profile, joint] = await Promise.all([
       this.prisma.sportProfile.findUniqueOrThrow({ where: { userId } }),
@@ -99,7 +108,23 @@ export class LimitationService {
     const end = endDate ? new Date(`${endDate}T00:00:00.000Z`) : null;
     if (end && end < localToday(profile.timeZone))
       throw new BadRequestException('Дата окончания уже прошла.');
-    return this.add(profile, jointId, end);
+    return this.add(profile, jointId, end, clientId);
+  }
+
+  /** Снять ограничение с телефона — по clientId. @returns было ли оно ещё действующим */
+  public async cancelByClientId(
+    userId: number,
+    clientId: string,
+  ): Promise<boolean> {
+    const { count } = await this.prisma.limitation.updateMany({
+      where: { clientId, userId, cancelledAt: null },
+      data: { cancelledAt: new Date() },
+    });
+    if (count)
+      this.logger.log(
+        `Ограничение снято с телефона: clientId=${clientId}, userId=${userId}`,
+      );
+    return count > 0;
   }
 
   public async cancel(userId: number, limitationId: number): Promise<void> {

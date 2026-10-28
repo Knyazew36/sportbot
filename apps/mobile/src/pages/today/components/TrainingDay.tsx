@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { Shuffle } from 'lucide-react-native';
 
-import { useSkipDay, type DayToday } from '@sportbot/api/entities/day';
+import { type DayToday } from '@sportbot/api/entities/day';
+import { useSkipDay } from '@/shared/local/entities/day';
 
 import { Button } from '@/shared/ui/kit/Button';
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction';

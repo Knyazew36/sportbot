@@ -4,8 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus } from 'lucide-react-native';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 
-import { useJoints } from '@sportbot/api/entities/catalog';
-import { useCreateLimitation, useDeleteLimitation, useLimitations } from '@sportbot/api/entities/limitation';
+import { useJoints } from '@/shared/local/entities/catalog';
+import { useCreateLimitation, useDeleteLimitation, useLimitations } from '@/shared/local/entities/profile';
 import { type LimitationInput, limitationSchema, type LimitationValues } from '@sportbot/api/entities/profile';
 
 import { applyFieldErrors } from '@/shared/lib/form';

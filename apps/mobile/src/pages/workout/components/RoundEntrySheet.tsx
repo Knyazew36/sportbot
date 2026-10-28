@@ -3,17 +3,8 @@ import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, Undo2 } from 'lucide-react-native';
 
-import {
-  newClientId,
-  type RoundEntryInput,
-  roundEntrySchema,
-  type RoundEntryValues,
-  roundPrefill,
-  type SetTiming,
-  type SupersetRound,
-  supersetLabels,
-  useAddSet,
-} from '@sportbot/api/entities/workout';
+import { newClientId, type RoundEntryInput, roundEntrySchema, type RoundEntryValues, roundPrefill, type SetTiming, type SupersetRound, supersetLabels } from '@sportbot/api/entities/workout';
+import { useAddSet } from '@/shared/local/entities/workout';
 import { timeInput, timeLabel } from '@sportbot/api/lib/measure';
 import { cn } from '@/shared/lib/utils';
 import { Button } from '@/shared/ui/kit/Button';

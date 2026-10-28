@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { CopyPlus } from 'lucide-react-native';
 
-import { useCopyComplex, usePrograms } from '@sportbot/api/entities/program';
+import { useCopyComplex, usePrograms } from '@/shared/local/entities/program';
 
+import { useOnlineAction } from '@/shared/lib/hooks/use-online-action';
 import { Button } from '@/shared/ui/kit/Button';
 
 import { CopyTargetSheet } from './CopyTargetSheet';
@@ -21,6 +22,7 @@ export const CopyComplexButton = ({ complexId, shareToken, onDone }: CopyComplex
   const copy = useCopyComplex();
   const programs = usePrograms();
   const [choosing, setChoosing] = useState(false);
+  const net = useOnlineAction();
   const list = programs.data ?? [];
 
   const copyTo = (programId?: number) =>
@@ -41,11 +43,11 @@ export const CopyComplexButton = ({ complexId, shareToken, onDone }: CopyComplex
         block
         icon={CopyPlus}
         loading={copy.isPending}
-        disabled={programs.isPending}
+        disabled={programs.isPending || net.disabled}
         // Одна программа (или ни одной — сервер подскажет) — выбирать не из чего
         onPress={() => (list.length > 1 ? setChoosing(true) : copyTo(list[0]?.id))}
       >
-        Скопировать к себе
+        {net.label('Скопировать к себе')}
       </Button>
       <CopyTargetSheet open={choosing} onOpenChange={setChoosing} programs={list} pending={copy.isPending} onPick={copyTo} />
     </>

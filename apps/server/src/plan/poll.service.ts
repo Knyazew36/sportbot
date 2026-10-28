@@ -123,11 +123,14 @@ export class PollService {
   public async confirmDone(
     profile: SportProfile,
     day: PlanDay,
+    workoutClientId?: string,
   ): Promise<CompleteResult> {
     return this.workouts.completeFromPlan(
       profile,
       day.date,
       day.suggestedComplexId,
+      undefined,
+      workoutClientId,
     );
   }
 
@@ -159,11 +162,13 @@ export class PollService {
   public async missDay(
     profile: SportProfile,
     dayId: number,
+    /** День пропуска: с телефона ответ может дойти позже — «завтра» считается от него */
+    date = localToday(profile.timeZone),
   ): Promise<MissOutcome> {
     const result = await this.planDays.markMissed(profile.userId, dayId);
     if (!result.changed)
       return { changed: false, canReschedule: false, suggestPause: false };
-    const tomorrow = addDays(localToday(profile.timeZone), 1);
+    const tomorrow = addDays(date, 1);
     // Завтра и так тренировочный день — перенос не предлагается
     const canReschedule =
       !result.wasRescheduled &&
@@ -182,8 +187,12 @@ export class PollService {
    * «Сегодня не буду» в приложении — как утреннее «нет» в боте (frontend-tz, 7).
    * День плана заводится сам, если утренний вопрос ещё не задавался: после ответа бот про день не спросит.
    */
-  public async skipToday(profile: SportProfile): Promise<MissOutcome> {
-    const day = await this.todayForAnswer(profile);
+  public async skipToday(
+    profile: SportProfile,
+    date = localToday(profile.timeZone),
+    dayClientId?: string,
+  ): Promise<MissOutcome> {
+    const day = await this.todayForAnswer(profile, date, dayClientId);
     await this.prisma.planDay.updateMany({
       where: { id: day.id, morningAnswer: null },
       data: { morningAnswer: 'NO' },
@@ -191,15 +200,18 @@ export class PollService {
     this.logger.log(
       `«Сегодня не буду» из приложения: planDayId=${day.id}, userId=${profile.userId}`,
     );
-    return this.missDay(profile, day.id);
+    return this.missDay(profile, day.id, date);
   }
 
   /** Вечерний ответ из приложения: «да» засчитывает комплекс дня, «нет» — пропуск. */
   public async answerEveningToday(
     profile: SportProfile,
     yes: boolean,
+    date = localToday(profile.timeZone),
+    workoutClientId?: string,
+    dayClientId?: string,
   ): Promise<EveningOutcome> {
-    const day = await this.todayForAnswer(profile);
+    const day = await this.todayForAnswer(profile, date, dayClientId);
     const answered = await this.answer(
       profile.userId,
       day.id,
@@ -209,8 +221,11 @@ export class PollService {
     if (!answered)
       throw new BadRequestException('На этот вопрос ответ уже есть.');
     if (yes)
-      return { done: await this.confirmDone(profile, answered), missed: null };
-    return { done: null, missed: await this.missDay(profile, day.id) };
+      return {
+        done: await this.confirmDone(profile, answered, workoutClientId),
+        missed: null,
+      };
+    return { done: null, missed: await this.missDay(profile, day.id, date) };
   }
 
   /** «Нет» на «напомнить завтра»: вопрос больше не показывается. */
@@ -228,14 +243,19 @@ export class PollService {
   }
 
   /** «Напомнить завтра»: разовый утренний вопрос вне расписания. */
-  public async reschedule(profile: SportProfile, dayId: number): Promise<void> {
+  public async reschedule(
+    profile: SportProfile,
+    dayId: number,
+    /** Пропущенный день: перенос — на следующий за ним, даже если ответ дошёл позже */
+    missedDate = localToday(profile.timeZone),
+  ): Promise<void> {
     const userId = profile.userId;
     const { count } = await this.prisma.planDay.updateMany({
       where: { id: dayId, userId, rescheduleOfferedAt: { not: null } },
       data: { rescheduleOfferedAt: null },
     });
     if (!count) throw new BadRequestException('Кнопка устарела');
-    const date = addDays(localToday(profile.timeZone), 1);
+    const date = addDays(missedDate, 1);
     await this.prisma.planDay.upsert({
       where: { userId_date: { userId, date } },
       update: {},
@@ -264,6 +284,7 @@ export class PollService {
   public async fixToDone(
     profile: SportProfile,
     dayId: number,
+    workoutClientId?: string,
   ): Promise<CompleteResult> {
     const today = localToday(profile.timeZone);
     const day = await this.prisma.planDay.findFirst({
@@ -281,6 +302,7 @@ export class PollService {
       day.date,
       day.suggestedComplexId,
       day.id,
+      workoutClientId,
     );
     this.logger.log(
       `Отметка исправлена → DONE: planDayId=${dayId}, userId=${profile.userId}`,
@@ -322,9 +344,13 @@ export class PollService {
   // ── Внутреннее ──────────────────────────────────────────────────────────
 
   /** Сегодняшний день плана, который ждёт ответа; до утреннего вопроса его ещё нет — заводим. */
-  private async todayForAnswer(profile: SportProfile): Promise<PlanDay> {
+  private async todayForAnswer(
+    profile: SportProfile,
+    today = localToday(profile.timeZone),
+    /** clientId дня, заведённого на телефоне: следующие операции телефона найдут его по нему */
+    dayClientId?: string,
+  ): Promise<PlanDay> {
     const userId = profile.userId;
-    const today = localToday(profile.timeZone);
     const existing = await this.planDays.find(userId, today);
     if (!existing && !profile.trainingDays.includes(weekdayOf(today)))
       throw new BadRequestException('Сегодня не тренировочный день.');
@@ -333,7 +359,11 @@ export class PollService {
       (await this.prisma.planDay.upsert({
         where: { userId_date: { userId, date: today } },
         update: {},
-        create: { userId, date: today },
+        create: {
+          userId,
+          date: today,
+          ...(dayClientId ? { clientId: dayClientId } : {}),
+        },
       }));
     if (day.status !== 'PENDING')
       throw new BadRequestException('Ответ на сегодня уже есть.');

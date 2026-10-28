@@ -183,9 +183,16 @@ export class DayService {
    * «Другая тренировка» до начала: выбор пишется в день плана, чтобы пережить перезаход —
    * его же берут старт тренировки и вечернее «да».
    */
-  public async pickComplex(userId: number, complexId: number): Promise<void> {
+  public async pickComplex(
+    userId: number,
+    complexId: number,
+    /** День выбора: с телефона выбор может дойти позже */
+    date?: Date,
+    /** clientId дня, заведённого на телефоне */
+    dayClientId?: string,
+  ): Promise<void> {
     const profile = await this.accounts.profile(userId);
-    const today = localToday(profile.timeZone);
+    const today = date ?? localToday(profile.timeZone);
     const inProgram = await this.prisma.complex.count({
       where: { id: complexId, program: { activeFor: { some: { userId } } } },
     });
@@ -200,7 +207,12 @@ export class DayService {
     const created =
       !count && profile.trainingDays.includes(weekdayOf(today))
         ? await this.prisma.planDay.createMany({
-            data: { userId, date: today, suggestedComplexId: complexId },
+            data: {
+              userId,
+              date: today,
+              suggestedComplexId: complexId,
+              ...(dayClientId ? { clientId: dayClientId } : {}),
+            },
             skipDuplicates: true,
           })
         : null;

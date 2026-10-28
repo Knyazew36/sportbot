@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 
-import { type Program, useProgram } from '@sportbot/api/entities/program';
+import { type Program } from '@sportbot/api/entities/program';
+import { useProgram } from '@/shared/local/entities/program';
 
 import { routeHref, routePath, ROUTES } from '@/shared/config/routes';
 import { Button } from '@/shared/ui/kit/Button';

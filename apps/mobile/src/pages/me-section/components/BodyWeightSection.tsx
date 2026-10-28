@@ -3,14 +3,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Check } from 'lucide-react-native';
 import { Controller, useForm } from 'react-hook-form';
 
-import {
-  type BodyWeightInput,
-  bodyWeightSchema,
-  type BodyWeightValues,
-  type Profile,
-  useAddBodyWeight,
-  useUpdateProfile,
-} from '@sportbot/api/entities/profile';
+import { type BodyWeightInput, bodyWeightSchema, type BodyWeightValues, type Profile } from '@sportbot/api/entities/profile';
+import { useAddBodyWeight, useUpdateProfile } from '@/shared/local/entities/profile';
 
 import { applyFieldErrors } from '@/shared/lib/form';
 import { BoxInput } from '@/shared/ui/kit/BoxInput';

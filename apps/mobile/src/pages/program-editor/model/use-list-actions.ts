@@ -1,4 +1,5 @@
-import { type Program, useAddComplex, useReorderComplexes } from '@sportbot/api/entities/program';
+import { type Program } from '@sportbot/api/entities/program';
+import { useAddComplex, useReorderComplexes } from '@/shared/local/entities/program';
 
 import { arrangeBy } from '@/widgets/program-editor/arrange';
 import type { ComplexListActions } from '@/widgets/program-editor/ProgramComplexList';

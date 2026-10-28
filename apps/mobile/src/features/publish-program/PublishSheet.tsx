@@ -2,17 +2,11 @@ import { View } from 'react-native';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import {
-  OWN_TAGS_MAX,
-  type Program,
-  type ProgramTagGroup,
-  publishProgramSchema,
-  type PublishProgramValues,
-  useAllTagGroups,
-  usePublishProgram,
-} from '@sportbot/api/entities/program';
+import { OWN_TAGS_MAX, type Program, type ProgramTagGroup, publishProgramSchema, type PublishProgramValues, useAllTagGroups } from '@sportbot/api/entities/program';
+import { usePublishProgram } from '@/shared/local/entities/program';
 
 import { applyFieldErrors } from '@/shared/lib/form';
+import { useOnlineAction } from '@/shared/lib/hooks/use-online-action';
 import { Button } from '@/shared/ui/kit/Button';
 import { ErrorText } from '@/shared/ui/kit/ErrorText';
 import { Input } from '@/shared/ui/kit/Input';
@@ -36,6 +30,7 @@ type PublishFormProps = {
 
 const PublishForm = ({ program, groups, onDone }: PublishFormProps) => {
   const publish = usePublishProgram();
+  const net = useOnlineAction();
   // Свои теги автора, ещё не одобренные, встают в поле своей группы рядом с тегами справочника
   const pending = program.tags.filter((t) => !t.isApproved);
   const rows = groups.map((g) => ({ ...g, tags: [...g.tags, ...pending.filter((t) => t.groupId === g.id)] }));
@@ -130,8 +125,8 @@ const PublishForm = ({ program, groups, onDone }: PublishFormProps) => {
         проверит администратор и может заменить на похожий из списка.
       </Text>
 
-      <Button variant="share" block loading={publish.isPending} onPress={() => void submit()}>
-        {program.publication === 'PUBLISHED' ? 'Сохранить' : 'Отправить на проверку'}
+      <Button variant="share" block loading={publish.isPending} disabled={net.disabled} onPress={() => void submit()}>
+        {net.label(program.publication === 'PUBLISHED' ? 'Сохранить' : 'Отправить на проверку')}
       </Button>
     </View>
   );

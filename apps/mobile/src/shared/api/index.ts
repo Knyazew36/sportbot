@@ -3,4 +3,5 @@
 export * from '@sportbot/api/client';
 export { bindSessionUser, getPersistOptions, queryClient, resumePersistedMutations } from './query-client';
 export { apiDomain } from './model/constants';
+export { isSessionExpired, useSessionExpired } from './model/session-expired';
 export { clearSessionUserId, getSessionUserId, setSessionUserId } from './model/session-user';

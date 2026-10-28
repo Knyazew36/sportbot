@@ -3,7 +3,8 @@ import { View } from 'react-native';
 import { Pencil } from 'lucide-react-native';
 import { pluralize } from '@front-cmdt/utils/pluralize';
 
-import { isPublishable, useMakeNextComplex, useProgram } from '@sportbot/api/entities/program';
+import { isPublishable } from '@sportbot/api/entities/program';
+import { useMakeNextComplex, useProgram } from '@/shared/local/entities/program';
 
 import { PUBLICATION_STATUS } from '@/features/publish-program/publication-status';
 import { PublishSheet } from '@/features/publish-program/PublishSheet';

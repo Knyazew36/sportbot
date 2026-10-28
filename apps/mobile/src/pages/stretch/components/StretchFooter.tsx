@@ -2,7 +2,7 @@ import { View } from 'react-native';
 import { Ban, Check, PencilLine, Play, RotateCcw, SkipForward } from 'lucide-react-native';
 
 import type { CatalogStretch } from '@sportbot/api/entities/catalog';
-import { useCreateStretchExclusion, useIsStretchExcluded } from '@sportbot/api/entities/stretch-exclusion';
+import { useCreateStretchExclusion, useIsStretchExcluded } from '@/shared/local/entities/profile';
 import { Button } from '@/shared/ui/kit/Button';
 import { Icon } from '@/shared/ui/kit/Icon';
 import { HoldControls } from '@/widgets/catalog/HoldControls';

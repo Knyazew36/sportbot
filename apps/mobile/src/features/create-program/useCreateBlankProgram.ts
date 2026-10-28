@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 
-import { useCreateProgram } from '@sportbot/api/entities/program';
+import { useCreateProgram } from '@/shared/local/entities/program';
 
 import { routeHref, ROUTES } from '@/shared/config/routes';
 

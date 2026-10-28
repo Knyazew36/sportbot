@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 import { CloudOff, RefreshCw } from 'lucide-react-native';
 
-import { useWorkoutSync } from '@sportbot/api/entities/workout';
+import { useWorkoutSync } from '@/shared/local/entities/workout';
 import { Icon } from '@/shared/ui/kit/Icon';
 import { Text } from '@/shared/ui/kit/Typography';
 

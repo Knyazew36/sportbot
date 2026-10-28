@@ -33,7 +33,7 @@ export class SyncPullResponseDto {
   @ApiProperty({
     type: SyncProfileRowDto,
     nullable: true,
-    description: 'null — профиль не менялся с since',
+    description: 'Отдаётся всегда; null — профиля ещё нет',
   })
   profile: SyncProfileRowDto | null;
 

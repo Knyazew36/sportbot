@@ -3,7 +3,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { pluralize } from '@front-cmdt/utils/pluralize';
 import { Trash2 } from 'lucide-react-native';
 
-import { useActivateProgram, useDeleteProgram, useProgram } from '@sportbot/api/entities/program';
+import { useActivateProgram, useDeleteProgram, useProgram } from '@/shared/local/entities/program';
 
 import { routePath, ROUTES } from '@/shared/config/routes';
 import { WORKOUT_FORMS } from '@/shared/lib/plural-forms';

@@ -1,17 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 
-import {
-  type Program,
-  programKeys,
-  useDeleteComplex,
-  useDeleteComplexExercise,
-  useRenameComplex,
-  useReorderComplexExercises,
-  useSetComplexWarmup,
-  useUngroupComplexExercise,
-  useUngroupSuperset,
-  useUpdateComplexExercise,
-} from '@sportbot/api/entities/program';
+import { type Program, programKeys } from '@sportbot/api/entities/program';
+import { useDeleteComplex, useDeleteComplexExercise, useRenameComplex, useReorderComplexExercises, useSetComplexWarmup, useUngroupComplexExercise, useUngroupSuperset, useUpdateComplexExercise } from '@/shared/local/entities/program';
 
 import { useComplexEditing } from '@/widgets/program-editor/use-complex-editing';
 

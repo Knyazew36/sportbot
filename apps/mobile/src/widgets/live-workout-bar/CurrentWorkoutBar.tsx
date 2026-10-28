@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { router, usePathname, type Href } from 'expo-router';
 
-import { useCurrentWorkout, useQueuedWorkout } from '@sportbot/api/entities/workout';
+import { useCurrentWorkout, useQueuedWorkout } from '@/shared/local/entities/workout';
 
 import { ROUTES } from '@/shared/config/routes';
 

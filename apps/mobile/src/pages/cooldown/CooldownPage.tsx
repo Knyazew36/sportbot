@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from 'expo-router';
 
-import { useCooldown } from '@sportbot/api/entities/workout';
+import { useCooldown } from '@/shared/local/entities/workout';
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen';
 
 import { CooldownView } from './components/CooldownView';

@@ -62,6 +62,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       // Live Activity регистрируется в коде (widgets/workout-live), widgets[] пуст.
       // На Android вместо неё свой модуль modules/workout-live: foreground service и Live Update
       ['expo-widgets', { widgets: [] }],
+      // Локальная база офлайн-режима (src/shared/db)
+      'expo-sqlite',
     ],
     experiments: {
       typedRoutes: true,

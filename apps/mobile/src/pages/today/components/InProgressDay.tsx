@@ -2,9 +2,8 @@ import { X } from 'lucide-react-native';
 import { pluralize } from '@front-cmdt/utils/pluralize';
 
 import type { DayToday } from '@sportbot/api/entities/day';
-import { useDiscardWorkout } from '@sportbot/api/entities/workout';
+import { useDiscardWorkout } from '@/shared/local/entities/workout';
 
-import { useIsOnline } from '@/shared/api';
 import { EXERCISE_OF_FORMS } from '@/shared/lib/plural-forms';
 import { Button } from '@/shared/ui/kit/Button';
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction';
@@ -18,8 +17,6 @@ import { WeekStreak } from './WeekStreak';
 export const InProgressDay = ({ day }: { day: DayToday }) => {
   const workout = day.workout!;
   const discard = useDiscardWorkout();
-  // Отмена удаляет тренировку на сервере — без сети её не сделать
-  const online = useIsOnline();
 
   return (
     <>
@@ -40,7 +37,7 @@ export const InProgressDay = ({ day }: { day: DayToday }) => {
       {/* Отмена — как «Отменить» в боте: тренировка удаляется, очередь тренировок не сдвигается */}
       <Rise className="px-gutter">
         <ConfirmAction
-          trigger={<Button variant="destructive" block icon={X} disabled={!online} />}
+          trigger={<Button variant="destructive" block icon={X} />}
           title="Отменить тренировку?"
           description={
             workout.done
@@ -50,7 +47,7 @@ export const InProgressDay = ({ day }: { day: DayToday }) => {
           confirmLabel="Отменить тренировку"
           onConfirm={() => discard.mutateAsync(workout.id)}
         >
-          {online ? 'Отменить тренировку' : 'Отменить · нужна сеть'}
+          Отменить тренировку
         </ConfirmAction>
       </Rise>
     </>

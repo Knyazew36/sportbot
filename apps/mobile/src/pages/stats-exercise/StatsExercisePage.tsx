@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 
-import { PROGRESS_UNIT, useProgress } from '@sportbot/api/entities/stats';
+import { PROGRESS_UNIT } from '@sportbot/api/entities/stats';
+import { useProgress } from '@/shared/local/entities/stats';
 import { durationText } from '@sportbot/api/lib/measure';
 
 import { formatDate } from '@/shared/lib/format';

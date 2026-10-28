@@ -224,6 +224,109 @@ export class WorkoutService {
     return this.create(profile, complexId, date, 'DETAILED');
   }
 
+  /**
+   * Тренировка, начатая на телефоне без сети: состав и clientId пришли с телефона, время — время старта там.
+   * Идущая тренировка из бота уступает: офлайн-тренировка уже проведена, её не потерять.
+   * Повтор той же операции возвращает уже созданную.
+   */
+  public async startFromClient(
+    profile: SportProfile,
+    input: {
+      clientId: string;
+      complexClientId: string;
+      date: string;
+      startedAt: Date;
+      items: {
+        clientId: string;
+        exerciseId: number;
+        position: number;
+        plannedSets: number;
+        repsMin: number;
+        repsMax: number;
+        superset: number | null;
+      }[];
+    },
+  ): Promise<WorkoutFull> {
+    const userId = profile.userId;
+    const existing = await this.prisma.workout.findFirst({
+      where: { clientId: input.clientId, userId },
+      include: WORKOUT_INCLUDE,
+    });
+    if (existing) return existing;
+    const complex = await this.prisma.complex.findFirst({
+      where: { clientId: input.complexClientId, program: { ownerId: userId } },
+    });
+    if (!complex) throw new NotFoundException('Комплекс не найден.');
+    if (!input.items.length)
+      throw new BadRequestException(
+        'В тренировке нет упражнений — добавь их в программе.',
+      );
+    const visible = await this.prisma.exercise.count({
+      where: {
+        id: { in: [...new Set(input.items.map((i) => i.exerciseId))] },
+        OR: [{ status: 'CATALOG' }, { status: 'DRAFT', authorId: userId }],
+      },
+    });
+    if (visible !== new Set(input.items.map((i) => i.exerciseId)).size)
+      throw new NotFoundException('Упражнение не найдено.');
+
+    for (const other of await this.prisma.workout.findMany({
+      where: { userId, status: 'IN_PROGRESS' },
+      include: WORKOUT_INCLUDE,
+    })) {
+      this.logger.warn(
+        `Офлайн-старт закрывает идущую тренировку: workoutId=${other.id}, userId=${userId}`,
+      );
+      if (other.mode === 'DETAILED' && other.exercises.some(isDone))
+        await this.complete(profile, other.id, { auto: true });
+      else await this.discard(userId, other.id);
+    }
+
+    // День — с телефона: офлайн бывает и неделю, прошлый день законен. Из будущего не берём
+    // (часы телефона), запас — сутки на разницу поясов
+    const today = localToday(profile.timeZone);
+    const claimed = new Date(`${input.date}T00:00:00.000Z`);
+    const date =
+      Number.isFinite(claimed.getTime()) && claimed <= addDays(today, 1)
+        ? claimed
+        : today;
+    const workout = await this.prisma.workout.create({
+      data: {
+        userId,
+        clientId: input.clientId,
+        complexId: complex.id,
+        complexName: complex.name,
+        cardioName: complex.cardioName,
+        cardioMinutes: complex.cardioMinutes,
+        warmupMinutes: resolveWarmup(complex, profile),
+        date,
+        mode: 'DETAILED',
+        startedAt: input.startedAt,
+        exercises: {
+          // План переносится из комплекса — его границы сервер проверил при правке комплекса
+          create: input.items.map((item) => ({
+            clientId: item.clientId,
+            exerciseId: item.exerciseId,
+            position: item.position,
+            plannedSets: item.plannedSets,
+            repsMin: item.repsMin,
+            repsMax: item.repsMax,
+            superset: item.superset,
+          })),
+        },
+      },
+      include: WORKOUT_INCLUDE,
+    });
+    await this.prisma.planDay.updateMany({
+      where: { userId, date, status: 'PENDING' },
+      data: { suggestedComplexId: complex.id },
+    });
+    this.logger.log(
+      `Тренировка с телефона: workoutId=${workout.id}, userId=${userId}, complexId=${complex.id}, упражнений=${input.items.length}`,
+    );
+    return workout;
+  }
+
   /** Отменить незавершённую тренировку (смена комплекса, отказ). */
   public async discard(userId: number, workoutId?: number): Promise<void> {
     const { count } = await this.prisma.workout.deleteMany({
@@ -466,6 +569,8 @@ export class WorkoutService {
     date: Date,
     complexId: number | null,
     forDayId?: number,
+    /** clientId новой простой тренировки с телефона: после синка у телефона та же строка */
+    clientId?: string,
   ): Promise<CompleteResult> {
     const userId = profile.userId;
     let workout: { id: number } | null = await this.prisma.workout.findFirst({
@@ -482,9 +587,15 @@ export class WorkoutService {
           : null) ?? (await this.programs.nextComplex(userId));
       // Напрямую, мимо start(): незавершённая тренировка другого дня остаётся нетронутой
       workout = complex
-        ? await this.create(profile, complex.id, date, 'SIMPLE')
+        ? await this.create(profile, complex.id, date, 'SIMPLE', clientId)
         : await this.prisma.workout.create({
-            data: { userId, date, mode: 'SIMPLE', complexName: 'Тренировка' },
+            data: {
+              userId,
+              date,
+              mode: 'SIMPLE',
+              complexName: 'Тренировка',
+              ...(clientId ? { clientId } : {}),
+            },
             select: { id: true },
           });
     }
@@ -631,6 +742,8 @@ export class WorkoutService {
     workoutId: number,
     exerciseIds: number[],
     inComplex: boolean,
+    /** clientId новых упражнений с телефона — по порядку exerciseIds */
+    clientIds?: string[],
   ): Promise<void> {
     const workout = await this.prisma.workout.findFirst({
       where: { id: workoutId, userId },
@@ -667,6 +780,7 @@ export class WorkoutService {
         return {
           workoutId,
           exerciseId,
+          ...(clientIds?.[index] ? { clientId: clientIds[index] } : {}),
           position: last + index + 1,
           plannedSets: plan.sets,
           repsMin: plan.repsMin,
@@ -925,6 +1039,7 @@ export class WorkoutService {
     complexId: number,
     date: Date,
     mode: TrackingMode,
+    clientId?: string,
   ): Promise<WorkoutFull> {
     const userId = profile.userId;
     const complex = await this.programs.findComplex(userId, complexId);
@@ -940,6 +1055,7 @@ export class WorkoutService {
     const workout = await this.prisma.workout.create({
       data: {
         userId,
+        ...(clientId ? { clientId } : {}),
         complexId: complex.id,
         complexName: complex.name,
         cardioName: complex.cardioName,

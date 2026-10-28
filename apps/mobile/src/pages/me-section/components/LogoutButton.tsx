@@ -1,12 +1,13 @@
 import { logout } from '@sportbot/api/entities/session';
-import { useWorkoutSync } from '@sportbot/api/entities/workout';
+import { useWorkoutSync } from '@/shared/local/entities/workout';
 
 import { Button } from '@/shared/ui/kit/Button';
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction';
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection';
 
 // Выход: токен стёрт — гвард уводит на вход, кеш чистится по событию сессии (shared/api/query-client).
-// Вместе с кешем уходит и неотправленная очередь — поэтому с ней выход только после подтверждения
+// Неотправленные правки лежат в базе этого аккаунта на телефоне и уйдут после входа им же —
+// предупреждаем, чтобы не ждали их на сервере раньше
 export const LogoutButton = () => {
   const { pending } = useWorkoutSync();
 
@@ -15,8 +16,8 @@ export const LogoutButton = () => {
       {pending > 0 ? (
         <ConfirmAction
           trigger={<Button variant="outline" block />}
-          title="Выйти без сохранения?"
-          description={`Не отправлено на сервер: ${pending}. После выхода эти данные пропадут. Подключитесь к интернету и дождитесь отправки.`}
+          title="Выйти, не отправив правки?"
+          description={`Не отправлено на сервер: ${pending}. Они останутся на телефоне и уйдут, когда вы снова войдёте этим аккаунтом.`}
           confirmLabel="Выйти"
           onConfirm={logout}
         >

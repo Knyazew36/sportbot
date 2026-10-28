@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 
 import type { DayToday } from '@sportbot/api/entities/day';
-import { useEndPause } from '@sportbot/api/entities/pause';
+import { useEndPause } from '@/shared/local/entities/day';
 
 import { ROUTES } from '@/shared/config/routes';
 import { formatDate } from '@/shared/lib/format';

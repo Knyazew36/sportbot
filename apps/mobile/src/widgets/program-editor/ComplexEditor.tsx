@@ -4,14 +4,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link2, Plus, Trash2 } from 'lucide-react-native';
 
-import {
-  type ComplexExerciseValues,
-  complexNameSchema,
-  type ComplexNameValues,
-  type ProgramComplex,
-  toBlocks,
-  withSupersetTarget,
-} from '@sportbot/api/entities/program';
+import { type ComplexExerciseValues, complexNameSchema, type ComplexNameValues, type ProgramComplex, toBlocks, withSupersetTarget } from '@sportbot/api/entities/program';
 
 import { applyFieldErrors } from '@/shared/lib/form';
 import { Button } from '@/shared/ui/kit/Button';

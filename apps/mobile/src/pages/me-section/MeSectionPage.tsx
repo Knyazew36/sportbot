@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 import { Redirect, useLocalSearchParams } from 'expo-router';
 
-import { useProfile } from '@sportbot/api/entities/profile';
+import { useProfile } from '@/shared/local/entities/profile';
 
 import { findMeSection } from '@/shared/config/me-sections';
 import { ROUTES } from '@/shared/config/routes';

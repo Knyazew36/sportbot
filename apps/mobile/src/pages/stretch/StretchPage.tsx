@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 
-import { muscleNames, stretchGuide, useCatalogStretch } from '@sportbot/api/entities/catalog';
+import { muscleNames, stretchGuide } from '@sportbot/api/entities/catalog';
+import { useCatalogStretch } from '@/shared/local/entities/catalog';
 import { QueryState } from '@/shared/ui/kit/QueryState';
 import { Rise } from '@/shared/ui/kit/Reveal';
 import { Screen, StickyFooter } from '@/shared/ui/kit/Screen';

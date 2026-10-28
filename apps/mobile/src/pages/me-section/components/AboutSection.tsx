@@ -3,15 +3,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
 import { Controller, useForm } from 'react-hook-form';
 
-import {
-  displayNameSchema,
-  type DisplayNameValues,
-  type Gender,
-  GENDERS,
-  paletteForGender,
-  type Profile,
-  useUpdateProfile,
-} from '@sportbot/api/entities/profile';
+import { displayNameSchema, type DisplayNameValues, type Gender, GENDERS, paletteForGender, type Profile } from '@sportbot/api/entities/profile';
+import { useUpdateProfile } from '@/shared/local/entities/profile';
 import { sportUserKeys } from '@sportbot/api/entities/sport-user';
 
 import { applyFieldErrors } from '@/shared/lib/form';

@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import { ArrowRight } from 'lucide-react-native';
 
-import { type DayToday, usePickComplex, useToday } from '@sportbot/api/entities/day';
-import { useFinishQueued } from '@sportbot/api/entities/workout';
+import { type DayToday } from '@sportbot/api/entities/day';
+import { usePickComplex, useToday } from '@/shared/local/entities/day';
+import { useFinishQueued } from '@/shared/local/entities/workout';
 
 import { capitalize, formatDate } from '@/shared/lib/format';
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink';
 import { QueryState } from '@/shared/ui/kit/QueryState';
 import { Screen, StickyFooter } from '@/shared/ui/kit/Screen';
 import { ScreenHeader } from '@/shared/ui/kit/ScreenHeader';
+
+import { SessionExpiredBanner } from '@/widgets/session-expired/SessionExpiredBanner';
 
 import { DoneDay } from './components/DoneDay';
 import { FinishQueuedDay } from './components/FinishQueuedDay';
@@ -56,6 +59,7 @@ const TodayPage = () => {
         )
       }
     >
+      <SessionExpiredBanner />
       <QueryState query={today}>
         {(day) => (
           <>

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { View } from 'react-native';
 
 import type { CatalogExercise } from '@sportbot/api/entities/catalog';
-import { useLimitations } from '@sportbot/api/entities/limitation';
+import { useLimitations } from '@/shared/local/entities/profile';
 
 import { Badge } from '@/shared/ui/kit/Badge';
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection';

@@ -9,7 +9,99 @@
 - [x] buster персиста зафиксирован `'user:'` — обновление не сбрасывает сохранённую очередь
 - [x] Выход с неотправленной очередью — через подтверждение (`apps/mobile/src/pages/me-section/components/LogoutButton.tsx`)
 - [x] Сервер этапа 0: миграция `20261027120000_offline_sync` (`clientId` uuid, `updatedAt`, надгробия, журнал `SyncOp`) и модуль `apps/server/src/sync` — `POST sync/push` (обработчиков пока нет, всё `rejected`), `GET sync/pull?since`, `GET sync/catalog?since`
-- [ ] Дальше: `api:generate` (orval) → мобилка этапа 0 (expo-sqlite + drizzle, pull-движок, локальные хуки на чтение)
+- [x] Миграция `offline_sync` применена на локальную базу, `prisma generate`, `api:generate` (2026-10-28): `generated/sync/*`, `WorkoutSetResponseDto.clientId: string`; tsc сервера и веба чистые, у мобилки 3 старые ошибки (`Wizard.tsx` hint, ref в `shared/theme`), к синку не относятся
+- [x] Мобилка, фундамент (2026-10-28): `expo-sqlite` + `drizzle-orm@0.45` (стабильная, не rc), схема-зеркало `src/shared/db/schema.ts` (+ `meta`, пустой `outbox`), миграции `yarn db:generate` → `src/shared/db/migrations` (babel inline-import + `.sql` в metro). База на пользователя `sportbot-<userId>.db`, `DbProvider` в гварде `(app)/_layout.tsx` — не блокирует экран, без базы всё работает по REST
+- [x] Pull-движок `src/shared/sync`: pull + catalog параллельно, применение одной транзакцией (снимок / изменения / надгробия с каскадом детей), строки с неотправленными ops не трогаются; триггеры — старт, foreground, сеть, вход, раз в 5 мин
+- [x] «Я → Офлайн» (`pages/me-section/components/OfflineSection.tsx`): статус, время обмена, «Обновить», скачивание картинок справочника в дисковый кеш expo-image с прогрессом
+- [ ] Нужна новая dev-сборка (нативный модуль expo-sqlite) и проверка на устройстве: первый снимок, повторный pull, авиарежим
+- [x] Локальные хуки на чтение (2026-10-28), `src/shared/local/entities/{profile,day,program,catalog}`: `useLocalQuery` — обычный useQuery, читает базу, без снимка — REST; изменение базы (`addDatabaseChangeListener` в `SyncRunner`) перечитывает ключи `['local', …]`; любая успешная мутация зовёт `requestSync()` (MutationCache в `query-client.ts`)
+  - Сервер: в pull добавлены `avatarUrl`/`timeZoneTitle` профиля (профиль отдаётся всегда), вид программы (описание, теги, публикация, `fromFriend`/`fromTemplate`/`sourceUpdated`, `addedCount`), `rescheduleOfferedAt`/`eveningAskedAt` дня; признаки копии вынесены в `program/program-source.ts`. Локальная миграция `0001_pull_view_fields`
+  - Пакет: `lib/time.ts`, `lib/day.ts` (порт чистой части `DayService.today`), `lib/catalog-search.ts` (копия серверного `normalizeName`)
+  - На базе: «Сегодня», меню «Я», списки программ, активная программа, справочник и карточки (черновики — с сервера), шторки и итог тренировки
+  - Остались на REST — экраны частых правок: `MeSectionPage`, `ProgramEditorPage`, `ComplexPage`, `AddExercisePage`. Из базы правка видна только после pull — переключатели и перетаскивание дёргались бы. Переводятся вместе с локальными мутациями (этапы 3 и 5)
+  - `useSportUser` остался REST (persist): база открывается по его `userId`
+  - Зависшая тренировка прошлых дней на «Сегодня» уже не «идёт» — сервер закрывает её сам (`autoCloseStale` в REST today и утреннем кроне)
+- [x] Сверка на dev-базе (2026-10-28, userId=1: 4 программы, 1 тренировка): pull + catalog применены кодом мобилки поверх `node:sqlite` (прослойка с API expo-sqlite), повторный pull тех же строк, затем readers сравнены с REST по каждому полю — profile, today, список и 4 программы целиком, мышцы, суставы, выдача справочника (страница, поиск, мышца + инвентарь, 2-я страница растяжек), карточки. Расхождений нет. Мало тренировок — недельные отметки и «в процессе» на богатой истории не проверены
+
+Заметка: `expo-sqlite` лежит и в корневом `node_modules` (рядом с поднятым drizzle-orm), но там нет `expo-modules-core`. Импорт принудительно ведётся на копию мобилки: `resolveRequest` в `metro.config.js` и `paths` в `tsconfig.json`.
+
+### Хвосты этапов — сделано (2026-10-28)
+
+- [x] Сняты устаревшие блокировки «нужна сеть» у замены упражнения и отмены тренировки (`ExerciseCard`, `InProgressDay`, `EmptyWorkout`, кнопка «Завершить» пустой тренировки) — они давно идут через базу телефона
+- [x] `shared/lib/hooks/use-online-action.ts`: кнопка гаснет без сети с подписью «… · нужна сеть». Подключено: поделиться программой и тренировкой, публикация и снятие, обновление копии и «Не сейчас», копирование комплекса, фото профиля (камера на карте, «Убрать», «Взять из мессенджера»)
+- [x] Картинки активной программы (упражнения + растяжки на те же мышцы) молча докачиваются после каждого удачного синка (`prefetchProgramMedia` в `engine.ts`); набор запоминается в `meta.programMedia` — без изменений сеть не трогается. Отдельная кнопка «Скачать программу» не нужна
+- Старая очередь react-query (`registerWorkoutQueue`) оставлена намеренно: дошлёт застрявшее со старой версии; веб её использует
+- Стенды прошлых сессий (`offline-*.ts`, `push-*check.mjs`, `compare-stats.ts`) лежат в scratchpad сессии `2e949660…` — основа для тестов
+
+### Сессия и конфликты — сделано (2026-10-28)
+
+- [x] Продление токена: `POST auth/refresh` (`AuthResponseDto`), мобилка после удачного синка просит новый, если токену больше суток (`shared/sync/refresh-token.ts`, iat из JWT). Новая причина смены сессии `refresh` — не вход и не выход, лишний синк не запускает
+- [x] Протухший токен не выкидывает на вход: аккаунт известен (id в MMKV стирает только выход) и профиль сохранён — работаем офлайн (`useSessionExpired`, гвард `(app)/_layout.tsx` ждёт чтения персиста). Плашка «Сессия закончилась · Войти» на «Сегодня» и в «Я» (`widgets/session-expired`); фоновые 401 REST не тостятся
+- [x] «Последняя запись побеждает» по полю: колонка `fieldUpdatedAt` (jsonb) у `SportProfile`, `Program`, `Complex`, `ComplexExercise` (миграция `20261028120000_field_updated_at`). Отметки ставят сами сервисы (`ProfileService.update`, `ProgramService.rename/renameComplex/setComplexWarmup/updatePlan`) — веб, бот и синк одинаково; слияние `jsonb ||` в базе (`sync/field-stamps.ts`). Операции `profile.update`, `timezone.set`, `program.rename`, `complex.update`, `complexItem.update` применяют только поля, не правленные позже `at`; все устарели — skipped «Изменено позже на другом устройстве». План упражнения отмечается целиком (`plan`)
+- [x] Стенд `lww-check.mjs` на dev-сервере (userId=1, данные возвращены): refresh, частичное применение профиля, skipped программы и плана, комплекс — название веба + разминка телефона — 15/15
+- orval снова выкинул `max/*` (MAX локально не поднят) — возвращены из git
+
+> Порядок по решению пользователя (2026-10-28): сначала доделать все этапы 2–5, потом обложить тестами весь офлайн-код (пакет `lib/*`, локальный слой мобилки на `node:sqlite`, обработчики синка сервера; в сервере уже есть vitest).
+
+### Этап 4 — сделано (2026-10-28), ждёт сверки с сервером
+
+- [x] Пакет: `lib/stats.ts` — порт `StatsService`/`StatsAppService`: посещаемость, нагрузка на мышцы, прогресс (точки, рост, «стоит», 1ПМ), список прогресса, история с рекордами, лента рекордов, отметки календаря; помощники рекордов из `lib/records.ts` открыты
+- [x] Сервер: в pull профиля — `createdAt` (баланс мышц новичка); локально — миграция `0006_profile_created`
+- [x] Мобилка: `shared/local/entities/stats` — сводка, посещаемость, прогресс, история упражнения (страницами), рекорды, вес тела, баланс мышц, календарь, день; статистика друга (`userId`) — с сервера
+- [x] Сверка с ответами `stats/*` сервера (`compare-stats.ts`, userId=1): сводка, посещаемость, список прогресса, рекорды, вес, баланс мышц, календарь, день, прогресс упражнения, история — совпало. Истории мало (1 тренировка): «растёт/стоит» и рекорды на долгой истории не проверены
+
+### Проверка на сервере этапов 2, 3, 5 — сделано (2026-10-28)
+
+- `offline-all.ts` собирает очередь кодом мобилки (партия A — создание и правки, B — уборка и возврат настроек), `push-all-check.mjs` отправляет и сверяет pull с телефоном. Флаг `--with-day` у генератора добавляет необратимое (ответ дня, перенос, пауза, вес за сегодня)
+- [x] Без `--with-day`: A 14/14 applied, повтор — те же ответы, программа на сервере совпала с телефоном (комплексы, разминка, порядок, план, суперсеты), ограничение, исключение, настройки; B 8/8 applied — всё убрано и возвращено
+- [ ] Операции дня, паузы и веса на сервере не гонялись (необратимы для dev-базы) — проверены кодом сервера и стендом телефона
+
+### Этап 3 — сделано (2026-10-28), ждёт проверки push на сервере
+
+- [x] Сервер: `program/program-sync.service.ts` — 15 операций (`program.create/rename/delete/activate`, `complex.add/update/delete/reorder/makeNext`, `complexItem.add/update/delete/reorder/ungroup`, `superset.ungroup`), DTO `program/dto/sync/*`; `ProgramService.create/addComplex/addExercises` принимают clientId. Порядок — список clientId: неизвестные пропускаются, отсутствующие на телефоне встают в конец
+- [x] Мобилка: `shared/local/entities/program/write-program.ts` (порт `ProgramService`: cleanName, checkPlan, normalizeSupersets, repairPointer, setNext с переносом на сегодняшний день), хуки редактора в `api.ts`; `localId` у программ, комплексов и упражнений комплекса (миграция `0005`); редактор, комплекс, подбор упражнений — на базе телефона
+- [x] Онлайн-действия своей программы (`online.ts`: публикация, снятие, ссылка, обновление копии, «не сейчас», копирование комплекса) подменяют отрицательный id на серверный; не дошедшая до сервера программа — понятная ошибка
+- [x] Стенд `offline-program.ts` — 25/25
+- Онлайн остаются: каталог и шаблоны, «Взять», программа по ссылке, публикация — им нужен сервер
+
+### Этап 5 — сделано (2026-10-28), ждёт проверки push на сервере
+
+- [x] Сервер: `profile.update` (тот же `UpdateProfileDto`), `timezone.set` (город из списка или `Etc/GMT±N`), `bodyWeight.add` (за дату с телефона, upsert по дню), `limitation.create/delete` (по clientId), `stretchExclusion.create/delete`; `cooldown.exclude` передаёт clientId исключения. Сервисы получили clientId: `BodyWeightService.recordFromClient`, `LimitationService.add/addByUser(..., clientId)`, `cancelByClientId`, `StretchExclusionService.ensure(..., clientId)`
+- [x] Пакет: `lib/timezone.ts` (CITY_ZONES, zoneTitle, parseUserTime, zoneFromLocalTime)
+- [x] Мобилка: `shared/local/entities/profile` — `write-profile.ts`, `read-lists.ts`, хуки профиля, пояса, городов (список в приложении), веса, ограничений, исключённых растяжек; `MeSectionPage` и разделы «Я» на базе телефона; `localId` у ограничений (миграция `0004`)
+- [x] Стенд `offline-profile.ts` — 16/16
+- Упрощение плана: LWW по полю не сделан — правка профиля применяется в порядке очереди, дошедшая позже побеждает (нужен `fieldUpdatedAt` на сервере)
+- Онбординг остаётся онлайн: идёт сразу после регистрации, а последний шаг копирует шаблон программы на сервере
+- Фото профиля — онлайн (REST), `avatarUrl` приезжает pull
+
+### Этап 2 — сделано (2026-10-28), ждёт проверки push на сервере
+
+- [x] Сервер: `day/day-sync.service.ts` (`day.pick/skip/evening/reschedule/fix`), `pause/pause-sync.service.ts` (`pause.start/end`), DTO `day/dto/sync/*`, `pause/dto/sync/*`. День ищется по дате с телефона (ответ офлайн доходит позже), а заводится с clientId телефона; `PollService` и `DayService.pickComplex` получили дату и clientId; простая тренировка вечернего «да» и исправления — с clientId телефона (`completeFromPlan(..., clientId)`); пауза — с clientId телефона. День уже не ждёт ответа — skipped
+- [x] Мобилка: `shared/local/entities/day/write-day.ts` (порт `PollService`, `markMissed`, `PauseService`), хуки дня и паузы в `day/api.ts`; `completeInTx` вынесен из `finishWorkout`; `localId` у дней и пауз (миграция `0003_day_local`); push кладёт серверные id дням и паузам, свою копию дня без id убирает (день завёл крон — pull привезёт серверный)
+- [x] Стенд `offline-day.ts`: выбор комплекса, пропуск, перенос, исправление на «была» и на «пропуск», вечернее «да»/«нет», предложение паузы, пауза до даты, продление, снятие — 21/21
+- [ ] Ленивая пометка MISSED вместо крона офлайн не делалась: неделя на «Сегодня» и так показывает прошедший PENDING пропуском (`markOf`), сам день закроет крон
+- [ ] push этапа 2 на dev-сервер — вместе с проверкой следующих этапов
+
+### Этап 1 — сделано (2026-10-28), ждёт проверки на сервере и устройстве
+
+- [x] Пакет: `lib/workout-timing.ts`, `lib/cooldown.ts` (порт сборки и замены заминки), `lib/records.ts`, в `lib/measure.ts` — `defaultPlan`, `isValidSet`, `setError`; в `lib/day.ts` — `streakOf`, `advanceQueue`
+- [x] Мобилка: `src/shared/local/entities/workout` — чтение (`read-workout.ts`: тренировка, текущая, итог с рекордами и таймингом, заминка, аналоги), правки с очередью (`write-workout.ts`), хуки с прежними именами (`api.ts`); push в движке (`apply-push.ts`), отказы — `meta.issues` + полный pull, плашка в «Я → Офлайн»; миграция `0002_workout_local`
+- [x] Сервер: `workout/workout-sync.service.ts` — 16 операций через `SyncPushService.register`, payload по DTO `workout/dto/sync/*`, `WorkoutService.startFromClient`, `addItems(..., clientIds)`, `CooldownService.saveFromClient/excludeFromClient`, `sync/sync-payload.ts`
+- [x] Экраны тренировки, заминки, итога, правки из статистики, полоса тренировки и «не предлагать» переведены на локальные хуки (импорт `@/shared/local/entities/workout`)
+- [x] Прогон кодом мобилки на `node:sqlite` (данные userId=1): старт офлайн, повтор старта, подходы с повтором clientId, правка, удаление с перенумерацией, отказ неверного подхода, аналоги, замена, добавление, разминка, завершение (день DONE, серия), заминка, итог — 18/18
+- [x] Отправка этой очереди на dev-сервер (`push-check.mjs`): 10/10 applied, повтор пачки — те же ответы из журнала (ids в jsonb — порядок ключей другой, сравнивать без порядка), тренировка одна, время старта и подходы — телефонные, заминка телефонная. Внеплановую сервер привязал к ближайшему будущему дню — телефон эту привязку не делает, она приходит pull
+- [ ] Новая сборка и сценарий 1 из «Проверки» на телефоне
+
+### Этап 1 — проект
+
+- **id на экране**: строка, созданная на телефоне, получает `localId` (отрицательное целое) и живёт с ним всегда; DTO берёт `localId ?? id`, поиск по `id` или `localId` — маршрут `/cooldown/-3` не ломается, когда push выдаст серверный id. upsert pull не трогает колонки, которых нет в строке pull (`localId`)
+- **outbox.touched** — все clientId, которые создаёт или трогает операция (старт создаёт и упражнения): pull и снимок их не перетирают и не удаляют
+- **Операции** (payload по clientId, время — `at` операции): `workout.start` {complexClientId, date, items[{clientId, exerciseId, position, plannedSets, repsMin, repsMax, superset}]}, `set.add/update/delete`, `item.done`, `item.replace` {exerciseId, inComplex}, `item.add` {items[{clientId, exerciseId}], inComplex}, `item.remove`, `warmup.finish`, `cooldown.build` {stretches[{clientId, stretchId, block, position}]}, `cooldown.exclude` {rowClientId, stretchId, nextStretchId}, `cooldown.start/finish`, `workout.finish`, `workout.discard`, `workout.delete`
+- **Заминка** собирается на телефоне при завершении (порт `CooldownService.build`), `cooldown.build` уходит до `workout.finish` — сервер в `complete` видит сохранённый набор и свой не собирает. skipped у `cooldown.build` (сервер успел собрать свой) — локальные растяжки тренировки удаляются, pull привезёт серверные
+- **Сервер**: обработчики в `workout/workout-sync.ts` через `SyncPushService.register`; старт при чужой идущей тренировке (начата в боте) — её закрываем (`autoClose`-логика), офлайн-тренировка важнее
+- **rejected** — операция снимается, ошибка в `meta.issues`, следующий pull полный: телефон возвращается к серверной правде, неотправленное остаётся
+- Старая очередь react-query (`queue.ts`) остаётся только чтобы дослать застрявшее со старой версии; новые подходы в неё не идут
+- Итог офлайн: totals, тайминг, рекорды по локальной истории (порт `StatsService.records`), серия — из профиля, пока pull не привезёт пересчитанную
 
 Отступление от плана: вместо `deletedAt` (мягкого удаления) — таблица `SyncTombstone`, её пишет триггер Postgres `sync_tombstone()` на DELETE. Мягкое удаление потребовало бы фильтра `deletedAt: null` во всех запросах веба и бота (жёстких удалений 21 место); триггер ловит и каскады, сервисы не меняются. Каскад от удалённого родителя надгробий не пишет — клиент удаляет детей сам вслед за родителем. Надгробия и `SyncOp` живут 60 дней (крон в `SyncPullService`); курсор старше — pull отдаёт полный снимок.
 

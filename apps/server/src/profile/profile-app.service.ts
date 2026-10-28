@@ -75,13 +75,18 @@ export class ProfileAppService {
   public async update(
     userId: number,
     dto: UpdateProfileDto,
+    at?: Date,
   ): Promise<ProfileResponseDto> {
-    await this.profiles.update(userId, {
-      ...dto,
-      ...(dto.trainingDays && {
-        trainingDays: [...dto.trainingDays].sort((a, b) => a - b),
-      }),
-    });
+    await this.profiles.update(
+      userId,
+      {
+        ...dto,
+        ...(dto.trainingDays && {
+          trainingDays: [...dto.trainingDays].sort((a, b) => a - b),
+        }),
+      },
+      at,
+    );
     return this.view(userId);
   }
 
