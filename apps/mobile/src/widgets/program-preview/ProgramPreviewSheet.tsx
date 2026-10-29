@@ -31,6 +31,7 @@ type ProgramPreviewSheetProps = {
 // онбординга, программа друга в его профиле. Данные приносит вызывающий — шторка ничего не запрашивает
 export const ProgramPreviewSheet = ({ program, onOpenChange, note, action, loading }: ProgramPreviewSheetProps) => (
   <Sheet
+    fullHeight
     open={program != null}
     onOpenChange={onOpenChange}
     title={program?.name ?? 'Программа'}

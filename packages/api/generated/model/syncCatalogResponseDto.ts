@@ -10,6 +10,7 @@ import type { SyncMuscleDto } from './syncMuscleDto';
 import type { SyncStretchDto } from './syncStretchDto';
 import type { SyncTagDto } from './syncTagDto';
 import type { SyncTagGroupDto } from './syncTagGroupDto';
+import type { SyncTemplateDto } from './syncTemplateDto';
 
 export interface SyncCatalogResponseDto {
   /** Передать в следующий запрос как since */
@@ -25,6 +26,8 @@ export interface SyncCatalogResponseDto {
   /** Изменённые с since; без since — все видимые */
   exercises: SyncExerciseDto[];
   stretches: SyncStretchDto[];
+  /** Опубликованные шаблоны с составом, всегда целиком */
+  templates: SyncTemplateDto[];
   /** Id всех видимых упражнений: остальные клиент удаляет (снятые черновики, слитые дубли) */
   exerciseIds: number[];
   stretchIds: number[];

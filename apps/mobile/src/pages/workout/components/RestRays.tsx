@@ -1,40 +1,34 @@
 import { useEffect } from 'react';
 import { View } from 'react-native';
-import Animated, {
+import {
   Easing,
-  useAnimatedProps,
+  useDerivedValue,
   useReducedMotion,
   useSharedValue,
   withDelay,
   withRepeat,
   withSequence,
   withTiming,
+  type SharedValue,
 } from 'react-native-reanimated';
-import Svg, { G, Line } from 'react-native-svg';
+import { Canvas, Group, Line, vec } from '@shopify/react-native-skia';
 
 import { useTheme } from '@/shared/theme/ThemeProvider';
 
-const AnimatedLine = Animated.createAnimatedComponent(Line);
-
 // Лучи в два ряда, как деления кольца: длинные и короткие вперемешку
-const RAYS = Array.from({ length: 24 }, (_, i) => ({ angle: (i / 24) * 360, long: i % 2 === 0 }));
+const RAYS = Array.from({ length: 24 }, (_, i) => ({ angle: (i / 24) * 2 * Math.PI, long: i % 2 === 0 }));
 
-// Запас вокруг кольца под разлёт лучей: overflow у Svg на Android обрезается, поэтому холст больше кольца
+// Запас вокруг кольца под разлёт лучей: холст больше кольца, за его краем ничего не рисуется
 const MARGIN = 60;
 
-type RayProps = { from: number; long: boolean; color: string; still: boolean };
-
-const Ray = ({ from, long, color, still }: RayProps) => {
+// Волна 1.2 с и пауза 0.4 с; короткие отстают на полволны — расходится не один обруч, а рябь
+const useWave = (delayMs: number, still: boolean) => {
   const t = useSharedValue(0);
-  const length = long ? 16 : 9;
-  const travel = long ? 34 : 22;
-
   useEffect(() => {
     if (still) return;
-    // Волна 1.2 с и пауза 0.4 с; короткие отстают на полволны — расходится не один обруч, а рябь
     t.set(
       withDelay(
-        long ? 0 : 600,
+        delayMs,
         withRepeat(
           withSequence(
             withTiming(1, { duration: 1200, easing: Easing.out(Easing.ease) }),
@@ -45,23 +39,31 @@ const Ray = ({ from, long, color, still }: RayProps) => {
         ),
       ),
     );
-  }, [long, still, t]);
+  }, [delayMs, still, t]);
+  return t;
+};
 
-  const props = useAnimatedProps(() => {
-    const shift = still ? 0 : t.value * travel;
-    // Вспыхивает к середине волны и гаснет к краю: opacity [0, 1, 0]
-    const opacity = still ? (long ? 0.8 : 0.5) : t.value < 0.5 ? t.value * 2 : (1 - t.value) * 2;
-    return { x1: from + shift, x2: from + length + shift, opacity };
+type RayProps = { from: number; long: boolean; color: string; still: boolean; t: SharedValue<number> };
+
+const Ray = ({ from, long, color, still, t }: RayProps) => {
+  const length = long ? 16 : 9;
+  const travel = long ? 34 : 22;
+  const transform = useDerivedValue(() => [{ translateX: still ? 0 : t.value * travel }]);
+  // Вспыхивает к середине волны и гаснет к краю: opacity [0, 1, 0]
+  const opacity = useDerivedValue(() => {
+    if (still) return long ? 0.8 : 0.5;
+    return t.value < 0.5 ? t.value * 2 : (1 - t.value) * 2;
   });
-
   return (
-    <AnimatedLine
-      y1={0}
-      y2={0}
-      stroke={color}
+    <Line
+      p1={vec(from, 0)}
+      p2={vec(from + length, 0)}
+      color={color}
+      style="stroke"
       strokeWidth={long ? 3 : 2}
-      strokeLinecap="round"
-      animatedProps={props}
+      strokeCap="round"
+      opacity={opacity}
+      transform={transform}
     />
   );
 };
@@ -71,22 +73,26 @@ type RestRaysProps = {
   size: number;
 };
 
-// Отдых перед последним подходом окончен: от кольца волнами расходятся лучи — финишная прямая
+// Отдых перед последним подходом окончен: от кольца волнами расходятся лучи — финишная прямая.
+// Рисует Skia: вечная волна в react-native-svg перерисовывала весь холст на UI-потоке каждый кадр
 export const RestRays = ({ size }: RestRaysProps) => {
   const still = useReducedMotion();
   const { colors } = useTheme();
+  // Лучи одного ряда идут в такт — один такт на ряд, а не на каждый луч
+  const longWave = useWave(0, still);
+  const shortWave = useWave(600, still);
   const canvas = size + MARGIN * 2;
   const center = canvas / 2;
   const from = size / 2 + 4;
   return (
     <View pointerEvents="none" className="absolute" style={{ top: -MARGIN, left: -MARGIN, width: canvas, height: canvas }}>
-      <Svg width={canvas} height={canvas}>
+      <Canvas style={{ width: canvas, height: canvas }}>
         {RAYS.map(({ angle, long }) => (
-          <G key={angle} transform={`translate(${center} ${center}) rotate(${angle})`}>
-            <Ray from={from} long={long} color={colors.blue} still={still} />
-          </G>
+          <Group key={angle} transform={[{ translateX: center }, { translateY: center }, { rotate: angle }]}>
+            <Ray from={from} long={long} color={colors.blue} still={still} t={long ? longWave : shortWave} />
+          </Group>
         ))}
-      </Svg>
+      </Canvas>
     </View>
   );
 };

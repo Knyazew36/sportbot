@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Check } from 'lucide-react-native';
 import { Keyboard, View } from 'react-native';
 
-import { lastSetHint, newClientId, type SetTiming, type TimeSetInput, timeSetSchema, weightText, type WorkoutItem, type WorkoutSetInput, workoutSetSchema, type WorkoutSetValues } from '@sportbot/api/entities/workout';
+import { lastSetHint, newClientId, restText, type SetTiming, type TimeSetInput, timeSetSchema, weightText, type WorkoutItem, type WorkoutSetInput, workoutSetSchema, type WorkoutSetValues } from '@sportbot/api/entities/workout';
 import { useAddSet } from '@/shared/local/entities/workout';
 import { durationText, isTimed, timeInput, timeLabel } from '@sportbot/api/lib/measure';
 import { Button } from '@/shared/ui/kit/Button';
@@ -136,13 +136,16 @@ export const SetEntrySheet = ({ open, item, timing, onClose, onSubmitStart, onSa
     add.mutate({ itemId: item.id, ...values, ...time, clientId: newClientId() });
   };
 
-  const description = timed
+  const result = timed
     ? hint
       ? `Прошлый раз ${durationText(hint.reps)}`
       : 'Сколько по времени'
     : hint
       ? `Прошлый раз ${weightText(hint.weight)} × ${hint.reps}`
       : 'Сколько поднял и сколько раз';
+  // Отдых прошлого раза рядом с весом: видно, сколько тогда сидел перед этим подходом
+  const description =
+    hint?.restBeforeSeconds != null ? `${result} · отдых ${restText(hint.restBeforeSeconds)}` : result;
 
   return (
     <Sheet open={open} onOpenChange={(next) => !next && onClose()} title={setCaption(number, item.plannedSets)} description={description}>

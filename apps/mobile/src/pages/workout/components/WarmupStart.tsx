@@ -1,6 +1,9 @@
 import { View } from 'react-native';
+import { ArrowRight, Plus } from 'lucide-react-native';
 
 import { formatSeconds } from '@/shared/lib/hooks/use-deadline-timer';
+import { Button } from '@/shared/ui/kit/Button';
+import { Icon } from '@/shared/ui/kit/Icon';
 import { Ring } from '@/shared/ui/kit/Ring';
 import { Clock, Eyebrow, Poster } from '@/shared/ui/kit/Typography';
 
@@ -16,13 +19,27 @@ type WarmupStartProps = {
 };
 
 // Заставка на время создания тренировки в базе телефона вместо лоадера: выглядит как FocusWarmup,
-// но без таймера и кнопок — отсчёт с «К упражнениям» подхватит настоящий экран разминки
+// но без таймера — отсчёт подхватит настоящий экран разминки. Кнопки те же, только неактивные:
+// без них при подмене экрана кнопки «выскакивали» и кольцо сдвигалось
 export const WarmupStart = ({ minutes, first }: WarmupStartProps) => {
   const sizes = useFocusSizes();
   const total = minutes * 60;
 
   return (
-    <FocusShell status={`дальше · ${first}`} actions={null}>
+    <FocusShell
+      status={`дальше · ${first}`}
+      actions={
+        <View pointerEvents="none" className="gap-3">
+          <Button size="xl" block className="h-24">
+            К упражнениям
+            <Icon as={ArrowRight} className="size-7" strokeWidth={2.5} />
+          </Button>
+          <Button variant="outline" block>
+            <Icon as={Plus} strokeWidth={3} />1 мин
+          </Button>
+        </View>
+      }
+    >
       <View className="w-full justify-center" style={{ height: sizes.headline }}>
         <Poster size="4xl" tone="primary" fit className="w-full text-center">
           Разминка

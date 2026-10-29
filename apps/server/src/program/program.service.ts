@@ -64,6 +64,18 @@ export const TEMPLATES = 'templates' as const;
 /** Чью программу правим: пользователя (его id) или шаблон. */
 export type ProgramOwner = number | typeof TEMPLATES;
 
+/**
+ * clientId строк копии, заведённой на телефоне офлайн (онбординг): иначе pull привёз бы
+ * вторую копию рядом с телефонной. Строки шаблона без пары получают свой uuid
+ */
+export type CopyClientIds = {
+  program: string;
+  /** id комплекса источника → clientId копии */
+  complexes: Map<number, string>;
+  /** id строки комплекса источника → clientId копии */
+  items: Map<number, string>;
+};
+
 export const ownerWhere = (owner: ProgramOwner): Prisma.ProgramWhereInput =>
   owner === TEMPLATES ? { isTemplate: true } : { ownerId: owner };
 
@@ -203,7 +215,11 @@ export class ProgramService {
    * Копия шаблона или программы друга. Чужие черновики копируются как черновики получателя
    * с originDraftId на оригинал; записи справочника — по ссылке.
    */
-  public async copy(sourceProgramId: number, ownerId: number) {
+  public async copy(
+    sourceProgramId: number,
+    ownerId: number,
+    clientIds?: CopyClientIds,
+  ) {
     const program = await this.prisma.$transaction(async (tx) => {
       const source = await tx.program.findUnique({
         where: { id: sourceProgramId },
@@ -217,9 +233,10 @@ export class ProgramService {
           ownerId,
           sourceProgramId: source.id,
           sourceSyncedAt: source.contentUpdatedAt,
+          ...(clientIds ? { clientId: clientIds.program } : {}),
         },
       });
-      await this.fill(tx, created.id, source, ownerId);
+      await this.fill(tx, created.id, source, ownerId, clientIds);
       return created;
     });
     this.logger.log(
@@ -230,7 +247,11 @@ export class ProgramService {
   }
 
   /** «Взять» опубликованный шаблон: копия в программах пользователя. */
-  public async takeTemplate(templateId: number, userId: number) {
+  public async takeTemplate(
+    templateId: number,
+    userId: number,
+    clientIds?: CopyClientIds,
+  ) {
     const template = await this.prisma.program.findFirst({
       where: { id: templateId, ...PUBLISHED_TEMPLATE },
       select: { id: true },
@@ -241,7 +262,7 @@ export class ProgramService {
       );
       throw new NotFoundException('Шаблон не найден.');
     }
-    return this.copy(template.id, userId);
+    return this.copy(template.id, userId, clientIds);
   }
 
   /** «Взять» из каталога Mini App: шаблон или чужая опубликованная программа пользователя. */
@@ -1124,6 +1145,7 @@ export class ProgramService {
     programId: number,
     source: ProgramFull,
     ownerId: number,
+    clientIds?: CopyClientIds,
   ): Promise<void> {
     /** Черновик автора → черновик получателя: одна копия на оригинал, даже в нескольких комплексах. */
     const draftCopies = new Map<number, number>();
@@ -1135,6 +1157,7 @@ export class ProgramService {
         complex.position,
         ownerId,
         draftCopies,
+        clientIds,
       );
   }
 
@@ -1146,9 +1169,12 @@ export class ProgramService {
     position: number,
     ownerId: number,
     draftCopies = new Map<number, number>(),
+    clientIds?: CopyClientIds,
   ) {
+    const complexClientId = clientIds?.complexes.get(complex.id);
     const created = await tx.complex.create({
       data: {
+        ...(complexClientId ? { clientId: complexClientId } : {}),
         programId,
         name: complex.name,
         position,
@@ -1168,8 +1194,10 @@ export class ProgramService {
           (await this.copyDraft(tx, item.exerciseId, ownerId));
         draftCopies.set(item.exerciseId, exerciseId);
       }
+      const itemClientId = clientIds?.items.get(item.id);
       await tx.complexExercise.create({
         data: {
+          ...(itemClientId ? { clientId: itemClientId } : {}),
           complexId: created.id,
           exerciseId,
           position: item.position,

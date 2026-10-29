@@ -92,3 +92,14 @@ export const workoutTiming = (workout: {
     timing.cooldownSeconds = seconds(Date.parse(workout.cooldownStartedAt), Date.parse(workout.cooldownFinishedAt))
   return timing
 }
+
+/**
+ * Отдых перед каждым подходом одного упражнения — по разрывам между его же подходами (порт server exerciseRests).
+ * null — первый подход, без времени или ручной: его отдых включает и сам подход
+ */
+export const exerciseRests = (sets: { doneAt: string | null; workSeconds: number | null }[]): (number | null)[] =>
+  sets.map((set, index) => {
+    const prev = index ? sets[index - 1] : null
+    if (!prev?.doneAt || !set.doneAt || set.workSeconds === null) return null
+    return seconds(Date.parse(prev.doneAt), Date.parse(set.doneAt) - set.workSeconds * 1000)
+  })

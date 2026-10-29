@@ -238,7 +238,7 @@ export const TemplatesTab = () => {
         open={sheet !== null}
         onOpenChange={open => !open && setSheet(null)}
       >
-        <SheetContent>
+        <SheetContent fullHeight={sheet === 'from-program'}>
           {sheet === 'new' && (
             <>
               <SheetHeader>

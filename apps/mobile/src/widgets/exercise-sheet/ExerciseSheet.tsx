@@ -109,7 +109,7 @@ const StretchDetails = ({ id }: { id: number }) => {
 // Что за упражнение, не уходя с экрана — порт widgets/exercise-sheet/ExerciseSheet.tsx:
 // замена на тренировке, состав комплекса дня
 export const ExerciseSheet = ({ exercise, kind = 'exercise', onOpenChange, action }: ExerciseSheetProps) => (
-  <Sheet open={exercise != null} onOpenChange={onOpenChange} title={exercise?.name} footer={action}>
+  <Sheet fullHeight open={exercise != null} onOpenChange={onOpenChange} title={exercise?.name} footer={action}>
     {exercise && (kind === 'exercise' ? <ExerciseDetails id={exercise.id} /> : <StretchDetails id={exercise.id} />)}
   </Sheet>
 );

@@ -49,7 +49,9 @@ export const applyPush = (db: LocalDb, sent: OutboxRow[], results: SyncOpResultD
       const op = byOpId.get(result.opId);
       if (!op) continue;
       for (const [clientId, id] of Object.entries(result.ids ?? {}))
-        for (const table of WITH_SERVER_ID) tx.update(table).set({ id }).where(eq(table.clientId, clientId)).run();
+        // Только строкам без id: повторный ответ на ту же операцию не будит экраны
+        for (const table of WITH_SERVER_ID)
+          tx.update(table).set({ id }).where(and(eq(table.clientId, clientId), isNull(table.id))).run();
       // Сервер успел собрать свою заминку: наша лишняя, pull привезёт серверную
       if (result.status === 'skipped' && op.type === 'cooldown.build')
         tx.delete(t.workoutStretches).where(eq(t.workoutStretches.workoutClientId, op.clientId)).run();

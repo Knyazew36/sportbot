@@ -122,11 +122,23 @@ yarn content:import prisma/content/catalog.json --dry-run   # catalog.json по-
 
 Коммить `catalog.json` вместе с патчем. Записи без `code` (одобренные черновики) живут только в базе и в `catalog.json` не попадают.
 
+### 6. Снимок для мобилки
+
+Приложение в сборке несёт справочник без картинок (`apps/mobile/assets/seed/catalog-seed.json`): мышцы, суставы, теги, опубликованные упражнения и растяжки. Он ложится в пустую базу телефона до первого синка, чтобы экраны открывались без сети. Id в нём — прода, поэтому снимок берём только с прода. Обновлять перед релизом мобилки:
+
+```bash
+ssh root@185.200.176.192 'cd /var/www/sportbot/apps/server && yarn -s content:mobile-seed /tmp/catalog-seed.json'
+scp root@185.200.176.192:/tmp/catalog-seed.json apps/mobile/assets/seed/catalog-seed.json
+```
+
+Устаревший снимок не опасен: первый синк всё равно берёт справочник целиком и заменяет его.
+
 ## Скрипты
 
 | Команда | Где | Что делает |
 |---|---|---|
 | `content:export [файл]` | сервер | снимок справочника прода |
+| `content:mobile-seed [файл]` | сервер | справочник для сборки мобилки — ответ `sync/catalog` без черновиков |
 | `content:sources [источник…]` | локально | снимки внешних источников в `sources/` |
 | `content:enrich <снимок> [--limit N] [--out папка] [--batch id]` | локально | техника через Claude Batch API → `guides.json` + `review.md` |
 | `content:import [файл] [--dry-run] [--no-images]` | оба | импорт патча или `catalog.json` по `code` |

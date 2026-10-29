@@ -1,4 +1,5 @@
-import { durationText, isTimed, type Measure, timeInput } from '../../lib/measure'
+import { clockText, durationText, isTimed, type Measure, timeInput } from '../../lib/measure'
+import { unitOf } from '../../lib/records'
 import { supersetLetter, toBlocks } from '../../lib/superset'
 
 import type { WorkoutItem } from './api'
@@ -11,7 +12,10 @@ export { planText } from '../../lib/measure'
  * Прошлый раз одной строкой: «60 × 8, 8, 7»; разный вес — «60×8, 55×10»; на время — «45 с, 50 с».
  * null — истории нет
  */
-export const lastText = (last: WorkoutItem['last'], measure: Measure = 'REPS'): string | null => {
+export const lastText = (
+  last: { date?: string; sets: { weight: number; reps: number }[] } | null | undefined,
+  measure: Measure = 'REPS',
+): string | null => {
   if (!last?.sets.length) return null
   if (isTimed(measure)) return last.sets.map(s => durationText(s.reps)).join(', ')
   const weights = new Set(last.sets.map(s => s.weight))
@@ -24,6 +28,31 @@ export const lastText = (last: WorkoutItem['last'], measure: Measure = 'REPS'): 
 export const lastSetHint = (last: WorkoutItem['last'], number: number) => last?.sets[number - 1]
 
 export const weightText = (weight: number) => (weight === 0 ? 'свой' : num(weight))
+
+/** Один подход прошлого раза: «60 × 8», «свой вес × 12», «45 с» */
+export const lastSetText = (set: { weight: number; reps: number }, measure: Measure = 'REPS') =>
+  isTimed(measure) ? durationText(set.reps) : `${set.weight === 0 ? 'свой вес' : num(set.weight)} × ${set.reps}`
+
+/**
+ * Обычный отдых между подходами: медиана, а не среднее — одна долгая пауза у телефона его не раздувает.
+ * null — отдых не засекался (ручной ввод, бот, один подход)
+ */
+export const typicalRest = (sets: { restBeforeSeconds?: number | null }[]): number | null => {
+  const rests = sets
+    .map(s => s.restBeforeSeconds)
+    .filter((r): r is number => r != null)
+    .sort((a, b) => a - b)
+  if (!rests.length) return null
+  const mid = Math.floor(rests.length / 2)
+  return rests.length % 2 ? rests[mid]! : Math.round((rests[mid - 1]! + rests[mid]!) / 2)
+}
+
+/** Единица истории упражнения — как у статистики: по прошлому разу, а без него по сегодняшним подходам */
+export const historyUnit = (item: Pick<WorkoutItem, 'last' | 'sets' | 'measure'>) =>
+  unitOf(item.last?.sets ?? item.sets, item.measure)
+
+/** Отдых строкой: «1:30» */
+export const restText = (seconds: number) => clockText(seconds)
 
 // ── Суперсет ────────────────────────────────────────────────────────────────
 // Круг считаем по очереди подходов, а не по серверу: без сети круг тоже идёт дальше.

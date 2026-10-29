@@ -1,4 +1,4 @@
-import { useMemo, type ReactNode } from 'react';
+import { useMemo } from 'react';
 import { interpolate, useDerivedValue, useReducedMotion } from 'react-native-reanimated';
 import { Circle, Group, Line, Oval, Paint, Path, RoundedRect, Text, useFont, vec } from '@shopify/react-native-skia';
 
@@ -8,33 +8,14 @@ import { useTheme } from '@/shared/theme/ThemeProvider';
 import { ArtCanvas } from './ArtCanvas';
 import { Kettlebell } from './Kettlebell';
 import { around, deg, EASE_OUT, IDENTITY, phaseDelayMs, useCycle } from './motion';
-import { halftoneDots, starPath } from './paths';
+import { Breathe, Star, Sway, type Still } from './parts';
+import { halftoneDots } from './paths';
 
 // Порт RestArt из Art.tsx (react-native-svg) на Skia: разметка и такты те же, рисует GPU.
 // Правки сцены по-прежнему вносим во фронт и переносим сюда
 
-type Still = { still: boolean };
-
 const BLANKET = 'M92 236 L96 206 C124 198 152 206 182 204 C212 202 240 196 270 204 L276 236 Z';
 const MOON_CLIP = 'M24 58 A34 34 0 1 0 92 58 A34 34 0 1 0 24 58 Z';
-
-// sb-twinkle: звезда мерцает вразнобой, сдвиг задаёт разметка
-const Star = ({ x, y, size = 6, delay, still }: Still & { x: number; y: number; size?: number; delay: number }) => {
-  const { colors: c } = useTheme();
-  const t = useCycle(1600, { reverse: true, delayMs: phaseDelayMs(delay, 3.2), paused: still });
-  const opacity = useDerivedValue(() => (still ? 1 : 0.25 + 0.75 * t.value));
-  const transform = useDerivedValue(() => (still ? IDENTITY : around(x, y, [{ scale: 0.6 + 0.4 * t.value }])));
-  return <Path path={starPath(x, y, size)} color={c.blue} opacity={opacity} transform={transform} />;
-};
-
-// sb-breathe: корпус дышит от пола — низ стоит (origin — низ корпуса гири, y=46)
-const Breathe = ({ children, still }: Still & { children?: ReactNode }) => {
-  const t = useCycle(2100, { reverse: true, paused: still });
-  const transform = useDerivedValue(() =>
-    still ? IDENTITY : around(0, 46, [{ scaleX: 1 + 0.02 * t.value }, { scaleY: 1 + 0.05 * t.value }]),
-  );
-  return <Group transform={transform}>{children}</Group>;
-};
 
 // sb-snore-mouth: рот похрапывает в такт дыханию
 const SnoreMouth = ({ still }: Still) => {
@@ -44,19 +25,6 @@ const SnoreMouth = ({ still }: Still) => {
     still ? IDENTITY : around(0, 8, [{ scaleX: 1 + 0.3 * t.value }, { scaleY: 1 + 0.6 * t.value }]),
   );
   return <Oval x={-4} y={3} width={8} height={10} color={c.ink} transform={transform} />;
-};
-
-// sb-sway: качание -6°…6° вокруг точки крепления
-const Sway = ({
-  children,
-  still,
-  origin,
-  duration,
-}: Still & { children?: ReactNode; origin: [number, number]; duration: number }) => {
-  const t = useCycle(duration, { reverse: true, paused: still });
-  const [ox, oy] = origin;
-  const transform = useDerivedValue(() => (still ? IDENTITY : around(ox, oy, [{ rotate: deg(-6 + 12 * t.value) }])));
-  return <Group transform={transform}>{children}</Group>;
 };
 
 // sb-snore: «z» рождается у кисточки колпака и тает в небе; без движения остаётся одна — сон читается и в статике

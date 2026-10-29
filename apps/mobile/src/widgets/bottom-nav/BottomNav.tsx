@@ -6,8 +6,10 @@ import { haptic } from '@/shared/lib/haptics';
 import { useKeyboardShown } from '@/shared/lib/hooks/use-keyboard-shown';
 import { cn } from '@/shared/lib/utils';
 import { useTheme } from '@/shared/theme/ThemeProvider';
+import { Glass } from '@/shared/ui/kit/Glass';
 import { Icon } from '@/shared/ui/kit/Icon';
 import { HalftoneRing } from '@/shared/ui/kit/Patterns';
+import { useScreenChrome } from '@/shared/ui/kit/screen-chrome';
 import { Poster, Text } from '@/shared/ui/kit/Typography';
 
 import { NAV_SIDES, type NavItem } from './nav';
@@ -22,9 +24,12 @@ type TabProps = {
 
 // Нижнее меню — порт widgets/miniapp/BottomNav фронта: «Сегодня» — число дня по центру,
 // остальные разделы делятся по бокам. Активный раздел отмечен отрезком беговой дорожки сверху.
-// Низ отступает от жестовой полосы: без этого подписи уходят под системную навигацию
+// Низ отступает от жестовой полосы: без этого подписи уходят под системную навигацию.
+// Лежит поверх страниц матовым стеклом, как во фронте: контент раздела просвечивает размытым.
+// Лежит поверх страниц матовым стеклом, как во фронте: контент раздела просвечивает размытым
 export const BottomNav = ({ state, emitter, navigateToTab, insets, position }: MaterialTopTabBarProps) => {
   const keyboardShown = useKeyboardShown();
+  const { navTarget } = useScreenChrome();
 
   // Прогресс для каждого таба — по позиции пейджера, чтобы индикатор двигался
   // синхронно со свайпом, а не догонял его после смены state.index
@@ -72,9 +77,10 @@ export const BottomNav = ({ state, emitter, navigateToTab, insets, position }: M
   const heroIndex = hero ? state.routes.findIndex((r) => r.name === hero.name) : -1;
 
   return (
-    <View
+    <Glass
       accessibilityRole="tabbar"
-      className="border-border bg-background flex-row border-t-[1.5px] px-1"
+      target={navTarget}
+      className="border-border absolute inset-x-0 bottom-0 flex-row border-t-[1.5px] px-1"
       style={{ paddingBottom: Math.max(8, insets.bottom) }}
     >
       {renderSide(left)}
@@ -87,7 +93,7 @@ export const BottomNav = ({ state, emitter, navigateToTab, insets, position }: M
         />
       ) : null}
       {renderSide(right)}
-    </View>
+    </Glass>
   );
 };
 

@@ -4,12 +4,12 @@
  * api
  * OpenAPI spec version: 0.0.1
  */
-import type { StatsDaySetResponseDto } from './statsDaySetResponseDto';
+import type { StatsSessionSetResponseDto } from './statsSessionSetResponseDto';
 
 export interface StatsSessionResponseDto {
   id: number;
   date: string;
-  sets: StatsDaySetResponseDto[];
+  sets: StatsSessionSetResponseDto[];
   /** Номер лучшего подхода в sets; -1 — подходов с весом нет */
   bestIndex: number;
   /** Лучший подход побил все прежние */

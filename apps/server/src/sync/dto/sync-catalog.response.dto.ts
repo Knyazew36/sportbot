@@ -8,6 +8,7 @@ import {
   StretchKind,
   StretchPosition,
 } from '@/generated/prisma/client';
+import { ProgramTagResponseDto } from '@/program-tag/dto/program-tag.response.dto';
 
 const nullableStr = { type: String, nullable: true } as const;
 
@@ -185,6 +186,73 @@ export class SyncStretchDto {
   updatedAt: string;
 }
 
+export class SyncTemplateItemDto {
+  @ApiProperty()
+  id: number;
+
+  @ApiProperty()
+  exerciseId: number;
+
+  @ApiProperty()
+  position: number;
+
+  @ApiProperty()
+  sets: number;
+
+  @ApiProperty()
+  repsMin: number;
+
+  @ApiProperty()
+  repsMax: number;
+
+  @ApiProperty({ type: Number, nullable: true })
+  superset: number | null;
+}
+
+export class SyncTemplateComplexDto {
+  @ApiProperty()
+  id: number;
+
+  @ApiProperty()
+  name: string;
+
+  @ApiProperty()
+  position: number;
+
+  @ApiProperty(nullableStr)
+  cardioName: string | null;
+
+  @ApiProperty({ type: Number, nullable: true })
+  cardioMinutes: number | null;
+
+  @ApiProperty({ type: Number, nullable: true })
+  warmupMinutes: number | null;
+
+  @ApiProperty({ type: [SyncTemplateItemDto] })
+  exercises: SyncTemplateItemDto[];
+}
+
+/** Шаблон программы с составом: онбординг берёт его копией без сети */
+export class SyncTemplateDto {
+  @ApiProperty()
+  id: number;
+
+  @ApiProperty()
+  name: string;
+
+  @ApiProperty({ description: 'Порядок в списке шаблонов' })
+  position: number;
+
+  @ApiProperty({ description: 'Версия состава — sourceSyncedAt копии' })
+  contentUpdatedAt: string;
+
+  @ApiProperty({ type: [ProgramTagResponseDto], description: 'Теги по порядку чипов' })
+  tags: ProgramTagResponseDto[];
+
+  @ApiProperty({ type: [SyncTemplateComplexDto] })
+  complexes: SyncTemplateComplexDto[];
+}
+
 export class SyncCatalogResponseDto {
   @ApiProperty({ description: 'Передать в следующий запрос как since' })
   cursor: string;
@@ -212,6 +280,12 @@ export class SyncCatalogResponseDto {
 
   @ApiProperty({ type: [SyncStretchDto] })
   stretches: SyncStretchDto[];
+
+  @ApiProperty({
+    type: [SyncTemplateDto],
+    description: 'Опубликованные шаблоны с составом, всегда целиком',
+  })
+  templates: SyncTemplateDto[];
 
   @ApiProperty({
     type: [Number],

@@ -56,8 +56,9 @@ const PublishForm = ({ program, groups, onDone }: PublishFormProps) => {
   const ownLeft = OWN_TAGS_MAX - tagIds.filter(id => pendingIds.has(id)).length - newTags.length
 
   return (
+    // Поля прокручиваются, кнопка закреплена внизу шторки: за тегами её не надо искать скроллом
     <form
-      className='px-gutter flex flex-col gap-5 pb-6'
+      className='flex min-h-0 flex-1 flex-col'
       onSubmit={handleSubmit(values =>
         publish
           .mutateAsync({ id: program.id, ...values })
@@ -65,6 +66,7 @@ const PublishForm = ({ program, groups, onDone }: PublishFormProps) => {
           .catch(error => applyFieldErrors(error, setError)),
       )}
     >
+      <div className='px-gutter flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto pb-2'>
       <div className='flex flex-col gap-2'>
         <Label htmlFor='publish-description'>Описание</Label>
         <Textarea
@@ -121,7 +123,9 @@ const PublishForm = ({ program, groups, onDone }: PublishFormProps) => {
         Нет нужного тега — впиши свой и нажми Enter или запятую. Своих тегов — до {OWN_TAGS_MAX}, они с пунктиром: их
         проверит администратор и может заменить на похожий из списка.
       </Text>
+      </div>
 
+      <div className='px-gutter pt-2 pb-6'>
       <Button
         type='submit'
         variant='share'
@@ -130,6 +134,7 @@ const PublishForm = ({ program, groups, onDone }: PublishFormProps) => {
       >
         {program.publication === 'PUBLISHED' ? 'Сохранить' : 'Отправить на проверку'}
       </Button>
+      </div>
     </form>
   )
 }
@@ -142,7 +147,10 @@ export const PublishSheet = ({ program, open, onOpenChange }: PublishSheetProps)
       open={open}
       onOpenChange={onOpenChange}
     >
-      <SheetContent className='data-[side=bottom]:max-h-[min(92dvh,var(--sheet-ceiling))] overflow-y-auto'>
+      <SheetContent
+        fullHeight
+        className='data-[side=bottom]:max-h-[min(92dvh,var(--sheet-ceiling))]'
+      >
         <SheetHeader>
           <SheetTitle>{program.publication === 'PUBLISHED' ? 'Публикация' : 'Опубликовать в каталог'}</SheetTitle>
           <SheetDescription>

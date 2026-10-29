@@ -18,6 +18,10 @@ export const META_KEYS = {
   localSeq: 'localSeq',
   /** Отклонённые сервером правки, JSON SyncIssue[] — плашка в «Я → Офлайн» */
   issues: 'issues',
+  /** Отпечаток мышц, суставов, тегов и шаблонов справочника — они приходят целиком в каждом синке */
+  catalogRefsHash: 'catalogRefsHash',
+  /** Отпечаток профиля из pull — он тоже приходит в каждом */
+  profileHash: 'profileHash',
 } as const;
 
 export type MetaKey = (typeof META_KEYS)[keyof typeof META_KEYS];

@@ -26,6 +26,8 @@ internal object WorkoutLiveController {
   private const val TAG = "WorkoutLive"
   private const val CHANNEL_ID = "workout-live"
   private const val ADD_SECONDS = 30
+  // Notification.EXTRA_REQUEST_PROMOTED_ONGOING, литералом — константа тоже только с 36.1
+  private const val EXTRA_REQUEST_PROMOTED_ONGOING = "android.requestPromotedOngoing"
 
   // Цвета живой полосы приложения (global.css: --color-live, --color-rest)
   private val LIVE = Color.parseColor("#d1ffca")
@@ -164,7 +166,8 @@ internal object WorkoutLiveController {
     builder
       .setStyle(style)
       .setColor(accent)
-      .setRequestPromotedOngoing(true)
+    // setRequestPromotedOngoing есть только с 36.1, на 36.0 падает NoSuchMethodError — extra понимают обе версии
+    builder.extras.putBoolean(EXTRA_REQUEST_PROMOTED_ONGOING, true)
   }
 
   /** До Android 16: цветное уведомление (работает только у foreground service) и обычная полоса */

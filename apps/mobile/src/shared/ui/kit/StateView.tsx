@@ -1,9 +1,11 @@
 import type { ReactNode } from 'react';
 import { ActivityIndicator, View } from 'react-native';
+import { CloudOff } from 'lucide-react-native';
 
 import { cn } from '@/shared/lib/utils';
 
 import { EmptyState } from './EmptyState';
+import { Icon } from './Icon';
 import { Poster, Text } from './Typography';
 
 type StateViewProps = {
@@ -41,7 +43,10 @@ export const StateView = ({ state, error, empty, className }: StateViewProps) =>
 
   if (state === 'error') {
     return (
-      <View className={frame}>
+      <View accessibilityRole="alert" className={frame}>
+        <View className="bg-background border-destructive size-12 items-center justify-center border-[1.5px]">
+          <Icon as={CloudOff} className="text-destructive size-6" />
+        </View>
         <Poster size="md">{error?.title ?? 'Не удалось загрузить'}</Poster>
         {error?.description ? (
           <Text tone="muted" className="text-center">

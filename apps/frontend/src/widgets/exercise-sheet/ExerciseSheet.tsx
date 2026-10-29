@@ -125,7 +125,7 @@ export const ExerciseSheet = ({ exercise, kind = 'exercise', onOpenChange, actio
     open={exercise != null}
     onOpenChange={onOpenChange}
   >
-    <SheetContent>
+    <SheetContent fullHeight>
       <SheetHeader>
         <SheetTitle>{exercise?.name}</SheetTitle>
         <SheetDescription className='sr-only'>

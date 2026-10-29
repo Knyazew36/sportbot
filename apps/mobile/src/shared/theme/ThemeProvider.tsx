@@ -148,6 +148,11 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+// Skia Canvas рендерит детей своим reconciler'ом, контекст React туда не доходит — пробрасываем тему заново
+export const ThemeBridge = ({ value, children }: { value: ThemeContextValue; children?: ReactNode }) => (
+  <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+);
+
 export const useTheme = (): ThemeContextValue => {
   const ctx = useContext(ThemeContext);
   if (!ctx) throw new Error('useTheme: провайдер не подключён');

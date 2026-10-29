@@ -26,6 +26,7 @@ import { ProgramService } from '@/program/program.service';
 import { resolveWarmup } from '@/program/warmup';
 
 import { CooldownService, CooldownView } from './cooldown.service';
+import { exerciseRests } from './workout-timing';
 
 export const WORKOUT_INCLUDE = {
   exercises: {
@@ -67,7 +68,7 @@ export interface SetTiming {
 
 export interface LastResult {
   date: Date;
-  sets: { weight: number; reps: number }[];
+  sets: { weight: number; reps: number; restBeforeSeconds: number | null }[];
 }
 
 const ANALOGS_LIMIT = 8;
@@ -203,9 +204,14 @@ export class WorkoutService {
       },
     });
     if (!item) return null;
+    const rests = exerciseRests(item.sets);
     return {
       date: item.workout.date,
-      sets: item.sets.map((s) => ({ weight: Number(s.weight), reps: s.reps })),
+      sets: item.sets.map((s, index) => ({
+        weight: Number(s.weight),
+        reps: s.reps,
+        restBeforeSeconds: rests[index],
+      })),
     };
   }
 

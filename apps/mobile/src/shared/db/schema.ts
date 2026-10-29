@@ -15,6 +15,7 @@ import type {
   ProgramTagResponseDto,
   StretchKind,
   StretchPosition,
+  SyncTemplateComplexDto,
   TrackingMode,
   WeightAskFrequency,
   WorkoutStatus,
@@ -338,6 +339,16 @@ export const stretches = sqliteTable('stretches', {
   draft: bool('draft').notNull(),
   muscleIds: json<number[]>('muscleIds').notNull(),
   updatedAt: text('updatedAt').notNull(),
+});
+
+/** Шаблоны программ с составом — онбординг берёт копию без сети. Приходят целиком в каждом синке */
+export const templates = sqliteTable('templates', {
+  id: integer('id').primaryKey(),
+  name: text('name').notNull(),
+  position: integer('position').notNull(),
+  contentUpdatedAt: text('contentUpdatedAt').notNull(),
+  tags: json<ProgramTagResponseDto[]>('tags').notNull(),
+  complexes: json<SyncTemplateComplexDto[]>('complexes').notNull(),
 });
 
 // ── Служебное ───────────────────────────────────────────────────────────────

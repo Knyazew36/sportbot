@@ -6,7 +6,6 @@ import type { Profile } from '@sportbot/api/entities/profile';
 import { useSportUser } from '@sportbot/api/entities/sport-user';
 
 import { toAssetUrl } from '@/shared/api';
-import { useOnlineAction } from '@/shared/lib/hooks/use-online-action';
 import { Button } from '@/shared/ui/kit/Button';
 import { Icon } from '@/shared/ui/kit/Icon';
 import { InkPanel } from '@/shared/ui/kit/InkPanel';
@@ -30,7 +29,6 @@ const Perforation = () => (
 // Фото на карте: камера поверх — сменить; при первом входе фото берётся из мессенджера
 const CardPhoto = ({ profile }: { profile: Profile }) => {
   const avatar = usePickAvatar();
-  const net = useOnlineAction();
 
   return (
     <View>
@@ -48,7 +46,6 @@ const CardPhoto = ({ profile }: { profile: Profile }) => {
           size="icon-sm"
           accessibilityLabel={profile.avatarUrl ? 'Сменить фото' : 'Загрузить фото'}
           loading={avatar.pending}
-          disabled={net.disabled}
           onPress={() => void avatar.pick()}
         >
           <Icon as={Camera} className="size-4" />

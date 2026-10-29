@@ -1,6 +1,13 @@
 import { ClockIcon, PencilIcon, PlusIcon } from 'lucide-react'
 
-import { weightText, type WorkoutItem, type WorkoutSet } from '@sportbot/api/entities/workout'
+import {
+  lastSetHint,
+  lastSetText,
+  restText,
+  weightText,
+  type WorkoutItem,
+  type WorkoutSet,
+} from '@sportbot/api/entities/workout'
 import { formatSeconds } from '@/shared/lib/hooks/use-deadline-timer'
 import { clockText, isTimed, type Measure } from '@sportbot/api/lib/measure'
 import { cn } from '@/shared/lib/utils'
@@ -42,6 +49,22 @@ const SetTiming = ({ set }: { set: WorkoutSet }) => {
           {target !== null && ` из ${formatSeconds(target)}`}
         </Text>
       )}
+    </Text>
+  )
+}
+
+// Тот же подход в прошлый раз: сравнить вес и отдых, не открывая историю
+const SetPrevious = ({ item, number }: { item: WorkoutItem; number: number }) => {
+  const prev = lastSetHint(item.last, number)
+  if (!prev) return null
+  return (
+    <Text
+      size='xs'
+      tone='muted'
+      className='col-span-3 col-start-2 mt-0.5 tabular-nums'
+    >
+      было {lastSetText(prev, item.measure)}
+      {prev.restBeforeSeconds !== null && ` · отдых ${restText(prev.restBeforeSeconds)}`}
     </Text>
   )
 }
@@ -112,6 +135,13 @@ export const SetList = ({ item, onEdit, live = true, onAdd }: SetListProps) => {
               <PencilIcon />
             </Button>
             <SetTiming set={set} />
+            {/* В прошедшей тренировке «прошлый раз» может оказаться ей самой — сравниваем только в идущей */}
+            {live && (
+              <SetPrevious
+                item={item}
+                number={set.number}
+              />
+            )}
           </li>
         ))}
       </ol>

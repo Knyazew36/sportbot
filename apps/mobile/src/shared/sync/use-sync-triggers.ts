@@ -7,7 +7,7 @@ import { subscribeSession } from '@sportbot/api/client';
 
 import type { LocalDb } from '@/shared/db/client';
 
-import { runSync } from './engine';
+import { flushPush, runSync } from './engine';
 import { SYNC_INTERVAL_MS } from './constants';
 
 /**
@@ -25,8 +25,9 @@ export const useSyncTriggers = (db: LocalDb | null) => {
       if (state === 'active') {
         sync();
         timer ??= setInterval(sync, SYNC_INTERVAL_MS);
-      } else if (timer) {
-        clearInterval(timer);
+      } else {
+        flushPush();
+        if (timer) clearInterval(timer);
         timer = null;
       }
     });

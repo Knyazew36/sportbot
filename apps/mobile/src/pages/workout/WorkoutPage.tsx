@@ -18,6 +18,8 @@ const WorkoutPage = () => {
   const [shownId, setShownId] = useState<number | undefined>(workoutId);
   if (workoutId && workoutId !== shownId) setShownId(workoutId);
   const finished = useFinishSucceeded(shownId);
+  // TODO(debug-rest): временный лог
+  console.log(`[debug-rest] page status=${current.status} fetching=${current.isFetching} id=${workoutId} start=${wantsStart}`);
 
   useEffect(() => {
     if (hasWorkout && wantsStart) {

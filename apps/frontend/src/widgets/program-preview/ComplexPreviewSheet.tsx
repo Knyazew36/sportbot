@@ -31,7 +31,7 @@ export const ComplexPreviewSheet = ({
     open={open}
     onOpenChange={onOpenChange}
   >
-    <SheetContent>
+    <SheetContent fullHeight>
       <SheetHeader>
         <SheetTitle>{title}</SheetTitle>
         {description && <SheetDescription>{description}</SheetDescription>}

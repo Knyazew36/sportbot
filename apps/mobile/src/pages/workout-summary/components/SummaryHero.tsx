@@ -5,7 +5,7 @@ import { useProfile } from '@/shared/local/entities/profile';
 import { motivationFor, type WorkoutSummary } from '@sportbot/api/entities/workout';
 import { DAY_FORMS } from '@/shared/lib/plural-forms';
 import { GUTTER } from '@/shared/theme/tokens';
-import { FinishArt } from '@/shared/ui/kit/Art';
+import { FinishArt } from '@/shared/ui/kit/art-skia/FinishArt';
 import { InkPanel } from '@/shared/ui/kit/InkPanel';
 import { Lanes } from '@/shared/ui/kit/Lanes';
 import { Rise } from '@/shared/ui/kit/Reveal';

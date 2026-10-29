@@ -21,6 +21,7 @@ import {
   SportProfile,
 } from '@/generated/prisma/client';
 import { MessengerMessage, strike } from '@/messengers';
+import { exerciseRests } from '@/workout/workout-timing';
 
 import { renderProgressChart } from './progress-chart';
 
@@ -102,6 +103,12 @@ export interface RecordEntry {
 interface ProgressRow {
   workout: { date: Date };
   sets: SetRow[];
+}
+
+/** Строка истории упражнения: подходы со временем — для отдыха между ними. */
+interface SessionRow extends ProgressRow {
+  id: number;
+  sets: (SetRow & { doneAt: Date | null; workSeconds: number | null })[];
 }
 
 interface HistoryRow extends ProgressRow {
@@ -418,7 +425,12 @@ export class StatsService {
           workout: { select: { date: true } },
           sets: {
             orderBy: { number: 'asc' },
-            select: { weight: true, reps: true },
+            select: {
+              weight: true,
+              reps: true,
+              doneAt: true,
+              workSeconds: true,
+            },
           },
         },
       }),
@@ -427,15 +439,20 @@ export class StatsService {
     const records = recordRows(rows, unit);
     return {
       meta: result.meta,
-      items: (result.items as unknown as (ProgressRow & { id: number })[]).map(
-        (r) => ({
+      items: (result.items as unknown as SessionRow[]).map((r) => {
+        const rests = exerciseRests(r.sets);
+        return {
           id: r.id,
           date: r.workout.date,
-          sets: r.sets.map((s) => ({ weight: Number(s.weight), reps: s.reps })),
+          sets: r.sets.map((s, index) => ({
+            weight: Number(s.weight),
+            reps: s.reps,
+            restBeforeSeconds: rests[index],
+          })),
           bestIndex: bestIndexOf(r.sets, unit),
           isRecord: records.has(r.id),
-        }),
-      ),
+        };
+      }),
     };
   }
 

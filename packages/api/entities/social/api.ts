@@ -24,6 +24,8 @@ export const useFriends = () =>
   useQuery({
     queryKey: socialKeys.friends,
     queryFn: () => socialControllerFriends(),
+    // Друзья на «Сегодня»: после перезапуска экран показывает сохранённых, а не ждёт сервер
+    meta: { persist: true },
   })
 
 /** Профиль друга: серия, пауза, программы. Статистика — отдельными запросами с его userId */

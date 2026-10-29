@@ -92,3 +92,21 @@ export function workoutTiming(workout: WorkoutFull): WorkoutTiming | null {
     );
   return timing;
 }
+
+/**
+ * Отдых перед каждым подходом одного упражнения — по разрывам между его же подходами, без всей тренировки:
+ * так история и «прошлый раз» не грузят чужие упражнения. null — первый подход, без времени или ручной
+ * (его отдых включает и сам подход, как в workoutTiming).
+ */
+export function exerciseRests(
+  sets: { doneAt: Date | null; workSeconds: number | null }[],
+): (number | null)[] {
+  return sets.map((set, index) => {
+    const prev = index ? sets[index - 1] : null;
+    if (!prev?.doneAt || !set.doneAt || set.workSeconds === null) return null;
+    return seconds(
+      prev.doneAt,
+      new Date(set.doneAt.getTime() - set.workSeconds * 1000),
+    );
+  });
+}

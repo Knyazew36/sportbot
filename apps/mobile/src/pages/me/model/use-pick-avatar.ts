@@ -1,13 +1,22 @@
 import * as ImagePicker from 'expo-image-picker';
+import { toast } from 'sonner-native';
 
 import { useUploadAvatar } from '@sportbot/api/entities/profile';
 
+import { useIsOnline } from '@/shared/api';
+
 // Фото с телефона на карту участника: галерея с обрезкой в квадрат — аватар круглый.
-// Разрешение на галерею не нужно: системный выбор фото отдаёт только выбранный снимок
+// Разрешение на галерею не нужно: системный выбор фото отдаёт только выбранный снимок.
+// Без сети кнопку не гасим, а объясняем тостом: у иконки нет подписи, погасшая выглядит сломанной
 export const usePickAvatar = () => {
   const upload = useUploadAvatar();
+  const online = useIsOnline();
 
   const pick = async () => {
+    if (!online) {
+      toast.error('Смена аватара доступна только в онлайне');
+      return;
+    }
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,

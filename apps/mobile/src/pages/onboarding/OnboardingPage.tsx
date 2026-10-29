@@ -1,4 +1,4 @@
-import { useOnboarding } from '@sportbot/api/entities/onboarding';
+import { useOnboarding } from '@/shared/local/entities/onboarding';
 import { QueryState } from '@/shared/ui/kit/QueryState';
 
 import { Wizard } from './components/Wizard';

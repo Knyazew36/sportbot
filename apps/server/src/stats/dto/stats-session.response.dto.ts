@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { StatsDaySetResponseDto } from './stats-day-set.response.dto';
+import { StatsSessionSetResponseDto } from './stats-session-set.response.dto';
 
 /** Тренировка в истории упражнения. */
 export class StatsSessionResponseDto {
@@ -10,8 +10,8 @@ export class StatsSessionResponseDto {
   @ApiProperty({ example: '2026-10-13' })
   date: string;
 
-  @ApiProperty({ type: [StatsDaySetResponseDto] })
-  sets: StatsDaySetResponseDto[];
+  @ApiProperty({ type: [StatsSessionSetResponseDto] })
+  sets: StatsSessionSetResponseDto[];
 
   @ApiProperty({
     description: 'Номер лучшего подхода в sets; -1 — подходов с весом нет',

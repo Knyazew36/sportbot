@@ -32,7 +32,8 @@ export type HistoryRow = {
   name: string
   measure: ExerciseMeasure
   date: string
-  sets: SetRow[]
+  /** Отдых нужен только истории упражнения: остальные расчёты его не читают */
+  sets: (SetRow & { restBeforeSeconds?: number | null })[]
 }
 
 export type ProgressPoint = BestSet & { date: string }
@@ -242,7 +243,7 @@ export const sessionsOf = (rows: HistoryRow[]) => {
   return [...rows].reverse().map(r => ({
     id: r.id,
     date: r.date,
-    sets: r.sets.map(s => ({ weight: s.weight, reps: s.reps })),
+    sets: r.sets.map(s => ({ weight: s.weight, reps: s.reps, restBeforeSeconds: s.restBeforeSeconds ?? null })),
     bestIndex: bestIndexOf(r.sets, unit),
     isRecord: records.has(r.id),
   }))

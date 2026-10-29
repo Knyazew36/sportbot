@@ -4,7 +4,7 @@ import { PrismaService } from 'prisma/prisma.service';
 import { SportAccountService } from '@/bot/sport-account.service';
 import { SportProfile } from '@/generated/prisma/client';
 import { ONBOARDING_STEPS } from '@/profile/profile.service';
-import { ProgramService } from '@/program/program.service';
+import { CopyClientIds, ProgramService } from '@/program/program.service';
 
 import { OnboardingDaysDto } from './dto/onboarding-days.dto';
 import { OnboardingGenderDto } from './dto/onboarding-gender.dto';
@@ -107,11 +107,13 @@ export class OnboardingService {
 
   /**
    * Шаг программы и конец настройки. Без выбора — первый шаблон, как «Далее» в боте.
-   * Повторный вызов после конца настройки ничего не меняет.
+   * Повторный вызов после конца настройки ничего не меняет. clientIds — программа уже заведена
+   * на телефоне офлайн (onboarding.finish синка).
    */
   public async finish(
     userId: number,
     dto: OnboardingProgramDto,
+    clientIds?: CopyClientIds,
   ): Promise<OnboardingStateResponseDto> {
     const profile = await this.accounts.profile(userId);
     if (profile.onboardedAt) {
@@ -119,7 +121,7 @@ export class OnboardingService {
       return this.state(userId);
     }
 
-    const programId = await this.pickProgram(userId, profile, dto);
+    const programId = await this.pickProgram(userId, profile, dto, clientIds);
     if (programId) await this.programs.setActive(userId, programId);
     await this.prisma.sportProfile.update({
       where: { userId },
@@ -142,12 +144,17 @@ export class OnboardingService {
     userId: number,
     profile: SportProfile,
     dto: OnboardingProgramDto,
+    clientIds?: CopyClientIds,
   ): Promise<number | null> {
     if (dto.scratch)
-      return (await this.programs.create(userId, 'Моя программа')).id;
+      return (
+        await this.programs.create(userId, 'Моя программа', clientIds?.program)
+      ).id;
 
     if (dto.templateId) {
-      return (await this.programs.takeTemplate(dto.templateId, userId)).id;
+      return (
+        await this.programs.takeTemplate(dto.templateId, userId, clientIds)
+      ).id;
     }
 
     // Программа уже выбрана в боте — её и оставляем

@@ -17,6 +17,8 @@ declare module '@tanstack/react-query' {
       skipSuccessToast?: boolean
       /** 422 с ошибками полей показывается под инпутами формы, тост не дублируется */
       inlineFieldErrors?: boolean
+      /** Мобилка: правка в базе телефона, на сервер уходит очередью — полный синк после неё не нужен */
+      local?: boolean
     }
   }
 }

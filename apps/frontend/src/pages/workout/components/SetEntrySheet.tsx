@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import {
   lastSetHint,
   newClientId,
+  restText,
   type SetTiming,
   type TimeSetInput,
   timeSetSchema,
@@ -168,6 +169,7 @@ export const SetEntrySheet = ({ open, item, timing, onClose, onSubmitStart, onSa
         <SheetHeader>
           <SheetTitle className='first-letter:uppercase'>{setCaption(number, item.plannedSets)}</SheetTitle>
           <SheetDescription>
+            {/* Отдых прошлого раза рядом с весом: видно, сколько тогда сидел перед этим подходом */}
             {timed
               ? hint
                 ? `Прошлый раз ${durationText(hint.reps)}`
@@ -175,6 +177,7 @@ export const SetEntrySheet = ({ open, item, timing, onClose, onSubmitStart, onSa
               : hint
                 ? `Прошлый раз ${weightText(hint.weight)} × ${hint.reps}`
                 : 'Сколько поднял и сколько раз'}
+            {hint?.restBeforeSeconds != null && ` · отдых ${restText(hint.restBeforeSeconds)}`}
           </SheetDescription>
         </SheetHeader>
         {open &&

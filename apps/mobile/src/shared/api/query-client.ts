@@ -66,8 +66,9 @@ export const queryClient = new QueryClient({
       toast.error(errorText(error));
     },
     onSuccess: (_data, _vars, _ctx, mutation) => {
-      // Правка ушла на сервер мимо локальной базы — экраны, читающие базу, увидят её после pull
-      requestSync();
+      // Правка ушла на сервер мимо локальной базы — экраны, читающие базу, увидят её после pull.
+      // Локальная уже на экране, а на сервер её отправит очередь: pull после каждого подхода и тормозил онлайн
+      if (!mutation.meta?.local) requestSync();
       if (mutation.meta?.skipSuccessToast) return;
       haptic.success();
       toast.success(mutation.meta?.successMessage ?? DEFAULT_SUCCESS);

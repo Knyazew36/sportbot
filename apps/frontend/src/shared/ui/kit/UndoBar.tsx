@@ -1,7 +1,7 @@
 import { Undo2Icon } from 'lucide-react'
 import { AnimatePresence, motion, type PanInfo, useReducedMotion } from 'motion/react'
 
-import { useState, useSyncExternalStore } from 'react'
+import { type RefObject, useRef, useState, useSyncExternalStore } from 'react'
 
 import { haptic } from '@/shared/miniapp'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
@@ -21,6 +21,8 @@ export const UndoBar = () => {
   const { navVisible } = useScreenChrome()
   const still = useReducedMotion()
   const hidden = still ? { opacity: 0 } : { opacity: 0, y: 24 }
+  // Смахивание, начатое на «Отменить», заканчивается кликом по ней — без флага плашка отменяла правку, а не уходила
+  const dragged = useRef(false)
 
   return (
     <div
@@ -44,10 +46,12 @@ export const UndoBar = () => {
             drag={still ? false : 'x'}
             dragSnapToOrigin
             dragElastic={0.6}
+            onPointerDownCapture={() => (dragged.current = false)}
+            onDragStart={() => (dragged.current = true)}
             onDragEnd={(_, info: PanInfo) => Math.abs(info.offset.x) > SWIPE_AWAY && undoBar.close(item.id)}
             className='pointer-events-auto mr-[3px] mb-[3px] touch-pan-y'
           >
-            <Plate item={item} />
+            <Plate item={item} dragged={dragged} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -55,7 +59,7 @@ export const UndoBar = () => {
   )
 }
 
-const Plate = ({ item }: { item: UndoItem }) => {
+const Plate = ({ item, dragged }: { item: UndoItem; dragged: RefObject<boolean> }) => {
   // Плашка могла смонтироваться не в момент показа: дорожка стартует с уже прошедшей доли
   const [lane] = useState(() => {
     const rest = Math.max(0, item.startedAt + item.timeout - Date.now())
@@ -79,6 +83,7 @@ const Plate = ({ item }: { item: UndoItem }) => {
         size='sm'
         className='relative shrink-0'
         onClick={() => {
+          if (dragged.current) return
           haptic.tap()
           undoBar.undo(item.id)
         }}

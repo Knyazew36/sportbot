@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { useIsRestoring } from '@tanstack/react-query';
 import { Stack, usePathname, useRouter } from 'expo-router';
 
@@ -9,17 +10,35 @@ import { useSportUser } from '@sportbot/api/entities/sport-user';
 import { bindSessionUser, useIsAuthenticated, useSessionExpired } from '@/shared/api';
 import { ROUTES } from '@/shared/config/routes';
 import { DbProvider } from '@/shared/db';
+import { useOnboardedLocally } from '@/shared/local/entities/onboarding';
 import { SyncRunner } from '@/shared/sync';
 import { QueryState } from '@/shared/ui/kit/QueryState';
 import { Screen } from '@/shared/ui/kit/Screen';
 import { UndoBar } from '@/shared/ui/kit/UndoBar';
-import { isTabPath } from '@/widgets/bottom-nav/nav';
+import { isTabPath, NAV_ROW } from '@/widgets/bottom-nav/nav';
 import { CurrentWorkoutBar } from '@/widgets/live-workout-bar/CurrentWorkoutBar';
 
-// Высота пунктов меню (h-16 в BottomNav) — плашка отмены встаёт над ним
-const NAV_ROW = 64;
+/**
+ * Не пройден онбординг — на настройку, пройден — с настройки на «Сегодня». Под базой: настройку,
+ * законченную офлайн, сервер узнает только синком, а пускать дальше надо сразу
+ */
+const OnboardingRedirect = ({ serverOnboarded }: { serverOnboarded: boolean }) => {
+  const local = useOnboardedLocally();
+  const pathname = usePathname();
+  const router = useRouter();
+  // Закончил хоть где-то — пройдено: в боте (телефон ещё не синкался) или на телефоне (сервер ещё не знает)
+  const onboarded = serverOnboarded || !!local.data?.done;
 
-// Гвард приложения: без токена — на вход; не пройден онбординг — на настройку, пройден — с настройки на «Сегодня».
+  useEffect(() => {
+    const onOnboardingScreen = pathname === ROUTES.ONBOARDING;
+    if (!onboarded && !onOnboardingScreen) router.replace(ROUTES.ONBOARDING);
+    if (onboarded && onOnboardingScreen) router.replace(ROUTES.TODAY);
+  }, [onboarded, pathname, router]);
+
+  return null;
+};
+
+// Гвард приложения: без токена — на вход, онбординг — OnboardingRedirect.
 // Протухший токен — не выход: профиль сохранён на телефоне, работаем офлайн, синк ждёт входа (SessionExpiredBanner)
 const AppGuard = () => {
   const isAuthenticated = useIsAuthenticated();
@@ -45,15 +64,8 @@ const AppGuard = () => {
   const signedIn = isAuthenticated || offlineSession;
 
   useEffect(() => {
-    if (!signedIn) {
-      router.replace(ROUTES.LOGIN);
-      return;
-    }
-    if (onboarded === undefined) return;
-    const onOnboardingScreen = pathname === ROUTES.ONBOARDING;
-    if (!onboarded && !onOnboardingScreen) router.replace(ROUTES.ONBOARDING);
-    if (onboarded && onOnboardingScreen) router.replace(ROUTES.TODAY);
-  }, [signedIn, onboarded, pathname, router]);
+    if (!signedIn) router.replace(ROUTES.LOGIN);
+  }, [signedIn, router]);
 
   // Профиля ещё нет: загрузка или ошибка с «Повторить» — иначе без сервера вечный спиннер
   if (!signedIn || onboarded === undefined || userId === undefined) {
@@ -72,14 +84,19 @@ const AppGuard = () => {
     // Локальная база — своя на пользователя: key пересоздаёт всё под ней при смене аккаунта
     <DbProvider key={userId} userId={userId}>
       <SyncRunner />
-      {/* Живая полоса — над всем стеком, одна на приложение: переходы между экранами её не перерисовывают */}
-      <CurrentWorkoutBar>
-        <Stack screenOptions={{ headerShown: false }}>
-          {/* Тренировка — поверх табов целиком: меню на ней не нужно, а назад ведёт на «Сегодня» */}
-          <Stack.Screen name="workout" options={{ presentation: 'fullScreenModal' }} />
-        </Stack>
-        <UndoBar bottom={undoBottom} />
-      </CurrentWorkoutBar>
+      <OnboardingRedirect serverOnboarded={onboarded} />
+      {/* Свой хост шторок под базой: портал gorhom не переносит контекст, и в шторках корневого хоста
+          useLocalDb() был null — правки из шторок падали с «база ещё открывается» */}
+      <BottomSheetModalProvider>
+        {/* Живая полоса — над всем стеком, одна на приложение: переходы между экранами её не перерисовывают */}
+        <CurrentWorkoutBar>
+          <Stack screenOptions={{ headerShown: false }}>
+            {/* Тренировка — поверх табов целиком: меню на ней не нужно, а назад ведёт на «Сегодня» */}
+            <Stack.Screen name="workout" options={{ presentation: 'fullScreenModal' }} />
+          </Stack>
+          <UndoBar bottom={undoBottom} />
+        </CurrentWorkoutBar>
+      </BottomSheetModalProvider>
     </DbProvider>
   );
 };

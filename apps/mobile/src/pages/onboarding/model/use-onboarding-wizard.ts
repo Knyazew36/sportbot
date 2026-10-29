@@ -8,12 +8,15 @@ import {
   type OnboardingRemindValues,
   type OnboardingState,
   type OnboardingTimesValues,
+} from '@sportbot/api/entities/onboarding';
+import { type Gender, paletteForGender } from '@sportbot/api/entities/profile';
+
+import {
   useFinishOnboarding,
   useSaveOnboardingDays,
   useSaveOnboardingGender,
   useSaveOnboardingTimes,
-} from '@sportbot/api/entities/onboarding';
-import { type Gender, paletteForGender } from '@sportbot/api/entities/profile';
+} from '@/shared/local/entities/onboarding';
 
 import { useTheme } from '@/shared/theme/ThemeProvider';
 
@@ -25,7 +28,7 @@ const savedRemind = (state: OnboardingState): OnboardingRemindValues['remind'] |
 
 /**
  * Первый запуск: пол и три шага с значениями по умолчанию. Продолжается с того шага,
- * где остановились в боте или приложении. Каждый шаг сохраняется на сервере до перехода к следующему.
+ * где остановились в боте или приложении. Каждый шаг сохраняется в базе телефона, на сервер — синком.
  * Логика — как во фронте (pages/onboarding/model/use-onboarding-wizard.ts), без JSX
  */
 export const useOnboardingWizard = (state: OnboardingState) => {

@@ -17,7 +17,7 @@ import { MonthCalendar } from './MonthCalendar';
 
 const workoutLink = (workoutId: number, month: string) => routeHref(ROUTES.STATS_WORKOUT, { workoutId, month });
 
-// Детали дня под календарём: свой день без тренировок (пропуск, отдых) или день друга — с составом тренировок.
+// Детали дня под календарём: день друга с составом тренировок.
 // Свои тренировки открываются отдельным экраном, правка и удаление — там
 const DayDetails = ({ day }: { day: StatsDay }) => (
   <View className="border-foreground/80 mt-2 gap-3 border-[1.5px] p-4">
@@ -48,8 +48,7 @@ export const CalendarSection = ({ userId }: CalendarSectionProps) => {
   const day = useStatsDay(selected, userId);
   const own = userId == null;
   const workouts = own && day.data?.date === selected ? day.data.workouts : [];
-  // Свой день с тренировками уходит на свой экран: одна — сразу на неё, несколько — на разводящую дня.
-  // Под календарём остаются только дни без тренировок
+  // Свой день с тренировками уходит на свой экран: одна — сразу на неё, несколько — на разводящую дня
   const target = !selected || !workouts.length
     ? null
     : workouts.length === 1
@@ -82,11 +81,15 @@ export const CalendarSection = ({ userId }: CalendarSectionProps) => {
       lead={lead}
       days={days}
       selected={selected ? Number(selected.slice(-2)) : undefined}
-      onSelect={(d) => setSelected(`${month}-${String(d).padStart(2, '0')}`)}
+      onSelect={(d) => {
+        const date = `${month}-${String(d).padStart(2, '0')}`;
+        // Без тренировки показывать нечего — клик только снимает выбор
+        setSelected(marks.get(date) === 'DONE' ? date : null);
+      }}
       onPrev={() => shift(-1)}
       onNext={month < current ? () => shift(1) : undefined}
     >
-      {selected ? <QueryState query={day}>{(d) => <DayDetails day={d} />}</QueryState> : null}
+      {selected ? <QueryState query={day}>{(d) => (d.workouts.length ? <DayDetails day={d} /> : null)}</QueryState> : null}
     </MonthCalendar>
   );
 };

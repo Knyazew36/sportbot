@@ -1,12 +1,23 @@
-import { BookOpenIcon, RepeatIcon, TriangleAlertIcon } from 'lucide-react'
+import { BookOpenIcon, ChevronRightIcon, RepeatIcon, TriangleAlertIcon } from 'lucide-react'
+import { useState } from 'react'
 
-import { lastText, planText, type WorkoutItem } from '@sportbot/api/entities/workout'
+import {
+  historyUnit,
+  lastText,
+  planText,
+  restText,
+  typicalRest,
+  type WorkoutItem,
+} from '@sportbot/api/entities/workout'
 import { useIsOnline } from '@/shared/api'
 import { buildPath, ROUTES } from '@/shared/config/paths'
+import { formatDate } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { Rise } from '@/shared/ui/kit/Reveal'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
+import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
+import { ExerciseHistorySheet } from '@/widgets/exercise-history/ExerciseHistorySheet'
 
 type ExerciseCardProps = {
   item: WorkoutItem
@@ -17,6 +28,8 @@ type ExerciseCardProps = {
 // Текущее упражнение: название, ⚠️ при ограничении, план, прошлый результат, «Техника» и «Заменить» (frontend-tz, 8.1)
 export const ExerciseCard = ({ item, label }: ExerciseCardProps) => {
   const last = lastText(item.last, item.measure)
+  const rest = item.last && typicalRest(item.last.sets)
+  const [history, setHistory] = useState(false)
   // Аналоги и замена — только с сервера: без сети ссылка гасится, чтобы не вести на вечную загрузку
   const online = useIsOnline()
   const offlineLink = online ? undefined : 'pointer-events-none opacity-50'
@@ -72,14 +85,41 @@ export const ExerciseCard = ({ item, label }: ExerciseCardProps) => {
             {planText(item.plannedSets, item.repsMin, item.repsMax, item.measure)}
           </Poster>
         </Text>
-        {/* Упражнение раньше не делали — сравнивать не с чем, строку не показываем */}
-        {last && (
-          <Text size='sm'>
-            <Eyebrow>Прошлый раз </Eyebrow>
-            <Poster as='span' size='sm' tone='primary'>
-              {last}
-            </Poster>
-          </Text>
+        {/* Упражнение раньше не делали — сравнивать не с чем, строку не показываем.
+            Строка — кнопка: по ней вся история упражнения с отдыхом, не уходя с тренировки */}
+        {last && item.last && (
+          <Button
+            variant='outline'
+            size='sm'
+            className='mt-2 h-auto w-full justify-between py-2 text-left whitespace-normal'
+            onClick={() => setHistory(true)}
+          >
+            <span className='flex min-w-0 flex-col items-start gap-0.5'>
+              <Text
+                as='span'
+                size='sm'
+              >
+                <Eyebrow>Прошлый раз </Eyebrow>
+                <Poster
+                  as='span'
+                  size='sm'
+                  tone='primary'
+                >
+                  {last}
+                </Poster>
+              </Text>
+              <Text
+                as='span'
+                size='xs'
+                tone='muted'
+                className='tabular-nums'
+              >
+                {formatDate(item.last.date, 'd MMMM')}
+                {rest != null && ` · отдых ≈ ${restText(rest)}`}
+              </Text>
+            </span>
+            <ChevronRightIcon className='text-foreground/40 size-5' />
+          </Button>
         )}
       </Rise>
 
@@ -104,6 +144,12 @@ export const ExerciseCard = ({ item, label }: ExerciseCardProps) => {
           {online ? 'Заменить' : 'Нужна сеть'}
         </ButtonLink>
       </Rise>
+
+      <ExerciseHistorySheet
+        exercise={history ? { id: item.exerciseId, name: item.name } : null}
+        unit={historyUnit(item)}
+        onOpenChange={setHistory}
+      />
     </>
   )
 }

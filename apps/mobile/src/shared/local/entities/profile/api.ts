@@ -1,5 +1,3 @@
-import { useMutation } from '@tanstack/react-query';
-
 import type { Profile } from '@sportbot/api/entities/profile';
 import type { UpdateProfileDto } from '@sportbot/api/generated/model';
 import { limitationControllerList } from '@sportbot/api/generated/limitation/limitation';
@@ -10,6 +8,7 @@ import { CITY_ZONES } from '@sportbot/api/lib/timezone';
 import { queryClient } from '@/shared/api/query-client';
 import { type LocalDb, useLocalDb } from '@/shared/db';
 
+import { useLocalMutation } from '../../local-mutation';
 import { LOCAL_ROOT, useLocalQuery } from '../../local-query';
 import { readLimitations, readStretchExclusions } from './read-lists';
 import { readProfile } from './read-profile';
@@ -58,7 +57,7 @@ export const useCities = () =>
 
 export const useUpdateProfile = () => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async (body: UpdateProfileDto) => {
       updateProfile(db(), body);
       return profileOf(db());
@@ -70,7 +69,7 @@ export const useUpdateProfile = () => {
 
 export const useSetTimezone = () => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async (body: { zone?: string; localTime?: string }) => {
       setTimezone(db(), body);
       return profileOf(db());
@@ -82,7 +81,7 @@ export const useSetTimezone = () => {
 
 export const useAddBodyWeight = () => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async (value: number) => addBodyWeight(db(), value),
     // Вес входит в профиль (lastBodyWeight) и в график (stats body-weight) — обновляем оба
     onSuccess: () => {
@@ -99,7 +98,7 @@ export const useLimitations = () =>
 
 export const useCreateLimitation = () => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async (body: { jointId: number; endDate?: string | null }) => createLimitation(db(), body),
     onSuccess: () => refreshLocal('limitation'),
     meta: { successMessage: 'Ограничение добавлено' },
@@ -108,7 +107,7 @@ export const useCreateLimitation = () => {
 
 export const useDeleteLimitation = () => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async (id: number) => deleteLimitation(db(), id),
     onSuccess: () => refreshLocal('limitation'),
     meta: { successMessage: 'Ограничение снято' },
@@ -131,7 +130,7 @@ export const useIsStretchExcluded = (stretchId: number) => {
 
 export const useCreateStretchExclusion = () => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async (stretchId: number) => createStretchExclusion(db(), stretchId),
     onSuccess: () => refreshLocal('stretch-exclusion'),
     meta: { successMessage: 'Больше не предложим в заминке' },
@@ -140,7 +139,7 @@ export const useCreateStretchExclusion = () => {
 
 export const useDeleteStretchExclusion = () => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async (stretchId: number) => deleteStretchExclusion(db(), stretchId),
     onSuccess: () => refreshLocal('stretch-exclusion'),
     meta: { successMessage: 'Растяжка снова в заминке' },

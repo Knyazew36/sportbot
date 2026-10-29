@@ -20,6 +20,7 @@
     "content:import": "ts-node -r tsconfig-paths/register prisma/import-content.ts",
     "content:sources": "ts-node -r tsconfig-paths/register prisma/fetch-sources.ts",
     "content:export": "ts-node -r tsconfig-paths/register prisma/export-content.ts",
+    "content:mobile-seed": "ts-node -r tsconfig-paths/register prisma/export-mobile-seed.ts",
     "content:enrich": "ts-node -r tsconfig-paths/register prisma/enrich-content.ts",
     "content:apply-guides": "ts-node -r tsconfig-paths/register prisma/apply-guides.ts",
     "content:merge": "ts-node -r tsconfig-paths/register prisma/merge-content.ts",

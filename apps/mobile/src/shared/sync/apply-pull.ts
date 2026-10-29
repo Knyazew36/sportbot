@@ -3,9 +3,11 @@ import { inArray, notInArray } from 'drizzle-orm';
 import type { SyncPullResponseDto } from '@sportbot/api/generated/model';
 
 import type { LocalDb } from '@/shared/db/client';
-import { META_KEYS, writeMeta } from '@/shared/db/meta';
+import { META_KEYS, readMeta, writeMeta } from '@/shared/db/meta';
 import * as t from '@/shared/db/schema';
 import { upsertRows } from '@/shared/db/upsert';
+
+import { contentHash } from './content-hash';
 
 type Tx = Parameters<Parameters<LocalDb['transaction']>[0]>[0];
 
@@ -124,7 +126,15 @@ export const applyPull = (db: LocalDb, res: SyncPullResponseDto, syncedAt: strin
       for (const [entity, ids] of byEntity) removeByEntity(tx, entity, ids);
     }
 
-    if (res.profile) upsertRows(tx, t.profile, t.profile.id, [{ ...res.profile, id: 1 }]);
+    // Профиль приходит в каждом pull. Тот же, что в прошлый раз, — строка в базе уже такая (или с правкой
+    // телефона, которую сервер ещё не вернул). Полный снимок пишет всегда: он и чинит расхождения
+    if (res.profile) {
+      const profileHash = contentHash(res.profile);
+      if (res.full || readMeta(tx, META_KEYS.profileHash) !== profileHash) {
+        upsertRows(tx, t.profile, t.profile.id, [{ ...res.profile, id: 1 }]);
+        writeMeta(tx, META_KEYS.profileHash, profileHash);
+      }
+    }
     upsertRows(tx, t.programs, t.programs.clientId, fresh(res.programs));
     upsertRows(tx, t.complexes, t.complexes.clientId, fresh(res.complexes));
     upsertRows(tx, t.complexExercises, t.complexExercises.clientId, fresh(res.complexExercises));

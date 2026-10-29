@@ -28,7 +28,7 @@ export const ComplexPreviewSheet = ({
   complex,
   loading,
 }: ComplexPreviewSheetProps) => (
-  <Sheet open={open} onOpenChange={onOpenChange} title={title} description={description}>
+  <Sheet fullHeight open={open} onOpenChange={onOpenChange} title={title} description={description}>
     {loading && <StateView state="loading" />}
     {!loading && complex && complex.exercises.length === 0 && (
       <Text tone="muted">В тренировке пока нет упражнений.</Text>

@@ -12,7 +12,7 @@ import type {
 import { cooldownMinutes, stretchSeconds } from '@sportbot/api/lib/cooldown';
 import { workoutRecords } from '@sportbot/api/lib/records';
 import { localToday } from '@sportbot/api/lib/time';
-import { workoutTiming } from '@sportbot/api/lib/workout-timing';
+import { exerciseRests, workoutTiming } from '@sportbot/api/lib/workout-timing';
 
 import type { LocalDb } from '@/shared/db';
 import {
@@ -135,9 +135,13 @@ const lastResultOf = (db: Reader, exerciseIds: number[]) => {
     const found = rows
       .filter((r) => r.item.exerciseId === exerciseId && setsOf(r.item.clientId).length)
       .sort((a, b) => b.date.localeCompare(a.date) || b.startedAt.localeCompare(a.startedAt))[0];
-    return found
-      ? { date: found.date, sets: setsOf(found.item.clientId).map((s) => ({ weight: s.weight, reps: s.reps })) }
-      : null;
+    if (!found) return null;
+    const foundSets = setsOf(found.item.clientId);
+    const rests = exerciseRests(foundSets);
+    return {
+      date: found.date,
+      sets: foundSets.map((s, index) => ({ weight: s.weight, reps: s.reps, restBeforeSeconds: rests[index] ?? null })),
+    };
   };
 };
 

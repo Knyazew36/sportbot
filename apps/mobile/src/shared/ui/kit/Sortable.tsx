@@ -46,6 +46,8 @@ export const Sortable = <T,>({
   const active = useSharedValue(-1);
   const target = useSharedValue(-1);
   const offset = useSharedValue(0);
+  // Порядок, при котором начали тянуть: сдвиги считаются по индексам и к другому порядку не относятся
+  const dragOrder = useSharedValue('');
   const [dragging, setDragging] = useState(-1);
   const order = items.map(keyOf).join('|');
 
@@ -54,7 +56,9 @@ export const Sortable = <T,>({
     active.set(-1);
     target.set(-1);
     offset.set(0);
-  }, [order, active, target, offset]);
+    // Удалённые элементы не должны оставлять места в расчёте, куда встанет тянутый
+    sizes.set(sizes.value.slice(0, items.length));
+  }, [order, items.length, active, target, offset, sizes]);
 
   const keys = items.map(keyOf);
 
@@ -83,6 +87,8 @@ export const Sortable = <T,>({
         <SortableItem
           key={keyOf(item)}
           index={index}
+          order={order}
+          dragOrder={dragOrder}
           axis={axis}
           gap={gap}
           sizes={sizes}
@@ -103,6 +109,8 @@ export const Sortable = <T,>({
 
 type SortableItemProps = {
   index: number;
+  order: string;
+  dragOrder: SharedValue<string>;
   axis: 'x' | 'y';
   gap: number;
   sizes: SharedValue<number[]>;
@@ -117,6 +125,8 @@ type SortableItemProps = {
 
 const SortableItem = ({
   index,
+  order,
+  dragOrder,
   axis,
   gap,
   sizes,
@@ -133,6 +143,7 @@ const SortableItem = ({
   const pan = Gesture.Pan()
     .minDistance(0)
     .onStart(() => {
+      dragOrder.set(order);
       active.set(index);
       target.set(index);
       offset.set(0);
@@ -170,6 +181,10 @@ const SortableItem = ({
     });
 
   const style = useAnimatedStyle(() => {
+    // Родитель уже переставил список, а сброс из useEffect придёт только после отрисовки. Старые сдвиги
+    // по новым индексам клали соседа поверх тянутого — элементы и так стоят на своих местах
+    if (dragOrder.value !== order)
+      return { zIndex: 0, transform: [axis === 'x' ? { translateX: 0 } : { translateY: 0 }, { scale: 1 }] };
     const from = active.value;
     const to = target.value;
     const self = from === index;

@@ -26,6 +26,7 @@ export const StreakDaySheet = ({ open, onOpenChange, date }: StreakDaySheetProps
 
   return (
     <Sheet
+      fullHeight
       open={open}
       onOpenChange={onOpenChange}
       title={formatDate(date, 'd MMMM')}

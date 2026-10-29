@@ -34,3 +34,9 @@ export const TAB_ORDER: NavItem[] = [...NAV_SIDES.left, ...(HERO ? [HERO] : []),
 
 /** Открыт сам раздел меню: только на них видно нижнее меню, всё остальное — в стеке поверх табов */
 export const isTabPath = (pathname: string) => NAV_ITEMS.some((item) => pathname === `/${item.name}`);
+
+/** Высота пунктов меню (h-16 в BottomNav) */
+export const NAV_ROW = 64;
+
+/** Меню целиком: пункты, линейка сверху и отступ от жестовой полосы — как paddingBottom в BottomNav */
+export const navHeight = (bottomInset: number) => NAV_ROW + 1.5 + Math.max(8, bottomInset);

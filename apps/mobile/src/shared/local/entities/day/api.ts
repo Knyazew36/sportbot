@@ -1,17 +1,16 @@
-import { useMutation } from '@tanstack/react-query';
-
 import type { DayFixDto } from '@sportbot/api/generated/model';
 import { dayControllerToday } from '@sportbot/api/generated/day/day';
 
 import { queryClient } from '@/shared/api/query-client';
 import { type LocalDb, useLocalDb } from '@/shared/db';
 
+import { useLocalMutation } from '../../local-mutation';
 import { LOCAL_ROOT, useLocalQuery } from '../../local-query';
 import { readToday } from './read-today';
 import { endPause, eveningAnswer, fixDay, pickComplex, rescheduleAnswer, skipDay, startPause } from './write-day';
 
 // День и пауза на базе телефона: ответ пишется сразу, «Сегодня» перечитывается от изменения базы,
-// сервер узнаёт синком (MutationCache зовёт requestSync после каждой мутации)
+// сервер узнаёт из очереди: SyncRunner отправит её, когда правки притихнут
 
 const useDb = () => {
   const db = useLocalDb();
@@ -28,7 +27,7 @@ export const useToday = () =>
 /** «Другая тренировка»: выбор сохраняется в день и переживает перезаход */
 export const usePickComplex = () => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async (complexId: number) => pickComplex(db(), complexId),
     // Новый комплекс сразу виден на экране дня
     meta: { skipSuccessToast: true },
@@ -38,7 +37,7 @@ export const usePickComplex = () => {
 /** «Сегодня не буду» — как утреннее «нет» в боте */
 export const useSkipDay = () => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async () => skipDay(db()),
     meta: { successMessage: 'Записал пропуск' },
   });
@@ -47,7 +46,7 @@ export const useSkipDay = () => {
 /** Вечерний ответ «потренировался сегодня?» */
 export const useEveningAnswer = () => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async (yes: boolean) => eveningAnswer(db(), yes),
     // Итог — засчитано или пропуск — сразу виден на экране дня
     meta: { skipSuccessToast: true },
@@ -57,7 +56,7 @@ export const useEveningAnswer = () => {
 /** Ответ на «напомнить завтра?» */
 export const useRescheduleAnswer = () => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async (accept: boolean) => rescheduleAnswer(db(), accept),
     meta: { successMessage: 'Хорошо' },
   });
@@ -66,7 +65,7 @@ export const useRescheduleAnswer = () => {
 /** Исправление отметки дня в пределах недели */
 export const useFixDay = () => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async ({ dayId, status }: { dayId: number; status: DayFixDto['status'] }) => fixDay(db(), dayId, status),
     meta: { successMessage: 'Отметку исправил' },
   });
@@ -84,7 +83,7 @@ const refreshPauseScreens = () => {
 /** Пауза «до даты» (ГГГГ-ММ-ДД) или «до отмены» (null): бот молчит, серия не сгорает */
 export const useStartPause = () => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async (endDate: string | null) => startPause(db(), endDate),
     onSuccess: refreshPauseScreens,
     meta: { successMessage: 'Пауза поставлена. Бот замолчит до её конца' },
@@ -94,7 +93,7 @@ export const useStartPause = () => {
 /** Снять паузу досрочно или вернуться после её срока */
 export const useEndPause = () => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async () => endPause(db()),
     onSuccess: refreshPauseScreens,
     meta: { successMessage: 'Паузу снял. Бот снова будет спрашивать про тренировки' },

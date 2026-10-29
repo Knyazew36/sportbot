@@ -61,6 +61,10 @@ const mustItem = (tx: LocalTx, id: number) => {
   return { item, workout };
 };
 
+/** id экрана тренировки по её clientId — ответ правки подхода, чтобы экран обновился сразу */
+const workoutIdOf = (tx: LocalTx, clientId: string) =>
+  uiIdOf(tx.select({ id: workouts.id, localId: workouts.localId }).from(workouts).where(eq(workouts.clientId, clientId)).get()!);
+
 const measureOf = (tx: LocalTx, exerciseId: number) => {
   const exercise = tx.select({ measure: exercises.measure }).from(exercises).where(eq(exercises.id, exerciseId)).get();
   if (!exercise) throw new Error('Упражнение не найдено.');
@@ -228,7 +232,7 @@ export const addSet = (db: LocalDb, vars: AddSetVars): number =>
     return uiIdOf(workout);
   });
 
-export const updateSet = (db: LocalDb, vars: UpdateSetVars): void =>
+export const updateSet = (db: LocalDb, vars: UpdateSetVars): number =>
   db.transaction((tx) => {
     const set = findSetRow(tx, vars);
     if (!set) throw new Error('Подход не найден.');
@@ -243,20 +247,27 @@ export const updateSet = (db: LocalDb, vars: UpdateSetVars): void =>
       clientId: set.clientId,
       payload: { weight, reps: vars.reps },
     });
+    return workoutIdOf(tx, item.workoutClientId);
   });
 
 /** Удалить подход; номера следующих сдвигаются, как на сервере */
-export const deleteSet = (db: LocalDb, vars: DeleteSetVars): void =>
+export const deleteSet = (db: LocalDb, vars: DeleteSetVars): number | null =>
   db.transaction((tx) => {
     const set = findSetRow(tx, vars);
     // Уже удалён — это и был нужный результат
-    if (!set) return;
+    if (!set) return null;
     tx.delete(workoutSets).where(eq(workoutSets.clientId, set.clientId)).run();
     tx.update(workoutSets)
       .set({ number: sql`${workoutSets.number} - 1` })
       .where(and(eq(workoutSets.workoutExerciseClientId, set.workoutExerciseClientId), gt(workoutSets.number, set.number)))
       .run();
     enqueue(tx, { type: 'set.delete', entity: 'WorkoutSet', clientId: set.clientId, payload: {} });
+    const item = tx
+      .select({ workoutClientId: workoutExercises.workoutClientId })
+      .from(workoutExercises)
+      .where(eq(workoutExercises.clientId, set.workoutExerciseClientId))
+      .get();
+    return item ? workoutIdOf(tx, item.workoutClientId) : null;
   });
 
 // ── Упражнения ──────────────────────────────────────────────────────────────

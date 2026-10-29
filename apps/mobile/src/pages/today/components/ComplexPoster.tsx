@@ -3,7 +3,7 @@ import { pluralize } from '@front-cmdt/utils/pluralize';
 import type { DayToday } from '@sportbot/api/entities/day';
 
 import { EXERCISE_FORMS, SET_FORMS } from '@/shared/lib/plural-forms';
-import { TrainingArt } from '@/shared/ui/kit/Art';
+import { TrainingArt } from '@/shared/ui/kit/art-skia/TrainingArt';
 import { Rise } from '@/shared/ui/kit/Reveal';
 import { StatGrid } from '@/shared/ui/kit/StatGrid';
 import { Lead, Poster } from '@/shared/ui/kit/Typography';

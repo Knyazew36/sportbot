@@ -16,7 +16,7 @@ import { MonthCalendar } from './MonthCalendar'
 const workoutLink = (workoutId: number, month: string) =>
   `${buildPath(ROUTES.STATS_WORKOUT, { workoutId })}?month=${month}`
 
-// Детали дня под календарём: свой день без тренировок (пропуск, отдых) или день друга — с составом тренировок.
+// Детали дня под календарём: день друга с составом тренировок.
 // Свои тренировки открываются отдельной страницей, правка и удаление — там
 const DayDetails = ({ day }: { day: StatsDay }) => (
     <div className='border-foreground/80 mt-2 flex flex-col gap-3 border-[1.5px] p-4'>
@@ -59,8 +59,7 @@ export const CalendarSection = ({ userId }: CalendarSectionProps) => {
   const navigate = useNavigate()
   const own = userId == null
   const workouts = own && day.data?.date === selected ? day.data.workouts : []
-  // Свой день с тренировками уходит на свою страницу: одна — сразу на неё, несколько — на разводящую дня.
-  // Под календарём остаются только дни без тренировок
+  // Свой день с тренировками уходит на свою страницу: одна — сразу на неё, несколько — на разводящую дня
   const target = !selected || !workouts.length
     ? null
     : workouts.length === 1
@@ -93,7 +92,11 @@ export const CalendarSection = ({ userId }: CalendarSectionProps) => {
       lead={lead}
       days={days}
       selected={selected ? Number(selected.slice(-2)) : undefined}
-      onSelect={d => setSelected(`${month}-${String(d).padStart(2, '0')}`)}
+      onSelect={d => {
+        const date = `${month}-${String(d).padStart(2, '0')}`
+        // Без тренировки показывать нечего — клик только снимает выбор
+        setSelected(marks.get(date) === 'DONE' ? date : null)
+      }}
       onPrev={() => shift(-1)}
       onNext={month < current ? () => shift(1) : undefined}
     >
@@ -103,9 +106,7 @@ export const CalendarSection = ({ userId }: CalendarSectionProps) => {
           rows={2}
           className='mt-2'
         >
-          {d => (
-            <DayDetails day={d} />
-          )}
+          {d => (d.workouts.length ? <DayDetails day={d} /> : null)}
         </QueryScreen>
       )}
     </MonthCalendar>

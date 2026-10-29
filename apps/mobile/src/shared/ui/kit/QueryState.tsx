@@ -30,7 +30,7 @@ export const QueryState = <T,>({ query, isEmpty, empty, children }: QueryStatePr
           title: 'Не удалось загрузить',
           description: getApiErrorMessage(query.error),
           action: (
-            <Button variant="outline" onPress={() => void query.refetch()}>
+            <Button variant="outline" className="self-center" onPress={() => void query.refetch()}>
               Повторить
             </Button>
           ),

@@ -25,6 +25,7 @@ import {
   sessionsOf,
 } from '@sportbot/api/lib/stats';
 import { addDays, localToday, weekStart } from '@sportbot/api/lib/time';
+import { exerciseRests } from '@sportbot/api/lib/workout-timing';
 
 import type { LocalDb } from '@/shared/db';
 import {
@@ -95,9 +96,8 @@ export const historyRows = (db: LocalDb, filter: { exerciseIds?: number[] } = {}
         .orderBy(asc(workoutSets.number))
         .all()
     : [];
-  const setsOf = new Map<string, { weight: number; reps: number }[]>();
-  for (const s of sets)
-    setsOf.set(s.workoutExerciseClientId, [...(setsOf.get(s.workoutExerciseClientId) ?? []), { weight: s.weight, reps: s.reps }]);
+  const setsOf = new Map<string, typeof sets>();
+  for (const s of sets) setsOf.set(s.workoutExerciseClientId, [...(setsOf.get(s.workoutExerciseClientId) ?? []), s]);
   const catalog = new Map(
     db
       .select({ id: exercises.id, name: exercises.name, measure: exercises.measure })
@@ -118,9 +118,15 @@ export const historyRows = (db: LocalDb, filter: { exerciseIds?: number[] } = {}
         name: exercise.name,
         measure: exercise.measure,
         date: r.date,
-        sets: setsOf.get(r.item.clientId)!,
+        sets: withRests(setsOf.get(r.item.clientId)!),
       };
     });
+};
+
+/** Подходы с отдыхом перед каждым — для истории упражнения, как у сервера */
+const withRests = (rows: { weight: number; reps: number; doneAt: string | null; workSeconds: number | null }[]) => {
+  const rests = exerciseRests(rows);
+  return rows.map((s, index) => ({ weight: s.weight, reps: s.reps, restBeforeSeconds: rests[index] ?? null }));
 };
 
 /** Нет упражнения в справочнике телефона — null, ответит сервер */

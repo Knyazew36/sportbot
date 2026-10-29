@@ -1,6 +1,13 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 
-import type { AddSetVars, DeleteSetVars, FinishVars, UpdateSetVars, Workout } from '@sportbot/api/entities/workout';
+import type {
+  AddSetVars,
+  CurrentWorkout,
+  DeleteSetVars,
+  FinishVars,
+  UpdateSetVars,
+  Workout,
+} from '@sportbot/api/entities/workout';
 import {
   workoutControllerAnalogs,
   workoutControllerCooldown,
@@ -11,11 +18,13 @@ import {
 } from '@sportbot/api/generated/workout/workout';
 
 import { useIsOnline } from '@/shared/api';
+import { queryClient } from '@/shared/api/query-client';
 import { type LocalDb, useLocalDb } from '@/shared/db';
 import { workouts } from '@/shared/db/schema';
 import { useSyncStatus } from '@/shared/sync';
 import { pendingCount } from '@/shared/sync/outbox';
 
+import { useLocalMutation } from '../../local-mutation';
 import { LOCAL_ROOT, useLocalQuery } from '../../local-query';
 import { byUiId } from '../../read-common';
 import {
@@ -46,7 +55,7 @@ import {
 } from './write-workout';
 
 // Тренировка целиком на базе телефона: правка пишется в базу и в очередь операций, экран видит её сразу,
-// на сервер она уходит синком (MutationCache зовёт requestSync после каждой). Сеть для тренировки не нужна
+// на сервер она уходит очередью, когда правки притихнут (SyncRunner → requestPush). Сеть для тренировки не нужна
 
 const useDb = () => {
   const db = useLocalDb();
@@ -61,6 +70,20 @@ const viewOf = (db: LocalDb, id: number): Workout => {
   const workout = readWorkout(db, id);
   if (!workout) throw new Error('Тренировка не найдена.');
   return workout;
+};
+
+const CURRENT_KEY = [LOCAL_ROOT, 'db', 'workout', 'current'];
+
+/**
+ * Тренировка после правки подхода — сразу в кэш экрана: перечитывание по событию базы придёт позже
+ * и принесёт то же самое, а нажатие видно без задержки
+ */
+const showWorkout = (db: LocalDb, id: number | null) => {
+  if (id == null) return;
+  const workout = readWorkout(db, id);
+  if (!workout) return;
+  queryClient.setQueryData([LOCAL_ROOT, 'db', 'workout', 'detail', id], workout);
+  if (queryClient.getQueryData<CurrentWorkout>(CURRENT_KEY)?.workout?.id === id) queryClient.setQueryData(CURRENT_KEY, { workout });
 };
 
 /** REST как запасной путь — только для строк с серверным id */
@@ -110,11 +133,14 @@ export const useAnalogs = (itemId: number) =>
 
 export const useStartWorkout = () => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async (complexId?: number): Promise<Workout> => {
       const row = startWorkout(db(), complexId);
       return viewOf(db(), row.localId ?? row.id!);
     },
+    // Сразу в кэш текущей: иначе экран ждёт перечитывания всех локальных запросов по событию базы
+    // и всё это время висит заставка разминки без кнопок
+    onSuccess: (workout) => queryClient.setQueryData(CURRENT_KEY, { workout }),
     // Экран тренировки открывается сам — он и есть подтверждение
     meta: { skipSuccessToast: true },
   });
@@ -122,8 +148,9 @@ export const useStartWorkout = () => {
 
 export const useAddSet = () => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async (vars: AddSetVars) => addSet(db(), vars),
+    onSuccess: (id) => showWorkout(db(), id),
     // Подход сразу в списке и запускается таймер отдыха — тост лишний
     meta: { skipSuccessToast: true },
   });
@@ -131,8 +158,9 @@ export const useAddSet = () => {
 
 export const useUpdateSet = () => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async (vars: UpdateSetVars) => updateSet(db(), vars),
+    onSuccess: (id) => showWorkout(db(), id),
     // Исправленные цифры видны в списке сразу
     meta: { skipSuccessToast: true },
   });
@@ -140,8 +168,9 @@ export const useUpdateSet = () => {
 
 export const useDeleteSet = () => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async (vars: DeleteSetVars) => deleteSet(db(), vars),
+    onSuccess: (id) => showWorkout(db(), id),
     // Подход пропадает из списка сразу
     meta: { skipSuccessToast: true },
   });
@@ -151,7 +180,7 @@ export const useDeleteSet = () => {
 
 export const useReplaceItem = () => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async (vars: { itemId: number; exerciseId: number; inComplex?: boolean }) =>
       viewOf(db(), replaceItem(db(), vars)),
     meta: { successMessage: 'Упражнение заменено' },
@@ -160,7 +189,7 @@ export const useReplaceItem = () => {
 
 export const useAddItems = () => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async (vars: { workoutId: number; exerciseIds: number[]; inComplex?: boolean }) => {
       addItems(db(), vars);
       return viewOf(db(), vars.workoutId);
@@ -173,7 +202,7 @@ export const useAddItems = () => {
 /** Убрать упражнение из тренировки вместе с подходами */
 export const useRemoveItem = () => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async (itemId: number) => viewOf(db(), removeItem(db(), itemId)),
     meta: { successMessage: 'Упражнение убрано' },
   });
@@ -183,7 +212,7 @@ export const useRemoveItem = () => {
 
 export const useWarmupFinish = () => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async (workoutId: number) => warmupFinish(db(), workoutId),
     // Переход к упражнениям и так виден на экране
     meta: { skipSuccessToast: true },
@@ -192,7 +221,7 @@ export const useWarmupFinish = () => {
 
 export const useCooldownStart = () => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async (workoutId: number) => cooldownStart(db(), workoutId),
     // Заминка уже идёт на экране — отметка времени фоновая
     meta: { skipSuccessToast: true },
@@ -201,7 +230,7 @@ export const useCooldownStart = () => {
 
 export const useCooldownFinish = () => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async (workoutId: number) => cooldownFinish(db(), workoutId),
     // После заминки сразу уходим на итог — там и видно её время
     meta: { skipSuccessToast: true },
@@ -211,7 +240,7 @@ export const useCooldownFinish = () => {
 /** «Не предлагать» в заминке: растяжка исключается навсегда, здесь меняется на другую на те же мышцы */
 export const useExcludeCooldownStretch = () => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async ({ workoutId, stretchId }: { workoutId: number; stretchId: number }) => {
       excludeCooldownStretch(db(), workoutId, stretchId);
       const workout = findWorkoutRow(db(), workoutId);
@@ -226,7 +255,7 @@ export const useExcludeCooldownStretch = () => {
 /** Завершение засчитывается сразу на телефоне: день, серия и заминка — без сети */
 export const useFinishWorkout = () => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async (vars: FinishVars) => readSummary(db(), finishWorkout(db(), vars)),
     // Засчитанность видна на весь экран: следом предложение заминки
     meta: { skipSuccessToast: true },
@@ -235,7 +264,7 @@ export const useFinishWorkout = () => {
 
 export const useDiscardWorkout = () => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async (id: number) => discardWorkout(db(), id),
     meta: { successMessage: 'Тренировка отменена' },
   });
@@ -244,7 +273,7 @@ export const useDiscardWorkout = () => {
 /** Удалить прошедшую тренировку: день в календаре становится пропуском, серия пересчитывается */
 export const useDeleteWorkout = () => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async (id: number) => deleteWorkout(db(), id),
     meta: { successMessage: 'Тренировка удалена' },
   });

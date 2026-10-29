@@ -1,7 +1,8 @@
-import { useEffect, useId, type ReactNode } from 'react';
+import { useEffect, useId, useState, type ReactNode } from 'react';
 import { View } from 'react-native';
 import Animated, {
   Easing,
+  cancelAnimation,
   interpolate,
   useAnimatedProps,
   useReducedMotion,
@@ -44,19 +45,45 @@ const EASE_OUT = Easing.out(Easing.ease);
 // поэтому фазу переносим на положительный сдвиг внутри периода (для alternate период — два прогона)
 const phaseDelayMs = (delaySec: number, periodSec: number) => ((periodSec - (delaySec % periodSec)) % periodSec) * 1000;
 
-type CycleOptions = { reverse?: boolean; delayMs?: number; ease?: (value: number) => number; paused?: boolean };
+type CycleOptions = {
+  reverse?: boolean;
+  delayMs?: number;
+  ease?: (value: number) => number;
+  paused?: boolean;
+  /** Сколько прогонов; по умолчанию бесконечно */
+  times?: number;
+};
 
-// Один бесконечный такт 0→1; reverse — CSS alternate «туда-обратно», paused — prefers-reduced-motion
-const useCycle = (durationMs: number, { reverse = false, delayMs = 0, ease = EASE_IN_OUT, paused = false }: CycleOptions = {}) => {
+// Такт 0→1, по умолчанию бесконечный; reverse — CSS alternate «туда-обратно», paused — prefers-reduced-motion
+const useCycle = (
+  durationMs: number,
+  { reverse = false, delayMs = 0, ease = EASE_IN_OUT, paused = false, times = -1 }: CycleOptions = {},
+) => {
   const t = useSharedValue(0);
   useEffect(() => {
-    if (paused) return;
-    t.set(withDelay(delayMs, withRepeat(withTiming(1, { duration: durationMs, easing: ease }), -1, reverse)));
-  }, [t, durationMs, reverse, delayMs, ease, paused]);
+    // Пауза посреди цикла (сцена отыграла) — останавливаем, иначе UI-поток считает кадры впустую
+    if (paused) {
+      cancelAnimation(t);
+      return;
+    }
+    t.set(withDelay(delayMs, withRepeat(withTiming(1, { duration: durationMs, easing: ease }), times, reverse)));
+  }, [t, durationMs, reverse, delayMs, ease, paused, times]);
   return t;
 };
 
 type Still = { still: boolean };
+
+// Сцена отыгрывает вступление и замирает в статичной позе. Вечный цикл внутри Svg нельзя:
+// каждый кадр перерисовывает всю сцену на UI-потоке, и экран с ней лагает при скролле
+const usePlayOnce = (ms: number) => {
+  const reduced = useReducedMotion();
+  const [played, setPlayed] = useState(false);
+  useEffect(() => {
+    const id = setTimeout(() => setPlayed(true), ms);
+    return () => clearTimeout(id);
+  }, [ms]);
+  return reduced || played;
+};
 
 // transform отдаём массивом, не SVG-строкой: reanimated 4 парсит строку как CSS
 // и падает на UI-потоке на «translate(0 46)» / «rotate(a cx cy)» (нет запятых и единиц)
@@ -165,7 +192,9 @@ const FlashPath = ({ d, still, delay = 0 }: Still & { d: string; delay?: number 
   return <AnimatedPath d={d} stroke={c.ink} strokeWidth="3" strokeLinecap="round" animatedProps={props} />;
 };
 
-// sb-confetti: кусочек падает и кружится, темп и сдвиг свои у каждого
+// sb-confetti: кусочек падает и кружится один раз, темп и сдвиг свои у каждого.
+// Бесконечный цикл здесь нельзя: любой кадр анимации перерисовывает всю SVG-сцену на UI-потоке,
+// и экран итога лагал при скролле. Отыграв, кусочек гаснет (opacity 0 на t=1)
 const ConfettiPiece = ({
   x,
   y,
@@ -175,7 +204,7 @@ const ConfettiPiece = ({
   still,
 }: Still & { x: number; y: number; ink: boolean; delay: number; duration: number }) => {
   const { colors: c } = useTheme();
-  const t = useCycle(duration * 1000, { ease: Easing.linear, delayMs: phaseDelayMs(delay, duration), paused: still });
+  const t = useCycle(duration * 1000, { ease: Easing.linear, delayMs: delay * CONFETTI_STAGGER_MS, paused: still, times: 1 });
   const cx = x + 4;
   const cy = y + 2;
   const props = useAnimatedProps(() => {
@@ -890,6 +919,9 @@ const Blush = () => {
 }
 
 // Конфетти: падает и кружится, у каждого кусочка свой сдвиг и темп
+// Задержки из фронта (до 2.7 с) сжаты, чтобы залп уложился в ~4 с после открытия экрана
+const CONFETTI_STAGGER_MS = 300;
+
 const CONFETTI = [
   { x: 70, y: 10, ink: false, delay: 0, duration: 3.4 },
   { x: 108, y: 30, ink: true, delay: 1.1, duration: 2.9 },
@@ -949,7 +981,8 @@ export const FinishArt = ({ className }: ArtProps) => {
         strokeWidth='6'
       />
       {/* Обрывки ленты трепещут от стоек */}
-      <Sway still={still} origin={[40, 126]} duration={500}>
+      {/* Лента и гиря статичны: вечная анимация внутри Svg тормозила скролл итога */}
+      <Sway still origin={[40, 126]} duration={500}>
         <Path
           d='M40 122 C58 126 74 142 86 162 L77 167 C66 148 54 136 40 132 Z'
           fill={c.paper}
@@ -958,7 +991,7 @@ export const FinishArt = ({ className }: ArtProps) => {
           strokeLinejoin='round'
         />
       </Sway>
-      <Sway still={still} origin={[320, 127]} duration={500} delay={0.25}>
+      <Sway still origin={[320, 127]} duration={500} delay={0.25}>
         <Path
           d='M320 122 C300 118 288 104 282 84 L273 89 C280 112 298 128 320 132 Z'
           fill={c.paper}
@@ -975,7 +1008,7 @@ export const FinishArt = ({ className }: ArtProps) => {
         strokeLinecap='round'
       />
       {/* Гиря подаётся вперёд и подпрыгивает на бегу */}
-      <Bob still={still}>
+      <Bob still>
         <G transform='translate(186 150) rotate(12) scale(1.5)'>
           <Kettlebell>
             <HappyEyes />
@@ -995,7 +1028,8 @@ export const FinishArt = ({ className }: ArtProps) => {
 // «Засчитано»: гиря на верхней ступени пьедестала, по бокам вспыхивают камеры, вокруг мерцают искры
 export const PodiumArt = ({ className }: ArtProps) => {
   const { colors: c } = useTheme()
-  const still = useReducedMotion();
+  // Два такта вспышек и звёзд — и поза «на пьедестале» без движения
+  const still = usePlayOnce(4800);
   const dots = useSvgId()
   return (
     <View className={cn('w-full', className)}>

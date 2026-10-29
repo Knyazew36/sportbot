@@ -62,9 +62,12 @@ function SheetContent({
   className,
   children,
   showCloseButton = true,
+  fullHeight = false,
   ...props
 }: SheetPrimitive.Popup.Props & {
   showCloseButton?: boolean
+  /** Шторка с загрузкой данных сразу открывается на всю высоту — без скачка, когда данные подъедут */
+  fullHeight?: boolean
 }) {
   const side = React.useContext(SheetSideContext)
 
@@ -85,6 +88,8 @@ function SheetContent({
             "data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:mx-auto data-[side=bottom]:h-auto data-[side=bottom]:[--sheet-ceiling:calc(100svh-var(--sb-safe-top)-0.5rem)] data-[side=bottom]:max-h-[min(88svh,var(--sheet-ceiling))] data-[side=bottom]:max-w-[440px] data-[side=bottom]:border-t-2 data-[side=bottom]:pb-[var(--sb-bottom-inset)] data-[side=bottom]:transform-[translate3d(0,var(--drawer-swipe-movement-y,0px),0)] data-[side=bottom]:data-starting-style:transform-[translate3d(0,100%,0)] data-[side=bottom]:data-ending-style:transform-[translate3d(0,100%,0)]",
             "data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:rounded-b-card data-[side=top]:transform-[translate3d(0,var(--drawer-swipe-movement-y,0px),0)] data-[side=top]:data-starting-style:transform-[translate3d(0,-100%,0)] data-[side=top]:data-ending-style:transform-[translate3d(0,-100%,0)]",
             "data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-3/4 data-[side=left]:rounded-r-card data-[side=left]:sm:max-w-sm data-[side=left]:transform-[translate3d(var(--drawer-swipe-movement-x,0px),0,0)] data-[side=left]:data-starting-style:transform-[translate3d(-100%,0,0)] data-[side=left]:data-ending-style:transform-[translate3d(-100%,0,0)]",
+            // h-full у fixed-шторки — высота экрана, max-h срезает её до потолка
+            fullHeight && "data-[side=bottom]:h-full",
             "data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-full data-[side=right]:rounded-l-card data-[side=right]:sm:max-w-lg data-[side=right]:transform-[translate3d(var(--drawer-swipe-movement-x,0px),0,0)] data-[side=right]:data-starting-style:transform-[translate3d(100%,0,0)] data-[side=right]:data-ending-style:transform-[translate3d(100%,0,0)]",
             className
           )}

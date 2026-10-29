@@ -1,11 +1,10 @@
-import { useMutation } from '@tanstack/react-query';
-
 import type { Program } from '@sportbot/api/entities/program';
 import type { AddComplexExercisesDto, UpdateComplexExerciseDto } from '@sportbot/api/generated/model';
 import { programControllerList, programControllerView } from '@sportbot/api/generated/program/program';
 
 import { type LocalDb, useLocalDb } from '@/shared/db';
 
+import { useLocalMutation } from '../../local-mutation';
 import { useLocalQuery } from '../../local-query';
 import { readProgram, readPrograms } from './read-program';
 import {
@@ -50,7 +49,7 @@ const useProgramEdit = <V>(
   meta: { successMessage?: string; skipSuccessToast?: boolean },
 ) => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async (vars: V) => programOf(db(), edit(db(), vars)),
     meta,
   });
@@ -88,7 +87,7 @@ export const useRenameProgram = () =>
 /** silent — без тоста: в списке программ строка исчезает сама, это и есть ответ */
 export const useDeleteProgram = ({ silent = false }: { silent?: boolean } = {}) => {
   const db = useDb();
-  return useMutation({
+  return useLocalMutation({
     mutationFn: async (id: number) => deleteProgram(db(), id),
     meta: silent ? { skipSuccessToast: true } : { successMessage: 'Программа удалена, история тренировок осталась' },
   });

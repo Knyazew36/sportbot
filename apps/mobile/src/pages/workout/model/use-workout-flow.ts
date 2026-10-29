@@ -37,6 +37,11 @@ export const useWorkoutFlow = (saved: Workout) => {
   const finish = useFinishWorkout();
   const discard = useDiscardWorkout();
   const { settings } = workout;
+  // TODO(debug-rest): временные логи — экран после записи подхода пересоздаётся без отдыха
+  useEffect(() => {
+    console.log(`[debug-rest] mount flow id=${saved.id}`);
+    return () => console.log(`[debug-rest] unmount flow id=${saved.id}`);
+  }, [saved.id]);
 
   const pickedKey = `workout-picked-${saved.id}`;
   const [pickedId, setPickedIdState] = useState<number | null>(() => Number(local.get(pickedKey)) || null);
@@ -185,6 +190,7 @@ export const useWorkoutFlow = (saved: Workout) => {
   };
 
   const backToSet = () => {
+    console.log(`[debug-rest] backToSet paused=${stopwatch.paused}`);
     if (!stopwatch.paused) return;
     timer.stop();
     stopwatch.resume();
@@ -221,6 +227,7 @@ export const useWorkoutFlow = (saved: Workout) => {
   };
 
   const finishSet = () => {
+    console.log(`[debug-rest] finishSet showRestTimer=${settings.showRestTimer} restAutoStart=${settings.restAutoStart}`);
     stopwatch.pause();
     restAfterSet();
     setEntryOpen(true);
@@ -252,6 +259,7 @@ export const useWorkoutFlow = (saved: Workout) => {
   };
 
   const onSaved = () => {
+    console.log(`[debug-rest] onSaved timer=${timer.status} stopwatch=${stopwatch.running}/${stopwatch.paused}`);
     setEntryOpen(false);
     const timed = stopwatch.running;
     stopwatch.stop();

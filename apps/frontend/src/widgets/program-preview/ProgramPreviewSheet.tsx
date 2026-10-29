@@ -33,7 +33,7 @@ export const ProgramPreviewSheet = ({ program, onOpenChange, note, action, loadi
     open={program != null}
     onOpenChange={onOpenChange}
   >
-    <SheetContent>
+    <SheetContent fullHeight>
       <SheetHeader>
         <SheetTitle>{program?.name ?? 'Программа'}</SheetTitle>
         <SheetDescription>{program?.description || 'Тренировки идут по очереди, по кругу.'}</SheetDescription>

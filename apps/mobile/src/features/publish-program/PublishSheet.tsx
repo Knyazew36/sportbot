@@ -138,6 +138,7 @@ export const PublishSheet = ({ program, open, onOpenChange }: PublishSheetProps)
   const groups = useAllTagGroups();
   return (
     <Sheet
+      fullHeight
       open={open}
       onOpenChange={onOpenChange}
       title={program.publication === 'PUBLISHED' ? 'Публикация' : 'Опубликовать в каталог'}

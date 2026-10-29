@@ -10,6 +10,10 @@ export const starPath = (x: number, y: number, size: number) => {
   return `M${x} ${y - size} L${x + q} ${y - q} L${x + size} ${y} L${x + q} ${y + q} L${x} ${y + size} L${x - q} ${y + q} L${x - size} ${y} L${x - q} ${y - q} Z`;
 };
 
+// Круг контуром — для clip растра: Group в Skia режет по пути, а не по фигуре
+export const circlePath = (cx: number, cy: number, r: number) =>
+  `M${cx - r} ${cy} A${r} ${r} 0 1 0 ${cx + r} ${cy} A${r} ${r} 0 1 0 ${cx - r} ${cy} Z`;
+
 // Растр «полутон» под круг (cx, cy, r): сетка точек с шагом size, как SVG <Pattern> во фронте.
 // Один путь со всеми точками — один вызов отрисовки; обрезку по кругу делает clip сцены
 export const halftoneDots = (cx: number, cy: number, r: number, size = 6) => {

@@ -9,4 +9,9 @@ export interface WorkoutLastSetResponseDto {
   /** Вес, кг; 0 — без веса */
   weight: number;
   reps: number;
+  /**
+     * Отдых перед подходом, с; null — первый, ручной или без времени
+     * @nullable
+     */
+  restBeforeSeconds: number | null;
 }

@@ -26,7 +26,7 @@ export const StreakDaySheet = ({ open, onOpenChange, date }: StreakDaySheetProps
       open={open}
       onOpenChange={onOpenChange}
     >
-      <SheetContent>
+      <SheetContent fullHeight>
         <SheetHeader>
           <SheetTitle>{formatDate(date, 'd MMMM')}</SheetTitle>
           <Eyebrow tone='primary'>{formatDate(date, 'EEEE')}</Eyebrow>

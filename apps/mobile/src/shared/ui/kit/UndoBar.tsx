@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { type RefObject, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -36,6 +36,8 @@ type UndoBarProps = {
 export const UndoBar = ({ bottom }: UndoBarProps) => {
   const item = useSyncExternalStore(undoBar.subscribe, undoBar.get);
   const still = useReducedMotion();
+  // Смахивание, начатое на «Отменить», заканчивается нажатием на неё — без флага плашка отменяла правку, а не уходила
+  const swiped = useRef(false);
 
   return (
     <View pointerEvents="box-none" className="px-gutter absolute inset-x-0 z-50" style={{ bottom }}>
@@ -48,8 +50,8 @@ export const UndoBar = ({ bottom }: UndoBarProps) => {
           exiting={still ? FadeOut.duration(150) : FadeOutDown.duration(180)}
           className="mr-[3px] mb-[3px]"
         >
-          <Swipeable id={item.id} enabled={!still}>
-            <Plate item={item} />
+          <Swipeable id={item.id} enabled={!still} swiped={swiped}>
+            <Plate item={item} swiped={swiped} />
           </Swipeable>
         </Animated.View>
       ) : null}
@@ -60,13 +62,21 @@ export const UndoBar = ({ bottom }: UndoBarProps) => {
 const close = (id: number) => undoBar.close(id);
 
 // Смахивание вбок — drag="x" фронта: дальше порога плашка уходит, ближе — пружиной на место
-const Swipeable = ({ id, enabled, children }: { id: number; enabled: boolean; children: React.ReactNode }) => {
+type SwipeableProps = { id: number; enabled: boolean; swiped: RefObject<boolean>; children: React.ReactNode };
+
+const Swipeable = ({ id, enabled, swiped, children }: SwipeableProps) => {
   const x = useSharedValue(0);
+  const mark = (value: boolean) => {
+    swiped.current = value;
+  };
 
   const pan = Gesture.Pan()
     .enabled(enabled)
     .activeOffsetX([-12, 12])
     .failOffsetY([-12, 12])
+    // Касание — ещё не свайп; свайпом оно становится, когда палец ушёл вбок
+    .onBegin(() => scheduleOnRN(mark, false))
+    .onStart(() => scheduleOnRN(mark, true))
     .onUpdate((e) => {
       x.set(e.translationX * 0.6);
     })
@@ -86,7 +96,7 @@ const Swipeable = ({ id, enabled, children }: { id: number; enabled: boolean; ch
   );
 };
 
-const Plate = ({ item }: { item: UndoItem }) => {
+const Plate = ({ item, swiped }: { item: UndoItem; swiped: RefObject<boolean> }) => {
   const { colors } = useTheme();
   // Плашка могла смонтироваться не в момент показа: дорожка стартует с уже прошедшей доли
   const [lane] = useState(() => {
@@ -109,7 +119,7 @@ const Plate = ({ item }: { item: UndoItem }) => {
         <Text size="sm" medium tone="inverse" className="min-w-0 flex-1 leading-[17px]">
           {item.title}
         </Text>
-        <Button variant="paper" size="sm" icon={Undo2} onPress={() => undoBar.undo(item.id)}>
+        <Button variant="paper" size="sm" icon={Undo2} onPress={() => !swiped.current && undoBar.undo(item.id)}>
           Отменить
         </Button>
         {/* Дорожка тает до нуля за всё время плашки */}
