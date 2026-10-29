@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
-import { ArrowRight, ChevronLeft, ChevronRight, X } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react-native';
 
 import { haptic } from '@/shared/lib/haptics';
 import { cn } from '@/shared/lib/utils';
@@ -16,26 +16,22 @@ import { Pressable } from '@/shared/ui/kit/Pressable';
 
 // Одна раскладка цвета на клетку и её образец в легенде. Штриховка паузы — узором Hatch поверх
 const MARK_CELL: Record<DayMark, string> = {
-  done: 'bg-primary border-primary',
+  done: 'bg-primary border-foreground',
   skip: 'border-foreground/70',
   pause: 'border-border',
-  moved: 'border-primary',
-  pending: 'border-primary border-dashed',
+  plan: 'border-primary',
   rest: 'border-transparent',
-  future: 'border-foreground/20',
 };
 
 const MARK_TEXT: Record<DayMark, string> = {
   done: 'text-primary-foreground',
   skip: 'text-foreground/70',
   pause: 'text-foreground/60',
-  moved: 'text-primary',
-  pending: 'text-primary',
+  plan: 'text-primary',
   rest: 'text-foreground/35',
-  future: 'text-foreground/60',
 };
 
-const LEGEND: DayMark[] = ['done', 'skip', 'moved', 'pending', 'pause', 'future'];
+const LEGEND: DayMark[] = ['done', 'skip', 'plan', 'pause'];
 
 const WEEKDAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 
@@ -55,7 +51,69 @@ type MonthCalendarProps = {
 
 type Cell = { day: number; mark: DayMark } | null;
 
-// Календарь месяца с отметками дней — порт widgets/stats/MonthCalendar.tsx: тренировка, пропуск, перенос, пауза.
+type DayCellProps = {
+  cell: { day: number; mark: DayMark };
+  label: string;
+  selected: boolean;
+  hatch: string;
+  /** Есть только у дня с тренировкой */
+  onPress?: () => void;
+};
+
+// Клетка дня. Кольцо выбранного дня с зазором — ring-offset фронта: рамка снаружи клетки
+const DayCell = ({ cell, label, selected, hatch, onPress }: DayCellProps) => {
+  const box = (pressed: boolean) => (
+    <View
+      className={cn(
+        'flex-1 items-center justify-center overflow-hidden border-[1.5px]',
+        MARK_CELL[cell.mark],
+        pressed && 'translate-x-[2px] translate-y-[2px]',
+      )}
+    >
+      {cell.mark === 'pause' && <Hatch color={hatch} />}
+      {cell.mark === 'skip' && <Icon as={X} strokeWidth={1.25} className="text-foreground/30 absolute size-8" />}
+      <Text
+        className={cn(
+          MARK_TEXT[cell.mark],
+          cell.mark === 'done' ? 'font-display text-[17px] leading-[19px]' : 'text-[13px] leading-[16px]',
+        )}
+      >
+        {cell.day}
+      </Text>
+    </View>
+  );
+  const ring = cn('aspect-square flex-1 border-2 p-[2px]', selected ? 'border-foreground' : 'border-transparent');
+
+  if (!onPress)
+    return (
+      <View accessibilityLabel={label} className={ring}>
+        {box(false)}
+      </View>
+    );
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`${label}, открыть`}
+      accessibilityState={{ selected }}
+      onPress={() => {
+        haptic.tap();
+        onPress();
+      }}
+      className={ring}
+    >
+      {({ pressed }) => (
+        <View className="flex-1">
+          {/* Жёсткая тень кнопки: shadow-[2px_2px_0_var(--sb-ink)] */}
+          <View className="bg-sb-ink absolute inset-0 translate-x-[2px] translate-y-[2px]" />
+          {box(pressed)}
+        </View>
+      )}
+    </Pressable>
+  );
+};
+
+// Календарь месяца с отметками дней — порт widgets/stats/MonthCalendar.tsx: тренировка, пропуск, тренировочный день,
+// пауза. Нажимается только тренировка — у неё тень кнопки, остальные клетки просто показывают отметку.
 // Сетка 7 колонок — рядами недель: CSS grid в RN нет
 export const MonthCalendar = ({ month, lead, days, selected, onSelect, children, onPrev, onNext }: MonthCalendarProps) => {
   const { colors } = useTheme();
@@ -94,51 +152,14 @@ export const MonthCalendar = ({ month, lead, days, selected, onSelect, children,
           <View key={w} className="flex-row gap-1.5">
             {week.map((cell, i) =>
               cell ? (
-                <Pressable
+                <DayCell
                   key={cell.day}
-                  disabled={!onSelect}
-                  accessibilityRole="button"
-                  accessibilityLabel={`${cell.day} ${month.toLowerCase()}: ${MARK_LABEL[cell.mark]}`}
-                  accessibilityState={{ selected: selected === cell.day }}
-                  onPress={() => {
-                    haptic.tap();
-                    onSelect?.(cell.day);
-                  }}
-                  // Кольцо выбранного дня с зазором — ring-offset фронта: рамка снаружи клетки
-                  className={cn(
-                    'aspect-square flex-1 border-2 p-[2px]',
-                    selected === cell.day ? 'border-foreground' : 'border-transparent',
-                  )}
-                >
-                  {({ pressed }) => (
-                    <View
-                      className={cn(
-                        'flex-1 items-center justify-center overflow-hidden border-[1.5px]',
-                        MARK_CELL[cell.mark],
-                        pressed && 'scale-95',
-                      )}
-                    >
-                      {cell.mark === 'pause' && <Hatch color={colors.hatch} />}
-                      {cell.mark === 'skip' && (
-                        <Icon as={X} strokeWidth={1.25} className="text-foreground/30 absolute size-8" />
-                      )}
-                      <Text
-                        className={cn(
-                          MARK_TEXT[cell.mark],
-                          cell.mark === 'done' ? 'font-display text-[17px] leading-[19px]' : 'text-[13px] leading-[16px]',
-                        )}
-                      >
-                        {cell.day}
-                      </Text>
-                      {cell.mark === 'moved' && (
-                        <Icon as={ArrowRight} className="text-primary absolute right-0.5 bottom-0.5 size-2.5" />
-                      )}
-                      {cell.mark === 'pending' && (
-                        <Text className="text-primary absolute top-0.5 right-1 text-[9px] leading-[10px]">?</Text>
-                      )}
-                    </View>
-                  )}
-                </Pressable>
+                  cell={cell}
+                  label={`${cell.day} ${month.toLowerCase()}: ${MARK_LABEL[cell.mark]}`}
+                  selected={selected === cell.day}
+                  hatch={colors.hatch}
+                  onPress={onSelect && cell.mark === 'done' ? () => onSelect(cell.day) : undefined}
+                />
               ) : (
                 <View key={`pad-${w}-${i}`} className="aspect-square flex-1" />
               ),

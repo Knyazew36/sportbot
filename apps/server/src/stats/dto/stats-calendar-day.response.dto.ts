@@ -4,10 +4,8 @@ export const CALENDAR_MARKS = [
   'DONE',
   'MISSED',
   'PAUSED',
-  'RESCHEDULED',
-  'PENDING',
+  'PLAN',
   'REST',
-  'FUTURE',
 ] as const;
 export type CalendarMark = (typeof CALENDAR_MARKS)[number];
 
@@ -19,7 +17,7 @@ export class StatsCalendarDayResponseDto {
     enum: CALENDAR_MARKS,
     enumName: 'CalendarMark',
     description:
-      'Тренировка, пропуск, пауза, перенос, ожидает ответа, отдых, впереди',
+      'Тренировка, пропуск, пауза, тренировочный день (сегодня и впереди), отдых',
   })
   mark: CalendarMark;
 }

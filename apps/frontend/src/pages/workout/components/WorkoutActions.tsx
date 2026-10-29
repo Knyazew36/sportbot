@@ -81,18 +81,18 @@ export const WorkoutActions = ({
       <span className='inline-block w-[2.3em] text-left'>{formatSeconds(restLeft)}</span>
     </Button>
   )
-  // Ручной старт отдыха — когда он не стартует сам и сейчас не идёт
-  // В суперсете — значком в ряду круга, у одиночного упражнения — своей строкой с подписью
+  // Ручной старт отдыха — когда он не стартует сам и сейчас не идёт.
+  // Всегда своей строкой во всю ширину, как переход дальше: значком в ряду круга он терялся
   const restButton = restLeft === null && restSeconds !== null && (
     <Button
       variant='outline'
       size='lg'
-      className={superset ? undefined : 'w-full'}
+      className='w-full'
       onClick={onRest}
       aria-label='Начать отдых'
     >
-      <TimerIcon className='size-5' />
-      {!superset && 'Отдых'}
+      <TimerIcon className='size-6' />
+      Отдых
       <Digits>{formatSeconds(restSeconds)}</Digits>
     </Button>
   )
@@ -114,7 +114,8 @@ export const WorkoutActions = ({
   const start = superset ? (
     round !== null && (
       // На 360px «Начать круг» и «Записать» с подписями не влезали и давали боковой скролл — «Записать» значком
-      <div className='flex gap-3'>
+      <div className='flex flex-col gap-3'>
+        <div className='flex gap-3'>
         {restBack || (
           <Button
             size='lg'
@@ -133,6 +134,7 @@ export const WorkoutActions = ({
         >
           <ClipboardPenIcon className='size-5' />
         </Button>
+        </div>
         {restButton}
       </div>
     )

@@ -6,7 +6,7 @@
  */
 
 /**
- * Тренировка, пропуск, пауза, перенос, ожидает ответа, отдых, впереди
+ * Тренировка, пропуск, пауза, тренировочный день (сегодня и впереди), отдых
  */
 export type CalendarMark = typeof CalendarMark[keyof typeof CalendarMark];
 
@@ -15,8 +15,6 @@ export const CalendarMark = {
   DONE: 'DONE',
   MISSED: 'MISSED',
   PAUSED: 'PAUSED',
-  RESCHEDULED: 'RESCHEDULED',
-  PENDING: 'PENDING',
+  PLAN: 'PLAN',
   REST: 'REST',
-  FUTURE: 'FUTURE',
 } as const;

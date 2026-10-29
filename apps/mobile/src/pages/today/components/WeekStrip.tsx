@@ -31,10 +31,8 @@ const CELL: Record<DayMark, { box: string; text: string }> = {
   done: { box: 'border-background bg-primary', text: 'text-primary-foreground' },
   skip: { box: 'border-background/70', text: 'text-background/70' },
   pause: { box: 'border-background/30 bg-background/10', text: 'text-background/60' },
-  moved: { box: 'border-primary', text: 'text-primary' },
-  pending: { box: 'border-primary border-dashed', text: 'text-primary' },
+  plan: { box: 'border-background/25', text: 'text-background/60' },
   rest: { box: 'border-transparent', text: 'text-background/35' },
-  future: { box: 'border-background/25', text: 'text-background/60' },
 };
 
 const MARK_ICON: Partial<Record<DayMark, LucideIcon>> = { done: Check, skip: X, pause: Pause };
@@ -60,7 +58,7 @@ export const WeekStrip = ({ week, onOpenDay }: WeekStripProps) => {
       ? week.map((d) => ({ ...d, mark: TODAY_MARK[d.mark] }))
       : dates.map((d) => {
           const date = format(d, 'yyyy-MM-dd');
-          return { date, weekday: d.getDay(), mark: DAY_MARK[calendar.marks.get(date) ?? 'FUTURE'], isToday: false };
+          return { date, weekday: d.getDay(), mark: DAY_MARK[calendar.marks.get(date) ?? 'REST'], isToday: false };
         });
   const done = cells.filter((c) => c.mark === 'done').map((c) => c.date);
   usePrefetchStatsDays(loading ? [] : done);

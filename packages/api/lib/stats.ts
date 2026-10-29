@@ -10,7 +10,7 @@ import {
   type SetRow,
   unitOf,
 } from './records'
-import { addDays } from './time'
+import { addDays, weekdayOf } from './time'
 
 /** Период по умолчанию, дней */
 export const DEFAULT_PERIOD_DAYS = 92
@@ -284,6 +284,7 @@ export const recordsFeed = (rows: HistoryRow[], options: { from?: string; limit?
 
 /** Отметка дня календаря статистики — как markOf в StatsAppService */
 export const calendarMark = (
+  profile: { trainingDays: number[] },
   date: string,
   today: string,
   day: { status: PlanDayStatus; type: PlanDayType } | undefined,
@@ -293,13 +294,14 @@ export const calendarMark = (
   if (day?.status === 'DONE' || trained) return 'DONE'
   if (day?.status === 'MISSED') return 'MISSED'
   if (day?.status === 'PAUSED') return 'PAUSED'
-  if (date > today) return 'FUTURE'
   // Прошедший день крон закроет только через сутки, но для календаря он уже пропуск
   if (day?.status === 'PENDING' && date < today) return day.type === 'RESCHEDULED' ? 'REST' : 'MISSED'
-  if (day?.status === 'PENDING') return day.type === 'RESCHEDULED' ? 'RESCHEDULED' : 'PENDING'
   // endedAt — момент, а дата — день: сравниваем по дню снятия
   const paused = pauses.some(
     p => date >= p.startDate && (!p.endDate || date <= p.endDate) && (!p.endedAt || date <= p.endedAt.slice(0, 10)),
   )
-  return paused ? 'PAUSED' : 'REST'
+  if (paused) return 'PAUSED'
+  if (day?.status === 'PENDING') return 'PLAN'
+  // Впереди дней плана ещё нет — тренировочный день берём из расписания
+  return date >= today && profile.trainingDays.includes(weekdayOf(date)) ? 'PLAN' : 'REST'
 }

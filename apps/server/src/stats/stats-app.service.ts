@@ -1,7 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 
-import { addDays, localToday, monthStart, weekStart } from '@/bot';
+import { addDays, localToday, monthStart, weekdayOf, weekStart } from '@/bot';
 import { SportAccountService } from '@/bot/sport-account.service';
 import { PlanDay, SportProfile } from '@/generated/prisma/client';
 import { FIX_WINDOW_DAYS } from '@/plan/poll.service';
@@ -257,7 +257,7 @@ export class StatsAppService {
       const trained = workouts.some((w) => w.date.getTime() === date.getTime());
       result.push({
         date: isoDate(date),
-        mark: this.markOf(date, today, day, trained, pauses),
+        mark: this.markOf(profile, date, today, day, trained, pauses),
       });
     }
     this.logger.debug(
@@ -311,6 +311,7 @@ export class StatsAppService {
     return {
       date: isoDate(day),
       mark: this.markOf(
+        profile,
         day,
         today,
         planDay ?? undefined,
@@ -371,6 +372,7 @@ export class StatsAppService {
   }
 
   private markOf(
+    profile: SportProfile,
     date: Date,
     today: Date,
     day: PlanDay | undefined,
@@ -380,19 +382,21 @@ export class StatsAppService {
     if (day?.status === 'DONE' || trained) return 'DONE';
     if (day?.status === 'MISSED') return 'MISSED';
     if (day?.status === 'PAUSED') return 'PAUSED';
-    if (date > today) return 'FUTURE';
     // Прошедший день крон закроет только через сутки (окно, чтобы отметить вчерашнюю тренировку),
     // но для календаря он уже пропуск; несостоявшийся перенос крон снимет — значит, отдых
     if (day?.status === 'PENDING' && date < today)
       return day.type === 'RESCHEDULED' ? 'REST' : 'MISSED';
-    if (day?.status === 'PENDING')
-      return day.type === 'RESCHEDULED' ? 'RESCHEDULED' : 'PENDING';
     const paused = pauses.some(
       (p) =>
         date >= p.startDate &&
         (!p.endDate || date <= p.endDate) &&
         (!p.endedAt || date <= p.endedAt),
     );
-    return paused ? 'PAUSED' : 'REST';
+    if (paused) return 'PAUSED';
+    if (day?.status === 'PENDING') return 'PLAN';
+    // Впереди дней плана ещё нет — тренировочный день берём из расписания
+    return date >= today && profile.trainingDays.includes(weekdayOf(date))
+      ? 'PLAN'
+      : 'REST';
   }
 }

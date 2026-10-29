@@ -335,6 +335,7 @@ export const readCalendar = (db: LocalDb, month: string): { date: string; mark: 
     result.push({
       date,
       mark: calendarMark(
+        now.settings,
         date,
         now.today,
         days.find((d) => d.date === date),
@@ -407,7 +408,7 @@ const dayOf = (db: LocalDb, date: string): StatsDay | null => {
     }
     return {
       date,
-      mark: calendarMark(date, now.today, day, list.length > 0, db.select().from(pauses).all()),
+      mark: calendarMark(now.settings, date, now.today, day, list.length > 0, db.select().from(pauses).all()),
       dayId: day ? uiIdOf(day) : null,
       fixTo,
       workouts: list.map((w) => ({

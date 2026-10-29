@@ -68,7 +68,7 @@ export const CalendarSection = ({ userId }: CalendarSectionProps) => {
   const marks = new Map((calendar.data ?? []).map((d) => [d.date, d.mark]));
   const days = Array.from({ length: getDaysInMonth(first) }, (_, i) => {
     const date = `${month}-${String(i + 1).padStart(2, '0')}`;
-    return { day: i + 1, mark: DAY_MARK[marks.get(date) ?? 'FUTURE'] };
+    return { day: i + 1, mark: DAY_MARK[marks.get(date) ?? 'REST'] };
   });
   const shift = (by: number) => {
     router.setParams({ month: format(addMonths(first, by), 'yyyy-MM') });
@@ -83,8 +83,8 @@ export const CalendarSection = ({ userId }: CalendarSectionProps) => {
       selected={selected ? Number(selected.slice(-2)) : undefined}
       onSelect={(d) => {
         const date = `${month}-${String(d).padStart(2, '0')}`;
-        // Без тренировки показывать нечего — клик только снимает выбор
-        setSelected(marks.get(date) === 'DONE' ? date : null);
+        // Нажимается только день с тренировкой
+        setSelected(date);
       }}
       onPrev={() => shift(-1)}
       onNext={month < current ? () => shift(1) : undefined}

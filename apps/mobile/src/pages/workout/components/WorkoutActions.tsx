@@ -65,8 +65,8 @@ export const WorkoutActions = ({
 
   const restButton = restLeft === null && restSeconds !== null && (
     <Button variant="outline" size="lg" block onPress={onRest} accessibilityLabel="Начать отдых">
-      <Icon as={Timer} className="size-5" />
-      {formatSeconds(restSeconds)}
+      <Icon as={Timer} className="size-6" />
+      Отдых {formatSeconds(restSeconds)}
     </Button>
   );
 

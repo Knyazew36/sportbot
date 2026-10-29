@@ -10,7 +10,7 @@ export const TODAY_MARK: Record<DayToday['week'][number]['mark'], DayMark> = {
   DONE: 'done',
   MISSED: 'skip',
   PAUSED: 'pause',
-  PLAN: 'future',
+  PLAN: 'plan',
   REST: 'rest',
 };
 
