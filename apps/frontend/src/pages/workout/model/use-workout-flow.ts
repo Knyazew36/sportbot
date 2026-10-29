@@ -66,9 +66,15 @@ export const useWorkoutFlow = (saved: Workout) => {
   const [entryOpen, setEntryOpen] = useState(false)
   // «К упражнению» сворачивает отдых, а не останавливает: пока идёт, в футере кнопка отдыха вместо подхода
   const [restHidden, setRestHidden] = useState(false)
+  // Автостарт: отдых кончился — подход начинается сам. Действие собирается ниже, после выбора упражнения,
+  // а onEnd таймер берёт из последнего рендера — поэтому let, а не хук после раннего выхода
+  let autoStartSet: (() => void) | null = null
   const timer = useDeadlineTimer({
     storageKey: `rest-timer-${workout.id}`,
-    onEnd: () => timerEndSignal(settings),
+    onEnd: () => {
+      timerEndSignal(settings)
+      autoStartSet?.()
+    },
   })
   const stopwatch = useStopwatch({ storageKey: `set-stopwatch-${workout.id}` })
   // План отдыха перед идущим подходом: таймер на старте подхода останавливается, а план нужен при записи
@@ -209,7 +215,7 @@ export const useWorkoutFlow = (saved: Workout) => {
   // С первого подхода человек либо в подходе, либо отдыхает: отдых начинается в момент «Готово»,
   // и ввод веса с повторами уже идёт в его счёт
   const restAfterSet = () => {
-    if (settings.showRestTimer && settings.restAutoStart) startRest(settings.restSeconds)
+    if (settings.showRestTimer) startRest(settings.restSeconds)
   }
 
   // Ручной ввод без секундомера: подход только что кончился — пошёл отдых. Идущий отдых не сбрасываем:
@@ -277,6 +283,14 @@ export const useWorkoutFlow = (saved: Workout) => {
       restTargetSeconds: restTarget > 0 ? restTarget : undefined,
     }
   }
+
+  // План выполнен — лишний подход сам не начинаем, на экране отдыха и так «Следующее упражнение».
+  // Отдых кончился давно (приложение открыли позже) — подход тоже не стартуем: человек мог уже уйти
+  if (settings.restAutoStart)
+    autoStartSet = () => {
+      if (planDone || stopwatch.running || entryOpen || roundOpen || timer.left < -5) return
+      startSet()
+    }
 
   const cancelRound = () => {
     stopwatch.stop()

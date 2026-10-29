@@ -94,9 +94,9 @@ export const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
             planDone={active.planDone}
             next={active.forward}
             nextPending={flow.finishPending}
-            // Отдых сам стартует после подхода — тогда ручная кнопка лишняя
+            // Отдых идёт сам после подхода; кнопка — запустить его заново, если он не идёт
             restSeconds={
-              settings.showRestTimer && !settings.restAutoStart && block.some(e => e.sets.length)
+              settings.showRestTimer && block.some(e => e.sets.length)
                 ? settings.restSeconds
                 : null
             }

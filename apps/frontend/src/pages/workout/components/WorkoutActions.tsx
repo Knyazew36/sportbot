@@ -82,14 +82,17 @@ export const WorkoutActions = ({
     </Button>
   )
   // Ручной старт отдыха — когда он не стартует сам и сейчас не идёт
+  // В суперсете — значком в ряду круга, у одиночного упражнения — своей строкой с подписью
   const restButton = restLeft === null && restSeconds !== null && (
     <Button
       variant='outline'
       size='lg'
+      className={superset ? undefined : 'w-full'}
       onClick={onRest}
       aria-label='Начать отдых'
     >
       <TimerIcon className='size-5' />
+      {!superset && 'Отдых'}
       <Digits>{formatSeconds(restSeconds)}</Digits>
     </Button>
   )
@@ -134,13 +137,14 @@ export const WorkoutActions = ({
       </div>
     )
   ) : (
-    <div className='flex gap-3'>
+    // Ручной отдых отдельной строкой: в одном ряду с подходом кнопка подхода сжималась
+    <div className='flex flex-col gap-3'>
       {restBack || (
         // План выполнен — подход не главный: лишний подход только осознанно, а не по привычке нажать синюю
         <Button
           variant={planDone ? 'outline' : 'default'}
           size='lg'
-          className='flex-1'
+          className='w-full'
           onClick={onStartSet}
         >
           {planDone ? <PlusIcon strokeWidth={3} /> : <PlayIcon className='size-6' />}

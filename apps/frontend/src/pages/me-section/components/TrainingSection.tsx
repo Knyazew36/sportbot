@@ -73,7 +73,7 @@ export const TrainingSection = ({ profile }: { profile: Profile }) => {
           <div>
             <SettingRow
               title='Автостарт таймера'
-              hint='Отдых пойдёт сам после записи подхода'
+              hint='Отдых закончится — подход начнётся сам'
               htmlFor='autostart'
               className='border-t-[1.5px]'
             >
