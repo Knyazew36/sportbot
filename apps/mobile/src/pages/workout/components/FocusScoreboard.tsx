@@ -43,15 +43,15 @@ export const FocusScoreboard = ({ sets, startedAt }: { sets: FocusSets; startedA
       <View
         accessible
         accessibilityLabel={`${unit} ${sets.number}${sets.planned > 0 ? ` из ${sets.planned}` : ''}`}
-        className="flex-1 gap-2 p-3"
+        className="flex-1 gap-1.5 px-3 py-2"
       >
         <View className="h-3 flex-row items-center justify-between gap-2">
           <Eyebrow tone={over ? 'primary' : 'muted'}>{over ? 'сверх плана' : unit}</Eyebrow>
           {!over && sets.planned > 0 && sets.planned <= MAX_PIPS && <SetPips {...sets} />}
         </View>
-        <Poster size="xl" tone={over ? 'primary' : 'inherit'}>
+        <Poster size="lg" tone={over ? 'primary' : 'inherit'}>
           {sets.number}
-          {/* Знак плана мельче цифры — 0.42em фронта от кегля xl */}
+          {/* Знак плана мельче цифры — 0.5em от кегля lg */}
           {sets.planned > 0 && <Poster className="text-muted-foreground text-[14px] leading-[14px]">{`/${sets.planned}`}</Poster>}
         </Poster>
       </View>
@@ -59,13 +59,13 @@ export const FocusScoreboard = ({ sets, startedAt }: { sets: FocusSets; startedA
         accessible
         accessibilityRole="timer"
         accessibilityLabel={`Время тренировки ${elapsed}`}
-        className="border-border flex-1 gap-2 border-l-[1.5px] p-3"
+        className="border-border flex-1 gap-1.5 border-l-[1.5px] px-3 py-2"
       >
         <View className="h-3 flex-row items-center gap-1.5">
           <LiveDot />
           <Eyebrow>всего</Eyebrow>
         </View>
-        <Clock size="xl">{elapsed}</Clock>
+        <Clock size="md">{elapsed}</Clock>
       </View>
     </View>
   );

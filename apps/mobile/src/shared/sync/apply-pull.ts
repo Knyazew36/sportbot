@@ -1,4 +1,4 @@
-import { inArray, notInArray } from 'drizzle-orm';
+import { and, eq, inArray, isNotNull, isNull, notInArray } from 'drizzle-orm';
 
 import type { SyncPullResponseDto } from '@sportbot/api/generated/model';
 
@@ -25,6 +25,20 @@ const OWN_TABLES = [
   t.limitations,
   t.stretchExclusions,
   t.bodyWeights,
+] as const;
+
+// Таблицы, где у строк, созданных на телефоне, есть id экрана localId
+const WITH_LOCAL_ID = [
+  t.programs,
+  t.complexes,
+  t.complexExercises,
+  t.planDays,
+  t.workouts,
+  t.workoutExercises,
+  t.workoutSets,
+  t.workoutStretches,
+  t.pauses,
+  t.limitations,
 ] as const;
 
 const pendingOf = (tx: Tx) =>
@@ -113,7 +127,18 @@ export const applyPull = (db: LocalDb, res: SyncPullResponseDto, syncedAt: strin
     const pending = pendingOf(tx);
     const fresh = <R extends { clientId: string }>(rows: R[]) => rows.filter((r) => !pending.has(r.clientId));
 
+    // Снимок пересоздаёт строки, а localId сервер не знает: без возврата id экрана сменился бы на серверный
+    // и открытый маршрут, ключи таймеров по id потеряли бы свою строку
+    let localIds: { table: (typeof WITH_LOCAL_ID)[number]; rows: { clientId: string; localId: number | null }[] }[] = [];
     if (res.full) {
+      localIds = WITH_LOCAL_ID.map((table) => ({
+        table,
+        rows: tx
+          .select({ clientId: table.clientId, localId: table.localId })
+          .from(table)
+          .where(isNotNull(table.localId))
+          .all(),
+      }));
       // Снимок: чего нет в ответе, того нет и на сервере — кроме созданного офлайн и ещё не отправленного
       const keep = [...pending];
       for (const table of OWN_TABLES) tx.delete(table).where(notInArray(table.clientId, keep)).run();
@@ -147,6 +172,13 @@ export const applyPull = (db: LocalDb, res: SyncPullResponseDto, syncedAt: strin
     upsertRows(tx, t.limitations, t.limitations.clientId, fresh(res.limitations));
     upsertRows(tx, t.stretchExclusions, t.stretchExclusions.clientId, fresh(res.stretchExclusions));
     upsertRows(tx, t.bodyWeights, t.bodyWeights.clientId, fresh(res.bodyWeights));
+
+    for (const { table, rows } of localIds)
+      for (const row of rows)
+        tx.update(table)
+          .set({ localId: row.localId })
+          .where(and(eq(table.clientId, row.clientId), isNull(table.localId)))
+          .run();
 
     writeMeta(tx, META_KEYS.cursor, res.cursor);
     writeMeta(tx, META_KEYS.syncedAt, syncedAt);

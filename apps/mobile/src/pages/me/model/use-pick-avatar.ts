@@ -1,5 +1,5 @@
 import * as ImagePicker from 'expo-image-picker';
-import { toast } from 'sonner-native';
+import { toast } from '@/shared/ui/kit/toast';
 
 import { useUploadAvatar } from '@sportbot/api/entities/profile';
 

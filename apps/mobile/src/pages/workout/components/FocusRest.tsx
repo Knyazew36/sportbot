@@ -97,27 +97,27 @@ export const FocusRest = ({
               {round ? (over ? 'Начать круг' : 'К кругу') : over ? 'Начать подход' : 'К подходу'}
             </Button>
           )}
-          <View className="flex-col gap-3">
+          <View className="flex-row gap-3">
             {/* Дальше только завершение: продлевать отдых незачем, а вернуться может понадобиться —
                 добить подход в другом упражнении */}
             {planDone && next === 'finish' ? (
-              <Button variant="outline" block onPress={onClose}>
+              <Button variant="outline" className="flex-1" onPress={onClose}>
                 К упражнению
               </Button>
             ) : (
               // Отдых окончен — добавить всё равно можно: таймер снова пойдёт от текущего момента
-              <Button variant="outline" block onPress={addRest}>
+              <Button variant="outline" onPress={addRest}>
                 <Icon as={Plus} strokeWidth={3} />
                 30 с
               </Button>
             )}
             {planDone ? (
-              <Button variant="outline" block onPress={onToSet}>
+              <Button variant="outline" className="flex-1" onPress={onToSet}>
                 <Icon as={Plus} strokeWidth={3} />
                 Ещё подход
               </Button>
             ) : (
-              <Button variant="outline" block onPress={onClose}>
+              <Button variant="outline" className="flex-1" onPress={onClose}>
                 К упражнению
               </Button>
             )}
@@ -128,7 +128,7 @@ export const FocusRest = ({
       {/* Заголовок не пропадает по окончании, а высота у него постоянная: «Отдых окончен» длиннее, fit ужимает кегль,
           и без рамки по высоте кольцо съезжало бы вверх */}
       <View className="w-full justify-center" style={{ height: sizes.headline }}>
-        <Poster size="4xl" tone={over ? 'muted' : 'primary'} fit className="w-full text-center">
+        <Poster size="3xl" tone={over ? 'muted' : 'primary'} fit className="w-full text-center">
           {over ? 'Отдых окончен' : 'Отдых'}
         </Poster>
       </View>
@@ -139,8 +139,8 @@ export const FocusRest = ({
           {over ? (
             // Подпись «с назад» висит под словом, не в потоке: иначе её появление сдвигает «Вперёд» вверх
             <View>
-              <Poster size="4xl">Вперёд</Poster>
-              <UnderClock className="mt-2 gap-1">
+              <Poster size="3xl">Вперёд</Poster>
+              <UnderClock className="mt-0 gap-1">
                 <Eyebrow className="tabular-nums">всего {formatSeconds(rested)}</Eyebrow>
                 {-timer.left > 1 && <Eyebrow className="tabular-nums">{agoLabel(-timer.left)}</Eyebrow>}
               </UnderClock>

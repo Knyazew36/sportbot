@@ -18,7 +18,7 @@ export const useFocusSizes = () => {
 
   const setClock = Math.min(150, 34 * vw);
   const roundClock = Math.min(110, 26 * vw);
-  const countdown = Math.min(96, 22 * vw, 12 * vh);
+  const countdown = Math.min(80, 19 * vw, 10 * vh);
 
   return {
     /** Секундомер подхода */
@@ -31,11 +31,11 @@ export const useFocusSizes = () => {
     countdown,
     countdownStyle: heroFont(countdown),
     /** Кольцо отдыха и разминки */
-    timerRing: Math.round(Math.min(300, 80 * vw, 36 * vh)),
+    timerRing: Math.round(Math.min(250, 66 * vw, 30 * vh)),
     /** Кольцо минуты подхода и кнопка «дальше» на паузе круга */
     pauseButton: Math.round(Math.min(140, 20 * vh)),
     /** Рамка заголовка «Отдых» / «Разминка»: постоянная высота, чтобы кольцо не прыгало.
-     *  Ровно строка 4xl: ниже неё рамка срезает слово, а ужатое «Отдых окончен» ниже и так влезает */
-    headline: fitLineHeight('4xl'),
+     *  Ровно строка 3xl: ниже неё рамка срезает слово, а ужатое «Отдых окончен» ниже и так влезает */
+    headline: fitLineHeight('3xl'),
   };
 };

@@ -10,7 +10,7 @@ import {
 import type { PersistQueryClientOptions } from '@tanstack/react-query-persist-client';
 import { addNetworkStateListener, getNetworkStateAsync } from 'expo-network';
 import { AppState } from 'react-native';
-import { toast } from 'sonner-native';
+import { toast } from '@/shared/ui/kit/toast';
 
 import {
   getAccessToken,

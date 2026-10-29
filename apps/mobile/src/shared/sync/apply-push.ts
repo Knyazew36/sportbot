@@ -1,4 +1,4 @@
-import { and, asc, eq, inArray, isNull } from 'drizzle-orm';
+import { and, asc, eq, inArray, isNull, lt, min } from 'drizzle-orm';
 
 import type { SyncOpResultDto } from '@sportbot/api/generated/model';
 
@@ -25,8 +25,53 @@ const WITH_SERVER_ID = [
   t.bodyWeights,
 ] as const;
 
-export const nextBatch = (db: LocalDb): OutboxRow[] =>
-  db.select().from(t.outbox).orderBy(asc(t.outbox.seq)).limit(PUSH_BATCH).all();
+/**
+ * С какой операции очередь ждёт: идущая тренировка уходит на сервер только после завершения.
+ * Всё, что легло в очередь после её первой операции, ждёт вместе с ней — порядок операций важен
+ */
+const heldFromSeq = (db: LocalDb): number | null => {
+  const live = db
+    .select({ clientId: t.workouts.clientId })
+    .from(t.workouts)
+    .where(eq(t.workouts.status, 'IN_PROGRESS'))
+    .all()
+    .map((w) => w.clientId);
+  if (!live.length) return null;
+  const items = db
+    .select({ clientId: t.workoutExercises.clientId })
+    .from(t.workoutExercises)
+    .where(inArray(t.workoutExercises.workoutClientId, live))
+    .all()
+    .map((i) => i.clientId);
+  const sets = items.length
+    ? db
+        .select({ clientId: t.workoutSets.clientId })
+        .from(t.workoutSets)
+        .where(inArray(t.workoutSets.workoutExerciseClientId, items))
+        .all()
+        .map((s) => s.clientId)
+    : [];
+  const ids = [...live, ...items, ...sets];
+  return (
+    db
+      .select({ seq: min(t.outbox.seq) })
+      .from(t.outbox)
+      // Подход, удалённый до отправки, в базе уже не найти — раньше в очереди его set.add, он и держит
+      .where(inArray(t.outbox.clientId, ids))
+      .get()?.seq ?? null
+  );
+};
+
+export const nextBatch = (db: LocalDb): OutboxRow[] => {
+  const held = heldFromSeq(db);
+  return db
+    .select()
+    .from(t.outbox)
+    .where(held == null ? undefined : lt(t.outbox.seq, held))
+    .orderBy(asc(t.outbox.seq))
+    .limit(PUSH_BATCH)
+    .all();
+};
 
 export const readIssues = (db: Pick<LocalDb, 'select'>): SyncIssue[] => {
   try {

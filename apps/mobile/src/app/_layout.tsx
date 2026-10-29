@@ -12,12 +12,12 @@ import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useReducedMotion } from 'react-native-reanimated';
-import { Toaster } from 'sonner-native';
 
 import { registerWorkoutQueue } from '@sportbot/api/entities/workout';
 import { getPersistOptions, queryClient, resumePersistedMutations } from '@/shared/api/query-client';
-import { ThemeProvider, useTheme } from '@/shared/theme/ThemeProvider';
+import { ThemeProvider } from '@/shared/theme/ThemeProvider';
 import { fontSources } from '@/shared/theme/fonts';
+import { Toaster } from '@/shared/ui/kit/Toaster';
 import { IntroPoster } from '@/widgets/intro-splash/IntroPoster';
 
 // До восстановления кеша: восстановленной из хранилища мутации нужен mutationFn.
@@ -26,19 +26,6 @@ registerWorkoutQueue(queryClient);
 
 // Сплэш держим, пока не догрузились плакатные шрифты: без них первая отрисовка дёрнется
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
-
-const AppToaster = () => {
-  const { colors } = useTheme();
-  return (
-    <Toaster
-      position="top-center"
-      toastOptions={{
-        style: { backgroundColor: colors.ink },
-        titleStyle: { color: colors.paper },
-      }}
-    />
-  );
-};
 
 export default function LayoutRoot() {
   const [fontsLoaded, fontError] = useFonts(fontSources);
@@ -69,7 +56,7 @@ export default function LayoutRoot() {
           <BottomSheetModalProvider>
             <Stack screenOptions={{ headerShown: false }} />
           </BottomSheetModalProvider>
-          <AppToaster />
+          <Toaster />
           {/* Диалоги подтверждения (AlertDialog) — последним, поверх всего */}
           <PortalHost />
         </PersistQueryClientProvider>

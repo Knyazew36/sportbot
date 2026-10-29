@@ -41,7 +41,7 @@ export const WarmupStart = ({ minutes, first }: WarmupStartProps) => {
       }
     >
       <View className="w-full justify-center" style={{ height: sizes.headline }}>
-        <Poster size="4xl" tone="primary" fit className="w-full text-center">
+        <Poster size="3xl" tone="primary" fit className="w-full text-center">
           Разминка
         </Poster>
       </View>

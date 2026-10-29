@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
 import { View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { toast } from 'sonner-native';
+import { toast } from '@/shared/ui/kit/toast';
 
 import { getApiErrorMessage } from '@/shared/api';
 import { ROUTES } from '@/shared/config/routes';

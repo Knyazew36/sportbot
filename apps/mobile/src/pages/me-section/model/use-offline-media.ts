@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { toast } from 'sonner-native';
+import { toast } from '@/shared/ui/kit/toast';
 
 import type { LocalDb } from '@/shared/db';
 import { haptic } from '@/shared/lib/haptics';

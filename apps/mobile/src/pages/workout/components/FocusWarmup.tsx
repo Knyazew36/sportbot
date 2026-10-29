@@ -49,7 +49,7 @@ export const FocusWarmup = ({ timer, first, onClose }: FocusWarmupProps) => {
     >
       {/* Заголовок по центру над кольцом, как «Отдых»: высота постоянная, кольцо не прыгает */}
       <View className="w-full justify-center" style={{ height: sizes.headline }}>
-        <Poster size="4xl" tone={over ? 'muted' : 'primary'} fit className="w-full text-center">
+        <Poster size="3xl" tone={over ? 'muted' : 'primary'} fit className="w-full text-center">
           Разминка
         </Poster>
       </View>
@@ -57,7 +57,7 @@ export const FocusWarmup = ({ timer, first, onClose }: FocusWarmupProps) => {
         <Ring value={timer.fraction} sweep={timer.sweep} size={sizes.timerRing} stroke={6} />
         <View className="absolute inset-0 items-center justify-center">
           {over ? (
-            <Poster size="4xl">Вперёд</Poster>
+            <Poster size="3xl">Вперёд</Poster>
           ) : (
             // Подпись под цифрами вне потока, чтобы цифры стояли ровно по центру кольца
             <View>

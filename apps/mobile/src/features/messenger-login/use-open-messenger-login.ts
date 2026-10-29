@@ -1,5 +1,5 @@
 import { Linking } from 'react-native';
-import { toast } from 'sonner-native';
+import { toast } from '@/shared/ui/kit/toast';
 
 import {
   useStartMessengerLogin,
