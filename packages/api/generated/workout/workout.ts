@@ -7,6 +7,7 @@
 import type {
   AddWorkoutItemsDto,
   ClientAtDto,
+  CreateManualWorkoutDto,
   CreateWorkoutSetDto,
   ExcludeCooldownStretchDto,
   FinishWorkoutDto,
@@ -20,6 +21,7 @@ import type {
   WorkoutControllerCooldownExclude200,
   WorkoutControllerCooldownFinish200,
   WorkoutControllerCooldownStart200,
+  WorkoutControllerCreate200,
   WorkoutControllerCurrent200,
   WorkoutControllerDeleteSet200,
   WorkoutControllerDiscard200,
@@ -62,6 +64,19 @@ export const workoutControllerStart = (
       {url: `/workout/start`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: startWorkoutDto
+    },
+      );
+    }
+  /**
+ * @summary Добавить прошедшую тренировку вручную — сразу засчитана
+ */
+export const workoutControllerCreate = (
+    createManualWorkoutDto: CreateManualWorkoutDto,
+ ) => {
+      return customInstance<WorkoutControllerCreate200>(
+      {url: `/workout/create`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createManualWorkoutDto
     },
       );
     }
@@ -313,6 +328,7 @@ export const workoutControllerFind = (
     }
   export type WorkoutControllerCurrentResult = NonNullable<Awaited<ReturnType<typeof workoutControllerCurrent>>>
 export type WorkoutControllerStartResult = NonNullable<Awaited<ReturnType<typeof workoutControllerStart>>>
+export type WorkoutControllerCreateResult = NonNullable<Awaited<ReturnType<typeof workoutControllerCreate>>>
 export type WorkoutControllerFinishResult = NonNullable<Awaited<ReturnType<typeof workoutControllerFinish>>>
 export type WorkoutControllerDiscardResult = NonNullable<Awaited<ReturnType<typeof workoutControllerDiscard>>>
 export type WorkoutControllerRemoveResult = NonNullable<Awaited<ReturnType<typeof workoutControllerRemove>>>

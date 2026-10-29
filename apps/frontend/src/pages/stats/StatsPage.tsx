@@ -9,6 +9,7 @@ import { usePeriod } from '@/widgets/stats/periods'
 import { ProgressListSection } from '@/widgets/stats/ProgressListSection'
 import { RecordsSection } from '@/widgets/stats/RecordsSection'
 
+import { AddWorkoutButton } from './components/AddWorkoutButton'
 import { TABS, useTab } from './model/use-tab'
 
 // Статистика (frontend-tz, 12): три вопроса, каждый на своей вкладке — «я расту?», «всё ли тело работает?»,
@@ -41,6 +42,7 @@ const StatsPage = () => {
         <>
           <AttendanceSection period={period} />
           <CalendarSection />
+          <AddWorkoutButton />
         </>
       )}
     </Screen>

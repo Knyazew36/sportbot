@@ -11,6 +11,7 @@ import { usePeriod } from '@/widgets/stats/periods';
 import { ProgressListSection } from '@/widgets/stats/ProgressListSection';
 import { RecordsSection } from '@/widgets/stats/RecordsSection';
 
+import { AddWorkoutButton } from './components/AddWorkoutButton';
 import { TABS, useTab } from './model/use-tab';
 
 const StatsPage = () => {
@@ -34,6 +35,7 @@ const StatsPage = () => {
         <>
           <AttendanceSection period={period} />
           <CalendarSection />
+          <AddWorkoutButton />
         </>
       )}
     </Screen>

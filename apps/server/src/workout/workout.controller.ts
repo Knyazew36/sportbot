@@ -18,6 +18,7 @@ import { AddWorkoutItemsDto } from './dto/add-workout-items.dto';
 import { ClientAtDto } from './dto/client-at.dto';
 import { ExcludeCooldownStretchDto } from './dto/exclude-cooldown-stretch.dto';
 import { CooldownResponseDto } from './dto/cooldown.response.dto';
+import { CreateManualWorkoutDto } from './dto/create-manual-workout.dto';
 import { CreateWorkoutSetDto } from './dto/create-workout-set.dto';
 import { FinishWorkoutDto } from './dto/finish-workout.dto';
 import { ReplaceWorkoutItemDto } from './dto/replace-workout-item.dto';
@@ -66,6 +67,24 @@ export class WorkoutController {
     @Body() dto: StartWorkoutDto,
   ) {
     return this.workoutAppService.start(userId, dto.complexId);
+  }
+
+  @Post('create')
+  @Swagger({
+    title: 'Добавить прошедшую тренировку вручную — сразу засчитана',
+    body: CreateManualWorkoutDto,
+    response: WorkoutResponseDto,
+    bearerAuth: true,
+  })
+  public create(
+    @CurrentUser('id') userId: number,
+    @Body() dto: CreateManualWorkoutDto,
+  ) {
+    return this.workoutAppService.createManual(
+      userId,
+      dto.complexId,
+      dto.date,
+    );
   }
 
   @Post('finish/:id')

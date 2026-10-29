@@ -13,6 +13,7 @@ import { SyncItemAddDto } from './dto/sync/sync-item-add.dto';
 import { SyncItemReplaceDto } from './dto/sync/sync-item-replace.dto';
 import { SyncSetAddDto } from './dto/sync/sync-set-add.dto';
 import { SyncSetUpdateDto } from './dto/sync/sync-set-update.dto';
+import { SyncWorkoutManualDto } from './dto/sync/sync-workout-manual.dto';
 import { SyncWorkoutStartDto } from './dto/sync/sync-workout-start.dto';
 import { WorkoutAppService } from './workout-app.service';
 import { WorkoutService } from './workout.service';
@@ -48,6 +49,7 @@ export class WorkoutSyncService implements OnModuleInit {
   public onModuleInit() {
     const handlers: Record<string, (ctx: SyncOpContext) => Promise<SyncOpOutcome>> = {
       'workout.start': (ctx) => this.start(ctx),
+      'workout.manual': (ctx) => this.manual(ctx),
       'set.add': (ctx) => this.addSet(ctx),
       'set.update': (ctx) => this.updateSet(ctx),
       'set.delete': (ctx) => this.deleteSet(ctx),
@@ -81,6 +83,22 @@ export class WorkoutSyncService implements OnModuleInit {
       complexClientId: dto.complexClientId,
       date: dto.date,
       startedAt: at,
+      items: dto.items,
+    });
+    return applied({
+      [workout.clientId]: workout.id,
+      ...Object.fromEntries(workout.exercises.map((e) => [e.clientId, e.id])),
+    });
+  }
+
+  private async manual({ userId, op }: SyncOpContext) {
+    const dto = await parsePayload(SyncWorkoutManualDto, op.payload);
+    const profile = await this.accounts.profile(userId);
+    const workout = await this.workouts.createManualFromClient(profile, {
+      clientId: op.clientId,
+      complexClientId: dto.complexClientId,
+      date: dto.date,
+      at: new Date(dto.at),
       items: dto.items,
     });
     return applied({

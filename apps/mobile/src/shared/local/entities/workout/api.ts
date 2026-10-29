@@ -38,6 +38,7 @@ import {
 } from './read-workout';
 import {
   addItems,
+  addManualWorkout,
   addSet,
   cooldownFinish,
   cooldownFor,
@@ -267,6 +268,15 @@ export const useDiscardWorkout = () => {
   return useLocalMutation({
     mutationFn: async (id: number) => discardWorkout(db(), id),
     meta: { successMessage: 'Тренировка отменена' },
+  });
+};
+
+/** Добавить прошедшую тренировку вручную: сразу засчитана на телефоне — календарь и серия без сети */
+export const useCreateManualWorkout = () => {
+  const db = useDb();
+  return useLocalMutation({
+    mutationFn: async (vars: { complexId: number; date: string }) => addManualWorkout(db(), vars),
+    meta: { successMessage: 'Тренировка добавлена — впиши подходы' },
   });
 };
 

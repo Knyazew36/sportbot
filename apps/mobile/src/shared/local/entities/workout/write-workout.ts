@@ -81,6 +81,68 @@ const clampAt = (at: string | undefined | null, from: string) =>
  * Начать тренировку: выбранный комплекс или комплекс дня. Начатая уже есть — вернётся она,
  * как на сервере. Состав переносится из комплекса, id упражнений создаёт телефон
  */
+type ComplexRow = typeof complexes.$inferSelect;
+type ItemRow = typeof workoutExercises.$inferInsert;
+
+/** Строки новой тренировки по комплексу: план упражнений — копия комплекса */
+const insertWorkout = (
+  tx: LocalTx,
+  complex: ComplexRow,
+  vars: { date: string; startedAt: string; warmupMinutes: number | null },
+) => {
+  const plan = tx
+    .select()
+    .from(complexExercises)
+    .where(eq(complexExercises.complexClientId, complex.clientId))
+    .orderBy(asc(complexExercises.position))
+    .all();
+  // Детальную без упражнений вести нечем
+  if (!plan.length) throw new Error('В тренировке нет упражнений — добавь их в программе.');
+  const row = {
+    clientId: newClientId(),
+    localId: nextLocalId(tx),
+    complexClientId: complex.clientId,
+    complexName: complex.name,
+    cardioName: complex.cardioName,
+    cardioMinutes: complex.cardioMinutes,
+    date: vars.date,
+    mode: 'DETAILED' as const,
+    status: 'IN_PROGRESS' as const,
+    unplanned: false,
+    startedAt: vars.startedAt,
+    warmupMinutes: vars.warmupMinutes,
+    updatedAt: vars.startedAt,
+  };
+  tx.insert(workouts).values(row).run();
+  const items = plan.map((p) => ({
+    clientId: newClientId(),
+    localId: nextLocalId(tx),
+    workoutClientId: row.clientId,
+    exerciseId: p.exerciseId,
+    position: p.position,
+    done: false,
+    plannedSets: p.sets,
+    repsMin: p.repsMin,
+    repsMax: p.repsMax,
+    superset: p.superset,
+    updatedAt: vars.startedAt,
+  }));
+  tx.insert(workoutExercises).values(items).run();
+  return { row, items };
+};
+
+/** Состав тренировки для сервера: те же clientId, что у строк телефона */
+const itemsPayload = (items: ItemRow[]) =>
+  items.map((i) => ({
+    clientId: i.clientId,
+    exerciseId: i.exerciseId,
+    position: i.position,
+    plannedSets: i.plannedSets,
+    repsMin: i.repsMin,
+    repsMax: i.repsMax,
+    superset: i.superset,
+  }));
+
 export const startWorkout = (db: LocalDb, complexId?: number): WorkoutRow =>
   db.transaction((tx) => {
     const existing = currentWorkoutRow(tx);
@@ -112,46 +174,12 @@ export const startWorkout = (db: LocalDb, complexId?: number): WorkoutRow =>
                 )),
           );
     if (!complex) throw new Error('Нет активной программы с тренировками — возьми шаблон или собери свою.');
-    const plan = tx
-      .select()
-      .from(complexExercises)
-      .where(eq(complexExercises.complexClientId, complex.clientId))
-      .orderBy(asc(complexExercises.position))
-      .all();
-    // Детальную без упражнений вести нечем
-    if (!plan.length) throw new Error('В тренировке нет упражнений — добавь их в программе.');
-
     const startedAt = now();
-    const row = {
-      clientId: newClientId(),
-      localId: nextLocalId(tx),
-      complexClientId: complex.clientId,
-      complexName: complex.name,
-      cardioName: complex.cardioName,
-      cardioMinutes: complex.cardioMinutes,
+    const { row, items } = insertWorkout(tx, complex, {
       date: today,
-      mode: 'DETAILED' as const,
-      status: 'IN_PROGRESS' as const,
-      unplanned: false,
       startedAt,
       warmupMinutes: resolveWarmup(complex, settings),
-      updatedAt: startedAt,
-    };
-    tx.insert(workouts).values(row).run();
-    const items = plan.map((p) => ({
-      clientId: newClientId(),
-      localId: nextLocalId(tx),
-      workoutClientId: row.clientId,
-      exerciseId: p.exerciseId,
-      position: p.position,
-      done: false,
-      plannedSets: p.sets,
-      repsMin: p.repsMin,
-      repsMax: p.repsMax,
-      superset: p.superset,
-      updatedAt: startedAt,
-    }));
-    tx.insert(workoutExercises).values(items).run();
+    });
     // Выбранный вручную комплекс засчитывается и при вечернем «да» — как на сервере
     if (day?.status === 'PENDING')
       tx.update(planDays).set({ suggestedComplexClientId: complex.clientId }).where(eq(planDays.clientId, day.clientId)).run();
@@ -162,19 +190,7 @@ export const startWorkout = (db: LocalDb, complexId?: number): WorkoutRow =>
       clientId: row.clientId,
       at: startedAt,
       touched: items.map((i) => i.clientId),
-      payload: {
-        complexClientId: complex.clientId,
-        date: today,
-        items: items.map((i) => ({
-          clientId: i.clientId,
-          exerciseId: i.exerciseId,
-          position: i.position,
-          plannedSets: i.plannedSets,
-          repsMin: i.repsMin,
-          repsMax: i.repsMax,
-          superset: i.superset,
-        })),
-      },
+      payload: { complexClientId: complex.clientId, date: today, items: itemsPayload(items) },
     });
     return tx.select().from(workouts).where(eq(workouts.clientId, row.clientId)).get()!;
   });
@@ -620,6 +636,35 @@ export const finishWorkout = (db: LocalDb, vars: FinishVars): number =>
       clientId: workout.clientId,
       at: finishedAt,
       payload: { finishedAt },
+    });
+    return uiIdOf(workout);
+  });
+
+/**
+ * Тренировка, добавленная вручную из статистики: сразу засчитана, как WorkoutService.createManual.
+ * Начало и конец совпадают — длительности она не знает; прошлая — полдень того дня, чтобы не съехать на соседний.
+ * Идущая тренировка не трогается. Подходы дописываются потом на экране исправления
+ */
+export const addManualWorkout = (db: LocalDb, vars: { complexId: number; date: string }): number =>
+  db.transaction((tx) => {
+    const today = localToday(profileOf(tx).timeZone);
+    if (vars.date > today) throw new Error('Тренировку в будущем добавить нельзя.');
+    const complex = tx.select().from(complexes).where(byUiId(complexes, vars.complexId)).get();
+    if (!complex) throw new Error('Комплекс не найден.');
+    const at = vars.date === today ? now() : `${vars.date}T12:00:00.000Z`;
+    const { row, items } = insertWorkout(tx, complex, { date: vars.date, startedAt: at, warmupMinutes: null });
+    const day = tx.select().from(planDays).where(eq(planDays.date, vars.date)).get();
+    if (day?.status === 'PENDING')
+      tx.update(planDays).set({ suggestedComplexClientId: complex.clientId }).where(eq(planDays.clientId, day.clientId)).run();
+    const workout = tx.select().from(workouts).where(eq(workouts.clientId, row.clientId)).get()!;
+    completeInTx(tx, workout, at);
+    enqueue(tx, {
+      type: 'workout.manual',
+      entity: 'Workout',
+      clientId: row.clientId,
+      at,
+      touched: items.map((i) => i.clientId),
+      payload: { complexClientId: complex.clientId, date: vars.date, at, items: itemsPayload(items) },
     });
     return uiIdOf(workout);
   });

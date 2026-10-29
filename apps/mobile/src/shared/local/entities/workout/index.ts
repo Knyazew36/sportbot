@@ -6,6 +6,7 @@ export {
   useCooldown,
   useCooldownFinish,
   useCooldownStart,
+  useCreateManualWorkout,
   useCurrentWorkout,
   useDeleteSet,
   useDeleteWorkout,

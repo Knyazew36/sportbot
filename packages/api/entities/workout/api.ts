@@ -2,13 +2,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { dayKeys } from '../day'
 import { statsKeys } from '../stats'
-import type { AddWorkoutItemsDto, ReplaceWorkoutItemDto } from '../../generated/model'
+import type { AddWorkoutItemsDto, CreateManualWorkoutDto, ReplaceWorkoutItemDto } from '../../generated/model'
 import {
   workoutControllerAddItems,
   workoutControllerAnalogs,
   workoutControllerCooldown,
   workoutControllerCooldownFinish,
   workoutControllerCooldownStart,
+  workoutControllerCreate,
   workoutControllerCurrent,
   workoutControllerDiscard,
   workoutControllerFind,
@@ -196,6 +197,20 @@ export const useShareWorkout = () =>
     mutationFn: (id: number) => workoutControllerShare(id),
     meta: { successMessage: 'Карточка в чате с ботом — перешли её друзьям' },
   })
+
+/** Добавить прошедшую тренировку вручную: сразу засчитана — календарь, посещаемость и серия пересчитываются */
+export const useCreateManualWorkout = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (dto: CreateManualWorkoutDto) => workoutControllerCreate(dto),
+    meta: { successMessage: 'Тренировка добавлена — впиши подходы' },
+    onSuccess: workout => {
+      queryClient.setQueryData(workoutKeys.detail(workout.id), workout)
+      void queryClient.invalidateQueries({ queryKey: statsKeys.all })
+      void queryClient.invalidateQueries({ queryKey: dayKeys.all })
+    },
+  })
+}
 
 /** Удалить прошедшую тренировку: день в календаре становится пропуском, серия пересчитывается */
 export const useDeleteWorkout = () => {

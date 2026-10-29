@@ -13,6 +13,7 @@ import { ScreenHeader } from '@/shared/ui/kit/ScreenHeader';
 
 import { SessionExpiredBanner } from '@/widgets/session-expired/SessionExpiredBanner';
 
+import { DayMenu } from './components/DayMenu';
 import { DoneDay } from './components/DoneDay';
 import { FinishQueuedDay } from './components/FinishQueuedDay';
 import { InProgressDay } from './components/InProgressDay';
@@ -41,6 +42,8 @@ const TodayPage = () => {
   // Завершение ждёт сети: сервер ещё говорит «идёт», но продолжать уже нечего
   const finishQueued = useFinishQueued(today.data?.workout?.id);
   const action = today.data && !finishQueued ? dayCta(today.data) : null;
+  // Запасные действия есть только у дня, где тренировку ещё не начинали
+  const menu = today.data?.state === 'TRAINING' && !!today.data.complex;
 
   return (
     <Screen
@@ -51,7 +54,8 @@ const TodayPage = () => {
       }
       footer={
         action && (
-          <StickyFooter>
+          <StickyFooter className={menu ? 'justify-between' : undefined}>
+            {menu && <DayMenu day={today.data!} onPickComplex={pick.mutate} onMissed={setSuggestPause} />}
             <ButtonLink href={action.href} variant={action.variant} size="lg" iconRight={ArrowRight}>
               {action.label}
             </ButtonLink>

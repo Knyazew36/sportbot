@@ -89,3 +89,17 @@ export const roundEntrySchema = z
 
 export type RoundEntryInput = z.input<typeof roundEntrySchema>
 export type RoundEntryValues = z.output<typeof roundEntrySchema>
+
+// Ручная тренировка из статистики: день — сегодня или прошлый (today — «2026-10-29» по поясу человека),
+// тренировка — комплекс активной программы. Подходы дописываются потом на экране исправления
+export const manualWorkoutSchema = (today: string) =>
+  z.object({
+    date: z
+      .string()
+      .min(1, 'Выбери день')
+      .refine(v => v <= today, 'Тренировку в будущем добавить нельзя'),
+    complexId: z.number({ message: 'Выбери тренировку' }),
+  })
+
+export type ManualWorkoutInput = z.input<ReturnType<typeof manualWorkoutSchema>>
+export type ManualWorkoutValues = z.output<ReturnType<typeof manualWorkoutSchema>>

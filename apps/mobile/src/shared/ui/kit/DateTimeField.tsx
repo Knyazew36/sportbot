@@ -38,6 +38,7 @@ type DateTimeFieldProps = {
   error?: { message?: string };
   placeholder?: string;
   minimumDate?: Date;
+  maximumDate?: Date;
 };
 
 // Дата или время — замена input type=date/time фронта. На Android системный диалог открывается сам,
@@ -51,6 +52,7 @@ export const DateTimeField = ({
   error,
   placeholder = 'Выбрать',
   minimumDate,
+  maximumDate,
 }: DateTimeFieldProps) => {
   const { colors, scheme } = useTheme();
   const [open, setOpen] = useState(false);
@@ -67,6 +69,7 @@ export const DateTimeField = ({
         mode,
         is24Hour: true,
         minimumDate,
+        maximumDate,
         onChange: (event: DateTimePickerEvent, date?: Date) => {
           if (event.type === 'set' && date) onChange(format(date, PATTERN[mode]));
         },
@@ -123,6 +126,7 @@ export const DateTimeField = ({
               mode={mode}
               display={mode === 'date' ? 'inline' : 'spinner'}
               minimumDate={minimumDate}
+              maximumDate={maximumDate}
               themeVariant={scheme}
               accentColor={colors.blue}
               textColor={colors.ink}

@@ -119,6 +119,21 @@ export class WorkoutAppService {
     return this.view(profile, workout);
   }
 
+  /** Добавить прошедшую тренировку вручную: закрыта сразу, подходы — на экране исправления. */
+  public async createManual(
+    userId: number,
+    complexId: number,
+    date: string,
+  ): Promise<WorkoutResponseDto> {
+    const profile = await this.accounts.profile(userId);
+    const workout = await this.workouts.createManual(
+      profile,
+      complexId,
+      new Date(`${date}T00:00:00.000Z`),
+    );
+    return this.view(profile, workout);
+  }
+
   /** «Завершить»: засчитывается, если сделано хотя бы одно упражнение (business-tz, 7.3). */
   public async finish(
     userId: number,
