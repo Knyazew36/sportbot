@@ -30,7 +30,7 @@ export const WorkoutRecords = ({ records, limit }: WorkoutRecordsProps) => {
       {shown.map(r => (
         <ListRow
           key={r.exerciseId}
-          lead={<TrophyIcon className='size-4' />}
+          lead={<TrophyIcon className='text-sb-gold size-4' />}
           title={r.name}
           meta={`было ${amount(r.previous, r.unit, r.previousReps)}`}
           trail={

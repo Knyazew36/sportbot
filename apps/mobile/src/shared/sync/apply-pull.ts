@@ -24,6 +24,7 @@ const OWN_TABLES = [
   t.pauses,
   t.limitations,
   t.stretchExclusions,
+  t.stretchSessions,
   t.bodyWeights,
 ] as const;
 
@@ -68,6 +69,9 @@ const removeByEntity = (tx: Tx, entity: string, ids: string[]) => {
       tx.delete(t.programs).where(inArray(t.programs.clientId, ids)).run();
       return;
     }
+    case 'StretchSession':
+      tx.delete(t.stretchSessions).where(inArray(t.stretchSessions.clientId, ids)).run();
+      return;
     case 'Complex':
       tx.delete(t.complexExercises).where(inArray(t.complexExercises.complexClientId, ids)).run();
       tx.delete(t.complexes).where(inArray(t.complexes.clientId, ids)).run();
@@ -171,6 +175,7 @@ export const applyPull = (db: LocalDb, res: SyncPullResponseDto, syncedAt: strin
     upsertRows(tx, t.pauses, t.pauses.clientId, fresh(res.pauses));
     upsertRows(tx, t.limitations, t.limitations.clientId, fresh(res.limitations));
     upsertRows(tx, t.stretchExclusions, t.stretchExclusions.clientId, fresh(res.stretchExclusions));
+    upsertRows(tx, t.stretchSessions, t.stretchSessions.clientId, fresh(res.stretchSessions));
     upsertRows(tx, t.bodyWeights, t.bodyWeights.clientId, fresh(res.bodyWeights));
 
     for (const { table, rows } of localIds)

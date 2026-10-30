@@ -10,7 +10,7 @@ import { Ring } from '@/shared/ui/kit/Ring';
 import { Eyebrow, Clock, Lead } from '@/shared/ui/kit/Typography';
 import { Pressable } from '@/shared/ui/kit/Pressable';
 
-type SideAction = { label: string; icon: LucideIcon; onPress: () => void };
+type SideAction = { label: string; icon: LucideIcon; onPress: () => void; disabled?: boolean };
 
 type HoldControlsProps = {
   holdSeconds: number;
@@ -66,6 +66,7 @@ export const HoldControls = ({ holdSeconds, side, back, next, onEnd, autoStart =
           variant="outline"
           size="sm"
           onPress={back.onPress}
+          disabled={back.disabled}
           contentClassName="h-14 flex-col gap-0.5 px-3"
         >
           <Icon as={back.icon} strokeWidth={2.5} className="size-5" />

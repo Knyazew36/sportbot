@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { ArrowRight } from 'lucide-react-native';
+import { ArrowRight, Plus } from 'lucide-react-native';
 import { pluralize } from '@front-cmdt/utils/pluralize';
 
 import { toAssetUrl } from '@/shared/api';
@@ -17,7 +17,8 @@ import { Lead, Poster } from '@/shared/ui/kit/Typography';
 import { CatalogRow } from '@/widgets/catalog/CatalogRow';
 
 import type { CooldownFlow } from '../model/use-cooldown-flow';
-import { CooldownDetailSheet } from './CooldownSheets';
+import { CooldownRoutines } from './CooldownRoutines';
+import { CooldownAddSheet, CooldownDetailSheet } from './CooldownSheets';
 
 // Обзор перед стартом: сколько минут и какие растяжки в основном блоке и «если есть время»
 export const CooldownOverview = ({ flow }: { flow: CooldownFlow }) => {
@@ -69,7 +70,14 @@ export const CooldownOverview = ({ flow }: { flow: CooldownFlow }) => {
           </List>
         </ScreenSection>
       ))}
+      <Rise>
+        <Button variant="outline" className="self-start" icon={Plus} onPress={() => flow.setAddOpen(true)}>
+          Добавить растяжку
+        </Button>
+      </Rise>
+      <CooldownRoutines flow={flow} />
       <CooldownDetailSheet flow={flow} />
+      <CooldownAddSheet flow={flow} />
     </Screen>
   );
 };

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { type ComponentRef, useCallback, useRef, useState } from 'react';
 import { Platform, type View } from 'react-native';
 import { useSharedValue, withTiming } from 'react-native-reanimated';
 import { captureRef } from 'react-native-view-shot';
@@ -11,7 +11,7 @@ const FADE_MS = 320;
  * Перед сменой снимаем экран, кладём снимок поверх, меняем тему под ним и растворяем снимок
  */
 export const useThemeTransition = () => {
-  const rootRef = useRef<View>(null);
+  const rootRef = useRef<ComponentRef<typeof View>>(null);
   const [snapshot, setSnapshot] = useState<string | null>(null);
   // Смена темы ждёт, пока снимок отрисуется поверх, иначе мелькнёт новая тема без перехода
   const pendingApply = useRef<(() => void) | null>(null);

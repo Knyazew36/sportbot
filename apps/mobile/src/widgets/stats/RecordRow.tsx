@@ -14,7 +14,7 @@ type RecordRowProps = { record: StatsRecord; to: Href };
 // Строка ведёт на прогресс упражнения
 export const RecordRow = ({ record, to }: RecordRowProps) => (
   <ListRow
-    lead={<Icon as={Trophy} className="size-4" />}
+    lead={<Icon as={Trophy} className="text-sb-gold size-4" />}
     title={record.name}
     meta={`${formatDate(record.date, 'd MMM')} · было ${setText(record.previous, record.unit)}`}
     onPress={() => router.push(to)}

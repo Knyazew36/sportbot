@@ -9,7 +9,7 @@ import { Screen } from '@/shared/ui/kit/Screen';
 import { TopBar } from '@/shared/ui/kit/ScreenHeader';
 import { TemplateFilter } from '@/widgets/template-filter/TemplateFilter';
 
-import { BlankProgramButton } from './components/BlankProgramButton';
+import { BlankProgramButton } from '@/features/create-program/BlankProgramButton';
 import { CatalogMoreFilters } from './components/CatalogMoreFilters';
 import { CatalogResults } from './components/CatalogResults';
 import { CatalogShowcase } from './components/CatalogShowcase';

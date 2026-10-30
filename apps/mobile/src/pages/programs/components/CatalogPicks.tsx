@@ -27,7 +27,7 @@ export const CatalogPicks = ({ title }: { title: string }) => {
           iconRight={ArrowRight}
           contentClassName="min-h-0 px-0 py-0"
         >
-          Все
+          Весь каталог
         </ButtonLink>
       }
     >

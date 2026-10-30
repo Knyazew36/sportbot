@@ -19,6 +19,7 @@ const SECTIONS = [
   'programTagGroups',
   'programTags',
   'programs',
+  'stretchRoutines',
 ] as const;
 
 const read = <T>(file: string): T =>

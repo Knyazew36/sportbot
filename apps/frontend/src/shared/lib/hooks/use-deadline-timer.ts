@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-type TimerState =
+export type TimerState =
   | { status: 'idle' }
   | { status: 'running'; endsAt: number; total: number }
   | { status: 'paused'; left: number; total: number }
 
-const read = (key?: string): TimerState => {
+export const readTimer = (key?: string): TimerState => {
   if (!key) return { status: 'idle' }
   try {
     const raw = localStorage.getItem(key)
@@ -15,7 +15,7 @@ const read = (key?: string): TimerState => {
   }
 }
 
-const write = (key: string | undefined, state: TimerState) => {
+export const writeTimer = (key: string | undefined, state: TimerState) => {
   if (!key) return
   try {
     if (state.status === 'idle') localStorage.removeItem(key)
@@ -37,12 +37,12 @@ type Options = {
  * отсчёт не сбивают (frontend-tz, 8.3). left < 0 — время вышло столько секунд назад
  */
 export const useDeadlineTimer = ({ storageKey, onEnd }: Options = {}) => {
-  const [state, setState] = useState<TimerState>(() => read(storageKey))
+  const [state, setState] = useState<TimerState>(() => readTimer(storageKey))
   // Ключ появился позже (id тренировки догрузился) — перечитываем хранилище, иначе таймер так и останется пустым
   const [readKey, setReadKey] = useState(storageKey)
   if (readKey !== storageKey) {
     setReadKey(storageKey)
-    setState(read(storageKey))
+    setState(readTimer(storageKey))
   }
   const [now, setNow] = useState(() => Date.now())
   const endedRef = useRef(false)
@@ -56,7 +56,7 @@ export const useDeadlineTimer = ({ storageKey, onEnd }: Options = {}) => {
       endedRef.current = false
       setState(next)
       setNow(Date.now())
-      write(storageKey, next)
+      writeTimer(storageKey, next)
     },
     [storageKey],
   )
@@ -93,6 +93,13 @@ export const useDeadlineTimer = ({ storageKey, onEnd }: Options = {}) => {
     left,
     fraction,
     total: state.status === 'idle' ? 0 : state.total,
+    /** Состояние целиком: снять перед остановкой, чтобы потом вернуть через restore */
+    snapshot: state,
+    // Время вышло, пока таймер был снят: сигнал конца уже не к месту, повторно onEnd не зовём
+    restore: (saved: TimerState) => {
+      update(saved)
+      endedRef.current = saved.status === 'running' && saved.endsAt <= Date.now()
+    },
     start: (seconds: number) => update({ status: 'running', endsAt: Date.now() + seconds * 1000, total: seconds }),
     add: (seconds: number) => {
       if (state.status !== 'running') return

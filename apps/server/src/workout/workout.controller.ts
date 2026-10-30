@@ -14,9 +14,12 @@ import { BotChannel, User } from '@/generated/prisma/client';
 import { AuthChannel } from '@/miniapp/decorators/auth-channel.decorator';
 import { SportAuth } from '@/miniapp/decorators/sport-auth.decorator';
 
+import { AddCooldownStretchDto } from './dto/add-cooldown-stretch.dto';
 import { AddWorkoutItemsDto } from './dto/add-workout-items.dto';
 import { ClientAtDto } from './dto/client-at.dto';
 import { ExcludeCooldownStretchDto } from './dto/exclude-cooldown-stretch.dto';
+import { SwapCooldownStretchDto } from './dto/swap-cooldown-stretch.dto';
+import { UseCooldownRoutineDto } from './dto/use-cooldown-routine.dto';
 import { CooldownResponseDto } from './dto/cooldown.response.dto';
 import { CreateManualWorkoutDto } from './dto/create-manual-workout.dto';
 import { CreateWorkoutSetDto } from './dto/create-workout-set.dto';
@@ -347,6 +350,54 @@ export class WorkoutController {
     @Body() dto: ExcludeCooldownStretchDto,
   ) {
     return this.workoutAppService.cooldownExclude(userId, id, dto.stretchId);
+  }
+
+  @Post('cooldown/swap/:id')
+  @Swagger({
+    title: 'Другая растяжка: заменить только в этой заминке, без исключения',
+    param: ID_PARAM,
+    body: SwapCooldownStretchDto,
+    response: CooldownResponseDto,
+    bearerAuth: true,
+  })
+  public cooldownSwap(
+    @CurrentUser('id') userId: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: SwapCooldownStretchDto,
+  ) {
+    return this.workoutAppService.cooldownSwap(userId, id, dto.stretchId);
+  }
+
+  @Post('cooldown/add/:id')
+  @Swagger({
+    title: 'Ещё растяжка в заминку: случайная или на выбранную мышцу',
+    param: ID_PARAM,
+    body: AddCooldownStretchDto,
+    response: CooldownResponseDto,
+    bearerAuth: true,
+  })
+  public cooldownAdd(
+    @CurrentUser('id') userId: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: AddCooldownStretchDto,
+  ) {
+    return this.workoutAppService.cooldownAdd(userId, id, dto.muscleId);
+  }
+
+  @Post('cooldown/routine/:id')
+  @Swagger({
+    title: 'Готовый комплекс вместо набора заминки: только до её начала',
+    param: ID_PARAM,
+    body: UseCooldownRoutineDto,
+    response: CooldownResponseDto,
+    bearerAuth: true,
+  })
+  public cooldownRoutine(
+    @CurrentUser('id') userId: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UseCooldownRoutineDto,
+  ) {
+    return this.workoutAppService.cooldownRoutine(userId, id, dto.routineId);
   }
 
   // ── Поделиться ──────────────────────────────────────────────────────────

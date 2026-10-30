@@ -124,6 +124,13 @@ export const useDeadlineTimer = ({ storageKey, onEnd }: Options = {}) => {
     left,
     fraction,
     total: state.status === 'idle' ? 0 : state.total,
+    /** Состояние целиком: снять перед остановкой, чтобы потом вернуть через restore */
+    snapshot: state,
+    // Время вышло, пока таймер был снят: сигнал конца уже не к месту, повторно onEnd не зовём
+    restore: (saved: TimerState) => {
+      update(saved);
+      endedRef.current = saved.status === 'running' && saved.endsAt <= Date.now();
+    },
     /** Ход кольца Ring, пока отсчёт идёт: к нулю ровно к концу */
     sweep: state.status === 'running' ? { to: 0, ms: leftMs } : undefined,
     start: (seconds: number) => update({ status: 'running', endsAt: Date.now() + seconds * 1000, total: seconds }),

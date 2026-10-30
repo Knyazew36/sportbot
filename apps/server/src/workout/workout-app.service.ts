@@ -14,6 +14,7 @@ import { StretchFull } from '@/catalog/catalog.service';
 
 import { CooldownView } from './cooldown.service';
 import { CooldownStretchResponseDto } from './dto/cooldown-stretch.response.dto';
+import { cooldownStretchView } from './cooldown-stretch-view';
 import { CooldownResponseDto } from './dto/cooldown.response.dto';
 import { CreateWorkoutSetDto } from './dto/create-workout-set.dto';
 import { WorkoutAnalogResponseDto } from './dto/workout-analog.response.dto';
@@ -315,6 +316,44 @@ export class WorkoutAppService {
     return this.cooldownView(userId, workoutId, view);
   }
 
+  /** «Другая»: замена только в этой заминке, ответ — заминка уже с заменой. */
+  public async cooldownSwap(
+    userId: number,
+    workoutId: number,
+    stretchId: number,
+  ): Promise<CooldownResponseDto> {
+    const view = await this.workouts.cooldownSwap(
+      userId,
+      workoutId,
+      stretchId,
+    );
+    return this.cooldownView(userId, workoutId, view);
+  }
+
+  /** Ещё растяжка: случайная или на выбранную мышцу, ответ — заминка уже с ней. */
+  public async cooldownAdd(
+    userId: number,
+    workoutId: number,
+    muscleId?: number,
+  ): Promise<CooldownResponseDto> {
+    const view = await this.workouts.cooldownAdd(userId, workoutId, muscleId);
+    return this.cooldownView(userId, workoutId, view);
+  }
+
+  /** Готовый комплекс вместо набора заминки: ответ — заминка уже с ним. */
+  public async cooldownRoutine(
+    userId: number,
+    workoutId: number,
+    routineId: number,
+  ): Promise<CooldownResponseDto> {
+    const view = await this.workouts.cooldownRoutine(
+      userId,
+      workoutId,
+      routineId,
+    );
+    return this.cooldownView(userId, workoutId, view);
+  }
+
   public async warmupFinish(
     userId: number,
     workoutId: number,
@@ -368,21 +407,9 @@ export class WorkoutAppService {
   }
 
   private stretchView(stretch: StretchFull): CooldownStretchResponseDto {
-    return {
-      id: stretch.id,
-      name: stretch.name,
-      howTo: stretch.howTo,
-      steps: stretch.steps,
-      mistakes: stretch.mistakes,
-      imageUrl: this.uploads.toPublicUrl(stretch.imagePath),
-      imageEndUrl: this.uploads.toPublicUrl(stretch.imageEndPath),
-      feel: stretch.feel,
-      videoUrl: stretch.videoUrl,
-      imageCredit: imageCredit(stretch),
-      holdSeconds: stretch.holdSeconds,
-      perSide: stretch.perSide,
-      muscles: stretch.muscles.map((m) => m.muscle.name).join(' · '),
-    };
+    return cooldownStretchView(stretch, (path) =>
+      this.uploads.toPublicUrl(path),
+    );
   }
 
   /** Комплекс дня: выбранный утром или вручную, иначе следующий по очереди. */

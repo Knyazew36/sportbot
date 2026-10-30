@@ -12,6 +12,10 @@ const MAIN_MIN_SECONDS = 5 * 60
 const OPTIONAL_BUDGET_SECONDS = 3 * 60
 /** Перейти в новое положение и найти опору */
 const TRANSITION_SECONDS = 10
+/** Сплит чередует дни: одной прошлой заминки мало, тот же день вернётся через 2–3 тренировки */
+export const RECENT_COOLDOWNS = 4
+/** Иначе растяжки на 3 мышцы всегда обходят остальные, и набор не меняется */
+const MAX_SCORED_MUSCLES = 2
 
 /** Стоя → на коленях → сидя → лёжа: без лишних «встал-лёг-встал». Без положения — в конец */
 const POSITION_ORDER: Record<StretchPosition, number> = { STANDING: 0, KNEELING: 1, SITTING: 2, LYING: 3 }
@@ -54,13 +58,22 @@ const rankMuscles = (exercises: CooldownExercise[], role: MuscleRole): CooldownM
     .map(v => v.muscle)
 }
 
+/** Штрафы растяжек по прошлым заминкам (от новых к старым): чем свежее заминка, тем штраф больше */
+export const recentPenalties = (cooldowns: number[][]): Map<number, number> => {
+  const recent = new Map<number, number>()
+  cooldowns.forEach((stretchIds, age) => {
+    for (const id of stretchIds) if (!recent.has(id)) recent.set(id, RECENT_COOLDOWNS - age)
+  })
+  return recent
+}
+
 /** Заминка под тренировку: основной блок и «если есть время» */
 export const buildCooldown = <C extends CooldownCandidate>(input: {
   exercises: CooldownExercise[]
   /** Можно предложить: заминочные, видимые, не исключённые */
   candidates: C[]
-  /** Растяжки прошлой заминки — в конец очереди, чтобы набор не повторялся */
-  recent: Set<number>
+  /** Штрафы растяжек прошлых заминок (recentPenalties) — в конец очереди, чтобы набор не повторялся */
+  recent: Map<number, number>
   random?: () => number
 }): { main: C[]; optional: C[] } => {
   const { exercises, candidates, recent, random = Math.random } = input
@@ -79,9 +92,10 @@ export const buildCooldown = <C extends CooldownCandidate>(input: {
       const options = candidates.filter(s => !chosen.has(s.id) && s.muscles.some(m => m.id === muscle.id))
       if (!options.length) return false
       const score = (s: C) =>
-        s.muscles.filter(m => wantedIds.has(m.id) && (again || !covered.has(m.id))).length * 2 +
-        (s.hasImage ? 1 : 0) +
-        (recent.has(s.id) ? 0 : 2)
+        Math.min(s.muscles.filter(m => wantedIds.has(m.id) && (again || !covered.has(m.id))).length, MAX_SCORED_MUSCLES) *
+          2 +
+        (s.hasImage ? 1 : 0) -
+        (recent.get(s.id) ?? 0)
       const best = Math.max(...options.map(score))
       const top = options.filter(s => score(s) === best)
       const stretch = top[Math.floor(random() * top.length)]!
@@ -132,6 +146,22 @@ export const replacementFor = <C extends CooldownCandidate>(
   const best = Math.max(0, ...fitting.map(overlap))
   const top = fitting.filter(s => overlap(s) === best)
   return top[Math.floor(random() * top.length)] ?? null
+}
+
+/**
+ * Ещё растяжка в заминку — как CooldownService.add. С мышцей — случайная на неё. Без мышцы — случайная
+ * на то, что работало на тренировке, а если там всё уже взято — любая. null — добавить нечего
+ */
+export const additionFor = <C extends CooldownCandidate>(
+  options: C[],
+  trained: Set<number>,
+  muscleId?: number,
+  random: () => number = Math.random,
+): C | null => {
+  const onMuscle = muscleId ? options.filter(s => s.muscles.some(m => m.id === muscleId)) : options
+  const fitting = onMuscle.filter(s => s.muscles.some(m => trained.has(m.id)))
+  const pool = muscleId || !fitting.length ? onMuscle : fitting
+  return pool[Math.floor(random() * pool.length)] ?? null
 }
 
 /** Минуты блока, округлённые вверх */

@@ -8,7 +8,7 @@ import { TimerButton } from '@/shared/ui/kit/TimerButton'
 import { Eyebrow, Lead } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 
-type SideAction = { label: string; icon: LucideIcon; onClick: () => void }
+type SideAction = { label: string; icon: LucideIcon; onClick: () => void; disabled?: boolean }
 
 type HoldControlsProps = {
   holdSeconds: number
@@ -60,6 +60,7 @@ export const HoldControls = ({ holdSeconds, side, back, next, onEnd, autoStart =
           variant='outline'
           size='sm'
           onClick={back.onClick}
+          disabled={back.disabled}
           className='h-14 flex-col gap-0.5 justify-self-start px-3 text-[12px]'
         >
           <back.icon />

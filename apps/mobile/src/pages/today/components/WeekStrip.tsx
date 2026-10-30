@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { View } from 'react-native';
 import { addDays, addWeeks, format, parseISO } from 'date-fns';
-import { Check, ChevronLeft, ChevronRight, Pause, X, type LucideIcon } from 'lucide-react-native';
+import { ArrowRight, Check, ChevronLeft, ChevronRight, Pause, X, type LucideIcon } from 'lucide-react-native';
 
 import type { DayToday } from '@sportbot/api/entities/day';
 import { useCalendarMonths, usePrefetchStatsDays } from '@/shared/local/entities/stats';
@@ -11,9 +11,11 @@ import { haptic } from '@/shared/lib/haptics';
 import { cn } from '@/shared/lib/utils';
 import { weekdayShort } from '@/shared/lib/weekdays';
 import { Button } from '@/shared/ui/kit/Button';
+import { ButtonLink } from '@/shared/ui/kit/ButtonLink';
 import { Icon } from '@/shared/ui/kit/Icon';
 import { InkPanel } from '@/shared/ui/kit/InkPanel';
 import { Eyebrow, Poster, Text, TextClassContext } from '@/shared/ui/kit/Typography';
+import { ATTENDANCE_LINK } from '@/widgets/stats/links';
 import { DAY_MARK, MARK_LABEL, type DayMark } from '@/widgets/stats/marks';
 
 import { TODAY_MARK, weekTitle, workoutsText } from '../model/week';
@@ -43,7 +45,8 @@ type WeekStripProps = {
 };
 
 // Неделя чёрной плашкой — порт WeekStrip.tsx: текущая по умолчанию, прошлые листаются кнопками.
-// Свайпа нет — в ленте он спорил бы с прокруткой экрана
+// Свайпа нет — в ленте он спорил бы с прокруткой экрана.
+// Вход в посещения здесь же: от недели естественно перейти к месяцу, и плашка есть в любом состоянии дня
 export const WeekStrip = ({ week, onOpenDay }: WeekStripProps) => {
   const [offset, setOffset] = useState(0);
 
@@ -145,6 +148,10 @@ export const WeekStrip = ({ week, onOpenDay }: WeekStripProps) => {
             );
           })}
         </Row>
+
+        <ButtonLink href={ATTENDANCE_LINK} variant="paper" size="sm" block iconRight={ArrowRight}>
+          Календарь и посещения
+        </ButtonLink>
       </InkPanel>
     </View>
   );

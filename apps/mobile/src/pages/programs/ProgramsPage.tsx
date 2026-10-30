@@ -1,37 +1,22 @@
-import { useState } from 'react';
-import { Plus } from 'lucide-react-native';
-
 import { usePrograms } from '@/shared/local/entities/program';
 
-import { Button } from '@/shared/ui/kit/Button';
+import { BlankProgramButton } from '@/features/create-program/BlankProgramButton';
 import { QueryState } from '@/shared/ui/kit/QueryState';
 import { Rise } from '@/shared/ui/kit/Reveal';
-import { Screen, StickyFooter } from '@/shared/ui/kit/Screen';
+import { Screen } from '@/shared/ui/kit/Screen';
 import { ScreenHeader } from '@/shared/ui/kit/ScreenHeader';
 import { Lead } from '@/shared/ui/kit/Typography';
-import { MyPrograms } from '@/widgets/my-programs/MyPrograms';
 
 import { ActiveProgram } from './components/ActiveProgram';
 import { CatalogPicks } from './components/CatalogPicks';
-import { NewProgramSheet } from './components/NewProgramSheet';
 import { SourceUpdate } from './components/SourceUpdate';
-import { MY_PROGRAMS_SHOWN } from './model/constants';
+import { SwitchProgram } from './components/SwitchProgram';
 
 const ProgramsPage = () => {
   const programs = usePrograms();
-  const [newOpen, setNewOpen] = useState(false);
 
   return (
-    <Screen
-      header={<ScreenHeader title="Программы" />}
-      footer={
-        <StickyFooter>
-          <Button size="lg" iconRight={Plus} onPress={() => setNewOpen(true)}>
-            Новая программа
-          </Button>
-        </StickyFooter>
-      }
-    >
+    <Screen header={<ScreenHeader title="Программы" />}>
       <QueryState query={programs}>
         {(list) => {
           if (!list.length) {
@@ -41,6 +26,9 @@ const ProgramsPage = () => {
                   <Lead>Программ пока нет. Подбери готовую под себя или собери свою с нуля.</Lead>
                 </Rise>
                 <CatalogPicks title="Подобрать программу" />
+                <Rise className="px-gutter">
+                  <BlankProgramButton />
+                </Rise>
               </>
             );
           }
@@ -54,13 +42,11 @@ const ProgramsPage = () => {
                 .map((p) => (
                   <SourceUpdate key={p.id} program={p} />
                 ))}
-              <MyPrograms programs={list.filter((p) => !p.active)} title="Мои программы" limit={MY_PROGRAMS_SHOWN} />
-              <CatalogPicks title="Другие программы" />
+              <SwitchProgram otherCount={list.filter((p) => !p.active).length} hasActive={!!active} />
             </>
           );
         }}
       </QueryState>
-      <NewProgramSheet open={newOpen} onOpenChange={setNewOpen} />
     </Screen>
   );
 };

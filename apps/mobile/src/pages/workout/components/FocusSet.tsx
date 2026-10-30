@@ -23,6 +23,8 @@ type FocusSetProps = {
   plannedSets: number;
   /** Подход закончен — открыть ввод веса и повторов */
   onDone: () => void;
+  /** Запустил по ошибке — выйти, ничего не записывая */
+  onCancel: () => void;
   /** Упражнение на время: план в секундах. Нижняя граница — сигнал «цель есть» */
   target?: { min: number; max: number; measure: Measure };
   /** Сигнал, когда время дошло до нижней границы цели: звук и вибрация из настроек */
@@ -30,7 +32,7 @@ type FocusSetProps = {
 };
 
 // Идёт подход: секундомер на весь экран. Пауза — если отвлекли посреди подхода, её время в подход не идёт
-export const FocusSet = ({ stopwatch, title, startedAt, setNumber, plannedSets, onDone, target, onTarget }: FocusSetProps) => {
+export const FocusSet = ({ stopwatch, title, startedAt, setNumber, plannedSets, onDone, onCancel, target, onTarget }: FocusSetProps) => {
   const sizes = useFocusSizes();
   // Сигнал один раз за подход: «Сначала» обнуляет секундомер — сигнал снова ждёт цели
   const signalled = useRef(false);
@@ -68,8 +70,7 @@ export const FocusSet = ({ stopwatch, title, startedAt, setNumber, plannedSets, 
               <Icon as={TimerReset} className="size-5" />
               Сначала
             </Button>
-            {/* Запустил по ошибке — выйти, ничего не записывая */}
-            <Button variant="outline" className="flex-1" onPress={stopwatch.stop}>
+            <Button variant="outline" className="flex-1" onPress={onCancel}>
               <Icon as={X} className="size-5" />
               Отменить
             </Button>

@@ -253,6 +253,24 @@ export class SyncTemplateDto {
   complexes: SyncTemplateComplexDto[];
 }
 
+/** Комплекс растяжек: без сети идёт и заминка из него, и отдельное занятие */
+export class SyncStretchRoutineDto {
+  @ApiProperty()
+  id: number;
+
+  @ApiProperty()
+  name: string;
+
+  @ApiProperty()
+  description: string;
+
+  @ApiProperty({ description: 'Порядок в списке' })
+  position: number;
+
+  @ApiProperty({ type: [Number], description: 'Растяжки по порядку' })
+  stretchIds: number[];
+}
+
 export class SyncCatalogResponseDto {
   @ApiProperty({ description: 'Передать в следующий запрос как since' })
   cursor: string;
@@ -286,6 +304,12 @@ export class SyncCatalogResponseDto {
     description: 'Опубликованные шаблоны с составом, всегда целиком',
   })
   templates: SyncTemplateDto[];
+
+  @ApiProperty({
+    type: [SyncStretchRoutineDto],
+    description: 'Опубликованные комплексы растяжек, всегда целиком',
+  })
+  stretchRoutines: SyncStretchRoutineDto[];
 
   @ApiProperty({
     type: [Number],

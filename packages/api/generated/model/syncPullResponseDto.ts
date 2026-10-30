@@ -14,6 +14,7 @@ import type { SyncPlanDayRowDto } from './syncPlanDayRowDto';
 import type { SyncProfileRowDto } from './syncProfileRowDto';
 import type { SyncProgramRowDto } from './syncProgramRowDto';
 import type { SyncStretchExclusionRowDto } from './syncStretchExclusionRowDto';
+import type { SyncStretchSessionRowDto } from './syncStretchSessionRowDto';
 import type { SyncWorkoutExerciseRowDto } from './syncWorkoutExerciseRowDto';
 import type { SyncWorkoutRowDto } from './syncWorkoutRowDto';
 import type { SyncWorkoutSetRowDto } from './syncWorkoutSetRowDto';
@@ -40,6 +41,7 @@ export interface SyncPullResponseDto {
   pauses: SyncPauseRowDto[];
   limitations: SyncLimitationRowDto[];
   stretchExclusions: SyncStretchExclusionRowDto[];
+  stretchSessions: SyncStretchSessionRowDto[];
   bodyWeights: SyncBodyWeightRowDto[];
   /** Удалённые с since; при полном снимке пусто */
   deleted: SyncDeletedRowDto[];

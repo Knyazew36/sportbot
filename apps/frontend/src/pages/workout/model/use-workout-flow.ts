@@ -17,7 +17,7 @@ import {
 } from '@sportbot/api/entities/workout'
 import { useIsOnline } from '@/shared/api'
 import { ROUTES } from '@/shared/config/paths'
-import { useDeadlineTimer } from '@/shared/lib/hooks/use-deadline-timer'
+import { readTimer, useDeadlineTimer, writeTimer } from '@/shared/lib/hooks/use-deadline-timer'
 import { useStopwatch } from '@/shared/lib/hooks/use-stopwatch'
 import { timerEndSignal } from '@/shared/lib/signal'
 import { local } from '@/shared/lib/storage'
@@ -77,8 +77,9 @@ export const useWorkoutFlow = (saved: Workout) => {
     },
   })
   const stopwatch = useStopwatch({ storageKey: `set-stopwatch-${workout.id}` })
-  // План отдыха перед идущим подходом: таймер на старте подхода останавливается, а план нужен при записи
-  const restTargetKey = `set-rest-target-${workout.id}`
+  // Отдых перед идущим подходом: таймер на старте подхода останавливается, а его план нужен при записи,
+  // а сам отдых — при отмене подхода
+  const restBeforeSetKey = `set-rest-before-${workout.id}`
   // Идёт круг суперсета: переживает перезагрузку вместе с секундомером круга
   const [roundActive, setRoundActive] = useStoredFlag(`round-active-${workout.id}`)
   // Подход одному участнику суперсета: забытый подход или круг из одного упражнения
@@ -127,7 +128,7 @@ export const useWorkoutFlow = (saved: Workout) => {
   const clearLocal = () => {
     timer.stop()
     stopwatch.stop()
-    local.remove(restTargetKey)
+    local.remove(restBeforeSetKey)
     local.remove(warmupKey)
     local.remove(warmupHiddenKey)
     local.remove(pickedKey)
@@ -242,8 +243,7 @@ export const useWorkoutFlow = (saved: Workout) => {
   const startSet = () => {
     endWarmup()
     // План — с учётом всех «+30 с»; таймер не запускали — плана нет
-    if (timer.status !== 'idle') local.set(restTargetKey, String(timer.total))
-    else local.remove(restTargetKey)
+    writeTimer(restBeforeSetKey, timer.snapshot)
     timer.stop()
     if (superset) {
       const [first, second] = superset.round
@@ -276,11 +276,11 @@ export const useWorkoutFlow = (saved: Workout) => {
   // без него (ручной ввод) — сам момент записи. Подход доедет через очередь позже, время останется этим
   const setTiming = (): SetTiming => {
     if (!stopwatch.running) return { doneAt: new Date().toISOString() }
-    const restTarget = Number(local.get(restTargetKey))
+    const restBefore = readTimer(restBeforeSetKey)
     return {
       doneAt: new Date(stopwatch.pausedAt ?? Date.now()).toISOString(),
       workSeconds: stopwatch.elapsed,
-      restTargetSeconds: restTarget > 0 ? restTarget : undefined,
+      restTargetSeconds: restBefore.status === 'idle' ? undefined : restBefore.total,
     }
   }
 
@@ -292,16 +292,20 @@ export const useWorkoutFlow = (saved: Workout) => {
       startSet()
     }
 
-  const cancelRound = () => {
+  // Подход запущен по ошибке: всё как до старта, отдых идёт дальше с тем же концом — его время не останавливалось
+  const cancelSet = () => {
     stopwatch.stop()
     setRoundActive(false)
+    setEntryFor(null)
+    timer.restore(readTimer(restBeforeSetKey))
+    local.remove(restBeforeSetKey)
   }
 
   const onRoundSaved = (addedIds: number[]) => {
     setRoundOpen(false)
     const timed = stopwatch.running
     stopwatch.stop()
-    local.remove(restTargetKey)
+    local.remove(restBeforeSetKey)
     setRoundActive(false)
     restAfterManual(timed)
     if (superset && supersetDoneWith(superset.members, addedIds)) finishSuperset(superset.letter)
@@ -311,7 +315,7 @@ export const useWorkoutFlow = (saved: Workout) => {
     setEntryOpen(false)
     const timed = stopwatch.running
     stopwatch.stop()
-    local.remove(restTargetKey)
+    local.remove(restBeforeSetKey)
     setEntryFor(null)
     restAfterManual(timed)
     if (superset && supersetDoneWith(superset.members, [entryItem.id])) finishSuperset(superset.letter)
@@ -345,7 +349,7 @@ export const useWorkoutFlow = (saved: Workout) => {
       startSet,
       finishSet,
       finishRound,
-      cancelRound,
+      cancelSet,
       onNext,
       onSaved,
       onRoundSaved,

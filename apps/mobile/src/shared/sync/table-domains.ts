@@ -5,7 +5,7 @@ const WORKOUT = ['workout', 'day', 'stats', 'program'];
 const PLAN = ['day', 'stats', 'workout'];
 const PROGRAM = ['program', 'day', 'workout'];
 const PROFILE = ['profile', 'day', 'stats', 'workout', 'program', 'onboarding'];
-const CATALOG = ['catalog', 'program', 'day', 'workout', 'stats', 'profile', 'limitation', 'stretch-exclusion'];
+const CATALOG = ['stretch-routine', 'catalog', 'program', 'day', 'workout', 'stats', 'profile', 'limitation', 'stretch-exclusion'];
 
 export const TABLE_DOMAINS: Record<string, string[]> = {
   workouts: WORKOUT,
@@ -28,6 +28,8 @@ export const TABLE_DOMAINS: Record<string, string[]> = {
   exercises: CATALOG,
   stretches: CATALOG,
   templates: ['onboarding'],
+  stretch_routines: CATALOG,
+  stretch_sessions: ['stretch-session'],
   outbox: ['outbox'],
 };
 

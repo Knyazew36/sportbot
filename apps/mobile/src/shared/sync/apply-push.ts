@@ -23,6 +23,7 @@ const WITH_SERVER_ID = [
   t.pauses,
   t.limitations,
   t.bodyWeights,
+  t.stretchSessions,
 ] as const;
 
 /**
@@ -100,6 +101,9 @@ export const applyPush = (db: LocalDb, sent: OutboxRow[], results: SyncOpResultD
       // Сервер успел собрать свою заминку: наша лишняя, pull привезёт серверную
       if (result.status === 'skipped' && op.type === 'cooldown.build')
         tx.delete(t.workoutStretches).where(eq(t.workoutStretches.workoutClientId, op.clientId)).run();
+      // Эта растяжка на сервере уже есть в заминке своей строкой: наша копия задвоила бы её
+      if (result.status === 'skipped' && op.type === 'cooldown.add')
+        tx.delete(t.workoutStretches).where(inArray(t.workoutStretches.clientId, op.touched)).run();
       // День или вес за день уже были на сервере со своим clientId (день завёл крон, вес записан в боте):
       // наша копия без серверного id лишняя, pull привезёт серверную
       if (op.entity === 'PlanDay')

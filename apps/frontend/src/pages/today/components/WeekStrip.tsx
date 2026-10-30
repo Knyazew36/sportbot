@@ -1,5 +1,5 @@
 import { addDays, addWeeks, format, isSameMonth, parseISO } from 'date-fns'
-import { CheckIcon, ChevronLeftIcon, ChevronRightIcon, PauseIcon, XIcon } from 'lucide-react'
+import { ArrowRightIcon, CheckIcon, ChevronLeftIcon, ChevronRightIcon, PauseIcon, XIcon } from 'lucide-react'
 
 import { useState } from 'react'
 
@@ -8,9 +8,11 @@ import { useCalendarMonths, usePrefetchStatsDays } from '@sportbot/api/entities/
 import { formatDate } from '@/shared/lib/format'
 import { cn } from '@/shared/lib/utils'
 import { weekdayShort } from '@/shared/lib/weekdays'
+import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { InkPanel } from '@/shared/ui/kit/InkPanel'
 import { Eyebrow, Poster } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
+import { ATTENDANCE_LINK } from '@/widgets/stats/links'
 import { DAY_MARK, type DayMark, MARK_LABEL } from '@/widgets/stats/marks'
 
 type WeekCell = { date: string; weekday: number; mark: DayMark; isToday: boolean }
@@ -58,7 +60,8 @@ type WeekStripProps = {
 }
 
 // Неделя чёрной плашкой, как заминка: текущая по умолчанию, прошлые листаются кнопками.
-// Свайп убран — в ленте он спорил с прокруткой экрана и прятал, что назад вообще можно
+// Свайп убран — в ленте он спорил с прокруткой экрана и прятал, что назад вообще можно.
+// Вход в посещения здесь же: от недели естественно перейти к месяцу, и плашка есть в любом состоянии дня
 export const WeekStrip = ({ week, onOpenDay }: WeekStripProps) => {
   const [offset, setOffset] = useState(0)
 
@@ -184,6 +187,15 @@ export const WeekStrip = ({ week, onOpenDay }: WeekStripProps) => {
             )
           })}
         </ol>
+        <ButtonLink
+          to={ATTENDANCE_LINK}
+          variant='paper'
+          size='sm'
+          className='w-full'
+        >
+          Календарь и посещения
+          <ArrowRightIcon strokeWidth={2.5} />
+        </ButtonLink>
         </div>
       </InkPanel>
     </div>

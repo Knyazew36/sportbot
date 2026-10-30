@@ -67,6 +67,7 @@ export class SyncPullService {
       pauses,
       limitations,
       stretchExclusions,
+      stretchSessions,
       bodyWeights,
       deleted,
     ] = await Promise.all([
@@ -134,6 +135,7 @@ export class SyncPullService {
       this.prisma.pause.findMany({ where: { userId, ...changed } }),
       this.prisma.limitation.findMany({ where: { userId, ...changed } }),
       this.prisma.stretchExclusion.findMany({ where: { userId, ...changed } }),
+      this.prisma.stretchSession.findMany({ where: { userId, ...changed } }),
       this.prisma.bodyWeight.findMany({ where: { userId, ...changed } }),
       full
         ? Promise.resolve([])
@@ -318,6 +320,16 @@ export class SyncPullService {
         clientId: e.clientId,
         stretchId: e.stretchId,
         updatedAt: timeOf(e.updatedAt),
+      })),
+      stretchSessions: stretchSessions.map((s) => ({
+        id: s.id,
+        clientId: s.clientId,
+        routineId: s.routineId,
+        routineName: s.routineName,
+        date: dayOf(s.date),
+        startedAt: timeOf(s.startedAt),
+        finishedAt: timeOrNull(s.finishedAt),
+        updatedAt: timeOf(s.updatedAt),
       })),
       bodyWeights: bodyWeights.map((b) => ({
         id: b.id,

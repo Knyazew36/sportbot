@@ -21,6 +21,8 @@ type FocusSetProps = {
   plannedSets: number
   /** Подход закончен — открыть ввод веса и повторов */
   onDone: () => void
+  /** Запустил по ошибке — выйти, ничего не записывая */
+  onCancel: () => void
   /** Упражнение на время: план в секундах. Нижняя граница — сигнал «цель есть» */
   target?: { min: number; max: number; measure: Measure }
   /** Сигнал, когда время дошло до нижней границы цели: звук и вибрация из настроек */
@@ -35,6 +37,7 @@ export const FocusSet = ({
   setNumber,
   plannedSets,
   onDone,
+  onCancel,
   target,
   onTarget,
 }: FocusSetProps) => {
@@ -79,10 +82,9 @@ export const FocusSet = ({
             <TimerResetIcon className='size-5' />
             Сначала
           </Button>
-          {/* Запустил по ошибке — выйти, ничего не записывая */}
           <Button
             variant='outline'
-            onClick={stopwatch.stop}
+            onClick={onCancel}
           >
             <XIcon className='size-5' />
             Отменить

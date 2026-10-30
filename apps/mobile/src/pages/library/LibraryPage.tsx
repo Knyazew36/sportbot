@@ -4,6 +4,7 @@ import { View } from 'react-native';
 
 import type { CatalogKind } from '@sportbot/api/entities/catalog';
 import { routeHref, ROUTES } from '@/shared/config/routes';
+import { ButtonLink } from '@/shared/ui/kit/ButtonLink';
 import { Screen } from '@/shared/ui/kit/Screen';
 import { ScreenHeader } from '@/shared/ui/kit/ScreenHeader';
 import { Segmented } from '@/shared/ui/kit/Segmented';
@@ -40,6 +41,11 @@ const LibraryPage = () => {
           </View>
           <View className="px-gutter gap-3 pt-3">
             <Segmented options={TABS} value={tab} onValueChange={setTab} stretch />
+            {tab === 'stretches' && (
+              <ButtonLink href={routeHref(ROUTES.STRETCH_ROUTINES)} variant="outline">
+                Готовые комплексы
+              </ButtonLink>
+            )}
           </View>
         </>
       }
@@ -49,13 +55,10 @@ const LibraryPage = () => {
         kind={tab === 'exercises' ? 'exercise' : 'stretch'}
         filter={filter}
         onFilterChange={(patch) => setFilter((prev) => ({ ...prev, ...patch }))}
-        onOpen={(id) =>
-          router.push(
-            tab === 'exercises'
-              ? routeHref(ROUTES.EXERCISE, { exerciseId: id })
-              : routeHref(ROUTES.STRETCH, { stretchId: id }),
-          )
-        }
+        onOpen={(id) => {
+          if (tab === 'exercises') router.push(routeHref(ROUTES.EXERCISE, { exerciseId: id }));
+          else router.push(routeHref(ROUTES.STRETCH, { stretchId: id }));
+        }}
         emptyAction={<NewEntryLinks onCreate={setCreating} size="default" />}
       />
       <ExerciseCreateSheet open={creating === 'exercise'} onOpenChange={(open) => !open && setCreating(null)} />

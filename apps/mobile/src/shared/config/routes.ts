@@ -36,6 +36,9 @@ export const ROUTES = {
   PROGRAM_COMPLEX: '/program/[programId]/complex/[complexId]',
   PROGRAM_ADD_EXERCISE: '/program/[programId]/add/[complexId]',
   STRETCH: '/stretches/[stretchId]',
+  STRETCH_ROUTINES: '/stretch-routines',
+  STRETCH_ROUTINE: '/stretch-routines/[routineId]',
+  STRETCH_ROUTINE_RUN: '/stretch-routines/[routineId]/run',
   ME: '/me',
   ME_SECTION: '/me-section/[section]',
   ME_DEVELOPER: '/me-developer',
@@ -57,7 +60,8 @@ type RouteParams = Record<string, string | number | undefined>;
 
 /**
  * Ссылка на экран с параметрами пути и адреса — buildPath фронта. Пустые параметры не пишем.
- * Приведение к Href: часть экранов ещё не заведена в src/app, и typed routes их не знают
+ * Приведение к Href: часть экранов ещё не заведена в src/app, и typed routes их не знают.
+ * Выбирать между двумя ссылками — через if, а не тернарником: Href так велик, что TS его не считает (TS2590)
  */
 export const routeHref = (pathname: RoutePath, params: RouteParams = {}): Href => {
   const clean = Object.fromEntries(

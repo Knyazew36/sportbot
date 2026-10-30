@@ -504,6 +504,32 @@ export class SyncStretchExclusionRowDto {
   updatedAt: string;
 }
 
+export class SyncStretchSessionRowDto {
+  @ApiProperty()
+  id: number;
+
+  @ApiProperty()
+  clientId: string;
+
+  @ApiProperty(nullableInt)
+  routineId: number | null;
+
+  @ApiProperty()
+  routineName: string;
+
+  @ApiProperty(day)
+  date: string;
+
+  @ApiProperty(time)
+  startedAt: string;
+
+  @ApiProperty(nullableStr)
+  finishedAt: string | null;
+
+  @ApiProperty(time)
+  updatedAt: string;
+}
+
 export class SyncBodyWeightRowDto {
   @ApiProperty()
   id: number;

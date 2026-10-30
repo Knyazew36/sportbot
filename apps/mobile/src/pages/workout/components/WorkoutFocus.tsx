@@ -26,7 +26,7 @@ export const WorkoutFocus = ({ flow, startedAt }: WorkoutFocusProps) => {
         burstKey={flow.burstKey || undefined}
         onFinish={flow.finishRound}
         onRestart={flow.stopwatch.start}
-        onCancel={flow.cancelRound}
+        onCancel={flow.cancelSet}
       />
     );
 
@@ -45,6 +45,7 @@ export const WorkoutFocus = ({ flow, startedAt }: WorkoutFocusProps) => {
         }
         onTarget={flow.targetReached}
         onDone={flow.finishSet}
+        onCancel={flow.cancelSet}
       />
     );
 

@@ -18,6 +18,8 @@ type ScreenProps = {
   header?: ReactNode;
   /** Липкий низ: обычно StickyFooter с главным действием */
   footer?: ReactNode;
+  /** Заливка стекла под футером, если на этом экране размытие должно быть заметнее общего */
+  footerTone?: string;
   children: ReactNode;
   /**
    * Прокрутка экрана целиком (по умолчанию). false — экран сам решает скролл: длинные списки
@@ -40,6 +42,7 @@ type ScreenProps = {
 export const Screen = ({
   header,
   footer,
+  footerTone,
   children,
   scroll = true,
   fullscreen,
@@ -110,6 +113,7 @@ export const Screen = ({
       {footer ? (
         <Glass
           target={target}
+          tone={footerTone}
           className="absolute inset-x-0"
           style={{ bottom: navHeight, paddingBottom: fullscreen ? insets.bottom : 0 }}
           onLayout={(event) => setFooterHeight(event.nativeEvent.layout.height)}

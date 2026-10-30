@@ -69,6 +69,15 @@ export const OfferView = ({ cooldown }: { cooldown: Cooldown }) => {
           ~{cooldown.minutes} мин · {pluralize(count, ['растяжка', 'растяжки', 'растяжек'])}
         </Poster>
         <StretchMuscles stretches={cooldown.main} />
+        {/* «Начать» ведёт сразу к первой растяжке, а выбор комплекса — на обзоре */}
+        <ButtonLink
+          to={buildPath(ROUTES.COOLDOWN, { workoutId: cooldown.workoutId })}
+          replace
+          variant='outline'
+          className='mt-4 self-start'
+        >
+          Выбрать готовый комплекс
+        </ButtonLink>
 
         <div className='sb-lanes mt-6 h-20 opacity-30' />
       </Rise>

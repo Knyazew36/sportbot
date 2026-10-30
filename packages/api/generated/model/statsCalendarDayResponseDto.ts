@@ -8,6 +8,6 @@ import type { CalendarMark } from './calendarMark';
 
 export interface StatsCalendarDayResponseDto {
   date: string;
-  /** Тренировка, пропуск, пауза, перенос, ожидает ответа, отдых, впереди */
+  /** Тренировка, пропуск, пауза, тренировочный день (сегодня и впереди), отдых */
   mark: CalendarMark;
 }

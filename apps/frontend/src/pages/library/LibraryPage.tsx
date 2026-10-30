@@ -4,6 +4,7 @@ import { useState } from 'react'
 
 import type { CatalogKind } from '@sportbot/api/entities/catalog'
 import { buildPath, ROUTES } from '@/shared/config/paths'
+import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { Screen, StickyFooter } from '@/shared/ui/kit/Screen'
 import { ScreenHeader } from '@/shared/ui/kit/ScreenHeader'
 import { Segmented } from '@/shared/ui/kit/Segmented'
@@ -60,6 +61,14 @@ const LibraryPage = () => {
                 size='default'
                 stretch
               />
+              {tab === 'stretches' && (
+                <ButtonLink
+                  to={ROUTES.STRETCH_ROUTINES}
+                  variant='outline'
+                >
+                  Готовые комплексы
+                </ButtonLink>
+              )}
             </div>
           )}
         </>

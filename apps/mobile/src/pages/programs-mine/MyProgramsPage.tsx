@@ -6,9 +6,9 @@ import { PROGRAM_FORMS } from '@/shared/lib/plural-forms';
 import { QueryState } from '@/shared/ui/kit/QueryState';
 import { Screen } from '@/shared/ui/kit/Screen';
 import { TopBar } from '@/shared/ui/kit/ScreenHeader';
-import { MyPrograms } from '@/widgets/my-programs/MyPrograms';
+import { MyPrograms } from './components/MyPrograms';
 
-// Все свои программы: на главной программ только первые несколько, здесь — целиком, активная первой
+// Все свои программы, активная первой: отсюда программу меняют, смотрят и удаляют
 const MyProgramsPage = () => {
   const programs = usePrograms();
 

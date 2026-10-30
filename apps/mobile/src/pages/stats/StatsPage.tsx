@@ -14,6 +14,7 @@ import { RecordsSection } from '@/widgets/stats/RecordsSection';
 import { AddWorkoutButton } from './components/AddWorkoutButton';
 import { TABS, useTab } from './model/use-tab';
 
+// В посещениях период стоит у графика, а не над календарём: календарь листается по месяцам и от периода не зависит
 const StatsPage = () => {
   const [tab, setTab] = useTab();
   const [period] = usePeriod();
@@ -23,19 +24,25 @@ const StatsPage = () => {
       <View className="px-gutter">
         <PosterTabs tabs={TABS} value={tab} onValueChange={setTab} />
       </View>
-      <PeriodBar />
       {tab === 'progress' && (
         <>
+          <PeriodBar />
           <ProgressListSection period={period} />
           <RecordsSection period={period} />
         </>
       )}
-      {tab === 'muscles' && <MuscleLoadSection period={period} />}
+      {tab === 'muscles' && (
+        <>
+          <PeriodBar />
+          <MuscleLoadSection period={period} />
+        </>
+      )}
       {tab === 'attendance' && (
         <>
-          <AttendanceSection period={period} />
           <CalendarSection />
           <AddWorkoutButton />
+          <PeriodBar />
+          <AttendanceSection period={period} />
         </>
       )}
     </Screen>

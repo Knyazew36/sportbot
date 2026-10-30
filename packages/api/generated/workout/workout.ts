@@ -5,6 +5,7 @@
  * OpenAPI spec version: 0.0.1
  */
 import type {
+  AddCooldownStretchDto,
   AddWorkoutItemsDto,
   ClientAtDto,
   CreateManualWorkoutDto,
@@ -13,14 +14,19 @@ import type {
   FinishWorkoutDto,
   ReplaceWorkoutItemDto,
   StartWorkoutDto,
+  SwapCooldownStretchDto,
   UpdateWorkoutSetDto,
+  UseCooldownRoutineDto,
   WorkoutControllerAddItems200,
   WorkoutControllerAddSet200,
   WorkoutControllerAnalogs200,
   WorkoutControllerCooldown200,
+  WorkoutControllerCooldownAdd200,
   WorkoutControllerCooldownExclude200,
   WorkoutControllerCooldownFinish200,
+  WorkoutControllerCooldownRoutine200,
   WorkoutControllerCooldownStart200,
+  WorkoutControllerCooldownSwap200,
   WorkoutControllerCreate200,
   WorkoutControllerCurrent200,
   WorkoutControllerDeleteSet200,
@@ -272,6 +278,48 @@ export const workoutControllerCooldownExclude = (
       );
     }
   /**
+ * @summary Другая растяжка: заменить только в этой заминке, без исключения
+ */
+export const workoutControllerCooldownSwap = (
+    id: number,
+    swapCooldownStretchDto: SwapCooldownStretchDto,
+ ) => {
+      return customInstance<WorkoutControllerCooldownSwap200>(
+      {url: `/workout/cooldown/swap/${id}`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: swapCooldownStretchDto
+    },
+      );
+    }
+  /**
+ * @summary Ещё растяжка в заминку: случайная или на выбранную мышцу
+ */
+export const workoutControllerCooldownAdd = (
+    id: number,
+    addCooldownStretchDto: AddCooldownStretchDto,
+ ) => {
+      return customInstance<WorkoutControllerCooldownAdd200>(
+      {url: `/workout/cooldown/add/${id}`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: addCooldownStretchDto
+    },
+      );
+    }
+  /**
+ * @summary Готовый комплекс вместо набора заминки: только до её начала
+ */
+export const workoutControllerCooldownRoutine = (
+    id: number,
+    useCooldownRoutineDto: UseCooldownRoutineDto,
+ ) => {
+      return customInstance<WorkoutControllerCooldownRoutine200>(
+      {url: `/workout/cooldown/routine/${id}`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: useCooldownRoutineDto
+    },
+      );
+    }
+  /**
  * @summary Поделиться: бот присылает в чат карточку результата для пересылки
  */
 export const workoutControllerShare = (
@@ -344,6 +392,9 @@ export type WorkoutControllerWarmupFinishResult = NonNullable<Awaited<ReturnType
 export type WorkoutControllerCooldownStartResult = NonNullable<Awaited<ReturnType<typeof workoutControllerCooldownStart>>>
 export type WorkoutControllerCooldownFinishResult = NonNullable<Awaited<ReturnType<typeof workoutControllerCooldownFinish>>>
 export type WorkoutControllerCooldownExcludeResult = NonNullable<Awaited<ReturnType<typeof workoutControllerCooldownExclude>>>
+export type WorkoutControllerCooldownSwapResult = NonNullable<Awaited<ReturnType<typeof workoutControllerCooldownSwap>>>
+export type WorkoutControllerCooldownAddResult = NonNullable<Awaited<ReturnType<typeof workoutControllerCooldownAdd>>>
+export type WorkoutControllerCooldownRoutineResult = NonNullable<Awaited<ReturnType<typeof workoutControllerCooldownRoutine>>>
 export type WorkoutControllerShareResult = NonNullable<Awaited<ReturnType<typeof workoutControllerShare>>>
 export type WorkoutControllerSharedResult = NonNullable<Awaited<ReturnType<typeof workoutControllerShared>>>
 export type WorkoutControllerSummaryResult = NonNullable<Awaited<ReturnType<typeof workoutControllerSummary>>>

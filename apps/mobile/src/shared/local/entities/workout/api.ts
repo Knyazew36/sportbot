@@ -37,6 +37,7 @@ import {
   readWorkout,
 } from './read-workout';
 import {
+  addCooldownStretch,
   addItems,
   addManualWorkout,
   addSet,
@@ -51,6 +52,8 @@ import {
   removeItem,
   replaceItem,
   startWorkout,
+  applyRoutineToCooldown,
+  swapCooldownStretch,
   updateSet,
   warmupFinish,
 } from './write-workout';
@@ -238,18 +241,60 @@ export const useCooldownFinish = () => {
   });
 };
 
+const mustSavedCooldown = (database: LocalDb, workoutId: number) => {
+  const workout = findWorkoutRow(database, workoutId);
+  const cooldown = workout && readSavedCooldown(database, workout);
+  if (!cooldown) throw new Error('Заминка не найдена.');
+  return cooldown;
+};
+
 /** «Не предлагать» в заминке: растяжка исключается навсегда, здесь меняется на другую на те же мышцы */
 export const useExcludeCooldownStretch = () => {
   const db = useDb();
   return useLocalMutation({
     mutationFn: async ({ workoutId, stretchId }: { workoutId: number; stretchId: number }) => {
       excludeCooldownStretch(db(), workoutId, stretchId);
-      const workout = findWorkoutRow(db(), workoutId);
-      const cooldown = workout && readSavedCooldown(db(), workout);
-      if (!cooldown) throw new Error('Заминка не найдена.');
-      return cooldown;
+      return mustSavedCooldown(db(), workoutId);
     },
     meta: { successMessage: 'Больше не предложим эту растяжку' },
+  });
+};
+
+/** «Другая»: замена только в этой заминке */
+export const useCooldownSwap = () => {
+  const db = useDb();
+  return useLocalMutation({
+    mutationFn: async ({ workoutId, stretchId }: { workoutId: number; stretchId: number }) => {
+      swapCooldownStretch(db(), workoutId, stretchId);
+      return mustSavedCooldown(db(), workoutId);
+    },
+    // Новая растяжка сразу на экране вместо старой
+    meta: { skipSuccessToast: true },
+  });
+};
+
+/** Готовый комплекс вместо набора заминки */
+export const useCooldownRoutine = () => {
+  const db = useDb();
+  return useLocalMutation({
+    mutationFn: async ({ workoutId, routineId }: { workoutId: number; routineId: number }) => {
+      applyRoutineToCooldown(db(), workoutId, routineId);
+      return mustSavedCooldown(db(), workoutId);
+    },
+    // Выбирают внизу экрана, а список меняется выше: без тоста смены не видно
+    meta: { successMessage: 'Заминка из комплекса' },
+  });
+};
+
+/** Ещё растяжка в конец заминки: случайная или на выбранную мышцу */
+export const useCooldownAdd = () => {
+  const db = useDb();
+  return useLocalMutation({
+    mutationFn: async ({ workoutId, muscleId }: { workoutId: number; muscleId?: number }) => {
+      addCooldownStretch(db(), workoutId, muscleId);
+      return mustSavedCooldown(db(), workoutId);
+    },
+    meta: { successMessage: 'Растяжка добавлена' },
   });
 };
 

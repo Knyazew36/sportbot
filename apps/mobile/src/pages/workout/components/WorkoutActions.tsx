@@ -119,6 +119,8 @@ export const WorkoutActions = ({
       block
       // Капсом «Следующее упражнение» шире узкого экрана — подпись переносится на вторую строку, а не режется
       spread
+      // Без отступов две строки укладываются в min-h: кнопка той же высоты, что отдых и подход
+      contentClassName="py-0"
       onPress={onNext}
       disabled={nextPending}
     >

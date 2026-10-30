@@ -351,6 +351,31 @@ export const templates = sqliteTable('templates', {
   complexes: json<SyncTemplateComplexDto[]>('complexes').notNull(),
 });
 
+/** Комплексы растяжек: заминка из них и отдельное занятие идут без сети. Приходят целиком в каждом синке */
+export const stretchRoutines = sqliteTable('stretch_routines', {
+  id: integer('id').primaryKey(),
+  name: text('name').notNull(),
+  description: text('description').notNull(),
+  position: integer('position').notNull(),
+  stretchIds: json<number[]>('stretchIds').notNull(),
+});
+
+/** Отдельные занятия растяжкой: в статистику тренировок не идут */
+export const stretchSessions = sqliteTable(
+  'stretch_sessions',
+  {
+    clientId: text('clientId').primaryKey(),
+    id: integer('id'),
+    routineId: integer('routineId'),
+    routineName: text('routineName').notNull(),
+    date: text('date').notNull(),
+    startedAt: text('startedAt').notNull(),
+    finishedAt: text('finishedAt'),
+    updatedAt: text('updatedAt').notNull(),
+  },
+  (t) => [index('stretch_sessions_startedAt').on(t.startedAt)],
+);
+
 // ── Служебное ───────────────────────────────────────────────────────────────
 
 /** Курсоры синка и время последнего успешного обмена: ключ → значение */

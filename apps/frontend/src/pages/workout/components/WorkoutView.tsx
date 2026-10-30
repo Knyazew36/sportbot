@@ -1,6 +1,6 @@
 import { pluralize } from '@front-cmdt/utils/pluralize'
-
 import type { Workout } from '@sportbot/api/entities/workout'
+
 import { ROUTES } from '@/shared/config/paths'
 import { EXERCISE_OF_FORMS } from '@/shared/lib/plural-forms'
 import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
@@ -13,6 +13,7 @@ import { EditSetSheet } from '@/widgets/workout/EditSetSheet'
 import { SetList } from '@/widgets/workout/SetList'
 
 import { useWorkoutFlow } from '../model/use-workout-flow'
+
 import { ElapsedInline } from './ElapsedInline'
 import { EmptyWorkout } from './EmptyWorkout'
 import { ExerciseCard } from './ExerciseCard'
@@ -46,7 +47,7 @@ export const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
   const { settings } = workout
 
   return (
-    <div className='flex min-h-svh flex-1 flex-col'>
+    <div className='flex flex-1 flex-col'>
       <Screen
         // Внутри суперсета экран не пересоздаётся: лента карточек и её прокрутка живут, пока идёт суперсет
         key={superset ? `s${superset.superset}` : item.id}
@@ -70,7 +71,7 @@ export const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
                   title={doneCount ? 'Завершить тренировку?' : 'Засчитывать нечего'}
                   description={
                     doneCount
-                      ? `Сделано ${doneCount} из ${pluralize(items.length, EXERCISE_OF_FORMS)}. Тренировка засчитается.`
+                      ? `Сделано ${doneCount} из ${pluralize(items.length, EXERCISE_OF_FORMS)}.`
                       : 'Пока не сделано ни одного упражнения. Можно отменить тренировку — очередь тренировок не сдвинется.'
                   }
                   confirmLabel={doneCount ? 'Завершить' : 'Отменить тренировку'}
@@ -95,11 +96,7 @@ export const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
             next={active.forward}
             nextPending={flow.finishPending}
             // Отдых идёт сам после подхода; кнопка — запустить его заново, если он не идёт
-            restSeconds={
-              settings.showRestTimer && block.some(e => e.sets.length)
-                ? settings.restSeconds
-                : null
-            }
+            restSeconds={settings.showRestTimer && block.some(e => e.sets.length) ? settings.restSeconds : null}
             round={superset ? (superset.done ? null : superset.number) : undefined}
             onRecordRound={active.recordRound}
             onStartSet={active.startSet}
@@ -111,7 +108,7 @@ export const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
             onNext={active.onNext}
           />
         }
-        className='gap-6 px-gutter'
+        className='px-gutter gap-6'
       >
         {superset ? (
           <SupersetScreen

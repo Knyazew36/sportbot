@@ -50,6 +50,16 @@ async function main() {
         },
       },
     });
+    const routines = await prisma.stretchRoutine.findMany({
+      where: { code: { not: null } },
+      orderBy: [{ position: 'asc' }, { id: 'asc' }],
+      include: {
+        items: {
+          orderBy: { position: 'asc' },
+          include: { stretch: { select: { code: true, id: true } } },
+        },
+      },
+    });
     const file = {
       exportedAt: new Date().toISOString(),
       exercises: exercises.map((e) => ({
@@ -125,6 +135,15 @@ async function main() {
             ...(e.superset ? { superset: e.superset } : {}),
           })),
         })),
+      })),
+      stretchRoutines: routines.map((r) => ({
+        code: r.code,
+        name: r.name,
+        description: r.description,
+        published: r.published,
+        position: r.position,
+        // Черновик без code в комплексе импортом не повторить — помечаем id, чтобы было видно
+        stretches: r.items.map((i) => i.stretch.code ?? `#${i.stretch.id}`),
       })),
     };
     fs.writeFileSync(out, `${JSON.stringify(file, null, 2)}\n`);

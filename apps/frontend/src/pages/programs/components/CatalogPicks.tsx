@@ -29,7 +29,7 @@ export const CatalogPicks = ({ title }: { title: string }) => {
           size='sm'
           className='h-auto p-0'
         >
-          Все
+          Весь каталог
           <ArrowRightIcon />
         </ButtonLink>
       }

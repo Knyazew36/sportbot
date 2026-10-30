@@ -7,8 +7,11 @@ import { SyncPushService } from '@/sync/sync-push.service';
 import { SyncOpContext, SyncOpOutcome } from '@/sync/sync-op.types';
 
 import { CooldownService } from './cooldown.service';
+import { SyncCooldownAddDto } from './dto/sync/sync-cooldown-add.dto';
 import { SyncCooldownBuildDto } from './dto/sync/sync-cooldown-build.dto';
 import { SyncCooldownExcludeDto } from './dto/sync/sync-cooldown-exclude.dto';
+import { SyncCooldownRoutineDto } from './dto/sync/sync-cooldown-routine.dto';
+import { SyncCooldownSwapDto } from './dto/sync/sync-cooldown-swap.dto';
 import { SyncItemAddDto } from './dto/sync/sync-item-add.dto';
 import { SyncItemReplaceDto } from './dto/sync/sync-item-replace.dto';
 import { SyncSetAddDto } from './dto/sync/sync-set-add.dto';
@@ -61,7 +64,10 @@ export class WorkoutSyncService implements OnModuleInit {
       'cooldown.start': (ctx) => this.mark(ctx, 'cooldownStart'),
       'cooldown.finish': (ctx) => this.mark(ctx, 'cooldownFinish'),
       'cooldown.build': (ctx) => this.cooldownBuild(ctx),
+      'cooldown.routine': (ctx) => this.cooldownRoutine(ctx),
       'cooldown.exclude': (ctx) => this.cooldownExclude(ctx),
+      'cooldown.swap': (ctx) => this.cooldownSwap(ctx),
+      'cooldown.add': (ctx) => this.cooldownAdd(ctx),
       'workout.finish': (ctx) => this.finish(ctx),
       'workout.discard': (ctx) => this.discard(ctx),
       'workout.delete': (ctx) => this.remove(ctx),
@@ -246,6 +252,20 @@ export class WorkoutSyncService implements OnModuleInit {
     return ids ? applied(ids) : skipped('У тренировки уже есть заминка');
   }
 
+  private async cooldownRoutine({ userId, op }: SyncOpContext) {
+    const dto = await parsePayload(SyncCooldownRoutineDto, op.payload);
+    const workout = await this.workoutOf(userId, op.clientId);
+    if (!workout) return skipped('Тренировка удалена');
+    return applied(
+      await this.cooldowns.useRoutineFromClient(
+        workout.id,
+        userId,
+        dto.routineId,
+        dto.stretches,
+      ),
+    );
+  }
+
   private async cooldownExclude({ userId, op }: SyncOpContext) {
     const dto = await parsePayload(SyncCooldownExcludeDto, op.payload);
     const found = await this.cooldowns.excludeFromClient(
@@ -256,6 +276,24 @@ export class WorkoutSyncService implements OnModuleInit {
       dto.exclusionClientId,
     );
     return found ? applied() : skipped('Растяжки уже нет в заминке');
+  }
+
+  private async cooldownSwap({ userId, op }: SyncOpContext) {
+    const dto = await parsePayload(SyncCooldownSwapDto, op.payload);
+    const found = await this.cooldowns.swapFromClient(
+      userId,
+      op.clientId,
+      dto.nextStretchId,
+    );
+    return found ? applied() : skipped('Растяжки уже нет в заминке');
+  }
+
+  private async cooldownAdd({ userId, op }: SyncOpContext) {
+    const dto = await parsePayload(SyncCooldownAddDto, op.payload);
+    const workout = await this.workoutOf(userId, op.clientId);
+    if (!workout) return skipped('Тренировка удалена');
+    const ids = await this.cooldowns.addFromClient(workout.id, userId, dto);
+    return ids ? applied(ids) : skipped('Растяжка уже в заминке');
   }
 
   // ── Внутреннее ──────────────────────────────────────────────────────────

@@ -13,7 +13,8 @@ import { AddWorkoutButton } from './components/AddWorkoutButton'
 import { TABS, useTab } from './model/use-tab'
 
 // Статистика (frontend-tz, 12): три вопроса, каждый на своей вкладке — «я расту?», «всё ли тело работает?»,
-// «хожу ли регулярно?». С главной в посещения ведёт ссылка в шапке. Вес тела — в профиле. Цифры считает бэк — те же, что в боте
+// «хожу ли регулярно?». С главной в посещения ведёт плашка недели. Вес тела — в профиле. Цифры считает бэк — те же, что в боте.
+// В посещениях период стоит у графика, а не над календарём: календарь листается по месяцам и от периода не зависит
 const StatsPage = () => {
   const [tab, setTab] = useTab()
   const [period] = usePeriod()
@@ -30,19 +31,25 @@ const StatsPage = () => {
           onValueChange={setTab}
         />
       </div>
-      <PeriodBar />
       {tab === 'progress' && (
         <>
+          <PeriodBar />
           <ProgressListSection period={period} />
           <RecordsSection period={period} />
         </>
       )}
-      {tab === 'muscles' && <MuscleLoadSection period={period} />}
+      {tab === 'muscles' && (
+        <>
+          <PeriodBar />
+          <MuscleLoadSection period={period} />
+        </>
+      )}
       {tab === 'attendance' && (
         <>
-          <AttendanceSection period={period} />
           <CalendarSection />
           <AddWorkoutButton />
+          <PeriodBar />
+          <AttendanceSection period={period} />
         </>
       )}
     </Screen>

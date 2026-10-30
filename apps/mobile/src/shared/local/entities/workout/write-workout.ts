@@ -2,7 +2,14 @@ import { and, asc, desc, eq, gt, inArray, ne, notInArray, sql } from 'drizzle-or
 
 import type { AddSetVars, DeleteSetVars, FinishVars, UpdateSetVars } from '@sportbot/api/entities/workout';
 import { newClientId } from '@sportbot/api/entities/workout';
-import { buildCooldown, replacementFor, type CooldownCandidate } from '@sportbot/api/lib/cooldown';
+import {
+  additionFor,
+  buildCooldown,
+  RECENT_COOLDOWNS,
+  recentPenalties,
+  replacementFor,
+  type CooldownCandidate,
+} from '@sportbot/api/lib/cooldown';
 import { advanceQueue, nextInQueue, resolveWarmup, streakOf } from '@sportbot/api/lib/day';
 import { defaultPlan, isTimed, isValidSet, setError } from '@sportbot/api/lib/measure';
 import { addDays, localToday } from '@sportbot/api/lib/time';
@@ -18,6 +25,7 @@ import {
   programs,
   stretches,
   stretchExclusions,
+  stretchRoutines,
   workoutExercises,
   workouts,
   workoutSets,
@@ -453,21 +461,22 @@ export const ensureCooldown = (tx: LocalTx, workout: WorkoutRow, onlyDone: boole
   );
   const bodyOrder = new Map(tx.select().from(muscles).all().map((m) => [m.id, m.bodyOrder]));
   const previous = tx
-    .select({ clientId: workouts.clientId })
+    .selectDistinct({ clientId: workouts.clientId, startedAt: workouts.startedAt })
     .from(workouts)
     .innerJoin(workoutStretches, eq(workoutStretches.workoutClientId, workouts.clientId))
     .where(ne(workouts.clientId, workout.clientId))
     .orderBy(desc(workouts.startedAt))
-    .get();
-  const recent = new Set(
-    previous
-      ? tx
-          .select({ id: workoutStretches.stretchId })
-          .from(workoutStretches)
-          .where(eq(workoutStretches.workoutClientId, previous.clientId))
-          .all()
-          .map((s) => s.id)
-      : [],
+    .limit(RECENT_COOLDOWNS)
+    .all();
+  const recent = recentPenalties(
+    previous.map(({ clientId }) =>
+      tx
+        .select({ id: workoutStretches.stretchId })
+        .from(workoutStretches)
+        .where(eq(workoutStretches.workoutClientId, clientId))
+        .all()
+        .map((s) => s.id),
+    ),
   );
   const { main, optional } = buildCooldown({
     exercises: items
@@ -507,37 +516,47 @@ export const ensureCooldown = (tx: LocalTx, workout: WorkoutRow, onlyDone: boole
   });
 };
 
+const mustCooldownRow = (tx: LocalTx, workout: WorkoutRow, stretchId: number) => {
+  const row = tx
+    .select()
+    .from(workoutStretches)
+    .where(and(eq(workoutStretches.workoutClientId, workout.clientId), eq(workoutStretches.stretchId, stretchId)))
+    .get();
+  if (!row) throw new Error('Этой растяжки нет в заминке.');
+  return row;
+};
+
+/** Замена растяжки: что ещё не в этой заминке и тянет те же мышцы */
+const pickReplacement = (tx: LocalTx, workout: WorkoutRow, stretchId: number) => {
+  const taken = tx
+    .select({ id: workoutStretches.stretchId })
+    .from(workoutStretches)
+    .where(eq(workoutStretches.workoutClientId, workout.clientId))
+    .all()
+    .map((s) => s.id);
+  const candidates = cooldownCandidates(tx);
+  const removed = candidates.find((c) => c.id === stretchId) ?? {
+    id: stretchId,
+    position: null,
+    holdSeconds: 0,
+    perSide: false,
+    hasImage: false,
+    muscles: (tx.select({ ids: stretches.muscleIds }).from(stretches).where(eq(stretches.id, stretchId)).get()?.ids ?? []).map(
+      (id) => ({ id, bodyOrder: 0 }),
+    ),
+  };
+  return replacementFor(
+    removed,
+    candidates.filter((c) => c.id !== stretchId && !taken.includes(c.id)),
+  );
+};
+
 /** «Не предлагать»: растяжка исключается навсегда, а в этой заминке меняется на другую на те же мышцы */
 export const excludeCooldownStretch = (db: LocalDb, workoutId: number, stretchId: number): void =>
   db.transaction((tx) => {
     const workout = mustWorkout(tx, workoutId);
-    const row = tx
-      .select()
-      .from(workoutStretches)
-      .where(and(eq(workoutStretches.workoutClientId, workout.clientId), eq(workoutStretches.stretchId, stretchId)))
-      .get();
-    if (!row) throw new Error('Этой растяжки нет в заминке.');
-    const taken = tx
-      .select({ id: workoutStretches.stretchId })
-      .from(workoutStretches)
-      .where(eq(workoutStretches.workoutClientId, workout.clientId))
-      .all()
-      .map((s) => s.id);
-    const candidates = cooldownCandidates(tx);
-    const removed = candidates.find((c) => c.id === stretchId) ?? {
-      id: stretchId,
-      position: null,
-      holdSeconds: 0,
-      perSide: false,
-      hasImage: false,
-      muscles: (tx.select({ ids: stretches.muscleIds }).from(stretches).where(eq(stretches.id, stretchId)).get()?.ids ?? []).map(
-        (id) => ({ id, bodyOrder: 0 }),
-      ),
-    };
-    const next = replacementFor(
-      removed,
-      candidates.filter((c) => c.id !== stretchId && !taken.includes(c.id)),
-    );
+    const row = mustCooldownRow(tx, workout, stretchId);
+    const next = pickReplacement(tx, workout, stretchId);
     const exclusion = tx.select().from(stretchExclusions).where(eq(stretchExclusions.stretchId, stretchId)).get();
     const exclusionClientId = exclusion?.clientId ?? newClientId();
     if (!exclusion) tx.insert(stretchExclusions).values({ clientId: exclusionClientId, stretchId, updatedAt: now() }).run();
@@ -549,6 +568,101 @@ export const excludeCooldownStretch = (db: LocalDb, workoutId: number, stretchId
       clientId: row.clientId,
       touched: [exclusionClientId],
       payload: { stretchId, nextStretchId: next?.id ?? null, exclusionClientId },
+    });
+  });
+
+/** Готовый комплекс вместо набора заминки. После её начала нельзя: человек уже видит шаги */
+export const applyRoutineToCooldown = (db: LocalDb, workoutId: number, routineId: number): void =>
+  db.transaction((tx) => {
+    const workout = mustWorkout(tx, workoutId);
+    if (workout.cooldownStartedAt) throw new Error('Заминка уже начата.');
+    const routine = tx.select().from(stretchRoutines).where(eq(stretchRoutines.id, routineId)).get();
+    if (!routine) throw new Error('Комплекс не найден.');
+    const allowed = new Set(cooldownCandidates(tx).map((s) => s.id));
+    const stretchIds = routine.stretchIds.filter((id) => allowed.has(id));
+    // Исключённые растяжки выпадают; если выпали все, заминку не обнуляем
+    if (!stretchIds.length) throw new Error('Все растяжки этого комплекса исключены.');
+    const at = now();
+    const rows = stretchIds.map((stretchId, index) => ({
+      clientId: newClientId(),
+      localId: nextLocalId(tx),
+      workoutClientId: workout.clientId,
+      stretchId,
+      block: 'MAIN' as const,
+      position: index + 1,
+      updatedAt: at,
+    }));
+    tx.delete(workoutStretches).where(eq(workoutStretches.workoutClientId, workout.clientId)).run();
+    tx.insert(workoutStretches).values(rows).run();
+    enqueue(tx, {
+      type: 'cooldown.routine',
+      entity: 'Workout',
+      clientId: workout.clientId,
+      touched: rows.map((r) => r.clientId),
+      payload: {
+        routineId,
+        stretches: rows.map((r) => ({ clientId: r.clientId, stretchId: r.stretchId, position: r.position })),
+      },
+    });
+  });
+
+/**
+ * «Другая»: не подошла только сейчас, в исключения не пишем. Замены нет — ошибка, а не удаление:
+ * человек просил другую растяжку, а не сократить заминку
+ */
+export const swapCooldownStretch = (db: LocalDb, workoutId: number, stretchId: number): void =>
+  db.transaction((tx) => {
+    const workout = mustWorkout(tx, workoutId);
+    const row = mustCooldownRow(tx, workout, stretchId);
+    const next = pickReplacement(tx, workout, stretchId);
+    if (!next) throw new Error('Другой растяжки на эти мышцы нет.');
+    tx.update(workoutStretches).set({ stretchId: next.id }).where(eq(workoutStretches.clientId, row.clientId)).run();
+    enqueue(tx, {
+      type: 'cooldown.swap',
+      entity: 'WorkoutStretch',
+      clientId: row.clientId,
+      payload: { nextStretchId: next.id },
+    });
+  });
+
+/** Ещё растяжка в конец заминки: случайная или на выбранную мышцу */
+export const addCooldownStretch = (db: LocalDb, workoutId: number, muscleId?: number): void =>
+  db.transaction((tx) => {
+    const workout = mustWorkout(tx, workoutId);
+    const taken = tx
+      .select({ stretchId: workoutStretches.stretchId, position: workoutStretches.position })
+      .from(workoutStretches)
+      .where(eq(workoutStretches.workoutClientId, workout.clientId))
+      .all();
+    const takenIds = new Set(taken.map((t) => t.stretchId));
+    const exerciseIds = loadWorkout(tx, workout).items.map((i) => i.exerciseId);
+    const trained = new Set(
+      (exerciseIds.length ? tx.select().from(exercises).where(inArray(exercises.id, exerciseIds)).all() : []).flatMap((e) =>
+        e.muscles.map((m) => m.muscleId),
+      ),
+    );
+    const stretch = additionFor(
+      cooldownCandidates(tx).filter((c) => !takenIds.has(c.id)),
+      trained,
+      muscleId,
+    );
+    if (!stretch) throw new Error(muscleId ? 'На эту мышцу растяжек больше нет.' : 'Все растяжки уже в заминке.');
+    const row = {
+      clientId: newClientId(),
+      localId: nextLocalId(tx),
+      workoutClientId: workout.clientId,
+      stretchId: stretch.id,
+      block: 'OPTIONAL' as const,
+      position: Math.max(0, ...taken.map((t) => t.position)) + 1,
+      updatedAt: now(),
+    };
+    tx.insert(workoutStretches).values(row).run();
+    enqueue(tx, {
+      type: 'cooldown.add',
+      entity: 'Workout',
+      clientId: workout.clientId,
+      touched: [row.clientId],
+      payload: { clientId: row.clientId, stretchId: row.stretchId, position: row.position },
     });
   });
 

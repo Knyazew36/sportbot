@@ -54,9 +54,11 @@ export const Wizard = ({ state }: { state: OnboardingState }) => {
           <Poster size="display" tone="primary" fit>
             {current.title}
           </Poster>
-          <Text tone="soft" className="mt-2">
-            {current.hint}
-          </Text>
+          {current.hint && (
+            <Text tone="soft" className="mt-2">
+              {current.hint}
+            </Text>
+          )}
         </View>
 
         {step === SCREEN.gender && (

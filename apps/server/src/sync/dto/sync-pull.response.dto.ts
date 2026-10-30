@@ -11,6 +11,7 @@ import {
   SyncProfileRowDto,
   SyncProgramRowDto,
   SyncStretchExclusionRowDto,
+  SyncStretchSessionRowDto,
   SyncWorkoutExerciseRowDto,
   SyncWorkoutRowDto,
   SyncWorkoutSetRowDto,
@@ -69,6 +70,9 @@ export class SyncPullResponseDto {
 
   @ApiProperty({ type: [SyncStretchExclusionRowDto] })
   stretchExclusions: SyncStretchExclusionRowDto[];
+
+  @ApiProperty({ type: [SyncStretchSessionRowDto] })
+  stretchSessions: SyncStretchSessionRowDto[];
 
   @ApiProperty({ type: [SyncBodyWeightRowDto] })
   bodyWeights: SyncBodyWeightRowDto[];

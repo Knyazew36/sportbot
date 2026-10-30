@@ -1,57 +1,64 @@
-import { View } from 'react-native';
-import { router } from 'expo-router';
-import { useKeepAwake } from 'expo-keep-awake';
+import { pluralize } from '@front-cmdt/utils/pluralize'
+import { useKeepAwake } from 'expo-keep-awake'
+import { router } from 'expo-router'
+import { View } from 'react-native'
 
-import { pluralize } from '@front-cmdt/utils/pluralize';
+import { ROUTES } from '@/shared/config/routes'
+import { useRestNotification } from '@/shared/lib/hooks/use-rest-notification'
+import { EXERCISE_OF_FORMS } from '@/shared/lib/plural-forms'
+import { Button } from '@/shared/ui/kit/Button'
+import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction'
+import { Screen } from '@/shared/ui/kit/Screen'
+import { TopBar } from '@/shared/ui/kit/ScreenHeader'
+import { Stamp } from '@/shared/ui/kit/Stamp'
+import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet'
+import { useWorkoutScreenBar } from '@/widgets/live-workout-bar/workout-screen-bar'
+import { EditSetSheet } from '@/widgets/workout/EditSetSheet'
+import { SetList } from '@/widgets/workout/SetList'
 
-import { ConfirmAction } from '@/shared/ui/kit/ConfirmAction';
-import { Screen } from '@/shared/ui/kit/Screen';
-import { Stamp } from '@/shared/ui/kit/Stamp';
-import { TopBar } from '@/shared/ui/kit/ScreenHeader';
-import { Button } from '@/shared/ui/kit/Button';
-import { ROUTES } from '@/shared/config/routes';
-import { EXERCISE_OF_FORMS } from '@/shared/lib/plural-forms';
-import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet';
-import { SetList } from '@/widgets/workout/SetList';
+import { useWorkoutFlow } from '../model/use-workout-flow'
 
-import { useRestNotification } from '@/shared/lib/hooks/use-rest-notification';
-
-import { useWorkoutFlow } from '../model/use-workout-flow';
-import { ElapsedInline } from './ElapsedInline';
-import { EmptyWorkout } from './EmptyWorkout';
-import { ExerciseCard } from './ExerciseCard';
-import { FinishPending } from './FinishPending';
-import { RoundEntrySheet } from './RoundEntrySheet';
-import { SetEntrySheet } from './SetEntrySheet';
-import { SupersetScreen } from './SupersetScreen';
-import { SyncStatus } from './SyncStatus';
-import { WorkoutActions } from './WorkoutActions';
-import { WorkoutFocus } from './WorkoutFocus';
-import { WorkoutLanes } from './WorkoutLanes';
-import { EditSetSheet } from '@/widgets/workout/EditSetSheet';
-import { useWorkoutScreenBar } from '@/widgets/live-workout-bar/workout-screen-bar';
+import { ElapsedInline } from './ElapsedInline'
+import { EmptyWorkout } from './EmptyWorkout'
+import { ExerciseCard } from './ExerciseCard'
+import { FinishPending } from './FinishPending'
+import { RoundEntrySheet } from './RoundEntrySheet'
+import { SetEntrySheet } from './SetEntrySheet'
+import { SupersetScreen } from './SupersetScreen'
+import { SyncStatus } from './SyncStatus'
+import { WorkoutActions } from './WorkoutActions'
+import { WorkoutFocus } from './WorkoutFocus'
+import { WorkoutLanes } from './WorkoutLanes'
 
 export const WorkoutView = ({ workout: saved }: { workout: import('@sportbot/api/entities/workout').Workout }) => {
-  useKeepAwake();
-  const flow = useWorkoutFlow(saved);
-  useRestNotification(flow.active?.timer);
-  const { workout, active, doneCount, items } = flow;
+  useKeepAwake()
+  const flow = useWorkoutFlow(saved)
+  useRestNotification(flow.active?.timer)
+  const { workout, active, doneCount, items } = flow
   // Полоса общая на приложение; без упражнений возвращаться не к чему — прячем
-  useWorkoutScreenBar({ hidden: !active || active.focusOpen, onReturn: active?.returnToFocus });
+  useWorkoutScreenBar({ hidden: !active || active.focusOpen, onReturn: active?.returnToFocus })
 
-  if (flow.finishing) return <FinishPending />;
+  if (flow.finishing) return <FinishPending />
 
-  if (!active) return <EmptyWorkout title={workout.complexName} onDiscard={flow.onDiscard} />;
+  if (!active)
+    return (
+      <EmptyWorkout
+        title={workout.complexName}
+        onDiscard={flow.onDiscard}
+      />
+    )
 
-  const { item, superset, block } = active;
-  const { settings } = workout;
+  const { item, superset, block } = active
+  const { settings } = workout
 
   return (
-    <View className="flex-1">
+    <View className='flex-1'>
       <Screen
         key={superset ? `s${superset.superset}` : item.id}
         fullscreen
         scroll
+        // Фон прозрачнее общего: при 85% размытие почти не видно, а плитки подходов уходят под этот футер
+        footerTone='bg-background/50'
         header={
           <>
             <TopBar
@@ -60,11 +67,16 @@ export const WorkoutView = ({ workout: saved }: { workout: import('@sportbot/api
               subtitle={<ElapsedInline startedAt={workout.startedAt} />}
               action={
                 <ConfirmAction
-                  trigger={<Button variant="success" size="sm" />}
+                  trigger={
+                    <Button
+                      variant='success'
+                      size='sm'
+                    />
+                  }
                   title={doneCount ? 'Завершить тренировку?' : 'Засчитывать нечего'}
                   description={
                     doneCount
-                      ? `Сделано ${doneCount} из ${pluralize(items.length, EXERCISE_OF_FORMS)}. Тренировка засчитается.`
+                      ? `Сделано ${doneCount} из ${pluralize(items.length, EXERCISE_OF_FORMS)}.`
                       : 'Пока не сделано ни одного упражнения. Можно отменить тренировку — очередь тренировок не сдвинется.'
                   }
                   confirmLabel={doneCount ? 'Завершить' : 'Отменить тренировку'}
@@ -76,7 +88,11 @@ export const WorkoutView = ({ workout: saved }: { workout: import('@sportbot/api
               }
             />
             <SyncStatus />
-            <WorkoutLanes items={items} currentId={item.id} onPick={active.pickLane} />
+            <WorkoutLanes
+              items={items}
+              currentId={item.id}
+              onPick={active.pickLane}
+            />
           </>
         }
         footer={
@@ -85,7 +101,7 @@ export const WorkoutView = ({ workout: saved }: { workout: import('@sportbot/api
             next={active.forward}
             nextPending={flow.finishPending}
             restSeconds={
-              settings.showRestTimer && !settings.restAutoStart && block.some((e) => e.sets.length)
+              settings.showRestTimer && !settings.restAutoStart && block.some(e => e.sets.length)
                 ? settings.restSeconds
                 : null
             }
@@ -100,18 +116,29 @@ export const WorkoutView = ({ workout: saved }: { workout: import('@sportbot/api
             onNext={active.onNext}
           />
         }
-        className="gap-6 px-gutter"
+        className='px-gutter gap-6'
       >
         {superset ? (
-          <SupersetScreen round={superset} onEdit={flow.setEditing} onAddSet={active.addSetFor} />
+          <SupersetScreen
+            round={superset}
+            onEdit={flow.setEditing}
+            onAddSet={active.addSetFor}
+          />
         ) : (
           <>
             <ExerciseCard item={item} />
-            <SetList item={item} onEdit={flow.setEditing} onAdd={active.addSet} />
+            <SetList
+              item={item}
+              onEdit={flow.setEditing}
+              onAdd={active.addSet}
+            />
           </>
         )}
       </Screen>
-      <WorkoutFocus flow={active} startedAt={workout.startedAt} />
+      <WorkoutFocus
+        flow={active}
+        startedAt={workout.startedAt}
+      />
       <SetEntrySheet
         open={active.entryOpen}
         onClose={active.closeEntry}
@@ -129,17 +156,24 @@ export const WorkoutView = ({ workout: saved }: { workout: import('@sportbot/api
       />
       <ExerciseSheet
         exercise={active.preview && { id: active.preview.exerciseId, name: active.preview.name }}
-        onOpenChange={(open) => !open && active.closePreview()}
+        onOpenChange={open => !open && active.closePreview()}
         action={
           active.preview && (
-            <Button size="lg" block onPress={active.goToPreview}>
+            <Button
+              size='lg'
+              block
+              onPress={active.goToPreview}
+            >
               Перейти к упражнению
             </Button>
           )
         }
       />
       <Stamp text={flow.stamp} />
-      <EditSetSheet editing={flow.editing} onClose={() => flow.setEditing(null)} />
+      <EditSetSheet
+        editing={flow.editing}
+        onClose={() => flow.setEditing(null)}
+      />
     </View>
-  );
-};
+  )
+}

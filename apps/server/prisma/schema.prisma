@@ -63,6 +63,7 @@ model User {
   pauses             Pause[]
   limitations        Limitation[]
   stretchExclusions  StretchExclusion[]
+  stretchSessions    StretchSession[]
   bodyWeights        BodyWeight[]
   botSessions        BotSession[]
   authoredExercises  Exercise[]          @relation("ExerciseAuthor")
@@ -764,6 +765,7 @@ model Stretch {
   muscles            StretchMuscle[]
   workoutStretches   WorkoutStretch[]
   exclusions         StretchExclusion[]
+  routineItems       StretchRoutineItem[]
   moderationRequests ModerationRequest[] @relation("ModerationStretch")
   duplicateRequests  ModerationRequest[] @relation("ModerationDuplicateStretch")
   complaints         Complaint[]
@@ -798,6 +800,61 @@ model StretchExclusion {
   @@id([userId, stretchId])
   @@index([stretchId])
   @@index([userId, updatedAt]) /// pull офлайн-синка
+}
+
+/// Готовый комплекс растяжек: выбирается в заминке или проходится отдельным занятием.
+model StretchRoutine {
+  id          Int     @id @default(autoincrement())
+  code        String? @unique /// ключ записи справочника для импорта
+  name        String
+  description String  @default("")
+  published   Boolean @default(true)
+  position    Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  items    StretchRoutineItem[]
+  sessions StretchSession[]
+
+  @@index([published, position])
+}
+
+model StretchRoutineItem {
+  id        Int            @id @default(autoincrement())
+  routineId Int
+  routine   StretchRoutine @relation(fields: [routineId], references: [id], onDelete: Cascade)
+  stretchId Int
+  /// Restrict: удаление растяжки не должно молча менять состав комплекса.
+  stretch   Stretch        @relation(fields: [stretchId], references: [id], onDelete: Restrict)
+  position  Int
+
+  @@unique([routineId, stretchId])
+  @@index([routineId, position])
+  @@index([stretchId])
+}
+
+/// Отдельное занятие растяжкой. Не Workout: его читают статистика, календарь и отчёты тренировок.
+model StretchSession {
+  id       Int    @id @default(autoincrement())
+  /// uuid с клиента: офлайн-синк ссылается на строку по нему, пока нет серверного id
+  clientId String @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId   Int
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  routineId   Int?
+  routine     StretchRoutine? @relation(fields: [routineId], references: [id], onDelete: SetNull)
+  routineName String /// снимок названия: комплекс могут переименовать или удалить
+
+  date       DateTime  @db.Date
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@index([userId, startedAt])
+  @@index([userId, updatedAt]) /// pull офлайн-синка
+  @@index([routineId])
 }
 
 /// Заявка на модерацию своего упражнения или растяжки. Заполнено ровно одно из exerciseId / stretchId.
@@ -1185,7 +1242,7 @@ model WorkoutSet {
   @@unique([workoutExerciseId, number])
 }
 
-/// Растяжка заминки. Набор выбирается один раз и не меняется.
+/// Растяжка заминки. Набор выбирается один раз; до начала заминки его можно заменить готовым комплексом.
 model WorkoutStretch {
   id        Int     @id @default(autoincrement())
   /// uuid с клиента: офлайн-синк ссылается на строку по нему, пока нет серверного id

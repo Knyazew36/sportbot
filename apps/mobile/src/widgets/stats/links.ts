@@ -19,5 +19,7 @@ export const exerciseStatsLink = (exerciseId: number, params?: StatsLinkParams) 
   statsLink(ROUTES.STATS_EXERCISE, params, { exerciseId });
 
 /** Откуда пришли на экраны статистики: своя статистика (на нужной вкладке) или профиль друга */
-export const statsHome = (userId?: number, period?: Period, tab?: StatsTab) =>
-  userId ? routeHref(ROUTES.FRIEND, { friendId: userId }) : statsLink(ROUTES.STATS, { period, tab });
+export const statsHome = (userId?: number, period?: Period, tab?: StatsTab) => {
+  if (userId) return routeHref(ROUTES.FRIEND, { friendId: userId });
+  return statsLink(ROUTES.STATS, { period, tab });
+};

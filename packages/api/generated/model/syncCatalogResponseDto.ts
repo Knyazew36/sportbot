@@ -8,6 +8,7 @@ import type { SyncExerciseDto } from './syncExerciseDto';
 import type { SyncJointDto } from './syncJointDto';
 import type { SyncMuscleDto } from './syncMuscleDto';
 import type { SyncStretchDto } from './syncStretchDto';
+import type { SyncStretchRoutineDto } from './syncStretchRoutineDto';
 import type { SyncTagDto } from './syncTagDto';
 import type { SyncTagGroupDto } from './syncTagGroupDto';
 import type { SyncTemplateDto } from './syncTemplateDto';
@@ -28,6 +29,8 @@ export interface SyncCatalogResponseDto {
   stretches: SyncStretchDto[];
   /** Опубликованные шаблоны с составом, всегда целиком */
   templates: SyncTemplateDto[];
+  /** Опубликованные комплексы растяжек, всегда целиком */
+  stretchRoutines: SyncStretchRoutineDto[];
   /** Id всех видимых упражнений: остальные клиент удаляет (снятые черновики, слитые дубли) */
   exerciseIds: number[];
   stretchIds: number[];

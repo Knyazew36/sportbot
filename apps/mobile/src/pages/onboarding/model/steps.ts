@@ -1,5 +1,7 @@
 // Шаги мастера первого запуска — порт pages/onboarding/model/steps.ts
-export const STEPS = [
+type Step = { lead: string; title: string; hint?: string };
+
+export const STEPS: readonly Step[] = [
   {
     lead: 'кто тренируется —',
     title: 'Пол',
@@ -25,7 +27,7 @@ export const STEPS = [
     title: 'Программа',
     hint: 'Возьми готовый шаблон или собери свою. Шаблон потом можно править.',
   },
-] as const;
+];
 
 export const SCREEN = { gender: 0, days: 1, remind: 2, times: 3, program: 4 } as const;
 

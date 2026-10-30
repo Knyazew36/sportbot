@@ -128,12 +128,24 @@ interface ImportProgram {
   }[];
 }
 
+interface ImportStretchRoutine {
+  code: string;
+  name: string;
+  description?: string;
+  /** Виден пользователям. Поля нет — новый комплекс публикуется, у существующего не меняется. */
+  published?: boolean;
+  position?: number;
+  /** Коды растяжек по порядку: состав заменяется целиком. */
+  stretches: string[];
+}
+
 export interface ImportFile {
   exercises: ImportExercise[];
   stretches: ImportStretch[];
   programTagGroups: ImportProgramTagGroup[];
   programTags: ImportProgramTag[];
   programs: ImportProgram[];
+  stretchRoutines: ImportStretchRoutine[];
 }
 
 export interface ImportReport {
@@ -219,7 +231,7 @@ export class ImportService {
     }
     if (!json || typeof json !== 'object' || Array.isArray(json))
       throw new BadRequestException(
-        'В корне файла должен быть объект с полями exercises, stretches, programs.',
+        'В корне файла должен быть объект с полями exercises, stretches, programs, stretchRoutines.',
       );
     const file: ImportFile = {
       exercises: list(json.exercises) as ImportExercise[],
@@ -227,6 +239,7 @@ export class ImportService {
       programTagGroups: list(json.programTagGroups) as ImportProgramTagGroup[],
       programTags: list(json.programTags) as ImportProgramTag[],
       programs: list(json.programs) as ImportProgram[],
+      stretchRoutines: list(json.stretchRoutines) as ImportStretchRoutine[],
     };
 
     const [
@@ -237,6 +250,7 @@ export class ImportService {
       dbPrograms,
       dbTags,
       dbGroups,
+      dbRoutines,
     ] = await Promise.all([
       this.prisma.muscle.findMany({ select: { code: true } }),
       this.prisma.joint.findMany({ select: { code: true } }),
@@ -254,6 +268,10 @@ export class ImportService {
       }),
       this.prisma.programTag.findMany({ select: { code: true } }),
       this.prisma.programTagGroup.findMany({ select: { code: true } }),
+      this.prisma.stretchRoutine.findMany({
+        where: { code: { not: null } },
+        select: { code: true },
+      }),
     ]);
     const muscleCodes = new Set(muscles.map((m) => m.code));
     const jointCodes = new Set(joints.map((j) => j.code));
@@ -456,7 +474,38 @@ export class ImportService {
       });
     });
 
+    duplicates('stretchRoutines', file.stretchRoutines);
+    const knownStretches = new Set([
+      ...file.stretches.map((s) => s?.code),
+      ...dbStretches.map((s) => s.code as string),
+    ]);
+    file.stretchRoutines.forEach((routine, index) => {
+      const at = `stretchRoutines[${index}]${isText(routine?.code) ? ` (${routine.code})` : ''}`;
+      if (!isText(routine?.code)) errors.push(`${at}: нет code`);
+      if (!isText(routine?.name)) errors.push(`${at}: нет name`);
+      if (
+        routine?.description !== undefined &&
+        (typeof routine.description !== 'string' ||
+          routine.description.length > 1000)
+      )
+        errors.push(`${at}: description — строка до 1000 символов`);
+      if (
+        routine?.published !== undefined &&
+        typeof routine.published !== 'boolean'
+      )
+        errors.push(`${at}: published — true или false`);
+      if (!list(routine?.stretches).length) errors.push(`${at}: нет растяжек`);
+      if (
+        new Set(list(routine?.stretches)).size !==
+        list(routine?.stretches).length
+      )
+        errors.push(`${at}: растяжка в составе повторяется`);
+      for (const code of unknown(routine?.stretches, knownStretches))
+        errors.push(`${at}: неизвестная растяжка ${String(code)}`);
+    });
+
     const existing = new Set([
+      ...dbRoutines.map((r) => `r:${r.code}`),
       ...dbExercises.map((e) => `e:${e.code}`),
       ...dbStretches.map((s) => `s:${s.code}`),
       ...dbPrograms.map((p) => `p:${p.code}`),
@@ -469,6 +518,7 @@ export class ImportService {
       ...file.programTagGroups.map((g) => `g:${g?.code}`),
       ...file.programTags.map((t) => `t:${t?.code}`),
       ...file.programs.map((p) => `p:${p?.code}`),
+      ...file.stretchRoutines.map((r) => `r:${r?.code}`),
     ];
     const update = keys.filter((key) => existing.has(key)).length;
     return { file, report: { create: keys.length - update, update, errors } };
@@ -866,11 +916,41 @@ export class ImportService {
             });
           }
         }
+
+        const stretchId = new Map(
+          (
+            await tx.stretch.findMany({
+              where: { code: { not: null } },
+              select: { id: true, code: true },
+            })
+          ).map((s) => [s.code as string, s.id]),
+        );
+        for (const item of file.stretchRoutines) {
+          const items = {
+            create: item.stretches.map((code, index) => ({
+              stretchId: stretchId.get(code)!,
+              position: index + 1,
+            })),
+          };
+          const fields = {
+            name: item.name.trim(),
+            ...(item.description !== undefined && {
+              description: item.description.trim(),
+            }),
+            ...(item.published !== undefined && { published: item.published }),
+            ...(item.position !== undefined && { position: item.position }),
+          };
+          await tx.stretchRoutine.upsert({
+            where: { code: item.code },
+            create: { code: item.code, ...fields, items },
+            update: { ...fields, items: { deleteMany: {}, ...items } },
+          });
+        }
       },
       { timeout: 120_000, maxWait: 10_000 },
     );
     this.logger.log(
-      `Импорт применён: упражнений=${file.exercises.length}, растяжек=${file.stretches.length}, групп тегов=${file.programTagGroups.length}, тегов=${file.programTags.length}, шаблонов=${file.programs.length}`,
+      `Импорт применён: упражнений=${file.exercises.length}, растяжек=${file.stretches.length}, групп тегов=${file.programTagGroups.length}, тегов=${file.programTags.length}, шаблонов=${file.programs.length}, комплексов растяжек=${file.stretchRoutines.length}`,
     );
     return report;
   }

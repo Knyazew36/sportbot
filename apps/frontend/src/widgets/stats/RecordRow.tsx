@@ -12,7 +12,7 @@ type RecordRowProps = { record: StatsRecord; to: string }
 export const RecordRow = ({ record, to }: RecordRowProps) => (
   <ListRow
     className='relative'
-    lead={<TrophyIcon className='size-4' />}
+    lead={<TrophyIcon className='text-sb-gold size-4' />}
     title={
       <Link
         to={to}

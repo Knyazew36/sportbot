@@ -45,6 +45,7 @@ export const loadSyncCatalog = async (
     exerciseIds,
     stretchIds,
     templates,
+    stretchRoutines,
   ] = await Promise.all([
     prisma.muscle.findMany({ orderBy: { bodyOrder: 'asc' } }),
     prisma.joint.findMany({ orderBy: { id: 'asc' } }),
@@ -69,6 +70,13 @@ export const loadSyncCatalog = async (
       include: {
         ...PROGRAM_INCLUDE,
         tags: { orderBy: PROGRAM_TAG_ORDER, select: PROGRAM_TAG_SELECT },
+      },
+    }),
+    prisma.stretchRoutine.findMany({
+      where: { published: true },
+      orderBy: [{ position: 'asc' }, { id: 'asc' }],
+      include: {
+        items: { orderBy: { position: 'asc' }, select: { stretchId: true } },
       },
     }),
   ]);
@@ -156,6 +164,13 @@ export const loadSyncCatalog = async (
           superset: item.superset,
         })),
       })),
+    })),
+    stretchRoutines: stretchRoutines.map((r) => ({
+      id: r.id,
+      name: r.name,
+      description: r.description,
+      position: r.position,
+      stretchIds: r.items.map((item) => item.stretchId),
     })),
     exerciseIds: exerciseIds.map((e) => e.id),
     stretchIds: stretchIds.map((s) => s.id),

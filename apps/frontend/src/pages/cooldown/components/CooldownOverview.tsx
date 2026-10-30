@@ -1,5 +1,5 @@
 import { pluralize } from '@front-cmdt/utils/pluralize'
-import { ArrowRightIcon } from 'lucide-react'
+import { ArrowRightIcon, PlusIcon } from 'lucide-react'
 
 import { toAssetUrl } from '@/shared/api'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
@@ -13,7 +13,8 @@ import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { CatalogRow } from '@/widgets/catalog/CatalogRow'
 
 import type { CooldownFlow } from '../model/use-cooldown-flow'
-import { CooldownDetailSheet } from './CooldownSheets'
+import { CooldownRoutines } from './CooldownRoutines'
+import { CooldownAddSheet, CooldownDetailSheet } from './CooldownSheets'
 
 // Обзор перед стартом: сколько минут и какие растяжки в основном блоке и «если есть время»
 export const CooldownOverview = ({ flow }: { flow: CooldownFlow }) => {
@@ -85,7 +86,18 @@ export const CooldownOverview = ({ flow }: { flow: CooldownFlow }) => {
           </List>
         </ScreenSection>
       ))}
+      <Rise>
+        <Button
+          variant='outline'
+          onClick={() => flow.setAddOpen(true)}
+        >
+          <PlusIcon />
+          Добавить растяжку
+        </Button>
+      </Rise>
+      <CooldownRoutines flow={flow} />
       <CooldownDetailSheet flow={flow} />
+      <CooldownAddSheet flow={flow} />
     </Screen>
   )
 }

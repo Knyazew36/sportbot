@@ -7,8 +7,11 @@ import {
   workoutControllerAddItems,
   workoutControllerAnalogs,
   workoutControllerCooldown,
+  workoutControllerCooldownAdd,
   workoutControllerCooldownFinish,
   workoutControllerCooldownStart,
+  workoutControllerCooldownRoutine,
+  workoutControllerCooldownSwap,
   workoutControllerCreate,
   workoutControllerCurrent,
   workoutControllerDiscard,
@@ -158,6 +161,41 @@ export const useCooldown = (workoutId: number) =>
     queryFn: () => workoutControllerCooldown(workoutId),
     staleTime: Infinity,
   })
+
+/** «Другая»: замена только в этой заминке. Ответ — уже новая заминка, кладём в кэш без перезапроса */
+export const useCooldownSwap = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ workoutId, stretchId }: { workoutId: number; stretchId: number }) =>
+      workoutControllerCooldownSwap(workoutId, { stretchId }),
+    // Новая растяжка сразу на экране вместо старой
+    meta: { skipSuccessToast: true },
+    onSuccess: (cooldown, { workoutId }) => queryClient.setQueryData(workoutKeys.cooldown(workoutId), cooldown),
+  })
+}
+
+/** Ещё растяжка в конец заминки: случайная или на выбранную мышцу */
+export const useCooldownAdd = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ workoutId, muscleId }: { workoutId: number; muscleId?: number }) =>
+      workoutControllerCooldownAdd(workoutId, { muscleId }),
+    meta: { successMessage: 'Растяжка добавлена' },
+    onSuccess: (cooldown, { workoutId }) => queryClient.setQueryData(workoutKeys.cooldown(workoutId), cooldown),
+  })
+}
+
+/** Готовый комплекс вместо набора заминки */
+export const useCooldownRoutine = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ workoutId, routineId }: { workoutId: number; routineId: number }) =>
+      workoutControllerCooldownRoutine(workoutId, { routineId }),
+    // Выбирают внизу экрана, а список меняется выше: без тоста смены не видно
+    meta: { successMessage: 'Заминка из комплекса' },
+    onSuccess: (cooldown, { workoutId }) => queryClient.setQueryData(workoutKeys.cooldown(workoutId), cooldown),
+  })
+}
 
 // Конец разминки — со временем нажатия и в общей очереди, как заминка. Экран закрывается сразу,
 // не дожидаясь ответа: без сети отметка уйдёт позже

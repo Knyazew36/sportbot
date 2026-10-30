@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
-import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { type Href, router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { addMonths, format, getDaysInMonth, parseISO } from 'date-fns';
 
 import { type StatsDay } from '@sportbot/api/entities/stats';
@@ -16,6 +16,13 @@ import { DAY_MARK, MARK_LABEL } from './marks';
 import { MonthCalendar } from './MonthCalendar';
 
 const workoutLink = (workoutId: number, month: string) => routeHref(ROUTES.STATS_WORKOUT, { workoutId, month });
+
+// Свой день с тренировками уходит на свой экран: одна — сразу на неё, несколько — на разводящую дня
+const dayLink = (workouts: StatsDay['workouts'], date: string | null, month: string): Href | null => {
+  if (!date || !workouts.length) return null;
+  if (workouts.length === 1) return workoutLink(workouts[0]!.id, month);
+  return routeHref(ROUTES.STATS_DAY, { date });
+};
 
 // Детали дня под календарём: день друга с составом тренировок.
 // Свои тренировки открываются отдельным экраном, правка и удаление — там
@@ -48,12 +55,7 @@ export const CalendarSection = ({ userId }: CalendarSectionProps) => {
   const day = useStatsDay(selected, userId);
   const own = userId == null;
   const workouts = own && day.data?.date === selected ? day.data.workouts : [];
-  // Свой день с тренировками уходит на свой экран: одна — сразу на неё, несколько — на разводящую дня
-  const target = !selected || !workouts.length
-    ? null
-    : workouts.length === 1
-      ? workoutLink(workouts[0]!.id, month)
-      : routeHref(ROUTES.STATS_DAY, { date: selected });
+  const target = dayLink(workouts, selected, month);
 
   useEffect(() => {
     if (target) router.push(target);

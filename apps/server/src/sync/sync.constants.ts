@@ -21,5 +21,6 @@ export const SYNC_ENTITIES = [
   'Pause',
   'Limitation',
   'StretchExclusion',
+  'StretchSession',
   'BodyWeight',
 ] as const;

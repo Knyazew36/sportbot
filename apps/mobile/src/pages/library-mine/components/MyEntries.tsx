@@ -38,10 +38,10 @@ const STATE_HINT: Partial<Record<EntryState, string>> = {
 // Опубликовать можно личную, отклонённую и снятую — заявка уходит заново
 const CAN_PUBLISH: EntryState[] = ['PRIVATE', 'REJECTED', 'UNPUBLISHED'];
 
-const entryPath = (e: MyEntry) =>
-  e.kind === 'exercise'
-    ? routeHref(ROUTES.EXERCISE, { exerciseId: e.id })
-    : routeHref(ROUTES.STRETCH, { stretchId: e.id });
+const entryPath = (e: MyEntry) => {
+  if (e.kind === 'exercise') return routeHref(ROUTES.EXERCISE, { exerciseId: e.id });
+  return routeHref(ROUTES.STRETCH, { stretchId: e.id });
+};
 
 const EntriesList = ({ kind }: { kind: CatalogKind }) => {
   const entries = useMyEntries(kind);

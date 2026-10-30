@@ -33,7 +33,7 @@ export const InProgressDay = ({ day }: { day: DayToday }) => {
           ]}
         />
       </Rise>
-      <WeekStreak week={day.week} withAttendance />
+      <WeekStreak week={day.week} />
       {/* Отмена — как «Отменить» в боте: тренировка удаляется, очередь тренировок не сдвигается */}
       <Rise className="px-gutter">
         <ConfirmAction

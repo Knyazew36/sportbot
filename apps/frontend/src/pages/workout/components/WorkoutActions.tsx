@@ -72,7 +72,8 @@ export const WorkoutActions = ({
     <Button
       variant='rest'
       size='lg'
-      className='min-w-0 flex-1 shrink'
+      // flex-1 только в ряду круга: в колонке flex-basis перебивает h-[60px], и кнопка сжимается по подписи
+      className={superset ? 'min-w-0 flex-1 shrink' : 'w-full'}
       onClick={onRestOpen}
     >
       <TimerIcon className='size-6' />
@@ -192,7 +193,8 @@ export const WorkoutActions = ({
   )
 
   return (
-    <StickyFooter className='flex flex-col items-stretch gap-3'>
+    // Фон прозрачнее общего: при 85% размытие почти не видно, а плитки подходов уходят под этот футер
+    <StickyFooter className='bg-background/50 flex flex-col items-stretch gap-3'>
       {planDone ? forward : start}
       {!planDone && warmupBack}
       {planDone ? start : forward}

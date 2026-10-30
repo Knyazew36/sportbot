@@ -915,6 +915,38 @@ export class WorkoutService {
     return this.cooldown(userId, workoutId);
   }
 
+  /** Другая растяжка только в этой заминке: в исключения не попадает. */
+  public async cooldownSwap(
+    userId: number,
+    workoutId: number,
+    stretchId: number,
+  ): Promise<CooldownView> {
+    await this.cooldowns.swap(workoutId, userId, stretchId);
+    return this.cooldown(userId, workoutId);
+  }
+
+  /** Ещё растяжка в заминку. Сначала cooldown: проверит тренировку и соберёт набор, если его ещё нет. */
+  public async cooldownAdd(
+    userId: number,
+    workoutId: number,
+    muscleId?: number,
+  ): Promise<CooldownView> {
+    await this.cooldown(userId, workoutId);
+    await this.cooldowns.add(workoutId, userId, muscleId);
+    return this.cooldown(userId, workoutId);
+  }
+
+  /** Готовый комплекс вместо набора заминки. Сначала cooldown: проверит тренировку. */
+  public async cooldownRoutine(
+    userId: number,
+    workoutId: number,
+    routineId: number,
+  ): Promise<CooldownView> {
+    await this.cooldown(userId, workoutId);
+    await this.cooldowns.useRoutine(workoutId, userId, routineId);
+    return this.cooldown(userId, workoutId);
+  }
+
   /** Заминка открыта: пишется только первое открытие, повтор ничего не меняет. */
   public async cooldownStart(
     userId: number,

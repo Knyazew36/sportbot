@@ -1,0 +1,25 @@
+{
+  "stretchRoutines": [
+    {
+      "code": "full-body-10",
+      "name": "Всё тело",
+      "description": "Растяжка основных мышц от ног до плеч примерно на 10 минут. Подойдёт после любой тренировки.",
+      "position": 1,
+      "stretches": ["downward-dog", "kneeling-hip-flexor", "pigeon", "butterfly", "figure-four", "cobra", "thread-the-needle", "cross-body-shoulder", "triceps-overhead", "lying-twist"]
+    },
+    {
+      "code": "lower-body",
+      "name": "Ноги",
+      "description": "Задняя поверхность ног, сгибатели бедра, ягодицы и приводящие. Подойдёт после тренировки ног.",
+      "position": 2,
+      "stretches": ["downward-dog", "kneeling-hip-flexor", "pigeon", "butterfly", "figure-four", "lying-twist"]
+    },
+    {
+      "code": "upper-body",
+      "name": "Верх тела",
+      "description": "Плечи, руки, грудь и спина. Подойдёт после тренировки верха.",
+      "position": 3,
+      "stretches": ["downward-dog", "cobra", "thread-the-needle", "cross-body-shoulder", "triceps-overhead"]
+    }
+  ]
+}

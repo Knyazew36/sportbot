@@ -26,11 +26,13 @@ export const Ticket = ({ mark, kicker, title, active, onPress, children }: Ticke
   const card = (pressed: boolean) => (
     <View
       className={cn(
-        'w-[152px] gap-6 border-[1.5px] p-3',
-        active ? 'border-primary bg-accent' : 'border-border bg-background',
+        'bg-background w-[152px] gap-6 border-[1.5px] p-3',
+        active ? 'border-primary' : 'border-border',
         pressed && 'translate-x-[3px] translate-y-[3px]',
       )}
     >
+      {/* accent полупрозрачный: прямо на карточке сквозь него проступала бы синяя тень, и буква сливалась с фоном */}
+      {active ? <View className="bg-accent absolute inset-0" /> : null}
       {/* Вырез корешка справа */}
       <View
         className={cn(

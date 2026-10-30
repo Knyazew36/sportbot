@@ -17,14 +17,17 @@ import { WorkoutProtocol } from '@/widgets/workout-summary/WorkoutProtocol';
 import { WorkoutFacts } from './components/WorkoutFacts';
 import { WorkoutStatsFooter } from './components/WorkoutStatsFooter';
 
+const backHref = (day?: string, month?: string) => {
+  if (day) return routeHref(ROUTES.STATS_DAY, { date: day });
+  return routeHref(ROUTES.STATS, { tab: 'attendance', month });
+};
+
 const StatsWorkoutPage = () => {
   const params = useLocalSearchParams<{ workoutId: string; month?: string; day?: string }>();
   const workoutId = Number(params.workoutId);
   const summary = useWorkoutSummary(workoutId);
   const workout = useWorkout(workoutId);
-  const back = params.day
-    ? routeHref(ROUTES.STATS_DAY, { date: params.day })
-    : routeHref(ROUTES.STATS, { tab: 'attendance', month: params.month });
+  const back = backHref(params.day, params.month);
 
   return (
     <Screen
