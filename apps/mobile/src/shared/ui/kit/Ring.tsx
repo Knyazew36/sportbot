@@ -24,13 +24,15 @@ type RingProps = {
    * Нет — дуга стоит на value: пауза и остановка замирают сразу, без доезда
    */
   sweep?: { to: number; ms: number };
+  /** Цвет дуги, если экран не синий: разминка */
+  bar?: string;
   className?: string;
 };
 
 const clamp = (n: number) => Math.min(1, Math.max(0, n));
 
 // Кольцо прогресса: value от 0 до 1
-export const Ring = ({ value, size, stroke = 6, sweep, className }: RingProps) => {
+export const Ring = ({ value, size, stroke = 6, sweep, bar, className }: RingProps) => {
   const { colors } = useTheme();
   const still = useReducedMotion();
   const radius = (size - stroke) / 2;
@@ -73,7 +75,7 @@ export const Ring = ({ value, size, stroke = 6, sweep, className }: RingProps) =
         cy={size / 2}
         r={radius}
         strokeWidth={stroke}
-        stroke={colors.blue}
+        stroke={bar ?? colors.blue}
         fill="none"
         strokeDasharray={circumference}
         animatedProps={arc}

@@ -1,5 +1,5 @@
 import { PencilLineIcon, PlusIcon } from 'lucide-react'
-import { useParams, useSearchParams } from 'react-router'
+import { useParams } from 'react-router'
 
 import { useState } from 'react'
 
@@ -19,14 +19,9 @@ import { ExerciseMuscles } from './components/ExerciseMuscles'
 import { OverlaySheet } from './components/OverlaySheet'
 import { OwnVideoSection } from './components/OwnVideoSection'
 
-// Карточка упражнения (frontend-tz, 11.2). Открывается и из справочника, и кнопкой «Техника» на тренировке —
-// тогда ?from= возвращает туда же
+// Карточка упражнения (frontend-tz, 11.2)
 const ExercisePage = () => {
   const exerciseId = Number(useParams().exerciseId)
-  const [search] = useSearchParams()
-  const back = search.get('from') ?? ROUTES.LIBRARY
-  // С тренировки пришли посмотреть технику — менять программу посреди подхода незачем
-  const fromWorkout = back === ROUTES.WORKOUT
   const exercise = useCatalogExercise(exerciseId)
   const program = useActiveProgram()
   const add = useAddComplexExercises()
@@ -38,7 +33,7 @@ const ExercisePage = () => {
     <Screen
       header={
         <TopBar
-          back={back}
+          back={ROUTES.LIBRARY}
           title={exercise.data?.name ?? 'Упражнение'}
           subtitle={exercise.data?.equipment ? EQUIPMENT_LABEL[exercise.data.equipment] : undefined}
         />
@@ -55,19 +50,17 @@ const ExercisePage = () => {
             >
               <PencilLineIcon className='size-6' />
             </Button>
-            {!fromWorkout && (
-              <Button
-                size='lg'
-                disabled={!program.data}
-                onClick={() => setAddOpen(true)}
-              >
-                <PlusIcon
-                  className='size-6'
-                  strokeWidth={2.5}
-                />
-                {program.data ? 'В тренировку' : 'Нет активной программы'}
-              </Button>
-            )}
+            <Button
+              size='lg'
+              disabled={!program.data}
+              onClick={() => setAddOpen(true)}
+            >
+              <PlusIcon
+                className='size-6'
+                strokeWidth={2.5}
+              />
+              {program.data ? 'В тренировку' : 'Нет активной программы'}
+            </Button>
           </StickyFooter>
         )
       }
@@ -84,7 +77,7 @@ const ExercisePage = () => {
               />
               <OwnVideoSection onOpen={() => setOverlayOpen(true)} />
 
-              {program.data && !fromWorkout && (
+              {program.data && (
                 <AddToComplexSheet
                   open={addOpen}
                   onOpenChange={setAddOpen}

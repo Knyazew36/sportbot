@@ -6,7 +6,7 @@ import { durationText, isTimed, rangeText } from '@sportbot/api/lib/measure';
 import { formatSeconds } from '@/shared/lib/hooks/use-deadline-timer';
 import { local } from '@/shared/lib/local';
 
-import { restTimerKey } from '@/widgets/live-workout-bar/constants';
+import { restTimerKey, warmupTimerKey } from '@/widgets/live-workout-bar/constants';
 
 import type { WorkoutLiveProps } from './types';
 
@@ -16,7 +16,6 @@ type Stopwatch = { startedAt: number; pausedAt: number | null };
 // Ключи те же, что пишет экран тренировки (pages/workout/model/use-workout-flow): страницу отсюда импортировать нельзя
 const stopwatchKey = (id: number) => `set-stopwatch-${id}`;
 const pickedKey = (id: number) => `workout-picked-${id}`;
-const warmupTimerKey = (id: number) => `warmup-timer-${id}`;
 const warmupDoneKey = (id: number) => `warmup-done-${id}`;
 
 /** Ключи хранилища, при смене которых экран блокировки пересобирается */

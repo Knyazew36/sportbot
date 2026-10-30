@@ -13,9 +13,9 @@ const readEndsAt = (raw: string | null) => {
   }
 };
 
-// Идёт ли отдых — по дедлайну в хранилище, без тиков раз в 250 мс: полосе нужен только факт.
-// Подписка на MMKV, потому что полоса на табах смонтирована всё время, а отдых запускают на экране тренировки
-export const useRestRunning = (key?: string) => {
+// Идёт ли отдых или разминка — по дедлайну в хранилище, без тиков раз в 250 мс: полосе нужен только факт.
+// Подписка на MMKV, потому что полоса на табах смонтирована всё время, а таймеры запускают на экране тренировки
+export const useTimerRunning = (key?: string) => {
   const subscribe = useCallback(
     (onChange: () => void) => {
       const listener = storage.addOnValueChangedListener((changed) => {
@@ -29,7 +29,7 @@ export const useRestRunning = (key?: string) => {
   const endsAt = readEndsAt(raw);
   const [now, setNow] = useState(() => Date.now());
 
-  // Будильник ровно на конец отдыха: полоса сама перекрашивается обратно в мятную
+  // Будильник ровно на конец таймера: полоса сама перекрашивается обратно в мятную
   useEffect(() => {
     setNow(Date.now());
     if (!endsAt) return;

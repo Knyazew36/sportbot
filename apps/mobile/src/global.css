@@ -39,12 +39,17 @@
   --color-live-ink: #0a0a0a;
   --color-rest: #ffdcae;
   --color-rest-deep: #ffc98a;
+  /* Разминка — коралловая: разогрев горячее спокойного абрикоса отдыха. --color-warmup-ink для кольца и заголовка
+     на бумаге, поэтому он в темах ниже */
+  --color-warmup: #ffa98f;
+  --color-warmup-deep: #ff9475;
 }
 
 @layer theme {
   :root {
     /* Синяя светлая */
     @variant light {
+      --color-warmup-ink: #d9480f;
       --color-sb-paper: #fff8f1;
       --color-sb-sheet: #fffdf9;
       --color-sb-ink: #0a0a0a;
@@ -94,6 +99,7 @@
 
     /* Синяя тёмная — «ночной стадион» */
     @variant dark {
+      --color-warmup-ink: #ff8f6b;
       --color-sb-paper: #070d1a;
       --color-sb-sheet: #0c1527;
       --color-sb-ink: #fff8f1;
@@ -143,6 +149,7 @@
 
     /* Розовая светлая. --sb-blue здесь — «голос палитры» (малиновый), имя не трогаем, как во фронте */
     @variant rose-light {
+      --color-warmup-ink: #d9480f;
       --color-sb-paper: #fff5f8;
       --color-sb-sheet: #fffafc;
       --color-sb-ink: #1f0a14;
@@ -192,6 +199,7 @@
 
     /* Розовая тёмная — «сливовая ночь» */
     @variant rose-dark {
+      --color-warmup-ink: #ff8f6b;
       --color-sb-paper: #1a0b14;
       --color-sb-sheet: #241020;
       --color-sb-ink: #fff5f8;

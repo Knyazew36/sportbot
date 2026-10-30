@@ -100,7 +100,7 @@ export const WorkoutActions = ({
   // Отдельной строкой: в одном ряду с подходом время разминки не влезало и ряд разъезжался
   const warmupBack = warmupLeft !== null && (
     <Button
-      variant='rest'
+      variant='warmup'
       size='lg'
       className='w-full'
       onClick={onWarmupOpen}

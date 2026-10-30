@@ -2,6 +2,7 @@ import { View } from 'react-native';
 import { ArrowRight, Plus } from 'lucide-react-native';
 
 import { formatSeconds } from '@/shared/lib/hooks/use-deadline-timer';
+import { useTheme } from '@/shared/theme/ThemeProvider';
 import { Button } from '@/shared/ui/kit/Button';
 import { Icon } from '@/shared/ui/kit/Icon';
 import { Ring } from '@/shared/ui/kit/Ring';
@@ -14,23 +15,21 @@ import { UnderClock } from './UnderClock';
 type WarmupStartProps = {
   /** Минуты разминки — по комплексу и профилю, как resolveWarmup при создании тренировки */
   minutes: number;
-  /** Первое упражнение комплекса — его название в статусе, как на настоящем экране */
-  first: string;
 };
 
 // Заставка на время создания тренировки в базе телефона вместо лоадера: выглядит как FocusWarmup,
 // но без таймера — отсчёт подхватит настоящий экран разминки. Кнопки те же, только неактивные:
 // без них при подмене экрана кнопки «выскакивали» и кольцо сдвигалось
-export const WarmupStart = ({ minutes, first }: WarmupStartProps) => {
+export const WarmupStart = ({ minutes }: WarmupStartProps) => {
   const sizes = useFocusSizes();
+  const { colors } = useTheme();
   const total = minutes * 60;
 
   return (
     <FocusShell
-      status={`дальше · ${first}`}
       actions={
         <View pointerEvents="none" className="gap-3">
-          <Button size="xl" block className="h-24">
+          <Button variant="warmup" size="xl" block className="h-24">
             К упражнениям
             <Icon as={ArrowRight} className="size-7" strokeWidth={2.5} />
           </Button>
@@ -41,12 +40,12 @@ export const WarmupStart = ({ minutes, first }: WarmupStartProps) => {
       }
     >
       <View className="w-full justify-center" style={{ height: sizes.headline }}>
-        <Poster size="3xl" tone="primary" fit className="w-full text-center">
+        <Poster size="3xl" fit className="text-warmup-ink w-full text-center">
           Разминка
         </Poster>
       </View>
       <View className="items-center justify-center">
-        <Ring value={1} size={sizes.timerRing} stroke={6} />
+        <Ring value={1} size={sizes.timerRing} stroke={6} bar={colors.warmupInk} />
         <View className="absolute inset-0 items-center justify-center">
           <View>
             <Clock fontSize={sizes.countdown} style={sizes.countdownStyle}>

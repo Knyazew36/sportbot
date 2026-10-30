@@ -30,7 +30,7 @@ export const useTimeBumps = () => {
 };
 
 // Всплывает вверх и гаснет — как motion во фронте: opacity [0, 1, 1, 0] на долях [0, .15, .6, 1]
-const Bump = ({ label }: { label: string }) => {
+const Bump = ({ label, className }: { label: string; className?: string }) => {
   const still = useReducedMotion();
   const progress = useSharedValue(0);
 
@@ -48,20 +48,24 @@ const Bump = ({ label }: { label: string }) => {
 
   return (
     <Animated.View className="absolute right-0 bottom-0 left-0 items-center" style={style}>
-      <Poster size="lg" tone="primary" numeric numberOfLines={1}>
+      <Poster size="lg" tone="primary" numeric numberOfLines={1} className={className}>
         {label}
       </Poster>
     </Animated.View>
   );
 };
 
-type TimeBumpsProps = Pick<ReturnType<typeof useTimeBumps>, 'bumps'> & { label: string };
+type TimeBumpsProps = Pick<ReturnType<typeof useTimeBumps>, 'bumps'> & {
+  label: string;
+  /** Цвет экрана, если он не синий: разминка */
+  className?: string;
+};
 
 // Над цифрами и вне потока: всплывашка не двигает таймер. По ширине цифр — чтобы стоять по центру над ними
-export const TimeBumps = ({ bumps, label }: TimeBumpsProps) => (
+export const TimeBumps = ({ bumps, label, className }: TimeBumpsProps) => (
   <View pointerEvents="none" style={{ bottom: '100%' }} className="absolute right-0 left-0">
     {bumps.map((id) => (
-      <Bump key={id} label={label} />
+      <Bump key={id} label={label} className={className} />
     ))}
   </View>
 );

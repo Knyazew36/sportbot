@@ -21,7 +21,6 @@ export const WorkoutFocus = ({ flow, startedAt }: WorkoutFocusProps) => {
     return (
       <FocusWarmup
         timer={flow.warmupTimer}
-        first={item}
         onClose={flow.hideWarmup}
       />
     )

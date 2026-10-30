@@ -1,3 +1,5 @@
+import type { Colors } from '@/shared/theme/ThemeProvider';
+
 /** Высота полосы под вырезом: тонкая заливка 6px и волна 10px. Без текста — цвет сам говорит, что идёт тренировка */
 export const LIVE_H = 16;
 
@@ -21,3 +23,15 @@ export const wavePath = (width: number, { period, top, bottom }: Wave) => {
 
 /** Ключ таймера отдыха — тот же, что у экрана тренировки (use-workout-flow) */
 export const restTimerKey = (workoutId: number) => `rest-timer-${workoutId}`;
+
+/** Ключ таймера разминки — тот же, что у экрана тренировки (use-workout-flow) */
+export const warmupTimerKey = (workoutId: number) => `warmup-timer-${workoutId}`;
+
+export type LivePhase = 'work' | 'rest' | 'warmup';
+
+/** Заливка и волна полосы: мятная работа, абрикосовый отдых, коралловая разминка */
+export const PHASE_FILL = {
+  work: { base: 'live', deep: 'liveDeep' },
+  rest: { base: 'rest', deep: 'restDeep' },
+  warmup: { base: 'warmup', deep: 'warmupDeep' },
+} as const satisfies Record<LivePhase, { base: keyof Colors; deep: keyof Colors }>;

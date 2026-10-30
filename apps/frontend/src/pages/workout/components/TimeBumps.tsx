@@ -17,10 +17,14 @@ export const useTimeBumps = () => {
   }
 }
 
-type TimeBumpsProps = ReturnType<typeof useTimeBumps> & { label: string }
+type TimeBumpsProps = ReturnType<typeof useTimeBumps> & {
+  label: string
+  /** Цвет экрана, если он не синий: разминка */
+  className?: string
+}
 
 // Над цифрами и вне потока: всплывашка не двигает таймер
-export const TimeBumps = ({ bumps, drop, label }: TimeBumpsProps) => {
+export const TimeBumps = ({ bumps, drop, label, className }: TimeBumpsProps) => {
   const still = useReducedMotion()
   return (
     <div className='pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2'>
@@ -37,6 +41,7 @@ export const TimeBumps = ({ bumps, drop, label }: TimeBumpsProps) => {
             size='lg'
             tone='primary'
             numeric
+            className={className}
           >
             {label}
           </Poster>

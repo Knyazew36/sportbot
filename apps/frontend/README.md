@@ -11,6 +11,20 @@ yarn check-types && yarn lint
 yarn api:generate   # хуки по Swagger запущенного сервера → src/shared/api/generated
 ```
 
+## Вход в браузере на деве
+
+Вне мессенджера фронт входит моковым пользователем Telegram. Формы входа нет: заголовок `Authorization: tma ...` с этим id уходит в каждом запросе. Числовой id можно задать любым способом:
+
+- в адресе: `http://localhost:5173/?devUser=123` (запоминается в `localStorage`);
+- в консоли браузера: `localStorage.setItem('dev-tg-user', '123'); location.reload()`;
+- в `.env`: `VITE_DEV_TG_USER_ID=123`, затем перезапустить Vite.
+
+Приоритет: адрес → `localStorage` → `.env`. Чтобы войти в свой аккаунт, укажи свой Telegram id.
+
+Выход: `localStorage.removeItem('dev-tg-user'); location.reload()`; если задан `VITE_DEV_TG_USER_ID`, убрать и его.
+
+Работает только под Vite dev и с локальным сервером в `NODE_ENV=development`: там подпись initData не проверяется. Код: `src/shared/miniapp/dev-launch.ts`.
+
 ## Структура
 
 | Слой | Что лежит |

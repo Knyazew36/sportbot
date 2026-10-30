@@ -4,26 +4,8 @@ import { generatePath } from 'react-router'
 export const ROUTES = {
   HOME: '/',
 
-  LOGIN: '/login',
-  REGISTER: '/register',
-  VERIFY_EMAIL: '/verify-email',
-  FORGOT_PASSWORD: '/forgot-password',
-  RESET_PASSWORD: '/reset-password',
-
-  INVITE: '/invite/:token',
   // Витрина иллюстраций
   UI: '/ui',
-  WORKSPACES: '/workspaces',
-
-  APP: '/app/:orgId',
-  DASHBOARD: '/app/:orgId/dashboard',
-  MEMBERS: '/app/:orgId/members',
-  INVITES: '/app/:orgId/invites',
-  JOIN_REQUESTS: '/app/:orgId/join-requests',
-  NOTIFICATIONS: '/app/:orgId/notifications',
-  AUDIT_LOG: '/app/:orgId/audit-log',
-  SETTINGS: '/app/:orgId/settings',
-  PROFILE: '/app/:orgId/profile',
 
   // Mini App: открывается из бота, пользователь определяется по данным запуска мессенджера
   TODAY: '/today',
@@ -75,7 +57,7 @@ export const ROUTES = {
 
 export type RoutePattern = (typeof ROUTES)[keyof typeof ROUTES]
 
-// Имена параметров выводятся из строки шаблона: `/app/:orgId/items/:itemId/:tab?` → orgId, itemId, tab?
+// Имена параметров выводятся из строки шаблона: `/programs/:programId/complex/:complexId/:tab?` → programId, complexId, tab?
 type ParamToken<P extends string> = P extends `${string}:${infer Param}/${infer Rest}`
   ? Param | ParamToken<`/${Rest}`>
   : P extends `${string}:${infer Param}`
@@ -94,7 +76,7 @@ export type PathParams<P extends string> = { [K in RequiredParam<P>]: ParamValue
 
 /**
  * Собирает ссылку из шаблона. Параметры проверяются типами: пропущенный или лишний — ошибка компиляции.
- * buildPath(ROUTES.MEMBERS, { orgId: 1 }) → '/app/1/members'
+ * buildPath(ROUTES.PROGRAM, { programId: 1 }) → '/programs/1'
  */
 export function buildPath<P extends string>(
   pattern: P,
@@ -103,6 +85,3 @@ export function buildPath<P extends string>(
   const values = Object.fromEntries(Object.entries(params ?? {}).map(([key, value]) => [key, String(value)]))
   return generatePath(pattern as string, values)
 }
-
-/** Состояние навигации на страницы входа: куда вернуть пользователя и какой email подставить */
-export type AuthLocationState = { from?: string; email?: string }

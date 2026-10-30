@@ -76,17 +76,19 @@ export const SetList = ({ item, onEdit, live = true, onAdd }: SetListProps) => {
   const grid = timed ? 'grid-cols-[32px_1fr_40px]' : 'grid-cols-[32px_1fr_1fr_40px]'
   return (
   <Rise>
-    <div className={cn('border-border grid border-b-[1.5px] pb-2', grid)}>
-      <Eyebrow tone='faint'>№</Eyebrow>
-      {timed ? (
-        <Eyebrow tone='faint'>Время</Eyebrow>
-      ) : (
-        <>
-          <Eyebrow tone='faint'>Вес</Eyebrow>
-          <Eyebrow tone='faint'>Повторы</Eyebrow>
-        </>
-      )}
-    </div>
+    {item.sets.length > 0 && (
+      <div className={cn('border-border grid border-b-[1.5px] pb-2', grid)}>
+        <Eyebrow tone='faint'>№</Eyebrow>
+        {timed ? (
+          <Eyebrow tone='faint'>Время</Eyebrow>
+        ) : (
+          <>
+            <Eyebrow tone='faint'>Вес</Eyebrow>
+            <Eyebrow tone='faint'>Повторы</Eyebrow>
+          </>
+        )}
+      </div>
+    )}
     {item.sets.length ? (
       <ol>
         {item.sets.map(set => (
@@ -146,13 +148,15 @@ export const SetList = ({ item, onEdit, live = true, onAdd }: SetListProps) => {
         ))}
       </ol>
     ) : (
-      <Text
-        size='sm'
-        tone='muted'
-        className='py-4'
-      >
-        {live ? 'Подходов ещё нет — жми «Начать подход».' : 'Подходов не записано.'}
-      </Text>
+      !live && (
+        <Text
+          size='sm'
+          tone='muted'
+          className='py-4'
+        >
+          Подходов не записано.
+        </Text>
+      )
     )}
     {onAdd && (
       // Обводка и малый размер: запись без таймера — запасной путь, главный остаётся «Начать подход»

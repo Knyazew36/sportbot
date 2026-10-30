@@ -31,6 +31,8 @@ const buttonVariants = cva('flex-row items-center justify-center gap-2 border-[1
       success: 'border-foreground bg-success',
       // Идёт отдых: тот же абрикосовый, что у живой полосы во время отдыха
       rest: 'border-foreground bg-rest',
+      // Идёт разминка: коралловая, чтобы не путать с отдыхом
+      warmup: 'border-foreground bg-warmup',
       // Золото — «спасибо»: тихое, не спорит с синими действиями
       gold: 'border-sb-gold bg-background',
       // «Наружу» — всё, что увидят другие люди: чернильная плашка, золотая тень
@@ -65,6 +67,7 @@ const buttonTextVariants = cva('font-display uppercase text-center shrink', {
       destructive: 'text-destructive',
       success: 'text-black',
       rest: 'text-black',
+      warmup: 'text-black',
       gold: 'text-sb-gold',
       share: 'text-background',
       ghost: 'text-muted-foreground',
@@ -95,6 +98,7 @@ const PRESS: Record<ButtonVariant, string> = {
   destructive: 'bg-sb-danger',
   success: 'bg-sb-ink',
   rest: 'bg-sb-ink',
+  warmup: 'bg-sb-ink',
   gold: 'bg-sb-gold',
   share: 'bg-sb-gold',
   ghost: '',
@@ -111,6 +115,7 @@ const SPINNER: Record<ButtonVariant, string> = {
   destructive: 'accent-destructive',
   success: 'accent-black',
   rest: 'accent-black',
+  warmup: 'accent-black',
   gold: 'accent-sb-gold',
   share: 'accent-background',
   ghost: 'accent-muted-foreground',

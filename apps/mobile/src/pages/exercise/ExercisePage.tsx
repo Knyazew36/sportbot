@@ -20,12 +20,10 @@ import { ExerciseHero } from './components/ExerciseHero';
 import { ExerciseMuscles } from './components/ExerciseMuscles';
 
 // Карточка упражнения (frontend-tz, 11.2) — порт pages/exercise/ExercisePage.tsx.
-// Открывается из справочника, шторки «Сегодня» и кнопкой «Техника» на тренировке (from=workout).
+// Открывается из справочника и шторки «Сегодня».
 // «Назад» — системный: возвращает туда, откуда пришли. Плашки для своего видео нет: видеоредактор в мобилку не ставим
 const ExercisePage = () => {
-  const params = useLocalSearchParams<{ exerciseId: string; from?: string }>();
-  // С тренировки пришли посмотреть технику — менять программу посреди подхода незачем
-  const fromWorkout = params.from === 'workout';
+  const params = useLocalSearchParams<{ exerciseId: string }>();
   const exercise = useCatalogExercise(Number(params.exerciseId));
   const program = useActiveProgram();
   const add = useAddComplexExercises();
@@ -52,17 +50,15 @@ const ExercisePage = () => {
           >
             <Icon as={PencilLine} className="size-6" />
           </Button>
-          {!fromWorkout && (
-            <Button
-              size="lg"
-              icon={Plus}
-              disabled={!exercise.data || !program.data}
-              onPress={() => setAddOpen(true)}
-              className="flex-1"
-            >
-              {program.data ? 'В тренировку' : 'Нет активной программы'}
-            </Button>
-          )}
+          <Button
+            size="lg"
+            icon={Plus}
+            disabled={!exercise.data || !program.data}
+            onPress={() => setAddOpen(true)}
+            className="flex-1"
+          >
+            {program.data ? 'В тренировку' : 'Нет активной программы'}
+          </Button>
         </StickyFooter>
       }
       className="gap-7"
@@ -74,7 +70,7 @@ const ExercisePage = () => {
             <ExerciseMuscles exercise={e} />
             <CatalogGuide guide={exerciseGuide(e)} title="Техника" />
 
-            {program.data && !fromWorkout && (
+            {program.data && (
               <AddToComplexSheet
                 open={addOpen}
                 onOpenChange={setAddOpen}

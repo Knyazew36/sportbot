@@ -35,6 +35,9 @@ const COLOR_VARS = {
   liveDeep: '--color-live-deep',
   rest: '--color-rest',
   restDeep: '--color-rest-deep',
+  warmup: '--color-warmup',
+  warmupDeep: '--color-warmup-deep',
+  warmupInk: '--color-warmup-ink',
 } as const;
 
 export type Colors = Record<keyof typeof COLOR_VARS, string>;

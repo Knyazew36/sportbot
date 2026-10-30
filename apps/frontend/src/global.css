@@ -180,6 +180,11 @@
      Как и --sb-live, одинаков в любой теме, текст чёрный, формат #RRGGBB — уходит в шапку Telegram */
   --sb-rest: #ffdcae;
   --sb-rest-deep: #ffc98a;
+  /* Разминка — коралловая: разогрев горячее спокойного абрикоса отдыха. Заливка кнопки и живой полосы одинакова
+     в любой теме и уходит в шапку Telegram (#RRGGBB), --sb-warmup-ink для кольца и заголовка на бумаге, поэтому меняется в тёмной */
+  --sb-warmup: #ffa98f;
+  --sb-warmup-deep: #ff9475;
+  --sb-warmup-ink: #d9480f;
   --primary: var(--sb-blue);
   --primary-foreground: var(--sb-paper);
   --secondary: var(--mist);
@@ -220,6 +225,7 @@
   --sb-positive: #5ee08a;
   --sb-gold: #f2c14e;
   --sb-gold-on-ink: #a8720a;
+  --sb-warmup-ink: #ff8f6b;
 }
 
 /* Розовая расцветка — отдельная ось от светлой/тёмной: меняем только опорные цвета, производные пересчитываются сами.

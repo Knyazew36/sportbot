@@ -69,26 +69,28 @@ export const SetList = ({ item, onEdit, live = true, onAdd }: SetListProps) => {
   const timed = isTimed(item.measure);
   return (
     <Rise>
-      <View className="border-border flex-row border-b-[1.5px] pb-2">
-        <Eyebrow tone="faint" className={NUMBER_COL}>
-          №
-        </Eyebrow>
-        {timed ? (
-          <Eyebrow tone="faint" className={VALUE_COL}>
-            Время
+      {item.sets.length > 0 && (
+        <View className="border-border flex-row border-b-[1.5px] pb-2">
+          <Eyebrow tone="faint" className={NUMBER_COL}>
+            №
           </Eyebrow>
-        ) : (
-          <>
+          {timed ? (
             <Eyebrow tone="faint" className={VALUE_COL}>
-              Вес
+              Время
             </Eyebrow>
-            <Eyebrow tone="faint" className={VALUE_COL}>
-              Повторы
-            </Eyebrow>
-          </>
-        )}
-        <View className={ACTION_COL} />
-      </View>
+          ) : (
+            <>
+              <Eyebrow tone="faint" className={VALUE_COL}>
+                Вес
+              </Eyebrow>
+              <Eyebrow tone="faint" className={VALUE_COL}>
+                Повторы
+              </Eyebrow>
+            </>
+          )}
+          <View className={ACTION_COL} />
+        </View>
+      )}
       {item.sets.length ? (
         <View>
           {item.sets.map((set) => (
@@ -133,9 +135,11 @@ export const SetList = ({ item, onEdit, live = true, onAdd }: SetListProps) => {
           ))}
         </View>
       ) : (
-        <Text size="sm" tone="muted" className="py-4">
-          {live ? 'Подходов ещё нет — жми «Начать подход».' : 'Подходов не записано.'}
-        </Text>
+        !live && (
+          <Text size="sm" tone="muted" className="py-4">
+            Подходов не записано.
+          </Text>
+        )
       )}
       {onAdd && (
         // Обводка и малый размер: запись без таймера — запасной путь, главный остаётся «Начать подход»

@@ -32,6 +32,8 @@ const buttonVariants = cva(
         success: 'border-foreground bg-success text-black [--press:var(--sb-ink)]',
         // Идёт отдых: тот же абрикосовый, что у живой полосы во время отдыха
         rest: 'border-foreground bg-(--sb-rest) text-black [--press:var(--sb-ink)]',
+        // Идёт разминка: коралловая, чтобы не путать с отдыхом
+        warmup: 'border-foreground bg-(--sb-warmup) text-black [--press:var(--sb-ink)]',
         // Золото — «спасибо» звёздами: тихое, не спорит с синими действиями. Выбранное — с золотой подложкой
         gold: 'border-sb-gold bg-background text-sb-gold [--press:var(--sb-gold)] aria-pressed:bg-sb-gold-tint',
         // «Наружу» — публикация в каталог и «Поделиться», всё, что увидят другие люди. Как медаль: чернильная

@@ -71,7 +71,7 @@ export const WorkoutActions = ({
   );
 
   const warmupBack = warmupLeft !== null && (
-    <Button variant="rest" size="lg" block onPress={onWarmupOpen} accessibilityLabel="Вернуться к разминке">
+    <Button variant="warmup" size="lg" block onPress={onWarmupOpen} accessibilityLabel="Вернуться к разминке">
       <Icon as={Flame} className="size-6" />
       Разминка
       <Clock fontSize={BUTTON_LG_FONT}>{formatSeconds(warmupLeft)}</Clock>

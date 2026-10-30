@@ -15,7 +15,7 @@ export const WorkoutFocus = ({ flow, startedAt }: WorkoutFocusProps) => {
   const { item, entryItem, superset } = flow;
 
   if (flow.warmupMinutes && !flow.warmupHidden)
-    return <FocusWarmup timer={flow.warmupTimer} first={item} onClose={flow.hideWarmup} />;
+    return <FocusWarmup timer={flow.warmupTimer} onClose={flow.hideWarmup} />;
 
   if (flow.inRound && superset)
     return (

@@ -18,6 +18,7 @@ import { Rise } from '@/shared/ui/kit/Reveal'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
 import { ExerciseHistorySheet } from '@/widgets/exercise-history/ExerciseHistorySheet'
+import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet'
 
 type ExerciseCardProps = {
   item: WorkoutItem
@@ -30,6 +31,7 @@ export const ExerciseCard = ({ item, label }: ExerciseCardProps) => {
   const last = lastText(item.last, item.measure)
   const rest = item.last && typicalRest(item.last.sets)
   const [history, setHistory] = useState(false)
+  const [technique, setTechnique] = useState(false)
   // Аналоги и замена — только с сервера: без сети ссылка гасится, чтобы не вести на вечную загрузку
   const online = useIsOnline()
   const offlineLink = online ? undefined : 'pointer-events-none opacity-50'
@@ -124,14 +126,14 @@ export const ExerciseCard = ({ item, label }: ExerciseCardProps) => {
       </Rise>
 
       <Rise className='flex gap-3'>
-        <ButtonLink
-          to={`${buildPath(ROUTES.EXERCISE, { exerciseId: item.exerciseId })}?from=${ROUTES.WORKOUT}`}
+        <Button
           variant='outline'
           size='sm'
+          onClick={() => setTechnique(true)}
         >
           <BookOpenIcon className='size-3.5' />
           Техника
-        </ButtonLink>
+        </Button>
         <ButtonLink
           to={buildPath(ROUTES.WORKOUT_REPLACE, { itemId: item.id })}
           variant='outline'
@@ -149,6 +151,10 @@ export const ExerciseCard = ({ item, label }: ExerciseCardProps) => {
         exercise={history ? { id: item.exerciseId, name: item.name } : null}
         unit={historyUnit(item)}
         onOpenChange={setHistory}
+      />
+      <ExerciseSheet
+        exercise={technique ? { id: item.exerciseId, name: item.name } : null}
+        onOpenChange={setTechnique}
       />
     </>
   )

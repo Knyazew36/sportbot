@@ -3,8 +3,7 @@ import { configureApi } from '@sportbot/api/client'
 
 import { getMiniappAuthorization } from '@/shared/miniapp'
 
-import { apiDomain, ORGANIZATION_HEADER } from './model/constants'
-import { getOrganizationId } from './model/organization-id'
+import { apiDomain } from './model/constants'
 import { webTokenStore } from './model/web-token-store'
 
 // Подключение общего API-клиента к вебу: до первого запроса, поэтому импортируется первым в main.tsx
@@ -13,10 +12,6 @@ configureApi({
   tokens: webTokenStore,
   // В мини-приложении мессенджера токена нет — сервер авторизует по подписанным данным запуска
   fallbackAuthorization: getMiniappAuthorization,
-  headers: (): Record<string, string> => {
-    const organizationId = getOrganizationId()
-    return organizationId === null ? {} : { [ORGANIZATION_HEADER]: String(organizationId) }
-  },
   // Логин/логаут в соседней вкладке меняет localStorage — ловим через storage-событие
   subscribeExternal: callback => {
     window.addEventListener('storage', callback)

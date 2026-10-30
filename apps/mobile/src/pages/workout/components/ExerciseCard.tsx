@@ -18,6 +18,7 @@ import { Icon } from '@/shared/ui/kit/Icon';
 import { Rise } from '@/shared/ui/kit/Reveal';
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography';
 import { ExerciseHistorySheet } from '@/widgets/exercise-history/ExerciseHistorySheet';
+import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet';
 
 type ExerciseCardProps = {
   item: WorkoutItem;
@@ -31,6 +32,7 @@ export const ExerciseCard = ({ item, label }: ExerciseCardProps) => {
   const last = lastText(item.last, item.measure);
   const rest = item.last && typicalRest(item.last.sets);
   const [history, setHistory] = useState(false);
+  const [technique, setTechnique] = useState(false);
   // Над текущим упражнением подписи нет: и так понятно, что оно сейчас на экране
   const eyebrow = [item.done ? 'Сделано' : item.replaced ? 'Замена на сегодня' : null, label, item.draft && 'не проверено']
     .filter(Boolean)
@@ -103,15 +105,10 @@ export const ExerciseCard = ({ item, label }: ExerciseCardProps) => {
 
       <Rise>
         <View className="flex-row gap-3">
-          <ButtonLink
-            // from=workout прячет «В тренировку»: менять программу посреди подхода незачем
-            href={{ pathname: ROUTES.EXERCISE, params: { exerciseId: String(item.exerciseId), from: 'workout' } }}
-            variant="outline"
-            size="sm"
-          >
+          <Button variant="outline" size="sm" onPress={() => setTechnique(true)}>
             <Icon as={BookOpen} className="size-3.5" />
             Техника
-          </ButtonLink>
+          </Button>
           <ButtonLink href={replaceHref} variant="outline" size="sm">
             <Icon as={Repeat2} className="size-3.5" />
             Заменить
@@ -123,6 +120,10 @@ export const ExerciseCard = ({ item, label }: ExerciseCardProps) => {
         exercise={history ? { id: item.exerciseId, name: item.name } : null}
         unit={historyUnit(item)}
         onOpenChange={setHistory}
+      />
+      <ExerciseSheet
+        exercise={technique ? { id: item.exerciseId, name: item.name } : null}
+        onOpenChange={setTechnique}
       />
     </>
   );

@@ -13,9 +13,14 @@ import { haptic, setMessengerHeaderAccent } from '@/shared/miniapp'
 /** Высота полосы под отступом мессенджера: тонкая заливка 6px и волна 10px. Без текста — цвет сам говорит, что идёт тренировка */
 const LIVE_H = '16px'
 
+type LivePhase = 'work' | 'rest' | 'warmup'
+
+/** Цвет шапки Telegram: тот же, что у полосы */
+const PHASE_COLOR: Record<LivePhase, string> = { work: '--sb-live', rest: '--sb-rest', warmup: '--sb-warmup' }
+
 // Тренировка идёт, а человек ушёл на другие экраны: зелёная полоса сверху возвращает к ней одним касанием.
-// Во время отдыха полоса абрикосовая. Опускает всё, что прилипает к верху, через --sb-live-h,
-// а в Telegram красит его шапку в тот же цвет
+// Во время отдыха полоса абрикосовая, во время разминки коралловая. Опускает всё, что прилипает к верху,
+// через --sb-live-h, а в Telegram красит его шапку в тот же цвет
 export const LiveWorkoutBar = ({ onReturn }: LiveWorkoutBarProps) => {
   const current = useCurrentWorkout()
   const { workout, finishing } = useQueuedWorkout(current.data?.workout)
@@ -26,7 +31,16 @@ export const LiveWorkoutBar = ({ onReturn }: LiveWorkoutBarProps) => {
   // Тот же таймер, что на экране тренировки: дедлайн в localStorage. Полоса монтируется заново при уходе с фокуса
   // и с экрана тренировки, поэтому читает таймер свежим. Без onEnd — сигнал конца отдыха подаёт экран тренировки
   const timer = useDeadlineTimer({ storageKey: live ? `rest-timer-${live.id}` : undefined })
-  const resting = visible && timer.status === 'running' && timer.left > 0
+  const warmupTimer = useDeadlineTimer({ storageKey: live ? `warmup-timer-${live.id}` : undefined })
+  // Свой экземпляр таймера не узнает, что разминку закончил подход на этом же экране: сверяемся с самой тренировкой
+  const warmupGoing =
+    live && !live.warmupFinishedAt && !live.exercises.some(e => e.sets.length)
+  const phase: LivePhase =
+    visible && timer.status === 'running' && timer.left > 0
+      ? 'rest'
+      : warmupGoing && warmupTimer.status === 'running' && warmupTimer.left > 0
+        ? 'warmup'
+        : 'work'
 
   useEffect(() => {
     if (!visible) return
@@ -43,7 +57,7 @@ export const LiveWorkoutBar = ({ onReturn }: LiveWorkoutBarProps) => {
     if (!visible) return
     const frame = requestAnimationFrame(() => {
       const color = getComputedStyle(document.documentElement)
-        .getPropertyValue(resting ? '--sb-rest' : '--sb-live')
+        .getPropertyValue(PHASE_COLOR[phase])
         .trim()
       setMessengerHeaderAccent(color || null)
       repaintMessengerChrome()
@@ -53,7 +67,7 @@ export const LiveWorkoutBar = ({ onReturn }: LiveWorkoutBarProps) => {
       setMessengerHeaderAccent(null)
       repaintMessengerChrome()
     }
-  }, [visible, resting, resolvedTheme])
+  }, [visible, phase, resolvedTheme])
 
   return (
     <AnimatePresence>
@@ -61,7 +75,7 @@ export const LiveWorkoutBar = ({ onReturn }: LiveWorkoutBarProps) => {
         <LiveStrip
           key='live'
           complexName={live.complexName}
-          resting={resting}
+          phase={phase}
           onReturn={onReturn}
         />
       )}
@@ -76,14 +90,17 @@ type LiveWorkoutBarProps = {
 
 type LiveStripProps = LiveWorkoutBarProps & {
   complexName: string
-  /** Идёт отдых: полоса абрикосовая */
-  resting: boolean
+  /** Что идёт сейчас: от этого цвет полосы */
+  phase: LivePhase
 }
 
-// Цвета отдыха подменяют мятные прямо на полосе: заливка и волны берут их из --sb-live*
-const REST_COLORS = { '--sb-live': 'var(--sb-rest)', '--sb-live-deep': 'var(--sb-rest-deep)' } as CSSProperties
+// Цвета отдыха и разминки подменяют мятные прямо на полосе: заливка и волны берут их из --sb-live*
+const PHASE_STYLE: Partial<Record<LivePhase, CSSProperties>> = {
+  rest: { '--sb-live': 'var(--sb-rest)', '--sb-live-deep': 'var(--sb-rest-deep)' } as CSSProperties,
+  warmup: { '--sb-live': 'var(--sb-warmup)', '--sb-live-deep': 'var(--sb-warmup-deep)' } as CSSProperties,
+}
 
-const LiveStrip = ({ complexName, resting, onReturn }: LiveStripProps) => {
+const LiveStrip = ({ complexName, phase, onReturn }: LiveStripProps) => {
   const still = useReducedMotion()
   const hidden = still ? { opacity: 0 } : { y: '-100%' }
 
@@ -93,7 +110,7 @@ const LiveStrip = ({ complexName, resting, onReturn }: LiveStripProps) => {
       animate={{ y: 0, opacity: 1 }}
       exit={hidden}
       transition={still ? { duration: 0.2 } : { type: 'spring', stiffness: 380, damping: 34 }}
-      style={resting ? REST_COLORS : undefined}
+      style={PHASE_STYLE[phase]}
       // Тень повторяет волну: drop-shadow идёт по маске, а не по прямоугольнику
       className='fixed inset-x-0 top-0 z-[45] mx-auto h-(--sb-top-inset) max-w-[440px] drop-shadow-[0_4px_6px_rgb(10_10_10/0.12)]'
     >

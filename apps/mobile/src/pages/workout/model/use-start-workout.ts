@@ -25,12 +25,11 @@ export const useStartWorkout = (complexId?: number) => {
       ? { programId: program.data.id, complexId: complex.id, title: complex.name }
       : null;
 
-  // Заставка разминки вместо лоадера, пока тренировка пишется в базу: минуты и первое упражнение
-  // известны по комплексу заранее, тикающий таймер запустит уже настоящий экран
+  // Заставка разминки вместо лоадера, пока тренировка пишется в базу: минуты известны
+  // по комплексу заранее, тикающий таймер запустит уже настоящий экран
   const profile = useProfile();
   const minutes = complex && profile.data ? resolveWarmup(complex, profile.data) : null;
-  const first = complex?.exercises[0]?.name;
-  const warmup = minutes && first ? { minutes, first } : null;
+  const warmup = minutes && complex?.exercises.length ? { minutes } : null;
 
   useEffect(() => {
     if (started.current || checking || empty) return;

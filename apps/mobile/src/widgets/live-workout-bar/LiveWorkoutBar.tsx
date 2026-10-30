@@ -23,13 +23,13 @@ import Svg, { Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 import { haptic } from '@/shared/lib/haptics';
 import { useTheme } from '@/shared/theme/ThemeProvider';
 
-import { BACK_WAVE, FRONT_WAVE, LIVE_H, wavePath } from './constants';
+import { BACK_WAVE, FRONT_WAVE, LIVE_H, PHASE_FILL, wavePath, type LivePhase } from './constants';
 import { Pressable } from '@/shared/ui/kit/Pressable';
 
 type LiveWorkoutBarProps = {
   visible: boolean;
-  /** Идёт отдых: полоса абрикосовая */
-  resting: boolean;
+  /** Что идёт сейчас: от этого цвет полосы */
+  phase: LivePhase;
   /** Название тренировки — для экранного диктора */
   label?: string;
   onReturn: () => void;
@@ -38,28 +38,28 @@ type LiveWorkoutBarProps = {
 };
 
 // Порт фронтового LiveWorkoutBar: тренировка идёт, а человек ушёл с фокуса — зелёная полоса сверху возвращает к ней.
-// Во время отдыха полоса абрикосовая. Контент опускаем подменой safe-area: Screen и прочие берут отступ оттуда,
-// как во фронте всё липкое опускается через --sb-live-h
-export const LiveWorkoutBar = ({ visible, resting, label, onReturn, children }: LiveWorkoutBarProps) => {
+// Во время отдыха полоса абрикосовая, во время разминки коралловая. Контент опускаем подменой safe-area:
+// Screen и прочие берут отступ оттуда, как во фронте всё липкое опускается через --sb-live-h
+export const LiveWorkoutBar = ({ visible, phase, label, onReturn, children }: LiveWorkoutBarProps) => {
   const insets = useSafeAreaInsets();
   const shifted = useMemo(() => ({ ...insets, top: insets.top + LIVE_H }), [insets]);
 
   return (
     <View className="flex-1">
       <SafeAreaInsetsContext.Provider value={visible ? shifted : insets}>{children}</SafeAreaInsetsContext.Provider>
-      {visible && <LiveStrip height={shifted.top} resting={resting} label={label} onReturn={onReturn} />}
+      {visible && <LiveStrip height={shifted.top} phase={phase} label={label} onReturn={onReturn} />}
     </View>
   );
 };
 
 type LiveStripProps = Omit<LiveWorkoutBarProps, 'visible' | 'children'> & { height: number };
 
-const LiveStrip = ({ height, resting, label, onReturn }: LiveStripProps) => {
+const LiveStrip = ({ height, phase, label, onReturn }: LiveStripProps) => {
   const { colors } = useTheme();
   const still = useReducedMotion();
   const { width } = useWindowDimensions();
-  const base = resting ? colors.rest : colors.live;
-  const deep = resting ? colors.restDeep : colors.liveDeep;
+  const base = colors[PHASE_FILL[phase].base];
+  const deep = colors[PHASE_FILL[phase].deep];
 
   const breath = useSharedValue(0);
   const front = useSharedValue(0);
