@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router'
 
 import { useState } from 'react'
 
-import { useAnalogs, useCurrentWorkout, useReplaceItem, type WorkoutAnalog } from '@sportbot/api/entities/workout'
+import { useAnalogs, useCurrentWorkout, useReplaceItem } from '@sportbot/api/entities/workout'
 import { ROUTES } from '@/shared/config/paths'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { Rise } from '@/shared/ui/kit/Reveal'
@@ -16,10 +16,11 @@ import { ExerciseCreateSheet } from '@/widgets/catalog/ExerciseCreateSheet'
 import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet'
 
 import { AnalogList } from './components/AnalogList'
+import { OtherExercises } from './components/OtherExercises'
 import { type ReplaceChoice, ReplaceChoiceSheet } from './components/ReplaceChoiceSheet'
 
-// Замена упражнения (business-tz, 7.4): аналоги с теми же основными мышцами, без зон с ограничением,
-// затем «только сегодня» или «в комплексе». История весов у аналога своя
+// Замена упражнения (business-tz, 7.4): сначала аналоги с теми же основными мышцами, без зон с ограничением,
+// потом любое другое упражнение через поиск, затем «только сегодня» или «в комплексе». История весов у аналога своя
 const ReplaceExercisePage = () => {
   const itemId = Number(useParams().itemId)
   const navigate = useNavigate()
@@ -29,7 +30,7 @@ const ReplaceExercisePage = () => {
   // draft — своё упражнение, которое только что ушло на модерацию из шторки создания
   const [choice, setChoice] = useState<ReplaceChoice | null>(null)
   // Тап по строке — посмотреть упражнение; кнопка справа — сразу к выбору замены
-  const [preview, setPreview] = useState<WorkoutAnalog | null>(null)
+  const [preview, setPreview] = useState<ReplaceChoice | null>(null)
   // Своё упражнение создаётся шторкой прямо здесь и сразу открывает выбор замены
   const [createOpen, setCreateOpen] = useState(false)
 
@@ -103,6 +104,14 @@ const ReplaceExercisePage = () => {
             Нет нужного — создать своё
           </Button>
         )}
+      </ScreenSection>
+
+      <ScreenSection title='Другое упражнение'>
+        <OtherExercises
+          presentIds={workout?.exercises.map(e => e.exerciseId) ?? []}
+          onPreview={setPreview}
+          onChoose={setChoice}
+        />
       </ScreenSection>
 
       <ExerciseSheet

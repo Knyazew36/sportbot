@@ -28,7 +28,7 @@ export const RestRays = ({ size = 300 }: RestRaysProps) => {
             x2={from + (long ? 16 : 9)}
             y1={0}
             y2={0}
-            stroke='var(--sb-blue)'
+            stroke='var(--sb-rest-ink)'
             strokeWidth={long ? 3 : 2}
             strokeLinecap='round'
             initial={{ opacity: 0, x: 0 }}

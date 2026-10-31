@@ -16,7 +16,7 @@ import { WorkoutProtocol } from '@/widgets/workout-summary/WorkoutProtocol'
 import { WorkoutFacts } from './components/WorkoutFacts'
 import { WorkoutStatsFooter } from './components/WorkoutStatsFooter'
 
-// Прошедшая тренировка из календаря посещений: что сделано, рекорды того дня, время, протокол.
+// Прошедшая тренировка из календаря посещений: что сделано, рекорды того дня, время, журнал.
 // В отличие от итога сразу после тренировки здесь нет серии и заминки — только разбор и правка
 const StatsWorkoutPage = () => {
   const workoutId = Number(useParams().workoutId)

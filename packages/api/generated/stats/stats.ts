@@ -24,7 +24,9 @@ import type {
   StatsControllerSessions200,
   StatsControllerSessionsParams,
   StatsControllerSummary200,
-  StatsControllerSummaryParams
+  StatsControllerSummaryParams,
+  StatsControllerTonnage200,
+  StatsControllerTonnageParams
 } from '../model';
 
 import { customInstance } from '../../client/orval-mutator';
@@ -51,6 +53,18 @@ export const statsControllerAttendance = (
  ) => {
       return customInstance<StatsControllerAttendance200>(
       {url: `/stats/attendance`, method: 'GET',
+        params
+    },
+      );
+    }
+  /**
+ * @summary Тоннаж (вес × повторы) по неделям
+ */
+export const statsControllerTonnage = (
+    params?: StatsControllerTonnageParams,
+ ) => {
+      return customInstance<StatsControllerTonnage200>(
+      {url: `/stats/tonnage`, method: 'GET',
         params
     },
       );
@@ -155,6 +169,7 @@ export const statsControllerDay = (
     }
   export type StatsControllerSummaryResult = NonNullable<Awaited<ReturnType<typeof statsControllerSummary>>>
 export type StatsControllerAttendanceResult = NonNullable<Awaited<ReturnType<typeof statsControllerAttendance>>>
+export type StatsControllerTonnageResult = NonNullable<Awaited<ReturnType<typeof statsControllerTonnage>>>
 export type StatsControllerProgressListResult = NonNullable<Awaited<ReturnType<typeof statsControllerProgressList>>>
 export type StatsControllerProgressResult = NonNullable<Awaited<ReturnType<typeof statsControllerProgress>>>
 export type StatsControllerSessionsResult = NonNullable<Awaited<ReturnType<typeof statsControllerSessions>>>

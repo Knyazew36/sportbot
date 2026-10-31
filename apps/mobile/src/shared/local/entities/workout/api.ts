@@ -100,7 +100,7 @@ const serverOnly = <T>(id: number, load: (id: number) => Promise<T>) =>
 export const useCurrentWorkout = () =>
   useLocalQuery({ key: ['workout', 'current'], read: readCurrentWorkout, fallback: () => workoutControllerCurrent() });
 
-/** Тренировка по id — протокол, правка из статистики */
+/** Тренировка по id — журнал, правка из статистики */
 export const useWorkout = (id: number) =>
   useLocalQuery({
     key: ['workout', 'detail', id],

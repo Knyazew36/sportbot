@@ -12,7 +12,12 @@ export const AttendanceSection = ({ period, userId }: { period: Period; userId?:
   const list = weeks.data ?? []
   const done = list.reduce((sum, w) => sum + w.done, 0)
   const planned = list.reduce((sum, w) => sum + w.planned, 0)
-  const data = list.map(w => ({ label: `с ${formatDate(w.weekStart, 'd MMM')}`, value: w.percent }))
+  // Выбранная неделя подписана числом тренировок: один процент без «из скольких» ни о чём не говорит
+  const data = list.map(w => ({
+    label: `с ${formatDate(w.weekStart, 'd MMM')}`,
+    title: `неделя с ${formatDate(w.weekStart, 'd MMM')} · ${w.done} из ${w.planned} тренировок`,
+    value: w.percent,
+  }))
 
   return (
     <TrendSection
@@ -24,6 +29,7 @@ export const AttendanceSection = ({ period, userId }: { period: Period; userId?:
       caption={planned ? `${done} из ${planned} тренировок` : undefined}
       data={data}
       curve='step'
+      hint='нажми на неделю'
       empty='Пока мало недель для графика.'
     />
   )

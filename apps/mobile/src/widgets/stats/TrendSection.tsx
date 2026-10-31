@@ -16,8 +16,10 @@ type TrendSectionProps = {
   headline?: ReactNode;
   /** Подпись под крупным числом: что именно за число */
   caption?: ReactNode;
-  data: { label: string; value: number }[];
+  data: { label: string; title?: string; value: number }[];
   curve?: 'step' | 'line';
+  /** Подсказка над графиком: нажимается день или неделя */
+  hint?: string;
   empty: string;
 };
 
@@ -31,6 +33,7 @@ export const TrendSection = ({
   caption,
   data,
   curve = 'line',
+  hint,
   empty,
 }: TrendSectionProps) => (
   <StatsSection title={title} aside={aside} note={note}>
@@ -42,7 +45,7 @@ export const TrendSection = ({
       {caption ? <Eyebrow className="mt-2">{caption}</Eyebrow> : null}
     </View>
     {data.length > 1 ? (
-      <StepChart data={data} unit={unit} curve={curve} className="-mx-2" />
+      <StepChart data={data} unit={unit} curve={curve} hint={hint} className="-mx-2" />
     ) : (
       <Text size="sm" tone="muted">
         {empty}

@@ -31,6 +31,7 @@ export const WorkoutFacts = ({ summary, editTo }: WorkoutFactsProps) => (
     {summary.tonnage > 0 && (
       <Text size="sm" tone="soft">
         Поднято за тренировку: {summary.tonnage.toLocaleString('ru-RU')} кг
+        {summary.tonnageRecord && ` · рекорд, было ${summary.tonnageRecord.previous.toLocaleString('ru-RU')} кг`}
       </Text>
     )}
     {summary.cardioName && (

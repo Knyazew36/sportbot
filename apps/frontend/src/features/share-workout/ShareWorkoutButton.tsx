@@ -8,16 +8,19 @@ type ShareWorkoutButtonProps = {
   workoutId: number
   size?: ButtonProps['size']
   className?: string
+  /** Квадратная кнопка без подписи: в тесном футере */
+  iconOnly?: boolean
 }
 
 // Карточку присылает бот: её можно переслать в любой чат, а кнопка в ней откроет страницу результата
-export const ShareWorkoutButton = ({ workoutId, size, className }: ShareWorkoutButtonProps) => {
+export const ShareWorkoutButton = ({ workoutId, size, className, iconOnly }: ShareWorkoutButtonProps) => {
   const share = useShareWorkout()
   return (
     <Button
       variant='share'
-      size={size}
+      size={iconOnly ? 'icon-lg' : size}
       className={className}
+      aria-label='Поделиться'
       disabled={share.isPending}
       onClick={() => share.mutate(workoutId)}
     >
@@ -30,7 +33,7 @@ export const ShareWorkoutButton = ({ workoutId, size, className }: ShareWorkoutB
           strokeWidth={2.5}
         />
       )}
-      {share.isPending ? 'Готовим карточку…' : 'Поделиться'}
+      {iconOnly ? null : share.isPending ? 'Готовим карточку…' : 'Поделиться'}
     </Button>
   )
 }

@@ -25,6 +25,7 @@ import { StatsRecordsQueryDto } from './dto/stats-records-query.dto';
 import { StatsSessionResponseDto } from './dto/stats-session.response.dto';
 import { StatsSessionsQueryDto } from './dto/stats-sessions-query.dto';
 import { StatsSummaryResponseDto } from './dto/stats-summary.response.dto';
+import { StatsTonnageWeekResponseDto } from './dto/stats-tonnage-week.response.dto';
 import { E1rm, ExerciseProgress, StatsService } from './stats.service';
 
 const DEFAULT_PERIOD_DAYS = 92;
@@ -76,6 +77,18 @@ export class StatsAppService {
       currentStreak: profile.currentStreak,
       bestStreak: profile.bestStreak,
     };
+  }
+
+  /** Тоннаж по неделям — от старых к новым. */
+  public async tonnageWeekly(
+    viewerId: number,
+    targetId: number | undefined,
+    weeks = 12,
+  ): Promise<StatsTonnageWeekResponseDto[]> {
+    const profile = await this.target(viewerId, targetId);
+    const current = weekStart(localToday(profile.timeZone));
+    const list = await this.stats.tonnageWeekly(profile.userId, current, weeks);
+    return list.map((w) => ({ ...w, weekStart: isoDate(w.weekStart) }));
   }
 
   /** Посещаемость по неделям — от старых к новым. */

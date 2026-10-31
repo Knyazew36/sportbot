@@ -17,6 +17,7 @@ import { useWorkoutFlow } from '../model/use-workout-flow'
 import { ElapsedInline } from './ElapsedInline'
 import { EmptyWorkout } from './EmptyWorkout'
 import { ExerciseCard } from './ExerciseCard'
+import { FinishConfirm } from './FinishConfirm'
 import { FinishPending } from './FinishPending'
 import { RoundEntrySheet } from './RoundEntrySheet'
 import { SetEntrySheet } from './SetEntrySheet'
@@ -71,7 +72,7 @@ export const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
                   title={doneCount ? 'Завершить тренировку?' : 'Засчитывать нечего'}
                   description={
                     doneCount
-                      ? `Сделано ${doneCount} из ${pluralize(items.length, EXERCISE_OF_FORMS)}.`
+                      ? `Сделано ${doneCount} из ${pluralize(items.length, EXERCISE_OF_FORMS)}.${flow.unfinished ? ' Не все подходы сделаны.' : ''}`
                       : 'Пока не сделано ни одного упражнения. Можно отменить тренировку — очередь тренировок не сдвинется.'
                   }
                   confirmLabel={doneCount ? 'Завершить' : 'Отменить тренировку'}
@@ -160,6 +161,12 @@ export const WorkoutView = ({ workout: saved }: { workout: Workout }) => {
             </Button>
           )
         }
+      />
+      <FinishConfirm
+        open={flow.confirmingFinish}
+        unfinished={flow.unfinished}
+        onClose={flow.closeFinishConfirm}
+        onConfirm={flow.onFinish}
       />
       <Stamp text={flow.stamp} />
       <EditSetSheet

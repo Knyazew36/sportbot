@@ -12,6 +12,7 @@ import {
   statsControllerRecords,
   statsControllerSessions,
   statsControllerSummary,
+  statsControllerTonnage,
 } from '@sportbot/api/generated/stats/stats';
 
 import { useLocalDb } from '@/shared/db';
@@ -28,6 +29,7 @@ import {
   readRecords,
   readSessionsPage,
   readSummary,
+  readTonnageWeeks,
 } from './read-stats';
 
 // Своя статистика — из базы телефона, считается без сети. Статистика друга (userId) — только с сервера:
@@ -53,6 +55,15 @@ export const useAttendanceWeeks = (weeks: number, userId?: number) =>
     key: ['stats', 'attendance', weeks, userId ?? null],
     read: (db) => own(userId, () => readAttendanceWeeks(db, weeks)),
     fallback: () => statsControllerAttendance({ weeks, ...withUser(userId) }),
+    keepPrevious: true,
+  });
+
+/** Тоннаж (вес × повторы) по неделям, кг */
+export const useTonnageWeeks = (weeks: number, userId?: number) =>
+  useLocalQuery({
+    key: ['stats', 'tonnage', weeks, userId ?? null],
+    read: (db) => own(userId, () => readTonnageWeeks(db, weeks)),
+    fallback: () => statsControllerTonnage({ weeks, ...withUser(userId) }),
     keepPrevious: true,
   });
 

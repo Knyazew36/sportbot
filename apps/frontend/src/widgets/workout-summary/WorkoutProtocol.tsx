@@ -7,11 +7,11 @@ import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Poster, Text } from '@/shared/ui/kit/Typography'
 
-// Протокол: что сделано по каждому упражнению — в итоге тренировки и на её странице из календаря
+// Журнал: что сделано по каждому упражнению — в итоге тренировки и на её странице из календаря
 export const WorkoutProtocol = ({ workoutId }: { workoutId: number }) => {
   const workout = useWorkout(workoutId)
   return (
-    <ScreenSection title='Протокол'>
+    <ScreenSection title='Журнал'>
       <QueryScreen
         query={workout}
         className=''

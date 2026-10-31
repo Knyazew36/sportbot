@@ -89,7 +89,7 @@ export const RestRays = ({ size }: RestRaysProps) => {
       <Canvas style={{ width: canvas, height: canvas }}>
         {RAYS.map(({ angle, long }) => (
           <Group key={angle} transform={[{ translateX: center }, { translateY: center }, { rotate: angle }]}>
-            <Ray from={from} long={long} color={colors.blue} still={still} t={long ? longWave : shortWave} />
+            <Ray from={from} long={long} color={colors.restInk} still={still} t={long ? longWave : shortWave} />
           </Group>
         ))}
       </Canvas>

@@ -83,16 +83,24 @@ export class WorkoutAppService {
       this.accounts.profile(userId),
       this.workouts.find(userId, workoutId),
     ]);
-    const records = await this.stats.records(userId, workout);
+    const totals = workoutTotals(workout);
+    // Рекорды считаем только у завершённой: идущая тренировка ещё не набрала свой тоннаж
+    const [records, tonnageRecord] = await Promise.all([
+      this.stats.records(userId, workout),
+      workout.status === 'IN_PROGRESS'
+        ? null
+        : this.stats.tonnageRecord(userId, workout, totals.tonnage),
+    ]);
     return {
       workoutId: workout.id,
       complexName: workout.complexName,
       status: workout.status,
-      ...workoutTotals(workout),
+      ...totals,
       currentStreak: profile.currentStreak,
       cardioName: workout.cardioName,
       cardioMinutes: workout.cardioMinutes,
       records,
+      tonnageRecord,
       timing: this.timingView(workout),
     };
   }

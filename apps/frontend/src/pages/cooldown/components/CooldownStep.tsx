@@ -1,4 +1,4 @@
-import { InfoIcon, ListIcon, RefreshCwIcon, SkipBackIcon, SkipForwardIcon } from 'lucide-react'
+import { CheckIcon, InfoIcon, ListIcon, RefreshCwIcon, SkipBackIcon, SkipForwardIcon } from 'lucide-react'
 
 import { timerEndSignal } from '@/shared/lib/signal'
 import { Screen } from '@/shared/ui/kit/Screen'
@@ -84,6 +84,15 @@ export const CooldownStep = ({ flow, index, side }: CooldownStepProps) => {
               >
                 <InfoIcon />
                 Подробнее
+              </Button>
+              {/* Закончить можно с любой растяжки, не дожидаясь последней */}
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={flow.finish}
+              >
+                <CheckIcon />
+                Завершить
               </Button>
             </>
           }

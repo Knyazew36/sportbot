@@ -15,7 +15,7 @@ import { pluralize } from '@front-cmdt/utils/pluralize'
 
 const RECORDS_ON_TODAY = 3
 
-// Итог сегодняшней тренировки: заминка следующим шагом, рекорды, цифры и переход к протоколу
+// Итог сегодняшней тренировки: заминка следующим шагом, рекорды, цифры и переход к журналу
 export const WorkoutTotals = ({ workoutId, complexName }: { workoutId: number; complexName: string }) => {
   const summary = useWorkoutSummary(workoutId)
 
@@ -76,7 +76,7 @@ export const WorkoutTotals = ({ workoutId, complexName }: { workoutId: number; c
               to={buildPath(ROUTES.WORKOUT_SUMMARY, { workoutId })}
               variant='outline'
             >
-              Протокол
+              Журнал
               <ArrowRightIcon />
             </ButtonLink>
           </ScreenSection>

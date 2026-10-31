@@ -15,8 +15,10 @@ type TrendSectionProps = {
   headline?: ReactNode
   /** Подпись под крупным числом: что именно за число */
   caption?: ReactNode
-  data: { label: string; value: number }[]
+  data: { label: string; title?: string; value: number }[]
   curve?: 'step' | 'line'
+  /** Подсказка над графиком: нажимается день или неделя */
+  hint?: string
   empty: string
 }
 
@@ -30,6 +32,7 @@ export const TrendSection = ({
   caption,
   data,
   curve = 'line',
+  hint,
   empty,
 }: TrendSectionProps) => (
   <StatsSection
@@ -59,6 +62,7 @@ export const TrendSection = ({
         data={data}
         unit={unit}
         curve={curve}
+        hint={hint}
         className='-mx-2'
       />
     ) : (

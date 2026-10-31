@@ -18,19 +18,33 @@ const amount = (value: number, unit: WorkoutRecordResponseDto['unit'], reps: num
 
 type WorkoutRecordsProps = {
   records: WorkoutRecordResponseDto[];
+  /** Рекорд тоннажа тренировки — первой строкой; tonnage — сколько поднято сегодня */
+  tonnageRecord?: { tonnage: number; previous: number } | null;
   /** Сколько показать; остальное — подписью «ещё N» */
   limit?: number;
 };
 
 // Личные рекорды тренировки — порт widgets/workout-records/WorkoutRecords.tsx:
 // лучший подход сегодня против прежнего лучшего
-export const WorkoutRecords = ({ records, limit }: WorkoutRecordsProps) => {
+export const WorkoutRecords = ({ records, tonnageRecord, limit }: WorkoutRecordsProps) => {
   const shown = limit ? records.slice(0, limit) : records;
   const rest = records.length - shown.length;
 
   return (
     <View>
       <List>
+        {tonnageRecord && (
+          <ListRow
+            lead={<Icon as={Trophy} className="text-sb-gold size-4" />}
+            title="Поднято за тренировку"
+            meta={`было ${tonnageRecord.previous.toLocaleString('ru-RU')} кг`}
+            trail={
+              <Poster size="lg" tone="primary" numeric numberOfLines={1}>
+                {tonnageRecord.tonnage.toLocaleString('ru-RU')} кг
+              </Poster>
+            }
+          />
+        )}
         {shown.map((r) => (
           <ListRow
             key={r.exerciseId}

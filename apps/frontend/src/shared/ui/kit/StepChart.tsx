@@ -45,13 +45,15 @@ type StepChartProps = {
   format?: (value: number) => string
   /** Ступенька — рабочий вес держится до следующего прироста; линия — для плавных рядов вроде веса тела */
   curve?: 'step' | 'line'
+  /** Подсказка, пока точка не выбрана: что именно нажимается — день или неделя */
+  hint?: string
   className?: string
 }
 
 // График прогресса: синяя линия и растровая заливка — печатная фактура плаката вместо градиента.
 // Значение дня — строкой над графиком, а не всплывашкой: всплывашка у краёв уезжает за график.
 // Пока день не выбран, строка показывает последний и подсказывает, что точки нажимаются
-export const StepChart = ({ data, unit, format = defaultFormat, curve = 'step', className }: StepChartProps) => {
+export const StepChart = ({ data, unit, format = defaultFormat, curve = 'step', hint = 'нажми на день', className }: StepChartProps) => {
   const dots = useId().replace(/:/g, '')
   const [picked, setPicked] = useState<number | null>(null)
   const last = data.length - 1
@@ -110,7 +112,7 @@ export const StepChart = ({ data, unit, format = defaultFormat, curve = 'step', 
             className='flex shrink-0 items-center gap-1'
           >
             <PointerIcon className='size-3.5' />
-            нажми на день
+            {hint}
           </Eyebrow>
         )}
       </div>

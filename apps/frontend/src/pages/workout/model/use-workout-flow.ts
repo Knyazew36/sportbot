@@ -124,6 +124,10 @@ export const useWorkoutFlow = (saved: Workout) => {
   const item = items.find(e => e.id === pickedId) ?? currentItem(items)
   const doneCount = items.filter(e => e.done).length
   const allDone = items.length > 0 && doneCount === items.length
+  // Не доведено до плана: упражнение без подходов или с подходов меньше запланированного
+  const unfinished = items.filter(e => !e.done || e.sets.length < e.plannedSets).length
+  // Завершение с кнопки «дальше» при недоделанном плане сначала спрашивает
+  const [confirmingFinish, setConfirmingFinish] = useState(false)
 
   const clearLocal = () => {
     timer.stop()
@@ -153,6 +157,9 @@ export const useWorkoutFlow = (saved: Workout) => {
     online,
     items,
     doneCount,
+    unfinished,
+    confirmingFinish,
+    closeFinishConfirm: () => setConfirmingFinish(false),
     finishPending: finish.isPending,
     onFinish,
     onDiscard,
@@ -204,8 +211,10 @@ export const useWorkoutFlow = (saved: Workout) => {
   }
 
   const onNext = () => {
-    if (forward === 'finish') void onFinish()
-    else if (nextId) setPickedId(nextId)
+    if (forward === 'finish') {
+      if (unfinished) setConfirmingFinish(true)
+      else onFinish()
+    } else if (nextId) setPickedId(nextId)
   }
 
   const startRest = (seconds: number) => {

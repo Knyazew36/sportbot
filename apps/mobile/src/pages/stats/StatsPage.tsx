@@ -10,6 +10,7 @@ import { PeriodBar } from '@/widgets/stats/PeriodBar';
 import { usePeriod } from '@/widgets/stats/periods';
 import { ProgressListSection } from '@/widgets/stats/ProgressListSection';
 import { RecordsSection } from '@/widgets/stats/RecordsSection';
+import { TonnageSection } from '@/widgets/stats/TonnageSection';
 
 import { AddWorkoutButton } from './components/AddWorkoutButton';
 import { TABS, useTab } from './model/use-tab';
@@ -28,6 +29,7 @@ const StatsPage = () => {
         <>
           <PeriodBar />
           <ProgressListSection period={period} />
+          <TonnageSection period={period} />
           <RecordsSection period={period} />
         </>
       )}

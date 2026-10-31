@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { View } from 'react-native';
 
 import type { CatalogKind } from '@sportbot/api/entities/catalog';
+import { DownloadMediaButton } from '@/features/download-catalog-media/DownloadMediaButton';
 import { routeHref, ROUTES } from '@/shared/config/routes';
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink';
 import { Screen } from '@/shared/ui/kit/Screen';
@@ -36,7 +37,8 @@ const LibraryPage = () => {
       header={
         <>
           <ScreenHeader title="Справочник" />
-          <View className="px-gutter items-end pt-3">
+          <View className="px-gutter flex-row items-center justify-end gap-2 pt-3">
+            <DownloadMediaButton />
             <MineButton onPress={() => router.push(routeHref(ROUTES.LIBRARY_MINE))} />
           </View>
           <View className="px-gutter gap-3 pt-3">

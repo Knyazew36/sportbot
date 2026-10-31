@@ -71,7 +71,12 @@ const DayCell = ({ cell, label, selected, hatch, onPress }: DayCellProps) => {
       )}
     >
       {cell.mark === 'pause' && <Hatch color={hatch} />}
-      {cell.mark === 'skip' && <Icon as={X} strokeWidth={1.25} className="text-foreground/30 absolute size-8" />}
+      {/* Позиция — на обёртке: Icon берёт из className только размер и цвет, absolute на нём теряется */}
+      {cell.mark === 'skip' && (
+        <View pointerEvents="none" className="absolute inset-0 items-center justify-center">
+          <Icon as={X} strokeWidth={1.25} className="text-foreground/30 size-8" />
+        </View>
+      )}
       <Text
         className={cn(
           MARK_TEXT[cell.mark],

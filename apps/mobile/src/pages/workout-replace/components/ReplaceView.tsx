@@ -14,12 +14,13 @@ import { ExerciseSheet } from '@/widgets/exercise-sheet/ExerciseSheet';
 
 import { useReplaceFlow } from '../model/use-replace-flow';
 import { AnalogList } from './AnalogList';
+import { OtherExercises } from './OtherExercises';
 import { ReplaceChoiceSheet } from './ReplaceChoiceSheet';
 
 type ReplaceViewProps = { itemId: number; workout: Workout | null };
 
-// Замена упражнения (business-tz, 7.4): аналоги с теми же основными мышцами, без зон с ограничением,
-// затем «только сегодня» или «в комплексе». История весов у аналога своя
+// Замена упражнения (business-tz, 7.4): сначала аналоги с теми же основными мышцами, без зон с ограничением,
+// потом любое другое упражнение через поиск, затем «только сегодня» или «в комплексе». История весов у аналога своя
 export const ReplaceView = ({ itemId, workout }: ReplaceViewProps) => {
   const analogs = useAnalogs(itemId);
   const flow = useReplaceFlow(itemId);
@@ -54,6 +55,14 @@ export const ReplaceView = ({ itemId, workout }: ReplaceViewProps) => {
             Нет нужного — создать своё
           </Button>
         )}
+      </ScreenSection>
+
+      <ScreenSection title="Другое упражнение">
+        <OtherExercises
+          presentIds={workout?.exercises.map((e) => e.exerciseId) ?? []}
+          onPreview={flow.setPreview}
+          onChoose={flow.setChoice}
+        />
       </ScreenSection>
 
       <ExerciseSheet

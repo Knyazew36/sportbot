@@ -12,4 +12,5 @@ export {
   useRecords,
   useStatsDay,
   useStatsSummary,
+  useTonnageWeeks,
 } from './api';

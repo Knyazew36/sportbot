@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { WorkoutRecordResponseDto } from './workout-record.response.dto';
 import { WorkoutTimingResponseDto } from './workout-timing.response.dto';
+import { WorkoutTonnageRecordResponseDto } from './workout-tonnage-record.response.dto';
 
 export class WorkoutSummaryResponseDto {
   @ApiProperty()
@@ -42,6 +43,14 @@ export class WorkoutSummaryResponseDto {
     description: 'Личные рекорды этой тренировки',
   })
   records: WorkoutRecordResponseDto[];
+
+  @ApiProperty({
+    type: WorkoutTonnageRecordResponseDto,
+    nullable: true,
+    description:
+      'Рекорд тоннажа: больше, чем в любой прежней тренировке; null — не рекорд или сравнивать не с чем',
+  })
+  tonnageRecord: WorkoutTonnageRecordResponseDto | null;
 
   @ApiProperty({
     type: WorkoutTimingResponseDto,

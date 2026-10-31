@@ -1,6 +1,6 @@
+import { useCatalog } from '@sportbot/api/entities/program'
 import { LibraryIcon, PlusIcon } from 'lucide-react'
 
-import { useCatalog } from '@sportbot/api/entities/program'
 import { useCreateBlankProgram } from '@/features/create-program/useCreateBlankProgram'
 import { ROUTES } from '@/shared/config/paths'
 import { Rise } from '@/shared/ui/kit/Reveal'
@@ -23,7 +23,7 @@ export const SwitchProgram = ({ otherCount, hasActive }: SwitchProgramProps) => 
   const catalogCount = catalog.data ? catalog.data.templates.length + catalog.data.users.length : null
 
   return (
-    <Rise className='px-gutter mt-20 flex flex-col gap-4'>
+    <Rise className='px-gutter mt-12 flex flex-col gap-4'>
       <Poster
         as='h2'
         size='md'

@@ -18,7 +18,7 @@ import { ScreenSection } from '@/shared/ui/kit/ScreenSection';
 import { Text } from '@/shared/ui/kit/Typography';
 
 import { ISSUES_SHOWN, parseIssues, SYNC_PHASE_LABEL } from '../model/offline';
-import { useOfflineMedia } from '../model/use-offline-media';
+import { useOfflineMedia } from '@/features/download-catalog-media/useOfflineMedia';
 
 const SyncBlock = ({ db }: { db: LocalDb }) => {
   const status = useSyncStatus();

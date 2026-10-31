@@ -8,7 +8,7 @@ import { InkPanel } from '@/shared/ui/kit/InkPanel'
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
 import { pluralize } from '@front-cmdt/utils/pluralize'
 
-// Заминка — следующий шаг после финиша, поэтому предлагаем её главной плашкой, а не ссылкой в протоколе.
+// Заминка — следующий шаг после финиша, поэтому предлагаем её главной плашкой, а не ссылкой в журнале.
 // Набор с сервера тот же, что откроется в заминке; растяжек под эти мышцы нет — нечего и предлагать
 export const CooldownOffer = ({ workoutId, className }: { workoutId: number; className?: string }) => {
   const cooldown = useCooldown(workoutId)

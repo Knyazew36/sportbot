@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { router } from 'expo-router';
 
-import { type WorkoutAnalog } from '@sportbot/api/entities/workout';
 import { useReplaceItem } from '@/shared/local/entities/workout';
 import { ROUTES } from '@/shared/config/routes';
 
@@ -15,7 +14,7 @@ export const useReplaceFlow = (itemId: number) => {
   const replace = useReplaceItem();
   // draft — своё упражнение, которое только что сохранили шторкой создания
   const [choice, setChoice] = useState<ReplaceChoice | null>(null);
-  const [preview, setPreview] = useState<WorkoutAnalog | null>(null);
+  const [preview, setPreview] = useState<ReplaceChoice | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
 
   const chooseFromPreview = () => {

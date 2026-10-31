@@ -6,9 +6,9 @@ import { List, ListRow } from '@/shared/ui/kit/ListRow'
 import { ScreenSection } from '@/shared/ui/kit/ScreenSection'
 import { Poster } from '@/shared/ui/kit/Typography'
 
-// Протокол: подходы по каждому упражнению
+// Журнал: подходы по каждому упражнению
 export const ResultExercises = ({ workout }: { workout: SharedWorkout }) => (
-  <ScreenSection title='Протокол'>
+  <ScreenSection title='Журнал'>
     <List>
       <ExerciseBlocks items={workout.exercises}>
         {(e, index) => (

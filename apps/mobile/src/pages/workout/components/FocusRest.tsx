@@ -2,6 +2,8 @@ import { View } from 'react-native';
 import { ArrowRight, Play, Plus } from 'lucide-react-native';
 
 import { formatSeconds, type useDeadlineTimer } from '@/shared/lib/hooks/use-deadline-timer';
+import { cn } from '@/shared/lib/utils';
+import { useTheme } from '@/shared/theme/ThemeProvider';
 import { Ring } from '@/shared/ui/kit/Ring';
 import { Clock, Eyebrow, Poster } from '@/shared/ui/kit/Typography';
 import { Button } from '@/shared/ui/kit/Button';
@@ -50,6 +52,7 @@ export const FocusRest = ({
   onNext,
 }: FocusRestProps) => {
   const sizes = useFocusSizes();
+  const { colors } = useTheme();
   const over = timer.left <= 0;
   // Впереди последний подход (или круг) плана — отдых перед ним провожаем лучами
   const lastAhead = !planDone && (round ? round.number === round.rounds : nextSet === plannedSets);
@@ -128,12 +131,17 @@ export const FocusRest = ({
       {/* Заголовок не пропадает по окончании, а высота у него постоянная: «Отдых окончен» длиннее, fit ужимает кегль,
           и без рамки по высоте кольцо съезжало бы вверх */}
       <View className="w-full justify-center" style={{ height: sizes.headline }}>
-        <Poster size="3xl" tone={over ? 'muted' : 'primary'} fit className="w-full text-center">
+        <Poster
+          size="3xl"
+          tone={over ? 'muted' : 'inherit'}
+          fit
+          className={cn('w-full text-center', !over && 'text-rest-ink')}
+        >
           {over ? 'Отдых окончен' : 'Отдых'}
         </Poster>
       </View>
       <View className="items-center justify-center">
-        <Ring value={timer.fraction} sweep={timer.sweep} size={sizes.timerRing} stroke={6} />
+        <Ring value={timer.fraction} sweep={timer.sweep} size={sizes.timerRing} stroke={6} bar={colors.restInk} />
         {over && lastAhead && <RestRays size={sizes.timerRing} />}
         <View className="absolute inset-0 items-center justify-center">
           {over ? (
@@ -148,7 +156,7 @@ export const FocusRest = ({
           ) : (
             // Подпись под цифрами тоже вне потока, чтобы цифры стояли ровно по центру кольца
             <View>
-              <TimeBumps {...bumps} label="+30 с" />
+              <TimeBumps {...bumps} label="+30 с" className="text-rest-ink" />
               <Clock fontSize={sizes.countdown} style={sizes.countdownStyle}>
                 {formatSeconds(timer.left)}
               </Clock>

@@ -1,4 +1,4 @@
-import { Info, List, RefreshCw, SkipBack, SkipForward } from 'lucide-react-native';
+import { Check, Info, List, RefreshCw, SkipBack, SkipForward } from 'lucide-react-native';
 
 import { timerEndSignal } from '@/shared/lib/signal';
 import { Button } from '@/shared/ui/kit/Button';
@@ -86,6 +86,10 @@ export const CooldownStep = ({ flow, index, side }: CooldownStepProps) => {
             {/* Шторка поверх: таймер удержания под ней продолжает идти */}
             <Button variant="outline" size="sm" icon={Info} onPress={() => flow.open(stretch)}>
               Подробнее
+            </Button>
+            {/* Закончить можно с любой растяжки, не дожидаясь последней */}
+            <Button variant="outline" size="sm" icon={Check} onPress={flow.finish}>
+              Завершить
             </Button>
           </>
         }

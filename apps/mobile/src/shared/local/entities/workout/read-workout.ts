@@ -10,7 +10,7 @@ import type {
   WorkoutSummary,
 } from '@sportbot/api/entities/workout';
 import { cooldownMinutes, stretchSeconds } from '@sportbot/api/lib/cooldown';
-import { workoutRecords } from '@sportbot/api/lib/records';
+import { tonnageRecordOf, workoutRecords } from '@sportbot/api/lib/records';
 import { localToday } from '@sportbot/api/lib/time';
 import { exerciseRests, workoutTiming } from '@sportbot/api/lib/workout-timing';
 
@@ -243,6 +243,26 @@ export const readCurrentWorkout = (db: LocalDb): CurrentWorkout | null => {
   return workout && { workout };
 };
 
+/** Тоннаж каждой более ранней завершённой тренировки — для рекорда тоннажа */
+const earlierTonnages = (db: Reader, row: WorkoutRow): number[] => {
+  const sets = db
+    .select({ workoutClientId: workoutExercises.workoutClientId, weight: workoutSets.weight, reps: workoutSets.reps })
+    .from(workoutSets)
+    .innerJoin(workoutExercises, eq(workoutExercises.clientId, workoutSets.workoutExerciseClientId))
+    .innerJoin(workouts, eq(workouts.clientId, workoutExercises.workoutClientId))
+    .where(
+      and(
+        inArray(workouts.status, [...DONE_STATUSES]),
+        ne(workouts.clientId, row.clientId),
+        lt(workouts.startedAt, row.startedAt),
+      ),
+    )
+    .all();
+  const byWorkout = new Map<string, number>();
+  for (const s of sets) byWorkout.set(s.workoutClientId, (byWorkout.get(s.workoutClientId) ?? 0) + s.weight * s.reps);
+  return [...byWorkout.values()].map(Math.round);
+};
+
 /** Итог — как WorkoutAppService.summary: цифры, серия, рекорды по истории телефона, разбивка времени */
 export const readSummary = (db: LocalDb, id: number): WorkoutSummary | null =>
   orNull(() => {
@@ -285,6 +305,9 @@ export const readSummary = (db: LocalDb, id: number): WorkoutSummary | null =>
           .all()
       : [];
     const timing = timingOf(loaded);
+    const tonnage = Math.round(sets.reduce((sum, s) => sum + s.weight * s.reps, 0));
+    // Идущая тренировка ещё не набрала свой тоннаж — рекорд считаем только у завершённой
+    const tonnageRecord = row.status === 'IN_PROGRESS' ? null : tonnageRecordOf(tonnage, earlierTonnages(db, row));
 
     return {
       workoutId: uiIdOf(row),
@@ -294,7 +317,8 @@ export const readSummary = (db: LocalDb, id: number): WorkoutSummary | null =>
       exercisesDone: loaded.items.filter(isItemDone).length,
       exercisesTotal: loaded.items.length,
       sets: sets.length,
-      tonnage: Math.round(sets.reduce((sum, s) => sum + s.weight * s.reps, 0)),
+      tonnage,
+      tonnageRecord,
       currentStreak: settings.currentStreak,
       cardioName: row.cardioName,
       cardioMinutes: row.cardioMinutes,

@@ -11,18 +11,21 @@ type ShareWorkoutButtonProps = {
   block?: boolean;
   className?: string;
   contentClassName?: string;
+  /** Квадратная кнопка без подписи: в тесном футере */
+  iconOnly?: boolean;
 };
 
 // Карточку присылает бот — порт features/share-workout: её можно переслать в любой чат,
 // а кнопка в ней откроет страницу результата. Нативный «Поделиться» картинкой — этап 2 (MOBILE_TZ.md, раздел 6)
-export const ShareWorkoutButton = ({ workoutId, size, block, className, contentClassName }: ShareWorkoutButtonProps) => {
+export const ShareWorkoutButton = ({ workoutId, size, block, className, contentClassName, iconOnly }: ShareWorkoutButtonProps) => {
   const share = useShareWorkout();
   const net = useOnlineAction();
   return (
     <Button
       variant="share"
-      size={size}
+      size={iconOnly ? 'icon-lg' : size}
       block={block}
+      accessibilityLabel="Поделиться"
       className={className}
       contentClassName={contentClassName}
       // Картинку сервер рисует несколько секунд — без индикатора кажется, что нажатие не сработало
@@ -31,7 +34,7 @@ export const ShareWorkoutButton = ({ workoutId, size, block, className, contentC
       icon={Share2}
       onPress={() => share.mutate(workoutId)}
     >
-      {share.isPending ? 'Готовим карточку…' : net.label('Поделиться')}
+      {iconOnly ? null : share.isPending ? 'Готовим карточку…' : net.label('Поделиться')}
     </Button>
   );
 };

@@ -141,7 +141,7 @@ export const useDiscardWorkout = () => {
   })
 }
 
-/** Тренировка по id — протокол на экране итога */
+/** Тренировка по id — журнал на экране итога */
 export const useWorkout = (id: number) =>
   useQuery({
     queryKey: workoutKeys.detail(id),

@@ -38,6 +38,7 @@ const COLOR_VARS = {
   warmup: '--color-warmup',
   warmupDeep: '--color-warmup-deep',
   warmupInk: '--color-warmup-ink',
+  restInk: '--color-rest-ink',
 } as const;
 
 export type Colors = Record<keyof typeof COLOR_VARS, string>;

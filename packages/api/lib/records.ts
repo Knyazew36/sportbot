@@ -88,3 +88,12 @@ export const workoutRecords = (
   }
   return records
 }
+
+/**
+ * Рекорд тоннажа: тренировка тяжелее любой более ранней. Первая и безвесовая — не рекорд.
+ * @returns прежний лучший тоннаж или null, если рекорда нет
+ */
+export const tonnageRecordOf = (tonnage: number, earlier: number[]): { previous: number } | null => {
+  const previous = Math.max(0, ...earlier)
+  return tonnage > 0 && previous > 0 && tonnage > previous ? { previous } : null
+}

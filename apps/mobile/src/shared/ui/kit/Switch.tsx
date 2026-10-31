@@ -13,7 +13,9 @@ type SwitchProps = {
 // Переключатель настройки — порт animate-ui Switch фронта: системный RN Switch в цветах темы.
 // Красим стилем, а не классом: дорожку и бегунок RN рисует сам
 export const Switch = ({ value, onValueChange, disabled, accessibilityLabel }: SwitchProps) => {
-  const { colors } = useTheme();
+  const { colors, scheme } = useTheme();
+  // В тёмной теме hatch почти равен фону — выключенная дорожка пропадает, берём светлее
+  const offTrack = scheme === 'dark' ? colors.smoke : colors.hatch;
   return (
     <RNSwitch
       value={value}
@@ -23,7 +25,8 @@ export const Switch = ({ value, onValueChange, disabled, accessibilityLabel }: S
         haptic.tap();
         onValueChange(next);
       }}
-      trackColor={{ true: colors.blue, false: colors.hatch }}
+      trackColor={{ true: colors.blue, false: offTrack }}
+      ios_backgroundColor={offTrack}
       thumbColor={colors.paper}
     />
   );

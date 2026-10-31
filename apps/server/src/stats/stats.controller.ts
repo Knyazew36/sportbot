@@ -7,6 +7,7 @@ import { SportAuth } from '@/miniapp/decorators/sport-auth.decorator';
 
 import { StatsAttendanceQueryDto } from './dto/stats-attendance-query.dto';
 import { StatsAttendanceWeekResponseDto } from './dto/stats-attendance-week.response.dto';
+import { StatsTonnageWeekResponseDto } from './dto/stats-tonnage-week.response.dto';
 import { StatsBodyWeightQueryDto } from './dto/stats-body-weight-query.dto';
 import { StatsCalendarDayResponseDto } from './dto/stats-calendar-day.response.dto';
 import { StatsCalendarQueryDto } from './dto/stats-calendar-query.dto';
@@ -64,6 +65,21 @@ export class StatsController {
       query.userId,
       query.weeks,
     );
+  }
+
+  @Get('tonnage')
+  @Swagger({
+    title: 'Тоннаж (вес × повторы) по неделям',
+    query: StatsAttendanceQueryDto,
+    response: StatsTonnageWeekResponseDto,
+    plainArray: true,
+    bearerAuth: true,
+  })
+  public tonnage(
+    @CurrentUser('id') userId: number,
+    @Query() query: StatsAttendanceQueryDto,
+  ) {
+    return this.statsAppService.tonnageWeekly(userId, query.userId, query.weeks);
   }
 
   @Get('progress/exercises')

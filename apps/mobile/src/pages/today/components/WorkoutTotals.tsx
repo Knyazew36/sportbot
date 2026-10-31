@@ -16,7 +16,7 @@ import { WorkoutRecords } from '@/widgets/workout-records/WorkoutRecords';
 
 const RECORDS_ON_TODAY = 3;
 
-// Итог сегодняшней тренировки — порт WorkoutTotals.tsx: заминка следующим шагом, рекорды, цифры, протокол
+// Итог сегодняшней тренировки — порт WorkoutTotals.tsx: заминка следующим шагом, рекорды, цифры, журнал
 export const WorkoutTotals = ({ workoutId, complexName }: { workoutId: number; complexName: string }) => {
   const summary = useWorkoutSummary(workoutId);
 
@@ -60,7 +60,7 @@ export const WorkoutTotals = ({ workoutId, complexName }: { workoutId: number; c
               variant="outline"
               iconRight={ArrowRight}
             >
-              Протокол
+              Журнал
             </ButtonLink>
           </ScreenSection>
         </>

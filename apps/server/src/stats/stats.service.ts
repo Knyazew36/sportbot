@@ -648,7 +648,77 @@ export class StatsService {
     return records;
   }
 
+  // ── Тоннаж ──────────────────────────────────────────────────────────────
+
+  /**
+   * Рекорд тоннажа: тренировка тяжелее любой более ранней. Первая тренировка и тренировки
+   * без веса — не рекорд, иначе первый же подход «побивал бы» ноль.
+   * @returns прежний лучший тоннаж или null, если рекорда нет
+   */
+  public async tonnageRecord(
+    userId: number,
+    workout: { id: number; startedAt: Date },
+    tonnage: number,
+  ): Promise<{ previous: number } | null> {
+    if (tonnage <= 0) return null;
+    const before = await this.workoutTonnages(userId, {
+      id: { not: workout.id },
+      startedAt: { lt: workout.startedAt },
+    });
+    const previous = Math.max(0, ...before.map((w) => w.tonnage));
+    if (previous <= 0 || tonnage <= previous) return null;
+    this.logger.debug(
+      `Рекорд тоннажа: userId=${userId}, workoutId=${workout.id}, было=${previous}, стало=${tonnage}`,
+    );
+    return { previous };
+  }
+
+  /** Тоннаж по неделям, от старых к новым: weeks недель, последняя — текущая. */
+  public async tonnageWeekly(
+    userId: number,
+    current: Date,
+    weeks: number,
+  ): Promise<{ weekStart: Date; tonnage: number; workouts: number }[]> {
+    const first = addDays(current, -7 * (weeks - 1));
+    const rows = await this.workoutTonnages(userId, {
+      date: { gte: first, lte: addDays(current, 6) },
+    });
+    return Array.from({ length: weeks }, (_, i) => {
+      const monday = addDays(first, 7 * i);
+      const inWeek = rows.filter(
+        (w) => w.date >= monday && w.date <= addDays(monday, 6),
+      );
+      return {
+        weekStart: monday,
+        tonnage: inWeek.reduce((sum, w) => sum + w.tonnage, 0),
+        workouts: inWeek.length,
+      };
+    });
+  }
+
   // ── Внутреннее ──────────────────────────────────────────────────────────
+
+  /** Завершённые тренировки с тоннажем (вес × повторы, кг) — как в итоге тренировки. */
+  private async workoutTonnages(
+    userId: number,
+    where: Prisma.WorkoutWhereInput,
+  ): Promise<{ date: Date; tonnage: number }[]> {
+    const rows = await this.prisma.workout.findMany({
+      where: { ...where, userId, status: { in: [...DONE_STATUSES] } },
+      select: {
+        date: true,
+        exercises: { select: { sets: { select: { weight: true, reps: true } } } },
+      },
+    });
+    return rows.map((w) => ({
+      date: w.date,
+      tonnage: Math.round(
+        w.exercises
+          .flatMap((e) => e.sets)
+          .reduce((sum, s) => sum + Number(s.weight) * s.reps, 0),
+      ),
+    }));
+  }
 
   /** Все тренировки пользователя с подходами по упражнениям, от старых к новым. */
   private historyRows(

@@ -7,6 +7,7 @@
 import type { WorkoutRecordResponseDto } from './workoutRecordResponseDto';
 import type { WorkoutSummaryResponseDtoStatus } from './workoutSummaryResponseDtoStatus';
 import type { WorkoutTimingResponseDto } from './workoutTimingResponseDto';
+import type { WorkoutTonnageRecordResponseDto } from './workoutTonnageRecordResponseDto';
 
 export interface WorkoutSummaryResponseDto {
   workoutId: number;
@@ -28,6 +29,11 @@ export interface WorkoutSummaryResponseDto {
   cardioMinutes: number | null;
   /** Личные рекорды этой тренировки */
   records: WorkoutRecordResponseDto[];
+  /**
+     * Рекорд тоннажа: больше, чем в любой прежней тренировке; null — не рекорд или сравнивать не с чем
+     * @nullable
+     */
+  tonnageRecord: WorkoutTonnageRecordResponseDto | null;
   /**
      * Разбивка времени; null — подходов со временем нет
      * @nullable

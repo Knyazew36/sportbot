@@ -175,7 +175,7 @@ export const SetList = ({ item, onEdit, live = true, onAdd }: SetListProps) => {
   const timed = isTimed(item.measure)
   return (
     // Плитки тяжелее справки над ними: без воздуха сверху блоки слипаются. Подходов нет — отделять нечего
-    <Rise className={cn(item.sets.length > 0 && 'mt-20')}>
+    <Rise className={cn(item.sets.length > 0 && 'mt-12')}>
       {item.sets.length > 0 && (
         <div className='mb-3'>
           <BlockHeading

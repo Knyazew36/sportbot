@@ -165,6 +165,37 @@ export const readAttendanceWeeks = (db: LocalDb, weeks = ATTENDANCE_WEEKS) => {
   });
 };
 
+/** Тоннаж (вес × повторы) по неделям — как StatsService.tonnageWeekly */
+export const readTonnageWeeks = (db: LocalDb, weeks = ATTENDANCE_WEEKS) => {
+  const now = todayOf(db);
+  if (!now) return null;
+  const current = weekStart(now.today);
+  const first = addDays(current, -7 * (weeks - 1));
+  const rows = db
+    .select({ workoutClientId: workouts.clientId, date: workouts.date, weight: workoutSets.weight, reps: workoutSets.reps })
+    .from(workoutSets)
+    .innerJoin(workoutExercises, eq(workoutExercises.clientId, workoutSets.workoutExerciseClientId))
+    .innerJoin(workouts, eq(workouts.clientId, workoutExercises.workoutClientId))
+    .where(
+      and(
+        inArray(workouts.status, [...DONE_STATUSES]),
+        gte(workouts.date, first),
+        lt(workouts.date, addDays(current, 7)),
+      ),
+    )
+    .all();
+  return Array.from({ length: weeks }, (_, i) => {
+    const monday = addDays(first, 7 * i);
+    const sunday = addDays(monday, 6);
+    const inWeek = rows.filter((r) => r.date >= monday && r.date <= sunday);
+    return {
+      weekStart: monday,
+      tonnage: Math.round(inWeek.reduce((sum, r) => sum + r.weight * r.reps, 0)),
+      workouts: new Set(inWeek.map((r) => r.workoutClientId)).size,
+    };
+  });
+};
+
 // ── Прогресс ────────────────────────────────────────────────────────────────
 
 /** Список прогресса: мышца — только основная, поиск — подстрока нормализованного названия */

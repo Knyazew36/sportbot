@@ -84,13 +84,15 @@ type StepChartProps = {
   format?: (value: number) => string;
   /** Ступенька — рабочий вес держится до следующего прироста; линия — для плавных рядов вроде веса тела */
   curve?: 'step' | 'line';
+  /** Подсказка, пока точка не выбрана: что именно нажимается — день или неделя */
+  hint?: string;
   className?: string;
 };
 
 // График прогресса — порт shared/ui/kit/StepChart.tsx: синяя линия и растровая заливка — печатная фактура плаката
 // вместо градиента. Значение дня — строкой над графиком, а не всплывашкой: всплывашка у краёв уезжает за график.
 // Пока день не выбран, строка показывает последний и подсказывает, что точки нажимаются. Палец ведёт по графику — день меняется
-export const StepChart = ({ data, unit, format = defaultFormat, curve = 'step', className }: StepChartProps) => {
+export const StepChart = ({ data, unit, format = defaultFormat, curve = 'step', hint = 'нажми на день', className }: StepChartProps) => {
   const { colors } = useTheme();
   const still = useReducedMotion();
   const dots = useId().replace(/[^a-zA-Z0-9]/g, '');
@@ -147,7 +149,7 @@ export const StepChart = ({ data, unit, format = defaultFormat, curve = 'step', 
         {picked == null ? (
           <View className="shrink-0 flex-row items-center gap-1">
             <Icon as={Pointer} className="text-primary size-3.5" />
-            <Eyebrow tone="primary">нажми на день</Eyebrow>
+            <Eyebrow tone="primary">{hint}</Eyebrow>
           </View>
         ) : null}
       </View>

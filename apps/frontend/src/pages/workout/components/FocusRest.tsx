@@ -1,5 +1,6 @@
 import { ArrowRightIcon, PlayIcon, PlusIcon } from 'lucide-react'
 import { formatSeconds, type useDeadlineTimer } from '@/shared/lib/hooks/use-deadline-timer'
+import { cn } from '@/shared/lib/utils'
 import { Ring } from '@/shared/ui/kit/Ring'
 import { Digits, Eyebrow, Poster } from '@/shared/ui/kit/Typography'
 import { Button } from '@/shared/ui/shadcn/animate-ui/components/buttons/button'
@@ -150,9 +151,9 @@ export const FocusRest = ({
         <Poster
           as='h2'
           size='4xl'
-          tone={over ? 'muted' : 'primary'}
+          tone={over ? 'muted' : 'inherit'}
           fit
-          className='w-full text-center'
+          className={cn('w-full text-center', !over && 'text-(--sb-rest-ink)')}
         >
           {over ? 'Отдых окончен' : 'Отдых'}
         </Poster>
@@ -163,6 +164,7 @@ export const FocusRest = ({
           transitionMs={250}
           size={300}
           stroke={6}
+          bar='var(--sb-rest-ink)'
           track='color-mix(in oklab, var(--foreground) 14%, transparent)'
           className='h-auto w-[min(300px,80vw,36svh)]'
         />
@@ -183,6 +185,7 @@ export const FocusRest = ({
               <TimeBumps
                 {...bumps}
                 label='+30 с'
+                className='text-(--sb-rest-ink)'
               />
               <Poster
                 size='hero'

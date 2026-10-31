@@ -25,6 +25,7 @@ import {
   statsControllerRecords,
   statsControllerSessions,
   statsControllerSummary,
+  statsControllerTonnage,
 } from '../../generated/stats/stats'
 
 export type StatsSummary = StatsSummaryResponseDto
@@ -50,6 +51,7 @@ export const statsKeys = {
   all: ['stats'] as const,
   summary: (userId?: number) => ['stats', 'summary', userId ?? null] as const,
   attendance: (weeks: number, userId?: number) => ['stats', 'attendance', weeks, userId ?? null] as const,
+  tonnage: (weeks: number, userId?: number) => ['stats', 'tonnage', weeks, userId ?? null] as const,
   progressList: (params: ProgressListParams, userId?: number) =>
     ['stats', 'progress-list', params, userId ?? null] as const,
   progress: (exerciseId: number, days: number, userId?: number) =>
@@ -76,6 +78,14 @@ export const useAttendanceWeeks = (weeks: number, userId?: number) =>
   useQuery({
     queryKey: statsKeys.attendance(weeks, userId),
     queryFn: () => statsControllerAttendance({ weeks, ...withUser(userId) }),
+    placeholderData: keepPreviousData,
+  })
+
+/** Тоннаж (вес × повторы) по неделям, кг */
+export const useTonnageWeeks = (weeks: number, userId?: number) =>
+  useQuery({
+    queryKey: statsKeys.tonnage(weeks, userId),
+    queryFn: () => statsControllerTonnage({ weeks, ...withUser(userId) }),
     placeholderData: keepPreviousData,
   })
 
