@@ -4,12 +4,14 @@ import { BookOpen, ChevronRight, Repeat2, TriangleAlert } from 'lucide-react-nat
 
 import {
   historyUnit,
+  lastSetText,
   lastText,
   planText,
   restText,
   typicalRest,
   type WorkoutItem,
 } from '@sportbot/api/entities/workout';
+import { nextTarget, TARGET_REASON } from '@sportbot/api/lib/strength';
 import { ROUTES } from '@/shared/config/routes';
 import { formatDate } from '@/shared/lib/format';
 import { Button } from '@/shared/ui/kit/Button';
@@ -31,6 +33,8 @@ type ExerciseCardProps = {
 export const ExerciseCard = ({ item, label }: ExerciseCardProps) => {
   const last = lastText(item.last, item.measure);
   const rest = item.last && typicalRest(item.last.sets);
+  // Цель — до первого подхода: когда упражнение сделано, она уже ни к чему
+  const target = item.done ? null : nextTarget(item.last, item);
   const [history, setHistory] = useState(false);
   const [technique, setTechnique] = useState(false);
   // Над текущим упражнением подписи нет: и так понятно, что оно сейчас на экране
@@ -100,6 +104,17 @@ export const ExerciseCard = ({ item, label }: ExerciseCardProps) => {
               </Text>
             </View>
           </Button>
+        ) : null}
+        {target ? (
+          <View className="flex-row flex-wrap items-baseline gap-1.5">
+            <Eyebrow>Цель</Eyebrow>
+            <Poster size="sm" tone="primary" className="shrink leading-[30px]">
+              {lastSetText(target)}
+            </Poster>
+            <Text size="xs" tone="muted">
+              {`· ${TARGET_REASON[target.kind]}`}
+            </Text>
+          </View>
         ) : null}
       </Rise>
 

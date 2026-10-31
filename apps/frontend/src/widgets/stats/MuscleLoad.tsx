@@ -4,6 +4,7 @@ import { Link } from 'react-router'
 
 import type { ReactNode } from 'react'
 
+import { WEEKLY_SETS_MAX, WEEKLY_SETS_MIN } from '@sportbot/api/lib/strength'
 import { cn } from '@/shared/lib/utils'
 
 import { Eyebrow, Poster, Text } from '@/shared/ui/kit/Typography'
@@ -25,7 +26,8 @@ type MuscleLoadProps = {
 
 // Нагрузка по мышцам: полосы в подходах, забытые группы заштрихованы
 export const MuscleLoad = ({ items, title = 'Нагрузка по мышцам', aside = 'подходов за неделю', note = 'Подходы на мышцу: основная в упражнении — 1, вспомогательная — 0,5.', linkTo }: MuscleLoadProps) => {
-  const max = Math.max(...items.map(m => m.sets), 1)
+  // Шкала не короче нормы, иначе зона 10–20 не поместилась бы
+  const max = Math.max(...items.map(m => m.sets), WEEKLY_SETS_MAX)
   const rowClass = cn('grid items-center gap-3', linkTo ? 'grid-cols-[84px_1fr_44px_16px]' : 'grid-cols-[84px_1fr_44px]')
   return (
     <StatsSection
@@ -59,9 +61,18 @@ export const MuscleLoad = ({ items, title = 'Нагрузка по мышцам'
                 </Eyebrow>
               </span>
             ) : (
-              <span className='h-6'>
+              <span className='relative h-6'>
+                {/* Зона нормы: подсказывает, мало или много, не споря с самой полосой */}
+                <span
+                  aria-hidden
+                  className='bg-primary/10 border-primary/40 absolute inset-y-0 border-x border-dashed'
+                  style={{
+                    left: `${(WEEKLY_SETS_MIN / max) * 100}%`,
+                    width: `${((WEEKLY_SETS_MAX - WEEKLY_SETS_MIN) / max) * 100}%`,
+                  }}
+                />
                 <motion.span
-                  className='bg-primary block h-full rounded-r-[4px]'
+                  className='bg-primary relative block h-full rounded-r-[4px]'
                   initial={{ width: 0 }}
                   animate={{ width: `${(m.sets / max) * 100}%` }}
                   transition={{ delay: 0.25 + i * 0.05, duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}

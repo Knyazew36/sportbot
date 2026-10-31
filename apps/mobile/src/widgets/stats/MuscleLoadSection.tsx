@@ -17,7 +17,7 @@ export const MuscleLoadSection = ({ period, userId }: { period: Period; userId?:
     <MuscleLoad
       title="Баланс мышц"
       aside="подходов в неделю"
-      note={`Среднее ${PERIOD_TEXT[period]}: основная мышца упражнения — 1 подход, вспомогательная — 0,5. «Забыто» — ни одного подхода. Нажми на мышцу — её упражнения.`}
+      note={`Среднее ${PERIOD_TEXT[period]}: основная мышца упражнения — 1 подход, вспомогательная — 0,5. «Забыто» — ни одного подхода. Штрихованная зона — ориентир для роста мышцы: 10–20 подходов в неделю. Нажми на мышцу — её упражнения.`}
       items={load.data}
       linkTo={(m) => statsLink(ROUTES.STATS_EXERCISES, { userId, period, muscle: m.muscleId })}
     />

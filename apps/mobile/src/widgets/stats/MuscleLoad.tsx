@@ -4,6 +4,7 @@ import Animated, { Easing, useAnimatedStyle, useSharedValue, withDelay, withTimi
 import { router, type Href } from 'expo-router';
 import { ChevronRight } from 'lucide-react-native';
 
+import { WEEKLY_SETS_MAX, WEEKLY_SETS_MIN } from '@sportbot/api/lib/strength';
 import { haptic } from '@/shared/lib/haptics';
 import { cn } from '@/shared/lib/utils';
 import { useTheme } from '@/shared/theme/ThemeProvider';
@@ -35,7 +36,9 @@ export const MuscleLoad = ({
   note = 'Подходы на мышцу: основная в упражнении — 1, вспомогательная — 0,5.',
   linkTo,
 }: MuscleLoadProps) => {
-  const max = Math.max(...items.map((m) => m.sets), 1);
+  // Шкала не короче нормы, иначе зона 10–20 не поместилась бы
+  const max = Math.max(...items.map((m) => m.sets), WEEKLY_SETS_MAX);
+  const zone = { left: WEEKLY_SETS_MIN / max, width: (WEEKLY_SETS_MAX - WEEKLY_SETS_MIN) / max };
   return (
     <StatsSection title={title} aside={aside} note={note}>
       <View className="gap-2">
@@ -46,7 +49,7 @@ export const MuscleLoad = ({
               {m.name}
             </Text>
             <View className="min-w-0 flex-1">
-              {m.forgotten ? <Forgotten /> : <Bar share={m.sets / max} index={i} />}
+              {m.forgotten ? <Forgotten /> : <Bar share={m.sets / max} index={i} zone={zone} />}
             </View>
             <Poster size="sm" className="w-11 text-right">
               {m.sets.toString().replace('.', ',')}
@@ -60,7 +63,7 @@ export const MuscleLoad = ({
 };
 
 /** Полоса подходов: вырастает слева лесенкой по строкам */
-const Bar = ({ share, index }: { share: number; index: number }) => {
+const Bar = ({ share, index, zone }: { share: number; index: number; zone: { left: number; width: number } }) => {
   const grow = useSharedValue(0);
 
   useEffect(() => {
@@ -71,6 +74,12 @@ const Bar = ({ share, index }: { share: number; index: number }) => {
 
   return (
     <View className="h-6">
+      {/* Зона нормы: подсказывает, мало или много, не споря с самой полосой */}
+      <View
+        pointerEvents="none"
+        className="bg-primary/10 border-primary/40 absolute inset-y-0 border-x border-dashed"
+        style={{ left: `${zone.left * 100}%`, width: `${zone.width * 100}%` }}
+      />
       <Animated.View className="bg-primary h-full rounded-r-[4px]" style={style} />
     </View>
   );

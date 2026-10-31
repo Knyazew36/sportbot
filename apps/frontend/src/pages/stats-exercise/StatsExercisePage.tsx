@@ -21,6 +21,7 @@ import { PERIOD_DAYS, PERIOD_TEXT, usePeriod } from '@/widgets/stats/periods'
 import { E1rmCard } from './components/E1rmCard'
 import { E1rmSheet } from './components/E1rmSheet'
 import { ProgressHeadline } from './components/ProgressHeadline'
+import { RelativeStrength } from './components/RelativeStrength'
 import { SessionsSection } from './components/SessionsSection'
 
 // Сервер отдаёт точку на каждую тренировку, а на графике день — одна точка, иначе даты на оси повторяются
@@ -86,6 +87,7 @@ const StatsExercisePage = () => {
                     periodText={PERIOD_TEXT[period]}
                     onOpen={() => setE1rmOpen(true)}
                   />
+                  {!userId && <RelativeStrength e1rm={e1rm.value} />}
                 </div>
               )}
               <ScreenSection

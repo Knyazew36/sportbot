@@ -3,12 +3,14 @@ import { useState } from 'react'
 
 import {
   historyUnit,
+  lastSetText,
   lastText,
   planText,
   restText,
   typicalRest,
   type WorkoutItem,
 } from '@sportbot/api/entities/workout'
+import { nextTarget, TARGET_REASON } from '@sportbot/api/lib/strength'
 import { useIsOnline } from '@/shared/api'
 import { buildPath, ROUTES } from '@/shared/config/paths'
 import { formatDate } from '@/shared/lib/format'
@@ -30,6 +32,8 @@ type ExerciseCardProps = {
 export const ExerciseCard = ({ item, label }: ExerciseCardProps) => {
   const last = lastText(item.last, item.measure)
   const rest = item.last && typicalRest(item.last.sets)
+  // Цель — до первого подхода: когда упражнение сделано, она уже ни к чему
+  const target = item.done ? null : nextTarget(item.last, item)
   const [history, setHistory] = useState(false)
   const [technique, setTechnique] = useState(false)
   // Аналоги и замена — только с сервера: без сети ссылка гасится, чтобы не вести на вечную загрузку
@@ -122,6 +126,26 @@ export const ExerciseCard = ({ item, label }: ExerciseCardProps) => {
             </span>
             <ChevronRightIcon className='text-foreground/40 size-5' />
           </Button>
+        )}
+        {target && (
+          <Text size='sm'>
+            <Eyebrow>Цель </Eyebrow>
+            <Poster
+              as='span'
+              size='sm'
+              tone='primary'
+            >
+              {lastSetText(target)}
+            </Poster>
+            <Text
+              as='span'
+              size='xs'
+              tone='muted'
+            >
+              {' '}
+              · {TARGET_REASON[target.kind]}
+            </Text>
+          </Text>
         )}
       </Rise>
 
