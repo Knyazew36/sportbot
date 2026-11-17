@@ -14,7 +14,6 @@ export function getSwaggerConfig() {
     .addTag('join-request', 'Заявки на вступление')
     .addTag('notifications', 'Уведомления')
     .addTag('audit-log', 'Журнал действий')
-    .addTag('chat-submission', 'Обратная связь с сайта')
     .addTag('miniapp', 'Mini App: вход')
     .addTag('onboarding', 'Первый запуск')
     .addTag('day', 'Сегодня')

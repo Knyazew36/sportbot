@@ -1,0 +1,135 @@
+// ============================================================
+//  Чат поддержки (@app/support-chat-nest)
+// ============================================================
+// Эталонная схема для SupportStore на Prisma: скопировать в схему проекта.
+// Ссылок на модели проекта нет намеренно: assigneeId/authorId — id пользователя проекта без FK,
+// имя оператора хранится снимком (assigneeName/authorName), чтобы модуль не знал модель пользователя.
+
+/// Статус обращения: OPEN — ждёт оператора, PENDING — ждёт клиента, RESOLVED — решено, CLOSED — закрыто.
+enum SupportConversationStatus {
+  OPEN
+  PENDING
+  RESOLVED
+  CLOSED
+}
+
+/// Кто написал сообщение.
+enum SupportMessageAuthor {
+  CONTACT
+  OPERATOR
+  SYSTEM
+  BOT
+}
+
+/// Откуда пришло сообщение или обращение.
+enum SupportChannel {
+  WIDGET
+  TELEGRAM
+  MAX
+  VK
+}
+
+/// Тот, кто пишет в поддержку: аноним сайта (anonymousKey) или пользователь проекта (externalUserId).
+model SupportContact {
+  id           Int     @id @default(autoincrement())
+  workspaceKey String
+  /// id пользователя проекта; null — анонимный посетитель
+  externalUserId String?
+  /// секрет анонимного посетителя, хранится в его браузере
+  anonymousKey   String? @unique
+  name           String?
+  email          String?
+  phone          String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  conversations SupportConversation[]
+
+  @@unique([workspaceKey, externalUserId])
+  @@index([workspaceKey, createdAt])
+}
+
+/// Обращение — диалог контакта с поддержкой.
+model SupportConversation {
+  id           Int    @id @default(autoincrement())
+  workspaceKey String
+
+  contactId Int
+  contact   SupportContact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  status        SupportConversationStatus @default(OPEN)
+  assigneeId    Int?
+  assigneeName  String?
+  sourceChannel SupportChannel            @default(WIDGET)
+
+  /// seq последнего сообщения; новое сообщение получает lastSeq + 1 под блокировкой строки
+  lastSeq         Int       @default(0)
+  lastMessageAt   DateTime?
+  contactReadSeq  Int       @default(0)
+  operatorReadSeq Int       @default(0)
+  unreadForContact  Int     @default(0)
+  unreadForOperator Int     @default(0)
+
+  tags   String[]
+  rating Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages SupportMessage[]
+
+  @@index([workspaceKey, status, lastMessageAt])
+  @@index([workspaceKey, assigneeId])
+  @@index([contactId, status])
+}
+
+model SupportMessage {
+  id Int @id @default(autoincrement())
+
+  conversationId Int
+  conversation   SupportConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  /// порядок внутри диалога
+  seq            Int
+  author         SupportMessageAuthor
+  /// CONTACT — id контакта, OPERATOR — id пользователя проекта
+  authorId       Int?
+  authorName     String?
+  text           String
+  isInternalNote Boolean              @default(false)
+  /// ключ идемпотентности от клиента
+  clientMessageId String?
+  channel         SupportChannel @default(WIDGET)
+
+  editedAt  DateTime?
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  /// на какое сообщение этого диалога ответ; оригинал удалили из БД — ответ остаётся без цитаты
+  replyToId Int?
+  replyTo   SupportMessage?  @relation("SupportMessageReply", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies   SupportMessage[] @relation("SupportMessageReply")
+
+  attachments SupportAttachment[]
+
+  @@unique([conversationId, seq])
+  @@unique([conversationId, clientMessageId])
+}
+
+model SupportAttachment {
+  id Int @id @default(autoincrement())
+
+  messageId Int
+  message   SupportMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  /// путь относительно хранилища файлов проекта
+  path String
+  name String
+  mime String
+  size Int
+
+  createdAt DateTime @default(now())
+
+  @@index([messageId])
+}

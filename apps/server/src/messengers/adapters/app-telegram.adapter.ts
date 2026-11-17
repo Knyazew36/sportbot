@@ -10,6 +10,8 @@ import {
   BotSender,
   BotUser,
 } from '@/bot';
+import { User } from '@/generated/prisma/client';
+import { FeedbackService } from '@/feedback/feedback.service';
 import { MessengerMessage, MessengerUser, plainText } from '@/messengers';
 import {
   TelegramAppAdapter,
@@ -52,6 +54,7 @@ export class AppTelegramAdapter
     private readonly botService: TelegramBotService,
     private readonly channel: TelegramMessengerChannel,
     private readonly stars: StarsService,
+    private readonly feedback: FeedbackService,
   ) {
     super();
   }
@@ -155,6 +158,7 @@ export class AppTelegramAdapter
   ): Promise<boolean> {
     if (!user) return false;
     const message = ctx.message;
+    if (await this.answerFeedback(ctx, user)) return true;
     if (message && 'document' in message) {
       const file = message.document;
       const document: BotDocument = {
@@ -183,6 +187,31 @@ export class AppTelegramAdapter
 
   public onSuccessfulPayment(payment: TelegramSuccessfulPayment): Promise<void> {
     return this.stars.markPaid(payment);
+  }
+
+  // ── Обратная связь ──────────────────────────────────────────────────────
+
+  /** Админ ответил реплаем на уведомление об обращении — ответ уходит автору, в бота дальше не идёт. */
+  private async answerFeedback(
+    ctx: Context,
+    user: MessengerUser,
+  ): Promise<boolean> {
+    const message = ctx.message;
+    const quoted =
+      message && 'reply_to_message' in message
+        ? message.reply_to_message
+        : undefined;
+    if (!quoted || !('text' in quoted)) return false;
+    const text = message && 'text' in message ? message.text : '';
+    const answer = await this.feedback.replyFromAdmin(
+      // Хранилище мессенджеров отдаёт полные строки User
+      user as User,
+      quoted.text,
+      text,
+    );
+    if (answer === null) return false;
+    await ctx.reply(answer);
+    return true;
   }
 
   // ── BotContext ──────────────────────────────────────────────────────────

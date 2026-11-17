@@ -56,6 +56,10 @@ export interface CompleteResult {
   cardioMinutes: number | null;
   auto: boolean;
   currentStreak: number;
+  /** Рекорд серии: на нём в итоге ловится «новый рекорд». */
+  bestStreak: number;
+  /** Следующий комплекс по очереди — для «следующая: …» в итоге. */
+  nextComplexName: string | null;
   cooldown: CooldownView;
 }
 
@@ -588,7 +592,10 @@ export class WorkoutService {
           where: { userId },
           data: { missedInRow: 0 },
         });
-        const { currentStreak } = await this.planDays.recalcStreak(userId, tx);
+        const { currentStreak, bestStreak } = await this.planDays.recalcStreak(
+          userId,
+          tx,
+        );
         const cooldown = await this.cooldowns.build(
           workoutId,
           userId,
@@ -600,15 +607,23 @@ export class WorkoutService {
           cardioName: workout.cardioName,
           cardioMinutes: workout.cardioMinutes,
           currentStreak,
+          bestStreak,
           cooldown,
         };
       },
       { timeout: 20_000 },
     );
+    const next = await this.programs.nextComplex(userId);
     this.logger.log(
       `Тренировка засчитана: workoutId=${workoutId}, userId=${userId}, статус=${status}, серия=${result.currentStreak}`,
     );
-    return { userId, workoutId, auto: !!options.auto, ...result };
+    return {
+      userId,
+      workoutId,
+      auto: !!options.auto,
+      nextComplexName: next?.name ?? null,
+      ...result,
+    };
   }
 
   /**

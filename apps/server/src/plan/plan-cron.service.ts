@@ -31,6 +31,14 @@ const CRON_LOCK_KEY = 20261011;
 const REMIND_AFTER_MS = 2 * 60 * 60 * 1000;
 /** Личная сводка — в воскресенье в 20:00 по времени пользователя. */
 const SUMMARY_MINUTES = 20 * 60;
+/** Столько дней молчания подряд — и бот предлагает снизить частоту. */
+const IGNORED_FOR_OFFER = 2;
+/** Через сколько дней после пропуска бот зовёт вернуться. */
+const COMEBACK_AFTER_DAYS = 2;
+/** Не чаще одного зова за столько дней. */
+const COMEBACK_GAP_DAYS = 5;
+/** Тихие часы для не запрошенных пользователем сообщений: вес, возврат. */
+const QUIET_FROM_MINUTES = 22 * 60;
 
 type ProfileWithUser = SportProfile & { user: User };
 
@@ -139,13 +147,36 @@ export class PlanCronService {
     // оставлены, чтобы успеть отметить вчерашнюю тренировку
     const overdue = await this.prisma.planDay.findMany({
       where: { userId, status: 'PENDING', date: { lt: yesterday } },
-      select: { id: true },
+      select: {
+        id: true,
+        morningAskedAt: true,
+        eveningAskedAt: true,
+        morningAnswer: true,
+        eveningAnswer: true,
+      },
     });
     for (const day of overdue) {
       const result = await this.planDays.markMissed(userId, day.id);
       // Предложение паузы — тоже вопрос: кто их выключил, тому бот сам не пишет
       if (result.suggestPause && profile.questionsEnabled)
         await this.sender.send(user, this.pauses.offerMessage());
+      // Вопросы задавались, ответов нет: после двух таких дней предлагаем писать реже
+      const ignored =
+        profile.questionsEnabled &&
+        !day.morningAnswer &&
+        !day.eveningAnswer &&
+        (day.morningAskedAt || day.eveningAskedAt);
+      if (result.changed && ignored) {
+        const { ignoredInRow } = await this.prisma.sportProfile.update({
+          where: { userId },
+          data: { ignoredInRow: { increment: 1 } },
+          select: { ignoredInRow: true },
+        });
+        if (ignoredInRow === IGNORED_FOR_OFFER && !result.suggestPause) {
+          await this.sender.send(user, this.polls.lessOftenMessage());
+          this.logger.log(`Предложено писать реже: userId=${userId}`);
+        }
+      }
       this.logger.log(
         `Просроченный день → MISSED: planDayId=${day.id}, userId=${userId}`,
       );
@@ -212,6 +243,7 @@ export class PlanCronService {
     if (
       Number.isFinite(period) &&
       minutes >= morning &&
+      minutes < QUIET_FROM_MINUTES &&
       (!profile.weightAskedOn ||
         diffDays(today, profile.weightAskedOn) >= period)
     ) {
@@ -244,7 +276,62 @@ export class PlanCronService {
         actions++;
       }
     }
+
+    // Зов вернуться — только если в этот тик бот ничего больше не писал
+    if (!actions && profile.questionsEnabled)
+      actions += await this.comebackStep(profile, today, minutes, morning);
     return actions;
+  }
+
+  /**
+   * Мягкий возврат: пропуск был COMEBACK_AFTER_DAYS дней назад, тренировок после него нет.
+   * В понедельник тот же зов звучит как «чистый лист».
+   */
+  private async comebackStep(
+    profile: ProfileWithUser,
+    today: Date,
+    minutes: number,
+    morning: number,
+  ): Promise<number> {
+    const { user, userId } = profile;
+    if (minutes < morning || minutes >= QUIET_FROM_MINUTES) return 0;
+    if (
+      profile.comebackSentOn &&
+      diffDays(today, profile.comebackSentOn) < COMEBACK_GAP_DAYS
+    )
+      return 0;
+    const lastMiss = await this.prisma.planDay.findFirst({
+      where: { userId, status: 'MISSED', date: { lte: today } },
+      orderBy: { date: 'desc' },
+      select: { id: true, date: true },
+    });
+    if (!lastMiss || diffDays(today, lastMiss.date) < COMEBACK_AFTER_DAYS)
+      return 0;
+    // Не звать тех, кто давно ушёл: после недели тишины вопросы бота и так идут по расписанию
+    if (diffDays(today, lastMiss.date) > 7) return 0;
+    const doneAfter = await this.prisma.planDay.count({
+      where: { userId, status: 'DONE', date: { gt: lastMiss.date } },
+    });
+    if (doneAfter) return 0;
+    const { count } = await this.prisma.sportProfile.updateMany({
+      where: {
+        userId,
+        OR: [{ comebackSentOn: null }, { comebackSentOn: { not: today } }],
+      },
+      data: { comebackSentOn: today },
+    });
+    if (!count) return 0;
+    const complex = await this.programs.nextComplex(userId);
+    await this.sender.send(
+      user,
+      this.polls.comebackMessage(
+        lastMiss.id,
+        complex?.name ?? null,
+        weekdayOf(today) === 1,
+      ),
+    );
+    this.logger.log(`Зов вернуться: userId=${userId}, planDayId=${lastMiss.id}`);
+    return 1;
   }
 
   // ── Шаги ────────────────────────────────────────────────────────────────
@@ -274,9 +361,18 @@ export class PlanCronService {
       const complex = day.suggestedComplexId
         ? await this.prisma.complex.findUnique({
             where: { id: day.suggestedComplexId },
-            select: { id: true, name: true },
+            select: {
+              id: true,
+              name: true,
+              _count: { select: { exercises: true } },
+            },
           })
         : await this.programs.nextComplex(userId);
+      const exerciseCount = complex
+        ? 'exercises' in complex
+          ? complex.exercises.length
+          : complex._count.exercises
+        : null;
       // Первый запуск закончен сегодня уже после утреннего времени: вопрос и его повтор
       // не шлём — экран «настройка закончена» сам предлагает тренировку. Вечерний остаётся.
       const { onboardedAt, timeZone } = profile;
@@ -298,7 +394,12 @@ export class PlanCronService {
       if (minutes >= evening || started || setupAfterMorning) return 0;
       await this.sender.send(
         user,
-        this.polls.morningMessage(day.id, complex?.name ?? null, false),
+        this.polls.morningMessage(
+          day.id,
+          complex?.name ?? null,
+          false,
+          exerciseCount,
+        ),
       );
       this.logger.log(`Утренний вопрос: planDayId=${day.id}, userId=${userId}`);
       return 1;

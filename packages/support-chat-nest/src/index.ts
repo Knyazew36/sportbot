@@ -1,0 +1,13 @@
+export * from '@app/support-chat-core'
+
+export * from './decorators/support-api.decorator'
+export * from './dto'
+export * from './gateway/support-chat.gateway'
+export * from './ports'
+export * from './services/support-events'
+export * from './services/support-operator.service'
+export * from './services/support-visitor.service'
+export * from './support-chat.constants'
+export * from './support-chat.module'
+export * from './support-chat.options'
+export * from './support-chat.records'

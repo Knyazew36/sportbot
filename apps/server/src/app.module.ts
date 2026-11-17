@@ -9,7 +9,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuditLogModule } from './audit-log/audit-log.module';
 import { AuthModule } from './auth/auth.module';
-import { ChatModule } from './chat/chat.module';
 import {
   GuardsModule,
   MultiAuthModule,
@@ -35,6 +34,7 @@ import { BodyWeightModule } from './body-weight/body-weight.module';
 import { BotModule } from './bot';
 import { CatalogModule } from './catalog/catalog.module';
 import { LimitationModule } from './limitation/limitation.module';
+import { FeedbackModule } from './feedback/feedback.module';
 import { StretchExclusionModule } from './stretch-exclusion/stretch-exclusion.module';
 import { StretchRoutineModule } from './stretch-routine/stretch-routine.module';
 import { StretchSessionModule } from './stretch-session/stretch-session.module';
@@ -91,7 +91,6 @@ import { WorkoutModule } from './workout/workout.module';
     JoinRequestModule,
     NotificationsModule,
     AuditLogModule,
-    ChatModule,
 
     // Спортбот (business-tz.md, раздел 23.1)
     ProfileModule,
@@ -108,6 +107,7 @@ import { WorkoutModule } from './workout/workout.module';
     PauseModule,
     LimitationModule,
     StretchExclusionModule,
+    FeedbackModule,
     StretchRoutineModule,
     StretchSessionModule,
     BodyWeightModule,

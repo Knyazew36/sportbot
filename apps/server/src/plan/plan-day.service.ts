@@ -1,13 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 
-import { addDays, weekdayOf, weekStart } from '@/bot';
+import { addDays, diffDays, weekdayOf, weekStart } from '@/bot';
 import { Pause, PlanDay, Prisma } from '@/generated/prisma/client';
 
 type Tx = Prisma.TransactionClient;
 
 /** После стольких пропусков подряд бот один раз предлагает паузу. */
 const MISSES_FOR_PAUSE_OFFER = 3;
+/** Заморозка серии: один прощённый пропуск на столько дней. */
+export const FREEZE_WINDOW_DAYS = 14;
 
 export interface MissResult {
   /** false — день уже не ждал ответа (двойное нажатие, старая кнопка). */
@@ -16,6 +18,8 @@ export interface MissResult {
   suggestPause: boolean;
   /** Пропуск разового перенесённого дня: перенос повторно не предлагается. */
   wasRescheduled: boolean;
+  /** Серию спасла заморозка: пропуск её не обнулил. */
+  streakSaved?: boolean;
 }
 
 /**
@@ -86,11 +90,16 @@ export class PlanDayService {
         where: { userId },
         data: { missedInRow: 0 },
       });
-    await this.recalcStreak(userId);
+    const { lastMissFrozen } = await this.recalcStreak(userId);
     this.logger.log(
-      `День → MISSED: planDayId=${dayId}, userId=${userId}, подряд=${profile.missedInRow}`,
+      `День → MISSED: planDayId=${dayId}, userId=${userId}, подряд=${profile.missedInRow}, заморозка=${lastMissFrozen}`,
     );
-    return { changed: true, suggestPause, wasRescheduled: false };
+    return {
+      changed: true,
+      suggestPause,
+      wasRescheduled: false,
+      streakSaved: lastMissFrozen,
+    };
   }
 
   /**
@@ -227,27 +236,46 @@ export class PlanDayService {
 
   /**
    * Серия по дням плана в порядке дат: DONE увеличивает, MISSED обнуляет, PAUSED и PENDING
-   * пропускаются. Рекорд — по всей истории: исправление старой отметки может его изменить.
+   * пропускаются. Заморозка: первый пропуск за FREEZE_WINDOW_DAYS дней серию не обнуляет.
+   * Рекорд — по всей истории: исправление старой отметки может его изменить.
    */
   public async recalcStreak(
     userId: number,
     tx: Tx = this.prisma,
-  ): Promise<{ currentStreak: number; bestStreak: number }> {
+  ): Promise<{
+    currentStreak: number;
+    bestStreak: number;
+    /** Последний пропуск в истории спасён заморозкой. */
+    lastMissFrozen: boolean;
+  }> {
     const days = await tx.planDay.findMany({
       where: { userId, status: { in: ['DONE', 'MISSED'] } },
       orderBy: { date: 'asc' },
-      select: { status: true },
+      select: { status: true, date: true },
     });
     let currentStreak = 0;
     let bestStreak = 0;
+    let lastFrozenOn: Date | null = null;
+    let lastMissFrozen = false;
     for (const day of days) {
-      currentStreak = day.status === 'DONE' ? currentStreak + 1 : 0;
+      if (day.status === 'DONE') {
+        currentStreak++;
+        lastMissFrozen = false;
+      } else {
+        const canFreeze =
+          currentStreak > 0 &&
+          (!lastFrozenOn ||
+            diffDays(day.date, lastFrozenOn) >= FREEZE_WINDOW_DAYS);
+        if (canFreeze) lastFrozenOn = day.date;
+        else currentStreak = 0;
+        lastMissFrozen = canFreeze;
+      }
       bestStreak = Math.max(bestStreak, currentStreak);
     }
     await tx.sportProfile.update({
       where: { userId },
       data: { currentStreak, bestStreak },
     });
-    return { currentStreak, bestStreak };
+    return { currentStreak, bestStreak, lastMissFrozen };
   }
 }

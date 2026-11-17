@@ -6,6 +6,7 @@ import { User } from '@/generated/prisma/client';
 import { MaxAuthStrategy } from '@/messengers/max';
 import { TelegramAuthStrategy } from '@/messengers/telegram';
 import { VkAuthStrategy } from '@/messengers/vk';
+import { FeedbackModule } from '@/feedback/feedback.module';
 import { UserModule } from '@/user/user.module';
 
 import { AppMessengerAccountsService } from './app-messenger-accounts.service';
@@ -43,8 +44,8 @@ export class MessengerAuthStrategiesRegistrar implements OnModuleInit {
  * (см. app-messengers.ts), чтобы адаптеры могли инжектить AppMessengerAccountsService.
  */
 @Module({
-  imports: [UserModule],
+  imports: [UserModule, FeedbackModule],
   providers: [AppMessengerAccountsService, MessengerAuthStrategiesRegistrar],
-  exports: [AppMessengerAccountsService],
+  exports: [AppMessengerAccountsService, FeedbackModule],
 })
 export class AppMessengersSupportModule {}

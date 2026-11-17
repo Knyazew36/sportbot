@@ -20,8 +20,21 @@ import { PlanDayService } from './plan-day.service';
 /** Отметку за день можно исправить в течение 7 дней. */
 export const FIX_WINDOW_DAYS = 7;
 
+const pick = <T>(variants: T[], seed: number): T =>
+  variants[Math.abs(seed) % variants.length];
+
+const pluralExercises = (n: number): string => {
+  const last = n % 10;
+  if (n % 100 >= 11 && n % 100 <= 14) return 'упражнений';
+  if (last === 1) return 'упражнение';
+  if (last >= 2 && last <= 4) return 'упражнения';
+  return 'упражнений';
+};
+
 /** Итог пропуска дня: что предложить пользователю дальше. */
 export interface MissOutcome {
+  /** Серию спасла заморозка. */
+  streakSaved?: boolean;
   /** false — день уже не ждал ответа (двойное нажатие, старая кнопка). */
   changed: boolean;
   /** Предложить «напомнить завтра». */
@@ -54,16 +67,43 @@ export class PollService {
     dayId: number,
     complexName: string | null,
     reminder: boolean,
+    exerciseCount: number | null = null,
   ): MessengerMessage {
     const buttons = [
-      [btn('💪 Да', `pd:am:${dayId}:y`), btn('😴 Нет', `pd:am:${dayId}:n`)],
+      [
+        btn('💪 Иду', `pd:am:${dayId}:y`),
+        btn('😴 Не сегодня', `pd:am:${dayId}:n`),
+      ],
       [appBtn(APP_SCREEN.today)],
     ];
-    if (reminder) return msg('Так что, сегодня идёшь в зал?', buttons);
+    // Тексты чередуются по дню: одна и та же фраза каждое утро превращается в шум
+    if (reminder)
+      return msg(
+        pick(
+          [
+            'Напоминаю про сегодняшнюю тренировку. Получится?',
+            'Окно для тренировки ещё открыто. Идёшь?',
+            'Как с тренировкой сегодня? Хватит и короткой.',
+          ],
+          dayId,
+        ),
+        buttons,
+      );
+    const plan = complexName
+      ? `Сегодня по очереди «${complexName}»${exerciseCount ? `: ${exerciseCount} ${pluralExercises(exerciseCount)}` : ''}.`
+      : null;
     return msg(
       [
-        'Доброе утро. Сегодня тренировочный день — будешь тренироваться?',
-        ...(complexName ? [`Следующая по программе: «${complexName}».`] : []),
+        pick(
+          [
+            'Доброе утро. Сегодня тренировочный день.',
+            'Утро! По расписанию сегодня тренировка.',
+            'Привет. Сегодня день тренировки.',
+          ],
+          dayId,
+        ),
+        ...(plan ? [plan] : []),
+        'Идёшь?',
       ].join('\n'),
       buttons,
     );
@@ -72,10 +112,79 @@ export class PollService {
   public eveningMessage(dayId: number, nextMorning = false): MessengerMessage {
     return msg(
       nextMorning
-        ? 'Вчера ты не ответил: тренировка была?'
-        : 'Потренировался сегодня?',
+        ? pick(
+            [
+              'Как вчера прошло: тренировка была?',
+              'Вчера бот не дождался отметки. Тренировка была?',
+            ],
+            dayId,
+          )
+        : pick(
+            ['Потренировался сегодня?', 'Как день, получилось потренироваться?'],
+            dayId,
+          ),
       [[btn('💪 Да', `pd:pm:${dayId}:y`), btn('😴 Нет', `pd:pm:${dayId}:n`)]],
     );
+  }
+
+  /** Мягкий сброс после срыва: малый шаг вместо упрёка. */
+  public comebackMessage(
+    dayId: number,
+    complexName: string | null,
+    freshStart: boolean,
+  ): MessengerMessage {
+    return msg(
+      [
+        freshStart
+          ? 'Новая неделя — чистый лист.'
+          : 'Пара дней без тренировок — это нормально.',
+        complexName
+          ? `Можно начать с лёгкой «${complexName}» — хватит и половины подходов.`
+          : 'Можно начать с короткой тренировки — хватит и 20 минут.',
+      ].join('\n'),
+      [
+        [btn('💪 Начну сегодня', `pd:cb:${dayId}:y`)],
+        [btn('Позже', `pd:cb:${dayId}:n`), appBtn(APP_SCREEN.today)],
+      ],
+    );
+  }
+
+  /** После двух дней молчания бот предлагает сам снизить частоту, а не копит игнор. */
+  public lessOftenMessage(): MessengerMessage {
+    return msg(
+      'Бот пишет, а ответов нет. Как удобнее?',
+      [
+        [btn('Без повторов', 'pd:fq:0:e')],
+        [btn('Не писать, отмечу в приложении', 'pd:fq:0:o')],
+        [btn('Оставить как есть', 'pd:fq:0:k')],
+      ],
+    );
+  }
+
+  /** Ответ на предложение писать реже. */
+  public async setFrequency(
+    profile: SportProfile,
+    mode: 'e' | 'o' | 'k',
+  ): Promise<string> {
+    const { userId } = profile;
+    if (mode === 'k') {
+      await this.prisma.sportProfile.update({
+        where: { userId },
+        data: { ignoredInRow: 0 },
+      });
+      return 'Хорошо, ничего не меняю.';
+    }
+    await this.prisma.sportProfile.update({
+      where: { userId },
+      data:
+        mode === 'e'
+          ? { ignoredInRow: 0, remindersEnabled: false }
+          : { ignoredInRow: 0, questionsEnabled: false },
+    });
+    this.logger.log(`Частота вопросов снижена: userId=${userId}, режим=${mode}`);
+    return mode === 'e'
+      ? 'Готово: без повторов. Вернуть можно в настройках.'
+      : 'Готово: бот не пишет вопросов. Тренировки отмечай в приложении, вернуть вопросы можно в настройках.';
   }
 
   public unfinishedMessage(workout: {
@@ -113,6 +222,11 @@ export class PollService {
       data: { [field]: answer },
     });
     if (!count) return null;
+    // Любой ответ снимает счётчик молчания
+    await this.prisma.sportProfile.updateMany({
+      where: { userId, ignoredInRow: { gt: 0 } },
+      data: { ignoredInRow: 0 },
+    });
     this.logger.log(
       `Ответ на опрос: planDayId=${dayId}, userId=${userId}, ${poll}=${answer}`,
     );
@@ -144,15 +258,18 @@ export class PollService {
   ): Promise<MessengerMessage[]> {
     const result = await this.missDay(profile, dayId);
     if (!result.changed) return [];
+    const missText = result.streakSaved
+      ? 'Записал пропуск. Заморозка сохранила серию — следующая будет через 2 недели.'
+      : 'Записал пропуск. Рекорд серии остаётся.';
     const messages: MessengerMessage[] = [
       result.canReschedule
-        ? msg('Записал пропуск. Напомнить завтра?', [
+        ? msg(`${missText} Напомнить завтра?`, [
             [
               btn('Да, завтра', `pd:rs:${dayId}:y`),
               btn('Нет', `pd:rs:${dayId}:n`),
             ],
           ])
-        : msg('Записал пропуск.'),
+        : msg(missText),
     ];
     if (result.suggestPause) messages.push(this.pauses.offerMessage());
     return messages;
@@ -178,7 +295,12 @@ export class PollService {
         where: { id: dayId },
         data: { rescheduleOfferedAt: new Date() },
       });
-    return { changed: true, canReschedule, suggestPause: result.suggestPause };
+    return {
+      changed: true,
+      canReschedule,
+      suggestPause: result.suggestPause,
+      streakSaved: !!result.streakSaved,
+    };
   }
 
   // ── Сегодня из приложения ───────────────────────────────────────────────

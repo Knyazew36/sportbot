@@ -6,6 +6,7 @@ import { type DayToday, usePickComplex, useToday } from '@sportbot/api/entities/
 import { useSportUser } from '@sportbot/api/entities/sport-user'
 import { useFinishQueued } from '@sportbot/api/entities/workout'
 import { ROUTES } from '@/shared/config/paths'
+import { FeedbackButton } from '@/features/send-feedback/FeedbackButton'
 import { formatDate } from '@/shared/lib/format'
 import { ButtonLink } from '@/shared/ui/kit/ButtonLink'
 import { QueryScreen } from '@/shared/ui/kit/QueryScreen'
@@ -69,7 +70,10 @@ const TodayPage = () => {
     <Screen
       header={
         <>
-          <ScreenHeader title={headerTitle(today.data, finishQueued)} />
+          <ScreenHeader
+            title={headerTitle(today.data, finishQueued)}
+            action={<FeedbackButton />}
+          />
           {me.data && !me.data.canMessage && <PermissionBanner />}
         </>
       }

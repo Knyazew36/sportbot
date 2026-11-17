@@ -1,0 +1,33 @@
+{
+  "name": "@app/support-chat-client",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Headless SDK чата поддержки для браузера: REST, socket.io, лента с очередью отправки и синхронизацией по seq",
+  "license": "UNLICENSED",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
+    "check-types": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@app/support-chat-core": "0.1.0",
+    "socket.io-client": "^4.8.1"
+  },
+  "devDependencies": {
+    "typescript": "^6"
+  }
+}

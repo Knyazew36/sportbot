@@ -19,7 +19,6 @@ export class UploadService {
   /** Категории, раздаваемые статикой по /api/uploads/<категория>/ (см. main.ts). */
   public static readonly PUBLIC_CATEGORIES = [
     'avatars',
-    'chat',
     'catalog',
     'renders',
   ] as const;

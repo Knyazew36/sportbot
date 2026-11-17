@@ -95,6 +95,19 @@ export class PlanBot implements BotFeature {
         );
         return this.removeLater(ctx);
 
+      case 'cb':
+        // «Начну сегодня» — только подтверждение: тренировка стартует из приложения
+        await ctx.edit(
+          msg(yes ? 'Отлично, открой приложение — начнём с малого 💪' : 'Хорошо, без давления.'),
+        );
+        return this.removeLater(ctx);
+
+      case 'fq': {
+        const mode = args[1] === 'e' || args[1] === 'o' ? args[1] : 'k';
+        await ctx.edit(msg(await this.polls.setFrequency(ctx.profile, mode)));
+        return this.removeLater(ctx);
+      }
+
       case 'fix':
         if (args[1] === 'd') {
           const result = await this.polls.fixToDone(ctx.profile, dayId);

@@ -63,6 +63,7 @@ model User {
   pauses             Pause[]
   limitations        Limitation[]
   stretchExclusions  StretchExclusion[]
+  feedbacks          Feedback[]
   stretchSessions    StretchSession[]
   bodyWeights        BodyWeight[]
   botSessions        BotSession[]
@@ -238,20 +239,34 @@ model JoinRequest {
 }
 
 // ============================================================
-//  Обратная связь с сайта
+//  Обратная связь
 // ============================================================
 
-/// Обращение из публичного чата на сайте (без авторизации). Контакт — телефон и/или email,
-/// хотя бы одно поле обязательно (проверяется в DTO). Картинки — до 5 шт, relative-пути в filePaths.
-model ChatSubmission {
+/// Идея или проблема от пользователя. Админам уходит в мессенджер с меткой #fb<id>;
+/// ответ админа реплаем на это сообщение пересылается автору в его мессенджер.
+model Feedback {
   id        Int      @id @default(autoincrement())
-  message   String
-  phone     String?
-  email     String?
-  filePaths String[]
+  userId    Int
+  text      String
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@index([createdAt])
+  user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  replies FeedbackReply[]
+
+  @@index([userId, createdAt])
+}
+
+/// Ответ команды на обращение (текст, который ушёл автору)
+model FeedbackReply {
+  id         Int      @id @default(autoincrement())
+  feedbackId Int
+  text       String
+  createdAt  DateTime @default(now())
+
+  feedback Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+
+  @@index([feedbackId])
 }
 
 // ============================================================
@@ -440,6 +455,10 @@ model SportProfile {
   currentStreak Int @default(0)
   bestStreak    Int @default(0)
   missedInRow   Int @default(0) /// пропуски подряд — на третьем бот предлагает паузу
+  /// Дни подряд, где пользователь не ответил ни на один вопрос бота. На втором бот предлагает
+  /// писать реже; любой ответ обнуляет.
+  ignoredInRow   Int       @default(0)
+  comebackSentOn DateTime? @db.Date /// когда бот последний раз звал вернуться после пропусков
 
   jointDisclaimerShownAt DateTime? /// дисклеймер «не заменяет врача» показываем один раз
   weeklySummarySentOn    DateTime? @db.Date /// понедельник недели, за которую личная сводка уже ушла

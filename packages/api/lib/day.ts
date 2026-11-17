@@ -128,13 +128,23 @@ export const weekOf = (
 export const resolveWarmup = (complex: { warmupMinutes: number | null }, profile: { warmupMinutes: number }) =>
   (complex.warmupMinutes ?? profile.warmupMinutes) || null
 
-/** Серия и лучшая серия по отметкам дней от старых к новым — как recalcStreak на сервере */
-export const streakOf = (statuses: PlanDayStatus[]) => {
+/** Заморозка серии: один прощённый пропуск на столько дней — как FREEZE_WINDOW_DAYS на сервере */
+export const FREEZE_WINDOW_DAYS = 14
+
+/** Серия и лучшая серия по дням плана от старых к новым (date — YYYY-MM-DD) — как recalcStreak на сервере */
+export const streakOf = (days: { status: PlanDayStatus; date: string }[]) => {
   let current = 0
   let best = 0
-  for (const status of statuses) {
-    if (status !== 'DONE' && status !== 'MISSED') continue
-    current = status === 'DONE' ? current + 1 : 0
+  let lastFrozenAt: number | null = null
+  for (const day of days) {
+    if (day.status !== 'DONE' && day.status !== 'MISSED') continue
+    if (day.status === 'DONE') current++
+    else {
+      const at = Date.parse(`${day.date.slice(0, 10)}T00:00:00Z`)
+      const canFreeze = current > 0 && (lastFrozenAt == null || (at - lastFrozenAt) / 86_400_000 >= FREEZE_WINDOW_DAYS)
+      if (canFreeze) lastFrozenAt = at
+      else current = 0
+    }
     best = Math.max(best, current)
   }
   return { current, best }

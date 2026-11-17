@@ -1,0 +1,247 @@
+/*
+ * Стили чата поддержки — точка входа Tailwind, собирается в dist/styles.css (`yarn build`).
+ * Утилиты с префиксом scw: (`scw:flex`) — чтобы не пересекаться с классами сайта, и без @layer —
+ * чтобы обычные стили чужой страницы их не перебивали. Цвета, скругления и тень — на переменных --scw-*:
+ * проект переопределяет их у .scw-root под свой дизайн, не трогая разметку.
+ */
+
+/* Дефолтная тема — только как запасные значения (жирность, переходы), в CSS она не попадает */
+@import 'tailwindcss/theme.css' theme(reference) prefix(scw);
+
+@source './**/*.{ts,tsx}';
+
+/*
+ * Размеры в px, а не rem: виджет встраивается в чужие сайты с любым размером шрифта у html.
+ * Префикс достаётся и переменным темы (--radius-x → --scw-radius-x), поэтому имена здесь
+ * не должны совпадать с публичными --scw-*: иначе переменная сошлётся сама на себя.
+ */
+@theme inline {
+  --spacing: 4px;
+
+  --color-*: initial;
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-bg: var(--scw-bg);
+  --color-surface: var(--scw-surface);
+  --color-border: var(--scw-border);
+  --color-text: var(--scw-text);
+  --color-muted: var(--scw-muted);
+  --color-accent: var(--scw-accent);
+  --color-accent-text: var(--scw-accent-text);
+  --color-action: var(--scw-action);
+  --color-action-text: var(--scw-action-text);
+  --color-own-bubble: var(--scw-own-bubble);
+  --color-own-text: var(--scw-own-text);
+  --color-other-bubble: var(--scw-other-bubble);
+  --color-other-text: var(--scw-other-text);
+  --color-note-bubble: var(--scw-note-bubble);
+  --color-note-text: var(--scw-note-text);
+  --color-danger: var(--scw-danger);
+  --color-success: var(--scw-success);
+  --color-teal: #1ebfbf;
+  --color-teal-deep: #0f8a8a;
+
+  /* Без высоты строки: текст наследует line-height корня, как в мессенджерах */
+  --text-*: initial;
+  --text-2xs: 11px;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-md: 15px;
+  --text-lg: 16px;
+
+  --radius-*: initial;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+  --radius-3xl: 24px;
+  --radius-ui: var(--scw-radius);
+  --radius-message: var(--scw-radius-bubble);
+
+  --shadow-*: initial;
+  --shadow-panel: var(--scw-shadow);
+  --shadow-launcher: 0 2px 6px rgb(16 18 20 / 0.12), 0 14px 30px -12px rgb(16 18 20 / 0.34);
+
+  --animate-fade: scw-fade 0.15s ease-out;
+  --animate-zoom: scw-zoom 0.18s ease-out;
+  --animate-pop: scw-pop 0.18s ease-out;
+  --animate-spin: scw-spin 0.8s linear infinite;
+  --animate-ring: scw-ring 1.8s ease-out infinite;
+  --animate-flash: scw-flash 1.6s ease-out;
+  --animate-bubble: scw-rise 0.22s cubic-bezier(0.2, 0.7, 0.2, 1);
+  --animate-typing: scw-typing 1.1s ease-in-out infinite;
+  --animate-swap: scw-swap 0.2s ease-out;
+
+  /* Новое сообщение: короткий подъём без перелётов — спокойно, а не «игрушечно» */
+  @keyframes scw-rise {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+  }
+
+  /* Точки «печатает…» подпрыгивают по очереди */
+  @keyframes scw-typing {
+    0%,
+    60%,
+    100% {
+      opacity: 0.35;
+      transform: translateY(0);
+    }
+    30% {
+      opacity: 1;
+      transform: translateY(-3px);
+    }
+  }
+
+  /* Смена содержимого кнопки чата */
+  @keyframes scw-swap {
+    from {
+      opacity: 0;
+      transform: scale(0.7);
+    }
+  }
+
+  @keyframes scw-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Подсветка сообщения, к которому перешли по цитате */
+  @keyframes scw-flash {
+    from {
+      background-color: color-mix(in srgb, var(--scw-accent) 22%, transparent);
+    }
+  }
+
+  /* Волна от кнопки чата: растёт и тает */
+  @keyframes scw-ring {
+    from {
+      opacity: 0.35;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(1.9);
+    }
+  }
+
+  @keyframes scw-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes scw-zoom {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+
+  @keyframes scw-pop {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.98);
+    }
+  }
+}
+
+.scw-root {
+  --scw-font: inherit;
+  --scw-bg: #ffffff;
+  --scw-surface: #f6f7f8;
+  --scw-border: #e3e5e8;
+  --scw-text: #16191c;
+  --scw-muted: #5b6065;
+  --scw-accent: #1ebfbf;
+  --scw-accent-text: #ffffff;
+  --scw-action: #16191c;
+  --scw-action-text: #ffffff;
+  --scw-own-bubble: #16191c;
+  --scw-own-text: #ffffff;
+  --scw-other-bubble: #f1f2f4;
+  --scw-other-text: #16191c;
+  --scw-note-bubble: #fff4cc;
+  --scw-note-text: #5c4600;
+  --scw-danger: #e02a49;
+  --scw-success: #1a9e6b;
+  --scw-radius: 12px;
+  --scw-radius-bubble: 20px;
+  --scw-shadow:
+    0 0 0 1px rgb(16 18 20 / 0.05), 0 8px 16px -8px rgb(16 18 20 / 0.12), 0 28px 64px -16px rgb(16 18 20 / 0.3);
+  --scw-offset-bottom: 24px;
+  --scw-offset-side: 24px;
+
+  font-family: var(--scw-font);
+  color: var(--scw-text);
+  font-size: 14px;
+  line-height: 1.45;
+  box-sizing: border-box;
+}
+
+/* :where — чтобы тёмная тема пакета не перебивала переменные, которые проект задал у .scw-root */
+:where(.dark) .scw-root,
+.scw-root:where([data-theme='dark']) {
+  --scw-bg: #16191c;
+  --scw-surface: #1e2327;
+  --scw-border: #2c3237;
+  --scw-text: #f2f3f4;
+  --scw-muted: #9aa0a6;
+  --scw-action: #f2f3f4;
+  --scw-action-text: #16191c;
+  --scw-own-bubble: #f2f3f4;
+  --scw-own-text: #16191c;
+  --scw-other-bubble: #262c31;
+  --scw-other-text: #f2f3f4;
+  --scw-note-bubble: #3d3311;
+  --scw-note-text: #ffe08a;
+  --scw-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+}
+
+/* Мини-сброс внутри чата: на чужом сайте может не быть preflight. :where — чтобы утилиты его перебивали */
+.scw-root *,
+.scw-root *::before,
+.scw-root *::after {
+  box-sizing: inherit;
+}
+
+.scw-root :where(button) {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.scw-root :where(button:disabled) {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.scw-root :where(input, textarea) {
+  margin: 0;
+  font: inherit;
+}
+
+/* @tailwindcss/forms и похожие сбросы сайта рисуют на фокусе кольцо через box-shadow и цветную рамку */
+.scw-root :where(input, textarea):focus {
+  box-shadow: none;
+  border-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scw-root *,
+  .scw-root *::before,
+  .scw-root *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* Утилиты — последними: при равной специфичности они перебивают сброс выше */
+@tailwind utilities;

@@ -278,7 +278,18 @@ export class StatsService {
   }
 
   public async weeklySummary(profile: SportProfile): Promise<MessengerMessage> {
-    return msg((await this.summaryLines(profile)).join('\n'), [
+    const lines = await this.summaryLines(profile);
+    // Сначала что получилось, потом цифры; в конце — цель на новую неделю
+    const planned = profile.trainingDays.length;
+    const done = Number(
+      lines.find((l) => l.startsWith('🏋️'))?.match(/Тренировок: (\d+)/)?.[1] ??
+        0,
+    );
+    const intro = done
+      ? `Неделя позади: тренировок — ${done}. Это уже результат 💪`
+      : 'Неделя без тренировок — бывает. Новая начнётся с понедельника.';
+    const goal = planned ? `🎯 На новую неделю по плану: ${planned}.` : null;
+    return msg([intro, '', ...lines, ...(goal ? [goal] : [])].join('\n'), [
       [btn('📈 Прогресс', 'ss:prog')],
     ]);
   }

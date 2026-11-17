@@ -10,7 +10,7 @@ export const ENTITY_EMOJI = {
   upload: '📁',
   notifications: '🔔',
   auditLog: '📝',
-  chat: '💬',
+  feedback: '💡',
 } as const;
 
 const URL_SEGMENT_EMOJI: Record<string, string> = {
@@ -22,7 +22,7 @@ const URL_SEGMENT_EMOJI: Record<string, string> = {
   upload: ENTITY_EMOJI.upload,
   notifications: ENTITY_EMOJI.notifications,
   'audit-log': ENTITY_EMOJI.auditLog,
-  'chat-submission': ENTITY_EMOJI.chat,
+  feedback: ENTITY_EMOJI.feedback,
 };
 
 const UNKNOWN_ENTITY_EMOJI = '⚙️';

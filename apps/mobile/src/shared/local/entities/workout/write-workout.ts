@@ -671,12 +671,12 @@ export const addCooldownStretch = (db: LocalDb, workoutId: number, muscleId?: nu
 /** Серия по отметкам дней телефона — сервер пересчитает так же после push */
 export const recalcStreak = (tx: LocalTx) => {
   const days = tx
-    .select({ status: planDays.status })
+    .select({ status: planDays.status, date: planDays.date })
     .from(planDays)
     .where(inArray(planDays.status, ['DONE', 'MISSED']))
     .orderBy(asc(planDays.date))
     .all();
-  const { current, best } = streakOf(days.map((d) => d.status));
+  const { current, best } = streakOf(days);
   tx.update(profile).set({ currentStreak: current, bestStreak: best }).run();
 };
 

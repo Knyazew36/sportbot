@@ -34,10 +34,16 @@ export const MissedDay = ({ day, suggestPause }: MissedDayProps) => {
         <Poster size="hero" tone="primary" numberOfLines={1} adjustsFontSizeToFit>
           пропуск
         </Poster>
-        {day.streak.best > 0 && (
+        {day.streak.current > 0 ? (
           <Lead size="md" tone="soft" className="mt-2">
-            серия прервалась · рекорд серии {day.streak.best} остаётся
+            заморозка сохранила серию · {day.streak.current}. Следующая — через 2 недели
           </Lead>
+        ) : (
+          day.streak.best > 0 && (
+            <Lead size="md" tone="soft" className="mt-2">
+              серия прервалась · рекорд серии {day.streak.best} остаётся
+            </Lead>
+          )
         )}
       </Rise>
 
@@ -80,7 +86,7 @@ export const MissedDay = ({ day, suggestPause }: MissedDayProps) => {
 
       {suggestPause && (
         <Rise className="px-gutter">
-          <Notice kicker="три пропуска подряд" description="Можно поставить паузу — серия сохранится, бот помолчит.">
+          <Notice kicker="три пропуска подряд" description="Можно поставить паузу — бот помолчит, пропуски на паузе не считаются, рекорд серии остаётся.">
             <ButtonLink href={{ pathname: ROUTES.ME_SECTION, params: { section: 'training' } }} variant="outline">
               Поставить паузу
             </ButtonLink>

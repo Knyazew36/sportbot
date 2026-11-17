@@ -219,13 +219,33 @@ export function analogsMessage(
 
 // ── Завершение и заминка ────────────────────────────────────────────────
 
-const summaryText = (result: CompleteResult): string =>
-  [
+const STREAK_MILESTONES = [7, 14, 30, 50, 100, 365];
+
+/** Подкрепление в итоге: начало серии, веха или новый рекорд. */
+const rewardText = (result: CompleteResult): string | null => {
+  const { currentStreak, bestStreak } = result;
+  if (STREAK_MILESTONES.includes(currentStreak))
+    return `🏅 ${currentStreak} дней подряд — это веха.`;
+  if (currentStreak === 1 && bestStreak === 1)
+    return '🎉 Серия началась — первый день есть.';
+  if (currentStreak > 1 && currentStreak === bestStreak)
+    return '🏆 Новый рекорд серии!';
+  return null;
+};
+
+const summaryText = (result: CompleteResult): string => {
+  const reward = result.auto ? null : rewardText(result);
+  return [
     result.auto
       ? `Тренировку «${result.complexName}» закрыл сам в конце дня — она засчитана ✅`
       : `Тренировка «${result.complexName}» засчитана ✅`,
     `🔥 Серия: ${result.currentStreak}`,
+    ...(reward ? [reward] : []),
+    ...(!result.auto && result.nextComplexName
+      ? [`➡️ Следующая по очереди: «${result.nextComplexName}»`]
+      : []),
   ].join('\n');
+};
 
 /**
  * Итог без заминки — ответ на вечернее «да»: тренировка давно позади, сообщение показывается
