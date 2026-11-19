@@ -4,9 +4,11 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { withUniwind } from 'uniwind';
 
-import { APP_NAME } from '@/shared/config/app';
 import { Rise } from '@/shared/ui/kit/Reveal';
 import { Eyebrow, Lead, Poster, Text } from '@/shared/ui/kit/Typography';
+
+import { AuthHero } from './components/AuthHero';
+import type { AuthHeroKind } from './hero';
 
 // contentContainerClassName доходит до contentContainerStyle только через withUniwind
 const AwareScroll = withUniwind(KeyboardAwareScrollView);
@@ -16,15 +18,17 @@ type LayoutAuthProps = {
   /** Вводная строка антиквой над заголовком: «с возвращением —» */
   lead?: string;
   description?: ReactNode;
+  /** Плашка-«бланк» сверху: свой вариант на каждый экран входа */
+  hero?: AuthHeroKind;
   children: ReactNode;
   /** Ссылки под формой: «Нет аккаунта?» */
   footer?: ReactNode;
 };
 
-// Общая рамка страниц входа — чистый лист без декора: марка сверху, заголовок и форма прижаты к низу,
-// под большой палец. Свободное место уходит в зазор под маркой, поэтому на любом экране всё влезает без скролла.
+// Общая рамка страниц входа: плашка-«бланк» сверху, заголовок и форма прижаты к низу,
+// под большой палец. Свободное место уходит в зазор под плашкой, поэтому на любом экране всё влезает без скролла.
 // Клавиатура не закрывает поля: скролл сам докручивает поле в фокусе над ней — и на iOS, и на Android
-export const LayoutAuth = ({ title, lead, description, children, footer }: LayoutAuthProps) => {
+export const LayoutAuth = ({ title, lead, description, hero, children, footer }: LayoutAuthProps) => {
   const insets = useSafeAreaInsets();
   const [head, ...tail] = title.split(' ');
 
@@ -40,12 +44,13 @@ export const LayoutAuth = ({ title, lead, description, children, footer }: Layou
         alwaysBounceVertical={false}
         overScrollMode="never"
       >
-        <Rise className="flex-row items-center gap-2">
-          <View className="bg-primary size-2.5" />
-          <Eyebrow tone="default">{APP_NAME}</Eyebrow>
-        </Rise>
+        {hero ? (
+          <Rise>
+            <AuthHero kind={hero} />
+          </Rise>
+        ) : null}
 
-        <View className="min-h-8 grow" />
+        <View className="min-h-6 grow" />
 
         <Rise index={1}>
           {lead ? <Lead size="md" tone="muted">{lead}</Lead> : null}

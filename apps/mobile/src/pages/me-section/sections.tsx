@@ -11,7 +11,7 @@ import { DeleteAccountSection } from './components/DeleteAccountSection';
 import { ExcludedStretchesSection } from './components/ExcludedStretchesSection';
 import { FriendsSection } from './components/FriendsSection';
 import { LimitsSection } from './components/LimitsSection';
-import { LogoutButton } from './components/LogoutButton';
+import { LogoutButton } from '@/features/logout/LogoutButton';
 import { MessengersSection } from './components/MessengersSection';
 import { OfflineSection } from './components/OfflineSection';
 import { PauseSection } from './components/PauseSection';

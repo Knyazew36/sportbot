@@ -1,19 +1,19 @@
-import type { ConfigContext, ExpoConfig } from 'expo/config';
+import type { ConfigContext, ExpoConfig } from 'expo/config'
 
-type AppVariant = 'development' | 'preview' | 'production';
+type AppVariant = 'development' | 'preview' | 'production'
 
-const variant = (process.env.APP_VARIANT ?? 'development') as AppVariant;
+const variant = (process.env.APP_VARIANT ?? 'development') as AppVariant
 
 const variants: Record<AppVariant, { name: string; bundleId: string }> = {
   development: { name: 'Спортбот Dev', bundleId: 'ru.sportbot.app.dev' },
   preview: { name: 'Спортбот Preview', bundleId: 'ru.sportbot.app.preview' },
   production: { name: 'Спортбот', bundleId: 'ru.sportbot.app' },
-};
+}
 
 // EXPO_PUBLIC_API_URL подставляется Expo из .env автоматически.
 // APP_VARIANT задаётся в eas.json (профили) или перед запуском: APP_VARIANT=preview npx expo start.
 export default ({ config }: ConfigContext): ExpoConfig => {
-  const app = variants[variant];
+  const app = variants[variant]
 
   return {
     ...config,
@@ -21,6 +21,14 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     slug: 'sportbot',
     scheme: 'sportbot',
     version: '1.0.0',
+    // expo-updates стоит в зависимостях, но OTA не используем: JS обновляется только релизом в стор
+    runtimeVersion: { policy: 'appVersion' },
+    updates: { enabled: false },
+    extra: {
+      ...config.extra,
+      variant,
+      eas: { projectId: '3cb53e91-d333-41b1-8477-0d444a716022' },
+    },
     orientation: 'portrait',
     userInterfaceStyle: 'automatic',
     icon: './assets/images/icon.png',
@@ -34,9 +42,15 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       package: app.bundleId,
       adaptiveIcon: {
         foregroundImage: './assets/images/adaptive-icon.png',
+        // Иконка Android 13+ в «тематическом» режиме: система красит силуэт сама
+        monochromeImage: './assets/images/adaptive-icon-monochrome.png',
         backgroundColor: '#fff8f1',
       },
       predictiveBackGestureEnabled: false,
+      // Токен в SecureStore, но кэш профиля и тренировок в MMKV/SQLite не должен уезжать в облачный бэкап
+      allowBackup: false,
+      // Разрешение приезжает из expo-dev-client; в сторе оно лишнее
+      blockedPermissions: ['android.permission.SYSTEM_ALERT_WINDOW'],
     },
     plugins: [
       'expo-router',
@@ -72,5 +86,5 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       // не находит metro-runtime в корневом node_modules монорепо (gradle падает на generateExpoWidgetsBundle)
       onDemandFilesystem: false,
     },
-  };
-};
+  }
+}

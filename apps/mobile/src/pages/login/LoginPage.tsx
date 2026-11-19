@@ -54,6 +54,7 @@ const LoginPage = () => {
   return (
     <LayoutAuth
       title="Вход"
+      hero="login"
       lead="с возвращением —"
       footer={
         <View className="flex-col items-center gap-1">

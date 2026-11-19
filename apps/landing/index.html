@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Спортбот: трекер тренировок в Telegram и MAX</title>
+  <meta name="description" content="Бот-трекер тренировок в Telegram и MAX. Утром пишет, что по плану, вечером спрашивает, как прошло. Помнит подходы и серию. Установка не нужна.">
+  <!-- TODO: заменить https://example.com на реальный домен (canonical, og, JSON-LD, robots.txt, sitemap.xml) -->
+  <link rel="canonical" href="https://example.com/">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#fff8f1" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#070d1a" media="(prefers-color-scheme: dark)">
+
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="icon" href="assets/favicon-16.png" type="image/png" sizes="16x16">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" sizes="180x180">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Спортбот">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:url" content="https://example.com/">
+  <meta property="og:title" content="Спортбот: трекер тренировок в Telegram и MAX">
+  <meta property="og:description" content="Утром скажет, что по плану. Вечером спросит, как прошло. Бот помнит подходы и серию за тебя.">
+  <meta property="og:image" content="https://example.com/assets/og.png">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1280">
+  <meta property="og:image:height" content="720">
+  <meta property="og:image:alt" content="Спортбот: тренировка не теряется. Бот помнит план, подходы и серию.">
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Спортбот: трекер тренировок в Telegram и MAX">
+  <meta name="twitter:description" content="Утром скажет, что по плану. Вечером спросит, как прошло. Бот помнит подходы и серию за тебя.">
+  <meta name="twitter:image" content="https://example.com/assets/og.png">
+  <meta name="twitter:image:alt" content="Спортбот: тренировка не теряется. Бот помнит план, подходы и серию.">
+
+  <link rel="preload" href="assets/fonts/oswald-cyrillic-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/onest-cyrillic-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="hero.css">
+  <script>try{var q=location.search.indexOf("intro")>-1;if(!q&&sessionStorage.getItem("sb-intro"))document.documentElement.classList.add("no-intro");sessionStorage.setItem("sb-intro","1")}catch(e){}</script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://example.com/#website",
+        "url": "https://example.com/",
+        "name": "Спортбот",
+        "inLanguage": "ru"
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://example.com/#app",
+        "name": "Спортбот",
+        "url": "https://example.com/",
+        "description": "Бот-трекер тренировок в Telegram и MAX. Утром пишет, что по плану, вечером спрашивает, как прошло. Помнит подходы, повторы, вес и серию.",
+        "applicationCategory": "SportsApplication",
+        "operatingSystem": "Telegram, MAX",
+        "inLanguage": "ru",
+        "image": "https://example.com/assets/og.png",
+        "featureList": [
+          "Утреннее напоминание, что по плану, и вечерняя отметка тренировки",
+          "Запись подходов, повторов и веса, таймер отдыха",
+          "История по упражнению и личные рекорды",
+          "Справочник упражнений и растяжек с техникой",
+          "Шаблоны программ с тегами «Где / Уровень / Цель» и своя программа",
+          "Запись пропуска, перенос и пауза",
+          "Друзья по ссылке-приглашению"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://example.com/#faq",
+        "inLanguage": "ru",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Что это такое?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Бот-трекер тренировок в Telegram и MAX. Утром он пишет, что по плану, вечером спрашивает, как прошло. Тренировку можно записать в приложении внутри бота: подходы, повторы, вес, таймер отдыха."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Нужно ли что-то устанавливать и регистрироваться?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Нет. Открой бота и нажми «Старт». Настройка занимает три шага: дни, время вопросов, программа."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Что будет, если я пропущу тренировку?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Нажми «Нет» на вопрос бота. Он запишет пропуск и, если завтра не тренировочный день, предложит напомнить завтра. Серия начнётся заново. После трёх пропусков подряд бот предложит поставить его на паузу: дни паузы пропусками не считаются."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Откуда берутся программы и упражнения?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Есть шаблоны программ с тегами «Где / Уровень / Цель». Можно собрать свою программу и взять программу друга по ссылке. Описания упражнений и растяжек, фото, техника и частые ошибки собраны в справочнике. Спортбот не заменяет тренера и врача, личных программ «под тебя» не пишет."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Что видят мои друзья?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Друзья добавляются по ссылке-приглашению: она одноразовая и действует 7 дней. Друг видит твою серию, лучшую серию, отметку «на паузе» без причины, последние тренировки и статистику, а также твои программы: их можно скопировать себе. Вес тела приватный, друзьям не отдаётся."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <!--
+    TODO (владелец): подставить реальные значения вместо плейсхолдеров:
+    {BOT_TG}, {BOT_MAX} — юзернеймы ботов в ссылках;
+    {SUPPORT_CONTACT} — контакт поддержки в подвале;
+    {PRIVACY_URL}, {TERMS_URL} — политика и условия (в подвале пока не выводятся, документов нет);
+    https://example.com — домен.
+  -->
+  <div class="intro" aria-hidden="true">
+    <div class="intro-half intro-top"></div>
+    <div class="intro-half intro-bottom"></div>
+    <div class="intro-line"></div>
+    <div class="intro-mark">
+      <img src="assets/icon-transparent.svg" width="104" height="104" alt="">
+      <p>Спортбот</p>
+    </div>
+  </div>
+  <a class="skip-link" href="#main">Перейти к содержимому</a>
+
+  <header class="site-header">
+    <div class="container header-row">
+      <a class="brand" href="#top" aria-label="Спортбот, в начало страницы">
+        <picture>
+          <source srcset="assets/favicon.svg" media="(prefers-color-scheme: dark)">
+          <img src="assets/icon.svg" width="40" height="40" alt="">
+        </picture>
+        <span class="brand-name">Спортбот</span>
+      </a>
+      <nav class="nav" aria-label="Основная навигация">
+        <ul class="nav-list">
+          <li><a href="#how">Как это работает</a></li>
+          <li><a href="#features">Что внутри</a></li>
+          <li><a href="#screens">Как выглядит</a></li>
+          <li><a href="#faq">Вопросы</a></li>
+        </ul>
+        <a class="btn btn-primary btn-small" href="#cta">Открыть бота</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- 1. Hero -->
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <div class="container hero-grid">
+        <div class="hero-text">
+          <p class="eyebrow">Спортбот · Telegram и MAX</p>
+          <h1 id="hero-title"><span class="line"><span class="line-in">Тренировка</span></span> <span class="line accent"><span class="line-in">не теряется</span></span></h1>
+          <p class="script">напарник, который помнит план за тебя</p>
+          <p class="lead">Спортбот — бот-трекер тренировок в Telegram и MAX. Утром скажет, что по плану. Вечером спросит, как прошло.</p>
+          <p class="note">Бот помнит план, подходы и серию. Установка и регистрация не нужны.</p>
+          <div class="btn-row">
+            <!-- TODO: подставить {BOT_TG} и {BOT_MAX} -->
+            <a class="btn btn-primary" href="https://t.me/{BOT_TG}?start=src_site">Открыть в Telegram</a>
+            <a class="btn btn-secondary" href="https://max.ru/{BOT_MAX}?start=src_max">Открыть в MAX</a>
+          </div>
+          <p class="small">Нажми «Старт» — настройка займёт три шага.</p>
+        </div>
+
+        <div class="hero-visual">
+          <div class="phone">
+            <img src="assets/promo/promo-5-chat.png" width="1080" height="1920" fetchpriority="high" decoding="async"
+                 alt="Чат со Спортботом: утром бот пишет «Сегодня тренировочный день, будешь тренироваться?», вечером спрашивает «Потренировался сегодня?», после ответа «Да» отмечает тренировку и показывает серию.">
+          </div>
+          <div class="bubble">
+            <p class="bubble-main">Тренировка «Тяга» засчитана <span aria-hidden="true">✅</span></p>
+            <p class="bubble-sub">Серия: <span class="count">19</span></p>
+          </div>
+        </div>
+      </div>
+
+      <ul class="tiles">
+        <li class="tile"><span class="tile-num">3</span><span class="tile-text">шага настройки</span></li>
+        <li class="tile"><span class="tile-num">2</span><span class="tile-text">вопроса в день: утром и вечером</span></li>
+        <li class="tile"><span class="tile-num">1</span><span class="tile-text">место для подходов и весов</span></li>
+      </ul>
+    </section>
+
+    <div class="words" aria-hidden="true">
+      <p>Подход</p><p>Повторы</p><p>Комплекс</p><p>Жим лёжа</p><p>Серия</p><p>Отдых</p>
+    </div>
+
+    <!-- 2. Как работает -->
+    <section class="section" id="how" aria-labelledby="how-title">
+      <div class="container">
+        <p class="eyebrow">Как это работает</p>
+        <h2 id="how-title">Три шага в день</h2>
+        <p class="section-lead">Весь цикл умещается в один день. Ничего не нужно помнить и открывать самому.</p>
+
+        <ol class="steps">
+          <li class="step">
+            <span class="step-num" aria-hidden="true">01</span>
+            <h3>Утром</h3>
+            <p>Бот пишет, что сегодня по плану и какой комплекс следующий. Отвечаешь одной кнопкой.</p>
+          </li>
+          <li class="step">
+            <span class="step-num" aria-hidden="true">02</span>
+            <h3>В зале</h3>
+            <p>Отмечаешь подходы, повторы и вес. Таймер отдыха подсказывает, когда идти дальше.</p>
+          </li>
+          <li class="step">
+            <span class="step-num" aria-hidden="true">03</span>
+            <h3>Вечером</h3>
+            <p>Бот спрашивает, как прошло. Ответил «да» — тренировка засчитана, серия посчитана.</p>
+          </li>
+        </ol>
+        <p class="note">Дни и время вопросов задаёшь сам. Поменять можно в настройках в любой момент.</p>
+      </div>
+    </section>
+
+    <!-- 3. Возможности -->
+    <section class="section section-alt" id="features" aria-labelledby="features-title">
+      <div class="container">
+        <p class="eyebrow">Что внутри</p>
+        <h2 id="features-title">Три вещи, ради которых бот нужен</h2>
+        <p class="section-lead">Приходит сам, хранит записи и не давит, если что-то пошло не так.</p>
+
+        <div class="cards">
+          <article class="card">
+            <h3>Бот приходит сам</h3>
+            <p>Утром пишет, что по плану. Вечером спрашивает, как прошло. Тебе не нужно помнить и открывать приложение.</p>
+            <ul>
+              <li>Дни и время вопросов настраиваешь сам</li>
+              <li>Очередь комплексов: бот называет следующий</li>
+              <li>Работает прямо в Telegram и MAX, установка не нужна</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Подходы, веса и прогресс в одном месте</h3>
+            <p>Записывай подходы, повторы и вес прямо в тренировке. История по каждому упражнению остаётся в боте.</p>
+            <ul>
+              <li>Таймер отдыха между подходами</li>
+              <li>История по упражнению и личные рекорды</li>
+              <li>Расчётный максимум по каждому упражнению</li>
+              <li>Справочник упражнений и растяжек: фото, техника, частые ошибки</li>
+              <li>Готовые программы с тегами «Где / Уровень / Цель» или своя</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Пропуск без вины, друзья по ссылке</h3>
+            <p>Не получилось сегодня — нажми «Нет». Бот запишет пропуск и предложит напомнить завтра.</p>
+            <ul>
+              <li>Три пропуска подряд — бот предложит паузу</li>
+              <li>Дни паузы пропусками не считаются</li>
+              <li>Друзья добавляются по ссылке-приглашению: видят серию и тренировки друг друга</li>
+              <li>Программой можно поделиться ссылкой</li>
+              <li>Вес тела приватный, друзьям не отдаётся</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Лента промо -->
+    <section class="section" id="screens" aria-labelledby="screens-title">
+      <div class="container">
+        <p class="eyebrow">Как выглядит</p>
+        <h2 id="screens-title">Так это выглядит внутри</h2>
+        <p class="section-lead">Экраны приложения в боте. Цифры на них — пример.</p>
+        <p class="small swipe-hint">Листай вбок</p>
+      </div>
+
+      <div class="container">
+        <div class="strip" role="region" aria-label="Экраны приложения, прокручивается вбок" tabindex="0">
+          <figure class="shot">
+            <img src="assets/promo/promo-2-today.png" width="1080" height="1920" loading="lazy" decoding="async"
+                 alt="Экран «Сегодня» в приложении Спортбота: тренировка «Тяни, толкай, ноги», крупно подписано «жим», ниже плитки: 7 упражнений, 23 подхода, 2 из 3 в очереди, зелёная кнопка «Начать».">
+            <figcaption><strong>Сегодня</strong><span>Открыл бота — сразу видно, что делать и какой комплекс в очереди.</span></figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="assets/promo/promo-3-set.png" width="1080" height="1920" loading="lazy" decoding="async"
+                 alt="Экран выполнения подхода: жим штанги лёжа, подход 1 из 5, крупный таймер 00:38, общее время 04:00, зелёная кнопка «Закончил подход» и кнопки «Сначала» и «Отменить».">
+            <figcaption><strong>В зале</strong><span>Нажимаешь «Начать подход» — время и подходы считает приложение.</span></figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="assets/promo/promo-4-rest.png" width="1080" height="1920" loading="lazy" decoding="async"
+                 alt="Экран отдыха между подходами: подход 2 из 5, синяя надпись «Отдых», круговой таймер 01:05 из 01:30, синяя кнопка «К подходу» и кнопки «+30 с» и «К упражнению».">
+            <figcaption><strong>Отдых</strong><span>Таймер подскажет, когда идти на следующий подход. Нужно больше — «+30 с».</span></figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="assets/promo/promo-5-chat.png" width="1080" height="1920" loading="lazy" decoding="async"
+                 alt="Переписка со Спортботом: утреннее сообщение «Сегодня тренировочный день, будешь тренироваться? Следующая по программе: Ноги» с кнопками «Да» и «Нет», вечерний вопрос «Потренировался сегодня?» и ответ бота «Отметил тренировку. Серия: 19».">
+            <figcaption><strong>В чате</strong><span>Утром вопрос, вечером отметка. Отвечаешь кнопкой, бот сам считает серию.</span></figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="assets/promo/promo-6-progress.png" width="1080" height="1920" loading="lazy" decoding="async"
+                 alt="Экран прогресса по становой тяге за 3 месяца: лучший подход 125 кг на 5 повторов, расчётный максимальный вес около 145,8 кг, ступенчатый синий график роста и запись о рекорде 17 октября.">
+            <figcaption><strong>Прогресс</strong><span>Лучший подход и расчётный максимум по каждому упражнению, график за период.</span></figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="assets/promo/promo-7-finish.png" width="1080" height="1920" loading="lazy" decoding="async"
+                 alt="Экран итога тренировки: медаль с числом 20, надпись «Тренировка засчитана», «20 дней подряд, новый рекорд серии», карточка «Заминка 2 мин» с кнопкой «Начать заминку» и рекорд в жиме штанги лёжа 85 кг на 5, было 82,5 кг на 5.">
+            <figcaption><strong>Итог</strong><span>Тренировка засчитана, серия посчитана, новые рекорды отмечены. Дальше можно сделать заминку.</span></figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="assets/promo/promo-8-attendance.png" width="1080" height="1920" loading="lazy" decoding="async"
+                 alt="Экран статистики, вкладка «Посещения» за 3 месяца: 97 процентов, 32 из 33 тренировок, график по неделям с одной просадкой и календарь отметок за октябрь 2026.">
+            <figcaption><strong>Посещения</strong><span>Календарь отметок и посещаемость по неделям. Дни паузы не считаются.</span></figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. FAQ -->
+    <section class="section section-alt" id="faq" aria-labelledby="faq-title">
+      <div class="container faq-layout">
+        <div class="faq-head">
+          <p class="eyebrow">Вопросы</p>
+          <h2 id="faq-title">Коротко о главном</h2>
+        </div>
+
+        <div class="faq">
+          <details>
+            <summary>Что это такое?</summary>
+            <p>Бот-трекер тренировок в Telegram и MAX. Утром он пишет, что по плану, вечером спрашивает, как прошло. Тренировку можно записать в приложении внутри бота: подходы, повторы, вес, таймер отдыха.</p>
+          </details>
+          <details>
+            <summary>Нужно ли что-то устанавливать и регистрироваться?</summary>
+            <p>Нет. Открой бота и нажми «Старт». Настройка занимает три шага: дни, время вопросов, программа.</p>
+          </details>
+          <details>
+            <summary>Что будет, если я пропущу тренировку?</summary>
+            <p>Нажми «Нет» на вопрос бота. Он запишет пропуск и, если завтра не тренировочный день, предложит напомнить завтра. Серия начнётся заново. После трёх пропусков подряд бот предложит поставить его на паузу: дни паузы пропусками не считаются.</p>
+          </details>
+          <details>
+            <summary>Откуда берутся программы и упражнения?</summary>
+            <p>Есть шаблоны программ с тегами «Где / Уровень / Цель». Можно собрать свою программу и взять программу друга по ссылке. Описания упражнений и растяжек, фото, техника и частые ошибки собраны в справочнике. Спортбот не заменяет тренера и врача, личных программ «под тебя» не пишет.</p>
+          </details>
+          <details>
+            <summary>Что видят мои друзья?</summary>
+            <p>Друзья добавляются по ссылке-приглашению: она одноразовая и действует 7 дней. Друг видит твою серию, лучшую серию, отметку «на паузе» без причины, последние тренировки и статистику, а также твои программы: их можно скопировать себе. Вес тела приватный, друзьям не отдаётся.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Финальный CTA -->
+    <section class="section cta" id="cta" aria-labelledby="cta-title">
+      <div class="container">
+        <h2 id="cta-title">Открой бота</h2>
+        <p class="section-lead">Открой бота, выбери программу и отметь первую тренировку. Дальше он напомнит сам.</p>
+        <div class="btn-row">
+          <!-- TODO: подставить {BOT_TG} и {BOT_MAX} -->
+          <a class="btn btn-primary" href="https://t.me/{BOT_TG}?start=src_site">Открыть в Telegram</a>
+          <a class="btn btn-secondary" href="https://max.ru/{BOT_MAX}?start=src_max">Открыть в MAX</a>
+        </div>
+        <p class="small">Установка не нужна. Нажми «Старт», и бот сам расскажет, что дальше.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <p class="brand">
+          <picture>
+            <source srcset="assets/favicon.svg" media="(prefers-color-scheme: dark)">
+            <img src="assets/icon.svg" width="40" height="40" alt="">
+          </picture>
+          <span class="brand-name">Спортбот</span>
+        </p>
+        <p>Спортбот не заменяет тренера и врача.</p>
+        <p>Тренировка не теряется.</p>
+      </div>
+      <nav aria-label="Ссылки на ботов">
+        <ul class="footer-links">
+          <!-- TODO: подставить {BOT_TG} и {BOT_MAX} -->
+          <li><a href="https://t.me/{BOT_TG}?start=src_site">Telegram</a></li>
+          <li><a href="https://max.ru/{BOT_MAX}?start=src_max">MAX</a></li>
+        </ul>
+      </nav>
+      <!-- TODO: подставить {SUPPORT_CONTACT} -->
+      <p>Написать в поддержку: {SUPPORT_CONTACT}</p>
+      <!-- TODO: когда появятся документы, добавить ссылки {PRIVACY_URL} и {TERMS_URL} (политика и условия) -->
+    </div>
+  </footer>
+</body>
+</html>

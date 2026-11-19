@@ -34,6 +34,7 @@ const ForgotPasswordPage = () => {
   return (
     <LayoutAuth
       title="Сброс пароля"
+      hero="forgot"
       lead="бывает —"
       description="Укажите email аккаунта — пришлём код для смены пароля."
       footer={

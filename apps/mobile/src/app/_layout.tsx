@@ -7,8 +7,9 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { PortalHost } from '@rn-primitives/portal';
 import { useFonts } from '@expo-google-fonts/onest';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
-import { Stack } from 'expo-router';
+import { Stack, type ErrorBoundaryProps } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { Pressable, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useReducedMotion } from 'react-native-reanimated';
@@ -19,6 +20,19 @@ import { ThemeProvider } from '@/shared/theme/ThemeProvider';
 import { fontSources } from '@/shared/theme/fonts';
 import { Toaster } from '@/shared/ui/kit/Toaster';
 import { IntroPoster } from '@/widgets/intro-splash/IntroPoster';
+
+// Ошибка рендера в любом экране: без границы пользователь увидел бы белый экран
+export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+  return (
+    <View className="bg-sb-paper flex-1 items-center justify-center gap-4 px-6">
+      <Text className="text-center text-lg font-semibold">Что-то пошло не так</Text>
+      <Text className="text-center text-sm opacity-70">{error.message}</Text>
+      <Pressable onPress={retry} className="rounded-xl bg-black px-6 py-3">
+        <Text className="font-semibold text-white">Попробовать снова</Text>
+      </Pressable>
+    </View>
+  );
+}
 
 // До восстановления кеша: восстановленной из хранилища мутации нужен mutationFn.
 // Без этого подходы, правки и завершение тренировки падали с «No mutationFn found»

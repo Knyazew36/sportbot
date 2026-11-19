@@ -37,6 +37,7 @@ const RegisterPage = () => {
   return (
     <LayoutAuth
       title="Регистрация"
+      hero="register"
       lead="первый подход —"
       footer={
         <View className="flex-row gap-1">

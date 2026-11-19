@@ -45,6 +45,7 @@ const ResetPasswordPage = () => {
   return (
     <LayoutAuth
       title="Новый пароль"
+      hero="reset"
       lead="почти готово —"
       description="Введите код из письма и придумайте новый пароль."
       footer={

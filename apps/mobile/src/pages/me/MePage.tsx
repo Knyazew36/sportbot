@@ -7,7 +7,9 @@ import { ScreenHeader } from '@/shared/ui/kit/ScreenHeader';
 import { SessionExpiredBanner } from '@/widgets/session-expired/SessionExpiredBanner';
 
 import { AccountCard } from './components/AccountCard';
-import { DeveloperTicket } from './components/DeveloperTicket';
+import { LogoutButton } from '@/features/logout/LogoutButton';
+// import { DeveloperTicket } from './components/DeveloperTicket';
+import { AppVersion } from './components/AppVersion';
 import { SectionButtons } from './components/SectionButtons';
 
 // Профиль — порт pages/me: карта участника и кнопки разделов, пункты — на экранах разделов
@@ -22,7 +24,10 @@ const MePage = () => {
           <>
             <AccountCard profile={p} />
             <SectionButtons profile={p} />
-            <DeveloperTicket />
+            {/* Блок разработчика временно скрыт */}
+            {/* <DeveloperTicket /> */}
+            <LogoutButton />
+            <AppVersion />
           </>
         )}
       </QueryState>

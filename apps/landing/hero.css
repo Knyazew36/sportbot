@@ -1,0 +1,361 @@
+/* Кинематографичное открытие главного экрана.
+   Один раз за сессию (sessionStorage), повтор — через ?intro. Только при no-preference по движению.
+   Подключается после styles.css и перекрывает его первые анимации hero. */
+
+:root {
+  /* когда стартует хореография hero: к моменту, когда створки занавеса расходятся */
+  --t0: 1.35s;
+  --expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --curtain: cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+html.no-intro {
+  --t0: 0.1s;
+}
+
+/* ── Занавес ─────────────────────────────────────────────────────────── */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  display: none;
+}
+
+.intro-half {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50.5%;
+  background: var(--inv-bg);
+}
+
+.intro-top {
+  top: 0;
+}
+
+.intro-bottom {
+  bottom: 0;
+}
+
+.intro-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(50% - 2px);
+  height: 4px;
+  background: var(--brand-mint);
+  transform-origin: center;
+}
+
+.intro-mark {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 20px;
+  color: var(--inv-fg);
+}
+
+.intro-mark img {
+  width: 104px;
+  height: 104px;
+}
+
+.intro-mark p {
+  font-family: var(--brand-font-display);
+  font-size: 1.25rem;
+  font-weight: 500;
+  letter-spacing: 0.42em;
+  /* компенсация хвостового трекинга, чтобы надпись стояла по центру */
+  margin-right: -0.42em;
+  text-transform: uppercase;
+}
+
+/* ── Hero: маски строк заголовка ─────────────────────────────────────── */
+.line {
+  display: block;
+  /* маска строки: поле сверху и снизу, чтобы не резать верх и низ заглавных */
+  overflow: hidden;
+  padding-block: 0.06em;
+  margin-block: -0.06em;
+}
+
+.line-in {
+  display: block;
+}
+
+/* число серии: настоящий текст остаётся для чтения и копирования, бегущая цифра — поверх */
+.count {
+  position: relative;
+}
+
+@property --n {
+  syntax: '<integer>';
+  inherits: false;
+  initial-value: 19;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .intro {
+    display: block;
+    animation: intro-out 1ms 2000ms forwards;
+  }
+
+  html.no-intro .intro {
+    display: none;
+  }
+
+  @keyframes intro-out {
+    to {
+      visibility: hidden;
+    }
+  }
+
+  /* створки расходятся вверх и вниз */
+  .intro-top {
+    animation: part-up 800ms 1100ms var(--curtain) forwards;
+  }
+
+  .intro-bottom {
+    animation: part-down 800ms 1100ms var(--curtain) forwards;
+  }
+
+  @keyframes part-up {
+    to {
+      transform: translateY(-101%);
+    }
+  }
+
+  @keyframes part-down {
+    to {
+      transform: translateY(101%);
+    }
+  }
+
+  /* мятная линия-щель: прорезает экран, пока створки ещё закрыты */
+  .intro-line {
+    animation: slit 900ms 650ms var(--expo) both;
+  }
+
+  @keyframes slit {
+    0% {
+      transform: scaleX(0);
+      opacity: 1;
+    }
+
+    65% {
+      transform: scaleX(1);
+      opacity: 1;
+    }
+
+    100% {
+      transform: scaleX(1);
+      opacity: 0;
+    }
+  }
+
+  /* знак «нажимается» в тень: фирменный жест; затем уходит */
+  .intro-mark {
+    animation: mark 1400ms 100ms linear both;
+  }
+
+  @keyframes mark {
+    0% {
+      opacity: 0;
+      transform: scale(0.55);
+      animation-timing-function: var(--brand-ease-punch);
+    }
+
+    35% {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    50% {
+      transform: scale(0.94);
+      animation-timing-function: var(--brand-ease-punch);
+    }
+
+    58% {
+      transform: scale(1);
+    }
+
+    78% {
+      opacity: 1;
+      transform: scale(1);
+      animation-timing-function: var(--brand-ease-exit);
+    }
+
+    100% {
+      opacity: 0;
+      transform: scale(1.18);
+    }
+  }
+
+  /* ── Хореография hero ────────────────────────────────────────────── */
+  @keyframes line-up {
+    from {
+      transform: translateY(112%);
+      letter-spacing: 0.05em;
+    }
+  }
+
+  @keyframes fade-track {
+    from {
+      opacity: 0;
+      letter-spacing: 0.06em;
+    }
+  }
+
+  @keyframes grow {
+    from {
+      transform: scaleX(0);
+    }
+  }
+
+  @keyframes pane {
+    from {
+      clip-path: inset(100% 0 0 0);
+    }
+  }
+
+  @keyframes phone-up {
+    from {
+      opacity: 0;
+      transform: translateY(90px);
+    }
+  }
+
+  @keyframes pop {
+    from {
+      opacity: 0;
+      transform: translate(6px, 6px) scale(0.88);
+      box-shadow: 0 0 0 transparent;
+    }
+  }
+
+  @keyframes drop {
+    from {
+      transform: translateY(-100%);
+    }
+  }
+
+  @keyframes count {
+    from {
+      --n: 0;
+    }
+  }
+
+  .site-header {
+    animation: drop 700ms calc(var(--t0) + 0.1s) var(--expo) backwards;
+  }
+
+  .hero-text > *,
+  .hero-visual,
+  h1 .accent,
+  .bubble {
+    animation: none;
+  }
+
+  .hero .eyebrow {
+    animation: fade-track 900ms var(--t0) var(--expo) backwards;
+  }
+
+  .hero .eyebrow::before {
+    transform-origin: left;
+    animation: grow 800ms var(--t0) var(--expo) backwards;
+  }
+
+  .hero h1 .line-in {
+    animation: line-up 1100ms calc(var(--t0) + 0.15s) var(--expo) backwards;
+  }
+
+  .hero h1 .accent .line-in {
+    animation-delay: calc(var(--t0) + 0.32s);
+  }
+
+  .hero .script {
+    animation: fade-track 1200ms calc(var(--t0) + 0.9s) var(--expo) backwards;
+  }
+
+  .hero .lead {
+    animation: rise 900ms calc(var(--t0) + 1.05s) var(--expo) backwards;
+  }
+
+  .hero .note {
+    animation: rise 900ms calc(var(--t0) + 1.15s) var(--expo) backwards;
+  }
+
+  .hero .btn-row .btn {
+    animation: pop 600ms calc(var(--t0) + 1.3s) var(--brand-ease-punch) backwards;
+  }
+
+  .hero .btn-row .btn + .btn {
+    animation-delay: calc(var(--t0) + 1.42s);
+  }
+
+  .hero .small {
+    animation: rise 900ms calc(var(--t0) + 1.55s) var(--expo) backwards;
+  }
+
+  /* панель раскрывается снизу, телефон выезжает, плашка с серией «выскакивает» */
+  .hero-visual {
+    animation: pane 1100ms calc(var(--t0) + 0.2s) var(--expo) backwards;
+  }
+
+  .hero-visual .phone {
+    animation: phone-up 1200ms calc(var(--t0) + 0.55s) var(--expo) backwards;
+  }
+
+  .hero .bubble {
+    animation: pop 600ms calc(var(--t0) + 1.45s) var(--brand-ease-punch) backwards;
+  }
+
+  /* только там, где есть и @property, и scroll-driven (Chrome/Safari): иначе counter(n) дал бы «0»
+     поверх прозрачного настоящего текста. Пустая альтернатива: «19» не читается дважды */
+  @supports (animation-timeline: view()) {
+    .hero .count::after {
+      content: counter(n);
+      content: counter(n) / '';
+      counter-reset: n var(--n);
+      position: absolute;
+      inset: 0;
+      /* заливка цвета плашки закрывает настоящий текст: он остаётся в DOM видимым цветом (контраст проверяем по нему) */
+      background: var(--brand-mint);
+      color: var(--on-accent);
+      animation: count 1100ms calc(var(--t0) + 1.55s) ease-out backwards;
+    }
+  }
+
+  /* параллакс на выходе hero из экрана: заголовок отстаёт, телефон уходит быстрее */
+  @supports (animation-timeline: view()) {
+    @keyframes lag {
+      to {
+        /* без opacity: при остановке прокрутки текст hero не должен терять контраст */
+        transform: translateY(70px);
+      }
+    }
+
+    @keyframes lead-away {
+      to {
+        transform: translateY(-80px);
+      }
+    }
+
+    .hero-text {
+      animation: lag linear both;
+      animation-timeline: view();
+      animation-range: exit 0% exit 90%;
+    }
+
+    .hero-visual .phone {
+      animation:
+        phone-up 1200ms calc(var(--t0) + 0.55s) var(--expo) backwards,
+        lead-away linear both;
+      animation-timeline: auto, view();
+      animation-range: normal, exit 0% exit 100%;
+    }
+  }
+}

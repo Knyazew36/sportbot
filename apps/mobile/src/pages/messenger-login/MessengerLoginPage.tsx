@@ -19,6 +19,7 @@ const MessengerLoginPage = () => {
   return (
     <LayoutAuth
       title={`Вход через ${providerName}`}
+      hero="messenger"
       lead="без пароля —"
       description="Подтвердите вход кнопкой в чате с ботом и вернитесь сюда — войдём автоматически."
     >
