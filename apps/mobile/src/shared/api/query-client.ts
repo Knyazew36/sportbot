@@ -25,7 +25,13 @@ import { haptic } from '@/shared/lib/haptics';
 import { storage } from '@/shared/lib/storage';
 import { requestSync } from '@/shared/sync/engine';
 import { isSessionExpired } from './model/session-expired';
-import { clearSessionUserId, getSessionUserId, setSessionUserId } from './model/session-user';
+import {
+  clearSessionUserId,
+  confirmSessionUser,
+  getSessionUserId,
+  setSessionUserId,
+  unconfirmSessionUser,
+} from './model/session-user';
 
 const DEFAULT_SUCCESS = 'Готово';
 
@@ -141,6 +147,8 @@ const clearAll = () => {
 // Выход — кеш прошлого пользователя не должен достаться следующему.
 // Протухший токен — не выход: неотправленные подходы ждут повторного входа (повтор на 401 в очереди)
 subscribeSession((reason) => {
+  // Новый вход: чей это токен, скажет профиль — до него сохранённому id верить нельзя
+  if (reason === 'login') unconfirmSessionUser();
   if (getAccessToken() || reason === 'expired') return;
   clearAll();
 });
@@ -151,6 +159,8 @@ subscribeSession((reason) => {
  */
 export const bindSessionUser = (userId: number) => {
   const previous = getSessionUserId();
+  // Профиль пришёл для нынешнего токена — дальше гвард пустит в приложение и без сети
+  confirmSessionUser();
   if (previous === String(userId)) return;
   if (previous) {
     queryClient.getMutationCache().clear();

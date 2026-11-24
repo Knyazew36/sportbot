@@ -1,13 +1,12 @@
 import { useEffect } from 'react';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
-import { useIsRestoring } from '@tanstack/react-query';
 import { Stack, usePathname, useRouter } from 'expo-router';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useSportUser } from '@sportbot/api/entities/sport-user';
 
-import { bindSessionUser, useIsAuthenticated, useSessionExpired } from '@/shared/api';
+import { bindSessionUser, useIsAuthenticated, useKnownUserId, useSessionExpired } from '@/shared/api';
 import { ROUTES } from '@/shared/config/routes';
 import { DbProvider } from '@/shared/db';
 import { useOnboardedLocally } from '@/shared/local/entities/onboarding';
@@ -22,18 +21,21 @@ import { CurrentWorkoutBar } from '@/widgets/live-workout-bar/CurrentWorkoutBar'
  * Не пройден онбординг — на настройку, пройден — с настройки на «Сегодня». Под базой: настройку,
  * законченную офлайн, сервер узнает только синком, а пускать дальше надо сразу
  */
-const OnboardingRedirect = ({ serverOnboarded }: { serverOnboarded: boolean }) => {
+const OnboardingRedirect = ({ serverOnboarded }: { serverOnboarded: boolean | undefined }) => {
   const local = useOnboardedLocally();
   const pathname = usePathname();
   const router = useRouter();
   // Закончил хоть где-то — пройдено: в боте (телефон ещё не синкался) или на телефоне (сервер ещё не знает)
   const onboarded = serverOnboarded || !!local.data?.done;
+  // Без сети сервер молчит, а база ещё открывается или пуста: на настройку не уводим, пока не знаем
+  const undecided = serverOnboarded === undefined && local.data?.done == null;
 
   useEffect(() => {
+    if (undecided) return;
     const onOnboardingScreen = pathname === ROUTES.ONBOARDING;
     if (!onboarded && !onOnboardingScreen) router.replace(ROUTES.ONBOARDING);
     if (onboarded && onOnboardingScreen) router.replace(ROUTES.TODAY);
-  }, [onboarded, pathname, router]);
+  }, [onboarded, undecided, pathname, router]);
 
   return null;
 };
@@ -43,7 +45,8 @@ const OnboardingRedirect = ({ serverOnboarded }: { serverOnboarded: boolean }) =
 const AppGuard = () => {
   const isAuthenticated = useIsAuthenticated();
   const expired = useSessionExpired();
-  const restoring = useIsRestoring();
+  // Аккаунт по памяти телефона: кеш профиля живёт сутки, а пускать в зале надо и через неделю
+  const knownUserId = useKnownUserId();
   // Профиль создаётся первым запросом (miniapp/me), в нём же флаг онбординга — второй запрос не нужен
   const me = useSportUser({ enabled: isAuthenticated });
   const pathname = usePathname();
@@ -51,24 +54,24 @@ const AppGuard = () => {
   const insets = useSafeAreaInsets();
 
   // Смотрим на данные, а не на isSuccess: после неудачного обновления без сети статус error,
-  // но сохранённый профиль остаётся — по нему и пускаем в зале
+  // но сохранённый профиль остаётся. Нет и его — онбординг решает база телефона (OnboardingRedirect)
   const onboarded = me.data?.onboarded;
-  const userId = me.data?.userId;
+  const serverUserId = me.data?.userId;
+  const userId = serverUserId ?? knownUserId;
 
   useEffect(() => {
-    if (userId !== undefined) bindSessionUser(userId);
-  }, [userId]);
+    if (serverUserId !== undefined) bindSessionUser(serverUserId);
+  }, [serverUserId]);
 
-  // Профиля на телефоне нет (персист ещё не прочитан — ждём) — работать не на чем, только вход
-  const offlineSession = expired && (restoring || userId !== undefined);
-  const signedIn = isAuthenticated || offlineSession;
+  // Протухший токен — не выход: аккаунт на телефоне известен, работаем на его базе
+  const signedIn = isAuthenticated || expired;
 
   useEffect(() => {
     if (!signedIn) router.replace(ROUTES.LOGIN);
   }, [signedIn, router]);
 
-  // Профиля ещё нет: загрузка или ошибка с «Повторить» — иначе без сервера вечный спиннер
-  if (!signedIn || onboarded === undefined || userId === undefined) {
+  // Аккаунт неизвестен (первый запуск после входа): загрузка или ошибка с «Повторить»
+  if (!signedIn || userId === undefined) {
     return (
       <Screen fullscreen scroll={false}>
         <QueryState query={me}>{() => null}</QueryState>
